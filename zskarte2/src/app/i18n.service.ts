@@ -93,6 +93,21 @@ export class I18NService {
             en: "Name",
             fr: "Nom"
         },
+        password: {
+            de: "Passwort",
+            fr: "Mot de passe",
+            en: "Password"
+        },
+        wrongPassword: {
+            de: "Ungültiges Passwort",
+            fr: "Mauvais mot de passe",
+            en: "Wrong password"
+        },
+        eventname: {
+            de: "Ereignis",
+            fr: "L'événement",
+            en: "Happening"
+        },
         text: {
             de: "Text",
             en: "Text",
