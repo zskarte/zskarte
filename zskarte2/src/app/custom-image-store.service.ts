@@ -78,7 +78,7 @@ export class CustomImageStoreService {
 
     public loadSignsInMemory(): Promise<any> {
         return new Promise<any>(resolve => {
-            this.dbService.getAll(CustomImageStoreService.STORE_IMAGES).then(images => {
+            this.dbService.getAll(CustomImageStoreService.STORE_IMAGES).toPromise().then(images => {
                 CustomImageStoreService.inMemoryCache = {};
                 images.forEach(image => {
                     if (this.isValidForCurrentSession(image)) {
@@ -93,7 +93,7 @@ export class CustomImageStoreService {
 
     public deleteSign(hash: string): Promise<any> {
         delete CustomImageStoreService.inMemoryCache[hash];
-        return this.dbService.deleteRecord(CustomImageStoreService.STORE_IMAGES, hash);
+        return this.dbService.delete(CustomImageStoreService.STORE_IMAGES, hash).toPromise();
     }
 
     public saveSign(sign: Sign, payload, originalPayload, nativeDimensions: number[]): Promise<any> {
@@ -105,7 +105,7 @@ export class CustomImageStoreService {
             nativeDimensions: nativeDimensions
         }
         return new Promise<any>(resolve => {
-            this.dbService.update(CustomImageStoreService.STORE_IMAGES, newSign, sign.src).then(() => {
+            this.dbService.update(CustomImageStoreService.STORE_IMAGES, newSign, sign.src).toPromise().then(() => {
                 CustomImageStoreService.inMemoryCache[sign.src] = newSign;
                 resolve(sign);
             });

@@ -90,7 +90,7 @@ export class MapStoreService {
         this.mostRecentMap = currentMap;
         this.mostRecentSession = sessionId;
         return new Promise<any>(resolve => {
-            let mapUpdate: Promise<any> = this.dbService.update(MapStoreService.STORE_MAP, this.mostRecentMap, this.mostRecentSession);
+            let mapUpdate: Promise<any> = this.dbService.update(MapStoreService.STORE_MAP, this.mostRecentMap, this.mostRecentSession).toPromise();
             mapUpdate.then(() => {
                 this.dirtyMap = false;
                 console.log("Saved to database");
@@ -106,10 +106,10 @@ export class MapStoreService {
 
     public removeTag(sessionId: string, key: string) {
         return new Promise<any>(resolve => {
-            this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId).then(history => {
+            this.dbService.getByKey<any>(MapStoreService.STORE_HISTORY, sessionId).toPromise().then(history => {
                 if (history && history.tags) {
                     delete history.tags[key];
-                    this.dbService.update(MapStoreService.STORE_HISTORY, history, sessionId).then(() => resolve({}));
+                    this.dbService.update(MapStoreService.STORE_HISTORY, history, sessionId).toPromise().then(() => resolve({}));
                 }
             })
         });
@@ -122,7 +122,7 @@ export class MapStoreService {
             if (sessionId.uuid === this.mostRecentSession && this.dirtyHistory) {
                 historyPromise = this.addHistoryEntry();
             } else {
-                historyPromise = this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId.uuid);
+                historyPromise = this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId.uuid).toPromise();
             }
             historyPromise.then(history => {
                 history = this.initHistory(history);
@@ -131,7 +131,7 @@ export class MapStoreService {
                     if (sortedKeys.length > 0) {
                         history.tags[sortedKeys[sortedKeys.length - 1]] = tag;
                     }
-                    this.dbService.update(MapStoreService.STORE_HISTORY, history, sessionId.uuid).then(() => resolve({}));
+                    this.dbService.update<any>(MapStoreService.STORE_HISTORY, history, sessionId.uuid).toPromise().then(() => resolve({}));
                 }
             })
         });
@@ -139,7 +139,7 @@ export class MapStoreService {
 
     public getFirstDateInHistory(sessionId: string): Promise<Date> {
         return new Promise<Date>(resolve => {
-            this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId).then(history => {
+            this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId).toPromise().then(history => {
                 //TODO because of the insertion order, the first element should also be the smallest. We could ensure this though by finding the minimal value
                 resolve(Object.keys(history).length == 0 ? null : new Date(JSON.parse(Object.keys(history)[0])));
             })
@@ -154,11 +154,11 @@ export class MapStoreService {
             const map = this.mostRecentMap;
             //We only add history entries, if there is a current active session is available and if we have already received a change in this session.
             if (sessionId && map && this.sharedState.getCurrentSession() && sessionId === this.sharedState.getCurrentSession().uuid) {
-                this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId).then(history => {
+                this.dbService.getByKey<any>(MapStoreService.STORE_HISTORY, sessionId).toPromise().then(history => {
                     history = this.initHistory(history);
                     //TODO reduce history based on size (e.g. increase interval for long ago instances)
                     history.states[map.timestamp] = map;
-                    this.dbService.update(MapStoreService.STORE_HISTORY, history, sessionId).then(() => resolve(history));
+                    this.dbService.update(MapStoreService.STORE_HISTORY, history, sessionId).toPromise().then(() => resolve(history));
                 })
             } else {
                 resolve(null);
@@ -167,9 +167,9 @@ export class MapStoreService {
     }
 
     public removeMap(sessionId: string, removeHistory: boolean): Promise<any> {
-        const mapDelete: Promise<any> = this.dbService.delete(MapStoreService.STORE_MAP, sessionId);
+        const mapDelete: Promise<any> = this.dbService.delete(MapStoreService.STORE_MAP, sessionId).toPromise();
         if (removeHistory) {
-            const historyDelete: Promise<any> = this.dbService.delete(MapStoreService.STORE_HISTORY, sessionId);
+            const historyDelete: Promise<any> = this.dbService.delete(MapStoreService.STORE_HISTORY, sessionId).toPromise();
             return Promise.all([mapDelete, historyDelete]);
         } else {
             return mapDelete;
@@ -177,7 +177,7 @@ export class MapStoreService {
     }
 
     public getMap(sessionId: string): Promise<GeoJSON> {
-        return this.dbService.getByKey(MapStoreService.STORE_MAP, sessionId);
+        return this.dbService.getByKey(MapStoreService.STORE_MAP, sessionId).toPromise();
     }
 
 
@@ -201,14 +201,14 @@ export class MapStoreService {
 
     public getHistory(sessionId: string): Promise<any> {
         return new Promise<any>(resolve => {
-            this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId).then(result => {
+            this.dbService.getByKey(MapStoreService.STORE_HISTORY, sessionId).toPromise().then(result => {
                 resolve(this.initHistory(result));
             });
         });
     }
 
     public saveHistory(sessionId: string, payload: any): Promise<any> {
-        return this.dbService.update(MapStoreService.STORE_HISTORY, payload, sessionId);
+        return this.dbService.update(MapStoreService.STORE_HISTORY, payload, sessionId).toPromise();
     }
 
 }
