@@ -43,6 +43,7 @@ Create branch for change:
 - add changes and new files to staging (mark for commit); optional parameter "-A" for mark new files and removals
 > git add -A
 - commit changes to local branch; optional parameter "-a" for add changes on existing files even if unstaged; required parameter "-m" for commit message
+- important: if you enter the keyword "close" or "resolve" and #{issue-number} (e.g. #40) the issues are referenced automatically and closed automatically once the branch has been merged to master
 > git commit -a -m "leave a message"
 - push changes on local branch to server; first time use "origin {branchname}" to create branch on github
 > git push --set-upstream origin bugfix/9
