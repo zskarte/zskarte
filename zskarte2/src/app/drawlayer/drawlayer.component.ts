@@ -288,7 +288,7 @@ export class DrawlayerComponent implements OnInit {
                 } else if (coordinationGroup.otherCoordinationGroupCount == 0) {
                     //It's the last coordination group - we can remove the feature.
                     let confirm = this.dialog.open(ConfirmationDialogComponent, {
-                        data: this.i18n.get('deleteLastPointOnFeature') + " " + this.i18n.get('removeFeatureFromMapConfirm')
+                        data: this.i18n.get('removeFeatureFromMapConfirm') // this.i18n.get('deleteLastPointOnFeature') + " " + this.i18n.get('removeFeatureFromMapConfirm')
                     })
                     confirm.afterClosed().subscribe(r => {
                         if (r) {
