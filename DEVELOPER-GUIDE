@@ -1,0 +1,54 @@
+Installation for new Developers
+-------------------------------
+
+Preparations:
+- Install "git" (if not already installed)
+- Install "nodejs" (if not already installed)
+
+Project setup:
+- clode git project
+> git clone https://github.com/zskarte/zskarte.git
+- change to project inner folder
+> cd ./zskarte2
+- install packages and depencies
+> npm i
+- start application within project library context (will compile, first time it takes more time)
+> npm run start
+- after success message ": Compiled successfully." you are able to open the project in the browser
+> http://localhost:4200
+
+Deploy and change instructions:
+- create local branch based on "master" with following name-rules:
+-- name of branch beginning with the issue number, optional the date in machine format, additional naming only if required (e.g. no issue number present)
+-- bugfixes within folder "bugfix/"
+-- features within folder "feature/"
+-- examples:
+> "bugfix/9"
+> "feature/40"
+> "bugfix/32_2021-04-27_delete-location-pointer"
+> "feature/33_2021-04-27_extend-wmts"
+- one branch per issue, do not combine two or more issues in one branch
+- once you created your changes in the branch, create a pull-request in github
+- once you updated the master branch, the server will be notified and update its source automatically within few minutes (check within 15 minutes)
+
+Create branch for change:
+- make shure you received the last updates
+> git checkout master | git pull
+- create local branch for changes (based on master - ensure that master branch is active prior to create new branch!)
+> git checkout -b bugfix/9
+- made your changes and tests
+...
+- check for changes
+> git status
+- add changes and new files to staging (mark for commit); optional parameter "-A" for mark new files and removals
+> git add -A
+- commit changes to local branch; optional parameter "-a" for add changes on existing files even if unstaged; required parameter "-m" for commit message
+> git commit -a -m "leave a message"
+- push changes on local branch to server; first time use "origin {branchname}" to create branch on github
+> git push origin bugfix/9
+> git push
+- make sure to create pull-request on github once changes has been finalized
+> https://github.com/zskarte/zskarte/pulls
+
+Remove local branch (wrong created, not commited)
+> git branch -D bugfix/18_2021-04-27_login
