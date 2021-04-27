@@ -36,3 +36,7 @@ mat-form-field{
     height: 1.5em;
     margin-right: 1em;
 }
+
+.geocoder {
+    height: 3em;
+}
