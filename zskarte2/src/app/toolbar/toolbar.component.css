@@ -21,7 +21,7 @@
 .flexContainer{
     display:flex;
     flex-wrap: nowrap;
-    align-items: center;
+    column-gap: .5em;
 }
 
 mat-card-title {
@@ -42,12 +42,12 @@ mat-card-title {
 
 app-credits{
     height: 4.5em;
-    padding: 0.2em;
+    padding: 0;
 }
 
 .tools{
     flex: 1;
-    margin:0.5em;
+    margin:0;
 }
 
 .clock{
@@ -71,7 +71,7 @@ app-credits{
 }
 
 mat-card-content.flexContainer *{
-    margin: 0.5em;
+    margin: 0.25em;
 }
 .mat-card-content{
     margin-bottom: 0;
@@ -79,9 +79,11 @@ mat-card-content.flexContainer *{
 
 
 .edit{
-    transform: scale(0.6);
-    margin-left: 1em;
-    margin-right: 1em;
+    font-size: 18px;
+    line-height: 20px;
+    height: 29px;
+    margin-left: .25em;
+    margin-right: .25em;
 }
 
 
@@ -95,7 +97,6 @@ mat-card-content.flexContainer *{
 
 .filterWrapper{
     display:flex;
-    margin-top: 0.5em;
 }
 
 .filterItem{
@@ -122,7 +123,6 @@ mat-card-content.flexContainer *{
     flex:1;
     overflow-x: auto;
     white-space: nowrap;
-    padding-bottom: 0.5em;
 }
 
 .collapsed .hideWhenCollapsed{
@@ -143,6 +143,16 @@ mat-card-content.flexContainer *{
     background-color: white;
     display:block;
     margin-bottom: 0.5em;
+}
+
+.collapse {
+    height: 1em;
+}
+
+.mat-menu-item{
+    display: flex;
+    align-items: center;
+    column-gap: 1em;
 }
 
 @media print {
