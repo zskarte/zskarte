@@ -24,12 +24,13 @@ import {I18NService} from "../i18n.service";
 import {Session} from "../entity/session";
 import {v4 as uuidv4} from 'uuid';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
-import {LIST_OF_ZSO, ZSO} from "../entity/zso"
+import {LIST_OF_ZSO, ZSO, getZSOById} from "../entity/zso"
 import {PreferencesService} from "../preferences.service";
 import {SessionsService} from "../sessions.service";
 import {MapStoreService} from "../map-store.service";
 import {ConfirmationDialogComponent} from "../confirmation-dialog/confirmation-dialog.component";
-
+import { Md5 } from 'ts-md5';
+import {MatDialogModule} from '@angular/material/dialog'; 
 @Component({
     selector: 'app-session-creator',
     templateUrl: './session-creator.component.html',
@@ -38,6 +39,9 @@ import {ConfirmationDialogComponent} from "../confirmation-dialog/confirmation-d
 export class SessionCreatorComponent implements OnInit {
 
     session: Session;
+    hidepw: boolean = true;
+    enteredPassword: string = "";
+    enteredPasswordInvalid: boolean = false;
     editMode: boolean;
     listOfZSO: ZSO[] = LIST_OF_ZSO;
     allSessions = null;
@@ -73,14 +77,29 @@ export class SessionCreatorComponent implements OnInit {
         }
     }
 
-    submit(): void {
-        if (!this.editMode) {
-            //Since we're not in edit mode, we want the result to be a new map.
-            this.session.uuid = uuidv4();
+    submit(): boolean {
+        if(this.enteredPwIsValid()) {
+            if (!this.editMode) {
+                //Since we're not in edit mode, we want the result to be a new map.
+                this.session.uuid = uuidv4();
+            }
+            this.preferences.setZSO(this.session.zsoId);
+            this.sessions.saveSession(this.session);
+            this.sharedState.loadSession(this.session);    
+            this.dialogRef.close();
+            return true;
         }
-        this.preferences.setZSO(this.session.zsoId);
-        this.sessions.saveSession(this.session);
-        this.sharedState.loadSession(this.session);
+        return false;
+    }
+
+    enteredPwIsValid(): boolean {
+        let selected:ZSO = getZSOById(this.session.zsoId);
+        if(selected != null && (selected.auth.length == 0 || selected.auth == Md5.hashStr(this.enteredPassword))) {
+            this.enteredPasswordInvalid = false;
+            return true;
+        }
+        this.enteredPasswordInvalid = true;
+        return false;
     }
 
     loadSession(session: Session) {

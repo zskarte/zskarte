@@ -61,3 +61,7 @@ tr td.buttons{background: none;}
     margin-top: 1.5em;
     margin-bottom:1.5em;
 }
+
+.text-danger {
+    color: #ff0000;
+}
