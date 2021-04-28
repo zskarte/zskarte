@@ -83,6 +83,10 @@ export class SessionCreatorComponent implements OnInit {
                 //Since we're not in edit mode, we want the result to be a new map.
                 this.session.uuid = uuidv4();
             }
+            else if(this.session.zsoId == "zso_guest" && this.session.uuid != "") {
+                this.preferences.removeSessionSpecificPreferences(this.session.uuid);
+                this.session.uuid = uuidv4();
+            }
             this.preferences.setZSO(this.session.zsoId);
             this.sessions.saveSession(this.session);
             this.sharedState.loadSession(this.session);    

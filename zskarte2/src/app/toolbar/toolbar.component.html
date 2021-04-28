@@ -51,7 +51,7 @@
             <mat-menu #mainMenu="matMenu" class="burger-menu">
                 <button mat-menu-item (click)="createOrLoadSession()"><i class="material-icons">swap_calls</i> {{i18n.get("createOrLoad")}}</button>
                 <button mat-menu-item (click)="editSession()"><i class="material-icons">edit</i> {{i18n.get("editMap")}}</button>
-                <button mat-menu-item (click)="exportSession()"><i class="material-icons">save</i> {{i18n.get("exportSession")}}</button>
+                <button mat-menu-item (click)="exportSession()" *ngIf="exportEnabled"><i class="material-icons">save</i> {{i18n.get("exportSession")}}</button>
                 <button mat-menu-item (click)="deleteSession()"><i class="material-icons">delete</i> {{i18n.get("deleteMap")}}</button>
                 <button mat-menu-item (click)="help()"><i class="material-icons">help</i> {{i18n.get("help")}}</button>
            </mat-menu>
