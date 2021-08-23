@@ -144,6 +144,12 @@
             *ngIf="editMode"
             >{{ i18n.get('lockFeature') }}</mat-checkbox
           >
+          <mat-checkbox
+            [(ngModel)]="selectedSignature.labelShow"
+            (ngModelChange)="redraw()"
+            *ngIf="editMode"
+            >{{ i18n.get('labelShow') }}</mat-checkbox
+          >
         </mat-card-content>
       </mat-card>
 

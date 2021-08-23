@@ -34,6 +34,7 @@ export interface Sign {
   en?: string;
   text?: string;
   label?: string;
+  labelShow?: boolean;
   fontSize?: number;
   style?: string;
   fillStyle?: FillStyle;
@@ -159,6 +160,9 @@ export function defineDefaultValuesForSignature(signature: Sign) {
   }
   if (signature.protected === undefined) {
     signature.protected = false;
+  }
+  if (signature.labelShow === undefined) {
+    signature.labelShow = true;
   }
   if (!signature.arrow) {
     signature.arrow = 'none';
