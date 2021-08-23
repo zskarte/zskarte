@@ -1,6 +1,6 @@
 # Zivilschutz-Karte
 
-[![buddy pipeline](https://app.buddy.works/zskarte/zskarte/pipelines/pipeline/305862/badge.svg?token=abded312f751338c99d8223bcbf5555972e2cb3c7537417054a6e1aa51b3fff3 "buddy pipeline")](https://app.buddy.works/zskarte/zskarte/pipelines/pipeline/305862)
+![Tests](https://github.com/zskarte/zskarte/actions/workflows/test.yml/badge.svg)
 
 Zivilschutz-Karte is a javascript application (based on Angular) which allows to draw situation maps for disaster management. It has been developed for Swiss civil defense organisations. The drawing application can be used either with standard computers or with interactive whiteboards and is ready to be executed - e.g. in case of interrupted connections - in offline mode (with prepared offline maps and a restricted set of functionalities) as well as in online mode with the full capacities of modern map features. 
 
