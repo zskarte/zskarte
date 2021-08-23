@@ -103,7 +103,6 @@ export class SelectedFeatureComponent {
   editMode: boolean;
   selectedFeature: any = null;
   selectedSignature: Sign = null;
-  rotationPercent = 0;
   drawHoleMode = false;
   mergeMode = false;
 
@@ -195,12 +194,6 @@ export class SelectedFeatureComponent {
     }
   }
 
-  setRotation(perc) {
-    if (this.selectedFeature != null) {
-      this.selectedFeature.rotation = perc;
-      this.selectedFeature.changed();
-    }
-  }
 
   toggleLockOfFeature() {
     // Reselect so the locking is handled appropriately

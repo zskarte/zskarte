@@ -18,6 +18,7 @@
  *
  */
 
+import { $, browser } from 'protractor';
 import { AppPage } from './app.po';
 
 describe('workspace-project App', () => {
@@ -27,8 +28,9 @@ describe('workspace-project App', () => {
     page = new AppPage();
   });
 
-  it('should display welcome message', () => {
-    page.navigateTo();
-    expect(page.getParagraphText()).toEqual('Welcome to zsKarteAng!');
+  it('should display welcome message', async () => {
+    await page.navigateTo();
+    browser.waitForAngularEnabled(false);
+    expect(page.getTitleText()).toEqual('Herzlich Willkommen bei ZSKarte 2!');
   });
 });
