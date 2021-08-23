@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {EditCoordinatesComponent} from './edit-coordinates.component';
 
@@ -26,7 +26,7 @@ describe('EditCoordinatesComponent', () => {
   let component: EditCoordinatesComponent;
   let fixture: ComponentFixture<EditCoordinatesComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ EditCoordinatesComponent ]
     })

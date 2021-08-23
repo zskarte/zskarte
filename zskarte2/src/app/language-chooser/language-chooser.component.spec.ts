@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {LanguageChooserComponent} from './language-chooser.component';
 
@@ -26,7 +26,7 @@ describe('LanguageChooserComponent', () => {
   let component: LanguageChooserComponent;
   let fixture: ComponentFixture<LanguageChooserComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ LanguageChooserComponent ]
     })
