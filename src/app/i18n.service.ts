@@ -72,6 +72,11 @@ export class I18NService {
       fr: "L'événement",
       en: 'Happening',
     },
+    mapDataOvertake: {
+      de: 'Kartendaten übernehmen',
+      fr: 'Appliquer les données de la carte',
+      en: 'Overtake map data',
+    },
     text: {
       de: 'Text',
       en: 'Text',

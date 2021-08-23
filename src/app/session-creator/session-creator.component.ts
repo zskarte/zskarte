@@ -51,6 +51,7 @@ export class SessionCreatorComponent implements OnInit {
   hidepw = true;
   enteredPassword = '';
   enteredPasswordInvalid = false;
+  mapDataOvertake = true;
   editMode: boolean;
   listOfZSO: ZSO[] = LIST_OF_ZSO;
   allSessions = null;
@@ -96,12 +97,11 @@ export class SessionCreatorComponent implements OnInit {
 
   submit(): boolean {
     if (this.enteredPwIsValid()) {
-      if (!this.editMode) {
-        // Since we're not in edit mode, we want the result to be a new map.
-        this.session.uuid = uuidv4();
-      }
-      else if(this.session.zsoId == "zso_guest" && this.session.uuid != "") {
+      if(this.session.zsoId == "zso_guest" && this.session.uuid != "") {
         this.preferences.removeSessionSpecificPreferences(this.session.uuid);
+        this.session.uuid = uuidv4();
+      } else if(this.session.uuid == "" || (!this.mapDataOvertake && !this.editMode)) {
+        // Since we're not in edit mode, we want the result to be a new map.
         this.session.uuid = uuidv4();
       }
       this.preferences.setZSO(this.session.zsoId);
