@@ -90,6 +90,7 @@ app-credits {
 
 .filterWrapper {
   display: flex;
+  margin-top: 7px;
 }
 
 .filterItem {
