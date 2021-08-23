@@ -29,7 +29,6 @@ jobs:
 
       - name: npm ci and npm run build
         run: |
-          cd zskarte2
           npm install
           npm run build
           
