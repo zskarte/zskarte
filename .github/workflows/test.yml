@@ -32,5 +32,5 @@ jobs:
       - name: npm run test and npm run e2e
         run: |
           npm install
-          npm run test
+          npm run test:ci
           npm run e2e
