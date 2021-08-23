@@ -72,12 +72,12 @@
 
 
 .timeline .endSpacer{
-    //padding-top: 7.5em;
+    /*padding-top: 7.5em;*/
     padding-top: 16.25em;
 }
 .indicator{
     position:absolute;
-    //top: 8.75em;
+    /*top: 8.75em;*/
     display:block;
     width: 100%;
     margin-top: 0.5em;
