@@ -25,7 +25,6 @@
 .time{
     font-weight: bold;
     font-size: 1.2em;
-    margin-bottom: 0.5em;
     display:inline-block;
 }
 .date{
@@ -35,4 +34,10 @@
 div{
     display: inline-block;
     text-align: center;
+}
+
+.flexContainer {
+    display: flex;
+    align-items: center;
+    column-gap: .5em;
 }
