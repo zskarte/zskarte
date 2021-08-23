@@ -693,7 +693,7 @@ export class DrawlayerComponent implements OnInit {
     // @ts-ignore
     result.images = this.customImages
       .getAllEntriesForCurrentSession()
-      .filter((i) => signatureSources.includes(i.sign.src));
+      .filter((i: any) => signatureSources.includes(i.sign.src));
     return (
       'data:text/json;charset=UTF-8,' +
       encodeURIComponent(JSON.stringify(result))

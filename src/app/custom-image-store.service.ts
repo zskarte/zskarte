@@ -38,9 +38,8 @@ export class CustomImageStoreService {
   public static STORE_IMAGES = 'images';
 
   public static getAllSigns(): Sign[] {
-    // @ts-ignore
     return Object.values(CustomImageStoreService.inMemoryCache).map(
-      (i) => <Sign>i.sign
+      (i: any) => <Sign>i.sign
     );
   }
 

@@ -73,7 +73,7 @@ export class SelectedFeatureComponent {
   get featureGroups() {
     // @ts-ignore
     return this.groupedFeatures
-      ? Object.values(this.groupedFeatures).sort((a, b) =>
+      ? Object.values(this.groupedFeatures).sort((a: any, b: any) =>
           a.label.localeCompare(b.label)
         )
       : null;

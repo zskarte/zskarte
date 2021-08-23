@@ -135,8 +135,8 @@ export class ToolbarComponent implements OnInit {
           .forEach((f) => this.extractSymbol(f, symbols));
       }
       this.filterKeys = Object.keys(symbols);
-      // @ts-ignore
-      this.filterSymbols = Object.values(symbols).sort((a, b) =>
+      
+      this.filterSymbols = Object.values(symbols).sort((a: any, b: any) =>
         a.label.localeCompare(b.label)
       );
     }
