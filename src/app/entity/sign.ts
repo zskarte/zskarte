@@ -53,6 +53,8 @@ export interface Sign {
   kat?: string; // deprecated - kept for compatibility reasons (is translated directly to color)
   iconOpacity?: number;
   rotation?: number;
+  filterValue?: string;
+  origSrc?: string;
 }
 
 export function isMoreOptimalIconCoordinate(

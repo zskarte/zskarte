@@ -43,6 +43,7 @@ import { EditCoordinatesComponent } from '../edit-coordinates/edit-coordinates.c
 import { DisplayMode } from '../entity/displayMode';
 import Cluster from 'ol/source/Cluster';
 import Collection from 'ol/Collection';
+import { Sign } from '../entity/sign';
 
 export const DRAW_LAYER_ZINDEX = 100000;
 export const CLUSTER_LAYER_ZINDEX = DRAW_LAYER_ZINDEX + 1;
@@ -90,11 +91,7 @@ export class DrawlayerComponent implements OnInit {
     distance: 140,
     source: this.clusterSource,
     geometryFunction: (feature) => {
-      if (
-        feature.get('sig') &&
-        feature.get('sig').src &&
-        !this.filters[feature.get('sig').src]
-      ) {
+      if (!this.isSigFiltered(feature.get('sig'))) {
         return feature.getGeometry();
       }
       return null;
@@ -112,15 +109,14 @@ export class DrawlayerComponent implements OnInit {
     source: this.source,
     style: (feature, resolution) => {
       const sig = feature.get('sig');
-      if (sig && sig.src) {
-        if (!this.filters[sig.src]) {
-          return DrawStyle.styleFunction(feature, resolution);
-        } else {
-          return [];
-        }
-      } else {
+
+      if (!this.isSigFiltered(sig)) {
         return DrawStyle.styleFunction(feature, resolution);
+      } else {
+        return [];
       }
+
+      //return DrawStyle.styleFunction(feature, resolution);
     },
     className: 'drawLayer',
   });
@@ -177,6 +173,27 @@ export class DrawlayerComponent implements OnInit {
 
   private drawers: { [key: string]: Draw } = {};
 
+  private getSigFilterString(sig: Sign): string {
+    let filterString = '';
+    if (sig.type === 'Polygon' && !sig.src) {
+      // empty polygon without source
+      filterString = sig.filterValue;
+    } else if (sig.type === 'LineString' && !sig.src) {
+      // line without source or text
+      filterString = sig.filterValue;
+    } else {
+      filterString = sig.origSrc || sig.src;
+    }
+    return filterString;
+  }
+
+  private isSigFiltered(sig: Sign): boolean {
+    if (!sig) {
+      return false;
+    }
+    return !!this.filters[this.getSigFilterString(sig)];
+  }
+
   private startAutosave() {
     if (!DrawlayerComponent.saveRunnerLock) {
       console.log('starting autosave now...');
@@ -203,8 +220,9 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  public toggleFilter(src) {
-    this.filters[src] = !this.filters[src];
+  public toggleFilter(sig: Sign) {
+    const filterString = this.getSigFilterString(sig);
+    this.filters[filterString] = !this.filters[filterString];
     this.source.changed();
     if (this.historyMode) {
       this.clusterSource.changed();

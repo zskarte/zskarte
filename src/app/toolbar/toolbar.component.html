@@ -113,12 +113,13 @@
       <button
         mat-stroked-button
         [class]="
-          drawLayer.filters[symbol.origSrc] ? 'active filterItem' : 'filterItem'
+          drawLayer.isSigFiltered(symbol) ? 'active filterItem' : 'filterItem'
         "
         *ngFor="let symbol of filterSymbols"
-        (click)="drawLayer.toggleFilter(symbol.origSrc)"
+        (click)="drawLayer.toggleFilter(symbol)"
       >
-        <img [src]="symbol.src" [title]="symbol.label" />
+        <img *ngIf="symbol.src" [src]="symbol.src" [title]="symbol.label" />
+        <i *ngIf="symbol.icon" class="material-icons">{{ symbol.icon }}</i>
       </button>
     </div>
   </div>

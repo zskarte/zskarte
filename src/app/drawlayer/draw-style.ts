@@ -745,7 +745,6 @@ export class DrawStyle {
           );
           scaledSize = (492 / naturalDim) * scale * signature.iconSize;
         }
-        console.log('arsch', 'draw icon', signature);
         const icon = new Icon({
           anchor: [0.5, 0.5],
           anchorXUnits: 'fraction',
