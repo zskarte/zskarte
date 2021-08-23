@@ -21,7 +21,6 @@
 .flexContainer {
   display: flex;
   flex-wrap: nowrap;
-  column-gap: 0.5em;
 }
 
 mat-card-title {
