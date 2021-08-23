@@ -1,0 +1,72 @@
+/*
+ * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
+ *
+ * This file is part of Zivilschutzkarte 2.
+ *
+ * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ */
+
+.zsoIcon {
+  height: 1em;
+}
+
+.language {
+  float: right;
+}
+h1 {
+  display: inline-block;
+}
+
+mat-form-field {
+  display: block;
+  margin-top: 1em;
+}
+
+table {
+  min-width: 70%;
+  border: 0;
+  border-spacing: 0;
+}
+tr td {
+  padding: 0.2em;
+}
+
+tr:nth-child(even) td {
+  background: #ececec;
+}
+tr:nth-child(odd) td {
+  background: #f3f3f3;
+}
+
+tr td.icon {
+  text-align: center;
+  width: 2.3em;
+}
+tr td.icon .zsoIcon {
+  height: 2em;
+}
+
+tr td.buttons {
+  background: none;
+}
+
+.importButton {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.text-danger {
+  color: #ff0000;
+}
