@@ -1,0 +1,29 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Node $
+        uses: actions/setup-node@v1
+        with:
+          node-version: $
+          
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
+      - name: cd zskarte2 && npm install && npm run build
+        run: |
+          npm ci
+          npm run build:ci
+        
