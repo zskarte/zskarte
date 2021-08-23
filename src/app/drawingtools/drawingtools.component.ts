@@ -51,17 +51,11 @@ export class DrawingtoolsComponent {
   onKeyDown(event: KeyboardEvent) {
     // Only handle global events (to prevent input elements to be considered)
     const globalEvent = event.target instanceof HTMLBodyElement;
-    // console.log(event)
-    // console.log(event.key)
-    // console.log(globalEvent)
-    // console.log(this.sharedState.featureSource.getValue())
     if (
       globalEvent &&
       !this.sharedState.featureSource.getValue() &&
       event.altKey
     ) {
-      console.log(event.key)
-      console.log(event)
       switch (event.code) {
         case 'KeyX':
           this.openTextDialog();
