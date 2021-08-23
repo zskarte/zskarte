@@ -507,6 +507,11 @@ export class I18NService {
       en: 'Fix position',
       fr: 'Fixer la position',
     },
+    labelShow: {
+      de: 'Namen anzeigen',
+      en: 'Show name',
+      fr: 'Afficher le nom',
+    },
     replaceSymbol: {
       de: 'Ersetzen',
       en: 'Replace',
