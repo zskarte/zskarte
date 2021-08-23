@@ -29,6 +29,9 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { HelpComponent } from '../help/help.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { SessionCreatorComponent } from '../session-creator/session-creator.component';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -38,6 +41,9 @@ describe('ToolbarComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         MatDialogModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatInputModule,
         NoopAnimationsModule,
         FormsModule
       ],

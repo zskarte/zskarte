@@ -22,6 +22,10 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { LanguageChooserComponent } from '../language-chooser/language-chooser.component';
@@ -36,6 +40,10 @@ describe('SessionCreatorComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         MatDialogModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatInputModule,
+        NoopAnimationsModule,
         FormsModule
       ],
       declarations: [ SessionCreatorComponent, ConfirmationDialogComponent, LanguageChooserComponent ],
