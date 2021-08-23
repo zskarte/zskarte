@@ -51,7 +51,7 @@ export interface Sign {
   iconSize?: number;
   images?: string[];
   kat?: string; // deprecated - kept for compatibility reasons (is translated directly to color)
-  iconRotation?: number;
+  rotation?: number;
 }
 
 export function isMoreOptimalIconCoordinate(
