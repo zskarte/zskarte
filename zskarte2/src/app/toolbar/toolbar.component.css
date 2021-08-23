@@ -28,8 +28,11 @@ mat-card-title {
     margin-bottom: 0;
 }
 
-.spacer{
-    flex: 1;
+.toolbar-top {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
 }
 
 .credits{
@@ -145,14 +148,21 @@ mat-card-content.flexContainer *{
     margin-bottom: 0.5em;
 }
 
-.collapse {
-    height: 1em;
-}
-
 .mat-menu-item{
     display: flex;
     align-items: center;
     column-gap: 1em;
+}
+
+.toolbar-root {
+  align-items: center;
+}
+
+.app-interactive-tools {
+  flex: 3;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 @media print {

@@ -19,33 +19,36 @@
   -->
 
 <mat-card [class]="collapsed ? 'collapsed toolbar' : 'toolbar'" *ngIf="session">
-    <div class="flexContainer">
+    <div class="flexContainer toolbar-root">
         <div class="credits">
-            <div class="flexContainer" style="flex-direction: column">
+            <div class="flexContainer">
                 <app-credits></app-credits>
             </div>
         </div>
         <div class="tools" >
             <div class="flexContainer">
                 <mat-card-title class="title">{{session.title}}</mat-card-title>
-                <div class="spacer"></div>
-                <div class="clock">
+                <div class="toolbar-top">
+                  <div class="clock">
                     <app-clock></app-clock>
-                </div>
-                <app-language-chooser class="noprint hideWhenCollapsed"></app-language-chooser>
-                <button mat-stroked-button size="small" color="primary" class="noprint hideWhenCollapsed edit" [matMenuTriggerFor]="mainMenu" *ngIf="!historyMode">
+                  </div>
+                  <app-language-chooser class="noprint hideWhenCollapsed"></app-language-chooser>
+                  <button mat-stroked-button size="small" color="primary" class="noprint hideWhenCollapsed edit" [matMenuTriggerFor]="mainMenu" *ngIf="!historyMode">
                     <i class="material-icons">menu</i>
-                </button>
-                <div class="collapse" (click)="collapsed=!collapsed" *ngIf="collapsed" ><i class="material-icons" >expand_more</i></div>
+                  </button>
+                  <div class="collapse" (click)="collapsed=!collapsed" *ngIf="collapsed" ><i class="material-icons" >expand_more</i></div>
+                </div>
             </div>
             <mat-card-content class="flexContainer noprint hideWhenCollapsed">
                 <app-geocoder style="flex:1; margin-top: -.08em;" [drawLayer]="drawLayer"></app-geocoder>
-                <app-drawingtools *ngIf="!historyMode"></app-drawingtools>
-                <!--<a class="mat-stroked-button" download="map.jpg"><span class="mat-button-wrapper"><i class="material-icons">photo_camera</i> Screenshot</span></a>-->
-                <app-tools [drawLayer]="drawLayer"></app-tools>
-                <app-layers></app-layers>
-                <mat-slide-toggle (toggleChange)="toggleHistory()" [checked]="historyMode">{{i18n.get("history")}}</mat-slide-toggle>
-                <div class="collapse" *ngIf="!collapsed" (click)="collapsed=!collapsed"><i class="material-icons" >expand_less</i> </div>
+                <div class="app-interactive-tools">
+                    <app-drawingtools *ngIf="!historyMode"></app-drawingtools>
+                    <!--<a class="mat-stroked-button" download="map.jpg"><span class="mat-button-wrapper"><i class="material-icons">photo_camera</i> Screenshot</span></a>-->
+                    <app-tools [drawLayer]="drawLayer"></app-tools>
+                    <app-layers></app-layers>
+                    <mat-slide-toggle (toggleChange)="toggleHistory()" [checked]="historyMode">{{i18n.get("history")}}</mat-slide-toggle>
+                    <div *ngIf="!collapsed" (click)="collapsed=!collapsed"><i class="material-icons" >expand_less</i> </div>
+                </div>
             </mat-card-content>
 
             <mat-menu #mainMenu="matMenu" class="burger-menu">
