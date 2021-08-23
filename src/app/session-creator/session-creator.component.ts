@@ -76,13 +76,19 @@ export class SessionCreatorComponent implements OnInit {
         title: null,
         uuid: uuidv4(),
         zsoId: defaultZSO ? defaultZSO.id : null,
+        start: new Date()
       };
       this.editMode = false;
     }
   }
 
   ngOnInit(): void {
-    this.allSessions = this.sessions.getAllSessions();
+    let offDate = new Date(1,1,1);
+    this.allSessions = this.sessions.getAllSessions().sort((a, b) => {
+      let aa = a.start != null ? new Date(a.start) : offDate;
+      let bb = b.start != null ? new Date(b.start) : offDate;
+      return aa > bb ? 1 : aa === bb ? 0 : -1
+    }).reverse();
   }
 
   get allSessionsButActive() {
@@ -100,9 +106,11 @@ export class SessionCreatorComponent implements OnInit {
       if(this.session.zsoId == "zso_guest" && this.session.uuid != "") {
         this.preferences.removeSessionSpecificPreferences(this.session.uuid);
         this.session.uuid = uuidv4();
+        this.session.start = new Date();
       } else if(this.session.uuid == "" || (!this.mapDataOvertake && !this.editMode)) {
         // Since we're not in edit mode, we want the result to be a new map.
         this.session.uuid = uuidv4();
+        this.session.start = new Date();
       }
       this.preferences.setZSO(this.session.zsoId);
       this.sessions.saveSession(this.session);
