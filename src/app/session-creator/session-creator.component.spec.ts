@@ -18,7 +18,13 @@
  *
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { LanguageChooserComponent } from '../language-chooser/language-chooser.component';
 
 import { SessionCreatorComponent } from './session-creator.component';
 
@@ -26,13 +32,23 @@ describe('SessionCreatorComponent', () => {
   let component: SessionCreatorComponent;
   let fixture: ComponentFixture<SessionCreatorComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [SessionCreatorComponent],
-      }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        MatDialogModule,
+        FormsModule
+      ],
+      declarations: [ SessionCreatorComponent, ConfirmationDialogComponent, LanguageChooserComponent ],
+      providers: [
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) },
+      ],
+      schemas: [
+        NO_ERRORS_SCHEMA
+      ]
     })
-  );
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SessionCreatorComponent);

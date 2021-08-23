@@ -18,7 +18,10 @@
  *
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 import { ExportDialogComponent } from './export-dialog.component';
 
@@ -26,13 +29,19 @@ describe('ExportDialogComponent', () => {
   let component: ExportDialogComponent;
   let fixture: ComponentFixture<ExportDialogComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [ExportDialogComponent],
-      }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [ ExportDialogComponent ],
+      providers: [
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) }
+      ],
+      schemas: [
+        NO_ERRORS_SCHEMA
+      ]
     })
-  );
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ExportDialogComponent);
