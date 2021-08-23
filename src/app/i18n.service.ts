@@ -77,6 +77,11 @@ export class I18NService {
       fr: 'Appliquer les données de la carte',
       en: 'Overtake map data',
     },
+    sessionOverdue: {
+      de: 'Abgelaufen',
+      fr: 'Expired',
+      en: 'Expiré',
+    },
     text: {
       de: 'Text',
       en: 'Text',

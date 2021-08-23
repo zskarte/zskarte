@@ -87,8 +87,8 @@ export class SessionCreatorComponent implements OnInit {
     this.allSessions = this.sessions.getAllSessions().sort((a, b) => {
       let aa = a.start != null ? new Date(a.start) : offDate;
       let bb = b.start != null ? new Date(b.start) : offDate;
-      return aa > bb ? 1 : aa === bb ? 0 : -1
-    }).reverse();
+      return aa < bb ? 1 : aa === bb ? 0 : -1
+    });
   }
 
   get allSessionsButActive() {

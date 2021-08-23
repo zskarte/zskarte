@@ -52,7 +52,7 @@ export class ClockComponent implements OnInit {
   }
 
   refreshSessionData() {
-    let session = this.sharedState.getCurrentSession();
+    const session = this.sharedState.getCurrentSession();
     this.sessionId = session.uuid;
     this.doCheckTimeout = session.zsoId == 'zso_guest' && session.start != null ? (new Date(session.start)).getTime() + this.timeOffset : 0;
     this.sharedState.sessionOutdated.next(false);
@@ -64,11 +64,11 @@ export class ClockComponent implements OnInit {
       this.refreshSessionData();
     }
     if(this.doCheckTimeout != 0) {
-      let sessionSecondsLeft:number = Math.floor((this.doCheckTimeout - this.now.getTime()) / 1000);
+      const sessionSecondsLeft:number = Math.floor((this.doCheckTimeout - this.now.getTime()) / 1000);
       if(sessionSecondsLeft > 0) {
         this.sessionTimeLeft = sessionSecondsLeft > 60 ? Math.floor(sessionSecondsLeft / 60) + 'm'  : sessionSecondsLeft + 's';
       } else {
-        this.sessionTimeLeft = 'Overdue!';
+        this.sessionTimeLeft = this.i18n.get('sessionOverdue'); // 'Overdue!';
         if(!this.sharedState.sessionOutdated.value) {
           this.sharedState.sessionOutdated.next(true);
         }
