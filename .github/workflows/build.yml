@@ -35,13 +35,9 @@ jobs:
       - name: rsync deployments
         uses: burnett01/rsync-deployments@5.1
         with:
-          switches: -avzr
+          switches: -avzr --delete
           path: dist/zskarte2/
           remote_path: ${{ secrets.SERVER_PATH }}
           remote_host: ${{ secrets.SERVER_HOSTNAME }}
           remote_user: ${{ secrets.SERVER_LOGIN }}
           remote_key: ${{ secrets.SERVER_SSH_KEY }}
-          
-      #- name: Setup tmate session
-       # uses: mxschmitt/action-tmate@v3
-        
