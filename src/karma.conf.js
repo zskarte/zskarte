@@ -46,7 +46,7 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
-    singleRun: false,
+    singleRun: true,
     browsers: ['ChromeHeadless', 'Chrome'],
     customLaunchers: {
       ChromeHeadless: {
@@ -55,7 +55,8 @@ module.exports = function (config) {
           '--headless',
           '--disable-gpu',
           '--no-sandbox',
-          '--remote-debugging-port=9222'
+          '--remote-debugging-port=9222',
+          '--disable-dev-shm-usage'
         ]
       }
     }

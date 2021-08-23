@@ -476,7 +476,7 @@ export class DrawStyle {
     return Md5.hashStr(
       JSON.stringify({
         resolution: resolution,
-        rotation: feature.rotation,
+        rotation: signature.rotation,
         selected: selected,
         label: signature.label,
         labelShow: signature.labelShow,
@@ -786,8 +786,8 @@ export class DrawStyle {
           scale: scaledSize ? scaledSize : scale * 2.5 * signature.iconSize,
           opacity: signature.iconOpacity || 1,
           rotation:
-            feature.rotation !== undefined
-              ? (feature.rotation * Math.PI) / 180
+            signature.rotation !== undefined
+              ? (signature.rotation * Math.PI) / 180
               : 0,
           rotationWithView: false,
           src: imageFromMemory ? undefined : this.getImageUrl(signature.src),
@@ -1057,8 +1057,8 @@ export class DrawStyle {
           backgroundFill: this.getColorFill('#FFFFFF'),
           font: signature.fontSize * 30 + 'px sans-serif',
           rotation:
-            feature.rotation !== undefined
-              ? (feature.rotation * Math.PI) / 180
+            signature.rotation !== undefined
+              ? (signature.rotation * Math.PI) / 180
               : 0,
           scale: DrawStyle.scale(resolution, DrawStyle.textScaleFactor, 0.4),
           fill: this.getColorFill(signature.color),
