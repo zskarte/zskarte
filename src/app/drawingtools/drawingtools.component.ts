@@ -96,6 +96,7 @@ export class DrawingtoolsComponent {
     this.sharedState.selectSign({
       type: 'Polygon',
       src: null,
+      filterValue: 'not_labeled_polygon',
     });
   }
 
@@ -103,6 +104,7 @@ export class DrawingtoolsComponent {
     this.sharedState.selectSign({
       type: 'LineString',
       src: null,
+      filterValue: 'not_labeled_line',
     });
   }
 
