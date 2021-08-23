@@ -282,8 +282,8 @@
             [max]="180"
             [min]="-180"
             [step]="1"
-            [ngModel]="rotationPercent"
-            (ngModelChange)="setRotation($event)"
+            [(ngModel)]="selectedSignature.rotation"
+            (ngModelChange)="redraw()"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
