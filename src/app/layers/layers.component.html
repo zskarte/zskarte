@@ -1,0 +1,116 @@
+<!--
+  ~ Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
+  ~
+  ~ This file is part of Zivilschutzkarte 2.
+  ~
+  ~ Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as published by the
+  ~ Free Software Foundation, either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~
+  ~ Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License along with
+  ~ Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~
+  -->
+<span class="layers">
+  <button mat-stroked-button [matMenuTriggerFor]="layersMenu">
+    <i class="material-icons">layers</i> {{ i18n.get('layers') }}
+  </button>
+  <mat-menu #layersMenu="matMenu">
+    <div class="content">
+      <div class="sectionTitle" *ngIf="currentLayer">
+        {{ i18n.get('currentMap') }}
+      </div>
+      <div class="selectedLayer" (click)="$event.stopPropagation()">
+        <div class="titleRow">
+          <div class="title">{{ currentLayer.name }}</div>
+        </div>
+        <div>
+          <mat-slider
+            [max]="1"
+            [min]="0"
+            [step]="0.1"
+            [(ngModel)]="currentLayer.opacity"
+            (ngModelChange)="updateMapLayer()"
+          >
+          </mat-slider>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+      <div class="sectionTitle">{{ i18n.get('otherMaps') }}</div>
+      <div *ngFor="let layer of availableLayers">
+        <button mat-menu-item (click)="changeToLayer(layer)">
+          {{ layer.name }}
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+      <div *ngIf="selectedFeatures.length > 0" class="sectionTitle">
+        {{ i18n.get('selectedLayers') }}
+      </div>
+      <div class="allSelected">
+        <div
+          *ngFor="let item of selectedFeatures"
+          title="{{ item.label }}"
+          class="selectedLayer"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="titleRow">
+            <div class="title">{{ item.label }}</div>
+            <i
+              (click)="$event.stopPropagation(); showLegend(item)"
+              class="material-icons"
+              >info</i
+            ><i
+              (click)="$event.stopPropagation(); toggleFeature(item)"
+              class="material-icons"
+              >visibility_off</i
+            >
+          </div>
+          <div>
+            <mat-slider
+              [max]="1"
+              [min]="0"
+              [step]="0.1"
+              [(ngModel)]="item.opacity"
+              (ngModelChange)="updateLayer(item)"
+            >
+            </mat-slider>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="available">
+        <div class="sectionTitle">{{ i18n.get('availableLayers') }}</div>
+        <mat-form-field>
+          <mat-label> {{ i18n.get('filter') }}</mat-label>
+          <input
+            (click)="$event.stopPropagation()"
+            type="text"
+            matInput
+            [(ngModel)]="layerFilter"
+            (ngModelChange)="updateAvailableFeatures()"
+            (keydown)="$event.stopPropagation()"
+        /></mat-form-field>
+        <div class="availableLayers">
+          <button
+            *ngFor="let item of availableFeatures"
+            mat-menu-item
+            (click)="$event.stopPropagation(); toggleFeature(item)"
+            title="{{ item.label }}"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-menu>
+</span>

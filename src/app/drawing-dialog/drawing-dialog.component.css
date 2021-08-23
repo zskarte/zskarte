@@ -1,0 +1,95 @@
+/*
+ * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
+ *
+ * This file is part of Zivilschutzkarte 2.
+ *
+ * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ */
+
+.selectionTable img {
+  max-height: 1.8em;
+  max-width: 1.8em;
+}
+
+.imgwrapper {
+  display: inline-block;
+  width: 2em;
+  height: 3em;
+  text-align: center;
+}
+
+.signSelect {
+  min-width: 70vw;
+  min-height: 70vh;
+  max-width: 100%;
+  max-height: 60vh;
+}
+.name {
+  width: 100%;
+}
+
+.selectionTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.selectionTable th {
+  text-align: left;
+  font-size: 0.8em;
+  color: #787878;
+}
+.selectionTable td {
+  vertical-align: middle;
+  line-height: 3em;
+}
+.imageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.symbolCol {
+  width: 7em;
+}
+
+.selectRow {
+  cursor: pointer;
+}
+
+.selectRow:hover {
+  background-color: lightgray;
+}
+
+.imgdrop {
+  height: 10em;
+  border: 1px dashed black;
+  text-align: center;
+}
+.addButton {
+  margin-right: 1em;
+}
+
+.buttonCell {
+  white-space: nowrap;
+}
+
+.buttonCell button {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+.filter mat-form-field {
+  width: 100%;
+}
