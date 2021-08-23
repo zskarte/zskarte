@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {DrawlayerComponent} from './drawlayer.component';
 
@@ -26,7 +26,7 @@ describe('DrawlayerComponent', () => {
   let component: DrawlayerComponent;
   let fixture: ComponentFixture<DrawlayerComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DrawlayerComponent ]
     })

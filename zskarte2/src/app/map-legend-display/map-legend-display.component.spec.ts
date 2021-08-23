@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {MapLegendDisplayComponent} from './map-legend-display.component';
 
@@ -26,7 +26,7 @@ describe('MapLegendDisplayComponent', () => {
   let component: MapLegendDisplayComponent;
   let fixture: ComponentFixture<MapLegendDisplayComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ MapLegendDisplayComponent ]
     })

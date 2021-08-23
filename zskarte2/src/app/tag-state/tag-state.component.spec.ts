@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {TagStateComponent} from './tag-state.component';
 
@@ -26,7 +26,7 @@ describe('TagStateComponent', () => {
   let component: TagStateComponent;
   let fixture: ComponentFixture<TagStateComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ TagStateComponent ]
     })

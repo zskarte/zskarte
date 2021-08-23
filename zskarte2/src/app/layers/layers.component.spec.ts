@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {LayersComponent} from './layers.component';
 
@@ -26,7 +26,7 @@ describe('LayersComponent', () => {
   let component: LayersComponent;
   let fixture: ComponentFixture<LayersComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ LayersComponent ]
     })

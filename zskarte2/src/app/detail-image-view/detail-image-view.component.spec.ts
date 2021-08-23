@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {DetailImageViewComponent} from './detail-image-view.component';
 
@@ -26,7 +26,7 @@ describe('DetailImageViewComponent', () => {
   let component: DetailImageViewComponent;
   let fixture: ComponentFixture<DetailImageViewComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DetailImageViewComponent ]
     })

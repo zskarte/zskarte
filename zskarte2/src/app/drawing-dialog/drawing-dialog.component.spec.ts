@@ -18,7 +18,7 @@
  *
  */
 
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {DrawingDialogComponent} from './drawing-dialog.component';
 
@@ -26,7 +26,7 @@ describe('DrawingDialogComponent', () => {
   let component: DrawingDialogComponent;
   let fixture: ComponentFixture<DrawingDialogComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DrawingDialogComponent ]
     })
