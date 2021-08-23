@@ -33,4 +33,4 @@ jobs:
         run: |
           npm install
           npm run test:ci
-          npm run e2e
+          # Activate this after migration to cypress: npm run e2e
