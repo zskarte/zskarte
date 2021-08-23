@@ -33,6 +33,9 @@ export class PreferencesService {
     zoomLevel: 8,
   };
 
+  static guestSessionTimeout: number = 3600000; // 1h = 60m = 3600s = 3600000ms
+  //static guestSessionTimeout: number = 1800000; // 30m = 1800s = 1800000ms
+
   public setLastSessionId(lastSessionId: string) {
     localStorage.setItem('lastSession', lastSessionId);
   }

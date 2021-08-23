@@ -103,7 +103,7 @@ export class SessionCreatorComponent implements OnInit {
 
   submit(): boolean {
     if (this.enteredPwIsValid()) {
-      if(this.session.zsoId == "zso_guest" && this.session.uuid != "") {
+      if(this.session.zsoId == "zso_guest" && this.session.uuid != "" && !this.editMode) {
         this.preferences.removeSessionSpecificPreferences(this.session.uuid);
         this.session.uuid = uuidv4();
         this.session.start = new Date();

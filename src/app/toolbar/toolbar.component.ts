@@ -76,6 +76,11 @@ export class ToolbarComponent implements OnInit {
         this.updateFilterSymbols();
       }
     });
+    this.sharedState.sessionOutdated.subscribe((isOutdated) => {
+      if (isOutdated) {
+        this.createInitialSession();
+      }
+    });
     if (this.initialLaunch) {
       this.dialog.open(HelpComponent, {
         data: true,
