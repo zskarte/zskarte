@@ -18,7 +18,10 @@
  *
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 import { DrawingDialogComponent } from './drawing-dialog.component';
 
@@ -26,13 +29,21 @@ describe('DrawingDialogComponent', () => {
   let component: DrawingDialogComponent;
   let fixture: ComponentFixture<DrawingDialogComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [DrawingDialogComponent],
-      }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        MatDialogModule
+      ],
+      declarations: [ DrawingDialogComponent ],
+      providers: [
+        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) }
+      ],
+      schemas: [
+        NO_ERRORS_SCHEMA
+      ]
     })
-  );
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DrawingDialogComponent);

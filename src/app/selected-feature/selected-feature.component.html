@@ -282,8 +282,24 @@
             [max]="180"
             [min]="-180"
             [step]="1"
-            [ngModel]="rotationPercent"
-            (ngModelChange)="setRotation($event)"
+            [(ngModel)]="selectedSignature.rotation"
+            (ngModelChange)="redraw()"
+          >
+          </mat-slider>
+          <input type="text" matInput hidden value="-" />
+        </mat-form-field>
+
+        <mat-form-field
+          *ngIf="selectedSignature.src && !selectedSignature.hideIcon"
+        >
+          <mat-label>{{ i18n.get('opacity') }}:</mat-label>
+          <mat-slider
+            #ctrl="ngModel"
+            [max]="1"
+            [min]="0.01"
+            [step]="0.05"
+            [(ngModel)]="selectedSignature.iconOpacity"
+            (ngModelChange)="redraw()"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />

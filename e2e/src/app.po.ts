@@ -18,14 +18,14 @@
  *
  */
 
-import { browser, by, element } from 'protractor';
+import { $, browser } from 'protractor';
 
 export class AppPage {
   navigateTo() {
-    return browser.get('/');
+    return browser.driver.get(browser.baseUrl);
   }
 
-  getParagraphText() {
-    return element(by.css('app-root h1')).getText();
+  getTitleText() {
+    return $('h1').getText();
   }
 }

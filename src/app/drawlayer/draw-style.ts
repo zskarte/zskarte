@@ -476,7 +476,7 @@ export class DrawStyle {
     return Md5.hashStr(
       JSON.stringify({
         resolution: resolution,
-        rotation: feature.rotation,
+        rotation: signature.rotation,
         selected: selected,
         signatureColor: signature.color,
         signatureSrc: signature.src,
@@ -485,6 +485,7 @@ export class DrawStyle {
         hideIcon: signature.hideIcon,
         iconOffset: signature.iconOffset,
         iconSize: signature.iconSize,
+        iconOpacity: signature.iconOpacity,
         zindex: this.getZIndex(feature),
       })
     ).toString();
@@ -588,10 +589,15 @@ export class DrawStyle {
     return !signature.hideIcon && signature.src;
   }
 
-  private static createDefaultStroke(scale, color, dashed = false) {
+  private static createDefaultStroke(
+    scale,
+    color,
+    dashed = false,
+    opacity = 1
+  ) {
     const strokeWidth = scale * 10;
     const stroke = new Stroke({
-      color: DrawStyle.colorFunction(color, 1.0),
+      color: DrawStyle.colorFunction(color, opacity),
       width: strokeWidth,
     });
     if (dashed) {
@@ -636,7 +642,8 @@ export class DrawStyle {
       const dashedStroke = this.createDefaultStroke(
         scale,
         signature.color,
-        true
+        true,
+        signature.iconOpacity
       );
       const iconRadius = scale * 250 * signature.iconSize;
       const highlightStroke = selected
@@ -671,13 +678,15 @@ export class DrawStyle {
 
       // Draw a circle if it is a geometry with a clear anchor coordinate (e.g. a "point")
       if (feature.getGeometry().getType() === 'Point') {
+        const point = new Circle({
+          radius: scale * 50,
+          fill: this.getColorFill(signature.color),
+          stroke: highlightStroke,
+        });
+        point.setOpacity(signature.iconOpacity || 1);
         iconStyles.push(
           new Style({
-            image: new Circle({
-              radius: scale * 50,
-              fill: this.getColorFill(signature.color),
-              stroke: highlightStroke,
-            }),
+            image: point,
             geometry: function (feature) {
               return new Point(DrawStyle.getAnchorCoordinate(feature));
             },
@@ -691,6 +700,7 @@ export class DrawStyle {
         iconStyles.push(
           new Style({
             stroke: dashedStroke,
+            opacity: signature.iconOpacity || 1,
             geometry: function (feature) {
               return DrawStyle.createLineToIcon(feature, resolution);
             },
@@ -699,13 +709,15 @@ export class DrawStyle {
         );
 
         // Draw a circle below the icon
+        const backgroundCircle = new Circle({
+          radius: iconRadius,
+          fill: this.getColorFill('#FFFFFF'),
+          stroke: dashedStroke,
+        });
+        backgroundCircle.setOpacity(signature.iconOpacity || 1);
         iconStyles.push(
           new Style({
-            image: new Circle({
-              radius: iconRadius,
-              fill: this.getColorFill('#FFFFFF'),
-              stroke: dashedStroke,
-            }),
+            image: backgroundCircle,
             geometry: function (feature) {
               return new Point(
                 DrawStyle.getIconCoordinates(feature, resolution)[1]
@@ -733,15 +745,16 @@ export class DrawStyle {
           );
           scaledSize = (492 / naturalDim) * scale * signature.iconSize;
         }
+        console.log('arsch', 'draw icon', signature);
         const icon = new Icon({
           anchor: [0.5, 0.5],
           anchorXUnits: 'fraction',
           anchorYUnits: 'fraction',
           scale: scaledSize ? scaledSize : scale * 2.5 * signature.iconSize,
-          opacity: 1,
+          opacity: signature.iconOpacity || 1,
           rotation:
-            feature.rotation !== undefined
-              ? (feature.rotation * Math.PI) / 180
+            signature.rotation !== undefined
+              ? (signature.rotation * Math.PI) / 180
               : 0,
           rotationWithView: false,
           src: imageFromMemory ? undefined : this.getImageUrl(signature.src),
@@ -1011,8 +1024,8 @@ export class DrawStyle {
           backgroundFill: this.getColorFill('#FFFFFF'),
           font: signature.fontSize * 30 + 'px sans-serif',
           rotation:
-            feature.rotation !== undefined
-              ? (feature.rotation * Math.PI) / 180
+            signature.rotation !== undefined
+              ? (signature.rotation * Math.PI) / 180
               : 0,
           scale: DrawStyle.scale(resolution, DrawStyle.textScaleFactor, 0.4),
           fill: this.getColorFill(signature.color),
