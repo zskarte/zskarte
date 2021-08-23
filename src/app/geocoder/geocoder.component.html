@@ -19,17 +19,37 @@
   -->
 
 <div class="geocoder">
-    <mat-form-field (mouseenter)="previewCoordinate(this.selected)">
-        <input type="text" placeholder="{{i18n.get('findPlace')}}" matInput [matAutocomplete]="auto" [(ngModel)]="inputText" (ngModelChange)="geoCodeLoad()" #searchField>
-        <mat-autocomplete #auto="matAutocomplete" [displayWith]="getLabel" (optionSelected)="geoCodeSelected($event)">
-            <mat-option *ngFor="let location of foundLocations" [value]="location.attrs" (mouseenter)="previewCoordinate(location.attrs)" (mouseleave)="goToCoordinate(false)">
-                <span [innerHTML]="location.attrs.label" [title]="getLabel(location.attrs)"></span>
-            </mat-option>
-        </mat-autocomplete>
-    </mat-form-field>
-    <div *ngIf="selected" class="currentLocation">
-        <img src="assets/img/place.png"/><span> {{getLabel(selected)}}</span>
-    </div>
+  <mat-form-field (mouseenter)="previewCoordinate(this.selected)">
+    <input
+      type="text"
+      placeholder="{{ i18n.get('findPlace') }}"
+      matInput
+      [matAutocomplete]="auto"
+      [(ngModel)]="inputText"
+      (ngModelChange)="geoCodeLoad()"
+      #searchField
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="getLabel"
+      (optionSelected)="geoCodeSelected($event)"
+    >
+      <mat-option
+        *ngFor="let location of foundLocations"
+        [value]="location.attrs"
+        (mouseenter)="previewCoordinate(location.attrs)"
+        (mouseleave)="goToCoordinate(false)"
+      >
+        <span
+          [innerHTML]="location.attrs.label"
+          [title]="getLabel(location.attrs)"
+        ></span>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <div *ngIf="selected" class="currentLocation">
+    <img src="assets/img/place.png" /><span> {{ getLabel(selected) }}</span>
+  </div>
 
-    <!-- <input #geocode type="text"  placeholder="">-->
+  <!-- <input #geocode type="text"  placeholder="">-->
 </div>

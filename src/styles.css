@@ -19,45 +19,47 @@
  */
 
 /* You can add global styles to this file, and also import other style files */
-@import "~@angular/material/prebuilt-themes/indigo-pink.css";
-body{
-    font-family: sans-serif;
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+body {
+  font-family: sans-serif;
 }
 
-#functionsPanel .mat-expansion-indicator::after{
-    color:white;
+#functionsPanel .mat-expansion-indicator::after {
+  color: white;
 }
 
-.noPadding .mat-expansion-panel-body{
-    padding: 0;
+.noPadding .mat-expansion-panel-body {
+  padding: 0;
 }
 
-.noPadding .mat-expansion-panel-body mat-form-field, .noPadding .mat-expansion-panel-body>div{
-    margin: 0 24px 16px;
+.noPadding .mat-expansion-panel-body mat-form-field,
+.noPadding .mat-expansion-panel-body > div {
+  margin: 0 24px 16px;
 }
 
-.customImage{
-    border:1px solid red;
+.customImage {
+  border: 1px solid red;
 }
 
-
-.description table, .description td, .description th{
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 0.5em;
+.description table,
+.description td,
+.description th {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 0.5em;
 }
 
 @media print {
-    .noprint{
-        display:none;
-    }
+  .noprint {
+    display: none;
+  }
 }
 
 @page {
-    size: 21cm 29.7cm;
-    margin: 5mm 5mm 5mm 5mm;
+  size: 21cm 29.7cm;
+  margin: 5mm 5mm 5mm 5mm;
 }
 
-.section li{
-    margin-bottom: 0.5em;
+.section li {
+  margin-bottom: 0.5em;
 }

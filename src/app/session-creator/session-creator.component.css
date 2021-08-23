@@ -18,50 +18,55 @@
  *
  */
 
-.zsoIcon{
-    height: 1em;
+.zsoIcon {
+  height: 1em;
 }
 
-.language{
-float:right;
-
+.language {
+  float: right;
 }
-h1{
-    display: inline-block;
-}
-
-mat-form-field{
-    display:block;
-    margin-top: 1em;
+h1 {
+  display: inline-block;
 }
 
-table{
-    min-width: 70%;
-    border: 0;
-    border-spacing: 0;
-}
-tr td{
-    padding: 0.2em;
+mat-form-field {
+  display: block;
+  margin-top: 1em;
 }
 
-tr:nth-child(even) td {background: #ececec}
-tr:nth-child(odd) td {background: #f3f3f3}
+table {
+  min-width: 70%;
+  border: 0;
+  border-spacing: 0;
+}
+tr td {
+  padding: 0.2em;
+}
+
+tr:nth-child(even) td {
+  background: #ececec;
+}
+tr:nth-child(odd) td {
+  background: #f3f3f3;
+}
 
 tr td.icon {
-    text-align: center;
-    width: 2.3em;
+  text-align: center;
+  width: 2.3em;
 }
-tr td.icon .zsoIcon{
-    height: 2em;
+tr td.icon .zsoIcon {
+  height: 2em;
 }
 
-tr td.buttons{background: none;}
+tr td.buttons {
+  background: none;
+}
 
-.importButton{
-    margin-top: 1.5em;
-    margin-bottom:1.5em;
+.importButton {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
 }
 
 .text-danger {
-    color: #ff0000;
+  color: #ff0000;
 }

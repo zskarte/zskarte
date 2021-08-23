@@ -18,17 +18,17 @@
  *
  */
 
-.flag{
-    height: 1.2em;
-    width: 1.5em;
-    border: 2px solid white;
+.flag {
+  height: 1.2em;
+  width: 1.5em;
+  border: 2px solid white;
 }
 
-.flag.active{
-    border: 2px solid darkblue;
+.flag.active {
+  border: 2px solid darkblue;
 }
 
-.flags .flag{
-    margin: 0.2em;
-    cursor: pointer;
+.flags .flag {
+  margin: 0.2em;
+  cursor: pointer;
 }

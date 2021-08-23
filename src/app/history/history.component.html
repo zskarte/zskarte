@@ -19,21 +19,38 @@
   -->
 
 <mat-card id="history" *ngIf="showHistory">
-    <mat-card-content>
-        <mat-checkbox [(ngModel)]="filtered" class="filter">{{i18n.get('filterHistory')}}</mat-checkbox>
-        <div class="selector" *ngIf="!loading">
-            <div (click)="selectNow()" [ngClass]="selectedDate === 'now' ? 'event selected' : 'event'"><span class="date">{{i18n.get("currentState")}}</span></div>
-            <div *ngFor="let historyDate of historyDatesLocale;  index as i"
-                 (click)="select(historyDate, i)" [ngClass]="historyDate === selectedDate ? 'event selected' : 'event'">
-                <span class="date">{{historyDate}}</span><span class="tag">{{getTag(i)}}<i
-                    [title]="i18n.get('removeTag')" class="material-icons" (click)="removeTag(i)" *ngIf="getTag(i)">delete</i></span>
-            </div>
-        </div>
-        <div class="loader" *ngIf="loading">
-            <mat-progress-spinner
-                    color="primary"
-                    mode="indeterminate">
-            </mat-progress-spinner>
-        </div>
-    </mat-card-content>
+  <mat-card-content>
+    <mat-checkbox [(ngModel)]="filtered" class="filter">{{
+      i18n.get('filterHistory')
+    }}</mat-checkbox>
+    <div class="selector" *ngIf="!loading">
+      <div
+        (click)="selectNow()"
+        [ngClass]="selectedDate === 'now' ? 'event selected' : 'event'"
+      >
+        <span class="date">{{ i18n.get('currentState') }}</span>
+      </div>
+      <div
+        *ngFor="let historyDate of historyDatesLocale; index as i"
+        (click)="select(historyDate, i)"
+        [ngClass]="historyDate === selectedDate ? 'event selected' : 'event'"
+      >
+        <span class="date">{{ historyDate }}</span
+        ><span class="tag"
+          >{{ getTag(i)
+          }}<i
+            [title]="i18n.get('removeTag')"
+            class="material-icons"
+            (click)="removeTag(i)"
+            *ngIf="getTag(i)"
+            >delete</i
+          ></span
+        >
+      </div>
+    </div>
+    <div class="loader" *ngIf="loading">
+      <mat-progress-spinner color="primary" mode="indeterminate">
+      </mat-progress-spinner>
+    </div>
+  </mat-card-content>
 </mat-card>

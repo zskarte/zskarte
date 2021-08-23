@@ -18,25 +18,25 @@
  *
  */
 
-.mat-option{
-    font-size: 0.7em;
+.mat-option {
+  font-size: 0.7em;
 }
 
-mat-form-field{
-    width: 100%;
+mat-form-field {
+  width: 100%;
 }
 
-.currentLocation{
-    display: flex;
-    align-items: center;
-    line-height: 1.5em;
+.currentLocation {
+  display: flex;
+  align-items: center;
+  line-height: 1.5em;
 }
 
-.currentLocation img{
-    height: 1.5em;
-    margin-right: 1em;
+.currentLocation img {
+  height: 1.5em;
+  margin-right: 1em;
 }
 
 .geocoder {
-    height: 3em;
+  height: 3em;
 }

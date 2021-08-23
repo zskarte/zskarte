@@ -18,27 +18,27 @@
  *
  */
 
-img{
-    max-height: 20em;
-    max-width: 20em;
+img {
+  max-height: 20em;
+  max-width: 20em;
 }
 
-.imageWrapper{
-    text-align: center;
+.imageWrapper {
+  text-align: center;
 }
 
-mat-form-field{
-    display: block;
+mat-form-field {
+  display: block;
 }
 
-.warning{
-    max-width: 30vw;
-    background-color: lightgoldenrodyellow;
-    border: 1px solid orange;
-    border-radius: 10px;
-    font-size: 0.9em;
-    padding: 1em;
-    margin-bottom: 2em;
-    margin-top: 0.5em;
-    color: red;
+.warning {
+  max-width: 30vw;
+  background-color: lightgoldenrodyellow;
+  border: 1px solid orange;
+  border-radius: 10px;
+  font-size: 0.9em;
+  padding: 1em;
+  margin-bottom: 2em;
+  margin-top: 0.5em;
+  color: red;
 }

@@ -19,78 +19,77 @@
  */
 
 .selectionTable img {
-    max-height: 1.8em;
-    max-width: 1.8em;
+  max-height: 1.8em;
+  max-width: 1.8em;
 }
 
 .imgwrapper {
-    display: inline-block;
-    width: 2em;
-    height: 3em;
-    text-align: center;
+  display: inline-block;
+  width: 2em;
+  height: 3em;
+  text-align: center;
 }
 
 .signSelect {
-    min-width: 70vw;
-    min-height: 70vh;
-    max-width: 100%;
-    max-height: 60vh;
+  min-width: 70vw;
+  min-height: 70vh;
+  max-width: 100%;
+  max-height: 60vh;
 }
-.name{
-    width: 100%;
+.name {
+  width: 100%;
 }
 
 .selectionTable {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.selectionTable th{
-    text-align: left;
-    font-size: 0.8em;
-    color: #787878;
+.selectionTable th {
+  text-align: left;
+  font-size: 0.8em;
+  color: #787878;
 }
-.selectionTable td{
-    vertical-align: middle;
-    line-height: 3em;
+.selectionTable td {
+  vertical-align: middle;
+  line-height: 3em;
 }
-.imageWrapper{
-    display:flex;
-    justify-content: center;
-    align-items: center;
+.imageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
 
 .symbolCol {
-    width: 7em;
+  width: 7em;
 }
 
 .selectRow {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .selectRow:hover {
-    background-color: lightgray;
+  background-color: lightgray;
 }
 
 .imgdrop {
-    height: 10em;
-    border: 1px dashed black;
-    text-align: center;
+  height: 10em;
+  border: 1px dashed black;
+  text-align: center;
 }
-.addButton{
-    margin-right: 1em;
-}
-
-.buttonCell{
-    white-space: nowrap;
+.addButton {
+  margin-right: 1em;
 }
 
-.buttonCell button{
-    margin-left: 0.5em;
-    margin-right: 0.5em;
+.buttonCell {
+  white-space: nowrap;
+}
+
+.buttonCell button {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
 .filter mat-form-field {
-    width: 100%;
+  width: 100%;
 }

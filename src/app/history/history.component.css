@@ -18,94 +18,89 @@
  *
  */
 
-
 #history {
-    position: absolute;
-    bottom: 0;
-    background-color: white;
-    right:0;
+  position: absolute;
+  bottom: 0;
+  background-color: white;
+  right: 0;
 }
 
-.selector{
-    height: 20em;
-    overflow: auto;
+.selector {
+  height: 20em;
+  overflow: auto;
 }
-
 
 .event {
-    margin-top: 1em;
-    line-height: 1.5em;
-    margin-left:2em;
-    margin-bottom: 1em;
-    border: 0;
-    cursor: pointer;
+  margin-top: 1em;
+  line-height: 1.5em;
+  margin-left: 2em;
+  margin-bottom: 1em;
+  border: 0;
+  cursor: pointer;
 }
 
-.selected{
-    background: rgba(198, 198, 198, 0.3);
+.selected {
+  background: rgba(198, 198, 198, 0.3);
 }
 
-.loader{
-    position:absolute;
-    top:0;
-    left:0;
-    right: 0;
-    bottom:0;
-    text-align: center;
-    background: rgba(90, 90, 90, 0.4);
-
+.loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  background: rgba(90, 90, 90, 0.4);
 }
-.loader mat-progress-spinner{
-    margin:2em auto;
-}
-
-.date{
-    font-style: italic;
+.loader mat-progress-spinner {
+  margin: 2em auto;
 }
 
-.tag{
-    font-weight: bold;
-    margin-left: 3em;
-    margin-right: 3em;
+.date {
+  font-style: italic;
 }
 
-
-
-.timeline .endSpacer{
-    /*padding-top: 7.5em;*/
-    padding-top: 16.25em;
-}
-.indicator{
-    position:absolute;
-    /*top: 8.75em;*/
-    display:block;
-    width: 100%;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    background: rgba(198, 198, 198, 0.3);
+.tag {
+  font-weight: bold;
+  margin-left: 3em;
+  margin-right: 3em;
 }
 
-.hidden{
-    visibility: hidden;
+.timeline .endSpacer {
+  /*padding-top: 7.5em;*/
+  padding-top: 16.25em;
+}
+.indicator {
+  position: absolute;
+  /*top: 8.75em;*/
+  display: block;
+  width: 100%;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  background: rgba(198, 198, 198, 0.3);
 }
 
-.tag i{
-    margin-left: 1em;
-    margin-right: 1em;
+.hidden {
+  visibility: hidden;
 }
 
-.indicator i, .tag i{
-    font-size: 1em;
-    line-height: 1.5em;
-
+.tag i {
+  margin-left: 1em;
+  margin-right: 1em;
 }
 
-.filter{
-    margin-bottom: 1em;
+.indicator i,
+.tag i {
+  font-size: 1em;
+  line-height: 1.5em;
 }
 
-.buttons{
-    text-align:center;
+.filter {
+  margin-bottom: 1em;
+}
+
+.buttons {
+  text-align: center;
 }

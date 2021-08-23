@@ -19,20 +19,28 @@
   -->
 
 <span class="drawingTools">
-
-    <button mat-stroked-button [matMenuTriggerFor]="drawMenu" ><i class="material-icons">brush</i> {{i18n.get("draw")}}</button>
-<mat-menu #drawMenu="matMenu">
-    <button mat-menu-item (click)="openTextDialog()" ><i class="material-icons">font_download</i> {{i18n.get("text")}}</button>
-    <button mat-menu-item (click)="openDrawDialog()" ><i class="material-icons">stars</i> {{i18n.get("symbol")}}</button>
-    <button mat-menu-item (click)="polygon()" ><i class="material-icons">widgets</i> {{i18n.get("polygon")}}</button>
+  <button mat-stroked-button [matMenuTriggerFor]="drawMenu">
+    <i class="material-icons">brush</i> {{ i18n.get('draw') }}
+  </button>
+  <mat-menu #drawMenu="matMenu">
+    <button mat-menu-item (click)="openTextDialog()">
+      <i class="material-icons">font_download</i> {{ i18n.get('text') }}
+    </button>
+    <button mat-menu-item (click)="openDrawDialog()">
+      <i class="material-icons">stars</i> {{ i18n.get('symbol') }}
+    </button>
+    <button mat-menu-item (click)="polygon()">
+      <i class="material-icons">widgets</i> {{ i18n.get('polygon') }}
+    </button>
     <!--<button mat-menu-item (click)="circle()" ><i class="material-icons">bubble_chart</i> {{i18n.get("circle")}}</button>-->
-    <button mat-menu-item (click)="line()" ><i class="material-icons">show_chart</i> {{i18n.get("line")}}</button>
-</mat-menu>
+    <button mat-menu-item (click)="line()">
+      <i class="material-icons">show_chart</i> {{ i18n.get('line') }}
+    </button>
+  </mat-menu>
 </span>
 
 <span class="drawingTools">
-
-    <!--
+  <!--
     <mat-form-field>
 
         <mat-select placeholder="Karte" [(value)]="selectedMap" (ngModelChange)="changeMap($event)">

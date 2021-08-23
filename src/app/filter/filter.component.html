@@ -20,9 +20,13 @@
 
 <mat-form-field>
   <mat-select placeholder="Filter">
-    <mat-option *ngFor="let filter of filters" [value]="filter.value"
-                [style.background-color]="filter.color" [style.color]="filter.textcolor">
-      {{filter.viewValue}}
+    <mat-option
+      *ngFor="let filter of filters"
+      [value]="filter.value"
+      [style.background-color]="filter.color"
+      [style.color]="filter.textcolor"
+    >
+      {{ filter.viewValue }}
     </mat-option>
   </mat-select>
 </mat-form-field>

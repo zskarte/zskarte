@@ -19,51 +19,116 @@
   -->
 
 <mat-card [class]="collapsed ? 'collapsed toolbar' : 'toolbar'" *ngIf="session">
-    <div class="flexContainer">
-        <div class="credits">
-            <div class="flexContainer" style="flex-direction: column">
-                <app-credits></app-credits>
-            </div>
+  <div class="flexContainer">
+    <div class="credits">
+      <div class="flexContainer" style="flex-direction: column">
+        <app-credits></app-credits>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="flexContainer">
+        <mat-card-title class="title">{{ session.title }}</mat-card-title>
+        <div class="spacer"></div>
+        <div class="clock">
+          <app-clock></app-clock>
         </div>
-        <div class="tools" >
-            <div class="flexContainer">
-                <mat-card-title class="title">{{session.title}}</mat-card-title>
-                <div class="spacer"></div>
-                <div class="clock">
-                    <app-clock></app-clock>
-                </div>
-                <app-language-chooser class="noprint hideWhenCollapsed"></app-language-chooser>
-                <button mat-stroked-button size="small" color="primary" class="noprint hideWhenCollapsed edit" [matMenuTriggerFor]="mainMenu" *ngIf="!historyMode">
-                    <i class="material-icons">menu</i>
-                </button>
-                <div class="collapse" (click)="collapsed=!collapsed" *ngIf="collapsed" ><i class="material-icons" >expand_more</i></div>
-            </div>
-            <mat-card-content class="flexContainer noprint hideWhenCollapsed">
-                <app-geocoder style="flex:1; margin-top: -.08em;" [drawLayer]="drawLayer"></app-geocoder>
-                <app-drawingtools *ngIf="!historyMode"></app-drawingtools>
-                <!--<a class="mat-stroked-button" download="map.jpg"><span class="mat-button-wrapper"><i class="material-icons">photo_camera</i> Screenshot</span></a>-->
-                <app-tools [drawLayer]="drawLayer"></app-tools>
-                <app-layers></app-layers>
-                <mat-slide-toggle (toggleChange)="toggleHistory()" [checked]="historyMode">{{i18n.get("history")}}</mat-slide-toggle>
-                <div class="collapse" *ngIf="!collapsed" (click)="collapsed=!collapsed"><i class="material-icons" >expand_less</i> </div>
-            </mat-card-content>
-
-            <mat-menu #mainMenu="matMenu" class="burger-menu">
-                <button mat-menu-item (click)="createOrLoadSession()"><i class="material-icons">swap_calls</i> {{i18n.get("createOrLoad")}}</button>
-                <button mat-menu-item (click)="editSession()"><i class="material-icons">edit</i> {{i18n.get("editMap")}}</button>
-                <button mat-menu-item (click)="exportSession()"><i class="material-icons">save</i> {{i18n.get("exportSession")}}</button>
-                <button mat-menu-item (click)="deleteSession()"><i class="material-icons">delete</i> {{i18n.get("deleteMap")}}</button>
-                <button mat-menu-item (click)="help()"><i class="material-icons">help</i> {{i18n.get("help")}}</button>
-           </mat-menu>
+        <app-language-chooser
+          class="noprint hideWhenCollapsed"
+        ></app-language-chooser>
+        <button
+          mat-stroked-button
+          size="small"
+          color="primary"
+          class="noprint hideWhenCollapsed edit"
+          [matMenuTriggerFor]="mainMenu"
+          *ngIf="!historyMode"
+        >
+          <i class="material-icons">menu</i>
+        </button>
+        <div
+          class="collapse"
+          (click)="collapsed = !collapsed"
+          *ngIf="collapsed"
+        >
+          <i class="material-icons">expand_more</i>
         </div>
+      </div>
+      <mat-card-content class="flexContainer noprint hideWhenCollapsed">
+        <app-geocoder
+          style="flex: 1; margin-top: -0.08em"
+          [drawLayer]="drawLayer"
+        ></app-geocoder>
+        <app-drawingtools *ngIf="!historyMode"></app-drawingtools>
+        <!--<a class="mat-stroked-button" download="map.jpg"><span class="mat-button-wrapper"><i class="material-icons">photo_camera</i> Screenshot</span></a>-->
+        <app-tools [drawLayer]="drawLayer"></app-tools>
+        <app-layers></app-layers>
+        <mat-slide-toggle
+          (toggleChange)="toggleHistory()"
+          [checked]="historyMode"
+          >{{ i18n.get('history') }}</mat-slide-toggle
+        >
+        <div
+          class="collapse"
+          *ngIf="!collapsed"
+          (click)="collapsed = !collapsed"
+        >
+          <i class="material-icons">expand_less</i>
+        </div>
+      </mat-card-content>
 
+      <mat-menu #mainMenu="matMenu" class="burger-menu">
+        <button mat-menu-item (click)="createOrLoadSession()">
+          <i class="material-icons">swap_calls</i>
+          {{ i18n.get('createOrLoad') }}
+        </button>
+        <button mat-menu-item (click)="editSession()">
+          <i class="material-icons">edit</i> {{ i18n.get('editMap') }}
+        </button>
+        <button mat-menu-item (click)="exportSession()">
+          <i class="material-icons">save</i> {{ i18n.get('exportSession') }}
+        </button>
+        <button mat-menu-item (click)="deleteSession()">
+          <i class="material-icons">delete</i> {{ i18n.get('deleteMap') }}
+        </button>
+        <button mat-menu-item (click)="help()">
+          <i class="material-icons">help</i> {{ i18n.get('help') }}
+        </button>
+      </mat-menu>
     </div>
-    <div class="filterWrapper noprint hideWhenCollapsed" *ngIf="filterSymbols && filterSymbols.length>0">
-        <div class="fixedFilter">{{i18n.get("filter")}}: <button mat-icon-button (click)="filterAll(false)"><i class="material-icons">visibility</i></button> <button mat-icon-button class="allButton" (click)="filterAll(true)"><i class="material-icons">visibility_off</i></button></div><div class="filterButtons"><button mat-stroked-button [class]="drawLayer.filters[symbol.origSrc] ? 'active filterItem' : 'filterItem'" *ngFor="let symbol of filterSymbols" (click)="drawLayer.toggleFilter(symbol.origSrc)"><img [src]="symbol.src" [title]="symbol.label"/></button></div>
+  </div>
+  <div
+    class="filterWrapper noprint hideWhenCollapsed"
+    *ngIf="filterSymbols && filterSymbols.length > 0"
+  >
+    <div class="fixedFilter">
+      {{ i18n.get('filter') }}:
+      <button mat-icon-button (click)="filterAll(false)">
+        <i class="material-icons">visibility</i>
+      </button>
+      <button mat-icon-button class="allButton" (click)="filterAll(true)">
+        <i class="material-icons">visibility_off</i>
+      </button>
     </div>
+    <div class="filterButtons">
+      <button
+        mat-stroked-button
+        [class]="
+          drawLayer.filters[symbol.origSrc] ? 'active filterItem' : 'filterItem'
+        "
+        *ngFor="let symbol of filterSymbols"
+        (click)="drawLayer.toggleFilter(symbol.origSrc)"
+      >
+        <img [src]="symbol.src" [title]="symbol.label" />
+      </button>
+    </div>
+  </div>
 
-    <div class="zoom noprint">
-        <button mat-icon-button (click)="zoomIn()"><i class="material-icons">zoom_in</i></button>
-        <button mat-icon-button (click)="zoomOut()"><i class="material-icons">zoom_out</i></button>
-    </div>
+  <div class="zoom noprint">
+    <button mat-icon-button (click)="zoomIn()">
+      <i class="material-icons">zoom_in</i>
+    </button>
+    <button mat-icon-button (click)="zoomOut()">
+      <i class="material-icons">zoom_out</i>
+    </button>
+  </div>
 </mat-card>

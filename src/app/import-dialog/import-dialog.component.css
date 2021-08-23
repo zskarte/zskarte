@@ -17,23 +17,23 @@
  *
  *
  */
-mat-form-field{
-    display:block;
-    padding-top: 1em;
+mat-form-field {
+  display: block;
+  padding-top: 1em;
 }
 
-mat-tab-group{
-    margin-top:1em;
+mat-tab-group {
+  margin-top: 1em;
 }
 
 p {
-    max-width: 50em;
+  max-width: 50em;
 }
 
-#loadFromFile{
-    margin: 2em;
+#loadFromFile {
+  margin: 2em;
 }
 
-.buttons{
-    margin-bottom:0.5em;
+.buttons {
+  margin-bottom: 0.5em;
 }
