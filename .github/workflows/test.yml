@@ -31,7 +31,6 @@ jobs:
 
       - name: npm run test and npm run e2e
         run: |
-          cd zskarte2
           npm install
           npm run test
           npm run e2e
