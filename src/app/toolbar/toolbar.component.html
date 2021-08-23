@@ -84,7 +84,7 @@
         <button mat-menu-item (click)="editSession()">
           <i class="material-icons">edit</i> {{ i18n.get('editMap') }}
         </button>
-        <button mat-menu-item (click)="exportSession()">
+        <button mat-menu-item (click)="exportSession()" *ngIf="exportEnabled">
           <i class="material-icons">save</i> {{ i18n.get('exportSession') }}
         </button>
         <button mat-menu-item (click)="deleteSession()">

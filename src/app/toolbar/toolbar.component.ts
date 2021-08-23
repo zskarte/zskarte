@@ -76,6 +76,11 @@ export class ToolbarComponent implements OnInit {
         this.updateFilterSymbols();
       }
     });
+    this.sharedState.sessionOutdated.subscribe((isOutdated) => {
+      if (isOutdated) {
+        this.createInitialSession();
+      }
+    });
     if (this.initialLaunch) {
       this.dialog.open(HelpComponent, {
         data: true,
@@ -91,6 +96,7 @@ export class ToolbarComponent implements OnInit {
   filterKeys: any[];
   filterSymbols: any[];
   collapsed: boolean;
+  exportEnabled = true;
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -152,6 +158,8 @@ export class ToolbarComponent implements OnInit {
     this.sharedState.session.subscribe((s) => {
       this.session = s;
       if (s) {
+        let currentZSO = this.preferences.getZSO();
+        this.exportEnabled = (currentZSO != null && currentZSO.id != "zso_guest");
         this.preferences.setLastSessionId(s.uuid);
       }
     });
