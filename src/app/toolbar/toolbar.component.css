@@ -24,6 +24,10 @@
   column-gap: 0.5em;
 }
 
+.alignCenter {
+  align-items: center;
+}
+
 mat-card-title {
   margin-bottom: 0;
 }
@@ -47,7 +51,8 @@ app-credits {
 
 .tools {
   flex: 1;
-  margin: 0;
+  margin-left: auto;
+  max-width: 950px;
 }
 
 .clock {
@@ -65,15 +70,6 @@ app-credits {
   margin-left: 0.75em;
 }
 
-.flexContainer .collapse,
-.flexContainer .collapse i {
-  margin-right: 0;
-  margin-left: 0.75em;
-}
-
-mat-card-content.flexContainer * {
-  margin: 0.25em;
-}
 .mat-card-content {
   margin-bottom: 0;
 }
@@ -82,8 +78,6 @@ mat-card-content.flexContainer * {
   font-size: 18px;
   line-height: 20px;
   height: 29px;
-  margin-left: 0.25em;
-  margin-right: 0.25em;
 }
 
 .toolbar {
@@ -145,7 +139,10 @@ mat-card-content.flexContainer * {
 }
 
 .collapse {
-  height: 1em;
+  appearance: none;
+  border: none;
+  outline: none;
+  background: transparent;
 }
 
 .mat-menu-item {

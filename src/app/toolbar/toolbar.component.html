@@ -19,14 +19,14 @@
   -->
 
 <mat-card [class]="collapsed ? 'collapsed toolbar' : 'toolbar'" *ngIf="session">
-  <div class="flexContainer">
+  <div class="flexContainer alignCenter">
     <div class="credits">
-      <div class="flexContainer" style="flex-direction: column">
+      <div class="flexContainer">
         <app-credits></app-credits>
       </div>
     </div>
     <div class="tools">
-      <div class="flexContainer">
+      <div class="flexContainer alignCenter">
         <mat-card-title class="title">{{ session.title }}</mat-card-title>
         <div class="spacer"></div>
         <div class="clock">
@@ -45,15 +45,15 @@
         >
           <i class="material-icons">menu</i>
         </button>
-        <div
+        <button
           class="collapse"
           (click)="collapsed = !collapsed"
           *ngIf="collapsed"
         >
           <i class="material-icons">expand_more</i>
-        </div>
+        </button>
       </div>
-      <mat-card-content class="flexContainer noprint hideWhenCollapsed">
+      <mat-card-content class="flexContainer noprint hideWhenCollapsed alignCenter">
         <app-geocoder
           style="flex: 1; margin-top: -0.08em"
           [drawLayer]="drawLayer"
@@ -67,13 +67,13 @@
           [checked]="historyMode"
           >{{ i18n.get('history') }}</mat-slide-toggle
         >
-        <div
+        <button
           class="collapse"
           *ngIf="!collapsed"
           (click)="collapsed = !collapsed"
         >
           <i class="material-icons">expand_less</i>
-        </div>
+        </button>
       </mat-card-content>
 
       <mat-menu #mainMenu="matMenu" class="burger-menu">
