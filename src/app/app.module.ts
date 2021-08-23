@@ -19,7 +19,7 @@
  */
 
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
@@ -71,6 +71,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DetailImageViewComponent } from './detail-image-view/detail-image-view.component';
 import { HelpComponent } from './help/help.component';
 import { MatStepperModule } from '@angular/material/stepper';
+import { registerLocaleData } from '@angular/common';
+import localeDeCh from '@angular/common/locales/de-CH';
+
+registerLocaleData(localeDeCh)
 
 const dbConfig: DBConfig = {
   name: 'ZSKarte2-DB1.0',
@@ -162,7 +166,9 @@ const dbConfig: DBConfig = {
     DetailImageViewComponent,
     HelpComponent,
   ],
-  providers: [],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'de-CH'},
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

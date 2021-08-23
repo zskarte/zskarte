@@ -27,6 +27,7 @@ import Polygon from 'ol/geom/Polygon';
 import Feature from 'ol/Feature';
 import Draw from 'ol/interaction/Draw';
 import OlMap from 'ol/Map';
+import { transform } from 'ol/proj';
 import DrawHole from 'ol-ext/interaction/DrawHole';
 import Overlay from 'ol/Overlay';
 import { SharedStateService } from '../shared-state.service';
@@ -44,6 +45,8 @@ import { DisplayMode } from '../entity/displayMode';
 import Cluster from 'ol/source/Cluster';
 import Collection from 'ol/Collection';
 import { Sign } from '../entity/sign';
+import { availableProjections, mercatorProjection, swissProjection } from '../projections';
+import { filter } from 'rxjs/operators';
 
 export const DRAW_LAYER_ZINDEX = 100000;
 export const CLUSTER_LAYER_ZINDEX = DRAW_LAYER_ZINDEX + 1;
@@ -78,6 +81,8 @@ export class DrawlayerComponent implements OnInit {
   recordChanges = false;
   maxZIndex = 0;
   minZIndex = 0;
+  selectedFeatureCoordinates = null;
+  selectedProjectionIndex = 0;
 
   source = new Vector({
     format: new GeoJSON(),
@@ -347,7 +352,7 @@ export class DrawlayerComponent implements OnInit {
         this.toggleRemoveButton(true);
       }
     });
-    this.removeButton.getElement().addEventListener('click', (e) => {
+    this.removeButton.element.addEventListener('click', (e) => {
       const coordinationGroup = this.getCoordinationGroupOfLastPoint();
       if (coordinationGroup) {
         if (!coordinationGroup.minimalAmountOfPoints) {
@@ -520,6 +525,9 @@ export class DrawlayerComponent implements OnInit {
         this.map.addLayer(this.clusterLayer);
       }
     });
+
+    // Update current Coordinates on selectedFeature change
+    this.sharedState.featureSource.pipe(filter(Boolean)).subscribe(this.setSelectedFeatureCoordinates.bind(this));
   }
 
   defineCoordinates() {
@@ -916,6 +924,20 @@ export class DrawlayerComponent implements OnInit {
       this.source.removeFeature(feature);
       this.clearSelection();
     }
+  }
+
+  rotateProjection() {
+    const nextIndex = this.selectedProjectionIndex + 1;
+    this.selectedProjectionIndex = nextIndex >= availableProjections.length ? 0 : nextIndex;
+    this.setSelectedFeatureCoordinates(this.selectedFeature);
+  }
+
+  setSelectedFeatureCoordinates(feature: Feature) {
+    this.selectedFeatureCoordinates = transform(
+      feature.getGeometry().getCoordinates(),
+      mercatorProjection,
+      availableProjections[this.selectedProjectionIndex]
+    );
   }
 
   private doDrawHole(drawHole: boolean) {

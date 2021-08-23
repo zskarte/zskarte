@@ -18,15 +18,18 @@
  *
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { EditCoordinatesComponent } from '../edit-coordinates/edit-coordinates.component';
 import OlMap from 'ol/Map';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
 
 import {DrawlayerComponent} from './drawlayer.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { SharedStateService } from '../shared-state.service';
 
 describe('DrawlayerComponent', () => {
   let component: DrawlayerComponent;
@@ -57,4 +60,25 @@ describe('DrawlayerComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should caluculate coordinates for the selected Feature', inject([SharedStateService], (sharedStateService: SharedStateService) => {
+    component.ngOnInit();
+    const coordinates =  [834167.1889149096, 5927775.4004392065]
+    component.selectedProjectionIndex = 0;
+
+    component.selectedFeature = new Feature({
+      geometry: new Point(coordinates),
+    });
+    sharedStateService.featureSource.next(component.selectedFeature);
+
+    // check LV95
+    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(2604176, 0.1);
+    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(1195693, 0.1);
+
+    component.rotateProjection();
+
+    // check WGS84
+    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.5, 0.1);
+    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(47, 0.1);
+  }));
 });
