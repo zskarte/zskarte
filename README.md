@@ -41,7 +41,7 @@ Please note, that this application integrates several different map provider ser
 
 ## For developers
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.2.3. For the following commands, please navigate to the sub-directory "zskarte2"
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.2.3.
 
 ### Development server
 

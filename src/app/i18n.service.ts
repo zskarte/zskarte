@@ -1,23 +1,3 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { PreferencesService } from './preferences.service';
@@ -353,9 +333,9 @@ export class I18NService {
       en: 'Cancel grouping',
     },
     sessionCreatorTitle: {
-      de: 'Willkommen bei ZSKarte 2!',
-      fr: 'Bienvenue à ZSKarte 2 !',
-      en: 'Welcome to ZSKarte 2!',
+      de: 'Willkommen bei Zivilschutz-Karte!',
+      fr: 'Bienvenue à Zivilschutz-Karte!',
+      en: 'Welcome to Zivilschutz-Karte!',
     },
     sessionCreatorInstructions: {
       de: 'Bitte beachten Sie: Die Daten werden nur auf Ihrem Browser gehalten - sie werden nicht mit einem Server geteilt! Falls Sie die Karte mit anderen zusätzlich sichern oder teilen möchten, können Sie diese exportieren (und erneut importieren).<br/><br/> **Wichtig**: Wenn Sie Ihre Browserdaten löschen, so werden auch die gespeicherten Karten entfernt!',
@@ -689,17 +669,17 @@ export class I18NService {
     },
     docWelcome: {
       de:
-        '# Herzlich Willkommen bei ZSKarte 2!\n' +
+        '# Herzlich Willkommen bei Zivilschutz-Karte!\n' +
         'Sie finden hier einige Informationen zur Verwendung der Applikation. \n\n' +
         'Sie können diesen Schritt selbstverständlich jederzeit überspringen und bei Bedarf über das Hilfe-Menü wieder aufrufen.\n\n' +
         'Wir wünschen Ihnen viel Spass bei der Verwendung!',
       fr:
-        '# Bienvenue à ZSKarte 2 !\n' +
+        '# Bienvenue à Zivilschutz-Karte!\n' +
         "Vous trouverez ici quelques informations sur la manière d'utiliser l'application.\n\n" +
         'Vous pouvez sauter cette étape à tout moment et la rappeler via le menu principal si nécessaire.\n\n' +
         "Nous espérons que vous prendrez plaisir à l'utiliser !",
       en:
-        '# Welcome to ZSKarte 2!\n' +
+        '# Welcome to Zivilschutz-Karte!\n' +
         'You will find here some information on how to use the application. \n\n' +
         'You can skip this step at any time and call it up again via the main menu if required.\n\n' +
         'We hope you enjoy using it!',
@@ -958,6 +938,11 @@ export class I18NService {
     keyboardShortcuts: {
       de: 'TBD',
       en: 'TBD',
+      fr: 'TBD',
+    },
+    freeHand: {
+      de: 'Freihand',
+      en: 'Free hand',
       fr: 'TBD',
     },
   };

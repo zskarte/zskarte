@@ -1,22 +1,3 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
 import { Component, Input, OnInit } from '@angular/core';
 import Select from 'ol/interaction/Select';
 import Modify from 'ol/interaction/Modify';
@@ -46,7 +27,10 @@ import { DisplayMode } from '../entity/displayMode';
 import Cluster from 'ol/source/Cluster';
 import Collection from 'ol/Collection';
 import { Sign } from '../entity/sign';
-import { availableProjections, mercatorProjection, swissProjection } from '../projections';
+import {
+  availableProjections,
+  mercatorProjection,
+} from '../projections';
 import { filter } from 'rxjs/operators';
 
 export const DRAW_LAYER_ZINDEX = 100000;
@@ -84,6 +68,7 @@ export class DrawlayerComponent implements OnInit {
   minZIndex = 0;
   selectedFeatureCoordinates = null;
   selectedProjectionIndex = 0;
+  availableProjections = availableProjections;
 
   source = new Vector({
     format: new GeoJSON(),
@@ -309,7 +294,11 @@ export class DrawlayerComponent implements OnInit {
   private drawingManipulated(feature: Feature, changeEvent = false) {
     this.sharedState.drawingManipulated.next(true);
     if (this.recordChanges && !this.historyMode) {
-      this.toggleFilters([feature.get('sig').src], false);
+      const sig = feature.get('sig');
+      if (sig) {
+        this.toggleFilters([sig.src], false);
+      }
+
       if (changeEvent) {
         // There are too many change events (also when a feature is selected / unselected). We don't want to save those events since they are not manipulating anything...
         if (
@@ -517,6 +506,13 @@ export class DrawlayerComponent implements OnInit {
         this.clearDrawingArea();
       }
     });
+    this.sharedState.freeHandDraw.subscribe((isEnabled) => {
+      if (isEnabled) {
+        this.enableFreeHandDraw();
+      } else {
+        this.disableFreeHandDraw();
+      }
+    });
     // Because of the closure, we end up inside the map -> let's just add an
     // indirection and go back to the drawlayer level again.
     this.sharedState.layerChanged.subscribe((changed) => {
@@ -535,7 +531,9 @@ export class DrawlayerComponent implements OnInit {
     });
 
     // Update current Coordinates on selectedFeature change
-    this.sharedState.featureSource.pipe(filter(Boolean)).subscribe(this.setSelectedFeatureCoordinates.bind(this));
+    this.sharedState.featureSource
+      .pipe(filter(Boolean))
+      .subscribe(this.setSelectedFeatureCoordinates.bind(this));
   }
 
   defineCoordinates() {
@@ -788,7 +786,7 @@ export class DrawlayerComponent implements OnInit {
           }
           if (elements.features) {
             for (const feature of elements.features) {
-              const zindex = feature.properties.zindex;
+              const zindex = feature?.properties?.zindex;
               if (zindex) {
                 if (zindex > this.maxZIndex) {
                   this.maxZIndex = zindex;
@@ -948,20 +946,19 @@ export class DrawlayerComponent implements OnInit {
     if (coordinate) {
       this.mouseCoordinates = coordinate
     }
-    const mouseCoordinates = transform(
-      this.mouseCoordinates,
-      mercatorProjection,
-      availableProjections[this.selectedProjectionIndex]
-    );
-    this.mouseCoordinatesProjection = mouseCoordinates
+    this.mouseCoordinatesProjection = this.transformToCurrentProjection(this.mouseCoordinates);
   }
 
   setSelectedFeatureCoordinates(feature: Feature) {
     const center = getCenter(feature.getGeometry().getExtent());
-    this.selectedFeatureCoordinates = transform(
-      center,
+    this.selectedFeatureCoordinates = this.transformToCurrentProjection(center);
+  }
+
+  private transformToCurrentProjection(coordinates: number[]) {
+    return transform(
+      coordinates,
       mercatorProjection,
-      availableProjections[this.selectedProjectionIndex]
+      availableProjections[this.selectedProjectionIndex].projection
     );
   }
 
@@ -982,5 +979,34 @@ export class DrawlayerComponent implements OnInit {
   private toBack(feature: Feature) {
     feature.set('zindex', --this.minZIndex);
     this.layer.changed();
+  }
+
+  private freeHandDraw: Draw;
+  disableFreeHandDraw(): void {
+    // console.log('disable free hand draw');
+    this.freeHandDraw?.setActive(false);
+    this.map.removeInteraction(this.freeHandDraw);
+  }
+  enableFreeHandDraw(): void {
+    // console.log('enable free hand draw');
+    if (!this.freeHandDraw) {
+      this.toggleFilters(['free_hand_element'], false);
+      this.freeHandDraw = new Draw({
+        source: this.source,
+        type: 'LineString',
+        freehand: true,
+      });
+      this.freeHandDraw.drawLayer = this;
+      this.freeHandDraw.addEventListener('drawend', (event) => {
+        event.feature.set('sig', {
+          type: 'LineString',
+          freehand: true,
+          filterValue: 'free_hand_element',
+        });
+        this.sharedState.selectFeature(event.feature);
+      });
+    }
+    this.map.addInteraction(this.freeHandDraw);
+    this.freeHandDraw.setActive(true);
   }
 }
