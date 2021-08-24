@@ -143,7 +143,7 @@
             (ngModelChange)="toggleLockOfFeature()"
             *ngIf="editMode"
             >{{ i18n.get('lockFeature') }}</mat-checkbox
-          >
+          ><br>
           <mat-checkbox
             [(ngModel)]="selectedSignature.labelShow"
             (ngModelChange)="redraw()"
@@ -254,8 +254,8 @@
             [max]="2"
             [min]="0.5"
             [step]="0.1"
-            [(ngModel)]="selectedSignature.iconSize"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.iconSize"
+            (input)="setSliderValueOnSignature('iconSize', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -267,8 +267,8 @@
             [max]="5000"
             [min]="0.1"
             [step]="100"
-            [(ngModel)]="selectedSignature.iconOffset"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.iconOffset"
+            (input)="setSliderValueOnSignature('iconOffset', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -288,8 +288,8 @@
             [max]="180"
             [min]="-180"
             [step]="1"
-            [(ngModel)]="selectedSignature.rotation"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.rotation"
+            (input)="setSliderValueOnSignature('rotation', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -304,8 +304,8 @@
             [max]="1"
             [min]="0.01"
             [step]="0.05"
-            [(ngModel)]="selectedSignature.iconOpacity"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.iconOpacity"
+            (input)="setSliderValueOnSignature('iconOpacity', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -342,8 +342,8 @@
             [max]="4"
             [min]="0.1"
             [step]="0.1"
-            [(ngModel)]="selectedSignature.strokeWidth"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.strokeWidth"
+            (input)="setSliderValueOnSignature('strokeWidth', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -388,8 +388,8 @@
             [max]="1"
             [min]="0.01"
             [step]="0.05"
-            [(ngModel)]="selectedSignature.fillOpacity"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.fillOpacity"
+            (input)="setSliderValueOnSignature('fillOpacity', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -406,8 +406,8 @@
             [max]="10"
             [min]="1"
             [step]="0.1"
-            [(ngModel)]="selectedSignature.fillStyle.size"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.fillStyle.size"
+            (input)="setSliderValueOnSignature('fillStyle.size', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -425,8 +425,8 @@
             [max]="20"
             [min]="5"
             [step]="0.1"
-            [(ngModel)]="selectedSignature.fillStyle.spacing"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.fillStyle.spacing"
+            (input)="setSliderValueOnSignature('fillStyle.spacing', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -444,8 +444,8 @@
             [max]="180"
             [min]="0.1"
             [step]="0.1"
-            [(ngModel)]="selectedSignature.fillStyle.angle"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.fillStyle.angle"
+            (input)="setSliderValueOnSignature('fillStyle.angle', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />
@@ -462,8 +462,8 @@
             [max]="4"
             [min]="0.1"
             [step]="0.1"
-            [(ngModel)]="selectedSignature.fontSize"
-            (ngModelChange)="redraw()"
+            [ngModel]="selectedSignature.fontSize"
+            (input)="setSliderValueOnSignature('fontSize', $event)"
           >
           </mat-slider>
           <input type="text" matInput hidden value="-" />

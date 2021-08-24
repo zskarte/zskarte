@@ -50,8 +50,12 @@ app-credits {
 
 .tools {
   flex: 1;
-  margin-left: auto;
-  max-width: 950px;
+  margin-left: .5em;
+}
+
+.flex-gap {
+  display: flex;
+  gap: .5em
 }
 
 .clock {

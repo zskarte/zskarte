@@ -22,3 +22,9 @@
 <button mat-button id="removePoint" mat-mini-fab color="warn">
   <i class="material-icons">delete_forever</i>
 </button>
+
+<button mat-button class="coordinates" (click)="rotateProjection()" *ngIf="selectedFeature">
+  <ng-container *ngFor="let coordinate of selectedFeatureCoordinates; let isLast=last">
+    {{coordinate | number : '1.0-3'}}{{ isLast ? '' : ', ' }}
+  </ng-container>
+</button>

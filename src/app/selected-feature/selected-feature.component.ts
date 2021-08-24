@@ -30,6 +30,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { DisplayMode } from '../entity/displayMode';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
 import { Signs } from '../signs/signs';
+import { MatSliderChange } from '@angular/material/slider';
 
 @Component({
   selector: 'app-selected-feature',
@@ -194,7 +195,6 @@ export class SelectedFeatureComponent {
     }
   }
 
-
   toggleLockOfFeature() {
     // Reselect so the locking is handled appropriately
     this.sharedState.featureSource.next(this.selectedFeature);
@@ -309,5 +309,22 @@ export class SelectedFeatureComponent {
 
   openImageDetail(sig) {
     this.dialog.open(DetailImageViewComponent, { data: sig });
+  }
+
+  setSliderValueOnSignature(field: string, event: MatSliderChange) {
+    const updateProp = (object: any, path: string[], value: any) => {
+      if (path.length === 1) object[path[0]] = value;
+      else if (path.length === 0) throw new Error('path not found');
+      else {
+        if (object[path[0]])
+          return updateProp(object[path[0]], path.slice(1), value);
+        else {
+          object[path[0]] = {};
+          return updateProp(object[path[0]], path.slice(1), value);
+        }
+      }
+    };
+    updateProp(this.selectedSignature, field.split('.'), event.value);
+    this.redraw();
   }
 }
