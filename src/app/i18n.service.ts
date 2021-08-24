@@ -960,6 +960,11 @@ export class I18NService {
       en: 'TBD',
       fr: 'TBD',
     },
+    freeHand: {
+      de: 'Freihand',
+      en: 'Free hand',
+      fr: 'TBD',
+    },
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);

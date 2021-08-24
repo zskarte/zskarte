@@ -141,6 +141,13 @@ export class ToolbarComponent implements OnInit {
           filterValue: 'text_element',
           icon: 'font_download',
         };
+      } else if (sig.type === 'LineString' && sig.freehand) {
+        symbols['free_hand_element'] = {
+          type: 'LineString',
+          label: this.i18n.get('freeHand'),
+          filterValue: 'free_hand_element',
+          icon: 'gesture',
+        };
       } else if (sig.type === 'LineString' && !sig.src) {
         symbols['not_labeled_line'] = {
           type: 'LineString',
