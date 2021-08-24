@@ -8,14 +8,14 @@
     <ng-container
       *ngFor="let coordinate of mouseCoordinatesProjection; let isLast = last"
     >
-      {{ coordinate | number: '1.3-3' }}{{ isLast ? '' : ', ' }}
+      {{ coordinate | number: availableProjections[selectedProjectionIndex].format }}{{ isLast ? '' : ', ' }}
     </ng-container></span
   >
   <span *ngIf="selectedFeature">
     <ng-container
       *ngFor="let coordinate of selectedFeatureCoordinates; let isLast = last"
     >
-      {{ coordinate | number: '1.3-3' }}{{ isLast ? '' : ', ' }}
+      {{ coordinate | number: availableProjections[selectedProjectionIndex].format }}{{ isLast ? '' : ', ' }}
     </ng-container></span
   >
 </button>

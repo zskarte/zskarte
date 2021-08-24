@@ -30,7 +30,6 @@ import { Sign } from '../entity/sign';
 import {
   availableProjections,
   mercatorProjection,
-  swissProjection,
 } from '../projections';
 import { filter } from 'rxjs/operators';
 
@@ -69,6 +68,7 @@ export class DrawlayerComponent implements OnInit {
   minZIndex = 0;
   selectedFeatureCoordinates = null;
   selectedProjectionIndex = 0;
+  availableProjections = availableProjections;
 
   source = new Vector({
     format: new GeoJSON(),
@@ -946,20 +946,19 @@ export class DrawlayerComponent implements OnInit {
     if (coordinate) {
       this.mouseCoordinates = coordinate
     }
-    const mouseCoordinates = transform(
-      this.mouseCoordinates,
-      mercatorProjection,
-      availableProjections[this.selectedProjectionIndex]
-    );
-    this.mouseCoordinatesProjection = mouseCoordinates
+    this.mouseCoordinatesProjection = this.transformToCurrentProjection(this.mouseCoordinates);
   }
 
   setSelectedFeatureCoordinates(feature: Feature) {
     const center = getCenter(feature.getGeometry().getExtent());
-    this.selectedFeatureCoordinates = transform(
-      center,
+    this.selectedFeatureCoordinates = this.transformToCurrentProjection(center);
+  }
+
+  private transformToCurrentProjection(coordinates: number[]) {
+    return transform(
+      coordinates,
       mercatorProjection,
-      availableProjections[this.selectedProjectionIndex]
+      availableProjections[this.selectedProjectionIndex].projection
     );
   }
 

@@ -1,6 +1,7 @@
 import { get } from 'ol/proj';
 import proj4 from 'proj4';
 import { register } from 'ol/proj/proj4';
+import Projection from 'ol/proj/Projection';
 
 proj4.defs(
   'EPSG:2056',
@@ -12,7 +13,18 @@ export const coordinatesProjection = getCoordinatesProjection();
 export const mercatorProjection = getMercatorProjection();
 export const swissProjection = getSwissProjection();
 
-export const availableProjections = [swissProjection, coordinatesProjection, mercatorProjection];
+type ZsKarteProjection = {
+  format: string;
+  projection: Projection;
+}
+
+export const availableProjections: Array<ZsKarteProjection> = [{
+  format: '1.2-2',
+  projection: swissProjection
+}, {
+  format: '1.5-5',
+  projection: coordinatesProjection
+}];
 
 function getCoordinatesProjection() {
   return get('EPSG:4326');
