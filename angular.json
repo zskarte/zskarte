@@ -6,7 +6,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "zskarte2": {
+    "zskarte": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -16,7 +16,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/zskarte2",
+            "outputPath": "dist/zskarte",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -70,10 +70,10 @@
           "options": {},
           "configurations": {
             "production": {
-              "browserTarget": "zskarte2:build:production"
+              "browserTarget": "zskarte:build:production"
             },
             "development": {
-              "browserTarget": "zskarte2:build:development"
+              "browserTarget": "zskarte:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -81,7 +81,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "zskarte2:build"
+            "browserTarget": "zskarte:build"
           }
         },
         "test": {
@@ -114,11 +114,11 @@
         "cypress-run": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "zskarte2:serve"
+            "devServerTarget": "zskarte:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "zskarte2:serve:production"
+              "devServerTarget": "zskarte:serve:production"
             }
           }
         },
@@ -132,18 +132,18 @@
         "e2e": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "zskarte2:serve",
+            "devServerTarget": "zskarte:serve",
             "watch": false,
             "headless": true
           },
           "configurations": {
             "production": {
-              "devServerTarget": "zskarte2:serve:production"
+              "devServerTarget": "zskarte:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "zskarte2"
+  "defaultProject": "zskarte"
 }

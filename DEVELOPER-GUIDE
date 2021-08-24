@@ -6,10 +6,8 @@ Preparations:
 - Install "nodejs" (if not already installed)
 
 Project setup:
-- clode git project
+- clone git project
 > git clone https://github.com/zskarte/zskarte.git
-- change to project inner folder
-> cd ./zskarte2
 - install packages and depencies
 > npm i
 - start application within project library context (will compile, first time it takes more time)

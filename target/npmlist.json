@@ -1,5 +1,5 @@
 {
-  "name": "zskarte2",
+  "name": "zskarte",
   "version": "0.0.0",
   "dependencies": {
     "@angular/animations": { "version": "9.1.1" },
