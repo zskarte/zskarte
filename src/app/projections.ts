@@ -32,6 +32,8 @@ export const coordinatesProjection = getCoordinatesProjection();
 export const mercatorProjection = getMercatorProjection();
 export const swissProjection = getSwissProjection();
 
+export const availableProjections = [swissProjection, coordinatesProjection, mercatorProjection];
+
 function getCoordinatesProjection() {
   return get('EPSG:4326');
 }
