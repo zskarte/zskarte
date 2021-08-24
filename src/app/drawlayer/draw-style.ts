@@ -33,6 +33,7 @@ import { Md5 } from 'ts-md5';
 import {
   defineDefaultValuesForSignature,
   getFirstCoordinate,
+  getLastCoordinate
 } from '../entity/sign';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import ConvexHull from 'ol-ext/geom/ConvexHull';
@@ -562,6 +563,21 @@ export class DrawStyle {
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
 
+  private static getEndIconCoordinates(feature, resolution) {
+    feature = DrawStyle.getSubfeature(feature);
+    const signature = feature.get('sig');
+    const symbolAnchorCoordinate = getLastCoordinate(feature);
+    const offset = signature.iconOffset;
+    const resolutionFactor = resolution / 10;
+    const symbolCoordinate = [
+      signature.flipIcon
+      ? symbolAnchorCoordinate[0] + offset * resolutionFactor
+      : symbolAnchorCoordinate[0] - offset * resolutionFactor,
+      symbolAnchorCoordinate[1] + offset * resolutionFactor
+    ];
+    return [symbolAnchorCoordinate, symbolCoordinate];
+  }
+
   private static createLineToIcon(feature, resolution) {
     feature = DrawStyle.getSubfeature(feature);
     const iconCoordinates = DrawStyle.getIconCoordinates(feature, resolution);
@@ -807,6 +823,32 @@ export class DrawStyle {
             zIndex: zIndex,
           })
         );
+
+        if (signature.type === 'LineString') {
+          iconStyles.push(
+            new Style({
+              image: backgroundCircle,
+              geometry: function (feature) {
+                return new Point(
+                  DrawStyle.getEndIconCoordinates(feature, resolution)[1]
+                );
+              },
+              zIndex: zIndex,
+            })
+          );
+
+          iconStyles.push(
+            new Style({
+              image: icon,
+              geometry: function (feature) {
+                return new Point(
+                  DrawStyle.getEndIconCoordinates(feature, resolution)[1]
+                );
+              },
+              zIndex: zIndex,
+            })
+          );
+        }
       }
     }
     return iconStyles;

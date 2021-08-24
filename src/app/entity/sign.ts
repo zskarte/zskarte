@@ -84,6 +84,20 @@ export function getFirstCoordinate(feature) {
   }
 }
 
+export function getLastCoordinate(feature) {
+  const coordinates = feature.getGeometry().getCoordinates();
+
+  switch (feature.getGeometry().getType()) {
+    case 'Polygon':
+    case 'MultiPolygon':
+      return coordinates[coordinates.length - 2][0]; // -2 because the last coordinates are the same as the first
+    case 'LineString':
+      return coordinates[coordinates.length - 1];
+    case 'Point':
+      return feature.getGeometry().getCoordinates();
+  }
+}
+
 export function getMostTopCoordinate(feature) {
   let symbolAnchorCoordinate = null;
   switch (feature.getGeometry().getType()) {
