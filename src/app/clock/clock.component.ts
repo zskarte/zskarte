@@ -32,6 +32,7 @@ export class ClockComponent implements OnInit {
   historyDate = null;
 
   sessionId:string;
+  sessionZsoId:string;
   timeOffset:number = PreferencesService.guestSessionTimeout;
   doCheckTimeout:number = 0;
   sessionTimeLeft:string;
@@ -54,13 +55,14 @@ export class ClockComponent implements OnInit {
   refreshSessionData() {
     const session = this.sharedState.getCurrentSession();
     this.sessionId = session.uuid;
+    this.sessionZsoId = session.zsoId;
     this.doCheckTimeout = session.zsoId == 'zso_guest' && session.start != null ? (new Date(session.start)).getTime() + this.timeOffset : 0;
     this.sharedState.sessionOutdated.next(false);
   }
 
   redefine() {
     this.now = this.historyDate ? this.historyDate : new Date();
-    if(this.sessionId != this.preferences.getLastSessionId()) {
+    if(this.sessionId != this.preferences.getLastSessionId() || this.sessionZsoId != this.preferences.getLastZsoId()) {
       this.refreshSessionData();
     }
     if(this.doCheckTimeout != 0) {
