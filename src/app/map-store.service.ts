@@ -93,7 +93,7 @@ export class MapStoreService {
   }
 
   public saveMap(sessionId: string, currentMap: GeoJSON): Promise<any> {
-    currentMap.timestamp = new Date().toISOString();
+    (currentMap as any).timestamp = new Date().toISOString();
     this.mostRecentMap = currentMap;
     this.mostRecentSession = sessionId;
     return new Promise<any>((resolve) => {
@@ -196,7 +196,7 @@ export class MapStoreService {
           .then((history) => {
             history = this.initHistory(history);
             // TODO reduce history based on size (e.g. increase interval for long ago instances)
-            history.states[map.timestamp] = map;
+            history.states[(map as any).timestamp] = map;
             this.dbService
               .update(MapStoreService.STORE_HISTORY, history, sessionId)
               .toPromise()
@@ -223,9 +223,11 @@ export class MapStoreService {
   }
 
   public getMap(sessionId: string): Promise<GeoJSON> {
-    return this.dbService
-      .getByKey(MapStoreService.STORE_MAP, sessionId)
-      .toPromise();
+    console.log('disabled');
+    return null;
+    // return this.dbService
+    //   .getByKey(MapStoreService.STORE_MAP, sessionId)
+    //   .toPromise();
   }
 
   public getHistoricalStateByKey(

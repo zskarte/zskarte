@@ -102,7 +102,8 @@ export class ToolsComponent implements OnInit {
           .afterClosed()
           .subscribe((confirmed) => {
             if (confirmed) {
-              this.drawLayer.loadFromString(result.value, true, result.replace);
+              console.log('disabled');
+              //this.drawLayer.loadFromString(result.value, true, result.replace);
             }
           });
       }
@@ -120,9 +121,10 @@ export class ToolsComponent implements OnInit {
       })
       .afterClosed()
       .subscribe((confirmed) => {
-        if (confirmed) {
-          this.drawLayer.removeAll();
-        }
+        console.log('disabled');
+        // if (confirmed) {
+        //   this.drawLayer.removeAll();
+        // }
       });
   }
 
@@ -133,9 +135,10 @@ export class ToolsComponent implements OnInit {
   }
 
   download(): void {
-    this.downloadData = this.sanitizer.bypassSecurityTrustUrl(
-      this.drawLayer.toDataUrl()
-    );
+    console.log('disabled');
+    // this.downloadData = this.sanitizer.bypassSecurityTrustUrl(
+    //   this.drawLayer.toDataUrl()
+    // );
   }
 
   tagState(): void {

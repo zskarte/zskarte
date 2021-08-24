@@ -52,7 +52,8 @@ function getSwissProjection() {
   for (let i = 0; i < RESOLUTIONS.length; i++) {
     matrixIds.push(i);
   }
-  projection.matrixIds = matrixIds;
-  projection.resolutions = RESOLUTIONS;
+  console.log('disabled');
+  // projection.matrixIds = matrixIds;
+  // projection.resolutions = RESOLUTIONS;
   return projection;
 }

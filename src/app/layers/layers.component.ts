@@ -37,29 +37,29 @@ export function createGeoAdminLayer(
   timestamp: string,
   extension: string
 ) {
-  return new OlTileLayer({
-    source: new OlTileWMTS({
-      projection: swissProjection,
-      url:
-        'https://wmts10.geo.admin.ch/1.0.0/{Layer}/default/' +
-        timestamp +
-        '/2056/{TileMatrix}/{TileCol}/{TileRow}.' +
-        extension,
-      tileGrid: new OlTileGridWMTS({
-        origin: [
-          swissProjection.getExtent()[0],
-          swissProjection.getExtent()[3],
-        ],
-        resolutions: swissProjection.resolutions,
-        matrixIds: swissProjection.matrixIds,
-        projection: swissProjection,
-        resolution: 250,
-      }),
-      layer: layerId,
-      requestEncoding: 'REST',
-    }),
-    opacity: 0.6,
-  });
+  // return new OlTileLayer({
+  //   source: new OlTileWMTS({
+  //     projection: swissProjection,
+  //     url:
+  //       'https://wmts10.geo.admin.ch/1.0.0/{Layer}/default/' +
+  //       timestamp +
+  //       '/2056/{TileMatrix}/{TileCol}/{TileRow}.' +
+  //       extension,
+  //     tileGrid: new OlTileGridWMTS({
+  //       origin: [
+  //         swissProjection.getExtent()[0],
+  //         swissProjection.getExtent()[3],
+  //       ],
+  //       resolutions: swissProjection.resolutions,
+  //       matrixIds: swissProjection.matrixIds,
+  //       projection: swissProjection,
+  //       resolution: 250,
+  //     }),
+  //     layer: layerId,
+  //     requestEncoding: 'REST',
+  //   }),
+  //   opacity: 0.6,
+  // });
 }
 
 @Component({
@@ -138,16 +138,16 @@ export class LayersComponent implements OnInit {
       }),
       opacity: 1,
     },
-    {
-      name: 'Offline',
-      olLayer: new OlTileLayer({
-        source: new OSM({
-          name: 'Offline',
-          url: this.offlineHost + '/styles/osm-bright/{z}/{x}/{y}.png',
-        }),
-      }),
-      opacity: 1,
-    },
+    // {
+    //   name: 'Offline',
+    //   olLayer: new OlTileLayer({
+    //     source: new OSM({
+    //       name: 'Offline',
+    //       url: this.offlineHost + '/styles/osm-bright/{z}/{x}/{y}.png',
+    //     }),
+    //   }),
+    //   opacity: 1,
+    // },
   ];
 
   @HostListener('window:keydown', ['$event'])

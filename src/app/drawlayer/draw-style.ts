@@ -36,6 +36,7 @@ import {
 } from '../entity/sign';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import ConvexHull from 'ol-ext/geom/ConvexHull';
+import IconAnchorUnits from 'ol/style/IconAnchorUnits';
 
 export class DrawStyle {
   static defaultScaleFactor = 0.2;
@@ -257,7 +258,8 @@ export class DrawStyle {
                 groupedFeatureCount,
                 iconSizeInCoordinates
               );
-              const coordinates = feature.getGeometry().getCoordinates();
+              console.log('disabled');
+              const coordinates = null; // feature.getGeometry().getCoordinates();
               const paddingFactor = 0.6;
               return new Polygon([
                 [
@@ -331,7 +333,8 @@ export class DrawStyle {
                 }),
                 zIndex: 5 * (selected ? 10 : 1),
                 geometry: function (feature) {
-                  const coordinates = feature.getGeometry().getCoordinates();
+                  console.log('disabled');
+                  const coordinates = null; // feature.getGeometry().getCoordinates();
                   return new Point([
                     coordinates[0] + iconLocation[0] + offset,
                     coordinates[1] + iconLocation[1] + offset,
@@ -350,7 +353,8 @@ export class DrawStyle {
                 }),
                 zIndex: 10 * (selected ? 10 : 1),
                 geometry: function (feature) {
-                  const coordinates = feature.getGeometry().getCoordinates();
+                  console.log('disabled');
+                  const coordinates = null; //feature.getGeometry().getCoordinates();
                   return new Point([
                     coordinates[0] + iconLocation[0] + offset,
                     coordinates[1] + iconLocation[1] + offset,
@@ -379,8 +383,8 @@ export class DrawStyle {
               new Style({
                 image: new Icon({
                   anchor: [0.5, 0.5],
-                  anchorXUnits: 'fraction',
-                  anchorYUnits: 'fraction',
+                  anchorXUnits: IconAnchorUnits.FRACTION,
+                  anchorYUnits: IconAnchorUnits.FRACTION,
                   scale: 0.25,
                   src: imageFromMemory
                     ? undefined
@@ -390,7 +394,8 @@ export class DrawStyle {
                 }),
                 zIndex: 15 * (selected ? 10 : 1),
                 geometry: function (feature) {
-                  const coordinates = feature.getGeometry().getCoordinates();
+                  console.log('disabled');
+                  const coordinates = null; //feature.getGeometry().getCoordinates();
                   return new Point([
                     coordinates[0] + iconLocation[0] + offset,
                     coordinates[1] + iconLocation[1] + offset,
@@ -702,7 +707,7 @@ export class DrawStyle {
         iconStyles.push(
           new Style({
             stroke: dashedStroke,
-            opacity: signature.iconOpacity || 1,
+            // opacity: signature.iconOpacity || 1,
             geometry: function (feature) {
               return DrawStyle.createLineToIcon(feature, resolution);
             },
@@ -781,15 +786,15 @@ export class DrawStyle {
         }
         const icon = new Icon({
           anchor: [0.5, 0.5],
-          anchorXUnits: 'fraction',
-          anchorYUnits: 'fraction',
+          anchorXUnits: IconAnchorUnits.FRACTION,
+          anchorYUnits: IconAnchorUnits.FRACTION,
           scale: scaledSize ? scaledSize : scale * 2.5 * signature.iconSize,
           opacity: signature.iconOpacity || 1,
           rotation:
             signature.rotation !== undefined
               ? (signature.rotation * Math.PI) / 180
               : 0,
-          rotationWithView: false,
+          // rotationWithView: false,
           src: imageFromMemory ? undefined : this.getImageUrl(signature.src),
           img: imageFromMemory ? imageFromMemory : undefined,
           imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
@@ -904,11 +909,11 @@ export class DrawStyle {
             geometry: new Point(lastCoordinate),
             image: new Icon({
               src: 'assets/img/arrow_' + signature.arrow + '.svg',
-              anchorXUnits: 'fraction',
-              anchorYUnits: 'fraction',
+              anchorXUnits: IconAnchorUnits.FRACTION,
+              anchorYUnits: IconAnchorUnits.FRACTION,
               anchor: [1, 0.5],
               rotation: finalAngle,
-              rotationWithView: false,
+              // rotationWithView: false,
               scale: scale * 0.4,
               color: DrawStyle.colorFunction(signature.color, 1.0),
             }),
@@ -1033,7 +1038,8 @@ export class DrawStyle {
       iconStyles.forEach((i) => styles.push(i));
     }
     if (vectorStyles) {
-      vectorStyles.forEach((v) => styles.push(v));
+      console.log('disabled');
+      //vectorStyles.forEach((v) => styles.push(v));
     }
     return styles;
   }
@@ -1069,11 +1075,13 @@ export class DrawStyle {
           padding: [5, 5, 5, 5],
         }),
         geometry: function (feature) {
-          return new Point(
-            feature.getGeometry().getCoordinates()[
-              feature.getGeometry().getCoordinates().length - 1
-            ]
-          );
+          console.log('disabled');
+          // return new Point(
+          //   feature.getGeometry().getCoordinates()[
+          //     feature.getGeometry().getCoordinates().length - 1
+          //   ]
+          // );
+          return null;
         },
         zIndex: zIndex,
       }),
@@ -1083,7 +1091,9 @@ export class DrawStyle {
           fill: this.getColorFill(signature.color),
         }),
         geometry: function (feature) {
-          return new Point(feature.getGeometry().getCoordinates()[0]);
+          console.log('disabled');
+          // return new Point(feature.getGeometry().getCoordinates()[0]);
+          return null;
         },
         zIndex: zIndex,
       }),

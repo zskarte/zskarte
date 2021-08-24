@@ -79,11 +79,12 @@ export class ExportDialogComponent implements OnInit {
   exportSession(): void {
     this.downloadTime = new Date().toISOString();
     const result = this.data;
-    result.session = this.sharedState.getCurrentSession();
-    result.images = this.imageStore.getAllEntriesForCurrentSession();
-    if (this.withHistory === 'withHistory') {
-      result.history = this.history;
-    }
+    console.log('disabled');
+    // result.session = this.sharedState.getCurrentSession();
+    // result.images = this.imageStore.getAllEntriesForCurrentSession();
+    // if (this.withHistory === 'withHistory') {
+    //   result.history = this.history;
+    // }
     const dataUrl =
       'data:text/json;charset=UTF-8,' +
       encodeURIComponent(JSON.stringify(result));

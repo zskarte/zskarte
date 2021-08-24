@@ -71,6 +71,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DetailImageViewComponent } from './detail-image-view/detail-image-view.component';
 import { HelpComponent } from './help/help.component';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MapRendererComponent } from './map-renderer/map-renderer.component';
 
 const dbConfig: DBConfig = {
   name: 'ZSKarte2-DB1.0',
@@ -122,6 +123,7 @@ const dbConfig: DBConfig = {
     EditCoordinatesComponent,
     DetailImageViewComponent,
     HelpComponent,
+    MapRendererComponent,
   ],
   imports: [
     BrowserModule,

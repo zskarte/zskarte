@@ -123,31 +123,32 @@ export class GeocoderComponent {
   geoCodeLoad() {
     if (this.inputText.length > 1) {
       const originalInput = this.inputText;
-      this.http.get(this.geocoderUrl + this.inputText).subscribe((result) => {
-        if (this.inputText === originalInput) {
-          this.foundLocations = [];
-          this.drawLayer.source
-            .getFeatures()
-            .map((f) => this.mapFeatureForSearch(f))
-            .filter((f) => {
-              return f.attrs.hit;
-            })
-            .forEach((f) => {
-              this.foundLocations.push(f);
-            });
-          this.drawLayer.clusterSource
-            .getFeatures()
-            .map((f) => this.mapFeatureForSearch(f))
-            .filter((f) => {
-              return f.attrs.hit;
-            })
-            .forEach((f) => {
-              this.foundLocations.push(f);
-            });
+      console.log('disabled');
+      // this.http.get(this.geocoderUrl + this.inputText).subscribe((result) => {
+      //   if (this.inputText === originalInput) {
+      //     this.foundLocations = [];
+      //     this.drawLayer.source
+      //       .getFeatures()
+      //       .map((f) => this.mapFeatureForSearch(f))
+      //       .filter((f) => {
+      //         return f.attrs.hit;
+      //       })
+      //       .forEach((f) => {
+      //         this.foundLocations.push(f);
+      //       });
+      //     this.drawLayer.clusterSource
+      //       .getFeatures()
+      //       .map((f) => this.mapFeatureForSearch(f))
+      //       .filter((f) => {
+      //         return f.attrs.hit;
+      //       })
+      //       .forEach((f) => {
+      //         this.foundLocations.push(f);
+      //       });
 
-          result['results'].forEach((r) => this.foundLocations.push(r));
-        }
-      });
+      //     result['results'].forEach((r) => this.foundLocations.push(r));
+      //   }
+      // });
     } else {
       this.foundLocations = [];
       this.sharedState.gotoCoordinate(null);

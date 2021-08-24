@@ -151,22 +151,23 @@ export class ToolbarComponent implements OnInit {
   }
 
   updateFilterSymbols() {
-    const symbols = {};
-    if (this.drawLayer && this.drawLayer.source) {
-      this.drawLayer.source
-        .getFeatures()
-        .forEach((f) => this.extractSymbol(f, symbols));
-      if (this.historyMode) {
-        this.drawLayer.clusterSource
-          .getFeatures()
-          .forEach((f) => this.extractSymbol(f, symbols));
-      }
-      this.filterKeys = Object.keys(symbols);
+    console.log('disabled');
+    // const symbols = {};
+    // if (this.drawLayer && this.drawLayer.source) {
+    //   this.drawLayer.source
+    //     .getFeatures()
+    //     .forEach((f) => this.extractSymbol(f, symbols));
+    //   if (this.historyMode) {
+    //     this.drawLayer.clusterSource
+    //       .getFeatures()
+    //       .forEach((f) => this.extractSymbol(f, symbols));
+    //   }
+    //   this.filterKeys = Object.keys(symbols);
 
-      this.filterSymbols = Object.values(symbols).sort((a: any, b: any) =>
-        a.label.localeCompare(b.label)
-      );
-    }
+    //   this.filterSymbols = Object.values(symbols).sort((a: any, b: any) =>
+    //     a.label.localeCompare(b.label)
+    //   );
+    // }
   }
 
   ngOnInit() {
@@ -180,7 +181,7 @@ export class ToolbarComponent implements OnInit {
       this.session = s;
       if (s) {
         let currentZSO = this.preferences.getZSO();
-        this.exportEnabled = (currentZSO != null && currentZSO.id != "zso_guest");
+        this.exportEnabled = currentZSO != null && currentZSO.id != 'zso_guest';
         this.preferences.setLastSessionId(s.uuid);
       }
     });
@@ -196,7 +197,8 @@ export class ToolbarComponent implements OnInit {
   }
 
   private filterAll(active: boolean) {
-    this.drawLayer.toggleFilters(this.filterKeys, active);
+    console.log('disabled');
+    // this.drawLayer.toggleFilters(this.filterKeys, active);
   }
 
   private createInitialSession() {
@@ -247,10 +249,11 @@ export class ToolbarComponent implements OnInit {
   }
 
   exportSession(): void {
-    const features = this.drawLayer.writeFeatures();
-    this.dialog.open(ExportDialogComponent, {
-      data: features,
-    });
+    console.log('disabled');
+    // const features = this.drawLayer.writeFeatures();
+    // this.dialog.open(ExportDialogComponent, {
+    //   data: features,
+    // });
   }
 
   toggleHistory(): void {

@@ -20,9 +20,23 @@
 
 <!--The content below is only a placeholder and can be replaced.-->
 <div class="application">
-  <app-map #map></app-map>
+  <!-- <app-map #map></app-map>
   <app-drawlayer [inputMap]="map.map" #drawLayer></app-drawlayer>
   <app-history></app-history>
   <app-toolbar [drawLayer]="drawLayer"></app-toolbar>
-  <app-selected-feature></app-selected-feature>
+  <app-selected-feature></app-selected-feature> -->
+  <h1>Name: {{ state.observeMapName() | async }}</h1>
+  <div *ngFor="let layer of state.observeLayers() | async">
+    <div>{{ layer.observeName() | async }}</div>
+    <div>{{ layer.observeIsVisible() | async }}</div>
+    <button (click)="layer.setName('Test 123')">set name</button
+    ><button (click)="layer.show()">show</button
+    ><button (click)="layer.hide()">hide</button>
+  </div>
+  <button (click)="state.setMapName('test')">set name</button>
+  <button (click)="state.addDrawLayer()">add draw layer</button>
+
+  <button (click)="state.loadMap(defaultMap)">load state</button>
+
+  <app-map-renderer></app-map-renderer>
 </div>
