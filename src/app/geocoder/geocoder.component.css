@@ -27,7 +27,6 @@ mat-form-field {
 }
 
 .currentLocation {
-  flex-grow: 1;
   display: flex;
   align-items: center;
   line-height: 1.5em;
