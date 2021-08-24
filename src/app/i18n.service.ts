@@ -334,7 +334,7 @@ export class I18NService {
     },
     sessionCreatorTitle: {
       de: 'Willkommen bei Zivilschutz-Karte!',
-      fr: 'Bienvenue à Zivilschutz-Karte !',
+      fr: 'Bienvenue à Zivilschutz-Karte!',
       en: 'Welcome to Zivilschutz-Karte!',
     },
     sessionCreatorInstructions: {
@@ -674,7 +674,7 @@ export class I18NService {
         'Sie können diesen Schritt selbstverständlich jederzeit überspringen und bei Bedarf über das Hilfe-Menü wieder aufrufen.\n\n' +
         'Wir wünschen Ihnen viel Spass bei der Verwendung!',
       fr:
-        '# Bienvenue à Zivilschutz-Karte !\n' +
+        '# Bienvenue à Zivilschutz-Karte!\n' +
         "Vous trouverez ici quelques informations sur la manière d'utiliser l'application.\n\n" +
         'Vous pouvez sauter cette étape à tout moment et la rappeler via le menu principal si nécessaire.\n\n' +
         "Nous espérons que vous prendrez plaisir à l'utiliser !",
