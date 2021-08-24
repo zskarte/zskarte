@@ -64,7 +64,7 @@
             {{ i18n.getLabelForSign(selectedSignature) }}
           </div>
           <div *ngIf="selectedSignature.createdAt" class="label-light">
-            {{ selectedSignature.createdAt | date: 'dd.MM.yyyy HH:mm' }}
+            {{ selectedSignature.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
           </div>
           <mat-form-field *ngIf="editMode">
             <mat-label>{{ i18n.get('name') }}</mat-label>
