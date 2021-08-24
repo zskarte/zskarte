@@ -26,8 +26,10 @@ export interface FillStyle {
 }
 
 export interface Sign {
+  id: number;
   type: string;
   src: string;
+  kat: string;
   protected?: boolean;
   de?: string;
   fr?: string;
@@ -51,7 +53,6 @@ export interface Sign {
   arrow?: string;
   iconSize?: number;
   images?: string[];
-  kat?: string; // deprecated - kept for compatibility reasons (is translated directly to color)
   iconOpacity?: number;
   rotation?: number;
   filterValue?: string;
@@ -119,15 +120,23 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     if (signature.kat) {
       switch (signature.kat) {
         case 'blue':
-          signature.color = '#0000FF';
+        case 'place':
+        case 'means':
+        case 'formations':
+            signature.color = '#0000FF';
           break;
         case 'red':
+        case 'damage':
           signature.color = '#FF0000';
           break;
         case 'orange':
+        case 'dangers':
           signature.color = '#FF9100';
           break;
         case 'other':
+        case 'fks':
+        case 'effects':
+        case 'labels':
           signature.color = '#948B68';
           break;
       }
