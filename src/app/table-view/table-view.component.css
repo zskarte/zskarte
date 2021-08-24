@@ -1,0 +1,36 @@
+header {
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h2 {
+  margin: 0;
+}
+
+.filter {
+  padding: 0.5rem;
+}
+
+.filter mat-form-field {
+  width: 100%;
+}
+
+table {
+  width: 100%;
+}
+
+table img {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+.mat-column-image {
+  width: 60px;
+}
+
+.mat-cell {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}

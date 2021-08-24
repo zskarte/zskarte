@@ -572,6 +572,11 @@ export class I18NService {
       fr: 'Voulez-vous vraiment supprimer ce symbole ?',
       en: 'Do you really want to delete this symbol?',
     },
+    coordinates: {
+      de: 'Koordinaten',
+      en: 'Coordinates',
+      fr: 'Coordonnées',
+    },
     defineCoordinates: {
       de: 'Koordinaten definieren',
       en: 'Define coordinates',
@@ -945,6 +950,16 @@ export class I18NService {
       en: 'Free hand',
       fr: 'TBD',
     },
+    table: {
+      de: 'Tabellenansicht',
+      en: 'Table view',
+      fr: 'Vue de table'
+    },
+    noData: {
+      de: 'Keine Daten',
+      en: 'No data',
+      fr: 'Aucune donnée'
+    }
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);

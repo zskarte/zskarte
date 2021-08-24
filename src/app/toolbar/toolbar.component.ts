@@ -4,6 +4,8 @@ import {
   HostListener,
   Input,
   OnInit,
+  Output,
+  EventEmitter
 } from '@angular/core';
 import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 import { SharedStateService } from '../shared-state.service';
@@ -71,6 +73,8 @@ export class ToolbarComponent implements OnInit {
   static ONBOARDING_VERSION = '1.0';
 
   @Input() drawLayer: DrawlayerComponent;
+  @Output() openTable = new EventEmitter();
+
   session: Session;
   historyMode: boolean;
   filterKeys: any[];
@@ -264,5 +268,9 @@ export class ToolbarComponent implements OnInit {
 
   help(): void {
     this.dialog.open(HelpComponent, { data: false });
+  }
+
+  table(): void {
+    this.openTable.emit(null);
   }
 }

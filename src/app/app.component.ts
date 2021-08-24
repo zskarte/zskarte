@@ -6,5 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  title = 'zsKarteAng';
+  showTable: Boolean;
+
+  toggleTable() {
+    this.showTable = !this.showTable;
+  }
 }

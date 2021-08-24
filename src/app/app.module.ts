@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { ToolsComponent } from './tools/tools.component';
 import { LayersComponent } from './layers/layers.component';
 import { CreditsComponent } from './credits/credits.component';
@@ -53,6 +54,9 @@ import { HelpComponent } from './help/help.component';
 import { MatStepperModule } from '@angular/material/stepper';
 import { registerLocaleData } from '@angular/common';
 import localeDeCh from '@angular/common/locales/de-CH';
+import { TableViewComponent } from './table-view/table-view.component';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSortModule } from '@angular/material/sort';
 
 registerLocaleData(localeDeCh)
 
@@ -106,6 +110,7 @@ const dbConfig: DBConfig = {
     EditCoordinatesComponent,
     DetailImageViewComponent,
     HelpComponent,
+    TableViewComponent
   ],
   imports: [
     BrowserModule,
@@ -132,6 +137,10 @@ const dbConfig: DBConfig = {
     MatExpansionModule,
     MatSlideToggleModule,
     MatStepperModule,
+    MatTableModule,
+    MatSortModule,
+    MatSidenavModule,
+    MatDividerModule
   ],
   entryComponents: [
     DrawingDialogComponent,
