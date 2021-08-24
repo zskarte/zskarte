@@ -179,6 +179,9 @@ export class DrawlayerComponent implements OnInit {
 
   historyMode: boolean;
 
+  mouseCoordinates: [0, 0]
+  mouseCoordinatesProjection: [0, 0]
+
   selectedFeature: Feature;
 
   private drawers: { [key: string]: Draw } = {};
@@ -452,6 +455,10 @@ export class DrawlayerComponent implements OnInit {
           this.clearSelection();
         }
       }
+    });
+
+    this.map.on('pointermove', (evt) => {
+      this.setMouseCoordinates(evt.coordinate)
     });
 
     this.sharedState.currentFeature.subscribe((feature) => {
@@ -946,9 +953,24 @@ export class DrawlayerComponent implements OnInit {
 
   rotateProjection() {
     const nextIndex = this.selectedProjectionIndex + 1;
-    this.selectedProjectionIndex =
-      nextIndex >= availableProjections.length ? 0 : nextIndex;
-    this.setSelectedFeatureCoordinates(this.selectedFeature);
+    this.selectedProjectionIndex = nextIndex >= availableProjections.length ? 0 : nextIndex;
+    if (this.selectedFeature) {
+      this.setSelectedFeatureCoordinates(this.selectedFeature);
+    } else {
+      this.setMouseCoordinates(undefined)
+    }
+  }
+
+  setMouseCoordinates(coordinate) {
+    if (coordinate) {
+      this.mouseCoordinates = coordinate
+    }
+    const mouseCoordinates = transform(
+      this.mouseCoordinates,
+      mercatorProjection,
+      availableProjections[this.selectedProjectionIndex]
+    );
+    this.mouseCoordinatesProjection = mouseCoordinates
   }
 
   setSelectedFeatureCoordinates(feature: Feature) {
