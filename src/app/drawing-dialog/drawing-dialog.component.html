@@ -42,7 +42,24 @@
             placeholder="{{ i18n.get('filter') }}"
         /></mat-form-field>
       </td>
-      <td></td>
+      <td>
+        <mat-form-field appearance="fill">
+          <mat-label>Nach Kategorie filtern</mat-label>
+          <mat-select
+            [(value)]="selected"
+            (selectionChange)="updateAvailableSigns()">
+            <mat-option>Alle Kategorien</mat-option>
+            <mat-option value="place">place</mat-option>
+            <mat-option value="fks">fks</mat-option>
+            <mat-option value="means">means</mat-option>
+            <mat-option value="damage">damage</mat-option>
+            <mat-option value="formations">formations</mat-option>
+            <mat-option value="effects">effects</mat-option>
+            <mat-option value="dangers">dangers</mat-option>
+            <mat-option value="labels">labels</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </td>
     </tr>
     <tr
       *ngFor="let sign of filteredSigns"

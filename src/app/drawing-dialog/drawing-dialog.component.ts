@@ -38,6 +38,7 @@ export class DrawingDialogComponent implements OnInit {
   filter: string = null;
   allSigns: Sign[] = null;
   filteredSigns: Sign[] = [];
+  selected: string = null;
 
   isCustomImage(sign: Sign) {
     return CustomImageStoreService.isCustomImage(sign.src);
@@ -59,8 +60,7 @@ export class DrawingDialogComponent implements OnInit {
   updateAvailableSigns() {
     this.filteredSigns = this.allSigns.filter(
       (s) =>
-        !this.filter ||
-        this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)
+        (!this.filter || this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)) && (!this.selected || this.selected === s.kat)
     );
   }
 
