@@ -26,10 +26,10 @@ export interface FillStyle {
 }
 
 export interface Sign {
-  id: number;
+  id?: number;
   type: string;
   src: string;
-  kat: string;
+  kat?: string;
   protected?: boolean;
   de?: string;
   fr?: string;
