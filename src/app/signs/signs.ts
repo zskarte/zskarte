@@ -74,7 +74,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'BABS/Autounfall_2.svg',
+      src: 'BABS/Autounfall.svg',
       de: 'Autounfall',
       en: 'Autounfall',
       fr: 'Accident de circulation automobile',
@@ -1297,6 +1297,14 @@ export class Signs {
       en: 'Zivilschutz',
       fr: 'Défense civile',
     },    
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Ziviles Fuehrungsorgan.svg',
+      de: 'Ziviles Fuehrungsorgan',
+      en: 'Ziviles Fuehrungsorgan',
+      fr: 'Organe exécutif civil',
+    },
   ];
 
   public static getSignBySource(src: string) {
