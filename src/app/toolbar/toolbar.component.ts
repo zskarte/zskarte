@@ -117,36 +117,38 @@ export class ToolbarComponent implements OnInit {
 
   extractSymbol(f, symbols) {
     const sig = f.get('sig');
-    if (sig && sig.src) {
-      if (!symbols[sig.src]) {
-        const dataUrl = CustomImageStoreService.getImageDataUrl(sig.src);
-        symbols[sig.src] = {
-          label: this.i18n.getLabelForSign(sig),
-          origSrc: sig.src,
-          src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
+    if (sig) {
+      if (sig.src) {
+        if (!symbols[sig.src]) {
+          const dataUrl = CustomImageStoreService.getImageDataUrl(sig.src);
+          symbols[sig.src] = {
+            label: this.i18n.getLabelForSign(sig),
+            origSrc: sig.src,
+            src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
+          };
+        }
+      } else if (sig.type === 'Polygon' && !sig.src) {
+        symbols['not_labeled_polygon'] = {
+          type: 'Polygon',
+          label: this.i18n.get('polygon'),
+          filterValue: 'not_labeled_polygon',
+          icon: 'widgets',
+        };
+      } else if (sig.type === 'LineString' && sig.text) {
+        symbols['text_element'] = {
+          type: 'LineString',
+          label: this.i18n.get('text'),
+          filterValue: 'text_element',
+          icon: 'font_download',
+        };
+      } else if (sig.type === 'LineString' && !sig.src) {
+        symbols['not_labeled_line'] = {
+          type: 'LineString',
+          label: this.i18n.get('line'),
+          filterValue: 'not_labeled_line',
+          icon: 'show_chart',
         };
       }
-    } else if (sig.type === 'Polygon' && !sig.src) {
-      symbols['not_labeled_polygon'] = {
-        type: 'Polygon',
-        label: this.i18n.get('polygon'),
-        filterValue: 'not_labeled_polygon',
-        icon: 'widgets',
-      };
-    } else if (sig.type === 'LineString' && sig.text) {
-      symbols['text_element'] = {
-        type: 'LineString',
-        label: this.i18n.get('text'),
-        filterValue: 'text_element',
-        icon: 'font_download',
-      };
-    } else if (sig.type === 'LineString' && !sig.src) {
-      symbols['not_labeled_line'] = {
-        type: 'LineString',
-        label: this.i18n.get('line'),
-        filterValue: 'not_labeled_line',
-        icon: 'show_chart',
-      };
     }
   }
 
@@ -180,7 +182,7 @@ export class ToolbarComponent implements OnInit {
       this.session = s;
       if (s) {
         let currentZSO = this.preferences.getZSO();
-        this.exportEnabled = (currentZSO != null && currentZSO.id != "zso_guest");
+        this.exportEnabled = currentZSO != null && currentZSO.id != 'zso_guest';
         this.preferences.setLastSessionId(s.uuid);
       }
     });
