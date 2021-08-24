@@ -25,7 +25,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'ABC Dekontaminationsstelle.png',
+      src: 'BABS/ABC Dekontaminationsstelle.svg',
       de: 'ABC Dekontaminationsstelle',
       en: 'ABC Dekontaminationsstelle',
       fr: 'Place de décontamination',
@@ -33,7 +33,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#0000FF',
-      src: 'Absperrung Einsatzraum.png',
+      src: 'BABS/Absperrung Einsatzraum.svg',
       de: 'Absperrung Einsatzraum',
       en: 'Absperrung Einsatzraum',
       fr: 'Barrage du secteur d’engagement',
@@ -41,7 +41,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Absperrung Verkehrswege.png',
+      src: 'BABS/Absperrung Verkehrswege.svg',
       de: 'Absperrung Verkehrswege',
       en: 'Absperrung Verkehrswege',
       fr: 'Fermeture de la route',
@@ -49,7 +49,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Achse fuer Ei, Rttg, Vsg.png',
+      src: 'BABS/Achse fuer Ei, Rttg, Vsg.svg',
       de: 'Achse für Ei, Rttg, Vsg',
       en: 'Achse für Ei, Rttg, Vsg',
       fr: 'Axe d’engagement pour le sauvetage, l’approvisionnement, etc.',
@@ -58,7 +58,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Angehoerigensammelstelle.png',
+      src: 'BABS/Angehoerigensammelstelle.svg',
       de: 'Angehörigensammelstelle',
       en: 'Angehörigensammelstelle',
       fr: 'Poste collecteur pour les proches',
@@ -66,7 +66,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Atomunfall.png',
+      src: 'BABS/Atomunfall.svg',
       de: 'Atomunfall',
       en: 'Atomunfall',
       fr: 'Accident nucléaire',
@@ -74,7 +74,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Autounfall_2.png',
+      src: 'BABS/Autounfall_2.svg',
       de: 'Autounfall',
       en: 'Autounfall',
       fr: 'Accident de circulation automobile',
@@ -82,7 +82,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Beabsichtigte Erkundung.png',
+      src: 'BABS/Beabsichtigte Erkundung.svg',
       de: 'Beabsichtigte Erkundung',
       en: 'Beabsichtigte Erkundung',
       fr: 'Exploration / Reconnaissances prévues',
@@ -91,7 +91,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Beabsichtigter Einsatz.png',
+      src: 'BABS/Beabsichtigter Einsatz.svg',
       de: 'Beabsichtigter Einsatz',
       en: 'Beabsichtigter Einsatz',
       fr: 'Engagements prévus',
@@ -101,7 +101,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Beabsichtigte Verschiebung.png',
+      src: 'BABS/Beabsichtigte Verschiebung.svg',
       de: 'Beabsichtigte Verschiebung',
       en: 'Beabsichtigte Verschiebung',
       fr: 'Mouvements prévus',
@@ -113,7 +113,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Beobachtung.png',
+      src: 'BABS/Beobachtung.svg',
       de: 'Beobachtung',
       en: 'Beobachtung',
       fr: 'Observation',
@@ -121,7 +121,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Beschaedigung.png',
+      src: 'BABS/Beschaedigung.svg',
       de: 'Beschädigung',
       en: 'Beschädigung',
       fr: 'Dégât',
@@ -129,7 +129,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Betreuungsstelle.png',
+      src: 'BABS/Betreuungsstelle.svg',
       de: 'Betreuungsstelle',
       en: 'Betreuungsstelle',
       fr: 'Poste d’assistance',
@@ -137,7 +137,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Betriebsstoffabgabestelle.png',
+      src: 'BABS/Betriebsstoffabgabestelle.svg',
       de: 'Betriebsstoffabgabestelle',
       en: 'Betriebsstoffabgabestelle',
       fr: 'Station de carburant',
@@ -145,7 +145,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Bezirksfuehrungsorgan.png',
+      src: 'BABS/Bezirksfuehrungsorgan.svg',
       de: 'Bezirksführungsorgan',
       en: 'Bezirksführungsorgan',
       fr: 'Organe de conduite de district',
@@ -153,7 +153,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#948B68',
-      src: 'Biologisch verseuchtes Gebiet.png',
+      src: 'BABS/Biologisch verseuchtes Gebiet.svg',
       de: 'Biologisch verseuchtes Gebiet',
       en: 'Biologisch verseuchtes Gebiet',
       fr: 'Zone biologiquement contaminée',
@@ -161,7 +161,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Biounfall.png',
+      src: 'BABS/Biounfall.svg',
       de: 'Biounfall',
       en: 'Biounfall',
       fr: 'Accident biologique',
@@ -169,7 +169,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'B Laboratorium.png',
+      src: 'BABS/B Laboratorium.svg',
       de: 'B Laboratorium',
       en: 'B Laboratorium',
       fr: 'Laboratoire B',
@@ -177,7 +177,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Bombenanschlag.png',
+      src: 'BABS/Bombenanschlag.svg',
       de: 'Bombenanschlag',
       en: 'Bombenanschlag',
       fr: 'Attentat à la bombe',
@@ -185,7 +185,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Bombendrohung.png',
+      src: 'BABS/Bombendrohung.svg',
       de: 'Bombendrohung',
       en: 'Bombendrohung',
       fr: 'Menace à la bombe',
@@ -193,7 +193,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Brandanschlag.png',
+      src: 'BABS/Brandanschlag.svg',
       de: 'Brandanschlag',
       en: 'Brandanschlag',
       fr: 'Incendie criminel',
@@ -201,7 +201,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Brand einzelnes Gebaeude Flamme.png',
+      src: 'BABS/Brand einzelnes Gebaeude Flamme.svg',
       de: 'Brand einzelnes Gebäude Flamme',
       en: 'Brand einzelnes Gebäude Flamme',
       fr: 'Incendie isolé',
@@ -209,7 +209,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Brand.png',
+      src: 'BABS/Brand.svg',
       de: 'Brand',
       en: 'Brand',
       fr: 'Incendie',
@@ -217,26 +217,26 @@ export class Signs {
     {
       type: 'LineString',
       color: '#FF0000',
-      src: 'Branduebergriff erfolgt - Signatur.png',
+      src: 'BABS/Branduebergriff erfolgt - Signatur.svg',
       de: 'Brandübergriff erfolgt',
       en: 'Brandübergriff erfolgt',
       fr: 'Extension du feu',
-      example: 'Branduebergriff erfolgt - Beispiel.png',
+      example: 'Branduebergriff erfolgt - Beispiel.svg',
     },
     {
       type: 'LineString',
       color: '#FF0000',
-      src: 'Branduebergriffsgefahr - Signatur.png',
+      src: 'BABS/Branduebergriffsgefahr - Signatur.svg',
       de: 'Brandübergriffsgefahr',
       en: 'Brandübergriffsgefahr',
       fr: "Danger d'extension",
-      example: 'Branduebergriffsgefahr - Beispiel.png',
+      example: 'Branduebergriffsgefahr - Beispiel.svg',
       style: 'dash',
     },
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Brandzone Flaechenbrand.png',
+      src: 'BABS/Brandzone Flaechenbrand.svg',
       de: 'Brandzone Flächenbrand',
       en: 'Brandzone Flächenbrand',
       fr: 'Zone en feu',
@@ -251,7 +251,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Chemieunfall.png',
+      src: 'BABS/Chemieunfall.svg',
       de: 'Chemieunfall',
       en: 'Chemieunfall',
       fr: 'Accident chimique',
@@ -259,7 +259,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#948B68',
-      src: 'Chemievergiftetes Gebiet gasfoermig - fluechtig.png',
+      src: 'BABS/Chemievergiftetes Gebiet gasfoermig - fluechtig.svg',
       de: 'Chemievergiftetes Gebiet gasförmig - flüchtig',
       en: 'Chemievergiftetes Gebiet gasförmig - flüchtig',
       fr: 'Zone chimiquement contaminée gazeux - volatil',
@@ -267,7 +267,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#948B68',
-      src: 'Chemievergiftete Zone fluessig - sesshaft.png',
+      src: 'BABS/Chemievergiftete Zone fluessig - sesshaft.svg',
       de: 'Chemievergiftete Zone flüssig - sesshaft',
       en: 'Chemievergiftete Zone flüssig - sesshaft',
       fr: 'Zone chimiquement contaminée liquide',
@@ -275,7 +275,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Chemikalien.png',
+      src: 'BABS/Chemikalien.svg',
       de: 'Chemikalien',
       en: 'Chemikalien',
       fr: 'Chimique',
@@ -283,7 +283,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Debriefingstelle.png',
+      src: 'BABS/Debriefingstelle.svg',
       de: 'Debriefingstelle',
       en: 'Debriefingstelle',
       fr: 'Poste de débriefing',
@@ -291,7 +291,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Demo gewaltlos.png',
+      src: 'BABS/Demo gewaltlos.svg',
       de: 'Demo gewaltlos',
       en: 'Demo gewaltlos',
       fr: 'Manifestation',
@@ -299,7 +299,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Demo gewaltsam.png',
+      src: 'BABS/Demo gewaltsam.svg',
       de: 'Demo gewaltsam',
       en: 'Demo gewaltsam',
       fr: 'Manifestation avec exactions',
@@ -307,7 +307,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Drohung.png',
+      src: 'BABS/Drohung.svg',
       de: 'Drohung',
       en: 'Drohung',
       fr: 'Menace',
@@ -315,7 +315,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Duerre.png',
+      src: 'BABS/Duerre.svg',
       de: 'Dürre',
       en: 'Dürre',
       fr: 'Sécheresse',
@@ -323,7 +323,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Durchgefuehrte Erkundung.png',
+      src: 'BABS/Durchgefuehrte Erkundung.svg',
       de: 'Durchgeführte Erkundung',
       en: 'Durchgeführte Erkundung',
       fr: 'Exploration / Reconnaissances exécutées',
@@ -331,7 +331,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Durchgefuehrter Einsatz.png',
+      src: 'BABS/Durchgefuehrter Einsatz.svg',
       de: 'Durchgeführter Einsatz',
       en: 'Durchgeführter Einsatz',
       fr: 'Engagements exécutés',
@@ -339,7 +339,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Durchgefuehrte Verschiebung.png',
+      src: 'BABS/Durchgefuehrte Verschiebung.svg',
       de: 'Durchgeführte Verschiebung',
       en: 'Durchgeführte Verschiebung',
       fr: 'Mouvements exécutés',
@@ -347,7 +347,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Eingesperrte - Abgeschnittene.png',
+      src: 'BABS/Eingesperrte - Abgeschnittene.svg',
       de: 'Eingesperrte - Abgeschnittene',
       en: 'Eingesperrte - Abgeschnittene',
       fr: 'Personnes enfermées ou retranchées',
@@ -355,7 +355,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Einsatzleiter.png',
+      src: 'BABS/Einsatzleiter.svg',
       de: 'Einsatzleiter',
       en: 'Einsatzleiter',
       fr: 'Chef d’intervention',
@@ -363,7 +363,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Einsatzleitung.png',
+      src: 'BABS/Einsatzleitung.svg',
       de: 'Einsatzleitung',
       en: 'Einsatzleitung',
       fr: 'Direction d’intervention',
@@ -371,7 +371,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Einsatzzentrale.png',
+      src: 'BABS/Einsatzzentrale.svg',
       de: 'Einsatzzentrale',
       en: 'Einsatzzentrale',
       fr: 'Centrale d‘engagement',
@@ -379,7 +379,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Eisenbahnunglueck.png',
+      src: 'BABS/Eisenbahnunglueck.svg',
       de: 'Eisenbahnunglück',
       en: 'Eisenbahnunglück',
       fr: 'Accident ferroviaire',
@@ -387,7 +387,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Elektrizitaet.png',
+      src: 'BABS/Elektrizitaet.svg',
       de: 'Elektrizität',
       en: 'Elektrizität',
       fr: 'Electricité',
@@ -395,7 +395,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Energieausfall.png',
+      src: 'BABS/Energieausfall.svg',
       de: 'Energieausfall',
       en: 'Energieausfall',
       fr: 'Panne énergétique',
@@ -403,7 +403,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Epidemie.png',
+      src: 'BABS/Epidemie.svg',
       de: 'Epidemie',
       en: 'Epidemie',
       fr: 'Epidemie',
@@ -411,7 +411,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Erdbeben.png',
+      src: 'BABS/Erdbeben.svg',
       de: 'Erdbeben',
       en: 'Erdbeben',
       fr: 'Tremblement de terre',
@@ -419,7 +419,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Erdrutsch.png',
+      src: 'BABS/Erdrutsch.svg',
       de: 'Erdrutsch',
       en: 'Erdrutsch',
       fr: 'Glissement de terrain',
@@ -427,7 +427,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Explosion.png',
+      src: 'BABS/Explosion.svg',
       de: 'Explosion',
       en: 'Explosion',
       fr: 'Explosion',
@@ -435,16 +435,16 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Explosionsherd - Signatur.png',
+      src: 'BABS/Explosionsherd - Signatur.svg',
       de: 'Explosionsherd',
       en: 'Explosionsherd',
       fr: 'Foyer d’explosion',
-      example: 'Explosionsherd - Beispiel.png',
+      example: 'Explosionsherd - Beispiel.svg',
     },
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Fahrzeugplatz.png',
+      src: 'BABS/Fahrzeugplatz.svg',
       de: 'Fahrzeugplatz',
       en: 'Fahrzeugplatz',
       fr: 'Place pour véhicules',
@@ -452,7 +452,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Fluechtlinge.png',
+      src: 'BABS/Fluechtlinge.svg',
       de: 'Flüchtlinge',
       en: 'Flüchtlinge',
       fr: 'Réfugiés',
@@ -460,7 +460,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Flugzeugabsturz.png',
+      src: 'BABS/Flugzeugabsturz.svg',
       de: 'Flugzeugabsturz',
       en: 'Flugzeugabsturz',
       fr: 'Catastrophe aérienne',
@@ -468,7 +468,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Gas.png',
+      src: 'BABS/Gas.svg',
       de: 'Gas',
       en: 'Gas',
       fr: 'Gaz',
@@ -476,7 +476,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Gebaeudeeinsturz.png',
+      src: 'BABS/Gebaeudeeinsturz.svg',
       de: 'Gebäudeeinsturz',
       en: 'Gebäudeeinsturz',
       fr: 'Immeuble effondré',
@@ -484,7 +484,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Gefahr durch Loeschen mit Wasser.png',
+      src: 'BABS/Gefahr durch Loeschen mit Wasser.svg',
       de: 'Gefahr durch Löschen mit Wasser',
       en: 'Gefahr durch Löschen mit Wasser',
       fr: "Danger en cas d'extinction avec de l'eau",
@@ -492,7 +492,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Gefahrentafel mit UN-Nummer.png',
+      src: 'BABS/Gefahrentafel mit UN-Nummer.svg',
       de: 'Gefahrentafel mit UN-Nummer',
       en: 'Gefahrentafel mit UN-Nummer',
       fr: 'Plaque de danger avec numéro ONU',
@@ -500,7 +500,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Gefahr fuer Grundwasser.png',
+      src: 'BABS/Gefahr fuer Grundwasser.svg',
       de: 'Gefahr für Grundwasser',
       en: 'Gefahr für Grundwasser',
       fr: 'Danger pour les eaux de surface et/ou nappes souterraines',
@@ -508,7 +508,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Gemeindefuehrungsorgan.png',
+      src: 'BABS/Gemeindefuehrungsorgan.svg',
       de: 'Gemeindeführungsorgan',
       en: 'Gemeindeführungsorgan',
       fr: 'Organe de conduite communal',
@@ -516,7 +516,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Gruppenfuehrer.png',
+      src: 'BABS/Gruppenfuehrer.svg',
       de: 'Gruppenführer',
       en: 'Gruppenführer',
       fr: 'Chef de groupe',
@@ -524,7 +524,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Gruppe.png',
+      src: 'BABS/Gruppe.svg',
       de: 'Gruppe',
       en: 'Gruppe',
       fr: 'Groupe',
@@ -532,7 +532,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Helikopterlandeplatz.png',
+      src: 'BABS/Helikopterlandeplatz.svg',
       de: 'Helikopterlandeplatz',
       en: 'Helikopterlandeplatz',
       fr: 'Place d’atterrissage pour hélicoptère',
@@ -540,7 +540,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Informationsstelle.png',
+      src: 'BABS/Informationsstelle.svg',
       de: 'Informationsstelle',
       en: 'Informationsstelle',
       fr: 'Point d’information',
@@ -548,7 +548,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Informationszentrum.png',
+      src: 'BABS/Informationszentrum.svg',
       de: 'Informationszentrum',
       en: 'Informationszentrum',
       fr: 'Centre de presse',
@@ -556,7 +556,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Infrastrukturschaden.png',
+      src: 'BABS/Infrastrukturschaden.svg',
       de: 'Infrastrukturschaden',
       en: 'Infrastrukturschaden',
       fr: 'Dommages aux infrastructures',
@@ -564,7 +564,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Kadaversammelstelle.png',
+      src: 'BABS/Kadaversammelstelle.svg',
       de: 'Kadaversammelstelle',
       en: 'Kadaversammelstelle',
       fr: 'Poste collecteur de cadavres d’animaux',
@@ -572,7 +572,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Kanalisationsausfall.png',
+      src: 'BABS/Kanalisationsausfall.svg',
       de: 'Kanalisationsausfall',
       en: 'Kanalisationsausfall',
       fr: 'Egoûts défectueux',
@@ -580,7 +580,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Kantonales Fuehrungsorgan.png',
+      src: 'BABS/Kantonales Fuehrungsorgan.svg',
       de: 'Kantonales Führungsorgan',
       en: 'Kantonales Führungsorgan',
       fr: 'Organe de conduite cantonal',
@@ -588,7 +588,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'KGS Sammelpunkt.png',
+      src: 'BABS/KGS Sammelpunkt.svg',
       de: 'KGS Sammelpunkt',
       en: 'KGS Sammelpunkt',
       fr: 'Point de collecte PBC',
@@ -596,7 +596,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'KGS Notdepot.png',
+      src: 'BABS/KGS Notdepot.svg',
       de: 'KGS Notdepot',
       en: 'KGS Notdepot',
       fr: 'Dépôt d’urgence PBC',
@@ -604,7 +604,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'KGS Notlager.png',
+      src: 'BABS/KGS Notlager.svg',
       de: 'KGS Notlager',
       en: 'KGS Notlager',
       fr: 'Entrepôt d’urgence PBC',
@@ -612,7 +612,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Kommandoposten Front.png',
+      src: 'BABS/Kommandoposten Front.svg',
       de: 'Kommandoposten Front',
       en: 'Kommandoposten Front',
       fr: 'PC engagement',
@@ -620,7 +620,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Kommandoposten Rueckwaertiges.png',
+      src: 'BABS/Kommandoposten Rueckwaertiges.svg',
       de: 'Kommandoposten Rückwärtiges',
       en: 'Kommandoposten Rückwärtiges',
       fr: 'PC opérations',
@@ -628,7 +628,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Kommunikationsstoerung.png',
+      src: 'BABS/Kommunikationsstoerung.svg',
       de: 'Kommunikationsstörung',
       en: 'Kommunikationsstörung',
       fr: 'Perturbation de la communication',
@@ -636,7 +636,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Kompanie.png',
+      src: 'BABS/Kompanie.svg',
       de: 'Kompanie',
       en: 'Kompanie',
       fr: 'Compagnie',
@@ -644,7 +644,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Kontrollstelle.png',
+      src: 'BABS/Kontrollstelle.svg',
       de: 'Kontrollstelle',
       en: 'Kontrollstelle',
       fr: 'Point de contrôle',
@@ -652,7 +652,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Kontrollzentrum.png',
+      src: 'BABS/Kontrollzentrum.svg',
       de: 'Kontrollzentrum',
       en: 'Kontrollzentrum',
       fr: 'Centre de contrôle',
@@ -660,7 +660,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Lawine.png',
+      src: 'BABS/Lawine.svg',
       de: 'Lawine',
       en: 'Lawine',
       fr: 'Avalanche',
@@ -668,7 +668,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Massenpanik.png',
+      src: 'BABS/Massenpanik.svg',
       de: 'Massenpanik',
       en: 'Massenpanik',
       fr: 'Effets de panique',
@@ -676,7 +676,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Materialdepot.png',
+      src: 'BABS/Materialdepot.svg',
       de: 'Materialdepot',
       en: 'Materialdepot',
       fr: 'Dépôt de matériel',
@@ -684,7 +684,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Mobile Einsatzzentrale.png',
+      src: 'BABS/Mobile Einsatzzentrale.svg',
       de: 'Mobile Einsatzzentrale',
       en: 'Mobile Einsatzzentrale',
       fr: 'Centrale d’engagement mobile',
@@ -692,7 +692,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Obdachlose.png',
+      src: 'BABS/Obdachlose.svg',
       de: 'Obdachlose',
       en: 'Obdachlose',
       fr: 'Sans-abri',
@@ -700,7 +700,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Oelverschmutzung.png',
+      src: 'BABS/Oelverschmutzung.svg',
       de: 'Ölverschmutzung',
       en: 'Ölverschmutzung',
       fr: 'Pollution aux hydrocarbures',
@@ -708,7 +708,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Offizier - Zugfuehrer.png',
+      src: 'BABS/Offizier - Zugfuehrer.svg',
       de: 'Offizier - Zugführer',
       en: 'Offizier - Zugführer',
       fr: 'Officier',
@@ -716,7 +716,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Patientensammelstelle.png',
+      src: 'BABS/Patientensammelstelle.svg',
       de: 'Patientensammelstelle',
       en: 'Patientensammelstelle',
       fr: 'Poste collecteur de patients',
@@ -724,7 +724,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Pforte.png',
+      src: 'BABS/Pforte.svg',
       de: 'Pforte',
       en: 'Pforte',
       fr: 'Porte',
@@ -732,7 +732,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Pluenderung.png',
+      src: 'BABS/Pluenderung.svg',
       de: 'Plünderung',
       en: 'Plünderung',
       fr: 'Pillage',
@@ -740,7 +740,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#948B68',
-      src: 'Radioaktives Gebiet.png',
+      src: 'BABS/Radioaktives Gebiet.svg',
       de: 'Radioaktives Gebiet',
       en: 'Radioaktives Gebiet',
       fr: 'Zone radioactive',
@@ -748,7 +748,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Radioaktive Stoffe.png',
+      src: 'BABS/Radioaktive Stoffe.svg',
       de: 'Radioaktive Stoffe',
       en: 'Radioaktive Stoffe',
       fr: 'Substances radioactives',
@@ -756,7 +756,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Regionales Fuehrungsorgan.png',
+      src: 'BABS/Regionales Fuehrungsorgan.svg',
       de: 'Regionales Führungsorgan',
       en: 'Regionales Führungsorgan',
       fr: 'Organe de conduite régional',
@@ -764,7 +764,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Rutschgebiet.png',
+      src: 'BABS/Rutschgebiet.svg',
       de: 'Rutschgebiet',
       en: 'Rutschgebiet',
       fr: 'Glissement de terrain',
@@ -772,7 +772,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Sabotage.png',
+      src: 'BABS/Sabotage.svg',
       de: 'Sabotage',
       en: 'Sabotage',
       fr: 'Sabotage',
@@ -780,7 +780,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Sammelstelle.png',
+      src: 'BABS/Sammelstelle.svg',
       de: 'Sammelstelle',
       en: 'Sammelstelle',
       fr: 'Poste collecteur',
@@ -788,7 +788,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Sanitaetshilfsstelle.png',
+      src: 'BABS/Sanitaetshilfsstelle.svg',
       de: 'Sanitätshilfsstelle',
       en: 'Sanitätshilfsstelle',
       fr: 'Poste médical avancé',
@@ -796,7 +796,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Sanitaetsumladestelle.png',
+      src: 'BABS/Sanitaetsumladestelle.svg',
       de: 'Sanitätsumladestelle',
       en: 'Sanitätsumladestelle',
       fr: 'Poste sanitaire de transfert',
@@ -804,7 +804,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Sperre.png',
+      src: 'BABS/Sperre.svg',
       de: 'Sperre',
       en: 'Sperre',
       fr: 'Barrage',
@@ -812,7 +812,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Standort mobile Fuehrungsstelle.png',
+      src: 'BABS/Standort mobile Fuehrungsstelle.svg',
       de: 'Standort mobile Führungsstelle',
       en: 'Standort mobile Führungsstelle',
       fr: 'Poste de conduite',
@@ -820,7 +820,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Starkniederschlag.png',
+      src: 'BABS/Starkniederschlag.svg',
       de: 'Starkniederschlag',
       en: 'Starkniederschlag',
       fr: 'Fortes précipitations',
@@ -828,7 +828,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Stau.png',
+      src: 'BABS/Stau.svg',
       de: 'Stau',
       en: 'Stau',
       fr: 'Embouteillage',
@@ -836,7 +836,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#FF0000',
-      src: 'Str erschwert befahrbar - begehbar.png',
+      src: 'BABS/Str erschwert befahrbar - begehbar.svg',
       de: 'Strasse erschwert befahrbar - begehbar',
       en: 'Strasse erschwert befahrbar - begehbar',
       fr: 'Route difficilement praticable pour les vhc, possible pour les piétons',
@@ -845,7 +845,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Streugutsammelstelle.png',
+      src: 'BABS/Streugutsammelstelle.svg',
       de: 'Streugutsammelstelle',
       en: 'Streugutsammelstelle',
       fr: 'Poste collecteur des objets trouvés',
@@ -853,7 +853,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#FF0000',
-      src: 'Str nicht befahrbar - schwer begehbar.png',
+      src: 'BABS/Str nicht befahrbar - schwer begehbar.svg',
       de: 'Strasse nicht befahrbar - schwer begehbar',
       en: 'Strasse nicht befahrbar - schwer begehbar',
       fr: 'Route impraticable pour les vhc et difficile pour les piétons',
@@ -861,7 +861,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#FF0000',
-      src: 'Str unpassierbar - gesperrt.png',
+      src: 'BABS/Str unpassierbar - gesperrt.svg',
       de: 'Strasse unpassierbar - gesperrt',
       en: 'Strasse unpassierbar - gesperrt',
       fr: 'Route impraticable / barrée',
@@ -869,7 +869,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Stuetzpunkt.png',
+      src: 'BABS/Stuetzpunkt.svg',
       de: 'Stützpunkt',
       en: 'Stützpunkt',
       fr: 'Point de sécurité',
@@ -877,7 +877,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Sturm.png',
+      src: 'BABS/Sturm.svg',
       de: 'Sturm',
       en: 'Sturm',
       fr: 'Tempête',
@@ -885,7 +885,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Tankloeschfahrzeug.png',
+      src: 'BABS/Tankloeschfahrzeug.svg',
       de: 'Tanklöschfahrzeug',
       en: 'Tanklöschfahrzeug',
       fr: 'Tonne-pompe',
@@ -893,7 +893,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Teilzerstoerung.png',
+      src: 'BABS/Teilzerstoerung.svg',
       de: 'Teilzerstörung',
       en: 'Teilzerstörung',
       fr: 'Destruction partielle',
@@ -901,7 +901,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Terroranschlag.png',
+      src: 'BABS/Terroranschlag.svg',
       de: 'Terroranschlag',
       en: 'Terroranschlag',
       fr: 'Acte de terrorisme',
@@ -909,7 +909,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Tierseuche.png',
+      src: 'BABS/Tierseuche.svg',
       de: 'Tierseuche',
       en: 'Tierseuche',
       fr: 'Epizootie',
@@ -917,7 +917,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Totalzerstoerung.png',
+      src: 'BABS/Totalzerstoerung.svg',
       de: 'Totalzerstörung',
       en: 'Totalzerstörung',
       fr: 'Destruction totale',
@@ -925,7 +925,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Totensammelstelle.png',
+      src: 'BABS/Totensammelstelle.svg',
       de: 'Totensammelstelle',
       en: 'Totensammelstelle',
       fr: 'Poste collecteur de cadavres',
@@ -933,7 +933,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Tote.png',
+      src: 'BABS/Tote.svg',
       de: 'Tote',
       en: 'Tote',
       fr: 'Morts',
@@ -941,7 +941,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Trinkwasserabgabestelle.png',
+      src: 'BABS/Trinkwasserabgabestelle.svg',
       de: 'Trinkwasserabgabestelle',
       en: 'Trinkwasserabgabestelle',
       fr: 'Poste de distribution d’eau potable',
@@ -949,7 +949,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Trupp.png',
+      src: 'BABS/Trupp.svg',
       de: 'Trupp',
       en: 'Trupp',
       fr: 'Patrouille',
@@ -957,7 +957,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Ueberschwemmtes Gebiet.png',
+      src: 'BABS/Ueberschwemmtes Gebiet.svg',
       de: 'Überschwemmtes Gebiet',
       en: 'Überschwemmtes Gebiet',
       fr: 'Zone inondée ou submergée',
@@ -965,7 +965,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Ueberschwemmung.png',
+      src: 'BABS/Ueberschwemmung.svg',
       de: 'Überschwemmung',
       en: 'Überschwemmung',
       fr: 'Inondation',
@@ -973,7 +973,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Ueberwachung.png',
+      src: 'BABS/Ueberwachung.svg',
       de: 'Überwachung',
       en: 'Überwachung',
       fr: 'Surveillance',
@@ -981,7 +981,7 @@ export class Signs {
     {
       type: 'LineString',
       color: '#0000FF',
-      src: 'Umleitung.png',
+      src: 'BABS/Umleitung.svg',
       de: 'Umleitung',
       en: 'Umleitung',
       fr: 'Déviations',
@@ -989,7 +989,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF9100',
-      src: 'Unfall.png',
+      src: 'BABS/Unfall.svg',
       de: 'Unfall',
       en: 'Unfall',
       fr: 'Accident',
@@ -997,7 +997,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Verkehrsposten.png',
+      src: 'BABS/Verkehrsposten.svg',
       de: 'Verkehrsposten',
       en: 'Verkehrsposten',
       fr: 'Poste de circulation',
@@ -1005,7 +1005,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Verletztennest.png',
+      src: 'BABS/Verletztennest.svg',
       de: 'Verletztennest',
       en: 'Verletztennest',
       fr: 'Nid de blessés',
@@ -1013,7 +1013,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Verletzte.png',
+      src: 'BABS/Verletzte.svg',
       de: 'Verletzte',
       en: 'Verletzte',
       fr: 'Patients (blessés)',
@@ -1021,7 +1021,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Vermisste.png',
+      src: 'BABS/Vermisste.svg',
       de: 'Vermisste',
       en: 'Vermisste',
       fr: 'Disparus',
@@ -1029,7 +1029,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Verpflegungsabgabestelle.png',
+      src: 'BABS/Verpflegungsabgabestelle.svg',
       de: 'Verpflegungsabgabestelle',
       en: 'Verpflegungsabgabestelle',
       fr: 'Poste de distribution de subsistance',
@@ -1037,7 +1037,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#FF0000',
-      src: 'Wasservsgausfall.png',
+      src: 'BABS/Wasservsgausfall.svg',
       de: 'Wasserversorgungsausfall',
       en: 'Wasserversorgungsausfall',
       fr: 'Interruption de l’approvisionnement en eau',
@@ -1045,7 +1045,7 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Wasserwerfer.png',
+      src: 'BABS/Wasserwerfer.svg',
       de: 'Wasserwerfer',
       en: 'Wasserwerfer',
       fr: 'Canon à eau',
@@ -1053,7 +1053,7 @@ export class Signs {
     {
       type: 'Polygon',
       color: '#FF0000',
-      src: 'Zerstoerte Zone einer Ortschaft.png',
+      src: 'BABS/Zerstoerte Zone einer Ortschaft.svg',
       de: 'Zerstörte Zone einer Ortschaft',
       en: 'Zerstörte Zone einer Ortschaft',
       fr: 'Zone sinistrée, impraticable à l’intérieur d’une localité',
@@ -1068,11 +1068,235 @@ export class Signs {
     {
       type: 'Point',
       color: '#0000FF',
-      src: 'Zug.png',
+      src: 'BABS/Zug.svg',
       de: 'Zug',
       en: 'Zug',
       fr: 'Section',
     },
+    {
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Absperrung mit Ueberwachung.svg',
+      de: 'Absperrung mit Ueberwachung',
+      en: 'Absperrung mit Ueberwachung',
+      fr: 'Barrière avec surveillance ',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Brand einzelnes Gebaeude - Beispiel.svg',
+      de: 'Brand einzelnes Gebaeude - Beispiel',
+      en: 'Brand einzelnes Gebaeude - Beispiel',
+      fr: 'Incendie bâtiment unique - exemple',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Brand einzelnes Gebaeude - Signatur.svg',
+      de: 'Brand einzelnes Gebaeude - Signatur',
+      en: 'Brand einzelnes Gebaeude - Signatur',
+      fr: 'Incendie bâtiment unique - signature',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Brand mehrerer Gebaeude - Beispiel.svg',
+      de: 'Brand mehrerer Gebaeude - Beispiel',
+      en: 'Brand mehrerer Gebaeude - Beispiel',
+      fr: 'Incendie dans plusieurs bâtiments - exemple',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Brand mehrerer Gebaeude - Signatur.svg',
+      de: 'Brand mehrerer Gebaeude - Signatur',
+      en: 'Brand mehrerer Gebaeude - Signatur',
+      fr: 'Incendie dans plusieurs immeubles - signature',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Branduebergriff erfolgt - Beispiel.svg',
+      de: 'Branduebergriff erfolgt - Beispiel',
+      en: 'Branduebergriff erfolgt - Beispiel',
+      fr: 'Une attaque de feu a lieu - exemple',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Branduebergriffsgefahr - Beispiel.svg',
+      de: 'Branduebergriffsgefahr - Beispiel',
+      en: 'Branduebergriffsgefahr - Beispiel',
+      fr: 'Attaque de feu - exemple',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Explosionsherd - Beispiel.svg',
+      de: 'Explosionsherd - Beispiel',
+      en: 'Explosionsherd - Beispiel',
+      fr: 'Poêle à explosion - exemple',
+    },
+    {
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Feuerwehr.svg',
+      de: 'Feuerwehr',
+      en: 'Feuerwehr',
+      fr: 'Pompiers',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BSM/Komm Ausfall Nat.svg',
+      de: 'Komm Ausfall Nat - Mobilnetz',
+      en: 'Komm Ausfall Nat - Mobilnetz',
+      fr: 'Échec de la comm. Nat - Réseau cellulaire',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BSM/Komm Ausfall Tel.svg',
+      de: 'Komm Ausfall Tel - Festnetz',
+      en: 'Komm Ausfall Tel - Festnetz',
+      fr: 'Échec de la comm. Tel - ligne fixe',
+    },
+    {
+      type: 'Point',
+      color: '#000000',
+      src: 'BSM/Markierung Feuer.svg',
+      de: 'Markierung Feuer',
+      en: 'Markierung Feuer',
+      fr: 'Marquer le feu',
+    },
+    {
+      type: 'Point',
+      color: '#000000',
+      src: 'BSM/Markierung Gefaehrliche Stoffe.svg',
+      de: 'Markierung Gefaehrliche Stoffe',
+      en: 'Markierung Gefaehrliche Stoffe',
+      fr: 'Marquage des substances dangereuses',
+    },
+    {
+      type: 'Point',
+      color: '#000000',
+      src: 'BSM/Markierung Rettungen.svg',
+      de: 'Markierung Rettungen',
+      en: 'Markierung Rettungen',
+      fr: 'Marquage des sauvetages',
+    },
+    {
+      type: 'Point',
+      color: '#000000',
+      src: 'BSM/Markierung Unfall.svg',
+      de: 'Markierung Unfall',
+      en: 'Markierung Unfall',
+      fr: 'Marque d\'accident ',
+    },
+    {
+      type: 'Point',
+      color: '#000000',
+      src: 'BSM/Markierung Wasser.svg',
+      de: 'Markierung Wasser',
+      en: 'Markierung Wasser',
+      fr: 'Marquage de l\'eau ',
+    },
+    {
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Obdachlosensammelstelle.svg',
+      de: 'Obdachlosensammelstelle',
+      en: 'Obdachlosensammelstelle',
+      fr: 'Point de rassemblement sans abri ',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Personenbergungsuebersicht - Beispiel.svg',
+      de: 'Personenbergungsuebersicht - Beispiel',
+      en: 'Personenbergungsuebersicht - Beispiel',
+      fr: 'Vue d\'ensemble de sauvetage - exemple',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Personenbergungsuebersicht - Leerraster.svg',
+      de: 'Personenbergungsuebersicht - Leerraster',
+      en: 'Personenbergungsuebersicht - Leerraster',
+      fr: 'Vue d\'ensemble de sauvetage - grille vide',
+    },
+    {
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Polizei.svg',
+      de: 'Polizei',
+      en: 'Polizei',
+      fr: 'Police',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Schadengebiet - Schadenraum.svg',
+      de: 'Schadengebiet - Schadenraum',
+      en: 'Schadengebiet - Schadenraum',
+      fr: 'Zone de dégâts',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BSM/Schadengebiet, Schadenraum.svg',
+      de: 'Schadengebiet, Schadenraum',
+      en: 'Schadengebiet, Schadenraum',
+      fr: 'Zone de dégâts',
+    },
+    {
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Spital.svg',
+      de: 'Spital',
+      en: 'Hôpital',
+      fr: 'Spital',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BSM/Stromausfall.svg',
+      de: 'Stromausfall',
+      en: 'Stromausfall',
+      fr: 'Panne électrique',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Truemmerbereich - Beispiel.svg',
+      de: 'Truemmerbereich - Beispiel',
+      en: 'Truemmerbereich - Beispiel',
+      fr: 'Zone de débris - exemple',
+    },
+    {
+      type: 'Point',
+      color: '#FF0000',
+      src: 'BABS/Truemmerbereich - Signatur.svg',
+      de: 'Truemmerbereich - Signatur',
+      en: 'Truemmerbereich - Signatur',
+      fr: 'Zone de débris - signature',
+    },
+    {
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Verwaltungskreisfuehrungsorgan.svg',
+      de: 'Verwaltungskreisfuehrungsorgan',
+      en: 'Verwaltungskreisfuehrungsorgan',
+      fr: 'Organe de gestion du district administratif',
+    },
+    {
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Zivilschutz.svg',
+      de: 'Zivilschutz',
+      en: 'Zivilschutz',
+      fr: 'Défense civile',
+    },    
   ];
 
   public static getSignBySource(src: string) {
