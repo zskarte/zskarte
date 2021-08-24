@@ -94,7 +94,7 @@ export class PreferencesService {
   }
 
   public getZSO(): ZSO {
-    const preferredZSOId = localStorage.getItem('zso');
+    const preferredZSOId = this.getLastZsoId();
     if (preferredZSOId) {
       for (const l of LIST_OF_ZSO) {
         if (l.id === preferredZSOId) {
@@ -104,4 +104,9 @@ export class PreferencesService {
     }
     return null;
   }
+
+  public getLastZsoId(): string {
+    return localStorage.getItem('zso');
+  }
+
 }
