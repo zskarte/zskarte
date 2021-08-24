@@ -26,6 +26,7 @@ import { EditCoordinatesComponent } from '../edit-coordinates/edit-coordinates.c
 import OlMap from 'ol/Map';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
+import Polygon from 'ol/geom/Polygon';
 
 import {DrawlayerComponent} from './drawlayer.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -61,9 +62,11 @@ describe('DrawlayerComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should caluculate coordinates for the selected Feature', inject([SharedStateService], (sharedStateService: SharedStateService) => {
+  it('should caluculate coordinates for selected Point', inject([SharedStateService], (sharedStateService: SharedStateService) => {
     component.ngOnInit();
-    const coordinates =  [834167.1889149096, 5927775.4004392065]
+
+    // Point to Test (near Belp Flughafen)
+    const coordinates =  [834167.2, 5927775.4]
     component.selectedProjectionIndex = 0;
 
     component.selectedFeature = new Feature({
@@ -78,7 +81,36 @@ describe('DrawlayerComponent', () => {
     component.rotateProjection();
 
     // check WGS84
-    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.5, 0.1);
-    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(47, 0.1);
+    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.4, 0.01);
+    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(47, 0.01);
+  }));
+
+  it('should calculate coordinates for selected Polygon', inject([SharedStateService], (sharedStateService: SharedStateService) => {
+    component.ngOnInit();
+
+    // Polygon to Test (near Belp Flughafen)
+    const coordinates = [
+      [
+        [ 833840.87, 5928429.10 ],
+        [ 835857.35, 5928204 ],
+        [ 833840.87, 5928429.10 ]
+      ]
+    ];
+
+    component.selectedProjectionIndex = 0;
+    component.selectedFeature = new Feature({
+      geometry: new Polygon(coordinates),
+    });
+    sharedStateService.featureSource.next(component.selectedFeature);
+
+    // check LV95
+    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(2604642.5, 0.1);
+    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(1196062.5, 0.1);
+
+    component.rotateProjection();
+
+    // check WGS84
+    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.4, 0.01);
+    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(46.9, 0.01);
   }));
 });

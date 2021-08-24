@@ -30,6 +30,7 @@ import OlMap from 'ol/Map';
 import { transform } from 'ol/proj';
 import DrawHole from 'ol-ext/interaction/DrawHole';
 import Overlay from 'ol/Overlay';
+import { getCenter } from 'ol/extent';
 import { SharedStateService } from '../shared-state.service';
 import { DrawStyle } from './draw-style';
 import { I18NService } from '../i18n.service';
@@ -933,8 +934,9 @@ export class DrawlayerComponent implements OnInit {
   }
 
   setSelectedFeatureCoordinates(feature: Feature) {
+    const center = getCenter(feature.getGeometry().getExtent());
     this.selectedFeatureCoordinates = transform(
-      feature.getGeometry().getCoordinates(),
+      center,
       mercatorProjection,
       availableProjections[this.selectedProjectionIndex]
     );
