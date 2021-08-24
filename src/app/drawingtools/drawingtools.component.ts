@@ -56,17 +56,17 @@ export class DrawingtoolsComponent {
       !this.sharedState.featureSource.getValue() &&
       event.altKey
     ) {
-      switch (event.key) {
-        case 'x':
+      switch (event.code) {
+        case 'KeyX':
           this.openTextDialog();
           break;
-        case 's':
+        case 'KeyS':
           this.openDrawDialog();
           break;
-        case 'p':
+        case 'KeyP':
           this.polygon();
           break;
-        case 'l':
+        case 'KeyL':
           this.line();
           break;
       }
@@ -96,6 +96,7 @@ export class DrawingtoolsComponent {
     this.sharedState.selectSign({
       type: 'Polygon',
       src: null,
+      filterValue: 'not_labeled_polygon',
     });
   }
 
@@ -103,6 +104,7 @@ export class DrawingtoolsComponent {
     this.sharedState.selectSign({
       type: 'LineString',
       src: null,
+      filterValue: 'not_labeled_line',
     });
   }
 

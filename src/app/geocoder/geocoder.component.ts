@@ -196,4 +196,9 @@ export class GeocoderComponent {
   goToCoordinate(center: boolean) {
     this.doGoToCoordinate(this.selected, center, true);
   }
+
+  removeSelectedLocation() {
+      this.selected = null;
+      this.sharedState.gotoCoordinate(null);
+  }
 }

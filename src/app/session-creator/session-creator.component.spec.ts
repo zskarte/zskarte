@@ -21,6 +21,7 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -43,6 +44,7 @@ describe('SessionCreatorComponent', () => {
         MatSelectModule,
         MatFormFieldModule,
         MatInputModule,
+        MatCheckboxModule,
         NoopAnimationsModule,
         FormsModule
       ],

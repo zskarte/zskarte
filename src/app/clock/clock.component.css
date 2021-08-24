@@ -41,3 +41,12 @@ div {
   align-items: center;
   column-gap: 0.5em;
 }
+
+.timeLeft {
+  color: red;
+}
+.timeLeft strong {
+  line-height: 24px;
+  display: inline-block;
+  vertical-align: top;
+}

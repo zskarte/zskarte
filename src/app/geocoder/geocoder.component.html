@@ -49,6 +49,10 @@
   </mat-form-field>
   <div *ngIf="selected" class="currentLocation">
     <img src="assets/img/place.png" /><span> {{ getLabel(selected) }}</span>
+    <button mat-icon-button (click)="removeSelectedLocation()">
+      <i class="material-icons"
+      [title]="i18n.get('removeSymbol')">close</i>
+    </button>
   </div>
 
   <!-- <input #geocode type="text"  placeholder="">-->
