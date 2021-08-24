@@ -393,9 +393,9 @@ export class I18NService {
       fr: 'Couches cartographiques sélectionnées',
     },
     currentMap: {
-      de: 'Aktuelle Karte',
-      fr: 'Carte actuelle',
-      en: 'Current map',
+      de: 'Basiskarten',
+      fr: 'Carte de base',
+      en: 'Base map',
     },
     otherMaps: {
       de: 'Andere Karten',
@@ -945,6 +945,11 @@ export class I18NService {
       en: 'TBD',
       fr: 'TBD',
     },
+    favoriteLayers: {
+      de: 'Favoriten',
+      en: 'Favorites',
+      fr: 'Favoris',
+    }
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);

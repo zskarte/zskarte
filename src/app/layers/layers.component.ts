@@ -62,6 +62,14 @@ export function createGeoAdminLayer(
   });
 }
 
+const favoriteFeatures = [
+  'auengebiete',
+  'gemeindegrenzen',
+  'gewässer swisstlm3d',
+  'hangneigung ab 30°',
+  'strassen und wege swisstlm3d'
+];
+
 @Component({
   selector: 'app-layers',
   templateUrl: './layers.component.html',
@@ -88,6 +96,7 @@ export class LayersComponent implements OnInit {
   layerFilter: string = null;
   selectedFeatures = [];
   availableFeatures = null;
+  favoriteFeatures = null;
 
   offlineHost: string = this.findOfflineHost();
 
@@ -186,6 +195,7 @@ export class LayersComponent implements OnInit {
         (!this.layerFilter ||
           f.label.toLowerCase().includes(this.layerFilter.toLowerCase()))
     );
+    this.favoriteFeatures = this.availableFeatures.filter((f) => favoriteFeatures.includes(f.label.toLowerCase()));
   }
 
   findOfflineHost() {

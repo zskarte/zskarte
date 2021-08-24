@@ -21,40 +21,42 @@
   <button mat-stroked-button [matMenuTriggerFor]="layersMenu">
     <i class="material-icons">layers</i> {{ i18n.get('layers') }}
   </button>
-  <mat-menu #layersMenu="matMenu">
-    <div class="content">
-      <div class="sectionTitle" *ngIf="currentLayer">
-        {{ i18n.get('currentMap') }}
-      </div>
-      <div class="selectedLayer" (click)="$event.stopPropagation()">
-        <div class="titleRow">
-          <div class="title">{{ currentLayer.name }}</div>
+  <mat-menu #layersMenu="matMenu" class="layerMenu">
+    <mat-accordion multi displayMode="flat">
+       <mat-expansion-panel>
+        <mat-expansion-panel-header (click)="$event.stopPropagation()">
+          <mat-panel-title>
+            {{ i18n.get('currentMap') }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="selectedLayer">
+          <div class="titleRow">
+            <div class="title">{{ currentLayer.name }}</div>
+          </div>
+          <div>
+            <mat-slider
+              [max]="1"
+              [min]="0"
+              [step]="0.1"
+              [(ngModel)]="currentLayer.opacity"
+              (ngModelChange)="updateMapLayer()"
+            >
+            </mat-slider>
+          </div>
+          <div *ngFor="let layer of availableLayers">
+            <button mat-menu-item (click)="changeToLayer(layer)">
+              {{ layer.name }}
+            </button>
+          </div>
         </div>
-        <div>
-          <mat-slider
-            [max]="1"
-            [min]="0"
-            [step]="0.1"
-            [(ngModel)]="currentLayer.opacity"
-            (ngModelChange)="updateMapLayer()"
-          >
-          </mat-slider>
-        </div>
-      </div>
-
-      <mat-divider></mat-divider>
-      <div class="sectionTitle">{{ i18n.get('otherMaps') }}</div>
-      <div *ngFor="let layer of availableLayers">
-        <button mat-menu-item (click)="changeToLayer(layer)">
-          {{ layer.name }}
-        </button>
-      </div>
-
-      <mat-divider></mat-divider>
-      <div *ngIf="selectedFeatures.length > 0" class="sectionTitle">
-        {{ i18n.get('selectedLayers') }}
-      </div>
-      <div class="allSelected">
+      </mat-expansion-panel>
+       <mat-expansion-panel *ngIf="selectedFeatures.length > 0">
+        <mat-expansion-panel-header (click)="$event.stopPropagation()">
+          <mat-panel-title>
+            {{ i18n.get('selectedLayers') }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="allSelected">
         <div
           *ngFor="let item of selectedFeatures"
           title="{{ item.label }}"
@@ -66,12 +68,12 @@
             <i
               (click)="$event.stopPropagation(); showLegend(item)"
               class="material-icons"
-              >info</i
+            >info</i
             ><i
-              (click)="$event.stopPropagation(); toggleFeature(item)"
-              class="material-icons"
-              >visibility_off</i
-            >
+            (click)="$event.stopPropagation(); toggleFeature(item)"
+            class="material-icons"
+          >visibility_off</i
+          >
           </div>
           <div>
             <mat-slider
@@ -85,11 +87,30 @@
           </div>
         </div>
       </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="available">
-        <div class="sectionTitle">{{ i18n.get('availableLayers') }}</div>
+      </mat-expansion-panel>
+       <mat-expansion-panel>
+        <mat-expansion-panel-header (click)="$event.stopPropagation()">
+          <mat-panel-title>
+            {{ i18n.get('favoriteLayers') }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="availableLayers">
+          <button
+            *ngFor="let item of favoriteFeatures"
+            mat-menu-item
+            (click)="$event.stopPropagation(); toggleFeature(item)"
+            title="{{ item.label }}"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </mat-expansion-panel>
+       <mat-expansion-panel>
+        <mat-expansion-panel-header (click)="$event.stopPropagation()">
+          <mat-panel-title>
+            {{ i18n.get('availableLayers') }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
         <mat-form-field>
           <mat-label> {{ i18n.get('filter') }}</mat-label>
           <input
@@ -99,7 +120,7 @@
             [(ngModel)]="layerFilter"
             (ngModelChange)="updateAvailableFeatures()"
             (keydown)="$event.stopPropagation()"
-        /></mat-form-field>
+          /></mat-form-field>
         <div class="availableLayers">
           <button
             *ngFor="let item of availableFeatures"
@@ -110,7 +131,7 @@
             {{ item.label }}
           </button>
         </div>
-      </div>
-    </div>
+      </mat-expansion-panel>
+    </mat-accordion>
   </mat-menu>
 </span>
