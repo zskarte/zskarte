@@ -725,13 +725,16 @@ export class DrawStyle {
           })
         );
 
+        let iconLabel;
+        let iconTextScale;
+
         if (signature.labelShow) {
-          const iconTextScale = DrawStyle.scale(
+          iconTextScale = DrawStyle.scale(
             resolution,
             DrawStyle.textScaleFactor,
             0.4
           );
-          const iconLabel = new Text({
+          iconLabel = new Text({
             text: signature.label,
             font: 20 + 'px sans-serif',
             scale: iconTextScale,
@@ -828,6 +831,25 @@ export class DrawStyle {
               zIndex: zIndex,
             })
           );
+
+          if (signature.labelShow) {
+            iconStyles.push(
+              new Style({
+                text: iconLabel,
+                geometry: function (feature) {
+                  const coordinates = DrawStyle.getEndIconCoordinates(
+                    feature,
+                    resolution
+                  )[1];
+                  return new Point([
+                    coordinates[0],
+                    coordinates[1] - 35 / iconTextScale,
+                  ]);
+                },
+                zIndex: zIndex,
+              })
+            );
+          }
         }
       }
     }
