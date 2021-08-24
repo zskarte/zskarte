@@ -188,4 +188,8 @@ export class SharedStateService {
   toggleFreeHandDraw(): void {
     this.isFreeHandDrawEnabled.next(!this.isFreeHandDrawEnabled.value);
   }
+
+  disableFreeHandDraw(): void {
+    this.isFreeHandDrawEnabled.next(false);
+  }
 }
