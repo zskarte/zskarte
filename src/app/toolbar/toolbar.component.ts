@@ -201,6 +201,10 @@ export class ToolbarComponent implements OnInit {
 
   private createInitialSession() {
     this.dialog.open(SessionCreatorComponent, {
+      data: {
+        session: this.session,
+        edit: false,
+      },
       disableClose: true,
       width: '80vw',
       maxWidth: '80vw',
