@@ -160,3 +160,8 @@ app-credits {
     display: none;
   }
 }
+
+.mat-stroked-button.active {
+  background-color: #d3d3d3;
+}
+
