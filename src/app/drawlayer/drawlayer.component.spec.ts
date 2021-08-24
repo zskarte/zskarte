@@ -19,24 +19,38 @@
  */
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { NgxIndexedDBService } from 'ngx-indexed-db';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { EditCoordinatesComponent } from '../edit-coordinates/edit-coordinates.component';
+import OlMap from 'ol/Map';
 
-import { DrawlayerComponent } from './drawlayer.component';
+import {DrawlayerComponent} from './drawlayer.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('DrawlayerComponent', () => {
   let component: DrawlayerComponent;
   let fixture: ComponentFixture<DrawlayerComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [DrawlayerComponent],
-      }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        MatDialogModule
+      ],
+      providers: [
+        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) }
+      ],
+      declarations: [ DrawlayerComponent, ConfirmationDialogComponent, EditCoordinatesComponent ],
+      schemas: [
+        NO_ERRORS_SCHEMA
+      ]
     })
-  );
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DrawlayerComponent);
     component = fixture.componentInstance;
+    fixture.componentInstance.inputMap = new OlMap();
     fixture.detectChanges();
   });
 

@@ -478,6 +478,8 @@ export class DrawStyle {
         resolution: resolution,
         rotation: signature.rotation,
         selected: selected,
+        label: signature.label,
+        labelShow: signature.labelShow,
         signatureColor: signature.color,
         signatureSrc: signature.src,
         type: feature.getGeometry().getType(),
@@ -726,6 +728,38 @@ export class DrawStyle {
             zIndex: zIndex,
           })
         );
+
+        if (signature.labelShow) {
+          const iconTextScale = DrawStyle.scale(
+            resolution,
+            DrawStyle.textScaleFactor,
+            0.4
+          );
+          const iconLabel = new Text({
+            text: signature.label,
+            font: 20 + 'px sans-serif',
+            scale: iconTextScale,
+            fill: this.getColorFill(signature.color),
+            padding: [5, 5, 5, 5],
+          });
+
+          iconStyles.push(
+            new Style({
+              text: iconLabel,
+              geometry: function (feature) {
+                const coordinates = DrawStyle.getIconCoordinates(
+                  feature,
+                  resolution
+                )[1];
+                return new Point([
+                  coordinates[0],
+                  coordinates[1] - 35 / iconTextScale,
+                ]);
+              },
+              zIndex: zIndex,
+            })
+          );
+        }
 
         let imageFromMemory;
         let scaledSize;

@@ -18,6 +18,10 @@
   ~
   -->
 <div class="flexContainer">
+  <span class="timeLeft" *ngIf="doCheckTimeout !== 0">
+    <mat-icon matSuffix class="material-icons">hourglass_empty</mat-icon>
+    <strong>{{ sessionTimeLeft }}</strong>
+  </span>
   <span class="date">{{ now | date: 'dd.MM.yyyy' }}</span>
   <span class="time">{{ now | date: 'HH:mm:ss' }}</span>
 </div>

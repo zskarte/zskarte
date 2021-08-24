@@ -63,6 +63,16 @@
         <small class="text-danger" *ngIf="enteredPasswordInvalid">
           {{ i18n.get('wrongPassword') }}
         </small>
+
+        <div *ngIf="session.zsoId !== 'zso_guest'">
+          <mat-checkbox
+            name="mapDataOvertake"
+            [(ngModel)]="mapDataOvertake"
+          >
+            {{ i18n.get('mapDataOvertake') }}
+          </mat-checkbox>
+        </div>
+
         <mat-form-field>
           <mat-label>{{ i18n.get('eventname') }}:</mat-label>
           <input
@@ -101,6 +111,7 @@
               />
             </td>
             <td>{{ session.title }}</td>
+            <td>{{ session.start | date:'dd.MM.yyyy HH:mm:ss' }}</td>
             <td class="buttons">
               <button
                 mat-stroked-button

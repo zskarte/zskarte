@@ -47,6 +47,7 @@ export class TextDialogComponent {
     const textSign: Sign = {
       type: 'LineString',
       text: this.text,
+      filterValue: 'text_element',
       src: null,
     };
     this.sharedState.selectSign(textSign);

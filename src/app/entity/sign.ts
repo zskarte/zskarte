@@ -34,6 +34,7 @@ export interface Sign {
   en?: string;
   text?: string;
   label?: string;
+  labelShow?: boolean;
   fontSize?: number;
   style?: string;
   fillStyle?: FillStyle;
@@ -53,6 +54,8 @@ export interface Sign {
   kat?: string; // deprecated - kept for compatibility reasons (is translated directly to color)
   iconOpacity?: number;
   rotation?: number;
+  filterValue?: string;
+  origSrc?: string;
 }
 
 export function isMoreOptimalIconCoordinate(
@@ -160,6 +163,9 @@ export function defineDefaultValuesForSignature(signature: Sign) {
   }
   if (signature.protected === undefined) {
     signature.protected = false;
+  }
+  if (signature.labelShow === undefined) {
+    signature.labelShow = true;
   }
   if (!signature.arrow) {
     signature.arrow = 'none';

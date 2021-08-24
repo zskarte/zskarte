@@ -72,6 +72,16 @@ export class I18NService {
       fr: "L'événement",
       en: 'Happening',
     },
+    mapDataOvertake: {
+      de: 'Kartendaten übernehmen',
+      fr: 'Appliquer les données de la carte',
+      en: 'Overtake map data',
+    },
+    sessionOverdue: {
+      de: 'Abgelaufen',
+      fr: 'Expired',
+      en: 'Expiré',
+    },
     text: {
       de: 'Text',
       en: 'Text',
@@ -496,6 +506,11 @@ export class I18NService {
       de: 'Position fixieren',
       en: 'Fix position',
       fr: 'Fixer la position',
+    },
+    labelShow: {
+      de: 'Namen anzeigen',
+      en: 'Show name',
+      fr: 'Afficher le nom',
     },
     replaceSymbol: {
       de: 'Ersetzen',

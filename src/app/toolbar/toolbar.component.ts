@@ -76,6 +76,11 @@ export class ToolbarComponent implements OnInit {
         this.updateFilterSymbols();
       }
     });
+    this.sharedState.sessionOutdated.subscribe((isOutdated) => {
+      if (isOutdated) {
+        this.createInitialSession();
+      }
+    });
     if (this.initialLaunch) {
       this.dialog.open(HelpComponent, {
         data: true,
@@ -91,6 +96,7 @@ export class ToolbarComponent implements OnInit {
   filterKeys: any[];
   filterSymbols: any[];
   collapsed: boolean;
+  exportEnabled = true;
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -120,6 +126,27 @@ export class ToolbarComponent implements OnInit {
           src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
         };
       }
+    } else if (sig.type === 'Polygon' && !sig.src) {
+      symbols['not_labeled_polygon'] = {
+        type: 'Polygon',
+        label: this.i18n.get('polygon'),
+        filterValue: 'not_labeled_polygon',
+        icon: 'widgets',
+      };
+    } else if (sig.type === 'LineString' && sig.text) {
+      symbols['text_element'] = {
+        type: 'LineString',
+        label: this.i18n.get('text'),
+        filterValue: 'text_element',
+        icon: 'font_download',
+      };
+    } else if (sig.type === 'LineString' && !sig.src) {
+      symbols['not_labeled_line'] = {
+        type: 'LineString',
+        label: this.i18n.get('line'),
+        filterValue: 'not_labeled_line',
+        icon: 'show_chart',
+      };
     }
   }
 
@@ -135,7 +162,7 @@ export class ToolbarComponent implements OnInit {
           .forEach((f) => this.extractSymbol(f, symbols));
       }
       this.filterKeys = Object.keys(symbols);
-      
+
       this.filterSymbols = Object.values(symbols).sort((a: any, b: any) =>
         a.label.localeCompare(b.label)
       );
@@ -152,6 +179,8 @@ export class ToolbarComponent implements OnInit {
     this.sharedState.session.subscribe((s) => {
       this.session = s;
       if (s) {
+        let currentZSO = this.preferences.getZSO();
+        this.exportEnabled = (currentZSO != null && currentZSO.id != "zso_guest");
         this.preferences.setLastSessionId(s.uuid);
       }
     });

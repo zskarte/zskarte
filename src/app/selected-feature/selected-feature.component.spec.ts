@@ -18,7 +18,12 @@
  *
  */
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
+import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.component';
 
 import { SelectedFeatureComponent } from './selected-feature.component';
 
@@ -26,13 +31,15 @@ describe('SelectedFeatureComponent', () => {
   let component: SelectedFeatureComponent;
   let fixture: ComponentFixture<SelectedFeatureComponent>;
 
-  beforeEach(
-    waitForAsync(() => {
-      TestBed.configureTestingModule({
-        declarations: [SelectedFeatureComponent],
-      }).compileComponents();
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [MatDialogModule],
+      declarations: [ SelectedFeatureComponent, DrawingDialogComponent, ConfirmationDialogComponent, DetailImageViewComponent ],
+      schemas: [
+        NO_ERRORS_SCHEMA
+      ]
     })
-  );
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SelectedFeatureComponent);
