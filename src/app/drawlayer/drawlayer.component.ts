@@ -27,7 +27,11 @@ import { DisplayMode } from '../entity/displayMode';
 import Cluster from 'ol/source/Cluster';
 import Collection from 'ol/Collection';
 import { Sign } from '../entity/sign';
-import { availableProjections, mercatorProjection, swissProjection } from '../projections';
+import {
+  availableProjections,
+  mercatorProjection,
+  swissProjection,
+} from '../projections';
 import { filter } from 'rxjs/operators';
 
 export const DRAW_LAYER_ZINDEX = 100000;
@@ -155,6 +159,9 @@ export class DrawlayerComponent implements OnInit {
   mergeSource: any = null;
 
   historyMode: boolean;
+
+  mouseCoordinates: [0, 0]
+  mouseCoordinatesProjection: [0, 0]
 
   selectedFeature: Feature;
 
@@ -287,7 +294,11 @@ export class DrawlayerComponent implements OnInit {
   private drawingManipulated(feature: Feature, changeEvent = false) {
     this.sharedState.drawingManipulated.next(true);
     if (this.recordChanges && !this.historyMode) {
-      this.toggleFilters([feature.get('sig').src], false);
+      const sig = feature.get('sig');
+      if (sig) {
+        this.toggleFilters([sig.src], false);
+      }
+
       if (changeEvent) {
         // There are too many change events (also when a feature is selected / unselected). We don't want to save those events since they are not manipulating anything...
         if (
@@ -427,6 +438,10 @@ export class DrawlayerComponent implements OnInit {
       }
     });
 
+    this.map.on('pointermove', (evt) => {
+      this.setMouseCoordinates(evt.coordinate)
+    });
+
     this.sharedState.currentFeature.subscribe((feature) => {
       if (feature !== this.getSelectedFeature()) {
         this.select.getFeatures().clear();
@@ -491,6 +506,13 @@ export class DrawlayerComponent implements OnInit {
         this.clearDrawingArea();
       }
     });
+    this.sharedState.freeHandDraw.subscribe((isEnabled) => {
+      if (isEnabled) {
+        this.enableFreeHandDraw();
+      } else {
+        this.disableFreeHandDraw();
+      }
+    });
     // Because of the closure, we end up inside the map -> let's just add an
     // indirection and go back to the drawlayer level again.
     this.sharedState.layerChanged.subscribe((changed) => {
@@ -509,7 +531,9 @@ export class DrawlayerComponent implements OnInit {
     });
 
     // Update current Coordinates on selectedFeature change
-    this.sharedState.featureSource.pipe(filter(Boolean)).subscribe(this.setSelectedFeatureCoordinates.bind(this));
+    this.sharedState.featureSource
+      .pipe(filter(Boolean))
+      .subscribe(this.setSelectedFeatureCoordinates.bind(this));
   }
 
   defineCoordinates() {
@@ -762,7 +786,7 @@ export class DrawlayerComponent implements OnInit {
           }
           if (elements.features) {
             for (const feature of elements.features) {
-              const zindex = feature.properties.zindex;
+              const zindex = feature?.properties?.zindex;
               if (zindex) {
                 if (zindex > this.maxZIndex) {
                   this.maxZIndex = zindex;
@@ -911,7 +935,23 @@ export class DrawlayerComponent implements OnInit {
   rotateProjection() {
     const nextIndex = this.selectedProjectionIndex + 1;
     this.selectedProjectionIndex = nextIndex >= availableProjections.length ? 0 : nextIndex;
-    this.setSelectedFeatureCoordinates(this.selectedFeature);
+    if (this.selectedFeature) {
+      this.setSelectedFeatureCoordinates(this.selectedFeature);
+    } else {
+      this.setMouseCoordinates(undefined)
+    }
+  }
+
+  setMouseCoordinates(coordinate) {
+    if (coordinate) {
+      this.mouseCoordinates = coordinate
+    }
+    const mouseCoordinates = transform(
+      this.mouseCoordinates,
+      mercatorProjection,
+      availableProjections[this.selectedProjectionIndex]
+    );
+    this.mouseCoordinatesProjection = mouseCoordinates
   }
 
   setSelectedFeatureCoordinates(feature: Feature) {
@@ -940,5 +980,34 @@ export class DrawlayerComponent implements OnInit {
   private toBack(feature: Feature) {
     feature.set('zindex', --this.minZIndex);
     this.layer.changed();
+  }
+
+  private freeHandDraw: Draw;
+  disableFreeHandDraw(): void {
+    // console.log('disable free hand draw');
+    this.freeHandDraw?.setActive(false);
+    this.map.removeInteraction(this.freeHandDraw);
+  }
+  enableFreeHandDraw(): void {
+    // console.log('enable free hand draw');
+    if (!this.freeHandDraw) {
+      this.toggleFilters(['free_hand_element'], false);
+      this.freeHandDraw = new Draw({
+        source: this.source,
+        type: 'LineString',
+        freehand: true,
+      });
+      this.freeHandDraw.drawLayer = this;
+      this.freeHandDraw.addEventListener('drawend', (event) => {
+        event.feature.set('sig', {
+          type: 'LineString',
+          freehand: true,
+          filterValue: 'free_hand_element',
+        });
+        this.sharedState.selectFeature(event.feature);
+      });
+    }
+    this.map.addInteraction(this.freeHandDraw);
+    this.freeHandDraw.setActive(true);
   }
 }

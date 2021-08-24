@@ -66,6 +66,9 @@ export class SharedStateService {
   private tagStateSource = new BehaviorSubject<string>(null);
   tagState = this.tagStateSource.asObservable();
 
+  private isFreeHandDrawEnabled = new BehaviorSubject(false);
+  freeHandDraw = this.isFreeHandDrawEnabled.asObservable();
+
   showMapLoader = new BehaviorSubject<boolean>(false);
   defineCoordinates = new BehaviorSubject<boolean>(null);
   drawingManipulated = new BehaviorSubject<boolean>(false);
@@ -160,5 +163,13 @@ export class SharedStateService {
 
   didChangeLayer() {
     this.layerChangedSource.next(true);
+  }
+
+  toggleFreeHandDraw(): void {
+    this.isFreeHandDrawEnabled.next(!this.isFreeHandDrawEnabled.value);
+  }
+
+  disableFreeHandDraw(): void {
+    this.isFreeHandDrawEnabled.next(false);
   }
 }

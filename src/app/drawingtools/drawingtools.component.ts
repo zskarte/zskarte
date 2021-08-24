@@ -54,6 +54,7 @@ export class DrawingtoolsComponent {
   }
 
   openDrawDialog(): void {
+    this.sharedState.disableFreeHandDraw();
     const dialogRef = this.drawDialog.open(DrawingDialogComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -62,6 +63,7 @@ export class DrawingtoolsComponent {
   }
 
   openTextDialog(): void {
+    this.sharedState.disableFreeHandDraw();
     const dialogRef = this.textDialog.open(TextDialogComponent, {
       maxWidth: '80vw',
       maxHeight: '70vh',
@@ -73,6 +75,7 @@ export class DrawingtoolsComponent {
   }
 
   polygon(): void {
+    this.sharedState.disableFreeHandDraw();
     this.sharedState.selectSign({
       type: 'Polygon',
       src: null,
@@ -81,6 +84,7 @@ export class DrawingtoolsComponent {
   }
 
   line(): void {
+    this.sharedState.disableFreeHandDraw();
     this.sharedState.selectSign({
       type: 'LineString',
       src: null,
@@ -89,6 +93,7 @@ export class DrawingtoolsComponent {
   }
 
   circle(): void {
+    this.sharedState.disableFreeHandDraw();
     this.sharedState.selectSign({
       type: 'Circle',
       src: null,

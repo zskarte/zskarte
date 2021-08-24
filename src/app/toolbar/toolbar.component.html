@@ -33,13 +33,22 @@
           <i class="material-icons">expand_more</i>
         </button>
       </div>
-      <mat-card-content class="flexContainer noprint hideWhenCollapsed alignCenter flex-gap">
+      <mat-card-content
+        class="flexContainer noprint hideWhenCollapsed alignCenter flex-gap"
+      >
         <app-geocoder
           style="flex: 1; margin-top: -0.08em"
           [drawLayer]="drawLayer"
         ></app-geocoder>
         <app-drawingtools *ngIf="!historyMode"></app-drawingtools>
         <!--<a class="mat-stroked-button" download="map.jpg"><span class="mat-button-wrapper"><i class="material-icons">photo_camera</i> Screenshot</span></a>-->
+        <button
+          mat-stroked-button
+          (click)="sharedState.toggleFreeHandDraw()"
+          [class.active]="sharedState.freeHandDraw | async"
+        >
+          <i class="material-icons">gesture</i>
+        </button>
         <app-tools [drawLayer]="drawLayer"></app-tools>
         <app-layers></app-layers>
         <mat-slide-toggle
