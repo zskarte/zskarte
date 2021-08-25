@@ -995,6 +995,7 @@ export class DrawlayerComponent implements OnInit {
   }
 
   endDrawing(feature) {
+    this.sharedState.disableFreeHandDraw();
     if (feature) {
       this.currentDrawingSign.createdAt = new Date();
       feature.set('sig', this.currentDrawingSign);
