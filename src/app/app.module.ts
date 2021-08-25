@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
-import { ToolsComponent } from './tools/tools.component';
 import { LayersComponent } from './layers/layers.component';
 import { CreditsComponent } from './credits/credits.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
@@ -53,6 +52,7 @@ import { HelpComponent } from './help/help.component';
 import { MatStepperModule } from '@angular/material/stepper';
 import { registerLocaleData } from '@angular/common';
 import localeDeCh from '@angular/common/locales/de-CH';
+import {MatIconModule} from "@angular/material/icon";
 
 registerLocaleData(localeDeCh)
 
@@ -83,7 +83,6 @@ const dbConfig: DBConfig = {
     AppComponent,
     MapComponent,
     DrawingtoolsComponent,
-    ToolsComponent,
     LayersComponent,
     CreditsComponent,
     ToolbarComponent,
@@ -132,6 +131,7 @@ const dbConfig: DBConfig = {
     MatExpansionModule,
     MatSlideToggleModule,
     MatStepperModule,
+    MatIconModule,
   ],
   entryComponents: [
     DrawingDialogComponent,

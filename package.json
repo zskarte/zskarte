@@ -27,7 +27,7 @@
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@ng-bootstrap/ng-bootstrap": "^9.1.0",
     "bootstrap": "^4.6.0",
-    "material-design-icons": "^3.0.1",
+    "material-icons": "^1.2.0",
     "ngx-indexed-db": "^7.0.0",
     "ngx-md": "^8.1.6",
     "ol": "^6.5.0",

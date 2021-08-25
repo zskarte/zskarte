@@ -1015,6 +1015,16 @@ export class I18NService {
       en: 'All categories',
       fr: 'Toutes catégories',
     },
+    logout: {
+      de: 'Ausloggen',
+      en: 'Sign out',
+      fr: 'Déconnecter',
+    },
+    expand: {
+      de: 'Ansicht wechseln',
+      en: 'Change view',
+      fr: 'Aligner la vue',
+    }
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
