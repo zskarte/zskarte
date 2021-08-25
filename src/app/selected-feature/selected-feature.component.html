@@ -129,9 +129,7 @@
               (ngModelChange)="redraw()"
             />
           </mat-form-field>
-          <div *ngIf="!colorPicker" class="flex">
-            <div class="color-display margin" [style.background-color]="selectedSignature.color"></div>
-            <mat-form-field *ngIf="editMode">
+            <mat-form-field *ngIf="editMode && !colorPicker">
               <mat-label>{{ i18n.get('color') }}:</mat-label>
               <mat-select [(ngModel)]="selectedSignature.color" (ngModelChange)="redraw()">
                 <mat-option class="color-option" *ngFor="let color of quickColors" [value]="color.value">
@@ -142,7 +140,6 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
-          </div>
           <mat-slide-toggle
             *ngIf="editMode"
             (toggleChange)="toggleColorSelection()"
