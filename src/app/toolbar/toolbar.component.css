@@ -64,10 +64,6 @@ app-credits {
 }
 
 .toolbar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
   padding: 0.5em;
   border-radius: 0;
 }
@@ -105,22 +101,6 @@ app-credits {
 
 .collapsed .hideWhenCollapsed {
   display: none;
-}
-
-.zoom {
-  position: absolute;
-  bottom: -7.5em;
-  right: 2em;
-}
-
-.zoom .material-icons {
-  font-size: 2em;
-}
-
-.zoom button {
-  background-color: white;
-  display: block;
-  margin-bottom: 0.5em;
 }
 
 .collapse {
