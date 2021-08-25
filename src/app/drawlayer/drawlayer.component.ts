@@ -69,7 +69,6 @@ export class DrawlayerComponent implements OnInit {
   filters = {};
   map: OlMap;
   currentDrawingSign = null;
-  tooltip = '0';
   sketch: Feature = undefined;
   currentSessionId: string;
   recordChanges = false;
@@ -193,6 +192,29 @@ export class DrawlayerComponent implements OnInit {
     return filterString;
   }
 
+  formatLength(line) {
+    const length = getLength(line);
+    let output;
+    if (length > 100) {
+      output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km';
+    } else {
+      output = Math.round(length * 100) / 100 + ' ' + 'm';
+    }
+    return output;
+  }
+
+  formatArea(polygon) {
+    const area = getArea(polygon);
+    let output;
+    if (area > 10000) {
+      output =
+        Math.round((area / 1000000) * 100) / 100 + ' ' + 'km<sup>2</sup>';
+    } else {
+      output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>';
+    }
+    return output;
+  }
+
   private isSigFiltered(sig: Sign): boolean {
     if (!sig) {
       return false;
@@ -307,6 +329,12 @@ export class DrawlayerComponent implements OnInit {
       const sig = feature.get('sig');
       if (sig) {
         this.toggleFilters([sig.src], false);
+        const geom = feature.getGeometry();
+        if (geom instanceof Polygon) {
+          sig.size = this.formatArea(geom);
+        } else if (geom instanceof LineString) {
+          sig.size = this.formatLength(geom);
+        }
       }
 
       if (changeEvent) {
@@ -453,36 +481,13 @@ export class DrawlayerComponent implements OnInit {
       if (this.sketch) {
         const geom = this.sketch.getGeometry();
         if (geom instanceof Polygon) {
-          this.tooltip = formatArea(geom);
+          this.currentDrawingSign.size = this.formatArea(geom);
         } else if (geom instanceof LineString) {
-          this.tooltip = formatLength(geom);
+          this.currentDrawingSign.size = this.formatLength(geom);
         }
       }
       this.setMouseCoordinates(evt.coordinate);
     });
-
-    const formatLength = function (line) {
-      const length = getLength(line);
-      let output;
-      if (length > 100) {
-        output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km';
-      } else {
-        output = Math.round(length * 100) / 100 + ' ' + 'm';
-      }
-      return output;
-    };
-
-    const formatArea = function (polygon) {
-      const area = getArea(polygon);
-      let output;
-      if (area > 10000) {
-        output =
-          Math.round((area / 1000000) * 100) / 100 + ' ' + 'km<sup>2</sup>';
-      } else {
-        output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>';
-      }
-      return output;
-    };
 
     this.sharedState.currentFeature.subscribe((feature) => {
       if (feature !== this.getSelectedFeature()) {
@@ -961,7 +966,6 @@ export class DrawlayerComponent implements OnInit {
       feature.set('sig', this.currentDrawingSign);
       Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       this.sharedState.selectFeature(feature);
-      this.tooltip = '0'
       this.sketch = undefined;
     }
   }
