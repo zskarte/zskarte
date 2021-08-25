@@ -10,7 +10,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { ToolsComponent } from './tools/tools.component';
-import { LayersComponent } from './layers/layers.component';
 import { CreditsComponent } from './credits/credits.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MatMenuModule } from '@angular/material/menu';
@@ -53,6 +52,8 @@ import { HelpComponent } from './help/help.component';
 import { MatStepperModule } from '@angular/material/stepper';
 import { registerLocaleData } from '@angular/common';
 import localeDeCh from '@angular/common/locales/de-CH';
+import {MatSidenavModule} from "@angular/material/sidenav";
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 registerLocaleData(localeDeCh)
 
@@ -84,7 +85,6 @@ const dbConfig: DBConfig = {
     MapComponent,
     DrawingtoolsComponent,
     ToolsComponent,
-    LayersComponent,
     CreditsComponent,
     ToolbarComponent,
     DrawingDialogComponent,
@@ -106,33 +106,35 @@ const dbConfig: DBConfig = {
     EditCoordinatesComponent,
     DetailImageViewComponent,
     HelpComponent,
+    SidebarComponent,
   ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatCardModule,
-    MatTabsModule,
-    MatMenuModule,
-    MatDialogModule,
-    HttpClientModule,
-    MatAutocompleteModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatSliderModule,
-    MatTableModule,
-    MatRadioModule,
-    MatListModule,
-    NgxIndexedDBModule.forRoot(dbConfig),
-    NgxMdModule.forRoot(),
-    MatProgressSpinnerModule,
-    MatCheckboxModule,
-    MatExpansionModule,
-    MatSlideToggleModule,
-    MatStepperModule,
-  ],
+    imports: [
+        BrowserModule,
+        BrowserAnimationsModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatCardModule,
+        MatTabsModule,
+        MatMenuModule,
+        MatDialogModule,
+        HttpClientModule,
+        MatAutocompleteModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        MatSliderModule,
+        MatTableModule,
+        MatRadioModule,
+        MatListModule,
+        NgxIndexedDBModule.forRoot(dbConfig),
+        NgxMdModule.forRoot(),
+        MatProgressSpinnerModule,
+        MatCheckboxModule,
+        MatExpansionModule,
+        MatSlideToggleModule,
+        MatStepperModule,
+        MatSidenavModule,
+    ],
   entryComponents: [
     DrawingDialogComponent,
     ImportDialogComponent,

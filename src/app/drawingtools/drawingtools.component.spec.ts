@@ -6,6 +6,7 @@ import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.compone
 import { TextDialogComponent } from '../text-dialog/text-dialog.component';
 
 import { DrawingtoolsComponent } from './drawingtools.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('DrawingtoolsComponent', () => {
   let component: DrawingtoolsComponent;
@@ -15,7 +16,8 @@ describe('DrawingtoolsComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         MatDialogModule,
-        MatMenuModule
+        MatMenuModule,
+        HttpClientTestingModule
       ],
       declarations: [ DrawingtoolsComponent, TextDialogComponent, DrawingDialogComponent ],
       schemas: [

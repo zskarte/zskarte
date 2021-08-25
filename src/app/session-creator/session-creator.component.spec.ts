@@ -12,6 +12,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { LanguageChooserComponent } from '../language-chooser/language-chooser.component';
 
 import { SessionCreatorComponent } from './session-creator.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('SessionCreatorComponent', () => {
   let component: SessionCreatorComponent;
@@ -26,7 +27,8 @@ describe('SessionCreatorComponent', () => {
         MatInputModule,
         MatCheckboxModule,
         NoopAnimationsModule,
-        FormsModule
+        FormsModule,
+        HttpClientTestingModule
       ],
       declarations: [ SessionCreatorComponent, ConfirmationDialogComponent, LanguageChooserComponent ],
       providers: [
