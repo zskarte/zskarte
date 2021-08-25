@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import { transform } from 'ol/proj';
@@ -16,6 +16,7 @@ import { ScaleLine, defaults as defaultControls } from 'ol/control';
 import { PreferencesService } from '../preferences.service';
 import { CLUSTER_LAYER_ZINDEX } from '../drawlayer/drawlayer.component';
 import { defaults } from 'ol/interaction';
+import {MatSidenav} from "@angular/material/sidenav";
 
 @Component({
   selector: 'app-map',
@@ -24,6 +25,7 @@ import { defaults } from 'ol/interaction';
 })
 export class MapComponent implements OnInit {
   @ViewChild('maploader', { static: false }) loader: ElementRef;
+  @Input() sidenav: MatSidenav;
 
   map: OlMap = null;
   layer: Layer;
@@ -153,6 +155,13 @@ export class MapComponent implements OnInit {
       }
     });
 
+    this.sharedState.selectedFeatures.subscribe((selectedFeatures) => {
+      selectedFeatures.forEach(feature => {
+        this.map.removeLayer(feature.layer);
+        this.map.addLayer(feature.layer);
+      });
+    });
+
     this.sharedState.showMapLoader.subscribe((show) => {
       if (this.loader) {
         if (show) {
@@ -162,5 +171,13 @@ export class MapComponent implements OnInit {
         }
       }
     });
+  }
+
+  zoomIn(): void {
+    this.sharedState.zoom.next(1);
+  }
+
+  zoomOut(): void {
+    this.sharedState.zoom.next(-1);
   }
 }
