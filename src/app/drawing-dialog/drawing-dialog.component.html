@@ -29,7 +29,12 @@
             [(value)]="selected"
             (selectionChange)="updateAvailableSigns()">
             <mat-option>{{i18n.get('allCategories')}}</mat-option>
-            <mat-option *ngFor="let category of signCategories"value="{{category.name}}"><div class="categoryElement"><span class="categoryDot" style="background-color:{{category.color}};"></span>{{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}</div></mat-option>
+            <mat-option *ngFor="let category of signCategories"value="{{category.name}}">
+              <div class="categoryElement">
+                <span class="categoryDot" style="background-color:{{category.color}};"></span>
+                {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
+              </div>
+            </mat-option>
           </mat-select>
         </mat-form-field>
       </td>
