@@ -20,7 +20,7 @@ export class DrawingDialogComponent implements OnInit {
   filteredSigns: Sign[] = [];
   selected: string = null;
   signCat = ['place', 'fks', 'actions', 'damage', 'formations', 'effects', 'dangers', 'labels'];
-  signCategories = signCategories;
+  signCategories = Array.from(signCategories.values());
 
   isCustomImage(sign: Sign) {
     return CustomImageStoreService.isCustomImage(sign.src);
