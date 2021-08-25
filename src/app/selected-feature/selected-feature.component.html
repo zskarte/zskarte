@@ -176,22 +176,6 @@
                 (ngModelChange)="redraw()"
               ></textarea>
             </mat-form-field>
-            <i
-              class="fab fa-markdown"
-              (click)="showMarkdown = !showMarkdown"
-              title="Markdown preview"
-            ></i>
-
-            <a href="https://dimpu.github.io/ngx-md" target="_blank"
-              >Markdown syntax</a
-            >
-          </div>
-          <div class="preview" *ngIf="showMarkdown">
-            <div
-              Markdown
-              [data]="selectedSignature.description"
-              class="markdownPreview description"
-            ></div>
           </div>
         </div>
       </mat-expansion-panel>
