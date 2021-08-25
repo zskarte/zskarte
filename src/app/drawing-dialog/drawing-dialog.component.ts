@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Sign } from '../entity/sign';
+import {getColorForCategory, Sign, signCategories} from '../entity/sign';
 import { DrawStyle } from '../drawlayer/draw-style';
 import { Signs } from '../signs/signs';
 import { I18NService } from '../i18n.service';
@@ -18,6 +18,9 @@ export class DrawingDialogComponent implements OnInit {
   filter: string = null;
   allSigns: Sign[] = null;
   filteredSigns: Sign[] = [];
+  selected: string = null;
+  signCat = ['place', 'fks', 'actions', 'damage', 'formations', 'effects', 'dangers', 'labels'];
+  signCategories = signCategories;
 
   isCustomImage(sign: Sign) {
     return CustomImageStoreService.isCustomImage(sign.src);
@@ -39,8 +42,7 @@ export class DrawingDialogComponent implements OnInit {
   updateAvailableSigns() {
     this.filteredSigns = this.allSigns.filter(
       (s) =>
-        !this.filter ||
-        this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)
+        (!this.filter || this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)) && (!this.selected || this.selected === s.kat)
     );
   }
 
@@ -69,6 +71,10 @@ export class DrawingDialogComponent implements OnInit {
   select(sign: Sign) {
     // We need to pass a deep copy of the object
     this.dialogRef.close(JSON.parse(JSON.stringify(sign)));
+  }
+
+  capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
   editSymbol(sign: Sign) {

@@ -162,6 +162,11 @@ export class I18NService {
       en: 'Filter',
       fr: 'Filtre',
     },
+    filterByCategory: {
+      de: 'Nach Kategorie filtern',
+      en: 'Filter by category',
+      fr: 'Filtrer par catégorie',
+    },
     polygon: {
       de: 'Polygon',
       en: 'Polygon',
@@ -954,6 +959,51 @@ export class I18NService {
       de: 'Freihand',
       en: 'Free hand',
       fr: 'TBD',
+    },
+    signPlace: {
+      de: 'Platz',
+      en: 'Place',
+      fr: 'Place',
+    },
+    signFks: {
+      de: 'Feuerwehrsignaturen',
+      en: 'Fire service signatures',
+      fr: 'Signatures pompiers',
+    },
+    signActions: {
+      de: 'Aktionen',
+      en: 'Actions',
+      fr: 'Actions',
+    },
+    signDamage: {
+      de: 'Schäden',
+      en: 'Damage',
+      fr: 'Damage',
+    },
+    signFormations: {
+      de: 'Formationen',
+      en: 'Formations',
+      fr: 'Formations',
+    },
+    signEffects: {
+      de: 'Auswirkungen',
+      en: 'Effects',
+      fr: 'Effets',
+    },
+    signDangers: {
+      de: 'Gefahren',
+      en: 'Dangers',
+      fr: 'Dangers',
+    },
+    signLabels: {
+      de: 'Markierungen',
+      en: 'Labels',
+      fr: 'Marquages',
+    },
+    allCategories: {
+      de: 'Alle Kategorien',
+      en: 'All categories',
+      fr: 'Toutes catégories',
     },
   };
   private _locale: string = DEFAULT_LOCALE;
