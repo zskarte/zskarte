@@ -18,7 +18,7 @@ import { DrawStyle } from './draw-style';
 import { I18NService } from '../i18n.service';
 import { MapStoreService } from '../map-store.service';
 import { SessionsService } from '../sessions.service';
-import CENTER_LEFT from 'ol/OverlayPositioning';
+import OverlayPositioning from 'ol/OverlayPositioning';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
@@ -27,7 +27,7 @@ import { EditCoordinatesComponent } from '../edit-coordinates/edit-coordinates.c
 import { DisplayMode } from '../entity/displayMode';
 import Cluster from 'ol/source/Cluster';
 import Collection from 'ol/Collection';
-import { Sign } from '../entity/sign';
+import { getFirstCoordinate, Sign } from '../entity/sign';
 import { availableProjections, mercatorProjection } from '../projections';
 import { filter } from 'rxjs/operators';
 import { getLength, getArea } from 'ol/sphere';
@@ -149,14 +149,21 @@ export class DrawlayerComponent implements OnInit {
         this.lastModificationPointCoordinates = this.modify['vertexFeature_']
           .getGeometry()
           .getCoordinates();
-        this.toggleRemoveButton(true);
         this.removeButton.setPosition(event.coordinate);
+        this.rotateButton.setPosition(event.coordinate);
+        this.toggleEditButtons(true);
       }
       return true;
     },
     hitTolerance: 10,
   });
   removeButton: Overlay = null;
+  rotateButton: Overlay = null;
+  ROTATE_OFFSET_X = 30;
+  ROTATE_OFFSET_Y = -30;
+  rotating = false;
+  initialRotation = 0;
+
 
   firstLoad = true;
   drawHole = new DrawHole({
@@ -353,9 +360,23 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  toggleRemoveButton(show: boolean) {
+  toggleEditButtons(show: boolean) {
     this.removeButton.getElement().style.display =
       show && !this.historyMode ? 'block' : 'none';
+
+
+    let allowRotation = false;
+    if (show) {
+      const [pointX, pointY] = this.lastModificationPointCoordinates;
+      const [iconX, iconY] = getFirstCoordinate(this.getSelectedFeature());
+
+      // only show rotateButton if the feature has an icon and the selected point is where the icon is placed
+      allowRotation = this.getSelectedFeature()?.get('sig')?.src && pointX === iconX && pointY === iconY;
+    }
+
+
+    this.rotateButton.getElement().style.display =
+      allowRotation && !this.historyMode ? 'block' : 'none';
   }
 
   private setModifiableFeature(f: Feature) {
@@ -368,11 +389,16 @@ export class DrawlayerComponent implements OnInit {
   ngOnInit() {
     this.removeButton = new Overlay({
       element: document.getElementById('removePoint'),
-      positioning: CENTER_LEFT,
-      offset: [10, 0],
+      positioning: OverlayPositioning.CENTER_CENTER,
+      offset: [30, 30],
+    });
+    this.rotateButton = new Overlay({
+      element: document.getElementById('rotateSymbol'),
+      positioning: OverlayPositioning.CENTER_CENTER,
+      offset: [this.ROTATE_OFFSET_X, this.ROTATE_OFFSET_Y],
     });
     this.modify.addEventListener('modifystart', () => {
-      this.toggleRemoveButton(false);
+      this.toggleEditButtons(false);
     });
     this.modify.addEventListener('modifyend', (e) => {
       if (this.isModifyPointInteraction()) {
@@ -380,9 +406,15 @@ export class DrawlayerComponent implements OnInit {
           .getGeometry()
           .getCoordinates();
         this.removeButton.setPosition(e.mapBrowserEvent.coordinate);
-        this.toggleRemoveButton(true);
+        this.rotateButton.setPosition(e.mapBrowserEvent.coordinate);
+        this.toggleEditButtons(true);
       }
     });
+
+    this.rotateButton.element.addEventListener('mousedown', () => this.startRotating());
+    this.rotateButton.element.addEventListener('touchstart', () => this.startRotating());
+    document.addEventListener('touchmove', this.onMouseMove.bind(this), { passive: false });
+
     this.removeButton.element.addEventListener('click', (e) => {
       const coordinationGroup = this.getCoordinationGroupOfLastPoint();
       if (coordinationGroup) {
@@ -415,12 +447,13 @@ export class DrawlayerComponent implements OnInit {
             .setCoordinates(newCoordinates);
         }
       }
-      this.toggleRemoveButton(false);
+      this.toggleEditButtons(false);
     });
     this.layer.setZIndex(DRAW_LAYER_ZINDEX);
     this.clusterLayer.setZIndex(CLUSTER_LAYER_ZINDEX);
     this.map = this.inputMap;
     this.map.addOverlay(this.removeButton);
+    this.map.addOverlay(this.rotateButton);
     this.map.addInteraction(this.select);
     this.map.addInteraction(this.modify);
     this.map.addInteraction(this.drawHole);
@@ -718,7 +751,7 @@ export class DrawlayerComponent implements OnInit {
   }
 
   selectionChanged() {
-    this.toggleRemoveButton(false);
+    this.toggleEditButtons(false);
     if (this.select.getFeatures().getLength() === 1) {
       const feature = this.select.getFeatures().item(0);
       this.selectedFeature = feature;
@@ -972,7 +1005,7 @@ export class DrawlayerComponent implements OnInit {
 
   removeFeature(feature) {
     if (feature != null) {
-      this.toggleRemoveButton(false);
+      this.toggleEditButtons(false);
       this.source.removeFeature(feature);
       this.clearSelection();
     }
@@ -1056,5 +1089,61 @@ export class DrawlayerComponent implements OnInit {
     }
     this.map.addInteraction(this.freeHandDraw);
     this.freeHandDraw.setActive(true);
+  }
+
+  startRotating() {
+    const feature = this.getSelectedFeature();
+    if (!feature?.get('sig')) {
+      return;
+    }
+    this.rotating = true;
+    this.initialRotation = feature.get('sig').rotation;
+  }
+
+  @HostListener('document:mouseup')
+  @HostListener('document:touchend')
+  @HostListener('document:touchcancel')
+  stopRotating() {
+    this.rotating = false;
+  }
+
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent | TouchEvent) {
+    if (!this.rotating) {
+      return;
+    }
+
+    if (event instanceof TouchEvent && event.targetTouches.length <= 0) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const feature = this.getSelectedFeature();
+
+    if (!feature?.get('sig')) {
+      return;
+    }
+
+    let pageX, pageY;
+    if (event instanceof TouchEvent) {
+      pageX = event.targetTouches[event.targetTouches.length - 1].pageX
+      pageY = event.targetTouches[event.targetTouches.length - 1].pageY
+    } else if (event instanceof MouseEvent) {
+      pageX = event.pageX;
+      pageY = event.pageY;
+    }
+
+    const rect = this.rotateButton.getElement().getBoundingClientRect();
+
+		const radians	= Math.atan2(pageX - (rect.x - this.ROTATE_OFFSET_X), pageY - (rect.y - this.ROTATE_OFFSET_Y));
+		const degrees	= Math.round((radians * (180 / Math.PI) * -1) + 100);
+    const rotation = degrees + this.initialRotation;
+
+    // keep the rotation between -180 and 180
+    feature.get('sig').rotation = rotation > 180 ? rotation - 360 : rotation;
+
+    feature.changed();
   }
 }
