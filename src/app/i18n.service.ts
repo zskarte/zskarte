@@ -976,11 +976,11 @@ export class I18NService {
       fr: 'Place',
     },
     signFks: {
-      de: 'Feuerwehrsignaturen',
-      en: 'Fire service signatures',
-      fr: 'Signatures pompiers',
+      de: 'Feuerwehr',
+      en: 'Fire department',
+      fr: 'Pompiers',
     },
-    signActions: {
+    signAction: {
       de: 'Aktionen',
       en: 'Actions',
       fr: 'Actions',
@@ -990,22 +990,27 @@ export class I18NService {
       en: 'Damage',
       fr: 'Damage',
     },
-    signFormations: {
+    signIncident: {
+      de: 'Ereignis',
+      en: 'Incident',
+      fr: 'Incident',
+    },
+    signFormation: {
       de: 'Formationen',
       en: 'Formations',
       fr: 'Formations',
     },
-    signEffects: {
+    signEffect: {
       de: 'Auswirkungen',
       en: 'Effects',
       fr: 'Effets',
     },
-    signDangers: {
+    signDanger: {
       de: 'Gefahren',
       en: 'Dangers',
       fr: 'Dangers',
     },
-    signLabels: {
+    signLabel: {
       de: 'Markierungen',
       en: 'Labels',
       fr: 'Marquages',
