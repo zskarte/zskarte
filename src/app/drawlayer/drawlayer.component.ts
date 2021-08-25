@@ -989,9 +989,7 @@ export class DrawlayerComponent implements OnInit {
         });
         this.map.addInteraction(drawer);
       }
-      Object.keys(this.drawers).forEach((key) =>
-        this.drawers[key].setActive(false)
-      );
+      Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       drawer.setActive(true);
     }
   }
@@ -1003,6 +1001,8 @@ export class DrawlayerComponent implements OnInit {
       Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       this.sharedState.selectFeature(feature);
       this.sketch = undefined;
+    } else {
+      Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
     }
   }
 
