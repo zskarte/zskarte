@@ -20,8 +20,9 @@
 
 mat-card.selection {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  top: 30px;
+  bottom: 30px;
+  left: 30px;
   background-color: #f1f1f1;
   margin-bottom: 0;
   max-height: 70vh;

@@ -366,9 +366,9 @@ export class SharedStateService {
         maxIndex
       );
 
-      this.selectedFeaturesSource.value.push(feature);
-      const newSelectedFeatures = this.selectedFeaturesSource.value.slice().sort((a, b) => b.layer.getZIndex() - a.layer.getZIndex());
-      this.selectedFeaturesSource.next(newSelectedFeatures);
+      this.selectedFeaturesSource.value.unshift(feature);
+      console.log('adding', this.selectedFeaturesSource.value);
+      this.selectedFeaturesSource.next(this.selectedFeaturesSource.value);
     } else {
       this.removeFeatureLayer(feature.layer);
       feature.layer = undefined;
@@ -397,17 +397,20 @@ export class SharedStateService {
   }
 
   sortFeatureUp(index: any) {
-    this.selectedFeaturesSource.value[index - 1].layer.setZIndex(index);
-    this.selectedFeaturesSource.value[index].layer.setZIndex(index - 1);
-    console.log(this.selectedFeaturesSource.value);
-    this.selectedFeaturesSource.next(this.selectedFeaturesSource.value);
+    const previousZIndex = this.selectedFeaturesSource.value[index].layer.getZIndex();
+    this.selectedFeaturesSource.value[index - 1].layer.setZIndex(previousZIndex);
+    this.selectedFeaturesSource.value[index].layer.setZIndex(previousZIndex + 1);
+    const newSelectedFeatures = this.selectedFeaturesSource.value.slice().sort((a, b) => b.layer.getZIndex() - a.layer.getZIndex());
+    this.selectedFeaturesSource.next(newSelectedFeatures);
     this.didChangeLayer();
   }
 
   sortFeatureDown(index: any) {
-    this.selectedFeaturesSource.value[index + 1].layer.setZIndex(index);
-    this.selectedFeaturesSource.value[index].layer.setZIndex(index + 1);
-    this.selectedFeaturesSource.next(this.selectedFeaturesSource.value);
+    const previousZIndex = this.selectedFeaturesSource.value[index].layer.getZIndex();
+    this.selectedFeaturesSource.value[index + 1].layer.setZIndex(previousZIndex);
+    this.selectedFeaturesSource.value[index].layer.setZIndex(previousZIndex - 1);
+    const newSelectedFeatures = this.selectedFeaturesSource.value.slice().sort((a, b) => b.layer.getZIndex() - a.layer.getZIndex());
+    this.selectedFeaturesSource.next(newSelectedFeatures);
     this.didChangeLayer();
   }
 }
