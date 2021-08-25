@@ -24,6 +24,14 @@ body {
   font-family: sans-serif;
 }
 
+body,
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
 #functionsPanel .mat-expansion-indicator::after {
   color: white;
 }

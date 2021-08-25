@@ -10,7 +10,8 @@ export interface IZsMapState {
   name?: string;
   source: ZsMapStateSource;
   layers?: ZsMapLayerState[];
-  center: { lng: number; lat: number };
+  drawElements?: ZsMapDrawElementState[];
+  center: [number, number];
 }
 
 export enum ZsMapDisplayMode {
@@ -20,11 +21,14 @@ export enum ZsMapDisplayMode {
 
 export interface IZsMapDisplayState {
   displayMode: ZsMapDisplayMode;
-  currentLayer: string;
-  visibleLayers: string[];
-  // TODO add additional props as filter aso.
+  mapOpacity: number;
+  activeLayer: string;
+  layerVisibility: Record<string, boolean>;
+  layerOpacity: Record<string, number>;
+  layerOrder: string[];
+  elementOpacity: Record<string, number>;
+  elementVisibility: Record<string, boolean>;
 }
-
 
 export type ZsMapLayerState = IZsMapDrawLayerState | IZsMapGeoDataLayerState;
 
@@ -37,11 +41,11 @@ interface IZsMapBaseLayerState {
   id?: string;
   type: ZsMapLayerStateType;
   name?: string;
+  // opacity?: number;
 }
 
 export interface IZsMapDrawLayerState extends IZsMapBaseLayerState {
   type: ZsMapLayerStateType.DRAW;
-  elements: ZsMapDrawElementState[];
 }
 
 export interface IZsMapGeoDataLayerState extends IZsMapBaseLayerState {
@@ -59,11 +63,29 @@ export enum ZsMapDrawElementStateType {
 
 export type ZsMapDrawElementState = ZsMapTextDrawElementState;
 
-interface IZsMapDrawElementState {
+interface IZsMapBaseElementStyle {
   id: string;
+  layer: string;
+}
+
+interface IZsMapDrawElementState extends IZsMapBaseElementStyle {
   type: ZsMapDrawElementStateType;
+  fixedPosition?: boolean;
+  color?: string;
+  name?: string;
+}
+
+export interface IZsMapSymbolState {
+  id: string;
+  // TODO add overwrite props
 }
 
 export interface ZsMapTextDrawElementState extends IZsMapDrawElementState {
   type: ZsMapDrawElementStateType.TEXT;
+  fontSize: string;
+}
+
+export interface ZsMapSymbolDrawElementState extends IZsMapDrawElementState {
+  type: ZsMapDrawElementStateType.TEXT;
+  symbol: string;
 }

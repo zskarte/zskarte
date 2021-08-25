@@ -18,7 +18,7 @@
  *
  */
 
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { IZsMapState, ZsMapStateSource } from './state/interfaces';
 import { StateService } from './state/state.service';
 
@@ -26,13 +26,15 @@ import { StateService } from './state/state.service';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
   title = 'zsKarteAng';
+  ZsMapStateSource = ZsMapStateSource;
 
   public defaultMap: IZsMapState = {
     id: 'testid',
-    center: null,
+    center: [849861.97, 5905812.55],
     source: ZsMapStateSource.OPEN_STREET_MAP,
     name: 'test',
     layers: [],

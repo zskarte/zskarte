@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import produce from 'immer';
+import produce, { enablePatches, Patch } from 'immer';
 import {
   IZsMapDisplayState,
   IZsMapState,
@@ -9,11 +9,14 @@ import {
   ZsMapLayerStateType,
   ZsMapStateSource,
 } from './interfaces';
-import { map } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { ZsMapBaseLayer } from './base-layer';
 import { v4 as uuidv4 } from 'uuid';
 import { ZsMapDrawLayer } from './draw-layer';
+
+// TODO move this to right position
+enablePatches();
 
 @Injectable({
   providedIn: 'root',
@@ -24,25 +27,41 @@ export class StateService {
       return {} as any;
     })
   );
+  private _mapPatches: BehaviorSubject<Patch[]> = new BehaviorSubject([]);
+  private _mapInversePatches: BehaviorSubject<Patch[]> = new BehaviorSubject(
+    []
+  );
 
   private _display = new BehaviorSubject<IZsMapDisplayState>(
     produce<IZsMapDisplayState>(null, (draft) => {
-      draft = {
+      return {
+        mapOpacity: 1,
         displayMode: ZsMapDisplayMode.DRAW,
-        currentLayer: null,
-        visibleLayers: [],
+        activeLayer: null,
+        layerOpacity: {},
+        layerVisibility: {},
+        layerOrder: [],
+        elementVisibility: {},
+        elementOpacity: {},
       };
     })
   );
+  private _displayPatches: BehaviorSubject<Patch[]> = new BehaviorSubject([]);
+  private _displayInversePatches: BehaviorSubject<Patch[]> =
+    new BehaviorSubject([]);
+
+  private _layerCache: Record<string, ZsMapBaseLayer> = {};
 
   constructor() {}
 
-  public loadMap(map: IZsMapState) {
-    console.log('load map', map);
+  public loadMapState(map: IZsMapState) {
+    console.log('load map state', map);
     this.updateMapState((draft) => {
       return map;
     });
   }
+
+  public saveMapState(): void {}
 
   public observeMapState(): Observable<IZsMapState> {
     return this._map.asObservable();
@@ -57,7 +76,8 @@ export class StateService {
     return this._map.pipe(
       map((o) => {
         return o?.source;
-      })
+      }),
+      distinctUntilChanged((x, y) => x === y)
     );
   }
 
@@ -72,7 +92,8 @@ export class StateService {
     return this._map.pipe(
       map((o) => {
         return o?.name;
-      })
+      }),
+      distinctUntilChanged((x, y) => x === y)
     );
   }
 
@@ -82,24 +103,55 @@ export class StateService {
     });
   }
 
-  // layers
-  public observeLayers(): Observable<ZsMapDrawLayer[]> {
-    return this._map.pipe(
+  // opacity
+  public observeMapOpacity(): Observable<number> {
+    return this._display.pipe(
       map((o) => {
-        if (o?.layers) {
-          const layers: ZsMapDrawLayer[] = [];
-          for (const i of o.layers) {
-            layers.push(new ZsMapDrawLayer(i.id, this));
+        return o?.mapOpacity === undefined ? 1 : o.mapOpacity;
+      }),
+      distinctUntilChanged((x, y) => x === y)
+    );
+  }
+
+  public setMapOpacity(opacity: number) {
+    this.updateDisplayState((draft) => {
+      draft.mapOpacity = opacity;
+    });
+  }
+
+  // layers
+
+  public getActiveLayer(): ZsMapBaseLayer {
+    return this._layerCache[this._display.value.activeLayer]
+  }
+
+  public observeLayers(): Observable<ZsMapBaseLayer[]> {
+    return this._map.pipe(
+      map(
+        (o) => {
+          if (o?.layers) {
+            const layers: ZsMapBaseLayer[] = [];
+            for (const i of o.layers) {
+              if (this._layerCache[i.id]) {
+                layers.push(this._layerCache[i.id]);
+              } else {
+                const layer = new ZsMapDrawLayer(i.id, this);
+                this._layerCache[i.id] = layer;
+                layers.push(layer);
+              }
+            }
+            // TODO update cache
+            return layers;
           }
-          return layers;
-        }
-        return [];
-      })
+          return [];
+        },
+        distinctUntilChanged((x, y) => x === y)
+      )
     );
   }
 
   public addDrawLayer(): void {
-    this._addLayer({ type: ZsMapLayerStateType.DRAW, elements: [] });
+    this._addLayer({ type: ZsMapLayerStateType.DRAW });
   }
 
   private _addLayer(layer: ZsMapLayerState): void {
@@ -114,16 +166,23 @@ export class StateService {
       draft.layers.push(layer);
     });
     this.updateDisplayState((draft) => {
-      if (!draft.visibleLayers) {
-        draft.visibleLayers = [];
-      }
-      draft.visibleLayers.push(layer.id);
-      draft.currentLayer = layer.id;
+      draft.layerVisibility[layer.id] = true;
+      draft.activeLayer = layer.id;
+      draft.layerOrder.push(layer.id);
     });
   }
 
   public updateMapState(fn: (draft: IZsMapState) => void) {
-    const newState = produce<IZsMapState>(this._map.value || ({} as any), fn);
+    const newState = produce<IZsMapState>(
+      this._map.value || ({} as any),
+      fn,
+      (patches, inversePatches) => {
+        this._mapPatches.value.push(...patches);
+        this._mapPatches.next(this._mapPatches.value);
+        this._mapInversePatches.value.push(...inversePatches);
+        this._mapInversePatches.next(this._mapInversePatches.value);
+      }
+    );
     console.log('updated map state', newState);
     this._map.next(newState);
   }
@@ -131,7 +190,13 @@ export class StateService {
   public updateDisplayState(fn: (draft: IZsMapDisplayState) => void): void {
     const newState = produce<IZsMapDisplayState>(
       this._display.value || ({} as any),
-      fn
+      fn,
+      (patches, inversePatches) => {
+        this._displayPatches.value.push(...patches);
+        this._displayPatches.next(this._displayPatches.value);
+        this._displayInversePatches.value.push(...inversePatches);
+        this._displayInversePatches.next(this._displayInversePatches.value);
+      }
     );
     console.log('updated display state', newState);
     this._display.next(newState);

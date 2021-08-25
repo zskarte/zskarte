@@ -27,7 +27,7 @@
   display: none !important;
 }
 
-#mapLoader {
+/* #mapLoader {
   display: none;
   position: absolute;
   top: 0;
@@ -41,4 +41,4 @@
 
 #mapLoader.show {
   display: flex;
-}
+} */
