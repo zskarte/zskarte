@@ -11,7 +11,8 @@
       },
       "extends": [
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates"
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "prettier"
       ],
       "rules": {
         "prettier/prettier": "error",
@@ -36,6 +37,10 @@
     {
       "files": ["*.html"],
       "plugins": ["prettier"],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended",
+        "plugin:prettier/recommended"
+      ],
       "rules": {
         "prettier/prettier": "error"
       }
@@ -43,6 +48,11 @@
     {
       "files": ["*.css"],
       "plugins": ["prettier"],
+      "parser": "angular",
+      "extends": [
+        "plugin:@angular-eslint/template/recommended",
+        "plugin:prettier/recommended"
+      ],
       "rules": {
         "prettier/prettier": "error"
       }
