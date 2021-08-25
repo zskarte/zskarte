@@ -13,7 +13,7 @@
             />
           </div>
           <div class="label">{{ featureGroup.label }}</div>
-          
+
 
           <mat-expansion-panel
             *ngFor="let feature of featureGroup.features"
@@ -65,6 +65,13 @@
           </div>
           <div *ngIf="selectedSignature.createdAt" class="label-light">
             {{ selectedSignature.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
+          </div>
+          <div *ngIf="selectedSignature.size" class="label">
+            {{
+              selectedSignature.type === 'LineString'
+                ? i18n.get('distance')
+                : i18n.get('area')
+            }}: <span [innerHTML]="selectedSignature.size"></span>
           </div>
           <mat-form-field *ngIf="editMode">
             <mat-label>{{ i18n.get('name') }}</mat-label>
@@ -127,7 +134,7 @@
             (ngModelChange)="toggleLockOfFeature()"
             *ngIf="editMode"
             >{{ i18n.get('lockFeature') }}</mat-checkbox
-          ><br>
+          ><br />
           <mat-checkbox
             [(ngModel)]="selectedSignature.labelShow"
             (ngModelChange)="redraw()"

@@ -8,6 +8,7 @@ export interface FillStyle {
 export interface Sign {
   type: string;
   src: string;
+  size?: string;
   protected?: boolean;
   de?: string;
   fr?: string;
@@ -109,6 +110,9 @@ export function getMostTopCoordinate(feature) {
 export function defineDefaultValuesForSignature(signature: Sign) {
   if (!signature.style) {
     signature.style = 'solid';
+  }
+  if (!signature.size) {
+    signature.size = undefined;
   }
   if (!signature.color) {
     if (signature.kat) {
