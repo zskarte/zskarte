@@ -1,8 +1,8 @@
 mat-card.selection {
   position: absolute;
-  top: 30px;
-  bottom: 30px;
-  left: 30px;
+  top: 0;
+  bottom: 60px;
+  left: 0;
   background-color: #f1f1f1;
   margin-bottom: 0;
   max-height: calc(100vh - 169px);
