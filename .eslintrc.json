@@ -3,6 +3,7 @@
   "ignorePatterns": ["projects/**/*"],
   "overrides": [
     {
+      "plugins": ["prettier"],
       "files": ["*.ts"],
       "parserOptions": {
         "project": ["tsconfig.json", "e2e/tsconfig.json"],
@@ -13,6 +14,7 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "prettier/prettier": "error",
         "@angular-eslint/component-selector": [
           "error",
           {
@@ -33,8 +35,17 @@
     },
     {
       "files": ["*.html"],
-      "extends": ["plugin:@angular-eslint/template/recommended"],
-      "rules": {}
+      "plugins": ["prettier"],
+      "rules": {
+        "prettier/prettier": "error"
+      }
+    },
+    {
+      "files": ["*.css"],
+      "plugins": ["prettier"],
+      "rules": {
+        "prettier/prettier": "error"
+      }
     }
   ]
 }
