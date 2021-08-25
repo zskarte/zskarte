@@ -12,6 +12,15 @@ mat-card.selection {
   border-radius: 0;
 }
 
+@media screen and (max-width: 768px) {
+  mat-card.selection {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    max-width: 40vw;
+  }
+}
+
 .titleCard {
   min-height: 10vh;
 }
