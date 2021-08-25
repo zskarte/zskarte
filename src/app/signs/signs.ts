@@ -24,7 +24,7 @@ export class Signs {
   public static SIGNS: Sign[] = [
     {
       id: 1,
-      kat: 'place',
+      kat: 'fks',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/ABC Dekontaminationsstelle.svg',
@@ -1521,7 +1521,7 @@ export class Signs {
     },
     {
       id: 148,
-      kat: 'formations',
+      kat: 'fks',
       type: 'Point',
       color: '#0000FF',
       src: 'BSM/Polizei.svg',
@@ -1601,7 +1601,7 @@ export class Signs {
     },
     {
       id: 156,
-      kat: 'formations',
+      kat: 'fks',
       type: 'Point',
       color: '#0000FF',
       src: 'BSM/Zivilschutz.svg',

@@ -112,34 +112,38 @@ export function getMostTopCoordinate(feature) {
   return symbolAnchorCoordinate;
 }
 
+export function getColorForCategory(kat: string) : string {
+  switch (kat) {
+    case 'blue':
+    case 'place':
+    case 'means':
+    case 'formations':
+      return '#0000FF';
+      break;
+    case 'red':
+    case 'damage':
+      return '#FF0000';
+      break;
+    case 'orange':
+    case 'dangers':
+      return '#FF9100';
+      break;
+    case 'other':
+    case 'fks':
+    case 'effects':
+    case 'labels':
+      return '#948B68';
+      break;
+  }
+}
+
 export function defineDefaultValuesForSignature(signature: Sign) {
   if (!signature.style) {
     signature.style = 'solid';
   }
   if (!signature.color) {
     if (signature.kat) {
-      switch (signature.kat) {
-        case 'blue':
-        case 'place':
-        case 'means':
-        case 'formations':
-            signature.color = '#0000FF';
-          break;
-        case 'red':
-        case 'damage':
-          signature.color = '#FF0000';
-          break;
-        case 'orange':
-        case 'dangers':
-          signature.color = '#FF9100';
-          break;
-        case 'other':
-        case 'fks':
-        case 'effects':
-        case 'labels':
-          signature.color = '#948B68';
-          break;
-      }
+      signature.color = getColorForCategory(signature.kat);
     } else {
       signature.color = '#535353';
     }
