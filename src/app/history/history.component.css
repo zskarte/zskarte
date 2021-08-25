@@ -3,6 +3,7 @@
   bottom: 0;
   background-color: white;
   right: 0;
+  z-index: 1;
 }
 
 .selector {

@@ -73,3 +73,17 @@
 .filter mat-form-field {
   width: 100%;
 }
+
+.categoryDot{
+  width:24px;
+  height:24px;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+
+.categoryElement{
+  display: flex;
+  flex-direction: row;
+  align-items: center
+}
+

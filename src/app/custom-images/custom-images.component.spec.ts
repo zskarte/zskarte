@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 import { CustomImagesComponent } from './custom-images.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('CustomImagesComponent', () => {
   let component: CustomImagesComponent;
@@ -12,6 +13,7 @@ describe('CustomImagesComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [ CustomImagesComponent ],
+      imports: [ HttpClientTestingModule ],
       providers: [
         { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
         { provide: MAT_DIALOG_DATA, useValue: {} },

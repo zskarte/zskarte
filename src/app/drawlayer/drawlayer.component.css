@@ -1,15 +1,23 @@
-#status {
+.tooltip {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 1.5em;
-  background-color: #ffffff;
-  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0;
+  color: white;
+  padding: 4px 8px;
+  opacity: 0.7;
+  white-space: nowrap;
+  font-size: 12px;
+  cursor: default;
+  user-select: none;
+  margin-left: 1em;
+  margin-top: -10px;
 }
 
-#removePoint {
+#removePoint,
+#rotateSymbol {
   position: absolute;
   z-index: 200000;
+  transform: translateX(-50%) translateY(-50%);
 }
 
 .closeBox {
@@ -21,4 +29,7 @@
   position: absolute;
   bottom: 0;
   right: 0;
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
 }

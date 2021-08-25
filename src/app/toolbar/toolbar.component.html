@@ -50,7 +50,6 @@
           <i class="material-icons">gesture</i>
         </button>
         <app-tools [drawLayer]="drawLayer"></app-tools>
-        <app-layers></app-layers>
         <mat-slide-toggle
           (toggleChange)="toggleHistory()"
           [checked]="historyMode"
@@ -114,14 +113,5 @@
         <i *ngIf="symbol.icon" class="material-icons">{{ symbol.icon }}</i>
       </button>
     </div>
-  </div>
-
-  <div class="zoom noprint">
-    <button mat-icon-button (click)="zoomIn()">
-      <i class="material-icons">zoom_in</i>
-    </button>
-    <button mat-icon-button (click)="zoomOut()">
-      <i class="material-icons">zoom_out</i>
-    </button>
   </div>
 </mat-card>

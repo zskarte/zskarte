@@ -11,7 +11,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { ToolsComponent } from './tools/tools.component';
-import { LayersComponent } from './layers/layers.component';
 import { CreditsComponent } from './credits/credits.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MatMenuModule } from '@angular/material/menu';
@@ -57,6 +56,7 @@ import localeDeCh from '@angular/common/locales/de-CH';
 import { TableViewComponent } from './table-view/table-view.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSortModule } from '@angular/material/sort';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 registerLocaleData(localeDeCh)
 
@@ -88,7 +88,6 @@ const dbConfig: DBConfig = {
     MapComponent,
     DrawingtoolsComponent,
     ToolsComponent,
-    LayersComponent,
     CreditsComponent,
     ToolbarComponent,
     DrawingDialogComponent,
@@ -110,7 +109,8 @@ const dbConfig: DBConfig = {
     EditCoordinatesComponent,
     DetailImageViewComponent,
     HelpComponent,
-    TableViewComponent
+    TableViewComponent,
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,
@@ -137,10 +137,10 @@ const dbConfig: DBConfig = {
     MatExpansionModule,
     MatSlideToggleModule,
     MatStepperModule,
+    MatSidenavModule,
     MatTableModule,
     MatSortModule,
-    MatSidenavModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   entryComponents: [
     DrawingDialogComponent,

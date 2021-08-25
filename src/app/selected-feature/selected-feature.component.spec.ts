@@ -6,6 +6,7 @@ import { DetailImageViewComponent } from '../detail-image-view/detail-image-view
 import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.component';
 
 import { SelectedFeatureComponent } from './selected-feature.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('SelectedFeatureComponent', () => {
   let component: SelectedFeatureComponent;
@@ -13,7 +14,7 @@ describe('SelectedFeatureComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [MatDialogModule],
+      imports: [MatDialogModule, HttpClientTestingModule],
       declarations: [ SelectedFeatureComponent, DrawingDialogComponent, ConfirmationDialogComponent, DetailImageViewComponent ],
       schemas: [
         NO_ERRORS_SCHEMA

@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import Select from 'ol/interaction/Select';
 import Modify from 'ol/interaction/Modify';
 import Vector from 'ol/source/Vector';
 import LayerVector from 'ol/layer/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
 import Polygon from 'ol/geom/Polygon';
+import LineString from 'ol/geom/LineString';
 import Feature from 'ol/Feature';
 import Draw from 'ol/interaction/Draw';
 import OlMap from 'ol/Map';
@@ -17,7 +18,7 @@ import { DrawStyle } from './draw-style';
 import { I18NService } from '../i18n.service';
 import { MapStoreService } from '../map-store.service';
 import { SessionsService } from '../sessions.service';
-import CENTER_LEFT from 'ol/OverlayPositioning';
+import OverlayPositioning from 'ol/OverlayPositioning';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
@@ -26,12 +27,10 @@ import { EditCoordinatesComponent } from '../edit-coordinates/edit-coordinates.c
 import { DisplayMode } from '../entity/displayMode';
 import Cluster from 'ol/source/Cluster';
 import Collection from 'ol/Collection';
-import { Sign } from '../entity/sign';
-import {
-  availableProjections,
-  mercatorProjection,
-} from '../projections';
+import { getFirstCoordinate, Sign } from '../entity/sign';
+import { availableProjections, mercatorProjection } from '../projections';
 import { filter } from 'rxjs/operators';
+import { getLength, getArea } from 'ol/sphere';
 
 export const DRAW_LAYER_ZINDEX = 100000;
 export const CLUSTER_LAYER_ZINDEX = DRAW_LAYER_ZINDEX + 1;
@@ -53,6 +52,15 @@ export class DrawlayerComponent implements OnInit {
     this.startAutosave();
   }
 
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    switch (event.code) {
+      case 'Escape':
+        this.endDrawing(this.sketch);
+        break;
+    }
+  }
+
   private static mapSaveInterval = 1000;
   private static saveRunnerLock = false;
 
@@ -61,7 +69,7 @@ export class DrawlayerComponent implements OnInit {
   filters = {};
   map: OlMap;
   currentDrawingSign = null;
-  status = 'Loading data...';
+  sketch: Feature = undefined;
   currentSessionId: string;
   recordChanges = false;
   maxZIndex = 0;
@@ -141,14 +149,21 @@ export class DrawlayerComponent implements OnInit {
         this.lastModificationPointCoordinates = this.modify['vertexFeature_']
           .getGeometry()
           .getCoordinates();
-        this.toggleRemoveButton(true);
         this.removeButton.setPosition(event.coordinate);
+        this.rotateButton.setPosition(event.coordinate);
+        this.toggleEditButtons(true);
       }
       return true;
     },
     hitTolerance: 10,
   });
   removeButton: Overlay = null;
+  rotateButton: Overlay = null;
+  ROTATE_OFFSET_X = 30;
+  ROTATE_OFFSET_Y = -30;
+  rotating = false;
+  initialRotation = 0;
+
 
   firstLoad = true;
   drawHole = new DrawHole({
@@ -160,8 +175,11 @@ export class DrawlayerComponent implements OnInit {
 
   historyMode: boolean;
 
-  mouseCoordinates: [0, 0]
-  mouseCoordinatesProjection: [0, 0]
+  mouseCoordinates: [0, 0];
+  mousePosition: [0, 0];
+  mouseCoordinatesProjection: [0, 0];
+
+  statusPosition: number[] = undefined;
 
   selectedFeature: Feature;
 
@@ -181,6 +199,29 @@ export class DrawlayerComponent implements OnInit {
     return filterString;
   }
 
+  formatLength(line) {
+    const length = getLength(line);
+    let output;
+    if (length > 100) {
+      output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km';
+    } else {
+      output = Math.round(length * 100) / 100 + ' ' + 'm';
+    }
+    return output;
+  }
+
+  formatArea(polygon) {
+    const area = getArea(polygon);
+    let output;
+    if (area > 10000) {
+      output =
+        Math.round((area / 1000000) * 100) / 100 + ' ' + 'km<sup>2</sup>';
+    } else {
+      output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>';
+    }
+    return output;
+  }
+
   private isSigFiltered(sig: Sign): boolean {
     if (!sig) {
       return false;
@@ -190,8 +231,6 @@ export class DrawlayerComponent implements OnInit {
 
   private startAutosave() {
     if (!DrawlayerComponent.saveRunnerLock) {
-      console.log('starting autosave now...');
-      // Ensure there is only a single autosave interval running at a time.
       DrawlayerComponent.saveRunnerLock = true;
       setInterval(() => this.save(), DrawlayerComponent.mapSaveInterval);
     }
@@ -297,6 +336,12 @@ export class DrawlayerComponent implements OnInit {
       const sig = feature.get('sig');
       if (sig) {
         this.toggleFilters([sig.src], false);
+        const geom = feature.getGeometry();
+        if (geom instanceof Polygon) {
+          sig.size = this.formatArea(geom);
+        } else if (geom instanceof LineString) {
+          sig.size = this.formatLength(geom);
+        }
       }
 
       if (changeEvent) {
@@ -315,9 +360,23 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  toggleRemoveButton(show: boolean) {
+  toggleEditButtons(show: boolean) {
     this.removeButton.getElement().style.display =
       show && !this.historyMode ? 'block' : 'none';
+
+
+    let allowRotation = false;
+    if (show) {
+      const [pointX, pointY] = this.lastModificationPointCoordinates;
+      const [iconX, iconY] = getFirstCoordinate(this.getSelectedFeature());
+
+      // only show rotateButton if the feature has an icon and the selected point is where the icon is placed
+      allowRotation = this.getSelectedFeature()?.get('sig')?.src && pointX === iconX && pointY === iconY;
+    }
+
+
+    this.rotateButton.getElement().style.display =
+      allowRotation && !this.historyMode ? 'block' : 'none';
   }
 
   private setModifiableFeature(f: Feature) {
@@ -330,11 +389,16 @@ export class DrawlayerComponent implements OnInit {
   ngOnInit() {
     this.removeButton = new Overlay({
       element: document.getElementById('removePoint'),
-      positioning: CENTER_LEFT,
-      offset: [10, 0],
+      positioning: OverlayPositioning.CENTER_CENTER,
+      offset: [30, 30],
+    });
+    this.rotateButton = new Overlay({
+      element: document.getElementById('rotateSymbol'),
+      positioning: OverlayPositioning.CENTER_CENTER,
+      offset: [this.ROTATE_OFFSET_X, this.ROTATE_OFFSET_Y],
     });
     this.modify.addEventListener('modifystart', () => {
-      this.toggleRemoveButton(false);
+      this.toggleEditButtons(false);
     });
     this.modify.addEventListener('modifyend', (e) => {
       if (this.isModifyPointInteraction()) {
@@ -342,9 +406,15 @@ export class DrawlayerComponent implements OnInit {
           .getGeometry()
           .getCoordinates();
         this.removeButton.setPosition(e.mapBrowserEvent.coordinate);
-        this.toggleRemoveButton(true);
+        this.rotateButton.setPosition(e.mapBrowserEvent.coordinate);
+        this.toggleEditButtons(true);
       }
     });
+
+    this.rotateButton.element.addEventListener('mousedown', () => this.startRotating());
+    this.rotateButton.element.addEventListener('touchstart', () => this.startRotating());
+    document.addEventListener('touchmove', this.onMouseMove.bind(this), { passive: false });
+
     this.removeButton.element.addEventListener('click', (e) => {
       const coordinationGroup = this.getCoordinationGroupOfLastPoint();
       if (coordinationGroup) {
@@ -377,12 +447,13 @@ export class DrawlayerComponent implements OnInit {
             .setCoordinates(newCoordinates);
         }
       }
-      this.toggleRemoveButton(false);
+      this.toggleEditButtons(false);
     });
     this.layer.setZIndex(DRAW_LAYER_ZINDEX);
     this.clusterLayer.setZIndex(CLUSTER_LAYER_ZINDEX);
     this.map = this.inputMap;
     this.map.addOverlay(this.removeButton);
+    this.map.addOverlay(this.rotateButton);
     this.map.addInteraction(this.select);
     this.map.addInteraction(this.modify);
     this.map.addInteraction(this.drawHole);
@@ -439,7 +510,16 @@ export class DrawlayerComponent implements OnInit {
     });
 
     this.map.on('pointermove', (evt) => {
-      this.setMouseCoordinates(evt.coordinate)
+      this.mousePosition = evt.pixel;
+      if (this.sketch) {
+        const geom = this.sketch.getGeometry();
+        if (geom instanceof Polygon) {
+          this.currentDrawingSign.size = this.formatArea(geom);
+        } else if (geom instanceof LineString) {
+          this.currentDrawingSign.size = this.formatLength(geom);
+        }
+      }
+      this.setMouseCoordinates(evt.coordinate);
     });
 
     this.sharedState.currentFeature.subscribe((feature) => {
@@ -494,10 +574,7 @@ export class DrawlayerComponent implements OnInit {
         if (this.currentSessionId !== s.uuid) {
           this.currentSessionId = s.uuid;
           this.clearSelection();
-          // The session has changed - we need to reload
-          this.status = 'Now loading the map...';
           this.load(false).then(() => {
-            this.status = 'Map loaded';
             this.recordChanges = true;
           });
         }
@@ -644,7 +721,6 @@ export class DrawlayerComponent implements OnInit {
     if (this.currentSessionId) {
       this.clearSelection();
       this.load().then(() => {
-        // this.select.setActive(true);
         this.modify.setActive(true);
       });
     }
@@ -653,7 +729,6 @@ export class DrawlayerComponent implements OnInit {
   startHistoryMode() {
     this.clearSelection();
     this.modify.setActive(false);
-    // this.select.setActive(false);
   }
 
   loadFromHistory(history) {
@@ -676,7 +751,7 @@ export class DrawlayerComponent implements OnInit {
   }
 
   selectionChanged() {
-    this.toggleRemoveButton(false);
+    this.toggleEditButtons(false);
     if (this.select.getFeatures().getLength() === 1) {
       const feature = this.select.getFeatures().item(0);
       this.selectedFeature = feature;
@@ -857,7 +932,6 @@ export class DrawlayerComponent implements OnInit {
     reenableChangeRecording: boolean,
     resolve: (value?: PromiseLike<any> | any) => void
   ) {
-    console.log('Done loading');
     if (reenableChangeRecording) {
       this.recordChanges = true;
     }
@@ -897,7 +971,6 @@ export class DrawlayerComponent implements OnInit {
   }
 
   startDrawing(sign) {
-    // this.select.setActive(false);
     this.currentDrawingSign = sign;
     if (sign) {
       this.toggleFilters([sign.src], false);
@@ -908,8 +981,11 @@ export class DrawlayerComponent implements OnInit {
           type: this.currentDrawingSign.type,
         });
         drawer.drawLayer = this;
-        drawer.addEventListener('drawend', (event) => {
-          this.endDrawing(event);
+        drawer.addEventListener('drawstart', (event) => {
+          this.sketch = event.feature;
+        });
+        drawer.addEventListener('drawend', () => {
+          this.endDrawing(this.sketch);
         });
         this.map.addInteraction(drawer);
       }
@@ -917,16 +993,19 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  endDrawing(event) {
-    // this.select.setActive(true);
-    event.feature.set('sig', this.currentDrawingSign);
-    Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
-    this.sharedState.selectFeature(event.feature);
+  endDrawing(feature) {
+    if (feature) {
+      this.currentDrawingSign.createdAt = new Date();
+      feature.set('sig', this.currentDrawingSign);
+      Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
+      this.sharedState.selectFeature(feature);
+      this.sketch = undefined;
+    }
   }
 
   removeFeature(feature) {
     if (feature != null) {
-      this.toggleRemoveButton(false);
+      this.toggleEditButtons(false);
       this.source.removeFeature(feature);
       this.clearSelection();
     }
@@ -934,19 +1013,22 @@ export class DrawlayerComponent implements OnInit {
 
   rotateProjection() {
     const nextIndex = this.selectedProjectionIndex + 1;
-    this.selectedProjectionIndex = nextIndex >= availableProjections.length ? 0 : nextIndex;
+    this.selectedProjectionIndex =
+      nextIndex >= availableProjections.length ? 0 : nextIndex;
     if (this.selectedFeature) {
       this.setSelectedFeatureCoordinates(this.selectedFeature);
     } else {
-      this.setMouseCoordinates(undefined)
+      this.setMouseCoordinates(undefined);
     }
   }
 
   setMouseCoordinates(coordinate) {
     if (coordinate) {
-      this.mouseCoordinates = coordinate
+      this.mouseCoordinates = coordinate;
     }
-    this.mouseCoordinatesProjection = this.transformToCurrentProjection(this.mouseCoordinates);
+    this.mouseCoordinatesProjection = this.transformToCurrentProjection(
+      this.mouseCoordinates
+    );
   }
 
   setSelectedFeatureCoordinates(feature: Feature) {
@@ -983,12 +1065,10 @@ export class DrawlayerComponent implements OnInit {
 
   private freeHandDraw: Draw;
   disableFreeHandDraw(): void {
-    // console.log('disable free hand draw');
     this.freeHandDraw?.setActive(false);
     this.map.removeInteraction(this.freeHandDraw);
   }
   enableFreeHandDraw(): void {
-    // console.log('enable free hand draw');
     if (!this.freeHandDraw) {
       this.toggleFilters(['free_hand_element'], false);
       this.freeHandDraw = new Draw({
@@ -1002,11 +1082,68 @@ export class DrawlayerComponent implements OnInit {
           type: 'LineString',
           freehand: true,
           filterValue: 'free_hand_element',
+          createdAt: new Date()
         });
         this.sharedState.selectFeature(event.feature);
       });
     }
     this.map.addInteraction(this.freeHandDraw);
     this.freeHandDraw.setActive(true);
+  }
+
+  startRotating() {
+    const feature = this.getSelectedFeature();
+    if (!feature?.get('sig')) {
+      return;
+    }
+    this.rotating = true;
+    this.initialRotation = feature.get('sig').rotation;
+  }
+
+  @HostListener('document:mouseup')
+  @HostListener('document:touchend')
+  @HostListener('document:touchcancel')
+  stopRotating() {
+    this.rotating = false;
+  }
+
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent | TouchEvent) {
+    if (!this.rotating) {
+      return;
+    }
+
+    if (event instanceof TouchEvent && event.targetTouches.length <= 0) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const feature = this.getSelectedFeature();
+
+    if (!feature?.get('sig')) {
+      return;
+    }
+
+    let pageX, pageY;
+    if (event instanceof TouchEvent) {
+      pageX = event.targetTouches[event.targetTouches.length - 1].pageX
+      pageY = event.targetTouches[event.targetTouches.length - 1].pageY
+    } else if (event instanceof MouseEvent) {
+      pageX = event.pageX;
+      pageY = event.pageY;
+    }
+
+    const rect = this.rotateButton.getElement().getBoundingClientRect();
+
+		const radians	= Math.atan2(pageX - (rect.x - this.ROTATE_OFFSET_X), pageY - (rect.y - this.ROTATE_OFFSET_Y));
+		const degrees	= Math.round((radians * (180 / Math.PI) * -1) + 100);
+    const rotation = degrees + this.initialRotation;
+
+    // keep the rotation between -180 and 180
+    feature.get('sig').rotation = rotation > 180 ? rotation - 360 : rotation;
+
+    feature.changed();
   }
 }

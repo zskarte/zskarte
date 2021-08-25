@@ -37,6 +37,16 @@ export class I18NService {
       en: 'Name',
       fr: 'Nom',
     },
+    distance: {
+      de: 'Distanz',
+      en: 'Distance',
+      fr: 'Distance',
+    },
+    area: {
+      de: 'Fläche',
+      en: 'Area',
+      fr: 'Région',
+    },
     password: {
       de: 'Passwort',
       fr: 'Mot de passe',
@@ -152,6 +162,11 @@ export class I18NService {
       en: 'Filter',
       fr: 'Filtre',
     },
+    filterByCategory: {
+      de: 'Nach Kategorie filtern',
+      en: 'Filter by category',
+      fr: 'Filtrer par catégorie',
+    },
     polygon: {
       de: 'Polygon',
       en: 'Polygon',
@@ -237,10 +252,20 @@ export class I18NService {
       fr: 'Continue',
       en: 'Solid',
     },
+    dottedLine: {
+      de: 'Gepunktet',
+      en: 'Dotted',
+      fr: 'Pointé',
+    },
     dashedLine: {
       de: 'Gestrichelt',
       en: 'Dashed',
       fr: 'Pointillée',
+    },
+    thinDashedLine: {
+      de: 'Gestrichelt (Dünn)',
+      en: 'Dashed (thin)',
+      fr: 'Pointillée (maigrir)',
     },
     lineWidth: {
       de: 'Linien-Dicke',
@@ -377,15 +402,10 @@ export class I18NService {
       en: 'Available layers',
       fr: 'Couches cartographiques disponibles',
     },
-    selectedLayers: {
-      de: 'Gewählte Ebene',
-      en: 'Selected layers',
-      fr: 'Couches cartographiques sélectionnées',
-    },
     currentMap: {
-      de: 'Aktuelle Karte',
-      fr: 'Carte actuelle',
-      en: 'Current map',
+      de: 'Basiskarten',
+      fr: 'Carte de base',
+      en: 'Base map',
     },
     otherMaps: {
       de: 'Andere Karten',
@@ -945,6 +965,16 @@ export class I18NService {
       en: 'TBD',
       fr: 'TBD',
     },
+    favoriteLayers: {
+      de: 'Favoriten',
+      en: 'Favorites',
+      fr: 'Favoris',
+    },
+    noMoreFavorites: {
+      de: 'Keine Favoriten mehr vorhanden',
+      en: 'No more favorites available',
+      fr: 'Pas de favoris',
+    },
     freeHand: {
       de: 'Freihand',
       en: 'Free hand',
@@ -959,6 +989,51 @@ export class I18NService {
       de: 'Keine Daten',
       en: 'No data',
       fr: 'Aucune donnée'
+    },
+    signPlace: {
+      de: 'Platz',
+      en: 'Place',
+      fr: 'Place',
+    },
+    signFks: {
+      de: 'Feuerwehrsignaturen',
+      en: 'Fire service signatures',
+      fr: 'Signatures pompiers',
+    },
+    signActions: {
+      de: 'Aktionen',
+      en: 'Actions',
+      fr: 'Actions',
+    },
+    signDamage: {
+      de: 'Schäden',
+      en: 'Damage',
+      fr: 'Damage',
+    },
+    signFormations: {
+      de: 'Formationen',
+      en: 'Formations',
+      fr: 'Formations',
+    },
+    signEffects: {
+      de: 'Auswirkungen',
+      en: 'Effects',
+      fr: 'Effets',
+    },
+    signDangers: {
+      de: 'Gefahren',
+      en: 'Dangers',
+      fr: 'Dangers',
+    },
+    signLabels: {
+      de: 'Markierungen',
+      en: 'Labels',
+      fr: 'Marquages',
+    },
+    allCategories: {
+      de: 'Alle Kategorien',
+      en: 'All categories',
+      fr: 'Toutes catégories',
     }
   };
   private _locale: string = DEFAULT_LOCALE;

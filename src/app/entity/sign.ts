@@ -6,8 +6,11 @@ export interface FillStyle {
 }
 
 export interface Sign {
+  id?: number;
   type: string;
   src: string;
+  kat?: string;
+  size?: string;
   protected?: boolean;
   de?: string;
   fr?: string;
@@ -31,11 +34,11 @@ export interface Sign {
   arrow?: string;
   iconSize?: number;
   images?: string[];
-  kat?: string; // deprecated - kept for compatibility reasons (is translated directly to color)
   iconOpacity?: number;
   rotation?: number;
   filterValue?: string;
   origSrc?: string;
+  createdAt?: Date;
 }
 
 export function isMoreOptimalIconCoordinate(
@@ -105,26 +108,77 @@ export function getMostTopCoordinate(feature) {
   return symbolAnchorCoordinate;
 }
 
+
+export const signCategories = [
+  {
+    'name': 'place',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'formations',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'actions',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'damage',
+    'color': '#FF0000'
+  },
+  {
+    'name': 'dangers',
+    'color': '#FF9100'
+  },
+  {
+    'name': 'fks',
+    'color': '#948B68'
+  },
+  {
+    'name': 'effects',
+    'color': '#948B68'
+  },
+  {
+    'name': 'labels',
+    'color': '#948B68'
+  }
+  ];
+
+export function getColorForCategory(kat: string) : string {
+  switch (kat) {
+    case 'blue':
+    case 'place':
+    case 'means':
+    case 'formations':
+      return '#0000FF';
+      break;
+    case 'red':
+    case 'damage':
+      return '#FF0000';
+      break;
+    case 'orange':
+    case 'dangers':
+      return '#FF9100';
+      break;
+    case 'other':
+    case 'fks':
+    case 'effects':
+    case 'labels':
+      return '#948B68';
+      break;
+  }
+}
+
 export function defineDefaultValuesForSignature(signature: Sign) {
   if (!signature.style) {
     signature.style = 'solid';
   }
+  if (!signature.size) {
+    signature.size = undefined;
+  }
   if (!signature.color) {
     if (signature.kat) {
-      switch (signature.kat) {
-        case 'blue':
-          signature.color = '#0000FF';
-          break;
-        case 'red':
-          signature.color = '#FF0000';
-          break;
-        case 'orange':
-          signature.color = '#FF9100';
-          break;
-        case 'other':
-          signature.color = '#948B68';
-          break;
-      }
+      signature.color = getColorForCategory(signature.kat);
     } else {
       signature.color = '#535353';
     }

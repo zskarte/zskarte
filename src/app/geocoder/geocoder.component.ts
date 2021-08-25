@@ -33,7 +33,6 @@ export class GeocoderComponent {
       !this.sharedState.featureSource.getValue() &&
       !event.altKey
     ) {
-      this.el.nativeElement.focus();
       this.el.nativeElement.dispatchEvent(
         new KeyboardEvent('keydown', { key: event.key })
       );
