@@ -989,6 +989,9 @@ export class DrawlayerComponent implements OnInit {
         });
         this.map.addInteraction(drawer);
       }
+      Object.keys(this.drawers).forEach((key) =>
+        this.drawers[key].setActive(false)
+      );
       drawer.setActive(true);
     }
   }
