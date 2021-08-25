@@ -202,6 +202,11 @@ export class I18NService {
       en: 'Danger',
       fr: 'Danger',
     },
+    effects: {
+      de: 'Auswirkungen',
+      en: 'Effects',
+      fr: 'Effets',
+    },
     resources: {
       de: 'Einsatzmittel',
       en: 'Resources',
@@ -321,6 +326,11 @@ export class I18NService {
       de: 'Farbe',
       fr: 'Couleur',
       en: 'Color',
+    },
+    colorPickerMode: {
+      de: 'Farbauswahlmodus',
+      fr: 'Mode sélecteur de couleurs',
+      en: 'Color picker mode'
     },
     drawHole: {
       de: 'Loch zeichnen',
