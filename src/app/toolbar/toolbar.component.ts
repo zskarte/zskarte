@@ -20,7 +20,7 @@
 
 import {
   ChangeDetectorRef,
-  Component,
+  Component, ElementRef,
   HostListener,
   Input,
   OnInit,
@@ -39,6 +39,7 @@ import { ExportDialogComponent } from '../export-dialog/export-dialog.component'
 import { DisplayMode } from '../entity/displayMode';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { HelpComponent } from '../help/help.component';
+import {MatSidenav, MatSidenavContainer} from "@angular/material/sidenav";
 
 @Component({
   selector: 'app-toolbar',
@@ -65,7 +66,8 @@ export class ToolbarComponent implements OnInit {
     public dialog: MatDialog,
     private preferences: PreferencesService,
     private sessions: SessionsService,
-    private mapStore: MapStoreService
+    private mapStore: MapStoreService,
+    public toolbarRoot: ElementRef,
   ) {
     this.sharedState.displayMode.subscribe((mode) => {
       this.historyMode = mode === DisplayMode.HISTORY;
@@ -259,14 +261,6 @@ export class ToolbarComponent implements OnInit {
     } else {
       this.sharedState.displayMode.next(DisplayMode.HISTORY);
     }
-  }
-
-  zoomIn(): void {
-    this.sharedState.zoom.next(1);
-  }
-
-  zoomOut(): void {
-    this.sharedState.zoom.next(-1);
   }
 
   help(): void {

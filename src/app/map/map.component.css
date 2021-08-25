@@ -42,3 +42,19 @@
 #maploader.show {
   display: flex;
 }
+
+.zoom {
+  position: absolute;
+  top: 2em;
+  right: 2em;
+}
+
+.zoom .material-icons {
+  font-size: 2em;
+}
+
+.zoom button {
+  background-color: white;
+  display: block;
+  margin-bottom: 0.5em;
+}
