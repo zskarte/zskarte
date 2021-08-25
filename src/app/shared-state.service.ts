@@ -365,7 +365,6 @@ export class SharedStateService {
       );
 
       this.selectedFeaturesSource.value.unshift(feature);
-      console.log('adding', this.selectedFeaturesSource.value);
       this.selectedFeaturesSource.next(this.selectedFeaturesSource.value);
     } else {
       this.removeFeatureLayer(feature.layer);
