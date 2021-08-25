@@ -30,7 +30,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { ToolsComponent } from './tools/tools.component';
-import { LayersComponent } from './layers/layers.component';
 import { CreditsComponent } from './credits/credits.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MatMenuModule } from '@angular/material/menu';
@@ -106,7 +105,6 @@ const dbConfig: DBConfig = {
     MapComponent,
     DrawingtoolsComponent,
     ToolsComponent,
-    LayersComponent,
     CreditsComponent,
     ToolbarComponent,
     DrawingDialogComponent,

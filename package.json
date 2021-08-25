@@ -26,7 +26,6 @@
     "@angular/router": "^12.2.2",
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@ng-bootstrap/ng-bootstrap": "^9.1.0",
-    "array-move": "^4.0.0",
     "bootstrap": "^4.6.0",
     "material-design-icons": "^3.0.1",
     "ngx-indexed-db": "^7.0.0",

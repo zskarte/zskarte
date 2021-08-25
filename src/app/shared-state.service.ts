@@ -19,7 +19,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, from} from 'rxjs/index';
+import {BehaviorSubject} from 'rxjs/index';
 import { Sign } from './entity/sign';
 import { Coordinate } from './entity/coordinate';
 import { Session } from './entity/session';
@@ -34,8 +34,6 @@ import OlTileWMTS from 'ol/source/WMTS';
 import OlTileXYZ from 'ol/source/XYZ';
 import {swissProjection} from "./projections";
 import findOfflineHost from "./lib/findOfflineHost";
-import {arrayMoveImmutable} from "array-move";
-import {max} from "rxjs/operators";
 
 const favoriteFeaturesList = [
   'auengebiete',
