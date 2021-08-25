@@ -1,3 +1,4 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
@@ -10,15 +11,16 @@ describe('TableViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TableViewComponent ],
+      declarations: [TableViewComponent],
+      imports: [HttpClientTestingModule],
       providers: [
-        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) },
+        {
+          provide: NgxIndexedDBService,
+          useValue: jasmine.createSpyObj('NgxIndexedDBService', ['add']),
+        },
       ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
-    .compileComponents();
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
   });
 
   beforeEach(() => {
