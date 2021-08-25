@@ -12,6 +12,7 @@ import VectorLayer from 'ol/layer/Vector';
 import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import Point from 'ol/geom/Point';
+import { ScaleLine, defaults as defaultControls } from 'ol/control';
 import { PreferencesService } from '../preferences.service';
 import { CLUSTER_LAYER_ZINDEX } from '../drawlayer/drawlayer.component';
 import { defaults } from 'ol/interaction';
@@ -40,6 +41,16 @@ export class MapComponent implements OnInit {
   navigationLayer = new VectorLayer({
     source: this.navigationSource,
   });
+
+  scaleControl = () => {
+    return new ScaleLine({
+      units: 'metric',
+      bar: true,
+      steps: 4,
+      text: true,
+      minWidth: 140,
+    });
+  };
 
   constructor(
     private sharedState: SharedStateService,
@@ -79,14 +90,13 @@ export class MapComponent implements OnInit {
         center: viewPort.coordinates,
         zoom: viewPort.zoomLevel,
       }),
-      controls: [],
+      controls: [this.scaleControl()],
       interactions: defaults({
         doubleClickZoom: false,
         rotate: false,
         pinchRotate: false,
         shiftDragZoom: false,
       }),
-      // controls: [mousePositionControl]
     });
     this.map.addLayer(this.navigationLayer);
     this.sharedState.session.subscribe((s) => {
