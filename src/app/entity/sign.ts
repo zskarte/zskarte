@@ -132,7 +132,7 @@ export const signCategories = [
   },
   {
     'name': 'fks',
-    'color': '#948B68'
+    'color': '#B22CC6'
   },
   {
     'name': 'effects',
@@ -140,7 +140,7 @@ export const signCategories = [
   },
   {
     'name': 'labels',
-    'color': '#948B68'
+    'color': '#555555'
   }
   ];
 
