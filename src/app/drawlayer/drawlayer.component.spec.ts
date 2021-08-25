@@ -11,6 +11,7 @@ import Polygon from 'ol/geom/Polygon';
 import {DrawlayerComponent} from './drawlayer.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('DrawlayerComponent', () => {
   let component: DrawlayerComponent;
@@ -19,7 +20,8 @@ describe('DrawlayerComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        MatDialogModule
+        MatDialogModule,
+        HttpClientTestingModule
       ],
       providers: [
         { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) }

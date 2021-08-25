@@ -202,6 +202,11 @@ export class I18NService {
       en: 'Danger',
       fr: 'Danger',
     },
+    effects: {
+      de: 'Auswirkungen',
+      en: 'Effects',
+      fr: 'Effets',
+    },
     resources: {
       de: 'Einsatzmittel',
       en: 'Resources',
@@ -322,6 +327,11 @@ export class I18NService {
       fr: 'Couleur',
       en: 'Color',
     },
+    colorPickerMode: {
+      de: 'Farbauswahlmodus',
+      fr: 'Mode sélecteur de couleurs',
+      en: 'Color picker mode'
+    },
     drawHole: {
       de: 'Loch zeichnen',
       fr: 'Dessiner un trou',
@@ -402,15 +412,10 @@ export class I18NService {
       en: 'Available layers',
       fr: 'Couches cartographiques disponibles',
     },
-    selectedLayers: {
-      de: 'Gewählte Ebene',
-      en: 'Selected layers',
-      fr: 'Couches cartographiques sélectionnées',
-    },
     currentMap: {
-      de: 'Aktuelle Karte',
-      fr: 'Carte actuelle',
-      en: 'Current map',
+      de: 'Basiskarten',
+      fr: 'Carte de base',
+      en: 'Base map',
     },
     otherMaps: {
       de: 'Andere Karten',
@@ -965,6 +970,16 @@ export class I18NService {
       en: 'TBD',
       fr: 'TBD',
     },
+    favoriteLayers: {
+      de: 'Favoriten',
+      en: 'Favorites',
+      fr: 'Favoris',
+    },
+    noMoreFavorites: {
+      de: 'Keine Favoriten mehr vorhanden',
+      en: 'No more favorites available',
+      fr: 'Pas de favoris',
+    },
     freeHand: {
       de: 'Freihand',
       en: 'Free hand',
@@ -976,11 +991,11 @@ export class I18NService {
       fr: 'Place',
     },
     signFks: {
-      de: 'Feuerwehrsignaturen',
-      en: 'Fire service signatures',
-      fr: 'Signatures pompiers',
+      de: 'Feuerwehr',
+      en: 'Fire department',
+      fr: 'Pompiers',
     },
-    signActions: {
+    signAction: {
       de: 'Aktionen',
       en: 'Actions',
       fr: 'Actions',
@@ -990,22 +1005,27 @@ export class I18NService {
       en: 'Damage',
       fr: 'Damage',
     },
-    signFormations: {
+    signIncident: {
+      de: 'Ereignis',
+      en: 'Incident',
+      fr: 'Incident',
+    },
+    signFormation: {
       de: 'Formationen',
       en: 'Formations',
       fr: 'Formations',
     },
-    signEffects: {
+    signEffect: {
       de: 'Auswirkungen',
       en: 'Effects',
       fr: 'Effets',
     },
-    signDangers: {
+    signDanger: {
       de: 'Gefahren',
       en: 'Dangers',
       fr: 'Dangers',
     },
-    signLabels: {
+    signLabel: {
       de: 'Markierungen',
       en: 'Labels',
       fr: 'Marquages',
@@ -1014,7 +1034,7 @@ export class I18NService {
       de: 'Alle Kategorien',
       en: 'All categories',
       fr: 'Toutes catégories',
-    },
+    }
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);

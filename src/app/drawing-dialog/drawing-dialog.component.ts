@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {getColorForCategory, Sign, signCategories} from '../entity/sign';
+import { Sign, signCategories } from '../entity/sign';
 import { DrawStyle } from '../drawlayer/draw-style';
 import { Signs } from '../signs/signs';
 import { I18NService } from '../i18n.service';
@@ -19,8 +19,7 @@ export class DrawingDialogComponent implements OnInit {
   allSigns: Sign[] = null;
   filteredSigns: Sign[] = [];
   selected: string = null;
-  signCat = ['place', 'fks', 'actions', 'damage', 'formations', 'effects', 'dangers', 'labels'];
-  signCategories = signCategories;
+  signCategories = Array.from(signCategories.values());
 
   isCustomImage(sign: Sign) {
     return CustomImageStoreService.isCustomImage(sign.src);
@@ -42,7 +41,9 @@ export class DrawingDialogComponent implements OnInit {
   updateAvailableSigns() {
     this.filteredSigns = this.allSigns.filter(
       (s) =>
-        (!this.filter || this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)) && (!this.selected || this.selected === s.kat)
+        (!this.filter ||
+          this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)) &&
+        (!this.selected || this.selected === s.kat)
     );
   }
 

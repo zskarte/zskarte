@@ -1,6 +1,7 @@
 mat-card.selection {
   position: absolute;
-  bottom: 0;
+  top: 0;
+  bottom: 60px;
   left: 0;
   background-color: #f1f1f1;
   margin-bottom: 0;
@@ -9,6 +10,15 @@ mat-card.selection {
   max-width: 25vw;
   overflow: auto;
   border-radius: 0;
+}
+
+@media screen and (max-width: 768px) {
+  mat-card.selection {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    max-width: 40vw;
+  }
 }
 
 .titleCard {
@@ -178,4 +188,21 @@ mat-expansion-panel button i {
 
 .images i.removeButton {
   font-size: 1.2em;
+}
+
+.color-display {
+  min-width: 1em;
+  margin-right: 0.7em;
+}
+
+.color-option {
+  padding-left: 0;
+}
+
+div.flex {
+  display: flex;
+}
+
+.mat-slide-toggle {
+  padding-bottom: 1.25em;
 }

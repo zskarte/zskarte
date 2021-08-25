@@ -8,6 +8,7 @@ import { ImportDialogComponent } from '../import-dialog/import-dialog.component'
 import { TagStateComponent } from '../tag-state/tag-state.component';
 
 import { ToolsComponent } from './tools.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('ToolsComponent', () => {
   let component: ToolsComponent;
@@ -17,7 +18,8 @@ describe('ToolsComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         MatMenuModule,
-        MatDialogModule
+        MatDialogModule,
+        HttpClientTestingModule
       ],
       declarations: [ ToolsComponent, ImportDialogComponent, ConfirmationDialogComponent, TagStateComponent ],
       providers: [
