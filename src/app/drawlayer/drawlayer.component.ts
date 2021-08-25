@@ -919,6 +919,7 @@ export class DrawlayerComponent implements OnInit {
 
   endDrawing(event) {
     // this.select.setActive(true);
+    this.currentDrawingSign.createdAt = new Date();
     event.feature.set('sig', this.currentDrawingSign);
     Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
     this.sharedState.selectFeature(event.feature);
@@ -1002,6 +1003,7 @@ export class DrawlayerComponent implements OnInit {
           type: 'LineString',
           freehand: true,
           filterValue: 'free_hand_element',
+          createdAt: new Date()
         });
         this.sharedState.selectFeature(event.feature);
       });

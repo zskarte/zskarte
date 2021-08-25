@@ -36,6 +36,7 @@ export interface Sign {
   rotation?: number;
   filterValue?: string;
   origSrc?: string;
+  createdAt?: Date;
 }
 
 export function isMoreOptimalIconCoordinate(
