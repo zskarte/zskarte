@@ -4,10 +4,11 @@ mat-card.selection {
   left: 0;
   background-color: #f1f1f1;
   margin-bottom: 0;
-  max-height: 70vh;
+  max-height: calc(100vh - 169px);
   min-width: 20vw;
   max-width: 25vw;
   overflow: auto;
+  border-radius: 0;
 }
 
 .titleCard {
