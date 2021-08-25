@@ -1,23 +1,3 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
 export interface FillStyle {
   name: string;
   size?: number;
@@ -26,8 +6,11 @@ export interface FillStyle {
 }
 
 export interface Sign {
+  id?: number;
   type: string;
   src: string;
+  kat?: string;
+  size?: string;
   protected?: boolean;
   de?: string;
   fr?: string;
@@ -51,11 +34,11 @@ export interface Sign {
   arrow?: string;
   iconSize?: number;
   images?: string[];
-  kat?: string; // deprecated - kept for compatibility reasons (is translated directly to color)
   iconOpacity?: number;
   rotation?: number;
   filterValue?: string;
   origSrc?: string;
+  createdAt?: Date;
 }
 
 export function isMoreOptimalIconCoordinate(
@@ -79,6 +62,20 @@ export function getFirstCoordinate(feature) {
       return feature.getGeometry().getCoordinates()[0][0];
     case 'LineString':
       return feature.getGeometry().getCoordinates()[0];
+    case 'Point':
+      return feature.getGeometry().getCoordinates();
+  }
+}
+
+export function getLastCoordinate(feature) {
+  const coordinates = feature.getGeometry().getCoordinates();
+
+  switch (feature.getGeometry().getType()) {
+    case 'Polygon':
+    case 'MultiPolygon':
+      return coordinates[coordinates.length - 2][0]; // -2 because the last coordinates are the same as the first
+    case 'LineString':
+      return coordinates[coordinates.length - 1];
     case 'Point':
       return feature.getGeometry().getCoordinates();
   }
@@ -111,26 +108,77 @@ export function getMostTopCoordinate(feature) {
   return symbolAnchorCoordinate;
 }
 
+
+export const signCategories = [
+  {
+    'name': 'place',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'formations',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'actions',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'damage',
+    'color': '#FF0000'
+  },
+  {
+    'name': 'dangers',
+    'color': '#FF9100'
+  },
+  {
+    'name': 'fks',
+    'color': '#948B68'
+  },
+  {
+    'name': 'effects',
+    'color': '#948B68'
+  },
+  {
+    'name': 'labels',
+    'color': '#948B68'
+  }
+  ];
+
+export function getColorForCategory(kat: string) : string {
+  switch (kat) {
+    case 'blue':
+    case 'place':
+    case 'means':
+    case 'formations':
+      return '#0000FF';
+      break;
+    case 'red':
+    case 'damage':
+      return '#FF0000';
+      break;
+    case 'orange':
+    case 'dangers':
+      return '#FF9100';
+      break;
+    case 'other':
+    case 'fks':
+    case 'effects':
+    case 'labels':
+      return '#948B68';
+      break;
+  }
+}
+
 export function defineDefaultValuesForSignature(signature: Sign) {
   if (!signature.style) {
     signature.style = 'solid';
   }
+  if (!signature.size) {
+    signature.size = undefined;
+  }
   if (!signature.color) {
     if (signature.kat) {
-      switch (signature.kat) {
-        case 'blue':
-          signature.color = '#0000FF';
-          break;
-        case 'red':
-          signature.color = '#FF0000';
-          break;
-        case 'orange':
-          signature.color = '#FF9100';
-          break;
-        case 'other':
-          signature.color = '#948B68';
-          break;
-      }
+      signature.color = getColorForCategory(signature.kat);
     } else {
       signature.color = '#535353';
     }

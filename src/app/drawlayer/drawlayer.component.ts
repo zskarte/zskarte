@@ -1,29 +1,11 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import Select from 'ol/interaction/Select';
 import Modify from 'ol/interaction/Modify';
 import Vector from 'ol/source/Vector';
 import LayerVector from 'ol/layer/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
 import Polygon from 'ol/geom/Polygon';
+import LineString from 'ol/geom/LineString';
 import Feature from 'ol/Feature';
 import Draw from 'ol/interaction/Draw';
 import OlMap from 'ol/Map';
@@ -46,8 +28,9 @@ import { DisplayMode } from '../entity/displayMode';
 import Cluster from 'ol/source/Cluster';
 import Collection from 'ol/Collection';
 import { Sign } from '../entity/sign';
-import { availableProjections, mercatorProjection, swissProjection } from '../projections';
+import { availableProjections, mercatorProjection } from '../projections';
 import { filter } from 'rxjs/operators';
+import { getLength, getArea } from 'ol/sphere';
 
 export const DRAW_LAYER_ZINDEX = 100000;
 export const CLUSTER_LAYER_ZINDEX = DRAW_LAYER_ZINDEX + 1;
@@ -69,6 +52,15 @@ export class DrawlayerComponent implements OnInit {
     this.startAutosave();
   }
 
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    switch (event.code) {
+      case 'Escape':
+        this.endDrawing(this.sketch);
+        break;
+    }
+  }
+
   private static mapSaveInterval = 1000;
   private static saveRunnerLock = false;
 
@@ -77,13 +69,14 @@ export class DrawlayerComponent implements OnInit {
   filters = {};
   map: OlMap;
   currentDrawingSign = null;
-  status = 'Loading data...';
+  sketch: Feature = undefined;
   currentSessionId: string;
   recordChanges = false;
   maxZIndex = 0;
   minZIndex = 0;
   selectedFeatureCoordinates = null;
   selectedProjectionIndex = 0;
+  availableProjections = availableProjections;
 
   source = new Vector({
     format: new GeoJSON(),
@@ -175,6 +168,12 @@ export class DrawlayerComponent implements OnInit {
 
   historyMode: boolean;
 
+  mouseCoordinates: [0, 0];
+  mousePosition: [0, 0];
+  mouseCoordinatesProjection: [0, 0];
+
+  statusPosition: number[] = undefined;
+
   selectedFeature: Feature;
 
   private drawers: { [key: string]: Draw } = {};
@@ -193,6 +192,29 @@ export class DrawlayerComponent implements OnInit {
     return filterString;
   }
 
+  formatLength(line) {
+    const length = getLength(line);
+    let output;
+    if (length > 100) {
+      output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km';
+    } else {
+      output = Math.round(length * 100) / 100 + ' ' + 'm';
+    }
+    return output;
+  }
+
+  formatArea(polygon) {
+    const area = getArea(polygon);
+    let output;
+    if (area > 10000) {
+      output =
+        Math.round((area / 1000000) * 100) / 100 + ' ' + 'km<sup>2</sup>';
+    } else {
+      output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>';
+    }
+    return output;
+  }
+
   private isSigFiltered(sig: Sign): boolean {
     if (!sig) {
       return false;
@@ -202,8 +224,6 @@ export class DrawlayerComponent implements OnInit {
 
   private startAutosave() {
     if (!DrawlayerComponent.saveRunnerLock) {
-      console.log('starting autosave now...');
-      // Ensure there is only a single autosave interval running at a time.
       DrawlayerComponent.saveRunnerLock = true;
       setInterval(() => this.save(), DrawlayerComponent.mapSaveInterval);
     }
@@ -306,7 +326,17 @@ export class DrawlayerComponent implements OnInit {
   private drawingManipulated(feature: Feature, changeEvent = false) {
     this.sharedState.drawingManipulated.next(true);
     if (this.recordChanges && !this.historyMode) {
-      this.toggleFilters([feature.get('sig').src], false);
+      const sig = feature.get('sig');
+      if (sig) {
+        this.toggleFilters([sig.src], false);
+        const geom = feature.getGeometry();
+        if (geom instanceof Polygon) {
+          sig.size = this.formatArea(geom);
+        } else if (geom instanceof LineString) {
+          sig.size = this.formatLength(geom);
+        }
+      }
+
       if (changeEvent) {
         // There are too many change events (also when a feature is selected / unselected). We don't want to save those events since they are not manipulating anything...
         if (
@@ -446,6 +476,19 @@ export class DrawlayerComponent implements OnInit {
       }
     });
 
+    this.map.on('pointermove', (evt) => {
+      this.mousePosition = evt.pixel;
+      if (this.sketch) {
+        const geom = this.sketch.getGeometry();
+        if (geom instanceof Polygon) {
+          this.currentDrawingSign.size = this.formatArea(geom);
+        } else if (geom instanceof LineString) {
+          this.currentDrawingSign.size = this.formatLength(geom);
+        }
+      }
+      this.setMouseCoordinates(evt.coordinate);
+    });
+
     this.sharedState.currentFeature.subscribe((feature) => {
       if (feature !== this.getSelectedFeature()) {
         this.select.getFeatures().clear();
@@ -498,16 +541,20 @@ export class DrawlayerComponent implements OnInit {
         if (this.currentSessionId !== s.uuid) {
           this.currentSessionId = s.uuid;
           this.clearSelection();
-          // The session has changed - we need to reload
-          this.status = 'Now loading the map...';
           this.load(false).then(() => {
-            this.status = 'Map loaded';
             this.recordChanges = true;
           });
         }
       } else {
         this.currentSessionId = null;
         this.clearDrawingArea();
+      }
+    });
+    this.sharedState.freeHandDraw.subscribe((isEnabled) => {
+      if (isEnabled) {
+        this.enableFreeHandDraw();
+      } else {
+        this.disableFreeHandDraw();
       }
     });
     // Because of the closure, we end up inside the map -> let's just add an
@@ -528,7 +575,9 @@ export class DrawlayerComponent implements OnInit {
     });
 
     // Update current Coordinates on selectedFeature change
-    this.sharedState.featureSource.pipe(filter(Boolean)).subscribe(this.setSelectedFeatureCoordinates.bind(this));
+    this.sharedState.featureSource
+      .pipe(filter(Boolean))
+      .subscribe(this.setSelectedFeatureCoordinates.bind(this));
   }
 
   defineCoordinates() {
@@ -639,7 +688,6 @@ export class DrawlayerComponent implements OnInit {
     if (this.currentSessionId) {
       this.clearSelection();
       this.load().then(() => {
-        // this.select.setActive(true);
         this.modify.setActive(true);
       });
     }
@@ -648,7 +696,6 @@ export class DrawlayerComponent implements OnInit {
   startHistoryMode() {
     this.clearSelection();
     this.modify.setActive(false);
-    // this.select.setActive(false);
   }
 
   loadFromHistory(history) {
@@ -781,7 +828,7 @@ export class DrawlayerComponent implements OnInit {
           }
           if (elements.features) {
             for (const feature of elements.features) {
-              const zindex = feature.properties.zindex;
+              const zindex = feature?.properties?.zindex;
               if (zindex) {
                 if (zindex > this.maxZIndex) {
                   this.maxZIndex = zindex;
@@ -852,7 +899,6 @@ export class DrawlayerComponent implements OnInit {
     reenableChangeRecording: boolean,
     resolve: (value?: PromiseLike<any> | any) => void
   ) {
-    console.log('Done loading');
     if (reenableChangeRecording) {
       this.recordChanges = true;
     }
@@ -892,7 +938,6 @@ export class DrawlayerComponent implements OnInit {
   }
 
   startDrawing(sign) {
-    // this.select.setActive(false);
     this.currentDrawingSign = sign;
     if (sign) {
       this.toggleFilters([sign.src], false);
@@ -903,8 +948,11 @@ export class DrawlayerComponent implements OnInit {
           type: this.currentDrawingSign.type,
         });
         drawer.drawLayer = this;
-        drawer.addEventListener('drawend', (event) => {
-          this.endDrawing(event);
+        drawer.addEventListener('drawstart', (event) => {
+          this.sketch = event.feature;
+        });
+        drawer.addEventListener('drawend', () => {
+          this.endDrawing(this.sketch);
         });
         this.map.addInteraction(drawer);
       }
@@ -912,11 +960,14 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  endDrawing(event) {
-    // this.select.setActive(true);
-    event.feature.set('sig', this.currentDrawingSign);
-    Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
-    this.sharedState.selectFeature(event.feature);
+  endDrawing(feature) {
+    if (feature) {
+      this.currentDrawingSign.createdAt = new Date();
+      feature.set('sig', this.currentDrawingSign);
+      Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
+      this.sharedState.selectFeature(feature);
+      this.sketch = undefined;
+    }
   }
 
   removeFeature(feature) {
@@ -929,16 +980,34 @@ export class DrawlayerComponent implements OnInit {
 
   rotateProjection() {
     const nextIndex = this.selectedProjectionIndex + 1;
-    this.selectedProjectionIndex = nextIndex >= availableProjections.length ? 0 : nextIndex;
-    this.setSelectedFeatureCoordinates(this.selectedFeature);
+    this.selectedProjectionIndex =
+      nextIndex >= availableProjections.length ? 0 : nextIndex;
+    if (this.selectedFeature) {
+      this.setSelectedFeatureCoordinates(this.selectedFeature);
+    } else {
+      this.setMouseCoordinates(undefined);
+    }
+  }
+
+  setMouseCoordinates(coordinate) {
+    if (coordinate) {
+      this.mouseCoordinates = coordinate;
+    }
+    this.mouseCoordinatesProjection = this.transformToCurrentProjection(
+      this.mouseCoordinates
+    );
   }
 
   setSelectedFeatureCoordinates(feature: Feature) {
     const center = getCenter(feature.getGeometry().getExtent());
-    this.selectedFeatureCoordinates = transform(
-      center,
+    this.selectedFeatureCoordinates = this.transformToCurrentProjection(center);
+  }
+
+  private transformToCurrentProjection(coordinates: number[]) {
+    return transform(
+      coordinates,
       mercatorProjection,
-      availableProjections[this.selectedProjectionIndex]
+      availableProjections[this.selectedProjectionIndex].projection
     );
   }
 
@@ -959,5 +1028,33 @@ export class DrawlayerComponent implements OnInit {
   private toBack(feature: Feature) {
     feature.set('zindex', --this.minZIndex);
     this.layer.changed();
+  }
+
+  private freeHandDraw: Draw;
+  disableFreeHandDraw(): void {
+    this.freeHandDraw?.setActive(false);
+    this.map.removeInteraction(this.freeHandDraw);
+  }
+  enableFreeHandDraw(): void {
+    if (!this.freeHandDraw) {
+      this.toggleFilters(['free_hand_element'], false);
+      this.freeHandDraw = new Draw({
+        source: this.source,
+        type: 'LineString',
+        freehand: true,
+      });
+      this.freeHandDraw.drawLayer = this;
+      this.freeHandDraw.addEventListener('drawend', (event) => {
+        event.feature.set('sig', {
+          type: 'LineString',
+          freehand: true,
+          filterValue: 'free_hand_element',
+          createdAt: new Date()
+        });
+        this.sharedState.selectFeature(event.feature);
+      });
+    }
+    this.map.addInteraction(this.freeHandDraw);
+    this.freeHandDraw.setActive(true);
   }
 }

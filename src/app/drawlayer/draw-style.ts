@@ -1,23 +1,3 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import Fill from 'ol/style/Fill';
@@ -33,6 +13,7 @@ import { Md5 } from 'ts-md5';
 import {
   defineDefaultValuesForSignature,
   getFirstCoordinate,
+  getLastCoordinate,
 } from '../entity/sign';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import ConvexHull from 'ol-ext/geom/ConvexHull';
@@ -68,20 +49,29 @@ export class DrawStyle {
   }
 
   private static getDash(lineStyle: string, resolution: number): any {
+    let value = 0;
     if (lineStyle === 'dash') {
-      const value = Math.max(30, DrawStyle.scale(resolution, 20));
-      return [value, value];
-    } else {
-      return [0, 0];
+      value = Math.max(30, DrawStyle.scale(resolution, 20));
     }
+    if (lineStyle === 'thindash') {
+      value = Math.max(15, DrawStyle.scale(resolution, 10));
+    }
+    if (lineStyle === 'dotted') {
+      value = DrawStyle.scale(resolution, 0.2);
+      return [value, value * 40];
+    }
+    return [value, value];
   }
 
   private static getDashOffset(lineStyle: string, resolution: number): any {
-    if (lineStyle === 'dash') {
-      return Math.max(30, DrawStyle.scale(resolution, 20));
-    } else {
-      return 0;
+    let value = 0;
+    if (lineStyle === 'dash' || lineStyle === 'dotted') {
+      value = Math.max(30, DrawStyle.scale(resolution, 20));
     }
+    if (lineStyle === 'thindash') {
+      value = Math.max(15, DrawStyle.scale(resolution, 10));
+    }
+    return value;
   }
 
   private static styleFunctionSelectSingleFeature(
@@ -562,6 +552,21 @@ export class DrawStyle {
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
 
+  private static getEndIconCoordinates(feature, resolution) {
+    feature = DrawStyle.getSubfeature(feature);
+    const signature = feature.get('sig');
+    const symbolAnchorCoordinate = getLastCoordinate(feature);
+    const offset = signature.iconOffset;
+    const resolutionFactor = resolution / 10;
+    const symbolCoordinate = [
+      signature.flipIcon
+        ? symbolAnchorCoordinate[0] + offset * resolutionFactor
+        : symbolAnchorCoordinate[0] - offset * resolutionFactor,
+      symbolAnchorCoordinate[1] + offset * resolutionFactor,
+    ];
+    return [symbolAnchorCoordinate, symbolCoordinate];
+  }
+
   private static createLineToIcon(feature, resolution) {
     feature = DrawStyle.getSubfeature(feature);
     const iconCoordinates = DrawStyle.getIconCoordinates(feature, resolution);
@@ -729,13 +734,16 @@ export class DrawStyle {
           })
         );
 
+        let iconLabel;
+        let iconTextScale;
+
         if (signature.labelShow) {
-          const iconTextScale = DrawStyle.scale(
+          iconTextScale = DrawStyle.scale(
             resolution,
             DrawStyle.textScaleFactor,
             0.4
           );
-          const iconLabel = new Text({
+          iconLabel = new Text({
             text: signature.label,
             font: 20 + 'px sans-serif',
             scale: iconTextScale,
@@ -807,6 +815,51 @@ export class DrawStyle {
             zIndex: zIndex,
           })
         );
+
+        if (signature.type === 'LineString') {
+          iconStyles.push(
+            new Style({
+              image: backgroundCircle,
+              geometry: function (feature) {
+                return new Point(
+                  DrawStyle.getEndIconCoordinates(feature, resolution)[1]
+                );
+              },
+              zIndex: zIndex,
+            })
+          );
+
+          iconStyles.push(
+            new Style({
+              image: icon,
+              geometry: function (feature) {
+                return new Point(
+                  DrawStyle.getEndIconCoordinates(feature, resolution)[1]
+                );
+              },
+              zIndex: zIndex,
+            })
+          );
+
+          if (signature.labelShow) {
+            iconStyles.push(
+              new Style({
+                text: iconLabel,
+                geometry: function (feature) {
+                  const coordinates = DrawStyle.getEndIconCoordinates(
+                    feature,
+                    resolution
+                  )[1];
+                  return new Point([
+                    coordinates[0],
+                    coordinates[1] - 35 / iconTextScale,
+                  ]);
+                },
+                zIndex: zIndex,
+              })
+            );
+          }
+        }
       }
     }
     return iconStyles;

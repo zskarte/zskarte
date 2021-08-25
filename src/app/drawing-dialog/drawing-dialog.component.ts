@@ -1,27 +1,7 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
 import { Component, OnInit } from '@angular/core';
 
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Sign } from '../entity/sign';
+import {getColorForCategory, Sign, signCategories} from '../entity/sign';
 import { DrawStyle } from '../drawlayer/draw-style';
 import { Signs } from '../signs/signs';
 import { I18NService } from '../i18n.service';
@@ -38,6 +18,9 @@ export class DrawingDialogComponent implements OnInit {
   filter: string = null;
   allSigns: Sign[] = null;
   filteredSigns: Sign[] = [];
+  selected: string = null;
+  signCat = ['place', 'fks', 'actions', 'damage', 'formations', 'effects', 'dangers', 'labels'];
+  signCategories = signCategories;
 
   isCustomImage(sign: Sign) {
     return CustomImageStoreService.isCustomImage(sign.src);
@@ -59,8 +42,7 @@ export class DrawingDialogComponent implements OnInit {
   updateAvailableSigns() {
     this.filteredSigns = this.allSigns.filter(
       (s) =>
-        !this.filter ||
-        this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)
+        (!this.filter || this.i18n.getLabelForSign(s).toLowerCase().includes(this.filter)) && (!this.selected || this.selected === s.kat)
     );
   }
 
@@ -89,6 +71,10 @@ export class DrawingDialogComponent implements OnInit {
   select(sign: Sign) {
     // We need to pass a deep copy of the object
     this.dialogRef.close(JSON.parse(JSON.stringify(sign)));
+  }
+
+  capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
   editSymbol(sign: Sign) {

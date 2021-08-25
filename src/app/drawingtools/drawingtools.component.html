@@ -1,39 +1,19 @@
-<!--
-  ~ Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
-  ~
-  ~ This file is part of Zivilschutzkarte 2.
-  ~
-  ~ Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
-  ~ under the terms of the GNU Lesser General Public License as published by the
-  ~ Free Software Foundation, either version 3 of the License, or (at your option)
-  ~ any later version.
-  ~
-  ~ Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
-  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  ~ FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Lesser General Public License along with
-  ~ Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
-  ~
-  ~
-  -->
-
 <span class="drawingTools">
   <button mat-stroked-button [matMenuTriggerFor]="drawMenu">
     <i class="material-icons">brush</i> {{ i18n.get('draw') }}
   </button>
   <mat-menu #drawMenu="matMenu">
-    <button mat-menu-item (click)="openTextDialog()">
+    <button mat-menu-item class="drawingtools-menu-item" (click)="openTextDialog()">
       <i class="material-icons">font_download</i> {{ i18n.get('text') }}
     </button>
-    <button mat-menu-item (click)="openDrawDialog()">
+    <button mat-menu-item class="drawingtools-menu-item" (click)="openDrawDialog()">
       <i class="material-icons">stars</i> {{ i18n.get('symbol') }}
     </button>
-    <button mat-menu-item (click)="polygon()">
+    <button mat-menu-item class="drawingtools-menu-item" (click)="polygon()">
       <i class="material-icons">widgets</i> {{ i18n.get('polygon') }}
     </button>
     <!--<button mat-menu-item (click)="circle()" ><i class="material-icons">bubble_chart</i> {{i18n.get("circle")}}</button>-->
-    <button mat-menu-item (click)="line()">
+    <button mat-menu-item class="drawingtools-menu-item" (click)="line()">
       <i class="material-icons">show_chart</i> {{ i18n.get('line') }}
     </button>
   </mat-menu>

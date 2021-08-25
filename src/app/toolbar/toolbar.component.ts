@@ -1,23 +1,3 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
 import {
   ChangeDetectorRef,
   Component, ElementRef,
@@ -119,36 +99,45 @@ export class ToolbarComponent implements OnInit {
 
   extractSymbol(f, symbols) {
     const sig = f.get('sig');
-    if (sig && sig.src) {
-      if (!symbols[sig.src]) {
-        const dataUrl = CustomImageStoreService.getImageDataUrl(sig.src);
-        symbols[sig.src] = {
-          label: this.i18n.getLabelForSign(sig),
-          origSrc: sig.src,
-          src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
+    if (sig) {
+      if (sig.src) {
+        if (!symbols[sig.src]) {
+          const dataUrl = CustomImageStoreService.getImageDataUrl(sig.src);
+          symbols[sig.src] = {
+            label: this.i18n.getLabelForSign(sig),
+            origSrc: sig.src,
+            src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
+          };
+        }
+      } else if (sig.type === 'Polygon' && !sig.src) {
+        symbols['not_labeled_polygon'] = {
+          type: 'Polygon',
+          label: this.i18n.get('polygon'),
+          filterValue: 'not_labeled_polygon',
+          icon: 'widgets',
+        };
+      } else if (sig.type === 'LineString' && sig.text) {
+        symbols['text_element'] = {
+          type: 'LineString',
+          label: this.i18n.get('text'),
+          filterValue: 'text_element',
+          icon: 'font_download',
+        };
+      } else if (sig.type === 'LineString' && sig.freehand) {
+        symbols['free_hand_element'] = {
+          type: 'LineString',
+          label: this.i18n.get('freeHand'),
+          filterValue: 'free_hand_element',
+          icon: 'gesture',
+        };
+      } else if (sig.type === 'LineString' && !sig.src) {
+        symbols['not_labeled_line'] = {
+          type: 'LineString',
+          label: this.i18n.get('line'),
+          filterValue: 'not_labeled_line',
+          icon: 'show_chart',
         };
       }
-    } else if (sig.type === 'Polygon' && !sig.src) {
-      symbols['not_labeled_polygon'] = {
-        type: 'Polygon',
-        label: this.i18n.get('polygon'),
-        filterValue: 'not_labeled_polygon',
-        icon: 'widgets',
-      };
-    } else if (sig.type === 'LineString' && sig.text) {
-      symbols['text_element'] = {
-        type: 'LineString',
-        label: this.i18n.get('text'),
-        filterValue: 'text_element',
-        icon: 'font_download',
-      };
-    } else if (sig.type === 'LineString' && !sig.src) {
-      symbols['not_labeled_line'] = {
-        type: 'LineString',
-        label: this.i18n.get('line'),
-        filterValue: 'not_labeled_line',
-        icon: 'show_chart',
-      };
     }
   }
 
@@ -182,7 +171,7 @@ export class ToolbarComponent implements OnInit {
       this.session = s;
       if (s) {
         let currentZSO = this.preferences.getZSO();
-        this.exportEnabled = (currentZSO != null && currentZSO.id != "zso_guest");
+        this.exportEnabled = currentZSO != null && currentZSO.id != 'zso_guest';
         this.preferences.setLastSessionId(s.uuid);
       }
     });
@@ -203,6 +192,10 @@ export class ToolbarComponent implements OnInit {
 
   private createInitialSession() {
     this.dialog.open(SessionCreatorComponent, {
+      data: {
+        session: this.session,
+        edit: false,
+      },
       disableClose: true,
       width: '80vw',
       maxWidth: '80vw',

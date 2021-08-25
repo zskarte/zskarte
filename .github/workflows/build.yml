@@ -31,12 +31,12 @@ jobs:
         run: |
           npm install
           npm run build
-          
+
       - name: rsync deployments
         uses: burnett01/rsync-deployments@5.1
         with:
           switches: -avzr --delete --exclude '/.htaccess'
-          path: dist/zskarte2/
+          path: dist/zskarte/
           remote_path: ${{ secrets.SERVER_PATH }}
           remote_host: ${{ secrets.SERVER_HOSTNAME }}
           remote_user: ${{ secrets.SERVER_LOGIN }}

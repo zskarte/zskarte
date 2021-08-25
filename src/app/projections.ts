@@ -1,26 +1,7 @@
-/*
- * Copyright © 2018-2020 ZSO Bern Plus / PCi Fribourg
- *
- * This file is part of Zivilschutzkarte 2.
- *
- * Zivilschutzkarte 2 is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your option)
- * any later version.
- *
- * Zivilschutzkarte 2 is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * Zivilschutzkarte 2.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- */
-
 import { get } from 'ol/proj';
 import proj4 from 'proj4';
 import { register } from 'ol/proj/proj4';
+import Projection from 'ol/proj/Projection';
 
 proj4.defs(
   'EPSG:2056',
@@ -32,7 +13,18 @@ export const coordinatesProjection = getCoordinatesProjection();
 export const mercatorProjection = getMercatorProjection();
 export const swissProjection = getSwissProjection();
 
-export const availableProjections = [swissProjection, coordinatesProjection, mercatorProjection];
+type ZsKarteProjection = {
+  format: string;
+  projection: Projection;
+}
+
+export const availableProjections: Array<ZsKarteProjection> = [{
+  format: '1.2-2',
+  projection: swissProjection
+}, {
+  format: '1.5-5',
+  projection: coordinatesProjection
+}];
 
 function getCoordinatesProjection() {
   return get('EPSG:4326');
