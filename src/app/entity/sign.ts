@@ -112,6 +112,42 @@ export function getMostTopCoordinate(feature) {
   return symbolAnchorCoordinate;
 }
 
+
+export const signCategories = [
+  {
+    'name': 'place',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'formations',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'actions',
+    'color': '#0000FF'
+  },
+  {
+    'name': 'damage',
+    'color': '#FF0000'
+  },
+  {
+    'name': 'dangers',
+    'color': '#FF9100'
+  },
+  {
+    'name': 'fks',
+    'color': '#948B68'
+  },
+  {
+    'name': 'effects',
+    'color': '#948B68'
+  },
+  {
+    'name': 'labels',
+    'color': '#948B68'
+  }
+  ];
+
 export function getColorForCategory(kat: string) : string {
   switch (kat) {
     case 'blue':

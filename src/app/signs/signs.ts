@@ -44,7 +44,7 @@ export class Signs {
     },
     {
       id: 3,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Absperrung Verkehrswege.svg',
@@ -54,7 +54,7 @@ export class Signs {
     },
     {
       id: 4,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Achse fuer Ei, Rttg, Vsg.svg',
@@ -95,7 +95,7 @@ export class Signs {
     },
     {
       id: 8,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Beabsichtigte Erkundung.svg',
@@ -106,7 +106,7 @@ export class Signs {
     },
     {
       id: 9,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Beabsichtigter Einsatz.svg',
@@ -118,7 +118,7 @@ export class Signs {
     },
     {
       id: 10,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Beabsichtigte Verschiebung.svg',
@@ -132,7 +132,7 @@ export class Signs {
     },
     {
       id: 11,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Beobachtung.svg',
@@ -392,7 +392,7 @@ export class Signs {
     },
     {
       id: 36,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Durchgefuehrte Erkundung.svg',
@@ -402,7 +402,7 @@ export class Signs {
     },
     {
       id: 37,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Durchgefuehrter Einsatz.svg',
@@ -412,7 +412,7 @@ export class Signs {
     },
     {
       id: 38,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Durchgefuehrte Verschiebung.svg',
@@ -673,7 +673,7 @@ export class Signs {
     },
     {
       id: 64,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Informationszentrum.svg',
@@ -803,7 +803,7 @@ export class Signs {
     },
     {
       id: 77,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Kontrollzentrum.svg',
@@ -893,7 +893,7 @@ export class Signs {
     },
     {
       id: 86,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Pforte.svg',
@@ -1003,7 +1003,7 @@ export class Signs {
     },
     {
       id: 97,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Standort mobile Fuehrungsstelle.svg',
@@ -1204,7 +1204,7 @@ export class Signs {
     },
     {
       id: 117,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Ueberwachung.svg',
@@ -1214,7 +1214,7 @@ export class Signs {
     },
     {
       id: 118,
-      kat: 'means',
+      kat: 'actions',
       type: 'LineString',
       color: '#0000FF',
       src: 'BABS/Umleitung.svg',
@@ -1234,7 +1234,7 @@ export class Signs {
     },
     {
       id: 120,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Verkehrsposten.svg',
@@ -1551,7 +1551,7 @@ export class Signs {
     },
     {
       id: 151,
-      kat: 'means',
+      kat: 'actions',
       type: 'Point',
       color: '#0000FF',
       src: 'BSM/Spital.svg',
@@ -1608,7 +1608,7 @@ export class Signs {
       de: 'Zivilschutz',
       en: 'Zivilschutz',
       fr: 'Défense civile',
-    },    
+    },
     {
       id: 157,
       kat: 'formations',
