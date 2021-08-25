@@ -13,7 +13,7 @@ import { Md5 } from 'ts-md5';
 import {
   defineDefaultValuesForSignature,
   getFirstCoordinate,
-  getLastCoordinate
+  getLastCoordinate,
 } from '../entity/sign';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import ConvexHull from 'ol-ext/geom/ConvexHull';
@@ -49,20 +49,29 @@ export class DrawStyle {
   }
 
   private static getDash(lineStyle: string, resolution: number): any {
+    let value = 0;
     if (lineStyle === 'dash') {
-      const value = Math.max(30, DrawStyle.scale(resolution, 20));
-      return [value, value];
-    } else {
-      return [0, 0];
+      value = Math.max(30, DrawStyle.scale(resolution, 20));
     }
+    if (lineStyle === 'thindash') {
+      value = Math.max(15, DrawStyle.scale(resolution, 10));
+    }
+    if (lineStyle === 'dotted') {
+      value = DrawStyle.scale(resolution, 0.2);
+      return [value, value * 40];
+    }
+    return [value, value];
   }
 
   private static getDashOffset(lineStyle: string, resolution: number): any {
-    if (lineStyle === 'dash') {
-      return Math.max(30, DrawStyle.scale(resolution, 20));
-    } else {
-      return 0;
+    let value = 0;
+    if (lineStyle === 'dash' || lineStyle === 'dotted') {
+      value = Math.max(30, DrawStyle.scale(resolution, 20));
     }
+    if (lineStyle === 'thindash') {
+      value = Math.max(15, DrawStyle.scale(resolution, 10));
+    }
+    return value;
   }
 
   private static styleFunctionSelectSingleFeature(
@@ -551,9 +560,9 @@ export class DrawStyle {
     const resolutionFactor = resolution / 10;
     const symbolCoordinate = [
       signature.flipIcon
-      ? symbolAnchorCoordinate[0] + offset * resolutionFactor
-      : symbolAnchorCoordinate[0] - offset * resolutionFactor,
-      symbolAnchorCoordinate[1] + offset * resolutionFactor
+        ? symbolAnchorCoordinate[0] + offset * resolutionFactor
+        : symbolAnchorCoordinate[0] - offset * resolutionFactor,
+      symbolAnchorCoordinate[1] + offset * resolutionFactor,
     ];
     return [symbolAnchorCoordinate, symbolCoordinate];
   }

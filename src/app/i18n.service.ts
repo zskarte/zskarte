@@ -247,10 +247,20 @@ export class I18NService {
       fr: 'Continue',
       en: 'Solid',
     },
+    dottedLine: {
+      de: 'Gepunktet',
+      en: 'Dotted',
+      fr: 'Pointé',
+    },
     dashedLine: {
       de: 'Gestrichelt',
       en: 'Dashed',
       fr: 'Pointillée',
+    },
+    thinDashedLine: {
+      de: 'Gestrichelt (Dünn)',
+      en: 'Dashed (thin)',
+      fr: 'Pointillée (maigrir)',
     },
     lineWidth: {
       de: 'Linien-Dicke',
