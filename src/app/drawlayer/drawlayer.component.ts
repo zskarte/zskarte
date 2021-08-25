@@ -996,14 +996,13 @@ export class DrawlayerComponent implements OnInit {
 
   endDrawing(feature) {
     this.sharedState.disableFreeHandDraw();
+    Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
     if (feature) {
       this.currentDrawingSign.createdAt = new Date();
       feature.set('sig', this.currentDrawingSign);
       Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       this.sharedState.selectFeature(feature);
       this.sketch = undefined;
-    } else {
-      Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
     }
   }
 
