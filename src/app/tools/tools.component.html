@@ -4,25 +4,26 @@
     {{ historyMode ? i18n.get('drawing') : i18n.get('currentDrawing') }}
   </button>
   <mat-menu #mapMenu="matMenu">
-    <button mat-menu-item (click)="importData()" *ngIf="!historyMode">
+    <button mat-menu-item class="tools-menu-item" (click)="importData()" *ngIf="!historyMode">
       <i class="material-icons">open_in_browser</i> {{ i18n.get('import') }}
     </button>
     <a
       mat-menu-item
       [download]="getDownloadFileName()"
       id="export"
+      class="tools-menu-item"
       (click)="download()"
       [href]="downloadData"
       ><i class="material-icons">save</i> {{ i18n.get('download') }}</a
     >
-    <button mat-menu-item (click)="tagState()" *ngIf="!historyMode">
+    <button mat-menu-item class="tools-menu-item" (click)="tagState()" *ngIf="!historyMode">
       <i class="material-icons">note</i><span> {{ i18n.get('tagState') }}</span>
     </button>
-    <button mat-menu-item (click)="print()" *ngIf="!historyMode">
+    <button mat-menu-item class="tools-menu-item" (click)="print()" *ngIf="!historyMode">
       <i class="material-icons">local_printshop</i
       ><span> {{ i18n.get('print') }}</span>
     </button>
-    <button mat-menu-item (click)="clear()" *ngIf="!historyMode">
+    <button mat-menu-item class="tools-menu-item" (click)="clear()" *ngIf="!historyMode">
       <i class="material-icons">delete</i> {{ i18n.get('delete') }}
     </button>
   </mat-menu>

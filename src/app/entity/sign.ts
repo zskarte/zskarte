@@ -10,6 +10,7 @@ export interface Sign {
   type: string;
   src: string;
   kat?: string;
+  size?: string;
   protected?: boolean;
   de?: string;
   fr?: string;
@@ -37,6 +38,7 @@ export interface Sign {
   rotation?: number;
   filterValue?: string;
   origSrc?: string;
+  createdAt?: Date;
 }
 
 export function isMoreOptimalIconCoordinate(
@@ -109,6 +111,9 @@ export function getMostTopCoordinate(feature) {
 export function defineDefaultValuesForSignature(signature: Sign) {
   if (!signature.style) {
     signature.style = 'solid';
+  }
+  if (!signature.size) {
+    signature.size = undefined;
   }
   if (!signature.color) {
     if (signature.kat) {

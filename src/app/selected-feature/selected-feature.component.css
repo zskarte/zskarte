@@ -56,7 +56,14 @@ mat-slider {
 
 .label {
   text-align: center;
-  margin-bottom: 2em;
+  margin-bottom: 1em;
+}
+
+.label-light {
+  text-align: center;
+  margin-bottom: 1em;
+  color: #787878;
+  white-space: nowrap;
 }
 
 .title {

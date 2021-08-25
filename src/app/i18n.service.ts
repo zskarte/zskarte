@@ -37,6 +37,16 @@ export class I18NService {
       en: 'Name',
       fr: 'Nom',
     },
+    distance: {
+      de: 'Distanz',
+      en: 'Distance',
+      fr: 'Distance',
+    },
+    area: {
+      de: 'Fläche',
+      en: 'Area',
+      fr: 'Région',
+    },
     password: {
       de: 'Passwort',
       fr: 'Mot de passe',

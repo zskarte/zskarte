@@ -1,3 +1,9 @@
 mat-select{
     display:inline-block;
 }
+
+.tools-menu-item {
+    display: flex;
+    align-items: center;
+    gap:.5em;
+}
