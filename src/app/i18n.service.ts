@@ -1019,8 +1019,7 @@ export class I18NService {
       de: 'Alle Kategorien',
       en: 'All categories',
       fr: 'Toutes catégories',
-    },
->>>>>>> dc426158e2db03a2cda678fcd0d5e736a84792e7
+    }
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
