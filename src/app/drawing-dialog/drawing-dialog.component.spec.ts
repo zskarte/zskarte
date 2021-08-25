@@ -4,6 +4,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 import { DrawingDialogComponent } from './drawing-dialog.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('DrawingDialogComponent', () => {
   let component: DrawingDialogComponent;
@@ -12,7 +13,8 @@ describe('DrawingDialogComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        MatDialogModule
+        MatDialogModule,
+        HttpClientTestingModule
       ],
       declarations: [ DrawingDialogComponent ],
       providers: [

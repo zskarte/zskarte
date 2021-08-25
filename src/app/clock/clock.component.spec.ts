@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ClockComponent } from './clock.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('ClockComponent', () => {
   let component: ClockComponent;
@@ -8,6 +9,7 @@ describe('ClockComponent', () => {
 
   beforeEach(() => {
       TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
         declarations: [ClockComponent],
       }).compileComponents();
   });

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { CreditsComponent } from './credits.component';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('CreditsComponent', () => {
   let component: CreditsComponent;
@@ -9,6 +10,7 @@ describe('CreditsComponent', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
+        imports: [HttpClientTestingModule],
         declarations: [CreditsComponent],
       }).compileComponents();
     })
