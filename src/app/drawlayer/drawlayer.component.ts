@@ -608,6 +608,8 @@ export class DrawlayerComponent implements OnInit {
         if (!this.firstLoad) {
           this.map.removeLayer(this.layer);
           this.map.removeLayer(this.clusterLayer);
+        } else {
+          this.firstLoad = false;
         }
         this.map.addLayer(this.layer);
         this.map.addLayer(this.clusterLayer);

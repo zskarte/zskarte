@@ -4,6 +4,7 @@ import { SidebarComponent } from './sidebar.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('SidebarComponent', () => {
   let component: SidebarComponent;
@@ -11,7 +12,7 @@ describe('SidebarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatDialogModule],
+      imports: [HttpClientTestingModule, MatDialogModule, MatSnackBarModule],
       declarations: [SidebarComponent],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
