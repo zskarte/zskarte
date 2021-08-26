@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import {ToolbarComponent} from './toolbar.component';
+import { ToolbarComponent } from './toolbar.component';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +12,8 @@ import { SessionCreatorComponent } from '../session-creator/session-creator.comp
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import {HttpClientTestingModule} from "@angular/common/http/testing";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -25,18 +26,25 @@ describe('ToolbarComponent', () => {
         MatSelectModule,
         MatFormFieldModule,
         MatInputModule,
+        MatCheckboxModule,
         NoopAnimationsModule,
         FormsModule,
-        HttpClientTestingModule
+        HttpClientTestingModule,
       ],
       providers: [
-        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) },
+        {
+          provide: NgxIndexedDBService,
+          useValue: jasmine.createSpyObj('NgxIndexedDBService', ['add']),
+        },
       ],
-      declarations: [ ToolbarComponent, HelpComponent, ConfirmationDialogComponent, SessionCreatorComponent ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      declarations: [
+        ToolbarComponent,
+        HelpComponent,
+        ConfirmationDialogComponent,
+        SessionCreatorComponent,
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {
