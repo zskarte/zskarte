@@ -58,7 +58,8 @@ export class DrawingtoolsComponent {
     const dialogRef = this.drawDialog.open(DrawingDialogComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
-      this.sharedState.selectSign(result);
+      if(result)
+        this.sharedState.selectSign(result);
     });
   }
 
