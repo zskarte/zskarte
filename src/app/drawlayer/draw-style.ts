@@ -667,20 +667,33 @@ export class DrawStyle {
             zIndex: zIndex,
           })
         );
+
+        const highlightCircle = new Circle({
+          radius: iconRadius,
+          stroke: highlightStroke,
+        });
+
         iconStyles.push(
           new Style({
-            image: new Circle({
-              radius: iconRadius,
-              stroke: highlightStroke,
-            }),
-            geometry: function (feature) {
-              return new Point(
-                DrawStyle.getIconCoordinates(feature, resolution)[1]
-              );
-            },
+            image: highlightCircle,
+            geometry: (feature) =>
+              new Point(DrawStyle.getIconCoordinates(feature, resolution)[1]),
             zIndex: zIndex,
           })
         );
+
+        if (signature.type === 'LineString') {
+          iconStyles.push(
+            new Style({
+              image: highlightCircle,
+              geometry: (feature) =>
+                new Point(
+                  DrawStyle.getEndIconCoordinates(feature, resolution)[1]
+                ),
+              zIndex: zIndex,
+            })
+          );
+        }
       }
 
       if (showIcon) {
