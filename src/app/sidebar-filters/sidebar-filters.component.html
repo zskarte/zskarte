@@ -47,13 +47,13 @@
                        (closed)="filtersOpenState = false">
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Kategorien
+        {{ i18n.get('categories') }}
       </mat-panel-title>
     </mat-expansion-panel-header>
     <mat-selection-list>
       <mat-list-item *ngFor="let category of signCategories" class="category-list-item">
         <button mat-button class="category-list-item-button" style="width: 100%; text-align: left;" (click)="filterCategory(category.name)">
-          {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }} {{ i18n.get('hideShow') }}
+          {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }} ({{ i18n.get('hideShow') }})
           <!--<mat-icon>visibility_off</mat-icon>-->
         </button>
       </mat-list-item>

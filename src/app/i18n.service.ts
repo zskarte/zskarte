@@ -1065,6 +1065,11 @@ export class I18NService {
       en: 'All categories',
       fr: 'Toutes catégories',
     },
+    categories: {
+      de: 'Kategorien',
+      en: 'Categories',
+      fr: 'Catégories',
+    },
     logout: {
       de: 'Ausloggen',
       en: 'Sign out',
@@ -1091,9 +1096,9 @@ export class I18NService {
       fr: 'Filtre',
     },
     generalFilters: {
-      de: 'Generelle Filter',
-      en: 'General filters',
-      fr: 'Filtre générale',
+      de: 'Globale Filter',
+      en: 'Global filters',
+      fr: 'Filtre globale',
     },
     showAllElements: {
       de: 'Alle Elemente anzeigen',
