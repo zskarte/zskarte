@@ -88,6 +88,7 @@ export class ToolbarComponent implements OnInit {
   exportEnabled = true;
   downloadTime = null;
   downloadData = null;
+  downloadCSVData = null;
   locales: string[] = LOCALES;
 
   @HostListener('window:keydown', ['$event'])
@@ -303,6 +304,16 @@ export class ToolbarComponent implements OnInit {
   download(): void {
     this.downloadData = this.sanitizer.bypassSecurityTrustUrl(
       this.drawLayer.toDataUrl()
+    );
+  }
+
+  getDownloadFileNameCSV() {
+    return 'zskarte_' + this.downloadTime + '.csv';
+  }
+
+  downloadCSV(): void {
+    this.downloadCSVData = this.sanitizer.bypassSecurityTrustUrl(
+      this.drawLayer.toCSVDataUrl()
     );
   }
 

@@ -126,3 +126,9 @@ app-credits {
   background-color: #d3d3d3;
 }
 
+hr.separator {
+  margin: 0;
+  height: 1px;
+  background-color: rgba(0,0,0,0.1);
+  border: none;  
+}

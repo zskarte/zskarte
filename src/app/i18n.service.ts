@@ -43,9 +43,9 @@ export class I18NService {
       fr: 'Anglais',
     },
     language: {
-      de: 'Sprachen',
-      en: 'Languages',
-      fr: 'Languages',
+      de: 'Sprache',
+      en: 'Language',
+      fr: 'Langue',
     },
     symbol: {
       de: 'Symbol',
@@ -103,9 +103,9 @@ export class I18NService {
       en: 'Draw',
     },
     createOrLoad: {
-      de: 'Karte erstellen / laden',
-      fr: 'Créer / charger une carte',
-      en: 'Create / load map',
+      de: 'Sitzung erstellen / laden',
+      en: 'Create / load session',
+      fr: 'Créer / charger session',
     },
     newMap: {
       de: 'Neue Karte erstellen',
@@ -123,9 +123,9 @@ export class I18NService {
       en: 'Copy',
     },
     importMap: {
-      de: 'Karte von Datei importieren',
-      en: 'Load map from file',
-      fr: "Importer une carte à partir d'un fichier",
+      de: 'Karte importieren',
+      en: 'Import map',
+      fr: "Importer carte",
     },
     importMapConflict: {
       de: 'Die zu importierende Karte existiert bereits. Möchten Sie sie ersetzen? Ansonsten wird eine Kopie angelegt.',
@@ -133,9 +133,9 @@ export class I18NService {
       en: 'The map to be imported already exists. Do you want to replace it? If not, a copy will be created.',
     },
     deleteMap: {
-      de: 'Karte löschen',
-      en: 'Delete map',
-      fr: 'Supprimer la carte',
+      de: 'Karte leeren',
+      en: 'Clear map',
+      fr: 'Vide la carte',
     },
     confirmDeleteMap: {
       de: 'Wollen Sie diese Karte wirklich unwiederruflich löschen?',
@@ -143,9 +143,9 @@ export class I18NService {
       fr: 'Voulez-vous vraiment supprimer cette carte de façon irrévocable ?',
     },
     editMap: {
-      de: 'Karteninformationen bearbeiten',
-      en: 'Edit map information',
-      fr: 'Modifier les informations de la carte',
+      de: 'Sitzung bearbeiten',
+      en: 'Edit session',
+      fr: 'Modifier session',
     },
     downloadCurrentDrawing: {
       de: 'Aktuelle Zeichnung herunterladen',
@@ -153,9 +153,9 @@ export class I18NService {
       en: 'Download the current drawing',
     },
     exportSession: {
-      de: 'Karte exportieren',
-      en: 'Export map',
-      fr: 'Exporter la carte',
+      de: 'Sitzung exportieren',
+      en: 'Export session',
+      fr: 'Exporter la session',
     },
     withHistory: {
       de: 'Mit History',
@@ -176,6 +176,16 @@ export class I18NService {
       de: 'Herunterladen',
       en: 'Download',
       fr: 'Télécharger',
+    },
+    downloadMap: {
+      de: 'Karte herunterladen',
+      en: 'Download map',
+      fr: 'Télécharger carte',
+    },
+    downloadMapCSV: {
+      de: 'Als CSV exportieren',
+      en: 'Export as CSV',
+      fr: 'Exporter a CSV',
     },
     filter: {
       de: 'Filter',
@@ -1066,9 +1076,9 @@ export class I18NService {
       fr: 'Toutes catégories',
     },
     logout: {
-      de: 'Ausloggen',
-      en: 'Sign out',
-      fr: 'Déconnecter',
+      de: 'Sitzung beenden',
+      en: 'End session',
+      fr: 'Fin de session',
     },
     expand: {
       de: 'Ansicht wechseln',

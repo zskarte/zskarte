@@ -814,6 +814,46 @@ export class DrawlayerComponent implements OnInit {
     );
   }
 
+  toCSVDataUrl() {
+    let lines:string[] = new Array<string>();
+    const result:{features:Feature} = this.writeFeatures();
+    console.log(result);
+    // @ts-ignore
+    const features:Feature[] = result.feature;
+
+    // header
+    let row:string[] = new Array<string>();
+    row.push('ID');
+    row.push('Date');
+    row.push('Type');
+    row.push('Location');
+    row.push('Name');
+    row.push('Description');
+    lines.push('"' + row.join('";"') + '"');
+
+    // entry
+    for(let i=0,l=features.length; i<l; i++) {
+      let f:Feature = features[i];
+      row = new Array<string>();
+      row.push(f.getId());
+      row.push('');
+      row.push(JSON.stringify(f.getGeometry()));
+      row.push(JSON.stringify(f.getGeometryName()));
+      row.push(JSON.stringify(f.getStyle()));
+
+      for(let ii=0,ll=row.length; ii<ll; ii++) {
+        row[ii] = row[ii].replace('"', '""');
+      }
+      lines.push('"' + row.join('";"') + '"');
+    }
+
+    // TODO check for use cases of writing from history mode (e.g. download for revert)
+    return (
+      'data:text/csv;charset=UTF-8,' +
+      encodeURIComponent(lines.join("\r\n"))
+    );
+  }
+
   clearDrawingArea() {
     this.recordChanges = false;
     this.minZIndex = 0;
