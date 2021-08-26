@@ -44,8 +44,7 @@
             <div
               *ngIf="feature.get('sig').description"
               class="description"
-              Markdown
-              [data]="feature.get('sig').description"
+              [innerHTML]="feature.get('sig').description | nl2br"
             ></div>
           </mat-expansion-panel>
         </mat-card-content>
@@ -90,8 +89,7 @@
           <div
             *ngIf="!editMode && selectedSignature.description"
             class="description"
-            Markdown
-            [data]="selectedSignature.description"
+            [innerHTML]="selectedSignature.description | nl2br"
           ></div>
           <div
             class="images"
@@ -198,22 +196,6 @@
                 (ngModelChange)="redraw()"
               ></textarea>
             </mat-form-field>
-            <i
-              class="fab fa-markdown"
-              (click)="showMarkdown = !showMarkdown"
-              title="Markdown preview"
-            ></i>
-
-            <a href="https://dimpu.github.io/ngx-md" target="_blank"
-              >Markdown syntax</a
-            >
-          </div>
-          <div class="preview" *ngIf="showMarkdown">
-            <div
-              Markdown
-              [data]="selectedSignature.description"
-              class="markdownPreview description"
-            ></div>
           </div>
         </div>
       </mat-expansion-panel>
