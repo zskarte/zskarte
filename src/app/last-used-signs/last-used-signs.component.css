@@ -1,0 +1,16 @@
+.label {
+  text-align: center;
+  margin: 0.5em;
+  display: flex;
+}
+
+.container button {
+  display: flex;
+  align-items: center;
+}
+
+.container img {
+  max-height: 1.8em;
+  max-width: 1.8em;
+  margin-right: 0.5em;
+}

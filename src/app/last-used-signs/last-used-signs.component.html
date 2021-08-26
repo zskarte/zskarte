@@ -1,0 +1,22 @@
+<button
+  mat-stroked-button
+  size="medium"
+  [title]="i18n.get('recentlyUsedSigns')"
+  [mat-menu-trigger-for]="favoriteSignsMenu"
+>
+  <i class="material-icons">history</i>
+</button>
+<mat-menu #favoriteSignsMenu="matMenu">
+  <div *ngIf="signs.length > 0; else noSigns" class="container">
+    <!-- <span class="test">asfdasfsdfsf</span> -->
+    <button *ngFor="let sign of signs" mat-menu-item (click)="selectSign(sign)">
+      <img [src]="getImageUrl(sign.src)" />
+      <span>{{ i18n.getLabelForSign(sign) }}</span>
+    </button>
+  </div>
+  <ng-template #noSigns>
+    <span class="label">
+      {{ i18n.get('noSignsUsed') }}
+    </span>
+  </ng-template>
+</mat-menu>

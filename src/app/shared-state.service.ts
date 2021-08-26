@@ -186,6 +186,9 @@ export class SharedStateService {
   private isFreeHandDrawEnabled = new BehaviorSubject(false);
   freeHandDraw = this.isFreeHandDrawEnabled.asObservable();
 
+  private lastUsedSignsSource = new BehaviorSubject<Sign>(null);
+  lastUsedSigns = this.lastUsedSignsSource.asObservable();
+
   showMapLoader = new BehaviorSubject<boolean>(false);
   defineCoordinates = new BehaviorSubject<boolean>(null);
   drawingManipulated = new BehaviorSubject<boolean>(false);
@@ -283,6 +286,13 @@ export class SharedStateService {
   }
 
   selectFeature(feature: any) {
+    var sign = feature?.get('sig') as Sign;
+
+    if(sign) {
+      this.lastUsedSignsSource.next(sign);
+    }
+
+
     this.featureSource.next(feature);
   }
 

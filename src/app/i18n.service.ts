@@ -1084,7 +1084,17 @@ export class I18NService {
       de: 'Hinein zoomen',
       en: 'Zoom in',
       fr: 'Zoom in',
-    }
+    },
+    noSignsUsed: {
+      de: 'Keine kürzlich verwendeten Signaturen',
+      en: 'No recently used signatures',
+      fr: 'Aucune signature récemment utilisée',
+    },
+    recentlyUsedSigns: {
+      de: 'Kürzlich verwendete Signaturen',
+      en: 'Recently used signatures',
+      fr: 'Signatures récemment utilisées',
+    },
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
