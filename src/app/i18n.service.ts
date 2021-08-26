@@ -360,7 +360,7 @@ export class I18NService {
     colorPickerMode: {
       de: 'Farbauswahlmodus',
       fr: 'Mode sélecteur de couleurs',
-      en: 'Color picker mode'
+      en: 'Color picker mode',
     },
     drawHole: {
       de: 'Loch zeichnen',
@@ -944,7 +944,7 @@ export class I18NService {
         '   * Un trou peut être dessiné dans un polygone\\n" +\n' +
         '   * Les polygones peuvent être regroupés (par exemple pour combiner des zones non connectées)\n' +
         '<li><strong>Tout sauf le texte</strong></li>' +
-        '   * Une description peut être définie par des images (symboles existants ou sélectionnés - un clic sur l\'image ouvre la vue détaillée) et/ou du texte.\n' +
+        "   * Une description peut être définie par des images (symboles existants ou sélectionnés - un clic sur l'image ouvre la vue détaillée) et/ou du texte.\n" +
         '   * Les symboles peuvent être définis / remplacés / cachés / zoomés / dézoomés et pivotés et il est possible de "déplacer" la représentation du symbole à partir du point d\'ancrage pour une meilleure visibilité',
     },
     docFilter: {
@@ -1000,10 +1000,20 @@ export class I18NService {
         'This mode is for reading / presenting the map. This is where symbols are grouped, provided the map is zoomed out widely. It is also possible to call up previous map states which have been automatically recorded or explicitly tagged by the user.\n' +
         'When selecting an element, an overview of the defined information such as name, description, images, etc. appears in the lower left corner\n',
     },
+    docOfflineMap: {
+      de: "Diese Karte kann nur ausgewählt werden, wenn ein eigener Karten-Server unter '${offlineHost}/' (Statuscode: 200) erreichbar ist. Der Karten-Server kann durch den GET Parameter '&offlineHost=http://localhost:8080' gesetzt werden.",
+      fr: "Cette carte ne peut être sélectionnée que si votre propre serveur de carte est disponible sous '${offlineHost}/' (code d'état: 200). Le serveur de carte peut être défini à l'aide du paramètre GET '&offlineHost=http://localhost:8080'.",
+      en: "This map can only be selected if your own map server is available under '${offlineHost}/' (status code: 200). The map server can be set using the GET parameter '&offlineHost=http://localhost:8080'.",
+    },
     keyboardShortcutsTitle: {
       de: 'Tastenbelegungen',
       en: 'Keyboard shortcuts',
       fr: 'Attributions clés',
+    },
+    close: {
+      de: 'Schliessen',
+      en: 'Close',
+      fr: 'Conclure',
     },
     keyboardShortcuts: {
       de: 'TBD',

@@ -53,6 +53,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
 import {Nl2BrPipeModule} from "nl2br-pipe";
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 registerLocaleData(localeDeCh)
 
@@ -132,6 +133,7 @@ const dbConfig: DBConfig = {
     MatIconModule,
     MatSidenavModule,
     Nl2BrPipeModule,
+    MatSnackBarModule,
   ],
   entryComponents: [
     DrawingDialogComponent,
