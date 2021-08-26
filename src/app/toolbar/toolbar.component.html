@@ -49,7 +49,6 @@
           <i class="material-icons">gesture</i>
         </button>
         <app-last-used-signs *ngIf="!historyMode" [drawLayer]="drawLayer"></app-last-used-signs>
-        <app-tools [drawLayer]="drawLayer"></app-tools>
         <mat-slide-toggle
           (toggleChange)="toggleHistory()"
           [checked]="historyMode"
