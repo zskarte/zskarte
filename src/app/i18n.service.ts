@@ -1034,7 +1034,12 @@ export class I18NService {
       de: 'Alle Kategorien',
       en: 'All categories',
       fr: 'Toutes catégories',
-    }
+    },
+    tooltipSession: {
+      de: 'Gültigkeitsdauer Ihrer Gastsitzung',
+      en: 'Period of validity of your guest session',
+      fr: 'Période de validité de votre session visiteur',
+    },
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);

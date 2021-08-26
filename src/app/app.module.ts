@@ -54,6 +54,7 @@ import { registerLocaleData } from '@angular/common';
 import localeDeCh from '@angular/common/locales/de-CH';
 import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 registerLocaleData(localeDeCh)
 
@@ -134,6 +135,7 @@ const dbConfig: DBConfig = {
         MatSlideToggleModule,
         MatStepperModule,
         MatSidenavModule,
+        MatTooltipModule,
     ],
   entryComponents: [
     DrawingDialogComponent,
