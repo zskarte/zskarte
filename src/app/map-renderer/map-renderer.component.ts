@@ -9,7 +9,7 @@ import { PreferencesService } from '../preferences.service';
 
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
-import { defaults } from 'ol/interaction';
+import { defaults, Draw } from 'ol/interaction';
 import { StateService } from '../state/state.service';
 import { ZsMapStateSource } from '../state/interfaces';
 import OlTileLayer from 'ol/layer/Tile';
@@ -17,7 +17,8 @@ import OlTileLayer from 'ol/layer/Tile';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ZsMapSources } from '../state/map-sources';
-import { ZsMapBaseLayer } from '../state/base-layer';
+import { ZsMapBaseLayer } from '../state/layers/base-layer';
+import { DrawElementHelper } from '../state/helper/draw-element-helper';
 
 @Component({
   selector: 'app-map-renderer',
@@ -32,6 +33,7 @@ export class MapRendererComponent implements OnInit, OnDestroy {
     zIndex: 0,
   });
   private _layerCache: Record<string, ZsMapBaseLayer> = {};
+  private _currentDrawInteraction: Draw;
 
   constructor(
     private _preferences: PreferencesService,
@@ -70,15 +72,37 @@ export class MapRendererComponent implements OnInit, OnDestroy {
       }),
     });
 
-    this._map.on('click', (event) => {
-      const layer = this._state.getActiveLayer();
-      console.log('map clicked', event.coordinate, layer);
-      if (layer) {
-        layer.testAddPoint(event.coordinate);
-      }
-    });
+    // this._map.on('click', (event) => {
+    //   const layer = this._state.getActiveLayer();
+    //   console.log('map clicked', event.coordinate, layer);
+    //   console.log(this._state.getElementToDraw());
+    //   this._state.drawElement(null);
+    //   // if (layer) {
+    //   //   layer.testAddPoint(event.coordinate);
+    //   // }
+    // });
 
     this._map.addLayer(this._mapLayer);
+
+    this._state.observeElementToDraw().subscribe((element) => {
+      if (element) {
+        const interaction = DrawElementHelper.getDrawHandlerForType(
+          element.type,
+          this._state,
+          element.layer
+        );
+        interaction.on('drawend', () => {
+          this._state.cancelDrawing();
+        });
+        this._currentDrawInteraction = interaction;
+        this._map.addInteraction(this._currentDrawInteraction);
+      } else {
+        if (this._currentDrawInteraction) {
+          this._map.removeInteraction(this._currentDrawInteraction);
+        }
+        this._currentDrawInteraction = null;
+      }
+    });
 
     this._state
       .observeMapSource()
@@ -101,7 +125,7 @@ export class MapRendererComponent implements OnInit, OnDestroy {
         for (const layer of layers) {
           if (!this._layerCache[layer.getId()]) {
             this._layerCache[layer.getId()] = layer;
-            this._map.addLayer(layer.olLayer);
+            this._map.addLayer(layer.getOlLayer());
           }
         }
       });

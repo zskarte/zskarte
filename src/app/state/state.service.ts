@@ -5,15 +5,20 @@ import {
   IZsMapDisplayState,
   IZsMapState,
   ZsMapDisplayMode,
+  ZsMapDrawElementState,
+  ZsMapDrawElementStateType,
   ZsMapLayerState,
   ZsMapLayerStateType,
   ZsMapStateSource,
 } from './interfaces';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { ZsMapBaseLayer } from './base-layer';
+import { ZsMapBaseLayer } from './layers/base-layer';
 import { v4 as uuidv4 } from 'uuid';
-import { ZsMapDrawLayer } from './draw-layer';
+import { ZsMapDrawLayer } from './layers/draw-layer';
+import OlMap from 'ol/Map';
+import { ZsMapBaseElement } from './elements/base-element';
+import { ZsMapBaseDrawElement } from './elements/base-draw-element';
 
 // TODO move this to right position
 enablePatches();
@@ -51,8 +56,29 @@ export class StateService {
     new BehaviorSubject([]);
 
   private _layerCache: Record<string, ZsMapBaseLayer> = {};
+  private _elementToDraw = new BehaviorSubject<{
+    type: ZsMapDrawElementStateType;
+    layer: string;
+  }>(null);
 
   constructor() {}
+
+  // drawing
+  public drawElement(type: ZsMapDrawElementStateType, layer: string): void {
+    // TODO add layer
+    this._elementToDraw.next({ type, layer });
+  }
+
+  public cancelDrawing(): void {
+    this._elementToDraw.next(null);
+  }
+
+  public observeElementToDraw(): Observable<{
+    type: ZsMapDrawElementStateType;
+    layer: string;
+  }> {
+    return this._elementToDraw.asObservable();
+  }
 
   public loadMapState(map: IZsMapState) {
     console.log('load map state', map);
@@ -122,7 +148,16 @@ export class StateService {
   // layers
 
   public getActiveLayer(): ZsMapBaseLayer {
-    return this._layerCache[this._display.value.activeLayer]
+    return this._layerCache[this._display.value.activeLayer];
+  }
+
+  public observeActiveLayer(): Observable<ZsMapBaseLayer> {
+    return this._display.pipe(
+      map((o) => {
+        return this._layerCache[o?.activeLayer];
+      }),
+      distinctUntilChanged((x, y) => x === y)
+    );
   }
 
   public observeLayers(): Observable<ZsMapBaseLayer[]> {
@@ -170,6 +205,13 @@ export class StateService {
       draft.activeLayer = layer.id;
       draft.layerOrder.push(layer.id);
     });
+  }
+
+  public addDrawElement(element: ZsMapDrawElementState, layer: string): void {
+    element.layer = layer;
+    element.id = uuidv4();
+    console.log('add element', element);
+    // TODO check if layer is drawing layer
   }
 
   public updateMapState(fn: (draft: IZsMapState) => void) {

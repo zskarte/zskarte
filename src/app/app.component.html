@@ -41,20 +41,22 @@
     />
     <!-- <button (click)="state.setMapName('New test')">set name</button> -->
     <h3>Maps</h3>
-    <button (click)="state.setMapSource(ZsMapStateSource.OPEN_STREET_MAP)">
-      Open Street Map
-    </button>
-    <button
-      (click)="state.setMapSource(ZsMapStateSource.GEO_ADMIN_SWISS_IMAGE)"
-    >
-      Swiss Image
-    </button>
-    <button (click)="state.setMapSource(ZsMapStateSource.GEO_ADMIN_PIXEL)">
-      Pixel
-    </button>
-    <button (click)="state.setMapSource(ZsMapStateSource.GEO_ADMIN_PIXEL_BW)">
-      Pixel B/W
-    </button>
+    <div class="actions">
+      <button (click)="state.setMapSource(ZsMapStateSource.OPEN_STREET_MAP)">
+        Open Street Map
+      </button>
+      <button
+        (click)="state.setMapSource(ZsMapStateSource.GEO_ADMIN_SWISS_IMAGE)"
+      >
+        Swiss Image
+      </button>
+      <button (click)="state.setMapSource(ZsMapStateSource.GEO_ADMIN_PIXEL)">
+        Pixel
+      </button>
+      <button (click)="state.setMapSource(ZsMapStateSource.GEO_ADMIN_PIXEL_BW)">
+        Pixel B/W
+      </button>
+    </div>
     <input
       type="range"
       min="0"
@@ -63,6 +65,27 @@
       [ngModel]="state.observeMapOpacity() | async"
       (ngModelChange)="state.setMapOpacity($event)"
     />
+
+    <h3>Draw</h3>
+    <div class="actions">
+      <ng-container
+        *ngIf="
+          state.observeActiveLayer() | async as layer;
+          else selectDrawLayerMsg
+        "
+      >
+        <button
+          *ngFor="let element of drawElements"
+          (click)="layer.draw(element.type)"
+        >
+          {{ element.text }}
+        </button>
+      </ng-container>
+      <ng-template #selectDrawLayerMsg
+        ><div>Please select a draw layer</div></ng-template
+      >
+    </div>
+
     <h3>Layers</h3>
     <button (click)="state.addDrawLayer()">add draw layer</button>
     <div class="layers">

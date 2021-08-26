@@ -63,29 +63,39 @@ export enum ZsMapDrawElementStateType {
 
 export type ZsMapDrawElementState = ZsMapTextDrawElementState;
 
-interface IZsMapBaseElementStyle {
-  id: string;
-  layer: string;
+export interface IZsMapBaseElementState {
+  id?: string;
+  layer?: string;
 }
 
-interface IZsMapDrawElementState extends IZsMapBaseElementStyle {
+export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
   type: ZsMapDrawElementStateType;
   fixedPosition?: boolean;
   color?: string;
   name?: string;
+  coordinates?: number[] | number[][];
 }
 
 export interface IZsMapSymbolState {
   id: string;
+  color?: string;
+  rotation?: number;
   // TODO add overwrite props
 }
 
-export interface ZsMapTextDrawElementState extends IZsMapDrawElementState {
+export interface ZsMapTextDrawElementState extends IZsMapBaseDrawElementState {
   type: ZsMapDrawElementStateType.TEXT;
-  fontSize: string;
+  fontSize?: string;
 }
 
-export interface ZsMapSymbolDrawElementState extends IZsMapDrawElementState {
+export interface ZsMapSymbolDrawElementState
+  extends IZsMapBaseDrawElementState {
   type: ZsMapDrawElementStateType.TEXT;
-  symbol: string;
+  symbol: IZsMapSymbolState;
+  coordinates: number[];
+}
+
+export interface ZsMapLineDrawElementState extends IZsMapBaseDrawElementState {
+  type: ZsMapDrawElementStateType.TEXT;
+  symbol: IZsMapSymbolState;
 }

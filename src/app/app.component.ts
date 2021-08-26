@@ -19,7 +19,11 @@
  */
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { IZsMapState, ZsMapStateSource } from './state/interfaces';
+import {
+  IZsMapState,
+  ZsMapDrawElementStateType,
+  ZsMapStateSource,
+} from './state/interfaces';
 import { StateService } from './state/state.service';
 
 @Component({
@@ -31,6 +35,7 @@ import { StateService } from './state/state.service';
 export class AppComponent {
   title = 'zsKarteAng';
   ZsMapStateSource = ZsMapStateSource;
+  ZsMapDrawElementStateType = ZsMapDrawElementStateType;
 
   public defaultMap: IZsMapState = {
     id: 'testid',
@@ -39,6 +44,13 @@ export class AppComponent {
     name: 'test',
     layers: [],
   };
+
+  public drawElements = [
+    { text: 'Text', type: ZsMapDrawElementStateType.TEXT },
+    { text: 'Symbol', type: ZsMapDrawElementStateType.SYMBOL },
+    { text: 'Polygon', type: ZsMapDrawElementStateType.POLYGON },
+    { text: 'Line', type: ZsMapDrawElementStateType.LINE },
+  ];
 
   constructor(public state: StateService) {}
 }

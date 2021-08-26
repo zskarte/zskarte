@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import { ZsMapLayerState, ZsMapLayerStateType } from './interfaces';
-import { StateService } from './state.service';
+import { ZsMapLayerState, ZsMapLayerStateType } from '../interfaces';
+import { StateService } from '../state.service';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { Style, RegularShape } from 'ol/style';
@@ -12,7 +12,7 @@ import { LineString, Point } from 'ol/geom';
 export class ZsMapBaseLayer {
   protected _layer: Observable<ZsMapLayerState>;
   private _olSource = new VectorSource();
-  public olLayer: VectorLayer = new VectorLayer({ source: this._olSource });
+  private _olLayer: VectorLayer = new VectorLayer({ source: this._olSource });
 
   constructor(protected _id: string, protected _state: StateService) {
     this._layer = this._state.observeMapState().pipe(
@@ -25,15 +25,15 @@ export class ZsMapBaseLayer {
     );
 
     this.observePosition().subscribe((position) => {
-      this.olLayer.setZIndex(position ? position * 100 : 100);
+      this._olLayer.setZIndex(position ? position * 100 : 100);
     });
 
     this.observeIsVisible().subscribe((isVisible) => {
-      this.olLayer.setVisible(isVisible);
+      this._olLayer.setVisible(isVisible);
     });
 
     this.observeOpacity().subscribe((opacity) => {
-      this.olLayer.setOpacity(opacity);
+      this._olLayer.setOpacity(opacity);
     });
   }
 
@@ -58,6 +58,12 @@ export class ZsMapBaseLayer {
   public getId(): string {
     return this._id;
   }
+
+  public getOlLayer(): VectorLayer {
+    return this._olLayer;
+  }
+
+  // public getOlSource(): VectorSource;
 
   public observeType(): Observable<ZsMapLayerStateType> {
     return this._layer.pipe(
