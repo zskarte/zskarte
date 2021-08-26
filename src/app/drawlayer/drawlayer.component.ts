@@ -1117,7 +1117,11 @@ export class DrawlayerComponent implements OnInit {
       return;
     }
 
-    if (event instanceof TouchEvent && event.targetTouches.length <= 0) {
+    if (
+      window.TouchEvent &&
+      event instanceof TouchEvent &&
+      event.targetTouches.length <= 0
+    ) {
       return;
     }
 
@@ -1130,9 +1134,9 @@ export class DrawlayerComponent implements OnInit {
     }
 
     let pageX, pageY;
-    if (event instanceof TouchEvent) {
-      pageX = event.targetTouches[event.targetTouches.length - 1].pageX
-      pageY = event.targetTouches[event.targetTouches.length - 1].pageY
+    if (window.TouchEvent && event instanceof TouchEvent) {
+      pageX = event.targetTouches[event.targetTouches.length - 1].pageX;
+      pageY = event.targetTouches[event.targetTouches.length - 1].pageY;
     } else if (event instanceof MouseEvent) {
       pageX = event.pageX;
       pageY = event.pageY;
@@ -1140,8 +1144,11 @@ export class DrawlayerComponent implements OnInit {
 
     const rect = this.rotateButton.getElement().getBoundingClientRect();
 
-		const radians	= Math.atan2(pageX - (rect.x - this.ROTATE_OFFSET_X), pageY - (rect.y - this.ROTATE_OFFSET_Y));
-		const degrees	= Math.round((radians * (180 / Math.PI) * -1) + 100);
+    const radians = Math.atan2(
+      pageX - (rect.x - this.ROTATE_OFFSET_X),
+      pageY - (rect.y - this.ROTATE_OFFSET_Y)
+    );
+    const degrees = Math.round(radians * (180 / Math.PI) * -1 + 100);
     const rotation = degrees + this.initialRotation;
 
     // keep the rotation between -180 and 180
