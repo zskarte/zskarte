@@ -1088,7 +1088,7 @@ export class I18NService {
     tooltipSession: {
       de: 'Gültigkeitsdauer Ihrer Gastsitzung',
       en: 'Period of validity of your guest session',
-      fr: 'Période de validité de votre session visiteur',
+      fr: 'Période de validité de votre session',
     },
   };
   private _locale: string = DEFAULT_LOCALE;
