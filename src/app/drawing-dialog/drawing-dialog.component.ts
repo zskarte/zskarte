@@ -116,4 +116,17 @@ export class DrawingDialogComponent implements OnInit {
       }
     });
   }
+
+  getIconFromType(type: string) {
+    switch (type) {
+      case 'Polygon':
+        return 'widgets';
+      case 'LineString':
+        return 'show_chart';
+      case 'Point':
+        return 'stars';
+      default:
+        return 'block';
+    }
+  }
 }
