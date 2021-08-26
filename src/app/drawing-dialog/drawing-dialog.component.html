@@ -71,6 +71,9 @@
         >
           <i class="material-icons">delete_forever</i>
         </button>
+        <mat-icon aria-hidden="false" [aria-label]="sign.type">
+          {{ getIconFromType(sign.type) }}
+        </mat-icon>
       </td>
     </tr>
   </table>
