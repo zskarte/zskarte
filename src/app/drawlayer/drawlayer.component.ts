@@ -1123,7 +1123,11 @@ export class DrawlayerComponent implements OnInit {
       return;
     }
 
-    if (event instanceof TouchEvent && event.targetTouches.length <= 0) {
+    if (
+      window.TouchEvent &&
+      event instanceof TouchEvent &&
+      event.targetTouches.length <= 0
+    ) {
       return;
     }
 
@@ -1136,7 +1140,7 @@ export class DrawlayerComponent implements OnInit {
     }
 
     let pageX, pageY;
-    if (event instanceof TouchEvent) {
+    if (window.TouchEvent && event instanceof TouchEvent) {
       pageX = event.targetTouches[event.targetTouches.length - 1].pageX;
       pageY = event.targetTouches[event.targetTouches.length - 1].pageY;
     } else if (event instanceof MouseEvent) {
