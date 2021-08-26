@@ -121,6 +121,7 @@ export class SelectedFeatureComponent {
     if (globalEvent && this.selectedFeature && this.selectedSignature) {
       switch (event.key) {
         case 'Delete':
+        case 'Backspace':
           this.delete();
           break;
         case '+':

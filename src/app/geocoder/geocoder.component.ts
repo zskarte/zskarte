@@ -31,8 +31,10 @@ export class GeocoderComponent {
     if (
       globalEvent &&
       !this.sharedState.featureSource.getValue() &&
-      !event.altKey
+      !event.altKey &&
+      event.code != 'Escape'
     ) {
+      this.el.nativeElement.focus();
       this.el.nativeElement.dispatchEvent(
         new KeyboardEvent('keydown', { key: event.key })
       );
