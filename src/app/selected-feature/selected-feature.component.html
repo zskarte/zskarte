@@ -62,16 +62,6 @@
           <div *ngIf="i18n.getLabelForSign(selectedSignature)" class="label">
             {{ i18n.getLabelForSign(selectedSignature) }}
           </div>
-          <div *ngIf="selectedSignature.createdAt" class="label-light">
-            {{ selectedSignature.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
-          </div>
-          <div *ngIf="selectedSignature.size" class="label">
-            {{
-              selectedSignature.type === 'LineString'
-                ? i18n.get('distance')
-                : i18n.get('area')
-            }}: <span [innerHTML]="selectedSignature.size"></span>
-          </div>
           <mat-form-field *ngIf="editMode">
             <mat-label>{{ i18n.get('name') }}</mat-label>
             <input
@@ -157,6 +147,20 @@
             *ngIf="editMode"
             >{{ i18n.get('labelShow') }}</mat-checkbox
           >
+          <div class="label-light">
+            <div *ngIf="selectedSignature.createdAt" class="label-right">
+              {{ selectedSignature.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
+            </div>
+            <div class="clearfix"></div>
+            <div *ngIf="selectedSignature.size" class="label-right">
+              {{
+                selectedSignature.type === 'LineString'
+                  ? i18n.get('distance')
+                  : i18n.get('area')
+              }}: <span [innerHTML]="selectedSignature.size"></span>
+            </div>  
+            <div class="clearfix"></div>
+          </div>
         </mat-card-content>
       </mat-card>
 
