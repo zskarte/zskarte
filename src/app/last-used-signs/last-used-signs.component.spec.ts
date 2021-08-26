@@ -1,16 +1,15 @@
+import { LastUsedSignComponent } from './last-used-signs.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { FavoriteSignsComponent } from './favorite-signs.component';
-
 describe('EditCoordinatesComponent', () => {
-  let component: FavoriteSignsComponent;
-  let fixture: ComponentFixture<FavoriteSignsComponent>;
+  let component: LastUsedSignComponent;
+  let fixture: ComponentFixture<LastUsedSignComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ FavoriteSignsComponent ],
+      declarations: [ LastUsedSignComponent ],
       providers: [
         { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
         { provide: MAT_DIALOG_DATA, useValue: {} },
@@ -22,7 +21,7 @@ describe('EditCoordinatesComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FavoriteSignsComponent);
+    fixture = TestBed.createComponent(LastUsedSignComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
