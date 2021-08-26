@@ -16,26 +16,41 @@ export const swissProjection = getSwissProjection();
 type ZsKarteProjection = {
   format: string;
   projection: Projection;
+  translate: Function;
 }
 
 export const availableProjections: Array<ZsKarteProjection> = [{
   format: '1.2-2',
-  projection: swissProjection
+  projection: swissProjection,
+  // see: https://www.swisstopo.admin.ch/de/wissen-fakten/geodaesie-vermessung/bezugsrahmen/lokal/lv95.html > E / N
+  translate: function(coords? : number[]) : string {
+    return 'LV95' + (coords != null && coords.length == 2 
+      ? ' E' + coords[0].toFixed(2) + ' / N' + coords[1].toFixed(2) 
+      : ''
+    );
+  }
 }, {
   format: '1.5-5',
-  projection: coordinatesProjection
+  projection: coordinatesProjection,
+  // see: https://de.wikipedia.org/wiki/Geographische_Koordinaten > LAT(N) should be 1st and LONG(E) 2nd
+  translate: function(coords : number[]) {
+    return 'GPS' + (coords != null && coords.length == 2 
+      ? ' N' + coords[1].toFixed(5) + '°, E' + coords[0].toFixed(5) + '°'
+      : ''
+    );
+  }
 }];
 
 function getCoordinatesProjection() {
-  return get('EPSG:4326');
+  return get('EPSG:4326'); // see: https://epsg.io/4326 > WGS84 - World Geodetic System 1984, used in GPS 
 }
 
 function getMercatorProjection() {
-  return get('EPSG:3857');
+  return get('EPSG:3857'); // see: https://epsg.io/3857 > Pseudo-Mercator - Spherical Mercator, Google Maps, OpenStreetMap, Bing, ArcGIS, ESRI 
 }
 
 function getSwissProjection() {
-  const projection = get('EPSG:2056');
+  const projection = get('EPSG:2056'); // see: https://epsg.io/2056 > Swiss CH1903+ / LV95
   projection.setExtent([2420000, 130000, 2900000, 1350000]);
   const RESOLUTIONS = [
     4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250,
