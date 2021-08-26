@@ -9,7 +9,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { LanguageChooserComponent } from '../language-chooser/language-chooser.component';
 
 import { SessionCreatorComponent } from './session-creator.component';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
@@ -30,7 +29,7 @@ describe('SessionCreatorComponent', () => {
         FormsModule,
         HttpClientTestingModule
       ],
-      declarations: [ SessionCreatorComponent, ConfirmationDialogComponent, LanguageChooserComponent ],
+      declarations: [ SessionCreatorComponent, ConfirmationDialogComponent ],
       providers: [
         { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
         { provide: MAT_DIALOG_DATA, useValue: {} },
