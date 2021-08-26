@@ -21,10 +21,10 @@ export class ZsMapTextDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElem
     state: StateService,
     layer: string,
   ): void {
-    console.log('text drawn', feature.getGeometry().getCoordinates());
     state.addDrawElement({
       type: ZsMapDrawElementStateType.TEXT,
+      layer,
       coordinates: feature.getGeometry().getCoordinates(),
-    }, layer);
+    });
   }
 }

@@ -19,6 +19,7 @@ import { ZsMapDrawLayer } from './layers/draw-layer';
 import OlMap from 'ol/Map';
 import { ZsMapBaseElement } from './elements/base-element';
 import { ZsMapBaseDrawElement } from './elements/base-draw-element';
+import { DrawElementHelper } from './helper/draw-element-helper';
 
 // TODO move this to right position
 enablePatches();
@@ -56,6 +57,7 @@ export class StateService {
     new BehaviorSubject([]);
 
   private _layerCache: Record<string, ZsMapBaseLayer> = {};
+  private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<{
     type: ZsMapDrawElementStateType;
     layer: string;
@@ -65,7 +67,6 @@ export class StateService {
 
   // drawing
   public drawElement(type: ZsMapDrawElementStateType, layer: string): void {
-    // TODO add layer
     this._elementToDraw.next({ type, layer });
   }
 
@@ -207,11 +208,44 @@ export class StateService {
     });
   }
 
-  public addDrawElement(element: ZsMapDrawElementState, layer: string): void {
-    element.layer = layer;
+  public addDrawElement(element: ZsMapDrawElementState): void {
     element.id = uuidv4();
-    console.log('add element', element);
+    this.updateMapState((draft) => {
+      if (!draft.drawElements) {
+        draft.drawElements = [];
+      }
+      draft.drawElements.push(element);
+    });
     // TODO check if layer is drawing layer
+  }
+
+  public getDrawElementState(id: string): ZsMapDrawElementState {
+    return this._map.value.drawElements.find((o) => o.id === id);
+  }
+
+  public observeDrawElements(): Observable<ZsMapBaseDrawElement[]> {
+    return this._map.pipe(
+      map(
+        (o) => {
+          if (o?.drawElements) {
+            const elements: ZsMapBaseDrawElement[] = [];
+            for (const i of o.drawElements) {
+              if (this._drawElementCache[i.id]) {
+                elements.push(this._drawElementCache[i.id]);
+              } else {
+                const element = DrawElementHelper.createInstance(i.id, this);
+                this._drawElementCache[i.id] = element;
+                elements.push(element);
+              }
+            }
+            // TODO update cache
+            return elements;
+          }
+          return [];
+        },
+        distinctUntilChanged((x, y) => x === y)
+      )
+    );
   }
 
   public updateMapState(fn: (draft: IZsMapState) => void) {

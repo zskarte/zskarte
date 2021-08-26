@@ -1,5 +1,6 @@
 import { Feature } from 'ol';
 import {
+  ZsMapDrawElementStateType,
   ZsMapTextDrawElementState,
 } from '../interfaces';
 import { StateService } from '../state.service';
@@ -10,6 +11,8 @@ import { Point } from 'ol/geom';
 export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElementState> {
   constructor(protected _id: string, protected _state: StateService) {
     super(_id, _state);
+
+    // this._element.
   }
   protected static _getOlDrawType(): GeometryType {
     return GeometryType.POINT;
@@ -19,6 +22,11 @@ export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawEl
     state: StateService,
     layer: string
   ): void {
-    console.log('symbol drawn', feature);
+    state.addDrawElement({
+      type: ZsMapDrawElementStateType.SYMBOL,
+      coordinates: feature.getGeometry().getCoordinates(),
+      layer,
+      symbol: null,
+    });
   }
 }

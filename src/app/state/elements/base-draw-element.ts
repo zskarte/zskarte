@@ -1,8 +1,6 @@
 import { Feature } from 'ol';
 import { Observable } from 'rxjs';
-import {
-  IZsMapBaseDrawElementState,
-} from '../interfaces';
+import { IZsMapBaseDrawElementState } from '../interfaces';
 import { StateService } from '../state.service';
 import { ZsMapBaseElement } from './base-element';
 import { Draw } from 'ol/interaction';
@@ -10,6 +8,7 @@ import GeometryType from 'ol/geom/GeometryType';
 import VectorSource from 'ol/source/Vector';
 import { Options } from 'ol/interaction/Draw';
 import { Geometry } from 'ol/geom';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
 export abstract class ZsMapBaseDrawElement<
   T = IZsMapBaseDrawElementState
@@ -17,17 +16,21 @@ export abstract class ZsMapBaseDrawElement<
   protected _element: Observable<T>;
   constructor(protected _id: string, protected _state: StateService) {
     super(_id, _state);
+    this._element = this._state.observeMapState().pipe(
+      map(
+        (o) => {
+          return o.drawElements?.[this._id];
+        },
+        distinctUntilChanged((x, y) => x === y)
+      )
+    );
   }
-  // TEMP
-  protected _layer: string;
 
-  public setLayer(layer: string) {
-    this._layer = layer;
-  }
-
-  public getLayer(): string {
-    return this._layer;
-  }
+  // public observeCoordinates(): Observable<number[] | number[][]> {
+  //   return this._element.pipe(map((o) => {
+  //     return o;
+  //   }))
+  // }
 
   // static handlers for drawing
   public static getOlDrawHandler(state: StateService, layer: string): Draw {

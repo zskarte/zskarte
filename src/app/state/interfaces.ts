@@ -61,11 +61,16 @@ export enum ZsMapDrawElementStateType {
   FREEHAND = 'freehand',
 }
 
-export type ZsMapDrawElementState = ZsMapTextDrawElementState;
+export type ZsMapDrawElementState =
+  | ZsMapTextDrawElementState
+  | ZsMapSymbolDrawElementState
+  | ZsMapLineDrawElementState
+  | ZsMapPolygonDrawElementState;
 
 export interface IZsMapBaseElementState {
   id?: string;
   layer?: string;
+  coordinates?: number[] | number[][];
 }
 
 export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
@@ -73,7 +78,6 @@ export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
   fixedPosition?: boolean;
   color?: string;
   name?: string;
-  coordinates?: number[] | number[][];
 }
 
 export interface IZsMapSymbolState {
@@ -90,12 +94,18 @@ export interface ZsMapTextDrawElementState extends IZsMapBaseDrawElementState {
 
 export interface ZsMapSymbolDrawElementState
   extends IZsMapBaseDrawElementState {
-  type: ZsMapDrawElementStateType.TEXT;
+  type: ZsMapDrawElementStateType.SYMBOL;
   symbol: IZsMapSymbolState;
   coordinates: number[];
 }
 
 export interface ZsMapLineDrawElementState extends IZsMapBaseDrawElementState {
-  type: ZsMapDrawElementStateType.TEXT;
+  type: ZsMapDrawElementStateType.LINE;
+  symbol: IZsMapSymbolState;
+}
+
+export interface ZsMapPolygonDrawElementState
+  extends IZsMapBaseDrawElementState {
+  type: ZsMapDrawElementStateType.POLYGON;
   symbol: IZsMapSymbolState;
 }

@@ -19,6 +19,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ZsMapSources } from '../state/map-sources';
 import { ZsMapBaseLayer } from '../state/layers/base-layer';
 import { DrawElementHelper } from '../state/helper/draw-element-helper';
+import { ZsMapBaseDrawElement } from '../state/elements/base-draw-element';
 
 @Component({
   selector: 'app-map-renderer',
@@ -33,6 +34,7 @@ export class MapRendererComponent implements OnInit, OnDestroy {
     zIndex: 0,
   });
   private _layerCache: Record<string, ZsMapBaseLayer> = {};
+  private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _currentDrawInteraction: Draw;
 
   constructor(
@@ -86,7 +88,7 @@ export class MapRendererComponent implements OnInit, OnDestroy {
 
     this._state.observeElementToDraw().subscribe((element) => {
       if (element) {
-        const interaction = DrawElementHelper.getDrawHandlerForType(
+        const interaction = DrawElementHelper.createDrawHandlerForType(
           element.type,
           this._state,
           element.layer
@@ -122,12 +124,28 @@ export class MapRendererComponent implements OnInit, OnDestroy {
       .observeLayers()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((layers) => {
+        // TODO fix multiple not necessary calls
+        console.log('map: layers changed', layers);
         for (const layer of layers) {
           if (!this._layerCache[layer.getId()]) {
             this._layerCache[layer.getId()] = layer;
             this._map.addLayer(layer.getOlLayer());
           }
         }
+      });
+
+    this._state
+      .observeDrawElements()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((elements) => {
+        // TODO fix multiple not necessary calls
+        for (const element of elements) {
+          if (!this._drawElementCache[element.getId()]) {
+            this._drawElementCache[element.getId()] = element;
+            // this._map.addLayer(layer.getOlLayer());
+          }
+        }
+        console.log('map: elements changed', elements);
       });
   }
 }
