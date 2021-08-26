@@ -383,9 +383,9 @@ export class I18NService {
       en: 'Welcome to Zivilschutz-Karte!',
     },
     sessionCreatorInstructions: {
-      de: 'Bitte beachten Sie: Die Daten werden nur auf Ihrem Browser gehalten - sie werden nicht mit einem Server geteilt! Falls Sie die Karte mit anderen zusätzlich sichern oder teilen möchten, können Sie diese exportieren (und erneut importieren).<br/><br/> **Wichtig**: Wenn Sie Ihre Browserdaten löschen, so werden auch die gespeicherten Karten entfernt!',
-      fr: "Remarque : les données sont uniquement conservées sur votre navigateur - elles ne sont pas partagées avec un serveur ! Si vous souhaitez enregistrer ou partager la carte avec d'autres personnes, vous pouvez exporter (et réimporter) la carte. <br/><br/>**Important**: Si vous supprimez les données de votre navigateur, les cartes enregistrées seront également supprimées.",
-      en: 'Please note: The data is only kept in your browser - it is not shared with a server! If you would like to additionally save or share the map with others, you can export (and re-import) the map.<br/><br/> **Important**: If you delete your browser data, the saved maps will also be removed',
+      de: 'Bitte beachten Sie: Die Daten werden nur auf Ihrem Browser gehalten - sie werden nicht mit einem Server geteilt! Falls Sie die Karte mit anderen zusätzlich sichern oder teilen möchten, können Sie diese exportieren (und erneut importieren).<br/><br/> <strong>Wichtig</strong>: Wenn Sie Ihre Browserdaten löschen, so werden auch die gespeicherten Karten entfernt!',
+      fr: "Remarque : les données sont uniquement conservées sur votre navigateur - elles ne sont pas partagées avec un serveur ! Si vous souhaitez enregistrer ou partager la carte avec d'autres personnes, vous pouvez exporter (et réimporter) la carte. <br/><br/><strong>Important</strong>: Si vous supprimez les données de votre navigateur, les cartes enregistrées seront également supprimées.",
+      en: 'Please note: The data is only kept in your browser - it is not shared with a server! If you would like to additionally save or share the map with others, you can export (and re-import) the map.<br/><br/> <strong>Important</strong>: If you delete your browser data, the saved maps will also be removed',
     },
     zso: {
       de: 'ZSO',
@@ -398,9 +398,9 @@ export class I18NService {
       en: 'Please note: When you load a map, the existing map is not deleted - you can reload it here at any time.',
     },
     importSessionInstructions: {
-      de: 'Verwenden Sie eine **.zsjson** Datei um eine vollständige Karte zu importieren.',
-      fr: 'Utilisez un fichier **.zsjson** pour importer une carte complète.',
-      en: 'Use a **.zsjson** file to import a complete map.',
+      de: 'Verwenden Sie eine <strong>.zsjson</strong> Datei um eine vollständige Karte zu importieren.',
+      fr: 'Utilisez un fichier <strong>.zsjson</strong> pour importer une carte complète.',
+      en: 'Use a <strong>.zsjson</strong> file to import a complete map.',
     },
     confirmClearDrawing: {
       de: 'Wollen Sie wirklich alle Elemente der Zeichnung entfernen? Die History der Karte bleibt dabei bestehen!',
@@ -709,34 +709,40 @@ export class I18NService {
     },
     docWelcome: {
       de:
-        '# Herzlich Willkommen bei Zivilschutz-Karte!\n' +
+        '<h1>Herzlich Willkommen bei Zivilschutz-Karte</h1>\n' +
         'Sie finden hier einige Informationen zur Verwendung der Applikation. \n\n' +
         'Sie können diesen Schritt selbstverständlich jederzeit überspringen und bei Bedarf über das Hilfe-Menü wieder aufrufen.\n\n' +
         'Wir wünschen Ihnen viel Spass bei der Verwendung!',
       fr:
-        '# Bienvenue à Zivilschutz-Karte!\n' +
+        '<h1>Bienvenue à Zivilschutz-Karte</h1>\n' +
         "Vous trouverez ici quelques informations sur la manière d'utiliser l'application.\n\n" +
         'Vous pouvez sauter cette étape à tout moment et la rappeler via le menu principal si nécessaire.\n\n' +
         "Nous espérons que vous prendrez plaisir à l'utiliser !",
       en:
-        '# Welcome to Zivilschutz-Karte!\n' +
+        '<h1>Welcome to Zivilschutz-Karte</h1>\n' +
         'You will find here some information on how to use the application. \n\n' +
         'You can skip this step at any time and call it up again via the main menu if required.\n\n' +
         'We hope you enjoy using it!',
     },
     docNewMap: {
       de:
-        '* Um eine neue Karte zu erstellen, müssen Sie zuerst Ihre Zivilschutz-Organisation definieren (welche bei einem zweiten Mal vorgemerkt wird). Ausserdem sollten Sie Ihre Karte benennen (z.B. anhand des aktuellen Ereignisses).\n' +
-        '* Falls bereits Karten bestehen, finden Sie eine entsprechende Möglichkeit, diese zu öffnen\n' +
-        '* Falls Sie eine Karte exportiert haben / von jemandem mit dem Dateiformat .zsjson erhalten haben, können Sie diese hier importieren',
+        '<ul>' +
+        '<li>Um eine neue Karte zu erstellen, müssen Sie zuerst Ihre Zivilschutz-Organisation definieren (welche bei einem zweiten Mal vorgemerkt wird). Ausserdem sollten Sie Ihre Karte benennen (z.B. anhand des aktuellen Ereignisses).</li>' +
+        '<li>Falls bereits Karten bestehen, finden Sie eine entsprechende Möglichkeit, diese zu öffnen</li>' +
+        '<li>Falls Sie eine Karte exportiert haben / von jemandem mit dem Dateiformat .zsjson erhalten haben, können Sie diese hier importieren</li>' +
+        '</ul>',
       en:
-        '* To create a new map, you must first define your organisation (which will be memorized for a second time). You should also name your map (e.g. based on the current event).\n' +
-        '* If some maps already exist, you will find a menu entry to open them\n' +
-        '* If you have exported / received a map from someone with the .zsjson file format, you can import it here\n',
+        '<ul>' +
+        '<li>To create a new map, you must first define your organisation (which will be memorized for a second time). You should also name your map (e.g. based on the current event).</li>' +
+        '<li>If some maps already exist, you will find a menu entry to open them</li>' +
+        '<li>If you have exported / received a map from someone with the .zsjson file format, you can import it here</li>' +
+        '</ul>',
       fr:
-        "* Pour créer une nouvelle carte, vous devez d'abord définir votre organisation de protection civile (qui sera reprise une seconde fois). Vous devez également nommer votre carte.\n" +
-        "* Si d'autres cartes existent déjà, vous trouverez une zone pour les ouvrir\n" +
-        "* Si vous avez exporté / reçu une carte de quelqu'un avec le format de fichier .zsjson, vous pouvez l'importer ici\n",
+        '<ul>' +
+        "<li>Pour créer une nouvelle carte, vous devez d'abord définir votre organisation de protection civile (qui sera reprise une seconde fois). Vous devez également nommer votre carte.</li>" +
+        "<li>Si d'autres cartes existent déjà, vous trouverez une zone pour les ouvrir</li>" +
+        "<li>Si vous avez exporté / reçu une carte de quelqu'un avec le format de fichier .zsjson, vous pouvez l'importer ici</li>" +
+        '</ul>',
     },
     docInitialViewTitle: {
       de: 'Initiale Ansicht',
@@ -746,40 +752,44 @@ export class I18NService {
     docInitialView: {
       de:
         'Nach dem erstellen / laden / importieren einer neuen Karte befinden Sie sich bei der Initial-Darstellung der Karte.\n' +
-        'Sie finden im obersten Bereich folgende Elemente vor:\n' +
-        '* Das Logo der gewählten Zivilschutzorganisation inkl. der Sprachwahl.\n' +
-        '* Den Kartentitel und das **Hauptmenü** (in blau)\n' +
-        '* Die aktuelle Uhrzeit\n' +
-        '* Eine Suche (**Ort finden**) um nach einer Adresse oder einem gezeichneten Element zu suchen\n' +
-        '* Das Menü **Zeichnen**\n' +
-        '* Das Menü **Aktuelle Zeichnung**\n' +
-        '* Das Menü **Ebenen**\n' +
-        '* Den **Modus-Schalter** um vom Zeichnungs- zum History / Lese-Modus zu gelangen\n' +
-        '* Einen Knopf um das **Menü zu reduzieren** um den Kartenbereich zu maximieren',
+        'Sie finden im obersten Bereich folgende Elemente vor:' +
+        '<ul>' +
+        '<li>Das Logo der gewählten Zivilschutzorganisation inkl. der Sprachwahl.</li>' +
+        '<li>Den Kartentitel und das <strong>Hauptmenü</strong> (in blau)</li>' +
+        '<li>Die aktuelle Uhrzeit</li>' +
+        '<li>Eine Suche (<strong>Ort finden</strong>) um nach einer Adresse oder einem gezeichneten Element zu suchen</li>' +
+        '<li>Das Menü <strong>Zeichnen</strong></li>' +
+        '<li>Das Menü <strong>Aktuelle Zeichnung</strong></li>' +
+        '<li>as Menü <strong>Ebenen</strong></li>' +
+        '<li>Den <strong>Modus-Schalter</strong> um vom Zeichnungs- zum History / Lese-Modus zu gelangen</li>' +
+        '<li>Einen Knopf um das <strong>Menü zu reduzieren</strong> um den Kartenbereich zu maximieren</li>' +
+        '</ul>',
       en:
         'After creating / loading / importing a new map you are at the initial view of the map.\n' +
         'You will find the following elements in the top section:\n' +
-        '* The logo of the chosen organization including the language choice.\n' +
-        '* The map title and **main menu** (in blue)\n' +
-        '* The current date and time\n' +
-        '* A mechanism (**Find location**) to search for an address or a drawn element\n' +
-        '* The **draw** menu\n' +
-        '* The menu **current drawing**\n' +
-        '* The menu **layers**\n' +
-        '* The **mode switch** to switch from drawing to history / read mode\n' +
-        '* A button to reduce the **menu** to maximize the map area\n',
+        '<ul>' +
+        '<li>The logo of the chosen organization including the language choice.</li>' +
+        '<li>The map title and <strong>main menu</strong> (in blue)</li>' +
+        '<li>The current date and time</li>' +
+        '<li>A mechanism (<strong>Find location</strong>) to search for an address or a drawn element</li>' +
+        '<li>The <strong>draw</strong> menu</li>' +
+        '<li>The menu <strong>current drawing</strong></li>' +
+        '<li>The menu <strong>layers</strong></li>' +
+        '<li>The <strong>mode switch</strong> to switch from drawing to history / read mode</li>' +
+        '<li>A button to reduce the <strong>menu</strong> to maximize the map area</li>' +
+        '</ul>',
       fr:
         'Après avoir créé / chargé / importé une nouvelle carte, vous vous trouvez à la vue initiale de la carte.\n' +
         'Vous trouverez les éléments suivants dans la section supérieure:\n' +
         "* Le logo de l'organisation de protection civile y compris le choix de la langue.\n" +
-        '* Le titre de la carte et **le menu principal** (en bleu)\n' +
+        '<li>Le titre de la carte et <strong>le menu principal</strong> (en bleu)</li>' +
         "* L'heure actuelle\n" +
-        '* Un élément (**Trouver un lieu**) pour rechercher une adresse ou un élément dessiné\n' +
-        '* Le menu **dessiner**\n' +
-        'Le menu **dessin actuel**\n' +
-        '* Le menu **couches cartographiques**\n' +
-        "* Le **mode switch** pour passer du dessin à l'histoire / mode lecture\n" +
-        '* Un bouton pour réduire le **menu** pour maximiser la surface de la carte',
+        '<li>Un élément (<strong>Trouver un lieu</strong>) pour rechercher une adresse ou un élément dessiné</li>' +
+        '<li>Le menu <strong>dessiner</strong></li>' +
+        'Le menu <strong>dessin actuel</strong>\n' +
+        '<li>Le menu <strong>couches cartographiques</strong></li>' +
+        "* Le <strong>mode switch</strong> pour passer du dessin à l'histoire / mode lecture\n" +
+        '<li>Un bouton pour réduire le <strong>menu</strong> pour maximiser la surface de la carte</li>',
     },
     docMainMenuTitle: {
       de: 'Hauptmenü',
@@ -789,25 +799,25 @@ export class I18NService {
     docMainMenu: {
       de:
         'Das Hauptmenü beinhaltet Funktionen \n' +
-        '* zum erstellen / laden einer Karte (analog Schritt 2)\n' +
-        '* zum editieren / umbenennen der aktuellen Karte\n' +
-        '* zum exportieren der aktuellen Karte (mit oder ohne History) - das Ergebnis kann dann z.B. auf einem anderen Browser importiert werden.\n' +
-        '* um die Karte zu löschen\n' +
-        '* um diese Hilfe aufzurufen',
+        '<li>zum erstellen / laden einer Karte (analog Schritt 2)</li>' +
+        '<li>zum editieren / umbenennen der aktuellen Karte</li>' +
+        '<li>zum exportieren der aktuellen Karte (mit oder ohne History) - das Ergebnis kann dann z.B. auf einem anderen Browser importiert werden.</li>' +
+        '<li>um die Karte zu löschen</li>' +
+        '<li>um diese Hilfe aufzurufen</li>',
       en:
         'The main menu contains functions \n' +
-        '* to create / load a map (step 2)\n' +
-        '* to edit / rename the current map\n' +
-        '* to export the current map (with or without history) - the result can then be imported e.g. on another machine.\n' +
-        '* to erase the map\n' +
-        '* to indicate this help',
+        '<li>to create / load a map (step 2)</li>' +
+        '<li>to edit / rename the current map</li>' +
+        '<li>to export the current map (with or without history) - the result can then be imported e.g. on another machine.</li>' +
+        '<li>to erase the map</li>' +
+        '<li>to indicate this help</li>',
       fr:
         'Le menu principal contient des fonctions \n' +
-        '* pour créer / charger une carte\n' +
-        '* pour éditer / renommer la carte actuelle' +
-        '* pour exporter la carte actuelle (avec ou sans historique) - le résultat peut être importé par exemple sur une autre machine.\n' +
-        '* pour effacer la carte' +
-        '* pour indiquer cette aide',
+        '<li>pour créer / charger une carte</li>' +
+        '<li>pour éditer / renommer la carte actuelle</li>' +
+        '<li>pour exporter la carte actuelle (avec ou sans historique) - le résultat peut être importé par exemple sur une autre machine.</li>' +
+        '<li>pour effacer la carte</li>' +
+        '<li>pour indiquer cette aide</li>',
     },
     docSearch: {
       de: 'Die Suche kann dazu verwendet werden, Adressen und andere Orte zu finden und mittels Selektion zum entsprechenden Ort auf der Karte zu navigieren. Die Suche unterstützt ausserdem gezeichnete Symbole inkl. deren Namen',
@@ -817,22 +827,22 @@ export class I18NService {
     docDraw: {
       de:
         'Dieses Menü erlaubt es, verschiedene Elemente auf die Karte zu zeichnen:\n' +
-        '* **Text**: Ein Dialog erscheint, welcher es erlaubt einen Text zu definieren. Nach dem Schliessen des Dialoges kann eine Linie auf die Karte gezeichnet werden indem auf die Karte geklickt wird (beenden mit Doppelklick). Anschliessend wird der Text dargestellt und unten links erscheint die **Selektionsansicht**.\n' +
-        '* **Symbol**: Es erscheint der **Symbolauswahl** Dialog - nach der entsprechenden Auswahl kann (je nach Symbol) ein Punkt, eine Linie oder eine Fläche (Polygon) gezeichnet werden.\n' +
-        '* **Polygon**: Es kann direkt begonnen werden, eine Fläche zu zeichnen (bei Bedarf kann auch später über die **Selektionsansicht** ein Symbol definiert werden).\n' +
-        '* **Linie**: Analog dem Polygon kann direkt begonnen werden, eine Linie zu zeichnen. Eine Linie kann über die **Selektionsansicht** auch in einen Pfeil umgewandelt werden.',
+        '<li><strong>Text</strong>: Ein Dialog erscheint, welcher es erlaubt einen Text zu definieren. Nach dem Schliessen des Dialoges kann eine Linie auf die Karte gezeichnet werden indem auf die Karte geklickt wird (beenden mit Doppelklick). Anschliessend wird der Text dargestellt und unten links erscheint die <strong>Selektionsansicht</strong>.</li>' +
+        '<li><strong>Symbol</strong>: Es erscheint der <strong>Symbolauswahl</strong> Dialog - nach der entsprechenden Auswahl kann (je nach Symbol) ein Punkt, eine Linie oder eine Fläche (Polygon) gezeichnet werden.</li>' +
+        '<li><strong>Polygon</strong>: Es kann direkt begonnen werden, eine Fläche zu zeichnen (bei Bedarf kann auch später über die <strong>Selektionsansicht</strong> ein Symbol definiert werden).</li>' +
+        '<li><strong>Linie</strong>: Analog dem Polygon kann direkt begonnen werden, eine Linie zu zeichnen. Eine Linie kann über die <strong>Selektionsansicht</strong> auch in einen Pfeil umgewandelt werden.</li>',
       en:
         'This menu allows you to draw different elements on the map: \n' +
-        '* **Text**: A dialog appears, which allows you to define a text. After closing the dialog, a line can be drawn on the map by clicking on the map (finish by double click). The text is then displayed and the **selection view** is shown.\n' +
-        '* **Symbol**: The **symbol selection** dialog appears - after the corresponding selection a point, a line or a area (polygon) can be drawn (depending on the symbol).\n' +
-        '* **Polygon**: You can start drawing a surface directly (if necessary, you can also define a symbol later using the **selection view**).\n' +
-        '* **Line**: Just as with the polygon, you can directly start drawing a line. A line can also be converted into an arrow using the **selection view**"',
+        '<li><strong>Text</strong>: A dialog appears, which allows you to define a text. After closing the dialog, a line can be drawn on the map by clicking on the map (finish by double click). The text is then displayed and the <strong>selection view</strong> is shown.</li>' +
+        '<li><strong>Symbol</strong>: The <strong>symbol selection</strong> dialog appears - after the corresponding selection a point, a line or a area (polygon) can be drawn (depending on the symbol).</li>' +
+        '<li><strong>Polygon</strong>: You can start drawing a surface directly (if necessary, you can also define a symbol later using the <strong>selection view</strong>).</li>' +
+        '<li><strong>Line</strong>: Just as with the polygon, you can directly start drawing a line. A line can also be converted into an arrow using the <strong>selection view</strong>"</li>',
       fr:
         'Ce menu vous permet de dessiner différents éléments sur la carte:\n' +
-        '* **Texte** : Un dialogue apparaît, qui vous permet de définir un texte. Après avoir fermé le dialogue, une ligne peut être tracée sur la carte en cliquant sur la carte (terminer par un double clic). Le texte est alors affiché et la **vue de sélection** apparaît dans le coin inférieur gauche.\n' +
-        '* **Symbole** : Le dialogue **sélection de symbole** apparaît - après la sélection correspondante, un point, une ligne ou une surface (polygone) peut être dessiné (selon le symbole).\n' +
-        '* **Polygone** : Vous pouvez commencer à dessiner une surface directement (si nécessaire, vous pouvez également définir un symbole plus tard en utilisant la **vue de sélection**).\n' +
-        '* **Ligne** : Comme pour le polygone, vous pouvez directement commencer à tracer une ligne. Une ligne peut également être convertie en flèche en utilisant la **vue de sélection**',
+        '<li><strong>Texte</strong> : Un dialogue apparaît, qui vous permet de définir un texte. Après avoir fermé le dialogue, une ligne peut être tracée sur la carte en cliquant sur la carte (terminer par un double clic). Le texte est alors affiché et la <strong>vue de sélection</strong> apparaît dans le coin inférieur gauche.</li>' +
+        '<li><strong>Symbole</strong> : Le dialogue <strong>sélection de symbole</strong> apparaît - après la sélection correspondante, un point, une ligne ou une surface (polygone) peut être dessiné (selon le symbole).</li>' +
+        '<li><strong>Polygone</strong> : Vous pouvez commencer à dessiner une surface directement (si nécessaire, vous pouvez également définir un symbole plus tard en utilisant la <strong>vue de sélection</strong>).</li>' +
+        '<li><strong>Ligne</strong> : Comme pour le polygone, vous pouvez directement commencer à tracer une ligne. Une ligne peut également être convertie en flèche en utilisant la <strong>vue de sélection</strong></li>',
     },
     docSymbolSelectionTitle: {
       de: 'Symbolauswahl',
@@ -865,55 +875,55 @@ export class I18NService {
       de:
         'Wird ein Element auf der Karte selektiert (z.B. ein Symbol, eine Linie, eine Fläche, etc.), so erscheint in der unteren linken Ecke des Bildschirms eine Selektionsansicht.\n\n' +
         'Für alle Elemente sind die folgenden Funktionen vorhanden:\n' +
-        '* Es kann ein Name angegeben werden (u.a. um nach dem gezeichneten Element zu suchen)\n' +
-        '* Es kann eine Farbe definiert werden\n' +
-        '* Die Position kann fixiert werden (solange dies aktiviert ist, ist es nicht möglich das Element zu verschieben oder seine Geometrie zu ändern).\n' +
-        '* Unter "Funktionen" kann ein Element in den Vordergrund oder Hintergrund gebracht werden und die Koordinaten des Elements können manuell definiert werden.\n' +
-        '* Das Element kann gelöscht werden.\n\n' +
+        '<li>Es kann ein Name angegeben werden (u.a. um nach dem gezeichneten Element zu suchen)</li>' +
+        '<li>Es kann eine Farbe definiert werden</li>' +
+        '<li>Die Position kann fixiert werden (solange dies aktiviert ist, ist es nicht möglich das Element zu verschieben oder seine Geometrie zu ändern).</li>' +
+        '<li>Unter "Funktionen" kann ein Element in den Vordergrund oder Hintergrund gebracht werden und die Koordinaten des Elements können manuell definiert werden.</li>' +
+        '<li>Das Element kann gelöscht werden.\n</li>' +
         'Zusätzlich unterscheiden sich einige Optionen je nach gewählter Geometrie:\n' +
-        '* **Text**: Die Schriftgrösse kann definiert werden\n' +
-        '* **Linie**: Die Linie kann als gestrichelt oder durchgängig definiert und die Liniendicke und ein Pfeilende angegeben werden\n' +
-        '* **Polygon**: \n' +
+        '<li><strong>Text</strong>: Die Schriftgrösse kann definiert werden</li>' +
+        '<li><strong>Linie</strong>: Die Linie kann als gestrichelt oder durchgängig definiert und die Liniendicke und ein Pfeilende angegeben werden</li>' +
+        '<li><strong>Polygon</strong>: </li>' +
         '   * Es kann - neben der Möglichkeit die Linie als gestrichelt oder durchgängig sowie deren Dicke zu definieren - ein Muster sowie die Transparenz angegben werden, welches zum Füllen der Fläche verwendet werden soll.\n' +
         '   * Es kann ein Loch in ein Polygon gezeichnet werden\n' +
         '   * Polygone können zusammen gruppiert werden (z.B. um unzusammenhängende Bereiche zu vereinen)\n' +
-        '* **Alle ausser Text**: \n' +
+        '<li><strong>Alle ausser Text</strong>: </li>' +
         '   * Es kann eine Beschreibung definiert werden indem Bilder (existierende oder selbstgewählte Symbole - ein Klick auf das Bild öffnet die Detailansicht) und/oder Text (in Markdown - es erscheint eine Voransicht, wenn auf das schwarze "M" Symbol geklickt wird) definiert wird.\n' +
         '   * Symbole können definiert / ersetzt / ausgeblendet / vergrössert / verkleinert und gedreht werden und es ist möglich, die Darstellung des Symbols zur besseren Sichtbarkeit vom Ankerpunkt aus zu verschieben',
       en:
         'If an element on the map is selected (e.g. a symbol, a line, an area, etc.), a selection view appears in the lower left corner of the screen.\n\n' +
         'The following functions are available for all elements:\n' +
-        '* A name can be specified (e.g. to allow the search for the drawn element)\n' +
-        '* A color can be defined\n' +
-        '* The position can be fixed (if this is activated, it is not possible to move the element or change its geometry).\n' +
-        '* Under "Functions" an element can be brought into the foreground or background and the coordinates of the element can be defined manually.\n' +
-        '* The item can be deleted. \n\n' +
+        '<li>A name can be specified (e.g. to allow the search for the drawn element)</li>' +
+        '<li>A color can be defined</li>' +
+        '<li>The position can be fixed (if this is activated, it is not possible to move the element or change its geometry).</li>' +
+        '<li>Under "Functions" an element can be brought into the foreground or background and the coordinates of the element can be defined manually.</li>' +
+        '<li>The item can be deleted. \n</li>' +
         'In addition, some options differ depending on the selected geometry:\n' +
-        '* **Text**: The font size can be defined\n' +
-        '* **Line**: The line can be defined as dashed or continuous. The line thickness can be changed and an arrow end can be specified\n' +
-        '* **Polygon**: \n' +
+        '<li><strong>Text</strong>: The font size can be defined</li>' +
+        '<li><strong>Line</strong>: The line can be defined as dashed or continuous. The line thickness can be changed and an arrow end can be specified</li>' +
+        '<li><strong>Polygon</strong>: </li>' +
         '   * In addition to the option of defining the line as dashed or continuous and its thickness, you can also specify a pattern and the transparency to be used to fill the area. \n ' +
         '   * A hole can be drawn in a polygon\n' +
         '   * Polygons can be grouped together (e.g. to combine unconnected areas)\n ' +
-        '* **All except text** \n' +
+        '<li><strong>All except text</strong> </li>' +
         '   * A description can be defined by images (existing or self-selected symbols - a click on the image opens the detail view) and/or text (in Markdown - a preview appears if the black "M" is clicked).\n' +
         '   * Symbols can be defined / replaced / hidden / resized and rotated and it is possible to "move" the representation of the symbol from the anchor point for better visibility',
       fr:
         "Si un élément de la carte est sélectionné (par exemple, un symbole, une ligne, une zone, etc.), une vue de sélection apparaît dans le coin inférieur gauche de l'écran.\n" +
         'Pour tous les éléments, les fonctions suivants sont disponibles:\n' +
         "* Un nom peut être spécifié (entre autres pour rechercher l'élément dessiné)\n" +
-        '* Une couleur peut être définie\n' +
+        '<li>Une couleur peut être définie</li>' +
         "* La position peut être fixée (tant qu'elle est activée, il n'est pas possible de déplacer l'élément ou de modifier sa géométrie).\n" +
-        '* Sous "Fonctions", un élément peut être mis au premier plan ou à l\'arrière-plan et les coordonnées de l\'élément peuvent être définies manuellement.\n' +
+        '<li>Sous "Fonctions", un élément peut être mis au premier plan ou à l\'arrière-plan et les coordonnées de l\'élément peuvent être définies manuellement.</li>' +
         "* L'élément peut être supprimé.\n" +
         'En outre, certaines options diffèrent en fonction de la géométrie choisie:\n' +
-        '* **Texte** : La taille de la police peut être définie\n' +
-        "* **Ligne** : La ligne peut être définie comme pointillée ou continue. L'épaisseur de la ligne peut être modifiée et une extrémité de flèche peut être spécifiée\n" +
-        '* **Polygone** : \n' +
+        '<li><strong>Texte</strong> : La taille de la police peut être définie</li>' +
+        "* <strong>Ligne</strong> : La ligne peut être définie comme pointillée ou continue. L'épaisseur de la ligne peut être modifiée et une extrémité de flèche peut être spécifiée\n" +
+        '<li><strong>Polygone</strong> : </li>' +
         '   * En plus de la possibilité de définir la ligne comme pointillée ou continue et son épaisseur, vous pouvez également spécifier un motif et la transparence à utiliser pour remplir le polygone.\n' +
         '   * Un trou peut être dessiné dans un polygone\\n" +\n' +
         '   * Les polygones peuvent être regroupés (par exemple pour combiner des zones non connectées)\n' +
-        '* **Tout sauf le texte**\n' +
+        '<li><strong>Tout sauf le texte</strong></li>' +
         '   * Une description peut être définie par des images (symboles existants ou sélectionnés - un clic sur l\'image ouvre la vue détaillée) et/ou du texte (en Markdown - un aperçu apparaît si l\'on clique sur le "M" noir est cliquée).\n' +
         '   * Les symboles peuvent être définis / remplacés / cachés / zoomés / dézoomés et pivotés et il est possible de "déplacer" la représentation du symbole à partir du point d\'ancrage pour une meilleure visibilité',
     },
@@ -925,25 +935,25 @@ export class I18NService {
     docCurrentDrawing: {
       de:
         'Dieses Menü beinhaltet die Möglichkeiten:\n' +
-        '* Zeichnungen / Geometrien von einer Datei oder von einem Geoadmin-Layer (z.B. Gemeindegrenzen) zu importieren (es handelt sich dabei ausschliesslich um die gezeichneten Elemente - nicht um die History o.ä.). Soll eine Karte komplett importiert werden, so soll die Möglichkeit des Karten ladens im **Hauptmenü** verwendet werden.\n' +
-        '* Die Zeichnung herunterzuladen (im geojson Format)\n' +
-        '* Die Zeichnung zu taggen (dem aktuellen Stand einen Namen zu geben um diesen dann im **History- / Lese-Modus** wiederfinden zu können)\n' +
-        '* Die Zeichnung zu drucken\n' +
-        '* Die gezeichneten Elemente zu löschen\n',
+        '<li>Zeichnungen / Geometrien von einer Datei oder von einem Geoadmin-Layer (z.B. Gemeindegrenzen) zu importieren (es handelt sich dabei ausschliesslich um die gezeichneten Elemente - nicht um die History o.ä.). Soll eine Karte komplett importiert werden, so soll die Möglichkeit des Karten ladens im <strong>Hauptmenü</strong> verwendet werden.</li>' +
+        '<li>Die Zeichnung herunterzuladen (im geojson Format)</li>' +
+        '<li>Die Zeichnung zu taggen (dem aktuellen Stand einen Namen zu geben um diesen dann im <strong>History- / Lese-Modus</strong> wiederfinden zu können)</li>' +
+        '<li>Die Zeichnung zu drucken</li>' +
+        '<li>Die gezeichneten Elemente zu löschen</li>',
       en:
         'This menu contains the options:\n' +
-        '* import drawings / geometries from a file or from a geoadmin layer (e.g. municipal boundaries) (only the drawn elements are imported - not the history or similar). If a map is to be imported completely, the option to load maps in the **main menu** should be used.\n' +
-        '* To download the drawing (in geojson format)\n' +
-        '* To tag the drawing (give a name to the current state to be able to find it again in **history / read mode**)\n' +
-        '* To print the drawing\n' +
-        '* To delete the drawn elements',
+        '<li>import drawings / geometries from a file or from a geoadmin layer (e.g. municipal boundaries) (only the drawn elements are imported - not the history or similar). If a map is to be imported completely, the option to load maps in the <strong>main menu</strong> should be used.</li>' +
+        '<li>To download the drawing (in geojson format)</li>' +
+        '<li>To tag the drawing (give a name to the current state to be able to find it again in <strong>history / read mode</strong>)</li>' +
+        '<li>To print the drawing</li>' +
+        '<li>To delete the drawn elements</li>',
       fr:
         'Ce menu contient les options suivantes:\n' +
-        "* importer des dessins / géométries à partir d'un fichier ou d'une couche géoadmin (par exemple, les limites municipales) (seuls les éléments dessinés sont importés - pas l'historique ou similaire). Si une carte doit être importée complètement, il faut utiliser l'option de chargement des cartes dans le **menu principal**.\n" +
-        '* Pour télécharger le dessin (au format geojson)\n' +
-        "* Marquer le dessin (donner un nom à l'état actuel pour pouvoir le retrouver en **histoire / mode lecture**)\n" +
-        '* Pour imprimer le dessin' +
-        '* Pour supprimer les éléments dessinés',
+        "* importer des dessins / géométries à partir d'un fichier ou d'une couche géoadmin (par exemple, les limites municipales) (seuls les éléments dessinés sont importés - pas l'historique ou similaire). Si une carte doit être importée complètement, il faut utiliser l'option de chargement des cartes dans le <strong>menu principal</strong>.\n" +
+        '<li>Pour télécharger le dessin (au format geojson)</li>' +
+        "* Marquer le dessin (donner un nom à l'état actuel pour pouvoir le retrouver en <strong>histoire / mode lecture</strong>)\n" +
+        '<li>Pour imprimer le dessin</li>' +
+        '<li>Pour supprimer les éléments dessinés</li>',
     },
     docLayers: {
       de:

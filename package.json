@@ -27,6 +27,7 @@
     "@angular/router": "^12.2.2",
     "material-icons": "^1.2.0",
     "ngx-indexed-db": "^7.0.0",
+    "nl2br-pipe": "^1.2.3",
     "ol": "^6.5.0",
     "ol-ext": "^3.1.19",
     "proj4": "^2.7.2",

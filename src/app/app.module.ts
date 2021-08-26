@@ -32,7 +32,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatListModule } from '@angular/material/list';
 import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
 import { SessionCreatorComponent } from './session-creator/session-creator.component';
-import { NgxMdModule } from 'ngx-md';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -53,6 +52,7 @@ import localeDeCh from '@angular/common/locales/de-CH';
 import {MatIconModule} from "@angular/material/icon";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
+import {Nl2BrPipeModule} from "nl2br-pipe";
 
 registerLocaleData(localeDeCh)
 
@@ -124,7 +124,6 @@ const dbConfig: DBConfig = {
     MatRadioModule,
     MatListModule,
     NgxIndexedDBModule.forRoot(dbConfig),
-    NgxMdModule.forRoot(),
     MatProgressSpinnerModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -132,6 +131,7 @@ const dbConfig: DBConfig = {
     MatStepperModule,
     MatIconModule,
     MatSidenavModule,
+    Nl2BrPipeModule,
   ],
   entryComponents: [
     DrawingDialogComponent,
