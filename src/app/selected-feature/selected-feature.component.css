@@ -189,3 +189,20 @@ mat-expansion-panel button i {
 .images i.removeButton {
   font-size: 1.2em;
 }
+
+.color-display {
+  min-width: 1em;
+  margin-right: 0.7em;
+}
+
+.color-option {
+  padding-left: 0;
+}
+
+div.flex {
+  display: flex;
+}
+
+.mat-slide-toggle {
+  padding-bottom: 1.25em;
+}

@@ -41,6 +41,7 @@
         <app-drawingtools *ngIf="!historyMode"></app-drawingtools>
         <!--<a class="mat-stroked-button" download="map.jpg"><span class="mat-button-wrapper"><i class="material-icons">photo_camera</i> Screenshot</span></a>-->
         <button
+          *ngIf="!historyMode"
           mat-stroked-button
           (click)="sharedState.toggleFreeHandDraw()"
           [class.active]="sharedState.freeHandDraw | async"
