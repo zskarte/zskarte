@@ -1,0 +1,19 @@
+.filterAll button {
+  margin-bottom: 14px;
+}
+
+.filterItem {
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+}
+
+.opaque {
+  opacity: 0.4;
+}
+
+.eyeOverlay {
+  position: absolute;
+  top: calc(50% - 12px);
+  left: calc(50% - 12px);
+}

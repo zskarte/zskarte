@@ -1,4 +1,4 @@
-<div style="position: relative; height: 100%; width: 100%;">
+<div style="position: relative; height: 100%; width: 100%">
   <div id="map" class="map"></div>
   <div id="maploader" #maploader>
     <mat-progress-spinner color="primary" mode="indeterminate">
@@ -7,17 +7,25 @@
   <!--<div id="mouse-position"></div>-->
 
   <div class="zoom noprint">
-    <button mat-icon-button (click)="zoomIn()">
-      <i class="material-icons">zoom_in</i>
+    <button
+      mat-icon-button
+      (click)="zoomIn()"
+      [attr.aria-label]="i18n.get('zoomIn')"
+    >
+      <mat-icon>zoom_in</mat-icon>
     </button>
-    <button mat-icon-button (click)="zoomOut()">
-      <i class="material-icons">zoom_out</i>
+    <button
+      mat-icon-button
+      (click)="zoomOut()"
+      [attr.aria-label]="i18n.get('zoomOut')"
+    >
+      <mat-icon>zoom_out</mat-icon>
     </button>
-    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Layers);">
-      <i class="material-icons">layers</i>
+    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Layers);" [attr.aria-label]="i18n.get('layers')">
+      <mat-icon>layers</mat-icon>
     </button>
-    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Filters);">
-      <i class="material-icons">filter_alt</i>
+    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Filters);" [attr.aria-label]="i18n.get('filters')">
+      <mat-icon>filter_alt</mat-icon>
     </button>
   </div>
 </div>

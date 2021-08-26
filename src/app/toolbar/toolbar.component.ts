@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 import { SharedStateService } from '../shared-state.service';
-import { I18NService } from '../i18n.service';
+import {I18NService, LOCALES} from '../i18n.service';
 import { Session } from '../entity/session';
 import { SessionCreatorComponent } from '../session-creator/session-creator.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,7 +19,9 @@ import { ExportDialogComponent } from '../export-dialog/export-dialog.component'
 import { DisplayMode } from '../entity/displayMode';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { HelpComponent } from '../help/help.component';
-import {MatSidenav, MatSidenavContainer} from "@angular/material/sidenav";
+import {ImportDialogComponent} from "../import-dialog/import-dialog.component";
+import {DomSanitizer} from "@angular/platform-browser";
+import {TagStateComponent} from "../tag-state/tag-state.component";
 
 @Component({
   selector: 'app-toolbar',
@@ -47,22 +49,23 @@ export class ToolbarComponent implements OnInit {
     private preferences: PreferencesService,
     private sessions: SessionsService,
     private mapStore: MapStoreService,
-    public toolbarRoot: ElementRef,
+    private sanitizer: DomSanitizer,
   ) {
     this.sharedState.displayMode.subscribe((mode) => {
       this.historyMode = mode === DisplayMode.HISTORY;
       window.history.pushState(null, '', '?mode=' + mode);
     });
-    this.sharedState.drawingManipulated.subscribe((updated) => {
-      if (updated) {
-        this.updateFilterSymbols();
-      }
-    });
+
     this.sharedState.sessionOutdated.subscribe((isOutdated) => {
       if (isOutdated) {
         this.createInitialSession();
       }
     });
+    this.sharedState.historyDate.subscribe((historyDate) =>
+      historyDate === 'now'
+        ? (this.downloadTime = new Date().toISOString())
+        : (this.downloadTime = historyDate)
+    );
     if (this.initialLaunch) {
       this.dialog.open(HelpComponent, {
         data: true,
@@ -75,10 +78,11 @@ export class ToolbarComponent implements OnInit {
   @Input() drawLayer: DrawlayerComponent;
   session: Session;
   historyMode: boolean;
-  filterKeys: any[];
-  filterSymbols: any[];
   collapsed: boolean;
   exportEnabled = true;
+  downloadTime = null;
+  downloadData = null;
+  locales: string[] = LOCALES;
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -97,80 +101,11 @@ export class ToolbarComponent implements OnInit {
     }
   }
 
-  extractSymbol(f, symbols) {
-    const sig = f.get('sig');
-    if (sig) {
-      if (sig.src) {
-        if (!symbols[sig.src]) {
-          const dataUrl = CustomImageStoreService.getImageDataUrl(sig.src);
-          symbols[sig.src] = {
-            label: this.i18n.getLabelForSign(sig),
-            origSrc: sig.src,
-            src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
-          };
-        }
-      } else if (sig.type === 'Polygon' && !sig.src) {
-        symbols['not_labeled_polygon'] = {
-          type: 'Polygon',
-          label: this.i18n.get('polygon'),
-          filterValue: 'not_labeled_polygon',
-          icon: 'widgets',
-        };
-      } else if (sig.type === 'LineString' && sig.text) {
-        symbols['text_element'] = {
-          type: 'LineString',
-          label: this.i18n.get('text'),
-          filterValue: 'text_element',
-          icon: 'font_download',
-        };
-      } else if (sig.type === 'LineString' && sig.freehand) {
-        symbols['free_hand_element'] = {
-          type: 'LineString',
-          label: this.i18n.get('freeHand'),
-          filterValue: 'free_hand_element',
-          icon: 'gesture',
-        };
-      } else if (sig.type === 'LineString' && !sig.src) {
-        symbols['not_labeled_line'] = {
-          type: 'LineString',
-          label: this.i18n.get('line'),
-          filterValue: 'not_labeled_line',
-          icon: 'show_chart',
-        };
-      }
-    }
-  }
-
-  updateFilterSymbols() {
-    const symbols = {};
-    if (this.drawLayer && this.drawLayer.source) {
-      this.drawLayer.source
-        .getFeatures()
-        .forEach((f) => this.extractSymbol(f, symbols));
-      if (this.historyMode) {
-        this.drawLayer.clusterSource
-          .getFeatures()
-          .forEach((f) => this.extractSymbol(f, symbols));
-      }
-      this.filterKeys = Object.keys(symbols);
-
-      this.filterSymbols = Object.values(symbols).sort((a: any, b: any) =>
-        a.label.localeCompare(b.label)
-      );
-    }
-  }
-
   ngOnInit() {
-    this.sharedState.showMapLoader.subscribe((l) => {
-      if (!l) {
-        // The loader has been hidden -> we should check if we have new symbols for filters.
-        this.updateFilterSymbols();
-      }
-    });
     this.sharedState.session.subscribe((s) => {
       this.session = s;
       if (s) {
-        let currentZSO = this.preferences.getZSO();
+        const currentZSO = this.preferences.getZSO();
         this.exportEnabled = currentZSO != null && currentZSO.id != 'zso_guest';
         this.preferences.setLastSessionId(s.uuid);
       }
@@ -184,10 +119,9 @@ export class ToolbarComponent implements OnInit {
       }
     }
     this.createInitialSession();
-  }
-
-  private filterAll(active: boolean) {
-    this.drawLayer.toggleFilters(this.filterKeys, active);
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
   }
 
   private createInitialSession() {
@@ -258,5 +192,68 @@ export class ToolbarComponent implements OnInit {
 
   help(): void {
     this.dialog.open(HelpComponent, { data: false });
+  }
+
+  importData(): void {
+    const dialogRef = this.dialog.open(ImportDialogComponent, {
+      maxWidth: '80vw',
+      maxHeight: '80vh',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.value) {
+        this.dialog
+          .open(ConfirmationDialogComponent, {
+            data: result.replace
+              ? this.i18n.get('confirmImportDrawing')
+              : this.i18n.get('confirmImportDrawingNoReplace'),
+          })
+          .afterClosed()
+          .subscribe((confirmed) => {
+            if (confirmed) {
+              this.drawLayer.loadFromString(result.value, true, result.replace);
+            }
+          });
+      }
+    });
+  }
+
+  getDownloadFileName() {
+    return 'zskarte_' + this.downloadTime + '.geojson';
+  }
+
+  download(): void {
+    this.downloadData = this.sanitizer.bypassSecurityTrustUrl(
+      this.drawLayer.toDataUrl()
+    );
+  }
+
+  print(): void {
+    window.print();
+  }
+
+  clear(): void {
+    this.dialog
+      .open(ConfirmationDialogComponent, {
+        data: this.i18n.get('confirmClearDrawing'),
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.drawLayer.removeAll();
+        }
+      });
+  }
+
+  tagState(): void {
+    const dialogRef = this.dialog.open(TagStateComponent);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.mapStore.setTag(result).then(() => {});
+      }
+    });
+  }
+
+  setLocale(locale: string) {
+    this.i18n.locale = locale;
   }
 }

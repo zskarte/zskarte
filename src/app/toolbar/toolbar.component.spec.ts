@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import {Nl2BrPipeModule} from "nl2br-pipe";
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -30,6 +31,7 @@ describe('ToolbarComponent', () => {
         NoopAnimationsModule,
         FormsModule,
         HttpClientTestingModule,
+        Nl2BrPipeModule,
       ],
       providers: [
         {

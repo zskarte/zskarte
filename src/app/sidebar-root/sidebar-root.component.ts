@@ -19,6 +19,9 @@ export class SidebarRootComponent implements OnInit {
 
   ngOnInit(): void {
     this.sharedState.sidebarContext.subscribe(context => {
+      if (context === null) {
+        return;
+      }
       this.sidebarOpen = this.sidebarContext !== context || !this.sidebarOpen;
       this.sidenav.toggle(this.sidebarOpen);
       this.sidebarContext = context;
