@@ -59,8 +59,3 @@ app-root {
 .section li {
   margin-bottom: 0.5em;
 }
-
-/* Fix for icon button https://github.com/angular/components/issues/8842 */
-.mat-icon-button {
-  /*line-height: 1;*/
-}
