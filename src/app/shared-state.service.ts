@@ -74,16 +74,16 @@ const layers: Layer[] = [
     }),
     opacity: 1,
   },
-  // {
-  //   name: 'Offline',
-  //   olLayer: new OlTileLayer({
-  //     source: new OSM({
-  //       name: 'Offline',
-  //       url: findOfflineHost() + '/styles/osm-bright/{z}/{x}/{y}.png',
-  //     }),
-  //   }),
-  //   opacity: 1,
-  // },
+  {
+    name: 'Offline',
+    olLayer: new OlTileLayer({
+      source: new OSM({
+        name: 'Offline',
+        url: findOfflineHost() + '/styles/osm-bright/{z}/{x}/{y}.png',
+      }),
+    }),
+    opacity: 1,
+  },
 ];
 
 export function createGeoAdminLayer(
