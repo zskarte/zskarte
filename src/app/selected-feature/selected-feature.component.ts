@@ -82,8 +82,6 @@ export class SelectedFeatureComponent {
     );
   }
 
-  showMarkdown = false;
-
   groupedFeatures = null;
   editMode: boolean;
   selectedFeature: any = null;

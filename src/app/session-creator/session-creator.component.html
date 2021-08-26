@@ -12,9 +12,8 @@
     <mat-tab [label]="editMode ? session.title : i18n.get('newMap')">
       <form #createOrEditForm="ngForm">
         <div
-          Markdown
           *ngIf="!editMode"
-          [data]="i18n.get('sessionCreatorInstructions')"
+          [innerHTML]="i18n.get('sessionCreatorInstructions') | nl2br"
         ></div>
         <mat-form-field *ngIf="!editMode">
           <mat-label>{{ i18n.get('zso') }}</mat-label>
@@ -85,7 +84,7 @@
       *ngIf="!editMode && allSessionsButActive.length > 0"
     >
       <form #loadForm="ngForm">
-        <div Markdown [data]="i18n.get('sessionLoaderInstructions')"></div>
+        <div [innerHTML]="i18n.get('sessionLoaderInstructions') | nl2br"></div>
         <table>
           <tr *ngFor="let session of allSessionsButActive">
             <td class="icon">
@@ -110,7 +109,7 @@
       </form>
     </mat-tab>
     <mat-tab [label]="i18n.get('importMap')" *ngIf="!editMode">
-      <div Markdown [data]="i18n.get('importSessionInstructions')"></div>
+      <div [innerHTML]="i18n.get('importSessionInstructions') | nl2br"></div>
       <form #importForm="ngForm">
         <input
           id="loadFromFile"

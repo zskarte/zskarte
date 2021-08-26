@@ -12,6 +12,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 
 import { SessionCreatorComponent } from './session-creator.component';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {Nl2BrPipeModule} from "nl2br-pipe";
 
 describe('SessionCreatorComponent', () => {
   let component: SessionCreatorComponent;
@@ -27,7 +28,8 @@ describe('SessionCreatorComponent', () => {
         MatCheckboxModule,
         NoopAnimationsModule,
         FormsModule,
-        HttpClientTestingModule
+        HttpClientTestingModule,
+        Nl2BrPipeModule,
       ],
       declarations: [ SessionCreatorComponent, ConfirmationDialogComponent ],
       providers: [

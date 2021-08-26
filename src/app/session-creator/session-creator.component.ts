@@ -20,7 +20,7 @@ import { SessionsService } from '../sessions.service';
 import { MapStoreService } from '../map-store.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { Md5 } from 'ts-md5';
-import { MatDialogModule } from '@angular/material/dialog';
+
 @Component({
   selector: 'app-session-creator',
   templateUrl: './session-creator.component.html',

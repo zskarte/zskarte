@@ -44,8 +44,7 @@
             <div
               *ngIf="feature.get('sig').description"
               class="description"
-              Markdown
-              [data]="feature.get('sig').description"
+              [innerHTML]="feature.get('sig').description | nl2br"
             ></div>
           </mat-expansion-panel>
         </mat-card-content>
@@ -100,8 +99,7 @@
           <div
             *ngIf="!editMode && selectedSignature.description"
             class="description"
-            Markdown
-            [data]="selectedSignature.description"
+            [innerHTML]="selectedSignature.description | nl2br"
           ></div>
           <div
             class="images"

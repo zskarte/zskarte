@@ -898,7 +898,7 @@ export class I18NService {
         '   * Es kann ein Loch in ein Polygon gezeichnet werden\n' +
         '   * Polygone können zusammen gruppiert werden (z.B. um unzusammenhängende Bereiche zu vereinen)\n' +
         '<li><strong>Alle ausser Text</strong>: </li>' +
-        '   * Es kann eine Beschreibung definiert werden indem Bilder (existierende oder selbstgewählte Symbole - ein Klick auf das Bild öffnet die Detailansicht) und/oder Text (in Markdown - es erscheint eine Voransicht, wenn auf das schwarze "M" Symbol geklickt wird) definiert wird.\n' +
+        '   * Es kann eine Beschreibung definiert werden indem Bilder (existierende oder selbstgewählte Symbole - ein Klick auf das Bild öffnet die Detailansicht) und/oder Text.\n' +
         '   * Symbole können definiert / ersetzt / ausgeblendet / vergrössert / verkleinert und gedreht werden und es ist möglich, die Darstellung des Symbols zur besseren Sichtbarkeit vom Ankerpunkt aus zu verschieben',
       en:
         'If an element on the map is selected (e.g. a symbol, a line, an area, etc.), a selection view appears in the lower left corner of the screen.\n\n' +
@@ -916,7 +916,7 @@ export class I18NService {
         '   * A hole can be drawn in a polygon\n' +
         '   * Polygons can be grouped together (e.g. to combine unconnected areas)\n ' +
         '<li><strong>All except text</strong> </li>' +
-        '   * A description can be defined by images (existing or self-selected symbols - a click on the image opens the detail view) and/or text (in Markdown - a preview appears if the black "M" is clicked).\n' +
+        '   * A description can be defined by images (existing or self-selected symbols - a click on the image opens the detail view) and/or text.\n' +
         '   * Symbols can be defined / replaced / hidden / resized and rotated and it is possible to "move" the representation of the symbol from the anchor point for better visibility',
       fr:
         "Si un élément de la carte est sélectionné (par exemple, un symbole, une ligne, une zone, etc.), une vue de sélection apparaît dans le coin inférieur gauche de l'écran.\n" +
@@ -934,7 +934,7 @@ export class I18NService {
         '   * Un trou peut être dessiné dans un polygone\\n" +\n' +
         '   * Les polygones peuvent être regroupés (par exemple pour combiner des zones non connectées)\n' +
         '<li><strong>Tout sauf le texte</strong></li>' +
-        '   * Une description peut être définie par des images (symboles existants ou sélectionnés - un clic sur l\'image ouvre la vue détaillée) et/ou du texte (en Markdown - un aperçu apparaît si l\'on clique sur le "M" noir est cliquée).\n' +
+        '   * Une description peut être définie par des images (symboles existants ou sélectionnés - un clic sur l\'image ouvre la vue détaillée) et/ou du texte.\n' +
         '   * Les symboles peuvent être définis / remplacés / cachés / zoomés / dézoomés et pivotés et il est possible de "déplacer" la représentation du symbole à partir du point d\'ancrage pour une meilleure visibilité',
     },
     docFilter: {
