@@ -989,11 +989,14 @@ export class DrawlayerComponent implements OnInit {
         });
         this.map.addInteraction(drawer);
       }
+      Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       drawer.setActive(true);
     }
   }
 
   endDrawing(feature) {
+    this.sharedState.disableFreeHandDraw();
+    Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
     if (feature) {
       this.currentDrawingSign.createdAt = new Date();
       feature.set('sig', this.currentDrawingSign);
