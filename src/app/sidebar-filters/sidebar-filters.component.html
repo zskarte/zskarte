@@ -42,4 +42,22 @@
     </mat-grid-list>
   </div>
 </mat-expansion-panel>
+  <mat-divider></mat-divider>
+  <mat-expansion-panel class="mat-elevation-z0" (opened)="filtersOpenState = true"
+                       (closed)="filtersOpenState = false">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Kategorien
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <mat-selection-list>
+      <mat-list-item *ngFor="let category of signCategories" class="category-list-item">
+        <button mat-button class="category-list-item-button" style="width: 100%; text-align: left;" (click)="filterCategory(category.name)">
+          {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }} {{ i18n.get('hideShow') }}
+          <!--<mat-icon>visibility_off</mat-icon>-->
+        </button>
+      </mat-list-item>
+
+    </mat-selection-list>
+  </mat-expansion-panel>
 </mat-accordion>

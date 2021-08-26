@@ -4,6 +4,8 @@ import {DrawlayerComponent} from "../drawlayer/drawlayer.component";
 import {DisplayMode} from "../entity/displayMode";
 import {CustomImageStoreService} from "../custom-image-store.service";
 import {I18NService} from "../i18n.service";
+import {signCategories} from "../entity/sign";
+import capitalizeFirstLetter from '../lib/capitalizeFirstLetter';
 
 @Component({
   selector: 'app-sidebar-filters',
@@ -19,6 +21,8 @@ export class SidebarFiltersComponent implements OnInit {
 
   filtersOpenState = false;
   filtersGeneralOpenState = false;
+  signCategories = [...signCategories.values()];
+  capitalizeFirstLetter = capitalizeFirstLetter;
 
   constructor(
     public i18n: I18NService,
@@ -73,6 +77,7 @@ export class SidebarFiltersComponent implements OnInit {
             label: this.i18n.getLabelForSign(sig),
             origSrc: sig.src,
             src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
+            kat: sig.kat,
           };
         }
       } else if (sig.type === 'Polygon' && !sig.src) {
@@ -109,6 +114,11 @@ export class SidebarFiltersComponent implements OnInit {
 
   public filterAll(active: boolean) {
     this.drawLayer.toggleFilters(this.filterKeys, active);
+  }
+
+  public filterCategory(category) {
+    const signs = this.filterSymbols.filter(s => s.kat === category);
+    signs.forEach(s => this.drawLayer.toggleFilter(s));
   }
 
 }

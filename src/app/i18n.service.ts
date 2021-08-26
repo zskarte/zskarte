@@ -1104,6 +1104,11 @@ export class I18NService {
       de: 'Alle Elemente verstecken',
       en: 'Hide all elements',
       fr: 'Tout cacher',
+    },
+    hideShow : {
+      de: 'anzeigen/verstecken',
+      en: 'show/hide',
+      fr: 'afficher/cacher',
     }
   };
   private _locale: string = DEFAULT_LOCALE;

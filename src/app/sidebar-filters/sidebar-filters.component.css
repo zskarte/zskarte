@@ -17,3 +17,15 @@
   top: calc(50% - 12px);
   left: calc(50% - 12px);
 }
+
+.category-list-item {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+.category-list-item-button ::ng-deep .mat-button-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
