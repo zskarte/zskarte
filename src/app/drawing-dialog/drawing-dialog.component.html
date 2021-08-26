@@ -58,9 +58,6 @@
       </td>
       <td>{{ i18n.getLabelForSign(sign) }}</td>
       <td class="buttonCell">
-        <mat-icon aria-hidden="false" [aria-label]="sign.type">
-          {{ getIconFromType(sign.type) }}
-        </mat-icon>
         <button
           mat-stroked-button
           *ngIf="isCustomImage(sign)"
@@ -74,6 +71,9 @@
         >
           <i class="material-icons">delete_forever</i>
         </button>
+        <mat-icon aria-hidden="false" [aria-label]="sign.type">
+          {{ getIconFromType(sign.type) }}
+        </mat-icon>
       </td>
     </tr>
   </table>
