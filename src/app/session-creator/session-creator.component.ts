@@ -6,7 +6,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
-import { I18NService } from '../i18n.service';
+import {I18NService, LOCALES} from '../i18n.service';
 import { Session } from '../entity/session';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -35,6 +35,7 @@ export class SessionCreatorComponent implements OnInit {
   editMode: boolean;
   listOfZSO: ZSO[] = LIST_OF_ZSO;
   allSessions = null;
+  locales: string[] = LOCALES;
 
   @ViewChild('fileInput', { static: false }) el: ElementRef;
 

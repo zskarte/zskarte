@@ -1,7 +1,11 @@
 <!--<div class="modal-dialog">-->
-<div *ngIf="!editMode">
-  <h1 mat-dialog-title>{{ i18n.get('sessionCreatorTitle') }}</h1>
-  <app-language-chooser class="language"></app-language-chooser>
+<div *ngIf="!editMode" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+  <h1 mat-dialog-title style="margin-bottom: 0;">{{ i18n.get('sessionCreatorTitle') }}</h1>
+  <mat-select style="flex-grow: 0; width: 150px;" [(value)]="i18n.locale">
+    <mat-option *ngFor="let locale of locales" [value]="locale">
+      {{ i18n.get(locale) }}
+    </mat-option>
+  </mat-select>
 </div>
 <div mat-dialog-content>
   <mat-tab-group>
