@@ -89,8 +89,8 @@ export class ToolbarComponent implements OnInit {
       !this.sharedState.featureSource.getValue() &&
       event.altKey
     ) {
-      switch (event.key) {
-        case 'h':
+      switch (event.code) {
+        case 'KeyH':
           this.toggleHistory();
           break;
       }
