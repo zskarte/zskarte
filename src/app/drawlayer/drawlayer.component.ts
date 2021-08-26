@@ -850,7 +850,7 @@ export class DrawlayerComponent implements OnInit {
       row.push(s.description);
 
       for(let ii=0,ll=row.length; ii<ll; ii++) {
-        row[ii] = row[ii] ? row[ii].replace('"', '""') : '';
+        row[ii] = row[ii] ? row[ii].replace(/"/g, '""') : '';
       }
       lines.push('"' + row.join('";"') + '"');
     }
