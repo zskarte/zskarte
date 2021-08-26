@@ -9,28 +9,64 @@ import VectorSource from 'ol/source/Vector';
 import { Options } from 'ol/interaction/Draw';
 import { Geometry } from 'ol/geom';
 import { distinctUntilChanged, map } from 'rxjs/operators';
+import { IZsMapDrawElementUi } from '../draw-element-ui.interfaces';
 
 export abstract class ZsMapBaseDrawElement<
-  T = IZsMapBaseDrawElementState
+  T extends IZsMapBaseDrawElementState = IZsMapBaseDrawElementState
 > extends ZsMapBaseElement<T> {
-  protected _element: Observable<T>;
   constructor(protected _id: string, protected _state: StateService) {
     super(_id, _state);
     this._element = this._state.observeMapState().pipe(
-      map(
-        (o) => {
-          return o.drawElements?.[this._id];
-        },
-        distinctUntilChanged((x, y) => x === y)
-      )
+      map((o) => {
+        return o.drawElements?.find((o) => o.id === this._id) as any;
+      }),
+      distinctUntilChanged((x, y) => x === y)
     );
   }
 
-  // public observeCoordinates(): Observable<number[] | number[][]> {
-  //   return this._element.pipe(map((o) => {
-  //     return o;
-  //   }))
-  // }
+  private _doInitialize(coordinates: number[] | number[][]): void {
+    if (!this._isInitialized) {
+      this._initialize(coordinates);
+    }
+    this._isInitialized = true;
+  }
+
+  public observeCoordinates(): Observable<number[] | number[][]> {
+    return this._element.pipe(
+      map((o) => {
+        if (o?.coordinates) {
+          this._doInitialize(o?.coordinates);
+        }
+        return o?.coordinates;
+      }),
+      distinctUntilChanged((x, y) => x === y)
+    );
+  }
+
+  public setCoordinates(coordinates: number[] | number[][]): void {
+    this._state.updateMapState((draft) => {
+      draft.drawElements[this._id].coordinates = coordinates;
+    });
+  }
+
+  public observeLayer(): Observable<string> {
+    return this._element.pipe(
+      map((o) => {
+        return o?.layer;
+      }),
+      distinctUntilChanged((x, y) => x === y)
+    );
+  }
+
+  public setLayer(layer: string): void {
+    this._state.updateMapState((draft) => {
+      draft.drawElements[this._id].layer = layer;
+    });
+  }
+
+  public getUi(): IZsMapDrawElementUi {
+    return null;
+  }
 
   // static handlers for drawing
   public static getOlDrawHandler(state: StateService, layer: string): Draw {

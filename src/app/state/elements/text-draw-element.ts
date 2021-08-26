@@ -13,13 +13,16 @@ export class ZsMapTextDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElem
   constructor(protected _id: string, protected _state: StateService) {
     super(_id, _state);
   }
+  protected _initialize(): void {
+    return;
+  }
   protected static _getOlDrawType(): GeometryType {
     return GeometryType.POINT;
   }
   protected static _parseFeature(
     feature: Feature<Point>,
     state: StateService,
-    layer: string,
+    layer: string
   ): void {
     state.addDrawElement({
       type: ZsMapDrawElementStateType.TEXT,

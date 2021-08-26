@@ -41,7 +41,6 @@ interface IZsMapBaseLayerState {
   id?: string;
   type: ZsMapLayerStateType;
   name?: string;
-  // opacity?: number;
 }
 
 export interface IZsMapDrawLayerState extends IZsMapBaseLayerState {

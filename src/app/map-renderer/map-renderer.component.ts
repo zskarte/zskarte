@@ -34,7 +34,10 @@ export class MapRendererComponent implements OnInit, OnDestroy {
     zIndex: 0,
   });
   private _layerCache: Record<string, ZsMapBaseLayer> = {};
-  private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
+  private _drawElementCache: Record<
+    string,
+    { layer: string; element: ZsMapBaseDrawElement }
+  > = {};
   private _currentDrawInteraction: Draw;
 
   constructor(
@@ -124,8 +127,6 @@ export class MapRendererComponent implements OnInit, OnDestroy {
       .observeLayers()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((layers) => {
-        // TODO fix multiple not necessary calls
-        console.log('map: layers changed', layers);
         for (const layer of layers) {
           if (!this._layerCache[layer.getId()]) {
             this._layerCache[layer.getId()] = layer;
@@ -138,14 +139,25 @@ export class MapRendererComponent implements OnInit, OnDestroy {
       .observeDrawElements()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((elements) => {
-        // TODO fix multiple not necessary calls
         for (const element of elements) {
           if (!this._drawElementCache[element.getId()]) {
-            this._drawElementCache[element.getId()] = element;
-            // this._map.addLayer(layer.getOlLayer());
+            this._drawElementCache[element.getId()] = { element, layer: null };
+            // TODO unsubscribing
+            element.observeLayer().subscribe((layer) => {
+              const cache = this._drawElementCache[element.getId()];
+              const feature = element.getOlFeature();
+              if (cache.layer) {
+                const cachedLayer = this._state.getLayer(cache.layer);
+                if (cachedLayer) {
+                  cachedLayer.removeOlFeature(feature);
+                }
+              }
+              cache.layer = layer;
+              const newLayer = this._state.getLayer(layer);
+              newLayer.addOlFeature(feature);
+            });
           }
         }
-        console.log('map: elements changed', elements);
       });
   }
 }

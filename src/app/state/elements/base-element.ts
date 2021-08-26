@@ -4,16 +4,20 @@ import { IZsMapBaseElementState } from '../interfaces';
 import OlMap from 'ol/Map';
 import { StateService } from '../state.service';
 
-export abstract class ZsMapBaseElement<T = IZsMapBaseElementState> {
+export abstract class ZsMapBaseElement<T> {
+  private _layer: string;
   protected _element: Observable<T>;
   protected _olFeature: Feature = new Feature();
+  protected _isInitialized = false;
   constructor(protected _id: string, protected _state: StateService) {}
 
   public getOlFeature(): Feature {
     return this._olFeature;
-  };
+  }
 
   public getId(): string {
     return this._id;
   }
+
+  protected abstract _initialize(coordinates: number[] | number[][]): void;
 }

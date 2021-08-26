@@ -11,6 +11,9 @@ export class ZsMapPolygonDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawE
   constructor(protected _id: string, protected _state: StateService) {
     super(_id, _state);
   }
+  protected _initialize(): void {
+    return;
+  }
   protected static _getOlDrawType(): GeometryType {
     return GeometryType.POLYGON;
   }

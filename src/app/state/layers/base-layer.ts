@@ -11,8 +11,8 @@ import { LineString, Point } from 'ol/geom';
 
 export class ZsMapBaseLayer {
   protected _layer: Observable<ZsMapLayerState>;
-  private _olSource = new VectorSource();
-  private _olLayer: VectorLayer = new VectorLayer({ source: this._olSource });
+  protected _olSource = new VectorSource();
+  protected _olLayer: VectorLayer = new VectorLayer({ source: this._olSource });
 
   constructor(protected _id: string, protected _state: StateService) {
     this._layer = this._state.observeMapState().pipe(
@@ -37,30 +37,20 @@ export class ZsMapBaseLayer {
     });
   }
 
-  public testAddPoint(coordinates: number[]): void {
-    const feature = new Feature({
-      geometry: new Point(coordinates),
-    });
-    feature.setStyle(
-      new Style({
-        image: new RegularShape({
-          fill: new Fill({ color: 'red' }),
-          // stroke: stroke,
-          points: 4,
-          radius: 10,
-          angle: Math.PI / 4,
-        }),
-      })
-    );
-    this._olSource.addFeature(feature);
-  }
-
   public getId(): string {
     return this._id;
   }
 
   public getOlLayer(): VectorLayer {
     return this._olLayer;
+  }
+
+  public addOlFeature(feature: Feature): void {
+    this._olSource.addFeature(feature);
+  }
+
+  public removeOlFeature(feature: Feature): void {
+    this._olSource.removeFeature(feature);
   }
 
   // public getOlSource(): VectorSource;

@@ -20,6 +20,7 @@ import OlMap from 'ol/Map';
 import { ZsMapBaseElement } from './elements/base-element';
 import { ZsMapBaseDrawElement } from './elements/base-draw-element';
 import { DrawElementHelper } from './helper/draw-element-helper';
+import { areArraysEqual } from './helper/array';
 
 // TODO move this to right position
 enablePatches();
@@ -148,6 +149,10 @@ export class StateService {
 
   // layers
 
+  public getLayer(layer: string): ZsMapBaseLayer {
+    return this._layerCache[layer];
+  }
+
   public getActiveLayer(): ZsMapBaseLayer {
     return this._layerCache[this._display.value.activeLayer];
   }
@@ -163,26 +168,29 @@ export class StateService {
 
   public observeLayers(): Observable<ZsMapBaseLayer[]> {
     return this._map.pipe(
-      map(
-        (o) => {
-          if (o?.layers) {
-            const layers: ZsMapBaseLayer[] = [];
-            for (const i of o.layers) {
-              if (this._layerCache[i.id]) {
-                layers.push(this._layerCache[i.id]);
-              } else {
-                const layer = new ZsMapDrawLayer(i.id, this);
-                this._layerCache[i.id] = layer;
-                layers.push(layer);
-              }
+      map((o) => {
+        if (o?.layers) {
+          const layers: ZsMapBaseLayer[] = [];
+          for (const i of o.layers) {
+            if (this._layerCache[i.id]) {
+              layers.push(this._layerCache[i.id]);
+            } else {
+              const layer = new ZsMapDrawLayer(i.id, this);
+              this._layerCache[i.id] = layer;
+              layers.push(layer);
             }
-            // TODO update cache
-            return layers;
           }
-          return [];
-        },
-        distinctUntilChanged((x, y) => x === y)
-      )
+          // TODO update cache
+          return layers;
+        }
+        return [];
+      }),
+      distinctUntilChanged((x, y) => {
+        return areArraysEqual(
+          x.map((o) => o.getId()).sort(),
+          y.map((o) => o.getId()).sort()
+        );
+      })
     );
   }
 
@@ -225,26 +233,29 @@ export class StateService {
 
   public observeDrawElements(): Observable<ZsMapBaseDrawElement[]> {
     return this._map.pipe(
-      map(
-        (o) => {
-          if (o?.drawElements) {
-            const elements: ZsMapBaseDrawElement[] = [];
-            for (const i of o.drawElements) {
-              if (this._drawElementCache[i.id]) {
-                elements.push(this._drawElementCache[i.id]);
-              } else {
-                const element = DrawElementHelper.createInstance(i.id, this);
-                this._drawElementCache[i.id] = element;
-                elements.push(element);
-              }
+      map((o) => {
+        if (o?.drawElements) {
+          const elements: ZsMapBaseDrawElement[] = [];
+          for (const i of o.drawElements) {
+            if (this._drawElementCache[i.id]) {
+              elements.push(this._drawElementCache[i.id]);
+            } else {
+              const element = DrawElementHelper.createInstance(i.id, this);
+              this._drawElementCache[i.id] = element;
+              elements.push(element);
             }
-            // TODO update cache
-            return elements;
           }
-          return [];
-        },
-        distinctUntilChanged((x, y) => x === y)
-      )
+          // TODO update cache
+          return elements;
+        }
+        return [];
+      }),
+      distinctUntilChanged((x, y) => {
+        return areArraysEqual(
+          x.map((o) => o.getId()).sort(),
+          y.map((o) => o.getId()).sort()
+        );
+      })
     );
   }
 
