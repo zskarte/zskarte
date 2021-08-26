@@ -108,65 +108,21 @@ export function getMostTopCoordinate(feature) {
   return symbolAnchorCoordinate;
 }
 
+export const signCategories: Map<string, { name: string; color: string }> =
+  new Map([
+    ['place', { name: 'place', color: '#0000FF' }],
+    ['formation', { name: 'formation', color: '#0000FF' }],
+    ['action', { name: 'action', color: '#0000FF' }],
+    ['damage', { name: 'damage', color: '#FF0000' }],
+    ['incident', { name: 'incident', color: '#FF0000' }],
+    ['danger', { name: 'danger', color: '#FF9100' }],
+    ['fks', { name: 'fks', color: '#948B68' }], // purple: B22CC6
+    ['effect', { name: 'effect', color: '#FFF333' }],
+    //['label',      {name:'label',      color:'#555555'}]
+  ]);
 
-export const signCategories = [
-  {
-    'name': 'place',
-    'color': '#0000FF'
-  },
-  {
-    'name': 'formations',
-    'color': '#0000FF'
-  },
-  {
-    'name': 'actions',
-    'color': '#0000FF'
-  },
-  {
-    'name': 'damage',
-    'color': '#FF0000'
-  },
-  {
-    'name': 'dangers',
-    'color': '#FF9100'
-  },
-  {
-    'name': 'fks',
-    'color': '#948B68'
-  },
-  {
-    'name': 'effects',
-    'color': '#948B68'
-  },
-  {
-    'name': 'labels',
-    'color': '#948B68'
-  }
-  ];
-
-export function getColorForCategory(kat: string) : string {
-  switch (kat) {
-    case 'blue':
-    case 'place':
-    case 'means':
-    case 'formations':
-      return '#0000FF';
-      break;
-    case 'red':
-    case 'damage':
-      return '#FF0000';
-      break;
-    case 'orange':
-    case 'dangers':
-      return '#FF9100';
-      break;
-    case 'other':
-    case 'fks':
-    case 'effects':
-    case 'labels':
-      return '#948B68';
-      break;
-  }
+export function getColorForCategory(kat: string): string {
+  return signCategories.has(kat) ? signCategories.get(kat).color : '#535353';
 }
 
 export function defineDefaultValuesForSignature(signature: Sign) {
@@ -222,7 +178,7 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.iconSize = 1;
   }
   if (!signature.iconOpacity) {
-    signature.iconOpacity = 1;
+    signature.iconOpacity = 0.5;
   }
   if (!signature.rotation) {
     signature.rotation = 1;

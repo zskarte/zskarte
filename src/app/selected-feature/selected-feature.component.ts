@@ -1,6 +1,10 @@
 import { Component, HostListener } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
-import { defineDefaultValuesForSignature, Sign } from '../entity/sign';
+import {
+  defineDefaultValuesForSignature,
+  Sign,
+  getColorForCategory,
+} from '../entity/sign';
 import { DrawStyle } from '../drawlayer/draw-style';
 import { I18NService } from '../i18n.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -78,14 +82,37 @@ export class SelectedFeatureComponent {
     );
   }
 
-  showMarkdown = false;
-
   groupedFeatures = null;
   editMode: boolean;
   selectedFeature: any = null;
   selectedSignature: Sign = null;
   drawHoleMode = false;
   mergeMode = false;
+
+  quickColors = [
+    {
+      value: getColorForCategory('damage'), // red
+      viewValue: 'damage',
+    },
+    {
+      value: getColorForCategory('action'), // blue
+      viewValue: 'resources',
+    },
+    {
+      value: getColorForCategory('danger'), //TODO
+      viewValue: 'danger',
+    },
+    {
+      value: getColorForCategory('effect'), // yellow #948B68
+      viewValue: 'effects',
+    },
+  ];
+
+  colorPicker = false;
+
+  toggleColorSelection() {
+    this.colorPicker = !this.colorPicker;
+  }
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {

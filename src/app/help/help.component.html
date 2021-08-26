@@ -1,12 +1,11 @@
-<app-language-chooser class="language"></app-language-chooser>
 <div mat-dialog-content>
   <mat-vertical-stepper>
     <mat-step [label]="i18n.get('docWelcomeTitle')" completed="false">
-      <div Markdown [data]="i18n.get('docWelcome')"></div>
+      <div [innerHTML]="i18n.get('docWelcome') | nl2br"></div>
     </mat-step>
     <mat-step [label]="i18n.get('createOrLoad')" completed="false">
       <div class="section">
-        <div class="description" Markdown [data]="i18n.get('docNewMap')"></div>
+        <div class="description" [innerHTML]="i18n.get('docNewMap') | nl2br"></div>
         <div class="screenshot"><img src="assets/doc/create_map.png" /></div>
       </div>
     </mat-step>
@@ -14,8 +13,8 @@
       <div class="section">
         <div
           class="description"
-          Markdown
-          [data]="i18n.get('docInitialView')"
+
+          [innerHTML]="i18n.get('docInitialView') | nl2br"
         ></div>
         <div class="screenshot"><img src="assets/doc/initial_view.jpg" /></div>
       </div>
@@ -24,21 +23,21 @@
       <div class="section">
         <div
           class="description"
-          Markdown
-          [data]="i18n.get('docMainMenu')"
+
+          [innerHTML]="i18n.get('docMainMenu') | nl2br"
         ></div>
         <div class="screenshot"><img src="assets/doc/main_menu.jpg" /></div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('findPlace')" completed="false">
       <div class="section">
-        <div class="description" Markdown [data]="i18n.get('docSearch')"></div>
+        <div class="description" [innerHTML]="i18n.get('docSearch') | nl2br"></div>
         <div class="screenshot"><img src="assets/doc/search.jpg" /></div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('draw')" completed="false">
       <div class="section">
-        <div class="description" Markdown [data]="i18n.get('docDraw')"></div>
+        <div class="description" [innerHTML]="i18n.get('docDraw') | nl2br"></div>
         <div class="screenshot"><img src="assets/doc/draw.jpg" /></div>
       </div>
     </mat-step>
@@ -46,8 +45,8 @@
       <div class="section">
         <div
           class="description"
-          Markdown
-          [data]="i18n.get('docSymbolSelection')"
+
+          [innerHTML]="i18n.get('docSymbolSelection') | nl2br"
         ></div>
         <div class="screenshot">
           <img src="assets/doc/symbolselection.jpg" /><img
@@ -60,8 +59,8 @@
       <div class="section">
         <div
           class="description"
-          Markdown
-          [data]="i18n.get('docSelection')"
+
+          [innerHTML]="i18n.get('docSelection') | nl2br"
         ></div>
         <div class="screenshot">
           <img src="assets/doc/selectiontext.jpg" />
@@ -74,7 +73,7 @@
     </mat-step>
     <mat-step [label]="i18n.get('filter')" completed="false">
       <div class="section">
-        <div class="description" Markdown [data]="i18n.get('docFilter')"></div>
+        <div class="description" [innerHTML]="i18n.get('docFilter') | nl2br"></div>
         <div class="screenshot"><img src="assets/doc/filter.jpg" /></div>
       </div>
     </mat-step>
@@ -82,8 +81,8 @@
       <div class="section">
         <div
           class="description"
-          Markdown
-          [data]="i18n.get('docCurrentDrawing')"
+
+          [innerHTML]="i18n.get('docCurrentDrawing') | nl2br"
         ></div>
         <div class="screenshot">
           <img src="assets/doc/currentdrawing.jpg" />
@@ -92,19 +91,19 @@
     </mat-step>
     <mat-step [label]="i18n.get('layers')" completed="false">
       <div class="section">
-        <div class="description" Markdown [data]="i18n.get('docLayers')"></div>
+        <div class="description" [innerHTML]="i18n.get('docLayers') | nl2br"></div>
         <div class="screenshot"><img src="assets/doc/layers.jpg" /></div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('history')" completed="false">
       <div class="section">
-        <div class="description" Markdown [data]="i18n.get('docHistory')"></div>
+        <div class="description" [innerHTML]="i18n.get('docHistory') | nl2br"></div>
         <div class="screenshot"><img src="assets/doc/historymode.jpg" /></div>
       </div>
     </mat-step>
     <!--<mat-step [label]="i18n.get('keyboardShortcutsTitle')" completed="false">
             <div class="section">
-                <div class="description" Markdown [data]="i18n.get('keyboardShortcuts')"></div>
+                <div class="description" [innerHTML]="i18n.get('keyboardShortcuts')"></div>
             </div>
         </mat-step>-->
   </mat-vertical-stepper>
