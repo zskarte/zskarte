@@ -164,7 +164,6 @@ export class DrawlayerComponent implements OnInit {
   rotating = false;
   initialRotation = 0;
 
-
   firstLoad = true;
   drawHole = new DrawHole({
     layers: [this.layer],
@@ -364,16 +363,17 @@ export class DrawlayerComponent implements OnInit {
     this.removeButton.getElement().style.display =
       show && !this.historyMode ? 'block' : 'none';
 
-
     let allowRotation = false;
     if (show) {
       const [pointX, pointY] = this.lastModificationPointCoordinates;
       const [iconX, iconY] = getFirstCoordinate(this.getSelectedFeature());
 
       // only show rotateButton if the feature has an icon and the selected point is where the icon is placed
-      allowRotation = this.getSelectedFeature()?.get('sig')?.src && pointX === iconX && pointY === iconY;
+      allowRotation =
+        this.getSelectedFeature()?.get('sig')?.src &&
+        pointX === iconX &&
+        pointY === iconY;
     }
-
 
     this.rotateButton.getElement().style.display =
       allowRotation && !this.historyMode ? 'block' : 'none';
@@ -411,9 +411,15 @@ export class DrawlayerComponent implements OnInit {
       }
     });
 
-    this.rotateButton.element.addEventListener('mousedown', () => this.startRotating());
-    this.rotateButton.element.addEventListener('touchstart', () => this.startRotating());
-    document.addEventListener('touchmove', this.onMouseMove.bind(this), { passive: false });
+    this.rotateButton.element.addEventListener('mousedown', () =>
+      this.startRotating()
+    );
+    this.rotateButton.element.addEventListener('touchstart', () =>
+      this.startRotating()
+    );
+    document.addEventListener('touchmove', this.onMouseMove.bind(this), {
+      passive: false,
+    });
 
     this.removeButton.element.addEventListener('click', (e) => {
       const coordinationGroup = this.getCoordinationGroupOfLastPoint();
@@ -531,9 +537,10 @@ export class DrawlayerComponent implements OnInit {
         this.select.changed();
       }
     });
-    this.sharedState.deletedFeature.subscribe((feature) =>
-      this.removeFeature(feature)
-    );
+    this.sharedState.deletedFeature.subscribe((feature) => {
+      this.selectedFeature = null;
+      this.removeFeature(feature);
+    });
     this.sharedState.currentSign.subscribe((sign) => this.startDrawing(sign));
     this.sharedState.drawHoleMode.subscribe((drawHole) =>
       this.doDrawHole(drawHole)
@@ -1085,7 +1092,7 @@ export class DrawlayerComponent implements OnInit {
           type: 'LineString',
           freehand: true,
           filterValue: 'free_hand_element',
-          createdAt: new Date()
+          createdAt: new Date(),
         });
         this.sharedState.selectFeature(event.feature);
       });
@@ -1110,7 +1117,6 @@ export class DrawlayerComponent implements OnInit {
     this.rotating = false;
   }
 
-
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent | TouchEvent) {
     if (!this.rotating) {
@@ -1131,8 +1137,8 @@ export class DrawlayerComponent implements OnInit {
 
     let pageX, pageY;
     if (event instanceof TouchEvent) {
-      pageX = event.targetTouches[event.targetTouches.length - 1].pageX
-      pageY = event.targetTouches[event.targetTouches.length - 1].pageY
+      pageX = event.targetTouches[event.targetTouches.length - 1].pageX;
+      pageY = event.targetTouches[event.targetTouches.length - 1].pageY;
     } else if (event instanceof MouseEvent) {
       pageX = event.pageX;
       pageY = event.pageY;
@@ -1140,8 +1146,11 @@ export class DrawlayerComponent implements OnInit {
 
     const rect = this.rotateButton.getElement().getBoundingClientRect();
 
-		const radians	= Math.atan2(pageX - (rect.x - this.ROTATE_OFFSET_X), pageY - (rect.y - this.ROTATE_OFFSET_Y));
-		const degrees	= Math.round((radians * (180 / Math.PI) * -1) + 100);
+    const radians = Math.atan2(
+      pageX - (rect.x - this.ROTATE_OFFSET_X),
+      pageY - (rect.y - this.ROTATE_OFFSET_Y)
+    );
+    const degrees = Math.round(radians * (180 / Math.PI) * -1 + 100);
     const rotation = degrees + this.initialRotation;
 
     // keep the rotation between -180 and 180
