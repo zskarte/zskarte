@@ -58,6 +58,9 @@
       </td>
       <td>{{ i18n.getLabelForSign(sign) }}</td>
       <td class="buttonCell">
+        <mat-icon aria-hidden="false" [aria-label]="sign.type">
+          {{ getIconFromType(sign.type) }}
+        </mat-icon>
         <button
           mat-stroked-button
           *ngIf="isCustomImage(sign)"
