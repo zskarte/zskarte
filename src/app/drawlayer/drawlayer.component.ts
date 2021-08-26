@@ -817,32 +817,40 @@ export class DrawlayerComponent implements OnInit {
   toCSVDataUrl() {
     let lines:string[] = new Array<string>();
     const result:{features:Feature} = this.writeFeatures();
-    console.log(result);
-    // @ts-ignore
-    const features:Feature[] = result.feature;
+    const features:Feature[] = result.features;
 
     // header
     let row:string[] = new Array<string>();
-    row.push('ID');
-    row.push('Date');
-    row.push('Type');
-    row.push('Location');
-    row.push('Name');
-    row.push('Description');
+    row.push(this.i18n.get('csvID'));
+    row.push(this.i18n.get('csvDate'));
+    row.push(this.i18n.get('csvGroup'));
+    row.push(this.i18n.get('csvSignatur'));
+    row.push(this.i18n.get('csvLocation'));
+    row.push(this.i18n.get('csvSize'));
+    row.push(this.i18n.get('csvLabel'));
+    row.push(this.i18n.get('csvDescription'));
     lines.push('"' + row.join('";"') + '"');
 
     // entry
     for(let i=0,l=features.length; i<l; i++) {
       let f:Feature = features[i];
+      if(!f.properties || !f.properties.sig) continue;
+      let s:Sign = f.properties.sig;
+      let sk:string = s.kat ? 'sign' + this.capitalizeFirstLetter(s.kat) : 'csvGroupArea';
+      //console.log('row', f);
+
       row = new Array<string>();
-      row.push(f.getId());
-      row.push('');
-      row.push(JSON.stringify(f.getGeometry()));
-      row.push(JSON.stringify(f.getGeometryName()));
-      row.push(JSON.stringify(f.getStyle()));
+      row.push(f.id);
+      row.push(s.createdAt.toString());
+      row.push(sk && this.i18n.has(sk) ? this.i18n.get(sk) : '');
+      row.push(this.i18n.locale == 'fr' ? s.fr : (this.i18n.locale == 'en' ? s.en : s.de));
+      row.push(JSON.stringify(f.geometry));
+      row.push(s.size ? s.size.replace('<sup>2</sup>', '2') : '');
+      row.push(s.label);
+      row.push(s.description);
 
       for(let ii=0,ll=row.length; ii<ll; ii++) {
-        row[ii] = row[ii].replace('"', '""');
+        row[ii] = row[ii] ? row[ii].replace('"', '""') : '';
       }
       lines.push('"' + row.join('";"') + '"');
     }
@@ -853,6 +861,11 @@ export class DrawlayerComponent implements OnInit {
       encodeURIComponent(lines.join("\r\n"))
     );
   }
+
+  capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
 
   clearDrawingArea() {
     this.recordChanges = false;

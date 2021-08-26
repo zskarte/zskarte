@@ -1094,7 +1094,53 @@ export class I18NService {
       de: 'Hinein zoomen',
       en: 'Zoom in',
       fr: 'Zoom in',
-    }
+    },
+    csvID: {
+      de: 'ID',
+      en: 'ID',
+      fr: 'ID',
+    },
+    csvDate: {
+      de: 'Erstelldatum',
+      en: 'Date created',
+      fr: 'Date de creation',
+    },
+    csvGroup: {
+      de: 'Gruppe',
+      en: 'Group',
+      fr: 'Groupe',
+    },
+    csvGroupArea: {
+      de: 'Bereich',
+      en: 'Area',
+      fr: 'Zone',
+    },
+    csvSignatur: {
+      de: 'Signatur',
+      en: 'Sign',
+      fr: 'Signature',
+    },
+    csvLocation: {
+      de: 'Koordinaten',
+      en: 'Coordinates',
+      fr: 'Coordonnées',
+    },
+    csvSize: {
+      de: 'Grösse',
+      en: 'Size',
+      fr: 'Dimension',
+    },
+    csvLabel: {
+      de: 'Bezeichnung',
+      en: 'Label',
+      fr: 'Désignation',
+    },
+    csvDescription: {
+      de: 'Beschreibung',
+      en: 'Description',
+      fr: 'Description',
+    },
+
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
@@ -1131,5 +1177,21 @@ export class I18NService {
     throw new Error(
       'Was not able to find an entry in translation table for key ' + key
     );
+  }
+  public has(key: string): boolean {
+    const element = I18NService.TRANSLATIONS[key];
+    if (element) {
+      const chosenLang = element[this.locale];
+      if (chosenLang) {
+        return true;
+      } else {
+        for (const locale of LOCALES) {
+          if (element[locale]) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 }

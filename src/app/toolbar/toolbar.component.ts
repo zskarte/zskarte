@@ -298,6 +298,9 @@ export class ToolbarComponent implements OnInit {
   }
 
   getDownloadFileName() {
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
     return 'zskarte_' + this.downloadTime + '.geojson';
   }
 
@@ -308,6 +311,9 @@ export class ToolbarComponent implements OnInit {
   }
 
   getDownloadFileNameCSV() {
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
     return 'zskarte_' + this.downloadTime + '.csv';
   }
 
