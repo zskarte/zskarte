@@ -12,6 +12,7 @@ import { SessionCreatorComponent } from '../session-creator/session-creator.comp
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
@@ -25,7 +26,8 @@ describe('ToolbarComponent', () => {
         MatFormFieldModule,
         MatInputModule,
         NoopAnimationsModule,
-        FormsModule
+        FormsModule,
+        HttpClientTestingModule
       ],
       providers: [
         { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) },

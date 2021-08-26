@@ -1,8 +1,17 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div class="application">
-  <app-map #map></app-map>
-  <app-drawlayer [inputMap]="map.map" #drawLayer></app-drawlayer>
-  <app-history></app-history>
-  <app-toolbar [drawLayer]="drawLayer"></app-toolbar>
-  <app-selected-feature></app-selected-feature>
+  <div style="z-index: 10; position: relative">
+    <app-toolbar [drawLayer]="drawLayer"></app-toolbar>
+  </div>
+  <mat-sidenav-container style="flex: 1">
+    <mat-sidenav position="end" mode="side" #sidenav style="width: 350px;">
+      <app-sidebar></app-sidebar>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <app-history></app-history>
+      <app-map #map [sidenav]="sidenav" style="height: 100%; width: 100%; display: block"></app-map>
+      <app-drawlayer [inputMap]="map.map" #drawLayer></app-drawlayer>
+      <app-selected-feature></app-selected-feature>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>

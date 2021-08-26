@@ -27,6 +27,26 @@ export class I18NService {
   }
 
   private static TRANSLATIONS = {
+    de: {
+      de: 'Deutsch',
+      en: 'German',
+      fr: 'Allemand',
+    },
+    fr: {
+      de: 'Französisch',
+      en: 'French',
+      fr: 'Francais',
+    },
+    en: {
+      de: 'Englisch',
+      en: 'English',
+      fr: 'Anglais',
+    },
+    language: {
+      de: 'Sprachen',
+      en: 'Languages',
+      fr: 'Languages',
+    },
     symbol: {
       de: 'Symbol',
       en: 'Symbol',
@@ -402,15 +422,10 @@ export class I18NService {
       en: 'Available layers',
       fr: 'Couches cartographiques disponibles',
     },
-    selectedLayers: {
-      de: 'Gewählte Ebene',
-      en: 'Selected layers',
-      fr: 'Couches cartographiques sélectionnées',
-    },
     currentMap: {
-      de: 'Aktuelle Karte',
-      fr: 'Carte actuelle',
-      en: 'Current map',
+      de: 'Basiskarten',
+      fr: 'Carte de base',
+      en: 'Base map',
     },
     otherMaps: {
       de: 'Andere Karten',
@@ -965,6 +980,16 @@ export class I18NService {
       en: 'TBD',
       fr: 'TBD',
     },
+    favoriteLayers: {
+      de: 'Favoriten',
+      en: 'Favorites',
+      fr: 'Favoris',
+    },
+    noMoreFavorites: {
+      de: 'Keine Favoriten mehr vorhanden',
+      en: 'No more favorites available',
+      fr: 'Pas de favoris',
+    },
     freeHand: {
       de: 'Freihand',
       en: 'Free hand',
@@ -1024,6 +1049,16 @@ export class I18NService {
       de: 'Ansicht wechseln',
       en: 'Change view',
       fr: 'Aligner la vue',
+    },
+    zoomOut: {
+      de: 'Heraus zoomen',
+      en: 'Zoom out',
+      fr: 'Zoom out',
+    },
+    zoomIn: {
+      de: 'Hinein zoomen',
+      en: 'Zoom in',
+      fr: 'Zoom in',
     }
   };
   private _locale: string = DEFAULT_LOCALE;

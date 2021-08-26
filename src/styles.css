@@ -3,8 +3,21 @@
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
 @import '~material-icons/iconfont/material-icons.css';
 
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
 body {
   font-family: sans-serif;
+}
+
+app-root {
+  display: block;
+  height: 100vh;
 }
 
 #functionsPanel .mat-expansion-indicator::after {
@@ -45,4 +58,9 @@ body {
 
 .section li {
   margin-bottom: 0.5em;
+}
+
+/* Fix for icon button https://github.com/angular/components/issues/8842 */
+.mat-icon-button {
+  /*line-height: 1;*/
 }

@@ -1,13 +1,13 @@
 import {
   ChangeDetectorRef,
-  Component,
+  Component, ElementRef,
   HostListener,
   Input,
   OnInit,
 } from '@angular/core';
 import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 import { SharedStateService } from '../shared-state.service';
-import { I18NService } from '../i18n.service';
+import {I18NService, LOCALES} from '../i18n.service';
 import { Session } from '../entity/session';
 import { SessionCreatorComponent } from '../session-creator/session-creator.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -88,6 +88,7 @@ export class ToolbarComponent implements OnInit {
   exportEnabled = true;
   downloadTime = null;
   downloadData = null;
+  locales: string[] = LOCALES;
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -268,14 +269,6 @@ export class ToolbarComponent implements OnInit {
     }
   }
 
-  zoomIn(): void {
-    this.sharedState.zoom.next(1);
-  }
-
-  zoomOut(): void {
-    this.sharedState.zoom.next(-1);
-  }
-
   help(): void {
     this.dialog.open(HelpComponent, { data: false });
   }
@@ -337,5 +330,9 @@ export class ToolbarComponent implements OnInit {
         this.mapStore.setTag(result).then(() => {});
       }
     });
+  }
+
+  setLocale(locale: string) {
+    this.i18n.locale = locale;
   }
 }

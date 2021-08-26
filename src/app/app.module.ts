@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
-import { LayersComponent } from './layers/layers.component';
 import { CreditsComponent } from './credits/credits.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MatMenuModule } from '@angular/material/menu';
@@ -34,7 +33,6 @@ import { MatListModule } from '@angular/material/list';
 import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
 import { SessionCreatorComponent } from './session-creator/session-creator.component';
 import { NgxMdModule } from 'ngx-md';
-import { LanguageChooserComponent } from './language-chooser/language-chooser.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -53,6 +51,8 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { registerLocaleData } from '@angular/common';
 import localeDeCh from '@angular/common/locales/de-CH';
 import {MatIconModule} from "@angular/material/icon";
+import {MatSidenavModule} from "@angular/material/sidenav";
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 registerLocaleData(localeDeCh)
 
@@ -83,7 +83,6 @@ const dbConfig: DBConfig = {
     AppComponent,
     MapComponent,
     DrawingtoolsComponent,
-    LayersComponent,
     CreditsComponent,
     ToolbarComponent,
     DrawingDialogComponent,
@@ -96,7 +95,6 @@ const dbConfig: DBConfig = {
     TextDialogComponent,
     SelectedFeatureComponent,
     SessionCreatorComponent,
-    LanguageChooserComponent,
     ConfirmationDialogComponent,
     ExportDialogComponent,
     MapLegendDisplayComponent,
@@ -105,6 +103,7 @@ const dbConfig: DBConfig = {
     EditCoordinatesComponent,
     DetailImageViewComponent,
     HelpComponent,
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,
@@ -132,6 +131,7 @@ const dbConfig: DBConfig = {
     MatSlideToggleModule,
     MatStepperModule,
     MatIconModule,
+    MatSidenavModule,
   ],
   entryComponents: [
     DrawingDialogComponent,

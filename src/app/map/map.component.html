@@ -1,6 +1,20 @@
-<div id="map" class="map"></div>
-<div id="maploader" #maploader>
-  <mat-progress-spinner color="primary" mode="indeterminate">
-  </mat-progress-spinner>
+<div style="position: relative; height: 100%; width: 100%;">
+  <div id="map" class="map"></div>
+  <div id="maploader" #maploader>
+    <mat-progress-spinner color="primary" mode="indeterminate">
+    </mat-progress-spinner>
+  </div>
+  <!--<div id="mouse-position"></div>-->
+
+  <div class="zoom noprint">
+    <button mat-icon-button (click)="zoomIn()" [attr.aria-label]="i18n.get('zoomIn')">
+      <mat-icon aria-hidden="false">zoom_in</mat-icon>
+    </button>
+    <button mat-icon-button (click)="zoomOut()" [attr.aria-label]="i18n.get('zoomOut')">
+      <mat-icon aria-hidden="false">zoom_out</mat-icon>
+    </button>
+    <button mat-icon-button (click)="sidenav.toggle()" [attr.aria-label]="i18n.get('layers')">
+      <mat-icon aria-hidden="false">layers</mat-icon>
+    </button>
+  </div>
 </div>
-<!--<div id="mouse-position"></div>-->

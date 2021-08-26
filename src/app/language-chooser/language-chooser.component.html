@@ -1,9 +1,0 @@
-<div class="flags">
-  <img
-    *ngFor="let locale of locales"
-    (click)="setLocale(locale)"
-    class="flag"
-    src="assets/img/flags/{{ locale }}.svg"
-    [ngClass]="{ active: locale === i18n.locale }"
-  />
-</div>

@@ -43,10 +43,3 @@ mat-form-field,
 mat-slider {
   width: 100%;
 }
-
-.allSelected:nth-child(even) div {
-  background: #ececec;
-}
-.allSelected:nth-child(odd) div {
-  background: #f3f3f3;
-}
