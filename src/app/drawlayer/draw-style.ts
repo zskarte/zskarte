@@ -660,10 +660,10 @@ export class DrawStyle {
         // Highlight the stroke to the icon
         iconStyles.push(
           new Style({
-            image: new Circle({
-              radius: iconRadius,
-              fill: DrawStyle.getColorFill('#fff5cb'),
-            }),
+            stroke: highlightStroke,
+            geometry: function (feature) {
+              return DrawStyle.createLineToIcon(feature, resolution);
+            },
             zIndex: zIndex,
           })
         );
@@ -702,7 +702,6 @@ export class DrawStyle {
           fill: this.getColorFill(`rgba(255, 255, 255, ${signature.iconOpacity})`),
           stroke: dashedStroke,
         });
-        // backgroundCircle.setOpacity(signature.iconOpacity || 1);
         iconStyles.push(
           new Style({
             image: backgroundCircle,
