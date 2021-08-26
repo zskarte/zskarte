@@ -1084,7 +1084,6 @@ export class I18NService {
       de: 'Hinein zoomen',
       en: 'Zoom in',
       fr: 'Zoom in',
-    }
     },
     tooltipSession: {
       de: 'Gültigkeitsdauer Ihrer Gastsitzung',

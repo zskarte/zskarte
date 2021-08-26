@@ -49,12 +49,13 @@ import { HelpComponent } from './help/help.component';
 import { MatStepperModule } from '@angular/material/stepper';
 import { registerLocaleData } from '@angular/common';
 import localeDeCh from '@angular/common/locales/de-CH';
-import {MatIconModule} from "@angular/material/icon";
-import {MatSidenavModule} from "@angular/material/sidenav";
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import {Nl2BrPipeModule} from "nl2br-pipe";
+import { Nl2BrPipeModule } from 'nl2br-pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-registerLocaleData(localeDeCh)
+registerLocaleData(localeDeCh);
 
 const dbConfig: DBConfig = {
   name: 'zskarte-db1',
@@ -132,6 +133,7 @@ const dbConfig: DBConfig = {
     MatIconModule,
     MatSidenavModule,
     Nl2BrPipeModule,
+    MatTooltipModule,
   ],
   entryComponents: [
     DrawingDialogComponent,
@@ -146,9 +148,7 @@ const dbConfig: DBConfig = {
     DetailImageViewComponent,
     HelpComponent,
   ],
-  providers: [
-    { provide: LOCALE_ID, useValue: 'de-CH'},
-  ],
+  providers: [{ provide: LOCALE_ID, useValue: 'de-CH' }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
