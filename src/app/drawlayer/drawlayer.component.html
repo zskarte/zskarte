@@ -14,23 +14,9 @@
 </button>
 <button mat-button class="coordinates" (click)="rotateProjection()">
   <span *ngIf="!selectedFeature">
-    <ng-container
-      *ngFor="let coordinate of mouseCoordinatesProjection; let isLast = last"
-    >
-      {{
-        coordinate
-          | number: availableProjections[selectedProjectionIndex].format
-      }}{{ isLast ? '' : ', ' }}
-    </ng-container></span
-  >
+    <ng-container>{{ availableProjections[selectedProjectionIndex].translate(mouseCoordinatesProjection) }}</ng-container>
+  </span>
   <span *ngIf="selectedFeature">
-    <ng-container
-      *ngFor="let coordinate of selectedFeatureCoordinates; let isLast = last"
-    >
-      {{
-        coordinate
-          | number: availableProjections[selectedProjectionIndex].format
-      }}{{ isLast ? '' : ', ' }}
-    </ng-container></span
-  >
+    <ng-container>{{ availableProjections[selectedProjectionIndex].translate(selectedFeatureCoordinates) }}</ng-container>
+  </span>
 </button>
