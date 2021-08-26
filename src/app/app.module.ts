@@ -9,7 +9,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
-import { ToolsComponent } from './tools/tools.component';
 import { CreditsComponent } from './credits/credits.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MatMenuModule } from '@angular/material/menu';
@@ -33,8 +32,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatListModule } from '@angular/material/list';
 import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
 import { SessionCreatorComponent } from './session-creator/session-creator.component';
-import { NgxMdModule } from 'ngx-md';
-import { LanguageChooserComponent } from './language-chooser/language-chooser.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -52,9 +49,10 @@ import { HelpComponent } from './help/help.component';
 import { MatStepperModule } from '@angular/material/stepper';
 import { registerLocaleData } from '@angular/common';
 import localeDeCh from '@angular/common/locales/de-CH';
+import {MatIconModule} from "@angular/material/icon";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import {Nl2BrPipeModule} from "nl2br-pipe";
 
 registerLocaleData(localeDeCh)
 
@@ -85,7 +83,6 @@ const dbConfig: DBConfig = {
     AppComponent,
     MapComponent,
     DrawingtoolsComponent,
-    ToolsComponent,
     CreditsComponent,
     ToolbarComponent,
     DrawingDialogComponent,
@@ -98,7 +95,6 @@ const dbConfig: DBConfig = {
     TextDialogComponent,
     SelectedFeatureComponent,
     SessionCreatorComponent,
-    LanguageChooserComponent,
     ConfirmationDialogComponent,
     ExportDialogComponent,
     MapLegendDisplayComponent,
@@ -109,34 +105,34 @@ const dbConfig: DBConfig = {
     HelpComponent,
     SidebarComponent,
   ],
-    imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
-        MatButtonModule,
-        MatSelectModule,
-        MatCardModule,
-        MatTabsModule,
-        MatMenuModule,
-        MatDialogModule,
-        HttpClientModule,
-        MatAutocompleteModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInputModule,
-        MatSliderModule,
-        MatTableModule,
-        MatRadioModule,
-        MatListModule,
-        NgxIndexedDBModule.forRoot(dbConfig),
-        NgxMdModule.forRoot(),
-        MatProgressSpinnerModule,
-        MatCheckboxModule,
-        MatExpansionModule,
-        MatSlideToggleModule,
-        MatStepperModule,
-        MatSidenavModule,
-        MatTooltipModule,
-    ],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatCardModule,
+    MatTabsModule,
+    MatMenuModule,
+    MatDialogModule,
+    HttpClientModule,
+    MatAutocompleteModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatSliderModule,
+    MatTableModule,
+    MatRadioModule,
+    MatListModule,
+    NgxIndexedDBModule.forRoot(dbConfig),
+    MatProgressSpinnerModule,
+    MatCheckboxModule,
+    MatExpansionModule,
+    MatSlideToggleModule,
+    MatStepperModule,
+    MatIconModule,
+    MatSidenavModule,
+    Nl2BrPipeModule,
+  ],
   entryComponents: [
     DrawingDialogComponent,
     ImportDialogComponent,

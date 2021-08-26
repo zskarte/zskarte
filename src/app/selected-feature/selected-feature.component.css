@@ -75,8 +75,21 @@ mat-slider {
   margin-bottom: 1em;
   color: #787878;
   white-space: nowrap;
+  border-top: 1px solid #787878;
+  line-height: 1.2em;
+  padding-top: 5px;
 }
-
+.label-left {
+  float: left;
+}
+.label-right {
+  float: right;
+}
+.clearfix::after {
+  content: '';
+  display: table;
+  clear: both;
+}
 .title {
   text-align: center;
   font-size: 1.2em;

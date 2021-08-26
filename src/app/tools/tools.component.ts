@@ -49,17 +49,15 @@ export class ToolsComponent implements OnInit {
       !this.sharedState.featureSource.getValue() &&
       event.altKey
     ) {
-      switch (event.key) {
-        case 'i':
+      switch (event.code) {
+        case 'KeyI':
           this.importData();
           break;
-        case 'd':
-          this.download();
-          break;
-        case 't':
+        case 'KeyT':
           this.tagState();
           break;
         case 'Delete':
+        case 'Backspace':
           this.clear();
           break;
       }
