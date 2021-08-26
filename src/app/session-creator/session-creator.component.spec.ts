@@ -9,10 +9,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { LanguageChooserComponent } from '../language-chooser/language-chooser.component';
 
 import { SessionCreatorComponent } from './session-creator.component';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {Nl2BrPipeModule} from "nl2br-pipe";
 
 describe('SessionCreatorComponent', () => {
   let component: SessionCreatorComponent;
@@ -28,9 +28,10 @@ describe('SessionCreatorComponent', () => {
         MatCheckboxModule,
         NoopAnimationsModule,
         FormsModule,
-        HttpClientTestingModule
+        HttpClientTestingModule,
+        Nl2BrPipeModule,
       ],
-      declarations: [ SessionCreatorComponent, ConfirmationDialogComponent, LanguageChooserComponent ],
+      declarations: [ SessionCreatorComponent, ConfirmationDialogComponent ],
       providers: [
         { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
         { provide: MAT_DIALOG_DATA, useValue: {} },

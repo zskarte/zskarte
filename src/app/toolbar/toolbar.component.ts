@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 import { SharedStateService } from '../shared-state.service';
-import { I18NService } from '../i18n.service';
+import {I18NService, LOCALES} from '../i18n.service';
 import { Session } from '../entity/session';
 import { SessionCreatorComponent } from '../session-creator/session-creator.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,7 +19,9 @@ import { ExportDialogComponent } from '../export-dialog/export-dialog.component'
 import { DisplayMode } from '../entity/displayMode';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { HelpComponent } from '../help/help.component';
-import {MatSidenav, MatSidenavContainer} from "@angular/material/sidenav";
+import {ImportDialogComponent} from "../import-dialog/import-dialog.component";
+import {DomSanitizer} from "@angular/platform-browser";
+import {TagStateComponent} from "../tag-state/tag-state.component";
 
 @Component({
   selector: 'app-toolbar',
@@ -47,7 +49,7 @@ export class ToolbarComponent implements OnInit {
     private preferences: PreferencesService,
     private sessions: SessionsService,
     private mapStore: MapStoreService,
-    public toolbarRoot: ElementRef,
+    private sanitizer: DomSanitizer,
   ) {
     this.sharedState.displayMode.subscribe((mode) => {
       this.historyMode = mode === DisplayMode.HISTORY;
@@ -63,6 +65,11 @@ export class ToolbarComponent implements OnInit {
         this.createInitialSession();
       }
     });
+    this.sharedState.historyDate.subscribe((historyDate) =>
+      historyDate === 'now'
+        ? (this.downloadTime = new Date().toISOString())
+        : (this.downloadTime = historyDate)
+    );
     if (this.initialLaunch) {
       this.dialog.open(HelpComponent, {
         data: true,
@@ -79,6 +86,9 @@ export class ToolbarComponent implements OnInit {
   filterSymbols: any[];
   collapsed: boolean;
   exportEnabled = true;
+  downloadTime = null;
+  downloadData = null;
+  locales: string[] = LOCALES;
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -170,7 +180,7 @@ export class ToolbarComponent implements OnInit {
     this.sharedState.session.subscribe((s) => {
       this.session = s;
       if (s) {
-        let currentZSO = this.preferences.getZSO();
+        const currentZSO = this.preferences.getZSO();
         this.exportEnabled = currentZSO != null && currentZSO.id != 'zso_guest';
         this.preferences.setLastSessionId(s.uuid);
       }
@@ -184,6 +194,9 @@ export class ToolbarComponent implements OnInit {
       }
     }
     this.createInitialSession();
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
   }
 
   private filterAll(active: boolean) {
@@ -258,5 +271,68 @@ export class ToolbarComponent implements OnInit {
 
   help(): void {
     this.dialog.open(HelpComponent, { data: false });
+  }
+
+  importData(): void {
+    const dialogRef = this.dialog.open(ImportDialogComponent, {
+      maxWidth: '80vw',
+      maxHeight: '80vh',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.value) {
+        this.dialog
+          .open(ConfirmationDialogComponent, {
+            data: result.replace
+              ? this.i18n.get('confirmImportDrawing')
+              : this.i18n.get('confirmImportDrawingNoReplace'),
+          })
+          .afterClosed()
+          .subscribe((confirmed) => {
+            if (confirmed) {
+              this.drawLayer.loadFromString(result.value, true, result.replace);
+            }
+          });
+      }
+    });
+  }
+
+  getDownloadFileName() {
+    return 'zskarte_' + this.downloadTime + '.geojson';
+  }
+
+  download(): void {
+    this.downloadData = this.sanitizer.bypassSecurityTrustUrl(
+      this.drawLayer.toDataUrl()
+    );
+  }
+
+  print(): void {
+    window.print();
+  }
+
+  clear(): void {
+    this.dialog
+      .open(ConfirmationDialogComponent, {
+        data: this.i18n.get('confirmClearDrawing'),
+      })
+      .afterClosed()
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.drawLayer.removeAll();
+        }
+      });
+  }
+
+  tagState(): void {
+    const dialogRef = this.dialog.open(TagStateComponent);
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.mapStore.setTag(result).then(() => {});
+      }
+    });
+  }
+
+  setLocale(locale: string) {
+    this.i18n.locale = locale;
   }
 }

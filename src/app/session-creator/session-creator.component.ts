@@ -6,7 +6,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
-import { I18NService } from '../i18n.service';
+import {I18NService, LOCALES} from '../i18n.service';
 import { Session } from '../entity/session';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -20,7 +20,7 @@ import { SessionsService } from '../sessions.service';
 import { MapStoreService } from '../map-store.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { Md5 } from 'ts-md5';
-import { MatDialogModule } from '@angular/material/dialog';
+
 @Component({
   selector: 'app-session-creator',
   templateUrl: './session-creator.component.html',
@@ -35,6 +35,7 @@ export class SessionCreatorComponent implements OnInit {
   editMode: boolean;
   listOfZSO: ZSO[] = LIST_OF_ZSO;
   allSessions = null;
+  locales: string[] = LOCALES;
 
   @ViewChild('fileInput', { static: false }) el: ElementRef;
 
