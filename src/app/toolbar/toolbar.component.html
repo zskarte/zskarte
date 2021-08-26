@@ -8,108 +8,161 @@
     <div class="tools">
       <div class="flexContainer alignCenter flex-gap">
         <mat-card-title class="title">{{ session.title }}</mat-card-title>
+        <app-geocoder
+          style="flex: 1; margin-top: -0.08em"
+          [drawLayer]="drawLayer"
+        ></app-geocoder>
         <div class="spacer"></div>
         <div class="clock">
           <app-clock></app-clock>
         </div>
+        <mat-menu #mainMenu="matMenu" class="burger-menu">
+          <button mat-menu-item (click)="$event.stopPropagation()">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('exportSession')"
+            >history</mat-icon>
+            {{ i18n.get('history') }}
+            <mat-slide-toggle
+              (toggleChange)="toggleHistory()"
+              [checked]="historyMode"
+            ></mat-slide-toggle>
+          </button>
+          <button mat-menu-item (click)="createOrLoadSession()" *ngIf="!historyMode">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('createOrLoad')"
+              >swap_calls</mat-icon
+            >
+            {{ i18n.get('createOrLoad') }}
+          </button>
+          <button mat-menu-item (click)="editSession()" *ngIf="!historyMode">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('editMap')"
+              >edit</mat-icon
+            >
+            {{ i18n.get('editMap') }}
+          </button>
+          <button mat-menu-item (click)="exportSession()" *ngIf="exportEnabled">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('exportSession')"
+              >save</mat-icon
+            >
+            {{ i18n.get('exportSession') }}
+          </button>
+          <button mat-menu-item (click)="deleteSession()" *ngIf="!historyMode">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('deleteMap')"
+              >delete</mat-icon
+            >
+            {{ i18n.get('deleteMap') }}
+          </button>
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            (click)="importData()"
+            *ngIf="!historyMode"
+          >
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('import')"
+              >open_in_browser</mat-icon
+            >
+            {{ i18n.get('import') }}
+          </button>
+          <a
+            mat-menu-item
+            [download]="getDownloadFileName()"
+            id="export"
+            class="tools-menu-item"
+            (click)="download()"
+            [href]="downloadData"
+            ><mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('download')"
+              >save</mat-icon
+            >
+            {{ i18n.get('download') }}</a
+          >
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            (click)="tagState()"
+            *ngIf="!historyMode"
+          >
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('tagState')"
+              >note</mat-icon
+            >
+            {{ i18n.get('tagState') }}
+          </button>
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            (click)="print()"
+            *ngIf="!historyMode"
+          >
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('print')"
+              >local_printshop</mat-icon
+            >
+            {{ i18n.get('print') }}
+          </button>
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            [matMenuTriggerFor]="languages"
+          >
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('language')"
+              >language</mat-icon
+            >
+            Sprachen
+          </button>
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            (click)="clear()"
+            *ngIf="!historyMode"
+          >
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')"
+              >logout</mat-icon
+            >
+            {{ i18n.get('logout') }}
+          </button>
+          <button mat-menu-item (click)="help()">
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')"
+              >help</mat-icon
+            >
+            {{ i18n.get('help') }}
+          </button>
+        </mat-menu>
+        <mat-menu #languages="matMenu">
+          <button
+            mat-menu-item
+            *ngFor="let locale of locales"
+            (click)="setLocale(locale)"
+            [ngClass]="{ active: locale === i18n.locale }"
+          >
+            {{ i18n.get(locale) }}
+          </button>
+        </mat-menu>
         <button
           mat-stroked-button
           size="small"
           color="primary"
           class="noprint hideWhenCollapsed edit"
           [matMenuTriggerFor]="mainMenu"
-          *ngIf="!historyMode"
         >
           <mat-icon aria-hidden="false">menu</mat-icon>
-        </button>
-        <button
-          class="collapse"
-          (click)="collapsed = !collapsed"
-          *ngIf="collapsed"
-          [attr.aria-label]="i18n.get('expand')"
-        >
-          <mat-icon aria-hidden="false">expand_more</mat-icon>
         </button>
       </div>
       <mat-card-content
         class="flexContainer noprint hideWhenCollapsed alignCenter flex-gap"
       >
-        <app-geocoder
-          style="flex: 1; margin-top: -0.08em"
-          [drawLayer]="drawLayer"
-        ></app-geocoder>
-        <app-drawingtools *ngIf="!historyMode"></app-drawingtools>
-        <!--<a class="mat-stroked-button" download="map.jpg"><span class="mat-button-wrapper"><i class="material-icons">photo_camera</i> Screenshot</span></a>-->
-        <button
-          *ngIf="!historyMode"
-          mat-stroked-button
-          (click)="sharedState.toggleFreeHandDraw()"
-          [class.active]="sharedState.freeHandDraw | async"
-        >
-          <i class="material-icons">gesture</i>
-        </button>
-        <app-tools [drawLayer]="drawLayer"></app-tools>
-        <mat-slide-toggle
-          (toggleChange)="toggleHistory()"
-          [checked]="historyMode"
-          >{{ i18n.get('history') }}</mat-slide-toggle
-        >
-        <button
-          class="collapse"
-          *ngIf="!collapsed"
-          (click)="collapsed = !collapsed"
-        >
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('expand')">expand_less</mat-icon>
-        </button>
       </mat-card-content>
-
-      <mat-menu #mainMenu="matMenu" class="burger-menu">
-        <button mat-menu-item (click)="createOrLoadSession()">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('createOrLoad')">swap_calls</mat-icon>
-          {{ i18n.get('createOrLoad') }}
-        </button>
-        <button mat-menu-item (click)="editSession()">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('editMap')">edit</mat-icon> {{ i18n.get('editMap') }}
-        </button>
-        <button mat-menu-item (click)="exportSession()" *ngIf="exportEnabled">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">save</mat-icon> {{ i18n.get('exportSession') }}
-        </button>
-        <button mat-menu-item (click)="deleteSession()">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteMap')">delete</mat-icon> {{ i18n.get('deleteMap') }}
-        </button>
-        <button mat-menu-item class="tools-menu-item" (click)="importData()" *ngIf="!historyMode">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('import')">open_in_browser</mat-icon> {{ i18n.get('import') }}
-        </button>
-        <a
-          mat-menu-item
-          [download]="getDownloadFileName()"
-          id="export"
-          class="tools-menu-item"
-          (click)="download()"
-          [href]="downloadData"
-        ><mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('download')">save</mat-icon> {{ i18n.get('download') }}</a
-        >
-        <button mat-menu-item class="tools-menu-item" (click)="tagState()" *ngIf="!historyMode">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('tagState')">note</mat-icon> {{ i18n.get('tagState') }}
-        </button>
-        <button mat-menu-item class="tools-menu-item" (click)="print()" *ngIf="!historyMode">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('print')">local_printshop</mat-icon> {{ i18n.get('print') }}
-        </button>
-        <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="languages">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('language')">language</mat-icon> Sprachen
-        </button>
-        <button mat-menu-item class="tools-menu-item" (click)="clear()" *ngIf="!historyMode">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon> {{ i18n.get('logout') }}
-        </button>
-        <button mat-menu-item (click)="help()">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon> {{ i18n.get('help') }}
-        </button>
-      </mat-menu>
-      <mat-menu #languages="matMenu">
-        <button mat-menu-item *ngFor="let locale of locales"
-                 (click)="setLocale(locale)"
-                 [ngClass]="{ active: locale === i18n.locale }">{{ i18n.get(locale) }}</button>
-      </mat-menu>
     </div>
   </div>
   <div
@@ -135,7 +188,9 @@
         (click)="drawLayer.toggleFilter(symbol)"
       >
         <img *ngIf="symbol.src" [src]="symbol.src" [title]="symbol.label" />
-        <mat-icon aria-hidden="false" *ngIf="symbol.icon">{{ symbol.icon }}</mat-icon>
+        <mat-icon aria-hidden="false" *ngIf="symbol.icon">{{
+          symbol.icon
+        }}</mat-icon>
       </button>
     </div>
   </div>

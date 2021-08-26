@@ -84,7 +84,7 @@ export class ToolbarComponent implements OnInit {
   historyMode: boolean;
   filterKeys: any[];
   filterSymbols: any[];
-  collapsed: boolean;
+  collapsed: boolean = true;
   exportEnabled = true;
   downloadTime = null;
   downloadData = null;

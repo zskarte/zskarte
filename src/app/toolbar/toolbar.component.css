@@ -99,9 +99,6 @@ app-credits {
   white-space: nowrap;
 }
 
-.collapsed .hideWhenCollapsed {
-  display: none;
-}
 
 .collapse {
   appearance: none;
