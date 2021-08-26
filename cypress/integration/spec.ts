@@ -43,8 +43,6 @@ describe('Signup and draw', () => {
       .click(600, 300)
       .click(500, 200);
 
-    cy.wait(100);
-
-    cy.get('app-selected-feature mat-label').contains('Name');
+    cy.get('mat-label').contains('Name');
   });
 });
