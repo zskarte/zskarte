@@ -55,6 +55,7 @@ import localeDeCh from '@angular/common/locales/de-CH';
 import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { SidebarFiltersComponent } from './sidebar-filters/sidebar-filters.component';
+import { SidebarRootComponent } from './sidebar-root/sidebar-root.component';
 
 registerLocaleData(localeDeCh)
 
@@ -109,6 +110,7 @@ const dbConfig: DBConfig = {
     HelpComponent,
     SidebarComponent,
     SidebarFiltersComponent,
+    SidebarRootComponent,
   ],
     imports: [
         BrowserModule,

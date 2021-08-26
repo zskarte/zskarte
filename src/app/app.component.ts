@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {SharedStateService} from "./shared-state.service";
+import {SharedStateService, SidebarContext} from "./shared-state.service";
 
 @Component({
   selector: 'app-root',
@@ -9,8 +9,10 @@ import {SharedStateService} from "./shared-state.service";
 export class AppComponent implements OnInit {
   title = 'zsKarteAng';
 
+  SidebarContext = SidebarContext;
+
   public constructor(
-    private sharedState: SharedStateService
+    public sharedState: SharedStateService
   ) {
     sharedState.fetchData();
   }

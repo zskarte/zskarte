@@ -13,10 +13,10 @@
     <button mat-icon-button (click)="zoomOut()">
       <i class="material-icons">zoom_out</i>
     </button>
-    <button mat-icon-button (click)="sidenav.toggle()">
+    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Layers);">
       <i class="material-icons">layers</i>
     </button>
-    <button mat-icon-button (click)="sidenavFilters.toggle()">
+    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Filters);">
       <i class="material-icons">filter_alt</i>
     </button>
   </div>
