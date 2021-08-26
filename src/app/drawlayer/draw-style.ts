@@ -683,25 +683,6 @@ export class DrawStyle {
         );
       }
 
-      // Draw a circle if it is a geometry with a clear anchor coordinate (e.g. a "point")
-      if (feature.getGeometry().getType() === 'Point') {
-        const point = new Circle({
-          radius: scale * 50,
-          fill: this.getColorFill(signature.color),
-          stroke: highlightStroke,
-        });
-        point.setOpacity(signature.iconOpacity || 1);
-        iconStyles.push(
-          new Style({
-            image: point,
-            geometry: function (feature) {
-              return new Point(DrawStyle.getAnchorCoordinate(feature));
-            },
-            zIndex: zIndex,
-          })
-        );
-      }
-
       if (showIcon) {
         // Draw a dashed line to the icon
         iconStyles.push(
@@ -718,10 +699,9 @@ export class DrawStyle {
         // Draw a circle below the icon
         const backgroundCircle = new Circle({
           radius: iconRadius,
-          fill: this.getColorFill('#FFFFFF'),
+          fill: this.getColorFill(`rgba(255, 255, 255, ${signature.iconOpacity})`),
           stroke: dashedStroke,
         });
-        backgroundCircle.setOpacity(signature.iconOpacity || 1);
         iconStyles.push(
           new Style({
             image: backgroundCircle,
@@ -792,7 +772,6 @@ export class DrawStyle {
           anchorXUnits: 'fraction',
           anchorYUnits: 'fraction',
           scale: scaledSize ? scaledSize : scale * 2.5 * signature.iconSize,
-          opacity: signature.iconOpacity || 1,
           rotation:
             signature.rotation !== undefined
               ? (signature.rotation * Math.PI) / 180
@@ -1008,7 +987,7 @@ export class DrawStyle {
         case 'MultiPolygon':
         case 'LineString':
           return new Style({
-            stroke: DrawStyle.getHighlightStroke(feature, scale),
+            stroke: DrawStyle.getHighlightStroke(feature, scale)
           });
       }
     }

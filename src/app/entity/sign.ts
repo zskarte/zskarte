@@ -178,7 +178,7 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.iconSize = 1;
   }
   if (!signature.iconOpacity) {
-    signature.iconOpacity = 1;
+    signature.iconOpacity = 0.5;
   }
   if (!signature.rotation) {
     signature.rotation = 1;
