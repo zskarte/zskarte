@@ -26,6 +26,7 @@ import {MatSidenav} from "@angular/material/sidenav";
 export class MapComponent implements OnInit {
   @ViewChild('maploader', { static: false }) loader: ElementRef;
   @Input() sidenav: MatSidenav;
+  @Input() sidenavFilters: MatSidenav;
 
   map: OlMap = null;
   layer: Layer;
