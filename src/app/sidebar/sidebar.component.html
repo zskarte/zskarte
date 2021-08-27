@@ -22,7 +22,7 @@
         </mat-slider>
       </div>
       <div *ngFor="let layer of sharedState.getAvailableLayers()">
-        <button mat-menu-item (click)="sharedState.switchToLayer(layer)">
+        <button mat-menu-item (click)="switchLayer(layer)">
           {{ layer.name }}
         </button>
       </div>
