@@ -125,31 +125,4 @@
       </mat-menu>
     </div>
   </div>
-  <div
-    class="filterWrapper noprint hideWhenCollapsed"
-    *ngIf="filterSymbols && filterSymbols.length > 0"
-  >
-    <div class="fixedFilter">
-      {{ i18n.get('filter') }}:
-      <button mat-icon-button (click)="filterAll(false)">
-        <mat-icon aria-hidden="false">visibility</mat-icon>
-      </button>
-      <button mat-icon-button class="allButton" (click)="filterAll(true)">
-        <mat-icon aria-hidden="false">visibility_off</mat-icon>
-      </button>
-    </div>
-    <div class="filterButtons">
-      <button
-        mat-stroked-button
-        [class]="
-          drawLayer.isSigFiltered(symbol) ? 'active filterItem' : 'filterItem'
-        "
-        *ngFor="let symbol of filterSymbols"
-        (click)="drawLayer.toggleFilter(symbol)"
-      >
-        <img *ngIf="symbol.src" [src]="symbol.src" [title]="symbol.label" />
-        <mat-icon aria-hidden="false" *ngIf="symbol.icon">{{ symbol.icon }}</mat-icon>
-      </button>
-    </div>
-  </div>
 </mat-card>

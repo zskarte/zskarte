@@ -1085,6 +1085,11 @@ export class I18NService {
       en: 'All categories',
       fr: 'Toutes catégories',
     },
+    categories: {
+      de: 'Kategorien',
+      en: 'Categories',
+      fr: 'Catégories',
+    },
     logout: {
       de: 'Sitzung beenden',
       en: 'End session',
@@ -1104,6 +1109,31 @@ export class I18NService {
       de: 'Hinein zoomen',
       en: 'Zoom in',
       fr: 'Zoom in',
+    },
+    filters: {
+      de: 'Filter',
+      en: 'Filters',
+      fr: 'Filtre',
+    },
+    generalFilters: {
+      de: 'Globale Filter',
+      en: 'Global filters',
+      fr: 'Filtre globale',
+    },
+    showAllElements: {
+      de: 'Alle Elemente anzeigen',
+      en: 'Show all elements',
+      fr: 'Afficher tout',
+    },
+    hideAllElements: {
+      de: 'Alle Elemente verstecken',
+      en: 'Hide all elements',
+      fr: 'Tout cacher',
+    },
+    hideShow : {
+      de: 'anzeigen/verstecken',
+      en: 'show/hide',
+      fr: 'afficher/cacher',
     },
     csvID: {
       de: 'ID',

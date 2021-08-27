@@ -118,6 +118,11 @@ export function createGeoAdminLayer(
   });
 }
 
+export enum SidebarContext {
+  Layers,
+  Filters,
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -204,6 +209,9 @@ export class SharedStateService {
   selectedFeatures = this.selectedFeaturesSource.asObservable();
 
   availableLayers = new BehaviorSubject<any>(null);
+
+  private sidebarContextSource = new BehaviorSubject<SidebarContext>(null);
+  sidebarContext = this.sidebarContextSource.asObservable();
 
   private static getFromQueryParam(
     queryParam: string,
@@ -403,5 +411,9 @@ export class SharedStateService {
 
   disableFreeHandDraw(): void {
     this.isFreeHandDrawEnabled.next(false);
+  }
+
+  setSidebarContext(context: SidebarContext) {
+    this.sidebarContextSource.next(context);
   }
 }

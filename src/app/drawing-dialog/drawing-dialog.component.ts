@@ -8,6 +8,7 @@ import { I18NService } from '../i18n.service';
 import { CustomImagesComponent } from '../custom-images/custom-images.component';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import capitalizeFirstLetter from '../lib/capitalizeFirstLetter';
 
 @Component({
   selector: 'app-drawing-dialog',
@@ -20,6 +21,8 @@ export class DrawingDialogComponent implements OnInit {
   filteredSigns: Sign[] = [];
   selected: string = null;
   signCategories = Array.from(signCategories.values());
+
+  capitalizeFirstLetter = capitalizeFirstLetter;
 
   isCustomImage(sign: Sign) {
     return CustomImageStoreService.isCustomImage(sign.src);
@@ -72,10 +75,6 @@ export class DrawingDialogComponent implements OnInit {
   select(sign: Sign) {
     // We need to pass a deep copy of the object
     this.dialogRef.close(JSON.parse(JSON.stringify(sign)));
-  }
-
-  capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
   editSymbol(sign: Sign) {

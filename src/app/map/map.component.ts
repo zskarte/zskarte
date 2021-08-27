@@ -2,7 +2,7 @@ import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import { transform } from 'ol/proj';
-import { SharedStateService } from '../shared-state.service';
+import {SharedStateService, SidebarContext} from '../shared-state.service';
 import { Layer } from '../layers/layer';
 import { coordinatesProjection, mercatorProjection } from '../projections';
 import Feature from 'ol/Feature';
@@ -25,7 +25,6 @@ import {MatSidenav} from "@angular/material/sidenav";
 })
 export class MapComponent implements OnInit {
   @ViewChild('maploader', { static: false }) loader: ElementRef;
-  @Input() sidenav: MatSidenav;
 
   map: OlMap = null;
   layer: Layer;
@@ -42,6 +41,8 @@ export class MapComponent implements OnInit {
     source: this.navigationSource,
   });
 
+  SidebarContext = SidebarContext;
+
   scaleControl = () => {
     return new ScaleLine({
       units: 'metric',
@@ -53,7 +54,7 @@ export class MapComponent implements OnInit {
   };
 
   constructor(
-    private sharedState: SharedStateService,
+    public sharedState: SharedStateService,
     private preferences: PreferencesService,
     public i18n: I18NService
   ) {

@@ -52,7 +52,10 @@ import localeDeCh from '@angular/common/locales/de-CH';
 import {MatIconModule} from "@angular/material/icon";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { SidebarFiltersComponent } from './sidebar-filters/sidebar-filters.component';
+import { SidebarRootComponent } from './sidebar-root/sidebar-root.component';
 import {Nl2BrPipeModule} from "nl2br-pipe";
+import {MatGridListModule} from "@angular/material/grid-list";
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 registerLocaleData(localeDeCh)
@@ -105,6 +108,8 @@ const dbConfig: DBConfig = {
     DetailImageViewComponent,
     HelpComponent,
     SidebarComponent,
+    SidebarFiltersComponent,
+    SidebarRootComponent,
   ],
   imports: [
     BrowserModule,
@@ -133,6 +138,7 @@ const dbConfig: DBConfig = {
     MatIconModule,
     MatSidenavModule,
     Nl2BrPipeModule,
+    MatGridListModule,
     MatSnackBarModule,
   ],
   entryComponents: [
