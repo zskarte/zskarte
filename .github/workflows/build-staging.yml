@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - master
+      - dev
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
         with:
           switches: -avzr --delete --exclude '/.htaccess'
           path: dist/zskarte/
-          remote_path: ${{ secrets.SERVER_PATH_LIVE }}
+          remote_path: ${{ secrets.SERVER_PATH_DEV }}
           remote_host: ${{ secrets.SERVER_HOSTNAME }}
           remote_user: ${{ secrets.SERVER_LOGIN }}
           remote_key: ${{ secrets.SERVER_SSH_KEY }}
