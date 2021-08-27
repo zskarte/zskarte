@@ -32,13 +32,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Cypress install
-        uses: cypress-io/github-action@v2
-        with:
-          runTests: false
-
       - name: npm run test and npm run e2e
         run: |
-          npm install
+          export CYPRESS_CACHE_FOLDER=~/.cache/Cypress
+          npm ci
+          export CYPRESS_CACHE_FOLDER=cache/Cypress
           npm run test:ci
           npm run e2e
