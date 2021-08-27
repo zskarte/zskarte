@@ -1,4 +1,4 @@
-<mat-card [class]="collapsed ? 'collapsed toolbar' : 'toolbar'" *ngIf="session">
+<mat-card class="toolbar" *ngIf="session">
   <div class="flexContainer alignCenter">
     <div class="credits">
       <div class="flexContainer">
@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="tools">
-      <div class="flexContainer alignCenter flex-gap">
+      <div class="flexContainer alignCenter justifySpace flex-gap">
         <mat-card-title class="title">{{ session.title }}</mat-card-title>
         <div class="justify">
           <app-geocoder
@@ -14,19 +14,20 @@
             [drawLayer]="drawLayer"
           ></app-geocoder>
         </div>
-        <div class="spacer"></div>
-        <div class="clock">
-          <app-clock></app-clock>
+        <div class="right-header">
+          <div class="clock">
+            <app-clock></app-clock>
+          </div>
+          <button
+            mat-stroked-button
+            size="small"
+            color="primary"
+            class="noprint hideWhenCollapsed edit"
+            [matMenuTriggerFor]="mainMenu"
+          >
+            <mat-icon aria-hidden="false">menu</mat-icon>
+          </button>
         </div>
-        <button
-          mat-stroked-button
-          size="small"
-          color="primary"
-          class="noprint hideWhenCollapsed edit"
-          [matMenuTriggerFor]="mainMenu"
-        >
-          <mat-icon aria-hidden="false">menu</mat-icon>
-        </button>
         <mat-menu #mainMenu="matMenu" class="burger-menu">
           <button mat-menu-item (click)="$event.stopPropagation();">
             <mat-icon

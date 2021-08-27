@@ -7,10 +7,14 @@ mat-form-field {
   display: flex;
 }
 
-mat-form-field.searchBar ::ng-deep .mat-form-field-infix {
-  padding: 0.5em 0;
+.geocoder {
+  display: flex;
+  gap: 10px;
 }
 
+.input {
+  min-width: 250px;
+}
 
 .currentLocation {
   display: flex;
@@ -21,11 +25,6 @@ mat-form-field.searchBar ::ng-deep .mat-form-field-infix {
 .currentLocation img {
   height: 1.5em;
   margin-right: 1em;
-}
-
-.geocoder {
-  height: 3em;
-  display: flex;
 }
 
 .currentLocationLabel{
