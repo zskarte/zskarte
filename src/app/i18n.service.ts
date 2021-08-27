@@ -1180,7 +1180,11 @@ export class I18NService {
       en: 'Description',
       fr: 'Description',
     },
-
+    tooltipSession: {
+      de: 'Gültigkeitsdauer Ihrer Gastsitzung',
+      en: 'Period of validity of your guest session',
+      fr: 'Période de validité de votre session',
+    },
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
