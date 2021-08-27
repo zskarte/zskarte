@@ -22,6 +22,8 @@ export enum ZsMapDisplayMode {
 export interface IZsMapDisplayState {
   displayMode: ZsMapDisplayMode;
   mapOpacity: number;
+  mapCenter: number[];
+  mapZoom: number;
   activeLayer: string;
   layerVisibility: Record<string, boolean>;
   layerOpacity: Record<string, number>;

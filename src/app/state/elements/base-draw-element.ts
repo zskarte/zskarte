@@ -10,12 +10,14 @@ import { Options } from 'ol/interaction/Draw';
 import { Geometry } from 'ol/geom';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { IZsMapDrawElementUi } from '../draw-element-ui.interfaces';
+import { ZsMapOLFeatureProps } from './ol-feature-props';
 
 export abstract class ZsMapBaseDrawElement<
   T extends IZsMapBaseDrawElementState = IZsMapBaseDrawElementState
 > extends ZsMapBaseElement<T> {
   constructor(protected _id: string, protected _state: StateService) {
     super(_id, _state);
+    this._olFeature.set(ZsMapOLFeatureProps.IS_DRAW_ELEMENT, true);
     this._element = this._state.observeMapState().pipe(
       map((o) => {
         return o.drawElements?.find((o) => o.id === this._id) as any;

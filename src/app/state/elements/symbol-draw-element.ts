@@ -8,13 +8,18 @@ import { ZsMapBaseDrawElement } from './base-draw-element';
 import GeometryType from 'ol/geom/GeometryType';
 import { Point } from 'ol/geom';
 import { Fill, RegularShape, Style } from 'ol/style';
+import { ZsMapOLFeatureProps } from './ol-feature-props';
 
 export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElementState> {
   protected _olPoint: Point;
   protected _olStyles: Style;
   constructor(protected _id: string, protected _state: StateService) {
     super(_id, _state);
-
+    this._olFeature.set(
+      ZsMapOLFeatureProps.DRAW_ELEMENT_TYPE,
+      ZsMapDrawElementStateType.SYMBOL
+    );
+    this._olFeature.set(ZsMapOLFeatureProps.DRAW_ELEMENT_ID, this._id);
     this.observeCoordinates().subscribe((coordinates) => {
       if (
         !this._olPoint &&

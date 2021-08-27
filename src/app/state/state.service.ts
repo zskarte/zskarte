@@ -65,6 +65,8 @@ export class StateService {
     return {
       mapOpacity: 1,
       displayMode: ZsMapDisplayMode.DRAW,
+      mapCenter: [0, 0],
+      mapZoom: 16,
       activeLayer: null,
       layerOpacity: {},
       layerVisibility: {},
@@ -90,7 +92,10 @@ export class StateService {
     return this._elementToDraw.asObservable();
   }
 
-  public reset(newMapState?: IZsMapState, newDisplayState?: IZsMapDisplayState): void {
+  public reset(
+    newMapState?: IZsMapState,
+    newDisplayState?: IZsMapDisplayState
+  ): void {
     this.resetDisplayState(newDisplayState);
     this.resetMapState(newMapState);
   }
@@ -111,12 +116,12 @@ export class StateService {
 
   public loadMapState(map: IZsMapState) {
     console.log('load map state', map);
-    this.reset(map)
+    this.reset(map);
   }
 
   public loadSavedMapState(): void {
     const state = JSON.parse(localStorage.getItem('tempMapState'));
-    this.resetMapState(state)
+    this.resetMapState(state);
   }
 
   public saveMapState(): void {
@@ -129,7 +134,7 @@ export class StateService {
 
   public loadSavedDisplayState(): void {
     const state = JSON.parse(localStorage.getItem('tempDisplayState'));
-    this.resetDisplayState(state)
+    this.resetDisplayState(state);
   }
 
   public saveDisplayState(): void {
@@ -141,6 +146,38 @@ export class StateService {
 
   public observeDisplayState(): Observable<IZsMapDisplayState> {
     return this._display.asObservable();
+  }
+
+  // zoom
+  public observeMapZoom(): Observable<number> {
+    return this._display.pipe(
+      map((o) => {
+        return o?.mapZoom;
+      }),
+      distinctUntilChanged((x, y) => x === y)
+    );
+  }
+
+  public setMapZoom(zoom: number) {
+    this.updateDisplayState((draft) => {
+      draft.mapZoom = zoom;
+    });
+  }
+
+  // center
+  public observeMapCenter(): Observable<number[]> {
+    return this._display.pipe(
+      map((o) => {
+        return o?.mapCenter;
+      }),
+      distinctUntilChanged((x, y) => areArraysEqual(x, y))
+    );
+  }
+
+  public setMapCenter(coordinates: number[]) {
+    this.updateDisplayState((draft) => {
+      draft.mapCenter = coordinates;
+    });
   }
 
   // source

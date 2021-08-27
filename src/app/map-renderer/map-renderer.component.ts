@@ -11,7 +11,6 @@ import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import { defaults, Draw, Select, Translate } from 'ol/interaction';
 import { StateService } from '../state/state.service';
-import { ZsMapStateSource } from '../state/interfaces';
 import OlTileLayer from 'ol/layer/Tile';
 
 import { Subject } from 'rxjs';
@@ -20,7 +19,8 @@ import { ZsMapSources } from '../state/map-sources';
 import { ZsMapBaseLayer } from '../state/layers/base-layer';
 import { DrawElementHelper } from '../state/helper/draw-element-helper';
 import { ZsMapBaseDrawElement } from '../state/elements/base-draw-element';
-import { DrawStyle } from '../drawlayer/draw-style';
+import { areArraysEqual } from '../state/helper/array';
+import { ZsMapOLFeatureProps } from '../state/elements/ol-feature-props';
 
 @Component({
   selector: 'app-map-renderer',
@@ -28,9 +28,9 @@ import { DrawStyle } from '../drawlayer/draw-style';
   styleUrls: ['./map-renderer.component.css'],
 })
 export class MapRendererComponent implements OnInit, OnDestroy {
-  // @ViewChild('mapLoader', { static: false }) loader: ElementRef;
   private _ngUnsubscribe = new Subject();
   private _map: OlMap;
+  private _view: OlView;
   private _mapLayer = new OlTileLayer({
     zIndex: 0,
   });
@@ -41,10 +41,7 @@ export class MapRendererComponent implements OnInit, OnDestroy {
   > = {};
   private _currentDrawInteraction: Draw;
 
-  constructor(
-    private _preferences: PreferencesService,
-    private _state: StateService
-  ) {
+  constructor(private _state: StateService) {
     // this.positionFlag.setStyle(
     //   new Style({
     //     image: new Icon({
@@ -69,24 +66,64 @@ export class MapRendererComponent implements OnInit, OnDestroy {
       style: null,
       hitTolerance: 10,
     });
+    select.on('select', (event) => {
+      for (const feature of event.selected) {
+        console.log('selected element', {
+          isDrawElement: feature.get(ZsMapOLFeatureProps.IS_DRAW_ELEMENT),
+          type: feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_TYPE),
+          id: feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID),
+        });
+        // TODO write to display state selectedDrawElements
+      }
+    });
 
     // TODO
     const translate = new Translate({
       features: select.getFeatures(),
     });
 
+    this._view = new OlView({
+      center: [849861.97, 5905812.55], // TODO get from newly implemented session
+      zoom: 16, // TODO get from newly implemented session
+    });
+
     this._map = new OlMap({
       target: 'map',
-      view: new OlView({
-        center: [849861.97, 5905812.55], // TODO
-        zoom: 16, // TODO
-      }),
+      view: this._view,
       controls: [],
       interactions: defaults({
         doubleClickZoom: false,
         pinchRotate: false,
         shiftDragZoom: false,
       }).extend([select, translate]),
+    });
+
+    this._map.on('moveend', (event) => {
+      this._state.setMapCenter(this._view.getCenter());
+    });
+
+    this._view.on('change:resolution', (event) => {
+      this._state.setMapZoom(this._view.getZoom());
+    });
+
+    this._state.observeMapCenter().subscribe((center) => {
+      if (!areArraysEqual(this._view.getCenter(), center)) {
+        // TODO remove this
+        if (!center[0] && !center[1]) {
+          center = [849861.97, 5905812.55];
+        }
+        this._view.setCenter(center);
+      }
+    });
+
+    this._state.observeMapZoom().subscribe((zoom) => {
+      if (this._view.getZoom() !== zoom) {
+        // TODO remove this
+        if (!zoom) {
+          zoom = 16;
+        }
+        this._view.setZoom(zoom);
+      }
     });
 
     this._map.addLayer(this._mapLayer);
