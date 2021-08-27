@@ -56,6 +56,7 @@ import { SidebarFiltersComponent } from './sidebar-filters/sidebar-filters.compo
 import { SidebarRootComponent } from './sidebar-root/sidebar-root.component';
 import {Nl2BrPipeModule} from "nl2br-pipe";
 import {MatGridListModule} from "@angular/material/grid-list";
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 registerLocaleData(localeDeCh)
 
@@ -138,6 +139,7 @@ const dbConfig: DBConfig = {
     MatSidenavModule,
     Nl2BrPipeModule,
     MatGridListModule,
+    MatSnackBarModule,
   ],
   entryComponents: [
     DrawingDialogComponent,

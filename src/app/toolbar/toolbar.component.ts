@@ -82,6 +82,7 @@ export class ToolbarComponent implements OnInit {
   exportEnabled = true;
   downloadTime = null;
   downloadData = null;
+  downloadCSVData = null;
   locales: string[] = LOCALES;
 
   @HostListener('window:keydown', ['$event'])
@@ -218,12 +219,28 @@ export class ToolbarComponent implements OnInit {
   }
 
   getDownloadFileName() {
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
     return 'zskarte_' + this.downloadTime + '.geojson';
   }
 
   download(): void {
     this.downloadData = this.sanitizer.bypassSecurityTrustUrl(
       this.drawLayer.toDataUrl()
+    );
+  }
+
+  getDownloadFileNameCSV() {
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
+    return 'zskarte_' + this.downloadTime + '.csv';
+  }
+
+  downloadCSV(): void {
+    this.downloadCSVData = this.sanitizer.bypassSecurityTrustUrl(
+      this.drawLayer.toCSVDataUrl()
     );
   }
 
