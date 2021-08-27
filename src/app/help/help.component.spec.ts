@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { HelpComponent } from './help.component';
-import {Nl2BrPipeModule} from "nl2br-pipe";
+import { Nl2BrPipeModule } from 'nl2br-pipe';
 
 describe('HelpComponent', () => {
   let component: HelpComponent;
@@ -12,14 +12,10 @@ describe('HelpComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [Nl2BrPipeModule],
-      declarations: [ HelpComponent ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} }
-      ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      declarations: [HelpComponent],
+      providers: [{ provide: MAT_DIALOG_DATA, useValue: {} }],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

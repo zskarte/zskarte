@@ -6,7 +6,7 @@
       color="primary"
       *ngFor="let sign of signs"
       [title]="i18n.getLabelForSign(sign)"
-      (click)="selectSign(sign)"
+      (click)="doSelectSign(sign)"
     >
       <img [src]="getImageUrl(sign.src)" />
     </button>

@@ -8,10 +8,10 @@ import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
 
-import {DrawlayerComponent} from './drawlayer.component';
+import { DrawlayerComponent } from './drawlayer.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
-import {HttpClientTestingModule} from "@angular/common/http/testing";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('DrawlayerComponent', () => {
   let component: DrawlayerComponent;
@@ -19,18 +19,20 @@ describe('DrawlayerComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        MatDialogModule,
-        HttpClientTestingModule
-      ],
+      imports: [MatDialogModule, HttpClientTestingModule],
       providers: [
-        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) }
+        {
+          provide: NgxIndexedDBService,
+          useValue: jasmine.createSpyObj('NgxIndexedDBService', ['add']),
+        },
       ],
-      declarations: [ DrawlayerComponent, ConfirmationDialogComponent, EditCoordinatesComponent ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      declarations: [
+        DrawlayerComponent,
+        ConfirmationDialogComponent,
+        EditCoordinatesComponent,
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {
@@ -44,55 +46,67 @@ describe('DrawlayerComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should caluculate coordinates for selected Point', inject([SharedStateService], (sharedStateService: SharedStateService) => {
-    component.ngOnInit();
+  it('should caluculate coordinates for selected Point', inject(
+    [SharedStateService],
+    (sharedStateService: SharedStateService) => {
+      component.ngOnInit();
 
-    // Point to Test (near Belp Flughafen)
-    const coordinates =  [834167.2, 5927775.4]
-    component.selectedProjectionIndex = 0;
+      // Point to Test (near Belp Flughafen)
+      const coordinates = [834167.2, 5927775.4];
+      component.selectedProjectionIndex = 0;
 
-    component.selectedFeature = new Feature({
-      geometry: new Point(coordinates),
-    });
-    sharedStateService.featureSource.next(component.selectedFeature);
+      component.selectedFeature = new Feature({
+        geometry: new Point(coordinates),
+      });
+      sharedStateService.featureSource.next(component.selectedFeature);
 
-    // check LV95
-    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(2604176, 0.1);
-    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(1195693, 0.1);
+      // check LV95
+      expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(2604176, 0.1);
+      expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(1195693, 0.1);
 
-    component.rotateProjection();
+      component.rotateProjection();
 
-    // check WGS84
-    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.4, 0.01);
-    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(47, 0.01);
-  }));
+      // check WGS84
+      expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.4, 0.01);
+      expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(47, 0.01);
+    }
+  ));
 
-  it('should calculate coordinates for selected Polygon', inject([SharedStateService], (sharedStateService: SharedStateService) => {
-    component.ngOnInit();
+  it('should calculate coordinates for selected Polygon', inject(
+    [SharedStateService],
+    (sharedStateService: SharedStateService) => {
+      component.ngOnInit();
 
-    // Polygon to Test (near Belp Flughafen)
-    const coordinates = [
-      [
-        [ 833840.87, 5928429.10 ],
-        [ 835857.35, 5928204 ],
-        [ 833840.87, 5928429.10 ]
-      ]
-    ];
+      // Polygon to Test (near Belp Flughafen)
+      const coordinates = [
+        [
+          [833840.87, 5928429.1],
+          [835857.35, 5928204],
+          [833840.87, 5928429.1],
+        ],
+      ];
 
-    component.selectedProjectionIndex = 0;
-    component.selectedFeature = new Feature({
-      geometry: new Polygon(coordinates),
-    });
-    sharedStateService.featureSource.next(component.selectedFeature);
+      component.selectedProjectionIndex = 0;
+      component.selectedFeature = new Feature({
+        geometry: new Polygon(coordinates),
+      });
+      sharedStateService.featureSource.next(component.selectedFeature);
 
-    // check LV95
-    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(2604642.5, 0.1);
-    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(1196062.5, 0.1);
+      // check LV95
+      expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(
+        2604642.5,
+        0.1
+      );
+      expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(
+        1196062.5,
+        0.1
+      );
 
-    component.rotateProjection();
+      component.rotateProjection();
 
-    // check WGS84
-    expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.4, 0.01);
-    expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(46.9, 0.01);
-  }));
+      // check WGS84
+      expect(component.selectedFeatureCoordinates[0]).toBeCloseTo(7.4, 0.01);
+      expect(component.selectedFeatureCoordinates[1]).toBeCloseTo(46.9, 0.01);
+    }
+  ));
 });

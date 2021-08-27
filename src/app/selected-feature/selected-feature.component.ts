@@ -218,7 +218,7 @@ export class SelectedFeatureComponent {
 
   addImage() {
     const dialogRef = this.dialog.open(DrawingDialogComponent, {
-      data: {drawLayer: this.drawLayer}
+      data: { drawLayer: this.drawLayer },
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.src) {

@@ -25,7 +25,7 @@ export class RecentlyUsedSignsComponent implements OnInit {
   }
 
   @Input() drawLayer: DrawlayerComponent;
-  @Output() select: EventEmitter<Sign> = new EventEmitter<Sign>();
+  @Output() selectSign: EventEmitter<Sign> = new EventEmitter<Sign>();
 
   private signsSource: Sign[] = [];
   private readonly signsMaxLength = 10;
@@ -44,8 +44,8 @@ export class RecentlyUsedSignsComponent implements OnInit {
     }
   }
 
-  selectSign(sign: Sign) {
-    this.select.emit(sign);
+  doSelectSign(sign: Sign) {
+    this.selectSign.emit(sign);
   }
 
   extractSymbol(f: Feature): Sign {

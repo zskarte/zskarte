@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {SharedStateService} from "../shared-state.service";
-import {I18NService} from "../i18n.service";
+import { SharedStateService } from '../shared-state.service';
+import { I18NService } from '../i18n.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MapLegendDisplayComponent } from '../map-legend-display/map-legend-display.component';
 import { Layer } from '../layers/layer';

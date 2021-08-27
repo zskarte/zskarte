@@ -1,5 +1,8 @@
 <form class="signSelect">
-  <app-recently-used-signs [drawLayer]="drawLayer" (select)="select($event)"></app-recently-used-signs>
+  <app-recently-used-signs
+    [drawLayer]="drawLayer"
+    (selectSign)="select($event)"
+  ></app-recently-used-signs>
   <table class="selectionTable">
     <tr>
       <th class="symbolCol">{{ i18n.get('symbol') }}</th>
@@ -28,7 +31,8 @@
           <mat-label>{{ i18n.get('filterByCategory') }}</mat-label>
           <mat-select
             [(value)]="selected"
-            (selectionChange)="updateAvailableSigns()">
+            (selectionChange)="updateAvailableSigns()"
+          >
             <mat-option>{{ i18n.get('allCategories') }}</mat-option>
             <mat-option
               *ngFor="let category of signCategories"

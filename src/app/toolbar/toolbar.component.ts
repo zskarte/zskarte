@@ -1,13 +1,14 @@
 import {
   ChangeDetectorRef,
-  Component, ElementRef,
+  Component,
+  ElementRef,
   HostListener,
   Input,
   OnInit,
 } from '@angular/core';
 import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 import { SharedStateService } from '../shared-state.service';
-import {I18NService, LOCALES} from '../i18n.service';
+import { I18NService, LOCALES } from '../i18n.service';
 import { Session } from '../entity/session';
 import { SessionCreatorComponent } from '../session-creator/session-creator.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,9 +20,9 @@ import { ExportDialogComponent } from '../export-dialog/export-dialog.component'
 import { DisplayMode } from '../entity/displayMode';
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { HelpComponent } from '../help/help.component';
-import {ImportDialogComponent} from "../import-dialog/import-dialog.component";
-import {DomSanitizer} from "@angular/platform-browser";
-import {TagStateComponent} from "../tag-state/tag-state.component";
+import { ImportDialogComponent } from '../import-dialog/import-dialog.component';
+import { DomSanitizer } from '@angular/platform-browser';
+import { TagStateComponent } from '../tag-state/tag-state.component';
 
 @Component({
   selector: 'app-toolbar',
@@ -49,7 +50,7 @@ export class ToolbarComponent implements OnInit {
     private preferences: PreferencesService,
     private sessions: SessionsService,
     private mapStore: MapStoreService,
-    private sanitizer: DomSanitizer,
+    private sanitizer: DomSanitizer
   ) {
     this.sharedState.displayMode.subscribe((mode) => {
       this.historyMode = mode === DisplayMode.HISTORY;

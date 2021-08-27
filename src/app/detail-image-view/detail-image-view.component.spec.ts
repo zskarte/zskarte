@@ -10,14 +10,10 @@ describe('DetailImageViewComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ DetailImageViewComponent ],
-      providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
-      ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      declarations: [DetailImageViewComponent],
+      providers: [{ provide: MAT_DIALOG_DATA, useValue: {} }],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

@@ -1,15 +1,15 @@
-import {Component, HostListener, OnInit} from '@angular/core';
-import {DrawingDialogComponent} from "../drawing-dialog/drawing-dialog.component";
-import {TextDialogComponent} from "../text-dialog/text-dialog.component";
-import {MatDialog} from "@angular/material/dialog";
-import {SharedStateService} from "../shared-state.service";
-import {I18NService} from "../i18n.service";
-import {DisplayMode} from "../entity/displayMode";
+import { Component, HostListener, OnInit } from '@angular/core';
+import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.component';
+import { TextDialogComponent } from '../text-dialog/text-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { SharedStateService } from '../shared-state.service';
+import { I18NService } from '../i18n.service';
+import { DisplayMode } from '../entity/displayMode';
 
 @Component({
   selector: 'app-fab-menu',
   templateUrl: './fab-menu.component.html',
-  styleUrls: ['./fab-menu.component.css']
+  styleUrls: ['./fab-menu.component.css'],
 })
 export class FabMenuComponent implements OnInit {
   text: string = null;
@@ -21,7 +21,7 @@ export class FabMenuComponent implements OnInit {
     public textDialog: MatDialog,
     private sharedState: SharedStateService,
     public i18n: I18NService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.sharedState.displayMode.subscribe((mode) => {
@@ -60,7 +60,7 @@ export class FabMenuComponent implements OnInit {
     const dialogRef = this.drawDialog.open(DrawingDialogComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
-      if(result) {
+      if (result) {
         this.sharedState.selectSign(result);
       }
       this.closeBackdrop();

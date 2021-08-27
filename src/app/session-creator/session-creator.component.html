@@ -1,7 +1,17 @@
 <!--<div class="modal-dialog">-->
-<div *ngIf="!editMode" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-  <h1 mat-dialog-title style="margin-bottom: 0;">{{ i18n.get('sessionCreatorTitle') }}</h1>
-  <mat-select style="flex-grow: 0; width: 150px;" [(value)]="i18n.locale">
+<div
+  *ngIf="!editMode"
+  style="
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  "
+>
+  <h1 mat-dialog-title style="margin-bottom: 0">
+    {{ i18n.get('sessionCreatorTitle') }}
+  </h1>
+  <mat-select style="flex-grow: 0; width: 150px" [(value)]="i18n.locale">
     <mat-option *ngFor="let locale of locales" [value]="locale">
       {{ i18n.get(locale) }}
     </mat-option>
@@ -48,10 +58,7 @@
         </small>
 
         <div *ngIf="session.zsoId !== 'zso_guest'">
-          <mat-checkbox
-            name="mapDataOvertake"
-            [(ngModel)]="mapDataOvertake"
-          >
+          <mat-checkbox name="mapDataOvertake" [(ngModel)]="mapDataOvertake">
             {{ i18n.get('mapDataOvertake') }}
           </mat-checkbox>
         </div>
@@ -94,7 +101,7 @@
               />
             </td>
             <td>{{ session.title }}</td>
-            <td>{{ session.start | date:'dd.MM.yyyy HH:mm:ss' }}</td>
+            <td>{{ session.start | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
             <td class="buttons">
               <button
                 mat-stroked-button

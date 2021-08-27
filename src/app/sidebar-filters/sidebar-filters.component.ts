@@ -1,19 +1,18 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {SharedStateService} from "../shared-state.service";
-import {DrawlayerComponent} from "../drawlayer/drawlayer.component";
-import {DisplayMode} from "../entity/displayMode";
-import {CustomImageStoreService} from "../custom-image-store.service";
-import {I18NService} from "../i18n.service";
-import {signCategories} from "../entity/sign";
+import { Component, Input, OnInit } from '@angular/core';
+import { SharedStateService } from '../shared-state.service';
+import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
+import { DisplayMode } from '../entity/displayMode';
+import { CustomImageStoreService } from '../custom-image-store.service';
+import { I18NService } from '../i18n.service';
+import { signCategories } from '../entity/sign';
 import capitalizeFirstLetter from '../lib/capitalizeFirstLetter';
 
 @Component({
   selector: 'app-sidebar-filters',
   templateUrl: './sidebar-filters.component.html',
-  styleUrls: ['./sidebar-filters.component.css']
+  styleUrls: ['./sidebar-filters.component.css'],
 })
 export class SidebarFiltersComponent implements OnInit {
-
   filterSymbols: any[];
   historyMode: boolean;
   filterKeys: any[];
@@ -26,8 +25,8 @@ export class SidebarFiltersComponent implements OnInit {
 
   constructor(
     public i18n: I18NService,
-    private sharedState: SharedStateService,
-  ) { }
+    private sharedState: SharedStateService
+  ) {}
 
   ngOnInit(): void {
     this.sharedState.showMapLoader.subscribe((l) => {
@@ -119,8 +118,7 @@ export class SidebarFiltersComponent implements OnInit {
   }
 
   public filterCategory(category) {
-    const signs = this.filterSymbols.filter(s => s.kat === category);
-    signs.forEach(s => this.drawLayer.toggleFilter(s));
+    const signs = this.filterSymbols.filter((s) => s.kat === category);
+    signs.forEach((s) => this.drawLayer.toggleFilter(s));
   }
-
 }
