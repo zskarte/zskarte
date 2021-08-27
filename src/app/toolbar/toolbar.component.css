@@ -99,9 +99,3 @@ app-geocoder{
   gap: 10px;
   align-items: center;
 }
-
-.mat-menu-content {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
