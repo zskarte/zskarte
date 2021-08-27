@@ -16,16 +16,27 @@
         <div class="clock">
           <app-clock></app-clock>
         </div>
+        <button
+          mat-stroked-button
+          size="small"
+          color="primary"
+          class="noprint hideWhenCollapsed edit"
+          [matMenuTriggerFor]="mainMenu"
+        >
+          <mat-icon aria-hidden="false">menu</mat-icon>
+        </button>
         <mat-menu #mainMenu="matMenu" class="burger-menu">
-          <button mat-menu-item (click)="$event.stopPropagation()">
+          <button mat-menu-item (click)="$event.stopPropagation();">
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('exportSession')"
-            >history</mat-icon>
+              >history</mat-icon
+            >
             {{ i18n.get('history') }}
             <mat-slide-toggle
               (toggleChange)="toggleHistory()"
               [checked]="historyMode"
+              color="primary"
             ></mat-slide-toggle>
           </button>
           <button mat-menu-item (click)="createOrLoadSession()" *ngIf="!historyMode">
@@ -149,15 +160,6 @@
             {{ i18n.get(locale) }}
           </button>
         </mat-menu>
-        <button
-          mat-stroked-button
-          size="small"
-          color="primary"
-          class="noprint hideWhenCollapsed edit"
-          [matMenuTriggerFor]="mainMenu"
-        >
-          <mat-icon aria-hidden="false">menu</mat-icon>
-        </button>
       </div>
       <mat-card-content
         class="flexContainer noprint hideWhenCollapsed alignCenter flex-gap"
