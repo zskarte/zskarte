@@ -9,6 +9,13 @@
 
 mat-card-title {
   margin-bottom: 0;
+  white-space:nowrap;
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 300px;
+  flex-shrink: 0;
+
 }
 
 .spacer {
@@ -19,13 +26,8 @@ mat-card-title {
   align-items: flex-start;
 }
 
-.collapsed app-credits {
-  height: 2.5em;
-}
-
 app-credits {
-  height: 4.5em;
-  padding: 0;
+  height: 2.5em;
 }
 
 .tools {
@@ -43,40 +45,29 @@ app-credits {
   font-size: 0.9em;
 }
 
-.collapse .credits {
-  height: 2.5em;
-}
 
-.collapse {
-  align-items: flex-end;
-  cursor: pointer;
-  margin-left: 0.75em;
-}
 
 .mat-card-content {
   margin-bottom: 0;
 }
 
 .edit {
-  font-size: 18px;
-  line-height: 20px;
+  height: 42px;
+  width: 42px;
+  min-width: 0;
+  padding: 0;
+}
+
+.hamburger {
+  font-size: 29px;
+  line-height: 27px;
   height: 29px;
+  width: 29px;
 }
 
 .toolbar {
   padding: 0.5em;
   border-radius: 0;
-}
-
-.collapsed .hideWhenCollapsed {
-  display: none;
-}
-
-.collapse {
-  appearance: none;
-  border: none;
-  outline: none;
-  background: transparent;
 }
 
 .mat-menu-item {
@@ -95,9 +86,23 @@ app-credits {
   background-color: #d3d3d3;
 }
 
+.justifySpace {
+  justify-content: space-between;
+}
+
+app-geocoder{
+  max-width: 300px;
+}
+
+.right-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 hr.separator {
   margin: 0;
   height: 1px;
   background-color: rgba(0,0,0,0.1);
-  border: none;  
+  border: none;
 }

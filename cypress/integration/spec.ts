@@ -33,8 +33,8 @@ describe('Signup and draw', () => {
   });
 
   it('Should draw polygon', () => {
-    cy.get('app-drawingtools button').click();
-    cy.get('button[mat-menu-item]').contains('Polygon').click();
+    cy.get('.fab-menu button').click();
+    cy.get('button mat-icon').contains('widgets').click();
 
     cy.get('.ol-layer')
       .last()

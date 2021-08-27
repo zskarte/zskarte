@@ -78,7 +78,8 @@ export class ToolbarComponent implements OnInit {
   @Input() drawLayer: DrawlayerComponent;
   session: Session;
   historyMode: boolean;
-  collapsed: boolean;
+  filterKeys: any[];
+  filterSymbols: any[];
   exportEnabled = true;
   downloadTime = null;
   downloadData = null;
