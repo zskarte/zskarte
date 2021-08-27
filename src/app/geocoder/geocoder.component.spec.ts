@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import {GeocoderComponent} from './geocoder.component';
+import { GeocoderComponent } from './geocoder.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
@@ -11,15 +11,10 @@ describe('GeocoderComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        MatAutocompleteModule,
-        HttpClientTestingModule
-      ],
-      declarations: [ GeocoderComponent ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      imports: [MatAutocompleteModule, HttpClientTestingModule],
+      declarations: [GeocoderComponent],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

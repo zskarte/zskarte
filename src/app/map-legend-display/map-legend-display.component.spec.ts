@@ -11,18 +11,17 @@ describe('MapLegendDisplayComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule
-      ],
-      declarations: [ MapLegendDisplayComponent ],
+      imports: [HttpClientTestingModule],
+      declarations: [MapLegendDisplayComponent],
       providers: [
-        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        {
+          provide: MatDialogRef,
+          useValue: jasmine.createSpyObj('MatDialogRef', ['close']),
+        },
         { provide: MAT_DIALOG_DATA, useValue: {} },
       ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

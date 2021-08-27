@@ -88,5 +88,4 @@ export class PreferencesService {
   public getLastZsoId(): string {
     return localStorage.getItem('zso');
   }
-
 }

@@ -10,14 +10,15 @@ describe('TagStateComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ TagStateComponent ],
+      declarations: [TagStateComponent],
       providers: [
-        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        {
+          provide: MatDialogRef,
+          useValue: jasmine.createSpyObj('MatDialogRef', ['close']),
+        },
       ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

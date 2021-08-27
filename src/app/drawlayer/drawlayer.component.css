@@ -8,8 +8,8 @@
   white-space: nowrap;
   font-size: 12px;
   cursor: default;
-  pointer-events:none;
-  user-select: none;  
+  pointer-events: none;
+  user-select: none;
   margin-left: 1em;
   margin-top: -10px;
 }

@@ -6,8 +6,8 @@ import { DetailImageViewComponent } from '../detail-image-view/detail-image-view
 import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.component';
 
 import { SelectedFeatureComponent } from './selected-feature.component';
-import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {Nl2BrPipeModule} from "nl2br-pipe";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Nl2BrPipeModule } from 'nl2br-pipe';
 
 describe('SelectedFeatureComponent', () => {
   let component: SelectedFeatureComponent;
@@ -16,11 +16,14 @@ describe('SelectedFeatureComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [MatDialogModule, HttpClientTestingModule, Nl2BrPipeModule],
-      declarations: [ SelectedFeatureComponent, DrawingDialogComponent, ConfirmationDialogComponent, DetailImageViewComponent ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      declarations: [
+        SelectedFeatureComponent,
+        DrawingDialogComponent,
+        ConfirmationDialogComponent,
+        DetailImageViewComponent,
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

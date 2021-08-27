@@ -1,5 +1,5 @@
-import {Component, HostListener, OnInit} from '@angular/core';
-import {SharedStateService, SidebarContext} from "./shared-state.service";
+import { Component, HostListener, OnInit } from '@angular/core';
+import { SharedStateService, SidebarContext } from './shared-state.service';
 
 @Component({
   selector: 'app-root',
@@ -12,9 +12,7 @@ export class AppComponent implements OnInit {
   SidebarContext = SidebarContext;
   height = window.innerHeight;
 
-  public constructor(
-    public sharedState: SharedStateService
-  ) {
+  public constructor(public sharedState: SharedStateService) {
     sharedState.fetchData();
   }
 

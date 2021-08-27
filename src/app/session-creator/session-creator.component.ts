@@ -6,7 +6,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
-import {I18NService, LOCALES} from '../i18n.service';
+import { I18NService, LOCALES } from '../i18n.service';
 import { Session } from '../entity/session';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -57,18 +57,18 @@ export class SessionCreatorComponent implements OnInit {
         title: null,
         uuid: uuidv4(),
         zsoId: defaultZSO ? defaultZSO.id : null,
-        start: new Date()
+        start: new Date(),
       };
       this.editMode = false;
     }
   }
 
   ngOnInit(): void {
-    let offDate = new Date(1,1,1);
+    let offDate = new Date(1, 1, 1);
     this.allSessions = this.sessions.getAllSessions().sort((a, b) => {
       let aa = a.start != null ? new Date(a.start) : offDate;
       let bb = b.start != null ? new Date(b.start) : offDate;
-      return aa < bb ? 1 : aa === bb ? 0 : -1
+      return aa < bb ? 1 : aa === bb ? 0 : -1;
     });
   }
 
@@ -84,11 +84,18 @@ export class SessionCreatorComponent implements OnInit {
 
   submit(): boolean {
     if (this.enteredPwIsValid()) {
-      if(this.session.zsoId == "zso_guest" && this.session.uuid != "" && !this.editMode) {
+      if (
+        this.session.zsoId == 'zso_guest' &&
+        this.session.uuid != '' &&
+        !this.editMode
+      ) {
         this.preferences.removeSessionSpecificPreferences(this.session.uuid);
         this.session.uuid = uuidv4();
         this.session.start = new Date();
-      } else if(this.session.uuid == "" || (!this.mapDataOvertake && !this.editMode)) {
+      } else if (
+        this.session.uuid == '' ||
+        (!this.mapDataOvertake && !this.editMode)
+      ) {
         // Since we're not in edit mode, we want the result to be a new map.
         this.session.uuid = uuidv4();
         this.session.start = new Date();
