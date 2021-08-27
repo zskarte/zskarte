@@ -1134,7 +1134,7 @@ export class I18NService {
       de: 'anzeigen/verstecken',
       en: 'show/hide',
       fr: 'afficher/cacher',
-    }
+    },
     csvID: {
       de: 'ID',
       en: 'ID',
