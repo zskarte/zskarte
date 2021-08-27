@@ -25,11 +25,11 @@ describe('Signup and draw', () => {
   it('Changes coordinate projection', () => {
     cy.get('.ol-layer').last().click(200, 200);
 
-    cy.get('app-drawlayer button').contains(`E2599`);
-    cy.get('app-drawlayer button').click();
-    cy.get('app-drawlayer button').contains('E7.43');
-    cy.get('app-drawlayer button').click();
-    cy.get('app-drawlayer button').contains(`E2599`);
+    cy.get('app-drawlayer .coordinates').contains(`E2’599`);
+    cy.get('app-drawlayer .coordinates .material-icons').click();
+    cy.get('app-drawlayer .coordinates').contains('E7.43');
+    cy.get('app-drawlayer .coordinates .material-icons').click();
+    cy.get('app-drawlayer .coordinates').contains(`E2’599`);
   });
 
   it('Should draw polygon', () => {
