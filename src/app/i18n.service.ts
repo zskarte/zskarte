@@ -207,6 +207,11 @@ export class I18NService {
       en: 'Line',
       fr: 'Ligne',
     },
+    freehand: {
+      de: 'Freihand',
+      en: 'Draw free',
+      fr: 'Dessiner libre',
+    },
     noFilter: {
       de: 'Kein Filter',
       en: 'No filter',

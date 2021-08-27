@@ -3,7 +3,6 @@ import { LOCALE_ID, NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
-import { DrawingtoolsComponent } from './drawingtools/drawingtools.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -21,7 +20,6 @@ import { MatInputModule } from '@angular/material/input';
 import { DrawlayerComponent } from './drawlayer/drawlayer.component';
 import { HistoryComponent } from './history/history.component';
 import { MatSliderModule } from '@angular/material/slider';
-import { FilterComponent } from './filter/filter.component';
 import { MatTableModule } from '@angular/material/table';
 import { ClockComponent } from './clock/clock.component';
 import { ImportDialogComponent } from './import-dialog/import-dialog.component';
@@ -53,6 +51,9 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
 import {Nl2BrPipeModule} from "nl2br-pipe";
+import { FabMenuComponent } from './fab-menu/fab-menu.component';
+import {OverlayModule} from "@angular/cdk/overlay";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 registerLocaleData(localeDeCh)
 
@@ -82,13 +83,11 @@ const dbConfig: DBConfig = {
   declarations: [
     AppComponent,
     MapComponent,
-    DrawingtoolsComponent,
     CreditsComponent,
     ToolbarComponent,
     DrawingDialogComponent,
     DrawlayerComponent,
     HistoryComponent,
-    FilterComponent,
     ClockComponent,
     ImportDialogComponent,
     GeocoderComponent,
@@ -104,6 +103,7 @@ const dbConfig: DBConfig = {
     DetailImageViewComponent,
     HelpComponent,
     SidebarComponent,
+    FabMenuComponent,
   ],
   imports: [
     BrowserModule,
@@ -132,6 +132,8 @@ const dbConfig: DBConfig = {
     MatIconModule,
     MatSidenavModule,
     Nl2BrPipeModule,
+    OverlayModule,
+    MatTooltipModule,
   ],
   entryComponents: [
     DrawingDialogComponent,
