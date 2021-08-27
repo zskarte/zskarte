@@ -28,10 +28,12 @@
     </mat-autocomplete>
   </mat-form-field>
   <div *ngIf="selected" class="currentLocation">
-    <img src="assets/img/place.png" /><span> {{ getLabel(selected) }}</span>
+    <img src="assets/img/place.png" />
+    <div class="alignCenter">
+      <span class="currentLocationLabel">{{ getLabel(selected) }}</span>
+    </div>
     <button mat-icon-button (click)="removeSelectedLocation()">
-      <i class="material-icons"
-      [title]="i18n.get('removeSymbol')">close</i>
+      <i class="material-icons" [title]="i18n.get('removeSymbol')">close</i>
     </button>
   </div>
 

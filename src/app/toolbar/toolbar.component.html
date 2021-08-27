@@ -8,10 +8,12 @@
     <div class="tools">
       <div class="flexContainer alignCenter flex-gap">
         <mat-card-title class="title">{{ session.title }}</mat-card-title>
-        <app-geocoder
-          style="flex: 1; margin-top: -0.08em"
-          [drawLayer]="drawLayer"
-        ></app-geocoder>
+        <div class="justify">
+          <app-geocoder
+            style="flex: 1; margin-top: -0.08em"
+            [drawLayer]="drawLayer"
+          ></app-geocoder>
+        </div>
         <div class="spacer"></div>
         <div class="clock">
           <app-clock></app-clock>

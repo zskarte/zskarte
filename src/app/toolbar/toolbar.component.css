@@ -9,6 +9,13 @@
 
 mat-card-title {
   margin-bottom: 0;
+  white-space:nowrap;
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 300px;
+  flex-shrink: 0;
+
 }
 
 .spacer {
@@ -121,5 +128,17 @@ app-credits {
 
 .mat-stroked-button.active {
   background-color: #d3d3d3;
+}
+
+.justify{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  padding: 0 10%;
+}
+
+app-geocoder{
+  max-width: 300px;
 }
 

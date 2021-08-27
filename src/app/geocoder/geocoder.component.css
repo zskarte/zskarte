@@ -3,7 +3,7 @@
 }
 
 mat-form-field {
-  flex-grow: 10;
+  flex-grow: 5;
 }
 
 .currentLocation {
@@ -20,4 +20,18 @@ mat-form-field {
 .geocoder {
   height: 3em;
   display: flex;
+}
+
+.currentLocationLabel{
+  font-size: 12px;
+  white-space:nowrap;
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 150px;
+}
+
+.alignCenter{
+  display: flex;
+  align-items: center;
 }
