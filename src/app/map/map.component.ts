@@ -65,7 +65,7 @@ export class MapComponent implements OnInit {
           anchorXUnits: 'fraction',
           anchorYUnits: 'fraction',
           src: 'assets/img/place.png',
-          scale: 0.5,
+          scale: 0.15,
         }),
       })
     );
