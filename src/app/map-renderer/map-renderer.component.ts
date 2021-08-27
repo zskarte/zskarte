@@ -21,6 +21,7 @@ import { DrawElementHelper } from '../state/helper/draw-element-helper';
 import { ZsMapBaseDrawElement } from '../state/elements/base-draw-element';
 import { areArraysEqual } from '../state/helper/array';
 import { ZsMapOLFeatureProps } from '../state/elements/ol-feature-props';
+import { debounce } from '../state/helper/debounce';
 
 @Component({
   selector: 'app-map-renderer',
@@ -102,8 +103,12 @@ export class MapRendererComponent implements OnInit, OnDestroy {
       this._state.setMapCenter(this._view.getCenter());
     });
 
-    this._view.on('change:resolution', (event) => {
+    const debouncedZoomSave = debounce(() => {
       this._state.setMapZoom(this._view.getZoom());
+    }, 1000);
+
+    this._view.on('change:resolution', (event) => {
+      debouncedZoomSave();
     });
 
     this._state.observeMapCenter().subscribe((center) => {
