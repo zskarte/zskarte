@@ -9,7 +9,7 @@ import { PreferencesService } from '../preferences.service';
 
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
-import { defaults, Draw } from 'ol/interaction';
+import { defaults, Draw, Select, Translate } from 'ol/interaction';
 import { StateService } from '../state/state.service';
 import { ZsMapStateSource } from '../state/interfaces';
 import OlTileLayer from 'ol/layer/Tile';
@@ -20,6 +20,7 @@ import { ZsMapSources } from '../state/map-sources';
 import { ZsMapBaseLayer } from '../state/layers/base-layer';
 import { DrawElementHelper } from '../state/helper/draw-element-helper';
 import { ZsMapBaseDrawElement } from '../state/elements/base-draw-element';
+import { DrawStyle } from '../drawlayer/draw-style';
 
 @Component({
   selector: 'app-map-renderer',
@@ -63,6 +64,17 @@ export class MapRendererComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
+    // TODO
+    const select = new Select({
+      style: null,
+      hitTolerance: 10,
+    });
+
+    // TODO
+    const translate = new Translate({
+      features: select.getFeatures(),
+    });
+
     this._map = new OlMap({
       target: 'map',
       view: new OlView({
@@ -74,18 +86,8 @@ export class MapRendererComponent implements OnInit, OnDestroy {
         doubleClickZoom: false,
         pinchRotate: false,
         shiftDragZoom: false,
-      }),
+      }).extend([select, translate]),
     });
-
-    // this._map.on('click', (event) => {
-    //   const layer = this._state.getActiveLayer();
-    //   console.log('map clicked', event.coordinate, layer);
-    //   console.log(this._state.getElementToDraw());
-    //   this._state.drawElement(null);
-    //   // if (layer) {
-    //   //   layer.testAddPoint(event.coordinate);
-    //   // }
-    // });
 
     this._map.addLayer(this._mapLayer);
 
@@ -154,7 +156,7 @@ export class MapRendererComponent implements OnInit, OnDestroy {
               }
               cache.layer = layer;
               const newLayer = this._state.getLayer(layer);
-              newLayer.addOlFeature(feature);
+              newLayer?.addOlFeature(feature);
             });
           }
         }

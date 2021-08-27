@@ -45,7 +45,10 @@ export abstract class ZsMapBaseDrawElement<
 
   public setCoordinates(coordinates: number[] | number[][]): void {
     this._state.updateMapState((draft) => {
-      draft.drawElements[this._id].coordinates = coordinates;
+      const element = draft.drawElements?.find((o) => o.id === this._id);
+      if (element) {
+        element.coordinates = coordinates;
+      }
     });
   }
 

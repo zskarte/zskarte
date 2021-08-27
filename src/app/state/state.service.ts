@@ -31,7 +31,7 @@ enablePatches();
 export class StateService {
   private _map = new BehaviorSubject<IZsMapState>(
     produce<IZsMapState>(null, (draft) => {
-      return {} as any;
+      return this._getDefaultMapState();
     })
   );
   private _mapPatches: BehaviorSubject<Patch[]> = new BehaviorSubject([]);
@@ -41,16 +41,7 @@ export class StateService {
 
   private _display = new BehaviorSubject<IZsMapDisplayState>(
     produce<IZsMapDisplayState>(null, (draft) => {
-      return {
-        mapOpacity: 1,
-        displayMode: ZsMapDisplayMode.DRAW,
-        activeLayer: null,
-        layerOpacity: {},
-        layerVisibility: {},
-        layerOrder: [],
-        elementVisibility: {},
-        elementOpacity: {},
-      };
+      return this._getDefaultDisplayState();
     })
   );
   private _displayPatches: BehaviorSubject<Patch[]> = new BehaviorSubject([]);
@@ -65,6 +56,23 @@ export class StateService {
   }>(null);
 
   constructor() {}
+
+  private _getDefaultMapState(): IZsMapState {
+    return {} as any;
+  }
+
+  private _getDefaultDisplayState(): IZsMapDisplayState {
+    return {
+      mapOpacity: 1,
+      displayMode: ZsMapDisplayMode.DRAW,
+      activeLayer: null,
+      layerOpacity: {},
+      layerVisibility: {},
+      layerOrder: [],
+      elementVisibility: {},
+      elementOpacity: {},
+    };
+  }
 
   // drawing
   public drawElement(type: ZsMapDrawElementStateType, layer: string): void {
@@ -82,17 +90,53 @@ export class StateService {
     return this._elementToDraw.asObservable();
   }
 
-  public loadMapState(map: IZsMapState) {
-    console.log('load map state', map);
+  public reset(newMapState?: IZsMapState, newDisplayState?: IZsMapDisplayState): void {
+    this.resetDisplayState(newDisplayState);
+    this.resetMapState(newMapState);
+  }
+
+  public resetMapState(newState?: IZsMapState): void {
+    this._layerCache = {};
+    this._drawElementCache = {};
     this.updateMapState((draft) => {
-      return map;
+      return newState || this._getDefaultMapState();
     });
   }
 
-  public saveMapState(): void {}
+  public resetDisplayState(newState?: IZsMapDisplayState): void {
+    this.updateDisplayState(() => {
+      return newState || this._getDefaultDisplayState();
+    });
+  }
+
+  public loadMapState(map: IZsMapState) {
+    console.log('load map state', map);
+    this.reset(map)
+  }
+
+  public loadSavedMapState(): void {
+    const state = JSON.parse(localStorage.getItem('tempMapState'));
+    this.resetMapState(state)
+  }
+
+  public saveMapState(): void {
+    localStorage.setItem('tempMapState', JSON.stringify(this._map.value));
+  }
 
   public observeMapState(): Observable<IZsMapState> {
     return this._map.asObservable();
+  }
+
+  public loadSavedDisplayState(): void {
+    const state = JSON.parse(localStorage.getItem('tempDisplayState'));
+    this.resetDisplayState(state)
+  }
+
+  public saveDisplayState(): void {
+    localStorage.setItem(
+      'tempDisplayState',
+      JSON.stringify(this._display.value)
+    );
   }
 
   public observeDisplayState(): Observable<IZsMapDisplayState> {

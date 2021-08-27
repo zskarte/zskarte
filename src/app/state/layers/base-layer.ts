@@ -1,13 +1,10 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { ZsMapLayerState, ZsMapLayerStateType } from '../interfaces';
 import { StateService } from '../state.service';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import { Style, RegularShape } from 'ol/style';
-import Fill from 'ol/style/Fill';
 import Feature from 'ol/Feature';
-import { LineString, Point } from 'ol/geom';
 
 export class ZsMapBaseLayer {
   protected _layer: Observable<ZsMapLayerState>;
@@ -179,7 +176,6 @@ export class ZsMapBaseLayer {
       const index = draft.layers.findIndex((o) => o.id === this._id);
       draft.layers.splice(index, 1);
     });
-    // this.olLayer = null;
   }
 
   public activate(): void {

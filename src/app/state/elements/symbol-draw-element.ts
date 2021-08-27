@@ -16,7 +16,11 @@ export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawEl
     super(_id, _state);
 
     this.observeCoordinates().subscribe((coordinates) => {
-      if (!this._olPoint && coordinates) {
+      if (
+        !this._olPoint &&
+        coordinates &&
+        coordinates !== this._olPoint.getCoordinates()
+      ) {
         this._olPoint.setCoordinates(coordinates);
       }
     });
@@ -34,6 +38,12 @@ export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawEl
     });
     this._olFeature.setGeometry(this._olPoint);
     this._olFeature.setStyle(this._olStyles);
+
+    // handle changes on the map, eg. translate
+    this._olFeature.on('change', (event) => {
+      console.log('TODO update coordinates', this._olPoint.getCoordinates());
+      this.setCoordinates(this._olPoint.getCoordinates());
+    });
     this._isInitialized = true;
     return;
   }
