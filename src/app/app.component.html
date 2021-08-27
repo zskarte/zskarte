@@ -5,13 +5,17 @@
   </div>
   <mat-sidenav-container style="flex: 1">
     <mat-sidenav position="end" mode="side" #sidenav style="width: 350px;">
-      <app-sidebar></app-sidebar>
+      <app-sidebar-root [sidenav]="sidenav">
+        <app-sidebar [hidden]="(sharedState.sidebarContext | async) !== SidebarContext.Layers"></app-sidebar>
+        <app-sidebar-filters [drawLayer]="drawLayer" [hidden]="(sharedState.sidebarContext | async) !== SidebarContext.Filters"></app-sidebar-filters>
+      </app-sidebar-root>
     </mat-sidenav>
     <mat-sidenav-content>
       <app-history></app-history>
-      <app-map #map [sidenav]="sidenav" style="height: 100%; width: 100%; display: block"></app-map>
+      <app-map #map style="height: 100%; width: 100%; display: block"></app-map>
       <app-drawlayer [inputMap]="map.map" #drawLayer></app-drawlayer>
       <app-selected-feature></app-selected-feature>
+      <app-fab-menu></app-fab-menu>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>
