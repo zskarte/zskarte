@@ -4,7 +4,13 @@
 
 mat-form-field {
   flex-grow: 5;
+  display: flex;
 }
+
+mat-form-field.searchBar ::ng-deep .mat-form-field-infix {
+  padding: 0.5em 0;
+}
+
 
 .currentLocation {
   display: flex;

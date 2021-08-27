@@ -1,5 +1,9 @@
 <div class="geocoder">
-  <mat-form-field (mouseenter)="previewCoordinate(this.selected)">
+  <mat-form-field
+    class="searchBar"
+    (mouseenter)="previewCoordinate(this.selected)"
+    appearance="outline"
+  >
     <input
       type="text"
       placeholder="{{ i18n.get('findPlace') }}"
