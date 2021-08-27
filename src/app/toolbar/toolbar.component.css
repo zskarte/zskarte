@@ -100,9 +100,8 @@ app-geocoder{
   align-items: center;
 }
 
-hr.separator {
-  margin: 0;
-  height: 1px;
-  background-color: rgba(0,0,0,0.1);
-  border: none;
+.mat-menu-content {
+  padding-top: 0;
+  padding-bottom: 0;
 }
+
