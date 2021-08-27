@@ -99,11 +99,7 @@
             >
             {{ i18n.get('importMap') }}
           </button>
-          <button 
-            mat-menu-item 
-            (click)="clear()"
-            *ngIf="!historyMode"
-          >
+          <button mat-menu-item (click)="clear()" *ngIf="!historyMode">
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('deleteMap')"
