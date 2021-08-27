@@ -1,5 +1,7 @@
 {
  "name": "Zivilschutz-Karte",
+ "start_url": "/",
+ "display": "fullscreen",
  "icons": [
   {
    "src": "\/android-icon-36x36.png",
