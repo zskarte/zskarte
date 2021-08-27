@@ -24,8 +24,12 @@ export const availableProjections: Array<ZsKarteProjection> = [{
   projection: swissProjection,
   // see: https://www.swisstopo.admin.ch/de/wissen-fakten/geodaesie-vermessung/bezugsrahmen/lokal/lv95.html > E / N
   translate: function(coords? : number[]) : string {
+    const numberFormatOptions = {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    };
     return 'LV95' + (coords != null && coords.length == 2 
-      ? ' E' + coords[0].toFixed(2) + ' / N' + coords[1].toFixed(2) 
+      ? ' E' + coords[0].toLocaleString('de-CH', numberFormatOptions) + ' / N' + coords[1].toLocaleString('de-CH', numberFormatOptions) 
       : ''
     );
   }
