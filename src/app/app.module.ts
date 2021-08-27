@@ -54,6 +54,7 @@ import {MatSidenavModule} from "@angular/material/sidenav";
 import { SidebarComponent } from './sidebar/sidebar.component';
 import {Nl2BrPipeModule} from "nl2br-pipe";
 import { LastUsedSignComponent } from './last-used-signs/last-used-signs.component';
+import { RecentlyUsedSignsComponent } from './recently-used-signs/recently-used-signs.component';
 
 registerLocaleData(localeDeCh)
 
@@ -105,7 +106,8 @@ const dbConfig: DBConfig = {
     DetailImageViewComponent,
     HelpComponent,
     SidebarComponent,
-    LastUsedSignComponent
+    LastUsedSignComponent,
+    RecentlyUsedSignsComponent
   ],
   imports: [
     BrowserModule,
