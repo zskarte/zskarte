@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
 import {
   defineDefaultValuesForSignature,
@@ -15,6 +15,7 @@ import { DisplayMode } from '../entity/displayMode';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
 import { Signs } from '../signs/signs';
 import { MatSliderChange } from '@angular/material/slider';
+import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 
 @Component({
   selector: 'app-selected-feature',
@@ -81,6 +82,8 @@ export class SelectedFeatureComponent {
       this.selectedFeature.getGeometry().getCoordinates().length > 1
     );
   }
+
+  @Input() drawLayer: DrawlayerComponent;
 
   groupedFeatures = null;
   editMode: boolean;
@@ -214,7 +217,9 @@ export class SelectedFeatureComponent {
   }
 
   addImage() {
-    const dialogRef = this.dialog.open(DrawingDialogComponent);
+    const dialogRef = this.dialog.open(DrawingDialogComponent, {
+      data: {drawLayer: this.drawLayer}
+    });
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.src) {
         this.selectedSignature.images.push(result.src);

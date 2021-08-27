@@ -58,6 +58,7 @@ import {OverlayModule} from "@angular/cdk/overlay";
 import {MatGridListModule} from "@angular/material/grid-list";
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RecentlyUsedSignsComponent } from './recently-used-signs/recently-used-signs.component';
 
 registerLocaleData(localeDeCh);
 
@@ -110,6 +111,7 @@ const dbConfig: DBConfig = {
     FabMenuComponent,
     SidebarFiltersComponent,
     SidebarRootComponent,
+    RecentlyUsedSignsComponent
   ],
   imports: [
     BrowserModule,

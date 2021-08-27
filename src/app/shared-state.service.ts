@@ -194,6 +194,9 @@ export class SharedStateService {
   private isFreeHandDrawEnabled = new BehaviorSubject(false);
   freeHandDraw = this.isFreeHandDrawEnabled.asObservable();
 
+  private lastUsedSignsSource = new BehaviorSubject<Sign[]>([]);
+  lastUsedSigns = this.lastUsedSignsSource.asObservable();
+
   showMapLoader = new BehaviorSubject<boolean>(false);
   defineCoordinates = new BehaviorSubject<boolean>(null);
   drawingManipulated = new BehaviorSubject<boolean>(false);
@@ -294,7 +297,34 @@ export class SharedStateService {
   }
 
   selectFeature(feature: any) {
+    var sign = feature?.get('sig') as Sign;
+    this.addRecentlyUsedSign(sign);
+
     this.featureSource.next(feature);
+  }
+
+  addRecentlyUsedSign(sign: Sign) {
+    if(!sign) {
+      return;
+    }
+
+    let signs = this.lastUsedSignsSource.getValue();
+
+    const index = signs.findIndex(s => s.src === sign.src)
+
+    if(index !== -1) {
+      return;
+    }
+
+    signs = signs.sort((a, b) => {
+      return (
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ); //it has to be new Date. probably because createdAt is nullable
+    });
+
+    signs.splice(10, signs.length - 10);
+
+    this.lastUsedSignsSource.next(signs);
   }
 
   deleteFeature(feature: any) {

@@ -79,6 +79,8 @@ export class SidebarFiltersComponent implements OnInit {
             src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
             kat: sig.kat,
           };
+
+          this.sharedState.addRecentlyUsedSign(sig);
         }
       } else if (sig.type === 'Polygon' && !sig.src) {
         symbols['not_labeled_polygon'] = {
