@@ -37,7 +37,7 @@ export class RecentlyUsedSignsComponent implements OnInit {
   fetchSigns() {
     if (this.drawLayer && this.drawLayer.source) {
       this.drawLayer.source.getFeatures().forEach((f) => {
-        var symbol = this.extractSymbol(f);
+        const symbol = this.extractSymbol(f);
 
         this.sharedState.addRecentlyUsedSign(symbol);
       });

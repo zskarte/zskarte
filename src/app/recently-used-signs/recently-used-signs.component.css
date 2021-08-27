@@ -23,13 +23,13 @@
 }
 
 .wrapper img {
-  max-height: 2.3em;
-  max-width: 2.3em;
+  max-height: 33px;
+  max-width: 33px;
 }
 
 .wrapper button {
   align-items: center;
-  padding: 0.3em;
+  padding: 5em;
   min-width: unset;
   line-height: unset;
 }
