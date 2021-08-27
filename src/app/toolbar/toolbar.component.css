@@ -52,9 +52,17 @@ app-credits {
 }
 
 .edit {
-  font-size: 18px;
-  line-height: 20px;
+  height: 42px;
+  width: 42px;
+  min-width: 0;
+  padding: 0;
+}
+
+.hamburger {
+  font-size: 29px;
+  line-height: 27px;
   height: 29px;
+  width: 29px;
 }
 
 .toolbar {
