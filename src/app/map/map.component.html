@@ -21,12 +21,11 @@
     >
       <mat-icon>zoom_out</mat-icon>
     </button>
-    <button
-      mat-icon-button
-      (click)="sidenav.toggle()"
-      [attr.aria-label]="i18n.get('layers')"
-    >
+    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Layers);" [attr.aria-label]="i18n.get('layers')">
       <mat-icon>layers</mat-icon>
+    </button>
+    <button mat-icon-button (click)="sharedState.setSidebarContext(SidebarContext.Filters);" [attr.aria-label]="i18n.get('filters')">
+      <mat-icon>filter_alt</mat-icon>
     </button>
   </div>
 </div>

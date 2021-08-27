@@ -41,6 +41,7 @@ const layers: Layer[] = [
           'internet/swisstopo/en/home.html">swisstopo</a>',
         ],
         url: 'https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg',
+        maxZoom: 20,
       }),
     }),
     opacity: 1,
@@ -54,6 +55,7 @@ const layers: Layer[] = [
           'internet/swisstopo/en/home.html">swisstopo</a>',
         ],
         url: 'https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg',
+        maxZoom: 19,
       }),
     }),
     opacity: 1,
@@ -67,6 +69,7 @@ const layers: Layer[] = [
           'internet/swisstopo/en/home.html">swisstopo</a>',
         ],
         url: 'https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg',
+        maxZoom: 19,
       }),
     }),
     opacity: 1,
@@ -113,6 +116,11 @@ export function createGeoAdminLayer(
     opacity: 0.6,
     zIndex: zIndex,
   });
+}
+
+export enum SidebarContext {
+  Layers,
+  Filters,
 }
 
 @Injectable({
@@ -201,6 +209,9 @@ export class SharedStateService {
   selectedFeatures = this.selectedFeaturesSource.asObservable();
 
   availableLayers = new BehaviorSubject<any>(null);
+
+  private sidebarContextSource = new BehaviorSubject<SidebarContext>(null);
+  sidebarContext = this.sidebarContextSource.asObservable();
 
   private static getFromQueryParam(
     queryParam: string,
@@ -400,5 +411,9 @@ export class SharedStateService {
 
   disableFreeHandDraw(): void {
     this.isFreeHandDrawEnabled.next(false);
+  }
+
+  setSidebarContext(context: SidebarContext) {
+    this.sidebarContextSource.next(context);
   }
 }

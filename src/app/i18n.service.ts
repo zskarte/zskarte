@@ -43,9 +43,9 @@ export class I18NService {
       fr: 'Anglais',
     },
     language: {
-      de: 'Sprachen',
-      en: 'Languages',
-      fr: 'Languages',
+      de: 'Sprache',
+      en: 'Language',
+      fr: 'Langue',
     },
     symbol: {
       de: 'Symbol',
@@ -103,9 +103,9 @@ export class I18NService {
       en: 'Draw',
     },
     createOrLoad: {
-      de: 'Karte erstellen / laden',
-      fr: 'Créer / charger une carte',
-      en: 'Create / load map',
+      de: 'Sitzung erstellen / laden',
+      en: 'Create / load session',
+      fr: 'Créer / charger session',
     },
     newMap: {
       de: 'Neue Karte erstellen',
@@ -123,9 +123,9 @@ export class I18NService {
       en: 'Copy',
     },
     importMap: {
-      de: 'Karte von Datei importieren',
-      en: 'Load map from file',
-      fr: "Importer une carte à partir d'un fichier",
+      de: 'Karte importieren',
+      en: 'Import map',
+      fr: "Importer carte",
     },
     importMapConflict: {
       de: 'Die zu importierende Karte existiert bereits. Möchten Sie sie ersetzen? Ansonsten wird eine Kopie angelegt.',
@@ -133,9 +133,9 @@ export class I18NService {
       en: 'The map to be imported already exists. Do you want to replace it? If not, a copy will be created.',
     },
     deleteMap: {
-      de: 'Karte löschen',
-      en: 'Delete map',
-      fr: 'Supprimer la carte',
+      de: 'Karte leeren',
+      en: 'Clear map',
+      fr: 'Vide la carte',
     },
     confirmDeleteMap: {
       de: 'Wollen Sie diese Karte wirklich unwiederruflich löschen?',
@@ -143,9 +143,9 @@ export class I18NService {
       fr: 'Voulez-vous vraiment supprimer cette carte de façon irrévocable ?',
     },
     editMap: {
-      de: 'Karteninformationen bearbeiten',
-      en: 'Edit map information',
-      fr: 'Modifier les informations de la carte',
+      de: 'Sitzung bearbeiten',
+      en: 'Edit session',
+      fr: 'Modifier session',
     },
     downloadCurrentDrawing: {
       de: 'Aktuelle Zeichnung herunterladen',
@@ -153,9 +153,9 @@ export class I18NService {
       en: 'Download the current drawing',
     },
     exportSession: {
-      de: 'Karte exportieren',
-      en: 'Export map',
-      fr: 'Exporter la carte',
+      de: 'Sitzung exportieren',
+      en: 'Export session',
+      fr: 'Exporter la session',
     },
     withHistory: {
       de: 'Mit History',
@@ -176,6 +176,16 @@ export class I18NService {
       de: 'Herunterladen',
       en: 'Download',
       fr: 'Télécharger',
+    },
+    downloadMap: {
+      de: 'Karte herunterladen',
+      en: 'Download map',
+      fr: 'Télécharger carte',
+    },
+    downloadMapCSV: {
+      de: 'Als CSV exportieren',
+      en: 'Export as CSV',
+      fr: 'Exporter a CSV',
     },
     filter: {
       de: 'Filter',
@@ -350,7 +360,7 @@ export class I18NService {
     colorPickerMode: {
       de: 'Farbauswahlmodus',
       fr: 'Mode sélecteur de couleurs',
-      en: 'Color picker mode'
+      en: 'Color picker mode',
     },
     drawHole: {
       de: 'Loch zeichnen',
@@ -934,7 +944,7 @@ export class I18NService {
         '   * Un trou peut être dessiné dans un polygone\\n" +\n' +
         '   * Les polygones peuvent être regroupés (par exemple pour combiner des zones non connectées)\n' +
         '<li><strong>Tout sauf le texte</strong></li>' +
-        '   * Une description peut être définie par des images (symboles existants ou sélectionnés - un clic sur l\'image ouvre la vue détaillée) et/ou du texte.\n' +
+        "   * Une description peut être définie par des images (symboles existants ou sélectionnés - un clic sur l'image ouvre la vue détaillée) et/ou du texte.\n" +
         '   * Les symboles peuvent être définis / remplacés / cachés / zoomés / dézoomés et pivotés et il est possible de "déplacer" la représentation du symbole à partir du point d\'ancrage pour une meilleure visibilité',
     },
     docFilter: {
@@ -990,10 +1000,20 @@ export class I18NService {
         'This mode is for reading / presenting the map. This is where symbols are grouped, provided the map is zoomed out widely. It is also possible to call up previous map states which have been automatically recorded or explicitly tagged by the user.\n' +
         'When selecting an element, an overview of the defined information such as name, description, images, etc. appears in the lower left corner\n',
     },
+    docOfflineMap: {
+      de: "Diese Karte kann nur ausgewählt werden, wenn ein eigener Karten-Server unter '${offlineHost}/' (Statuscode: 200) erreichbar ist. Der Karten-Server kann durch den GET Parameter '&offlineHost=http://localhost:8080' gesetzt werden.",
+      fr: "Cette carte ne peut être sélectionnée que si votre propre serveur de carte est disponible sous '${offlineHost}/' (code d'état: 200). Le serveur de carte peut être défini à l'aide du paramètre GET '&offlineHost=http://localhost:8080'.",
+      en: "This map can only be selected if your own map server is available under '${offlineHost}/' (status code: 200). The map server can be set using the GET parameter '&offlineHost=http://localhost:8080'.",
+    },
     keyboardShortcutsTitle: {
       de: 'Tastenbelegungen',
       en: 'Keyboard shortcuts',
       fr: 'Attributions clés',
+    },
+    close: {
+      de: 'Schliessen',
+      en: 'Close',
+      fr: 'Conclure',
     },
     keyboardShortcuts: {
       de: 'TBD',
@@ -1065,10 +1085,15 @@ export class I18NService {
       en: 'All categories',
       fr: 'Toutes catégories',
     },
+    categories: {
+      de: 'Kategorien',
+      en: 'Categories',
+      fr: 'Catégories',
+    },
     logout: {
-      de: 'Ausloggen',
-      en: 'Sign out',
-      fr: 'Déconnecter',
+      de: 'Sitzung beenden',
+      en: 'End session',
+      fr: 'Fin de session',
     },
     expand: {
       de: 'Ansicht wechseln',
@@ -1084,6 +1109,76 @@ export class I18NService {
       de: 'Hinein zoomen',
       en: 'Zoom in',
       fr: 'Zoom in',
+    },
+    filters: {
+      de: 'Filter',
+      en: 'Filters',
+      fr: 'Filtre',
+    },
+    generalFilters: {
+      de: 'Globale Filter',
+      en: 'Global filters',
+      fr: 'Filtre globale',
+    },
+    showAllElements: {
+      de: 'Alle Elemente anzeigen',
+      en: 'Show all elements',
+      fr: 'Afficher tout',
+    },
+    hideAllElements: {
+      de: 'Alle Elemente verstecken',
+      en: 'Hide all elements',
+      fr: 'Tout cacher',
+    },
+    hideShow : {
+      de: 'anzeigen/verstecken',
+      en: 'show/hide',
+      fr: 'afficher/cacher',
+    },
+    csvID: {
+      de: 'ID',
+      en: 'ID',
+      fr: 'ID',
+    },
+    csvDate: {
+      de: 'Erstelldatum',
+      en: 'Date created',
+      fr: 'Date de creation',
+    },
+    csvGroup: {
+      de: 'Gruppe',
+      en: 'Group',
+      fr: 'Groupe',
+    },
+    csvGroupArea: {
+      de: 'Bereich',
+      en: 'Area',
+      fr: 'Zone',
+    },
+    csvSignatur: {
+      de: 'Signatur',
+      en: 'Sign',
+      fr: 'Signature',
+    },
+    csvLocation: {
+      de: 'Koordinaten',
+      en: 'Coordinates',
+      fr: 'Coordonnées',
+    },
+    csvSize: {
+      de: 'Grösse',
+      en: 'Size',
+      fr: 'Dimension',
+    },
+    csvLabel: {
+      de: 'Bezeichnung',
+      en: 'Label',
+      fr: 'Désignation',
+    },
+    csvDescription: {
+      de: 'Beschreibung',
+      en: 'Description',
+      fr: 'Description',
     },
     tooltipSession: {
       de: 'Gültigkeitsdauer Ihrer Gastsitzung',
@@ -1126,5 +1221,21 @@ export class I18NService {
     throw new Error(
       'Was not able to find an entry in translation table for key ' + key
     );
+  }
+  public has(key: string): boolean {
+    const element = I18NService.TRANSLATIONS[key];
+    if (element) {
+      const chosenLang = element[this.locale];
+      if (chosenLang) {
+        return true;
+      } else {
+        for (const locale of LOCALES) {
+          if (element[locale]) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 }

@@ -74,12 +74,7 @@
         <button mat-menu-item (click)="exportSession()" *ngIf="exportEnabled">
           <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">save</mat-icon> {{ i18n.get('exportSession') }}
         </button>
-        <button mat-menu-item (click)="deleteSession()">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteMap')">delete</mat-icon> {{ i18n.get('deleteMap') }}
-        </button>
-        <button mat-menu-item class="tools-menu-item" (click)="importData()" *ngIf="!historyMode">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('import')">open_in_browser</mat-icon> {{ i18n.get('import') }}
-        </button>
+        <hr class="separator"/>
         <a
           mat-menu-item
           [download]="getDownloadFileName()"
@@ -87,22 +82,40 @@
           class="tools-menu-item"
           (click)="download()"
           [href]="downloadData"
-        ><mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('download')">save</mat-icon> {{ i18n.get('download') }}</a
+        ><mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('download')">save</mat-icon> {{ i18n.get('downloadMap') }}</a
         >
+        <button mat-menu-item class="tools-menu-item" (click)="importData()" *ngIf="!historyMode">
+          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('import')">open_in_browser</mat-icon> {{ i18n.get('importMap') }}
+        </button>
+        <button mat-menu-item (click)="clear()">
+          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteMap')">delete</mat-icon> {{ i18n.get('deleteMap') }}
+        </button>
+        <hr class="separator"/>
         <button mat-menu-item class="tools-menu-item" (click)="tagState()" *ngIf="!historyMode">
           <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('tagState')">note</mat-icon> {{ i18n.get('tagState') }}
+        </button>
+        <hr class="separator"/>
+        <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="languages">
+          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('language')">language</mat-icon> {{ i18n.get('language') }}
         </button>
         <button mat-menu-item class="tools-menu-item" (click)="print()" *ngIf="!historyMode">
           <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('print')">local_printshop</mat-icon> {{ i18n.get('print') }}
         </button>
-        <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="languages">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('language')">language</mat-icon> Sprachen
-        </button>
-        <button mat-menu-item class="tools-menu-item" (click)="clear()" *ngIf="!historyMode">
-          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon> {{ i18n.get('logout') }}
-        </button>
+        <a
+          mat-menu-item
+          [download]="getDownloadFileNameCSV()"
+          id="exportCSV"
+          class="tools-menu-item"
+          (click)="downloadCSV()"
+          [href]="downloadCSVData"
+        ><mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('download')">save</mat-icon> {{ i18n.get('downloadMapCSV') }}</a
+        >
         <button mat-menu-item (click)="help()">
           <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon> {{ i18n.get('help') }}
+        </button>
+        <hr class="separator"/>
+        <button mat-menu-item class="tools-menu-item" (click)="deleteSession()" *ngIf="!historyMode">
+          <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon> {{ i18n.get('logout') }}
         </button>
       </mat-menu>
       <mat-menu #languages="matMenu">
@@ -110,33 +123,6 @@
                  (click)="setLocale(locale)"
                  [ngClass]="{ active: locale === i18n.locale }">{{ i18n.get(locale) }}</button>
       </mat-menu>
-    </div>
-  </div>
-  <div
-    class="filterWrapper noprint hideWhenCollapsed"
-    *ngIf="filterSymbols && filterSymbols.length > 0"
-  >
-    <div class="fixedFilter">
-      {{ i18n.get('filter') }}:
-      <button mat-icon-button (click)="filterAll(false)">
-        <mat-icon aria-hidden="false">visibility</mat-icon>
-      </button>
-      <button mat-icon-button class="allButton" (click)="filterAll(true)">
-        <mat-icon aria-hidden="false">visibility_off</mat-icon>
-      </button>
-    </div>
-    <div class="filterButtons">
-      <button
-        mat-stroked-button
-        [class]="
-          drawLayer.isSigFiltered(symbol) ? 'active filterItem' : 'filterItem'
-        "
-        *ngFor="let symbol of filterSymbols"
-        (click)="drawLayer.toggleFilter(symbol)"
-      >
-        <img *ngIf="symbol.src" [src]="symbol.src" [title]="symbol.label" />
-        <mat-icon aria-hidden="false" *ngIf="symbol.icon">{{ symbol.icon }}</mat-icon>
-      </button>
     </div>
   </div>
 </mat-card>
