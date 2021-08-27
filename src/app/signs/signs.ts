@@ -1457,7 +1457,7 @@ export class Signs {
       src: 'BSM/Markierung Unfall.svg',
       de: 'Markierung Unfall',
       en: 'Markierung Unfall',
-      fr: 'Marque d\'accident ',
+      fr: "Marque d'accident ",
     },
     {
       id: 144,
@@ -1467,7 +1467,7 @@ export class Signs {
       src: 'BSM/Markierung Wasser.svg',
       de: 'Markierung Wasser',
       en: 'Markierung Wasser',
-      fr: 'Marquage de l\'eau ',
+      fr: "Marquage de l'eau ",
     },
     {
       id: 145,
@@ -1487,7 +1487,7 @@ export class Signs {
       src: 'BABS/Personenbergungsuebersicht - Beispiel.svg',
       de: 'Personenbergungsübersicht - Beispiel',
       en: 'Personenbergungsübersicht - Beispiel',
-      fr: 'Vue d\'ensemble de sauvetage - exemple',
+      fr: "Vue d'ensemble de sauvetage - exemple",
     },
     {
       id: 147,
@@ -1497,7 +1497,7 @@ export class Signs {
       src: 'BABS/Personenbergungsuebersicht - Leerraster.svg',
       de: 'Personenbergungsübersicht - Leerraster',
       en: 'Personenbergungsübersicht - Leerraster',
-      fr: 'Vue d\'ensemble de sauvetage - grille vide',
+      fr: "Vue d'ensemble de sauvetage - grille vide",
     },
     {
       id: 148,

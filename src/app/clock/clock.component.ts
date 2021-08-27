@@ -10,16 +10,16 @@ import { PreferencesService } from '../preferences.service';
 })
 export class ClockComponent implements OnInit {
   historyDate = null;
-  sessionId:string;
-  sessionZsoId:string;
-  timeOffset:number = PreferencesService.guestSessionTimeout;
-  doCheckTimeout:number = 0;
-  sessionTimeLeft:string;
+  sessionId: string;
+  sessionZsoId: string;
+  timeOffset: number = PreferencesService.guestSessionTimeout;
+  doCheckTimeout: number = 0;
+  sessionTimeLeft: string;
 
   constructor(
     public i18n: I18NService,
     private sharedState: SharedStateService,
-    private preferences: PreferencesService,
+    private preferences: PreferencesService
   ) {
     this.sharedState.historyDate.subscribe((s) => {
       this.historyDate = s && s !== 'now' ? new Date(s) : null;
@@ -29,7 +29,6 @@ export class ClockComponent implements OnInit {
   now: Date;
   timerProgressValue: number = 100;
 
-
   ngOnInit() {
     this.update();
   }
@@ -38,7 +37,10 @@ export class ClockComponent implements OnInit {
     const session = this.sharedState.getCurrentSession();
     this.sessionId = session.uuid;
     this.sessionZsoId = session.zsoId;
-    this.doCheckTimeout = session.zsoId == 'zso_guest' && session.start != null ? (new Date(session.start)).getTime() + this.timeOffset : 0;
+    this.doCheckTimeout =
+      session.zsoId == 'zso_guest' && session.start != null
+        ? new Date(session.start).getTime() + this.timeOffset
+        : 0;
     this.sharedState.sessionOutdated.next(false);
   }
 

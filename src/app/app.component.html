@@ -3,10 +3,19 @@
     <app-toolbar [drawLayer]="drawLayer"></app-toolbar>
   </div>
   <mat-sidenav-container style="flex: 1">
-    <mat-sidenav position="end" mode="side" #sidenav style="width: 350px;">
+    <mat-sidenav position="end" mode="side" #sidenav style="width: 350px">
       <app-sidebar-root [sidenav]="sidenav">
-        <app-sidebar [hidden]="(sharedState.sidebarContext | async) !== SidebarContext.Layers"></app-sidebar>
-        <app-sidebar-filters [drawLayer]="drawLayer" [hidden]="(sharedState.sidebarContext | async) !== SidebarContext.Filters"></app-sidebar-filters>
+        <app-sidebar
+          [hidden]="
+            (sharedState.sidebarContext | async) !== SidebarContext.Layers
+          "
+        ></app-sidebar>
+        <app-sidebar-filters
+          [drawLayer]="drawLayer"
+          [hidden]="
+            (sharedState.sidebarContext | async) !== SidebarContext.Filters
+          "
+        ></app-sidebar-filters>
       </app-sidebar-root>
     </mat-sidenav>
     <mat-sidenav-content>

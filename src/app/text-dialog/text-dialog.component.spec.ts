@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 
 import { TextDialogComponent } from './text-dialog.component';
-import {HttpClientTestingModule} from "@angular/common/http/testing";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('TextDialogComponent', () => {
   let component: TextDialogComponent;
@@ -11,15 +11,16 @@ describe('TextDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ TextDialogComponent ],
-      imports: [ HttpClientTestingModule ],
+      declarations: [TextDialogComponent],
+      imports: [HttpClientTestingModule],
       providers: [
-        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        {
+          provide: MatDialogRef,
+          useValue: jasmine.createSpyObj('MatDialogRef', ['close']),
+        },
       ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

@@ -52,11 +52,11 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { SidebarFiltersComponent } from './sidebar-filters/sidebar-filters.component';
 import { SidebarRootComponent } from './sidebar-root/sidebar-root.component';
-import {Nl2BrPipeModule} from "nl2br-pipe";
+import { Nl2BrPipeModule } from 'nl2br-pipe';
 import { FabMenuComponent } from './fab-menu/fab-menu.component';
-import {OverlayModule} from "@angular/cdk/overlay";
-import {MatGridListModule} from "@angular/material/grid-list";
-import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 registerLocaleData(localeDeCh);

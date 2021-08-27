@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NgxIndexedDBService } from 'ngx-indexed-db';
 
 import { ExportDialogComponent } from './export-dialog.component';
-import {HttpClientTestingModule} from "@angular/common/http/testing";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('ExportDialogComponent', () => {
   let component: ExportDialogComponent;
@@ -12,17 +12,21 @@ describe('ExportDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ ExportDialogComponent ],
-      imports: [ HttpClientTestingModule ],
+      declarations: [ExportDialogComponent],
+      imports: [HttpClientTestingModule],
       providers: [
-        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        {
+          provide: MatDialogRef,
+          useValue: jasmine.createSpyObj('MatDialogRef', ['close']),
+        },
         { provide: MAT_DIALOG_DATA, useValue: {} },
-        { provide: NgxIndexedDBService, useValue: jasmine.createSpyObj('NgxIndexedDBService', [ 'add' ]) }
+        {
+          provide: NgxIndexedDBService,
+          useValue: jasmine.createSpyObj('NgxIndexedDBService', ['add']),
+        },
       ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

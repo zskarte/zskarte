@@ -1,8 +1,8 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import { transform } from 'ol/proj';
-import {SharedStateService, SidebarContext} from '../shared-state.service';
+import { SharedStateService, SidebarContext } from '../shared-state.service';
 import { Layer } from '../layers/layer';
 import { coordinatesProjection, mercatorProjection } from '../projections';
 import Feature from 'ol/Feature';
@@ -16,7 +16,7 @@ import { ScaleLine, defaults as defaultControls } from 'ol/control';
 import { PreferencesService } from '../preferences.service';
 import { CLUSTER_LAYER_ZINDEX } from '../drawlayer/drawlayer.component';
 import { defaults } from 'ol/interaction';
-import {MatSidenav} from "@angular/material/sidenav";
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-map',
@@ -157,7 +157,7 @@ export class MapComponent implements OnInit {
     });
 
     this.sharedState.selectedFeatures.subscribe((selectedFeatures) => {
-      selectedFeatures.forEach(feature => {
+      selectedFeatures.forEach((feature) => {
         this.map.removeLayer(feature.layer);
         this.map.addLayer(feature.layer);
       });

@@ -179,7 +179,7 @@ export class GeocoderComponent {
   }
 
   removeSelectedLocation() {
-      this.selected = null;
-      this.sharedState.gotoCoordinate(null);
+    this.selected = null;
+    this.sharedState.gotoCoordinate(null);
   }
 }
