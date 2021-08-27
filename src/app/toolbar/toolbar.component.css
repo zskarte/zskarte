@@ -99,10 +99,3 @@ app-geocoder{
   gap: 10px;
   align-items: center;
 }
-
-hr.separator {
-  margin: 0;
-  height: 1px;
-  background-color: rgba(0,0,0,0.1);
-  border: none;
-}
