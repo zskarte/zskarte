@@ -42,6 +42,7 @@
               color="primary"
             ></mat-slide-toggle>
           </button>
+          <mat-divider></mat-divider>
           <button mat-menu-item (click)="createOrLoadSession()" *ngIf="!historyMode">
             <mat-icon
               aria-hidden="false"
@@ -66,6 +67,7 @@
             >
             {{ i18n.get('exportSession') }}
           </button>
+          <mat-divider></mat-divider>
           <a
             mat-menu-item
             [download]="getDownloadFileName()"
@@ -86,6 +88,7 @@
           <button mat-menu-item (click)="clear()">
             <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteMap')">delete</mat-icon> {{ i18n.get('deleteMap') }}
           </button>
+          <mat-divider></mat-divider>
           <button
             mat-menu-item
             class="tools-menu-item"
@@ -102,6 +105,18 @@
           <button
             mat-menu-item
             class="tools-menu-item"
+            [matMenuTriggerFor]="languages"
+          >
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('language')"
+              >language</mat-icon
+            >
+            {{ i18n.get('language') }}
+          </button>
+          <button
+            mat-menu-item
+            class="tools-menu-item"
             (click)="print()"
             *ngIf="!historyMode"
           >
@@ -110,34 +125,32 @@
             >
             {{ i18n.get('print') }}
           </button>
-          <button
+          <a
             mat-menu-item
+            [download]="getDownloadFileNameCSV()"
+            id="exportCSV"
             class="tools-menu-item"
-            [matMenuTriggerFor]="languages"
+            (click)="downloadCSV()"
+            [href]="downloadCSVData"
+          ><mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('downloadMapCSV')">save</mat-icon> {{ i18n.get('downloadMapCSV') }}</a
           >
-            <mat-icon
-              aria-hidden="false"
-              [attr.aria-label]="i18n.get('language')"
-              >language</mat-icon
+          <button mat-menu-item (click)="help()">
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')"
+              >help</mat-icon
             >
-            Sprachen
+            {{ i18n.get('help') }}
           </button>
+          <mat-divider></mat-divider>
           <button
             mat-menu-item
             class="tools-menu-item"
-            (click)="clear()"
+            (click)="deleteSession()"
             *ngIf="!historyMode"
           >
             <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')"
               >logout</mat-icon
             >
             {{ i18n.get('logout') }}
-          </button>
-          <button mat-menu-item (click)="help()">
-            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')"
-              >help</mat-icon
-            >
-            {{ i18n.get('help') }}
           </button>
         </mat-menu>
         <mat-menu #languages="matMenu">

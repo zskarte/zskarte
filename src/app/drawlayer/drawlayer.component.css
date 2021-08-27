@@ -32,4 +32,10 @@
   border-radius: 0;
   background: rgba(0, 0, 0, 0.5);
   color: white;
+  user-select: text;
+}
+.coordinates .material-icons {
+  user-select: none;
+  margin-left: 5px;
+  transform: scale(-1, 1);
 }
