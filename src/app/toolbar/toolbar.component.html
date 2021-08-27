@@ -63,25 +63,6 @@
             >
             {{ i18n.get('exportSession') }}
           </button>
-          <button mat-menu-item (click)="deleteSession()" *ngIf="!historyMode">
-            <mat-icon
-              aria-hidden="false"
-              [attr.aria-label]="i18n.get('deleteMap')"
-              >delete</mat-icon
-            >
-            {{ i18n.get('deleteMap') }}
-          </button>
-          <button
-            mat-menu-item
-            class="tools-menu-item"
-            (click)="importData()"
-            *ngIf="!historyMode"
-          >
-            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('import')"
-              >open_in_browser</mat-icon
-            >
-            {{ i18n.get('import') }}
-          </button>
           <a
             mat-menu-item
             [download]="getDownloadFileName()"
@@ -94,8 +75,14 @@
               [attr.aria-label]="i18n.get('download')"
               >save</mat-icon
             >
-            {{ i18n.get('download') }}</a
+            {{ i18n.get('downloadMap') }}</a
           >
+          <button mat-menu-item class="tools-menu-item" (click)="importData()" *ngIf="!historyMode">
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('importMap')">open_in_browser</mat-icon> {{ i18n.get('importMap') }}
+          </button>
+          <button mat-menu-item (click)="clear()">
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteMap')">delete</mat-icon> {{ i18n.get('deleteMap') }}
+          </button>
           <button
             mat-menu-item
             class="tools-menu-item"
@@ -161,39 +148,6 @@
           </button>
         </mat-menu>
       </div>
-      <mat-card-content
-        class="flexContainer noprint hideWhenCollapsed alignCenter flex-gap"
-      >
-      </mat-card-content>
-    </div>
-  </div>
-  <div
-    class="filterWrapper noprint hideWhenCollapsed"
-    *ngIf="filterSymbols && filterSymbols.length > 0"
-  >
-    <div class="fixedFilter">
-      {{ i18n.get('filter') }}:
-      <button mat-icon-button (click)="filterAll(false)">
-        <mat-icon aria-hidden="false">visibility</mat-icon>
-      </button>
-      <button mat-icon-button class="allButton" (click)="filterAll(true)">
-        <mat-icon aria-hidden="false">visibility_off</mat-icon>
-      </button>
-    </div>
-    <div class="filterButtons">
-      <button
-        mat-stroked-button
-        [class]="
-          drawLayer.isSigFiltered(symbol) ? 'active filterItem' : 'filterItem'
-        "
-        *ngFor="let symbol of filterSymbols"
-        (click)="drawLayer.toggleFilter(symbol)"
-      >
-        <img *ngIf="symbol.src" [src]="symbol.src" [title]="symbol.label" />
-        <mat-icon aria-hidden="false" *ngIf="symbol.icon">{{
-          symbol.icon
-        }}</mat-icon>
-      </button>
     </div>
   </div>
 </mat-card>

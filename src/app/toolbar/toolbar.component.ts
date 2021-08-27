@@ -55,11 +55,7 @@ export class ToolbarComponent implements OnInit {
       this.historyMode = mode === DisplayMode.HISTORY;
       window.history.pushState(null, '', '?mode=' + mode);
     });
-    this.sharedState.drawingManipulated.subscribe((updated) => {
-      if (updated) {
-        this.updateFilterSymbols();
-      }
-    });
+
     this.sharedState.sessionOutdated.subscribe((isOutdated) => {
       if (isOutdated) {
         this.createInitialSession();
@@ -84,10 +80,10 @@ export class ToolbarComponent implements OnInit {
   historyMode: boolean;
   filterKeys: any[];
   filterSymbols: any[];
-  collapsed: boolean = true;
   exportEnabled = true;
   downloadTime = null;
   downloadData = null;
+  downloadCSVData = null;
   locales: string[] = LOCALES;
 
   @HostListener('window:keydown', ['$event'])
@@ -107,76 +103,7 @@ export class ToolbarComponent implements OnInit {
     }
   }
 
-  extractSymbol(f, symbols) {
-    const sig = f.get('sig');
-    if (sig) {
-      if (sig.src) {
-        if (!symbols[sig.src]) {
-          const dataUrl = CustomImageStoreService.getImageDataUrl(sig.src);
-          symbols[sig.src] = {
-            label: this.i18n.getLabelForSign(sig),
-            origSrc: sig.src,
-            src: dataUrl ? dataUrl : 'assets/img/signs/' + sig.src,
-          };
-        }
-      } else if (sig.type === 'Polygon' && !sig.src) {
-        symbols['not_labeled_polygon'] = {
-          type: 'Polygon',
-          label: this.i18n.get('polygon'),
-          filterValue: 'not_labeled_polygon',
-          icon: 'widgets',
-        };
-      } else if (sig.type === 'LineString' && sig.text) {
-        symbols['text_element'] = {
-          type: 'LineString',
-          label: this.i18n.get('text'),
-          filterValue: 'text_element',
-          icon: 'font_download',
-        };
-      } else if (sig.type === 'LineString' && sig.freehand) {
-        symbols['free_hand_element'] = {
-          type: 'LineString',
-          label: this.i18n.get('freeHand'),
-          filterValue: 'free_hand_element',
-          icon: 'gesture',
-        };
-      } else if (sig.type === 'LineString' && !sig.src) {
-        symbols['not_labeled_line'] = {
-          type: 'LineString',
-          label: this.i18n.get('line'),
-          filterValue: 'not_labeled_line',
-          icon: 'show_chart',
-        };
-      }
-    }
-  }
-
-  updateFilterSymbols() {
-    const symbols = {};
-    if (this.drawLayer && this.drawLayer.source) {
-      this.drawLayer.source
-        .getFeatures()
-        .forEach((f) => this.extractSymbol(f, symbols));
-      if (this.historyMode) {
-        this.drawLayer.clusterSource
-          .getFeatures()
-          .forEach((f) => this.extractSymbol(f, symbols));
-      }
-      this.filterKeys = Object.keys(symbols);
-
-      this.filterSymbols = Object.values(symbols).sort((a: any, b: any) =>
-        a.label.localeCompare(b.label)
-      );
-    }
-  }
-
   ngOnInit() {
-    this.sharedState.showMapLoader.subscribe((l) => {
-      if (!l) {
-        // The loader has been hidden -> we should check if we have new symbols for filters.
-        this.updateFilterSymbols();
-      }
-    });
     this.sharedState.session.subscribe((s) => {
       this.session = s;
       if (s) {
@@ -197,10 +124,6 @@ export class ToolbarComponent implements OnInit {
     if (!this.downloadTime) {
       this.downloadTime = new Date().toISOString();
     }
-  }
-
-  private filterAll(active: boolean) {
-    this.drawLayer.toggleFilters(this.filterKeys, active);
   }
 
   private createInitialSession() {
@@ -297,12 +220,28 @@ export class ToolbarComponent implements OnInit {
   }
 
   getDownloadFileName() {
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
     return 'zskarte_' + this.downloadTime + '.geojson';
   }
 
   download(): void {
     this.downloadData = this.sanitizer.bypassSecurityTrustUrl(
       this.drawLayer.toDataUrl()
+    );
+  }
+
+  getDownloadFileNameCSV() {
+    if (!this.downloadTime) {
+      this.downloadTime = new Date().toISOString();
+    }
+    return 'zskarte_' + this.downloadTime + '.csv';
+  }
+
+  downloadCSV(): void {
+    this.downloadCSVData = this.sanitizer.bypassSecurityTrustUrl(
+      this.drawLayer.toCSVDataUrl()
     );
   }
 

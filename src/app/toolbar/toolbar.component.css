@@ -68,45 +68,6 @@ app-credits {
   border-radius: 0;
 }
 
-.filterWrapper {
-  display: flex;
-  margin-top: 7px;
-}
-
-.filterItem {
-  display: inline-block;
-  overflow: hidden;
-  margin-left: 0.1em;
-  margin-right: 0.1em;
-}
-
-.filterItem img {
-  max-height: 2em;
-  max-width: 2em;
-}
-
-.filterItem.active {
-  background-color: #d3d3d3;
-}
-
-.allButton {
-  margin-right: 1em;
-}
-
-.filterButtons {
-  flex: 1;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-
-.collapse {
-  appearance: none;
-  border: none;
-  outline: none;
-  background: transparent;
-}
-
 .mat-menu-item {
   display: flex;
   align-items: center;
@@ -123,3 +84,9 @@ app-credits {
   background-color: #d3d3d3;
 }
 
+hr.separator {
+  margin: 0;
+  height: 1px;
+  background-color: rgba(0,0,0,0.1);
+  border: none;
+}

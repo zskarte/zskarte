@@ -10,12 +10,12 @@ import { PreferencesService } from '../preferences.service';
 })
 export class ClockComponent implements OnInit {
   historyDate = null;
-
   sessionId:string;
   sessionZsoId:string;
   timeOffset:number = PreferencesService.guestSessionTimeout;
   doCheckTimeout:number = 0;
   sessionTimeLeft:string;
+
   constructor(
     public i18n: I18NService,
     private sharedState: SharedStateService,
@@ -27,6 +27,8 @@ export class ClockComponent implements OnInit {
     });
   }
   now: Date;
+  timerProgressValue: number = 100;
+
 
   ngOnInit() {
     this.update();
@@ -42,16 +44,25 @@ export class ClockComponent implements OnInit {
 
   redefine() {
     this.now = this.historyDate ? this.historyDate : new Date();
-    if(this.sessionId != this.preferences.getLastSessionId() || this.sessionZsoId != this.preferences.getLastZsoId()) {
+    if (
+      this.sessionId != this.preferences.getLastSessionId() ||
+      this.sessionZsoId != this.preferences.getLastZsoId()
+    ) {
       this.refreshSessionData();
     }
-    if(this.doCheckTimeout != 0) {
-      const sessionSecondsLeft:number = Math.floor((this.doCheckTimeout - this.now.getTime()) / 1000);
-      if(sessionSecondsLeft > 0) {
-        this.sessionTimeLeft = sessionSecondsLeft > 60 ? Math.floor(sessionSecondsLeft / 60) + 'm'  : sessionSecondsLeft + 's';
+    if (this.doCheckTimeout != 0) {
+      const sessionSecondsLeft: number = Math.floor(
+        (this.doCheckTimeout - this.now.getTime()) / 1000
+      );
+      this.timerProgressValue = Math.floor((sessionSecondsLeft / 3600) * 100);
+      if (sessionSecondsLeft > 0) {
+        this.sessionTimeLeft =
+          sessionSecondsLeft > 60
+            ? Math.floor(sessionSecondsLeft / 60) + 'm'
+            : sessionSecondsLeft + 's';
       } else {
-        this.sessionTimeLeft = this.i18n.get('sessionOverdue'); // 'Overdue!';
-        if(!this.sharedState.sessionOutdated.value) {
+        this.sessionTimeLeft = this.i18n.get('sessionOverdue');
+        if (!this.sharedState.sessionOutdated.value) {
           this.sharedState.sessionOutdated.next(true);
         }
       }
