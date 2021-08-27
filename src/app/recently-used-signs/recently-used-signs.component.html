@@ -1,1 +1,21 @@
-<p>recently-used-signs works!</p>
+<button
+  mat-stroked-button
+  size="medium"
+  [title]="i18n.get('recentlyUsedSigns')"
+  [mat-menu-trigger-for]="favoriteSignsMenu"
+>
+  <mat-icon>history</mat-icon>
+</button>
+<mat-menu #favoriteSignsMenu="matMenu">
+  <div *ngIf="signs.length > 0; else noSigns" class="container">
+    <button *ngFor="let sign of signs" mat-menu-item (click)="selectSign(sign)">
+      <img [src]="getImageUrl(sign.src)" />
+      <span>{{ i18n.getLabelForSign(sign) }}</span>
+    </button>
+  </div>
+  <ng-template #noSigns>
+    <span class="label">
+      {{ i18n.get('noSignsUsed') }}
+    </span>
+  </ng-template>
+</mat-menu>
