@@ -465,13 +465,13 @@ export class DrawlayerComponent implements OnInit {
     this.map.addInteraction(this.drawHole);
     this.drawHole.setActive(true);
     this.select.addEventListener('select', (e) => {
-      this.selectionChanged();
+      this.selectionChanged(e.selected);
     });
     this.source.addEventListener('addfeature', (e) => {
       if (!e.feature.getId()) {
         e.feature.setId(uuidv4());
       }
-      this.selectionChanged();
+      this.selectionChanged(undefined);
       this.drawingManipulated(e.feature);
     });
     this.sharedState.currentFeature.subscribe((f) => {
@@ -759,22 +759,28 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  selectionChanged() {
+  selectionChanged(feat) {
+    const features = this.select.getFeatures();
     this.toggleEditButtons(false);
-    if (this.select.getFeatures().getLength() === 1) {
-      const feature = this.select.getFeatures().item(0);
+    if (features.getLength() === 1) {
+      const feature = features.item(0);
       this.selectedFeature = feature;
       if (this.mergeSource) {
         this.mergeFeatures(this.mergeSource, feature);
       } else {
         this.sharedState.selectFeature(feature);
       }
-    } else if (this.select.getFeatures().getLength() === 0) {
+    } else if (features.getLength() === 0) {
       if (this.mergeSource) {
         this.sharedState.setMergeMode(false);
       }
-      this.selectedFeature = null;
-      this.sharedState.selectFeature(null);
+      if (!feat) {
+        this.selectedFeature = null;
+        this.sharedState.selectFeature(null);
+      } else {
+        this.selectedFeature = feat[0];
+        this.sharedState.selectFeature(feat[0]);
+      }
     } else {
       if (this.mergeSource) {
         this.sharedState.setMergeMode(false);
