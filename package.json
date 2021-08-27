@@ -8,7 +8,7 @@
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
     "test": "ng test --watch",
     "lint": "ng lint --max-warnings 0",
-    "prettify": "prettier --write \"**/*.{ts,html,css,json}\"",
+    "prettify": "prettier --write \"**/*.{js,ts,html,css,json,md}\"",
     "e2e": "ng e2e",
     "cypress:install": "cypress install",
     "cypress:open": "cypress open",
