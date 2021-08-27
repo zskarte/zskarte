@@ -2,11 +2,6 @@
   font-size: 0.7em;
 }
 
-mat-form-field {
-  flex-grow: 5;
-  display: flex;
-}
-
 .geocoder {
   display: flex;
   gap: 10px;
