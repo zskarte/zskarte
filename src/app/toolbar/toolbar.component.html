@@ -29,7 +29,7 @@
           </button>
         </div>
         <mat-menu #mainMenu="matMenu" class="burger-menu">
-          <button mat-menu-item (click)="$event.stopPropagation();">
+          <button mat-menu-item (click)="$event.stopPropagation()">
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('exportSession')"
@@ -43,7 +43,11 @@
             ></mat-slide-toggle>
           </button>
           <mat-divider></mat-divider>
-          <button mat-menu-item (click)="createOrLoadSession()" *ngIf="!historyMode">
+          <button
+            mat-menu-item
+            (click)="createOrLoadSession()"
+            *ngIf="!historyMode"
+          >
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('createOrLoad')"
@@ -82,11 +86,26 @@
             >
             {{ i18n.get('downloadMap') }}</a
           >
-          <button mat-menu-item class="tools-menu-item" (click)="importData()" *ngIf="!historyMode">
-            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('importMap')">open_in_browser</mat-icon> {{ i18n.get('importMap') }}
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            (click)="importData()"
+            *ngIf="!historyMode"
+          >
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('importMap')"
+              >open_in_browser</mat-icon
+            >
+            {{ i18n.get('importMap') }}
           </button>
           <button mat-menu-item (click)="clear()">
-            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteMap')">delete</mat-icon> {{ i18n.get('deleteMap') }}
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('deleteMap')"
+              >delete</mat-icon
+            >
+            {{ i18n.get('deleteMap') }}
           </button>
           <mat-divider></mat-divider>
           <button
@@ -132,7 +151,12 @@
             class="tools-menu-item"
             (click)="downloadCSV()"
             [href]="downloadCSVData"
-          ><mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('downloadMapCSV')">save</mat-icon> {{ i18n.get('downloadMapCSV') }}</a
+            ><mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('downloadMapCSV')"
+              >save</mat-icon
+            >
+            {{ i18n.get('downloadMapCSV') }}</a
           >
           <button mat-menu-item (click)="help()">
             <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')"

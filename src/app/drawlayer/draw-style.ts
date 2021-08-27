@@ -712,7 +712,9 @@ export class DrawStyle {
         // Draw a circle below the icon
         const backgroundCircle = new Circle({
           radius: iconRadius,
-          fill: this.getColorFill(`rgba(255, 255, 255, ${signature.iconOpacity})`),
+          fill: this.getColorFill(
+            `rgba(255, 255, 255, ${signature.iconOpacity})`
+          ),
           stroke: dashedStroke,
         });
         iconStyles.push(
@@ -1000,7 +1002,7 @@ export class DrawStyle {
         case 'MultiPolygon':
         case 'LineString':
           return new Style({
-            stroke: DrawStyle.getHighlightStroke(feature, scale)
+            stroke: DrawStyle.getHighlightStroke(feature, scale),
           });
       }
     }

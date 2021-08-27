@@ -35,6 +35,7 @@ jobs:
       - name: npm run test and npm run e2e
         run: |
           npm ci
+          npm run lint
           npm run test:ci
           npm run cypress:install
           npm run e2e

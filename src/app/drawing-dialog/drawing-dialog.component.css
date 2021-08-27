@@ -78,17 +78,16 @@
   width: 100%;
 }
 
-.categoryDot{
+.categoryDot {
   display: block;
   min-width: 1em;
   margin-right: 0.7em;
 }
 
-.categoryElement{
+.categoryElement {
   display: flex;
 }
 
-.noPadding{
+.noPadding {
   padding: 0;
 }
-

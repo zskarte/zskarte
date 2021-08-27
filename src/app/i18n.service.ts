@@ -125,7 +125,7 @@ export class I18NService {
     importMap: {
       de: 'Karte importieren',
       en: 'Import map',
-      fr: "Importer carte",
+      fr: 'Importer carte',
     },
     importMapConflict: {
       de: 'Die zu importierende Karte existiert bereits. Möchten Sie sie ersetzen? Ansonsten wird eine Kopie angelegt.',
@@ -1135,7 +1135,7 @@ export class I18NService {
       en: 'Hide all elements',
       fr: 'Tout cacher',
     },
-    hideShow : {
+    hideShow: {
       de: 'anzeigen/verstecken',
       en: 'show/hide',
       fr: 'afficher/cacher',

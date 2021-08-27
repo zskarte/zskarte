@@ -28,7 +28,8 @@
           <mat-label>{{ i18n.get('filterByCategory') }}</mat-label>
           <mat-select
             [(value)]="selected"
-            (selectionChange)="updateAvailableSigns()">
+            (selectionChange)="updateAvailableSigns()"
+          >
             <mat-option>{{ i18n.get('allCategories') }}</mat-option>
             <mat-option
               *ngFor="let category of signCategories"

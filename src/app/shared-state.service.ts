@@ -1,28 +1,27 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject} from 'rxjs/index';
+import { BehaviorSubject } from 'rxjs/index';
 import { Sign } from './entity/sign';
 import { Coordinate } from './entity/coordinate';
 import { Session } from './entity/session';
 import { Layer } from './layers/layer';
 import { DisplayMode } from './entity/displayMode';
-import {GeoadminService} from "./geoadmin.service";
+import { GeoadminService } from './geoadmin.service';
 
 import OlTileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import OlTileGridWMTS from 'ol/tilegrid/WMTS';
 import OlTileWMTS from 'ol/source/WMTS';
 import OlTileXYZ from 'ol/source/XYZ';
-import {swissProjection} from "./projections";
-import findOfflineHost from "./lib/findOfflineHost";
+import { swissProjection } from './projections';
+import findOfflineHost from './lib/findOfflineHost';
 
 const favoriteFeaturesList = [
   'auengebiete',
   'gemeindegrenzen',
   'gewässer swisstlm3d',
   'hangneigung ab 30°',
-  'strassen und wege swisstlm3d'
+  'strassen und wege swisstlm3d',
 ];
-
 
 const layers: Layer[] = [
   {
@@ -38,7 +37,7 @@ const layers: Layer[] = [
       source: new OlTileXYZ({
         attributions: [
           '<a target="new" href="https://www.swisstopo.admin.ch/' +
-          'internet/swisstopo/en/home.html">swisstopo</a>',
+            'internet/swisstopo/en/home.html">swisstopo</a>',
         ],
         url: 'https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg',
         maxZoom: 20,
@@ -52,7 +51,7 @@ const layers: Layer[] = [
       source: new OlTileXYZ({
         attributions: [
           '<a target="new" href="https://www.swisstopo.admin.ch/' +
-          'internet/swisstopo/en/home.html">swisstopo</a>',
+            'internet/swisstopo/en/home.html">swisstopo</a>',
         ],
         url: 'https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg',
         maxZoom: 19,
@@ -66,7 +65,7 @@ const layers: Layer[] = [
       source: new OlTileXYZ({
         attributions: [
           '<a target="new" href="https://www.swisstopo.admin.ch/' +
-          'internet/swisstopo/en/home.html">swisstopo</a>',
+            'internet/swisstopo/en/home.html">swisstopo</a>',
         ],
         url: 'https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg',
         maxZoom: 19,
@@ -90,7 +89,7 @@ export function createGeoAdminLayer(
   layerId: string,
   timestamp: string,
   extension: string,
-  zIndex: number,
+  zIndex: number
 ) {
   return new OlTileLayer({
     source: new OlTileWMTS({
@@ -127,10 +126,7 @@ export enum SidebarContext {
   providedIn: 'root',
 })
 export class SharedStateService {
-  public constructor(
-    private geoAdminService: GeoadminService,
-  ) {
-  }
+  public constructor(private geoAdminService: GeoadminService) {}
 
   public displayMode = new BehaviorSubject<DisplayMode>(
     SharedStateService.getFromQueryParam(
@@ -250,13 +246,12 @@ export class SharedStateService {
   }
 
   updateAvailableFeatures() {
-    const availableFeatures = this.featuresSource.value.filter(
-      (f) =>
-        !f.layer
-    );
+    const availableFeatures = this.featuresSource.value.filter((f) => !f.layer);
     this.availableFeatures.next(availableFeatures);
 
-    const favoriteFeatures = availableFeatures.filter((f) => favoriteFeaturesList.includes(f.label.toLowerCase()));
+    const favoriteFeatures = availableFeatures.filter((f) =>
+      favoriteFeaturesList.includes(f.label.toLowerCase())
+    );
     this.favoriteFeatures.next(favoriteFeatures);
   }
 
@@ -381,7 +376,9 @@ export class SharedStateService {
   addRemoveFeature(feature: any) {
     if (feature.layer === undefined) {
       feature.opacity = 0.75;
-      let maxIndex = Math.max(...this.selectedFeaturesSource.value.map(f => f.layer.getZIndex()));
+      let maxIndex = Math.max(
+        ...this.selectedFeaturesSource.value.map((f) => f.layer.getZIndex())
+      );
       maxIndex = Number.isInteger(maxIndex) ? maxIndex + 1 : 0;
       feature.layer = createGeoAdminLayer(
         feature.serverLayerName,
@@ -395,9 +392,9 @@ export class SharedStateService {
     } else {
       this.removeFeatureLayer(feature.layer);
       feature.layer = undefined;
-      this.selectedFeaturesSource.next(this.selectedFeaturesSource.value.filter(
-        (f) => f !== feature
-      ));
+      this.selectedFeaturesSource.next(
+        this.selectedFeaturesSource.value.filter((f) => f !== feature)
+      );
     }
     this.updateAvailableFeatures();
   }
@@ -420,19 +417,33 @@ export class SharedStateService {
   }
 
   sortFeatureUp(index: any) {
-    const previousZIndex = this.selectedFeaturesSource.value[index].layer.getZIndex();
-    this.selectedFeaturesSource.value[index - 1].layer.setZIndex(previousZIndex);
-    this.selectedFeaturesSource.value[index].layer.setZIndex(previousZIndex + 1);
-    const newSelectedFeatures = this.selectedFeaturesSource.value.slice().sort((a, b) => b.layer.getZIndex() - a.layer.getZIndex());
+    const previousZIndex =
+      this.selectedFeaturesSource.value[index].layer.getZIndex();
+    this.selectedFeaturesSource.value[index - 1].layer.setZIndex(
+      previousZIndex
+    );
+    this.selectedFeaturesSource.value[index].layer.setZIndex(
+      previousZIndex + 1
+    );
+    const newSelectedFeatures = this.selectedFeaturesSource.value
+      .slice()
+      .sort((a, b) => b.layer.getZIndex() - a.layer.getZIndex());
     this.selectedFeaturesSource.next(newSelectedFeatures);
     this.didChangeLayer();
   }
 
   sortFeatureDown(index: any) {
-    const previousZIndex = this.selectedFeaturesSource.value[index].layer.getZIndex();
-    this.selectedFeaturesSource.value[index + 1].layer.setZIndex(previousZIndex);
-    this.selectedFeaturesSource.value[index].layer.setZIndex(previousZIndex - 1);
-    const newSelectedFeatures = this.selectedFeaturesSource.value.slice().sort((a, b) => b.layer.getZIndex() - a.layer.getZIndex());
+    const previousZIndex =
+      this.selectedFeaturesSource.value[index].layer.getZIndex();
+    this.selectedFeaturesSource.value[index + 1].layer.setZIndex(
+      previousZIndex
+    );
+    this.selectedFeaturesSource.value[index].layer.setZIndex(
+      previousZIndex - 1
+    );
+    const newSelectedFeatures = this.selectedFeaturesSource.value
+      .slice()
+      .sort((a, b) => b.layer.getZIndex() - a.layer.getZIndex());
     this.selectedFeaturesSource.next(newSelectedFeatures);
     this.didChangeLayer();
   }

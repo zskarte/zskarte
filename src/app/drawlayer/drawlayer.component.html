@@ -15,11 +15,21 @@
 <div class="mat-button coordinates">
   <div class="mat-button-wrapper">
     <span *ngIf="!selectedFeature">
-      <ng-container>{{ availableProjections[selectedProjectionIndex].translate(mouseCoordinatesProjection) }}</ng-container>
+      <ng-container>{{
+        availableProjections[selectedProjectionIndex].translate(
+          mouseCoordinatesProjection
+        )
+      }}</ng-container>
     </span>
     <span *ngIf="selectedFeature">
-      <ng-container>{{ availableProjections[selectedProjectionIndex].translate(selectedFeatureCoordinates) }}</ng-container>
+      <ng-container>{{
+        availableProjections[selectedProjectionIndex].translate(
+          selectedFeatureCoordinates
+        )
+      }}</ng-container>
     </span>
-    <i class="material-icons" (click)="rotateProjection()">photo_size_select_small</i>
+    <i class="material-icons" (click)="rotateProjection()"
+      >photo_size_select_small</i
+    >
   </div>
 </div>
