@@ -34,7 +34,6 @@ jobs:
 
       - name: npm run test and npm run e2e
         run: |
-          export CYPRESS_CACHE_FOLDER=~/.cache/Cypress
           npm ci
           npm run test:ci
           npm run e2e
