@@ -1,24 +1,20 @@
-import { Component, HostListener } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.component';
-import { SharedStateService } from '../shared-state.service';
 import { TextDialogComponent } from '../text-dialog/text-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { SharedStateService } from '../shared-state.service';
 import { I18NService } from '../i18n.service';
-
-export interface Filter {
-  value: string;
-  viewValue: string;
-  color: string;
-  textcolor: string;
-}
+import { DisplayMode } from '../entity/displayMode';
 
 @Component({
-  selector: 'app-drawingtools',
-  templateUrl: './drawingtools.component.html',
-  styleUrls: ['./drawingtools.component.css'],
+  selector: 'app-fab-menu',
+  templateUrl: './fab-menu.component.html',
+  styleUrls: ['./fab-menu.component.css'],
 })
-export class DrawingtoolsComponent {
+export class FabMenuComponent implements OnInit {
   text: string = null;
+  isOpen = false;
+  historyMode: boolean;
 
   constructor(
     public drawDialog: MatDialog,
@@ -26,6 +22,12 @@ export class DrawingtoolsComponent {
     private sharedState: SharedStateService,
     public i18n: I18NService
   ) {}
+
+  ngOnInit(): void {
+    this.sharedState.displayMode.subscribe((mode) => {
+      this.historyMode = mode === DisplayMode.HISTORY;
+    });
+  }
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
@@ -58,8 +60,10 @@ export class DrawingtoolsComponent {
     const dialogRef = this.drawDialog.open(DrawingDialogComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
-      if(result)
+      if (result) {
         this.sharedState.selectSign(result);
+      }
+      this.closeBackdrop();
     });
   }
 
@@ -72,6 +76,7 @@ export class DrawingtoolsComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       this.text = result;
+      this.closeBackdrop();
     });
   }
 
@@ -82,6 +87,7 @@ export class DrawingtoolsComponent {
       src: null,
       filterValue: 'not_labeled_polygon',
     });
+    this.closeBackdrop();
   }
 
   line(): void {
@@ -91,6 +97,7 @@ export class DrawingtoolsComponent {
       src: null,
       filterValue: 'not_labeled_line',
     });
+    this.closeBackdrop();
   }
 
   circle(): void {
@@ -99,5 +106,15 @@ export class DrawingtoolsComponent {
       type: 'Circle',
       src: null,
     });
+    this.closeBackdrop();
+  }
+
+  toggleFreeHandDraw(): void {
+    this.sharedState.toggleFreeHandDraw();
+    this.closeBackdrop();
+  }
+
+  closeBackdrop(): void {
+    this.isOpen = false;
   }
 }

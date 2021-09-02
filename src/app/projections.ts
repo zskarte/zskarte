@@ -17,36 +17,50 @@ type ZsKarteProjection = {
   format: string;
   projection: Projection;
   translate: Function;
-}
+};
 
-export const availableProjections: Array<ZsKarteProjection> = [{
-  format: '1.2-2',
-  projection: swissProjection,
-  // see: https://www.swisstopo.admin.ch/de/wissen-fakten/geodaesie-vermessung/bezugsrahmen/lokal/lv95.html > E / N
-  translate: function(coords? : number[]) : string {
-    return 'LV95' + (coords != null && coords.length == 2 
-      ? ' E' + coords[0].toFixed(2) + ' / N' + coords[1].toFixed(2) 
-      : ''
-    );
-  }
-}, {
-  format: '1.5-5',
-  projection: coordinatesProjection,
-  // see: https://de.wikipedia.org/wiki/Geographische_Koordinaten > LAT(N) should be 1st and LONG(E) 2nd
-  translate: function(coords : number[]) {
-    return 'GPS' + (coords != null && coords.length == 2 
-      ? ' N' + coords[1].toFixed(5) + '°, E' + coords[0].toFixed(5) + '°'
-      : ''
-    );
-  }
-}];
+export const availableProjections: Array<ZsKarteProjection> = [
+  {
+    format: '1.2-2',
+    projection: swissProjection,
+    // see: https://www.swisstopo.admin.ch/de/wissen-fakten/geodaesie-vermessung/bezugsrahmen/lokal/lv95.html > E / N
+    translate: function (coords?: number[]): string {
+      const numberFormatOptions = {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      return (
+        'LV95' +
+        (coords != null && coords.length == 2
+          ? ' E' +
+            coords[0].toLocaleString('de-CH', numberFormatOptions) +
+            ' / N' +
+            coords[1].toLocaleString('de-CH', numberFormatOptions)
+          : '')
+      );
+    },
+  },
+  {
+    format: '1.5-5',
+    projection: coordinatesProjection,
+    // see: https://de.wikipedia.org/wiki/Geographische_Koordinaten > LAT(N) should be 1st and LONG(E) 2nd
+    translate: function (coords: number[]) {
+      return (
+        'GPS' +
+        (coords != null && coords.length == 2
+          ? ' N' + coords[1].toFixed(5) + '°, E' + coords[0].toFixed(5) + '°'
+          : '')
+      );
+    },
+  },
+];
 
 function getCoordinatesProjection() {
-  return get('EPSG:4326'); // see: https://epsg.io/4326 > WGS84 - World Geodetic System 1984, used in GPS 
+  return get('EPSG:4326'); // see: https://epsg.io/4326 > WGS84 - World Geodetic System 1984, used in GPS
 }
 
 function getMercatorProjection() {
-  return get('EPSG:3857'); // see: https://epsg.io/3857 > Pseudo-Mercator - Spherical Mercator, Google Maps, OpenStreetMap, Bing, ArcGIS, ESRI 
+  return get('EPSG:3857'); // see: https://epsg.io/3857 > Pseudo-Mercator - Spherical Mercator, Google Maps, OpenStreetMap, Bing, ArcGIS, ESRI
 }
 
 function getSwissProjection() {

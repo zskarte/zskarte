@@ -10,15 +10,16 @@ describe('EditCoordinatesComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ EditCoordinatesComponent ],
+      declarations: [EditCoordinatesComponent],
       providers: [
-        { provide: MatDialogRef, useValue: jasmine.createSpyObj('MatDialogRef', [ 'close' ]) },
+        {
+          provide: MatDialogRef,
+          useValue: jasmine.createSpyObj('MatDialogRef', ['close']),
+        },
         { provide: MAT_DIALOG_DATA, useValue: {} },
       ],
-      schemas: [
-        NO_ERRORS_SCHEMA
-      ]
-    })
+      schemas: [NO_ERRORS_SCHEMA],
+    });
   });
 
   beforeEach(() => {

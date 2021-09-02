@@ -1,13 +1,21 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div class="application">
+<div class="application" [style.height.px]="height">
   <div style="z-index: 10; position: relative">
     <app-toolbar [drawLayer]="drawLayer"></app-toolbar>
   </div>
   <mat-sidenav-container style="flex: 1">
-    <mat-sidenav position="end" mode="side" #sidenav style="width: 350px;">
+    <mat-sidenav position="end" mode="side" #sidenav style="width: 350px">
       <app-sidebar-root [sidenav]="sidenav">
-        <app-sidebar [hidden]="(sharedState.sidebarContext | async) !== SidebarContext.Layers"></app-sidebar>
-        <app-sidebar-filters [drawLayer]="drawLayer" [hidden]="(sharedState.sidebarContext | async) !== SidebarContext.Filters"></app-sidebar-filters>
+        <app-sidebar
+          [hidden]="
+            (sharedState.sidebarContext | async) !== SidebarContext.Layers
+          "
+        ></app-sidebar>
+        <app-sidebar-filters
+          [drawLayer]="drawLayer"
+          [hidden]="
+            (sharedState.sidebarContext | async) !== SidebarContext.Filters
+          "
+        ></app-sidebar-filters>
       </app-sidebar-root>
     </mat-sidenav>
     <mat-sidenav-content>
@@ -15,6 +23,7 @@
       <app-map #map style="height: 100%; width: 100%; display: block"></app-map>
       <app-drawlayer [inputMap]="map.map" #drawLayer></app-drawlayer>
       <app-selected-feature></app-selected-feature>
+      <app-fab-menu></app-fab-menu>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

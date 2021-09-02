@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {SharedStateService, SidebarContext} from "./shared-state.service";
+import { Component, HostListener, OnInit } from '@angular/core';
+import { SharedStateService, SidebarContext } from './shared-state.service';
 
 @Component({
   selector: 'app-root',
@@ -10,14 +10,18 @@ export class AppComponent implements OnInit {
   title = 'zsKarteAng';
 
   SidebarContext = SidebarContext;
+  height = window.innerHeight;
 
-  public constructor(
-    public sharedState: SharedStateService
-  ) {
+  public constructor(public sharedState: SharedStateService) {
     sharedState.fetchData();
   }
 
   ngOnInit(): void {
+    this.setHeight();
+  }
 
+  @HostListener('window:resize', ['$event'])
+  setHeight(): void {
+    this.height = document.documentElement?.clientHeight || window.innerHeight;
   }
 }

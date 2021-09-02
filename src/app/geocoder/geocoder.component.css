@@ -2,8 +2,13 @@
   font-size: 0.7em;
 }
 
-mat-form-field {
-  flex-grow: 10;
+.geocoder {
+  display: flex;
+  gap: 10px;
+}
+
+.input {
+  min-width: 250px;
 }
 
 .currentLocation {
@@ -17,7 +22,16 @@ mat-form-field {
   margin-right: 1em;
 }
 
-.geocoder {
-  height: 3em;
+.currentLocationLabel {
+  font-size: 12px;
+  white-space: nowrap;
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 150px;
+}
+
+.alignCenter {
   display: flex;
+  align-items: center;
 }

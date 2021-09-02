@@ -4,12 +4,9 @@
 
 .time {
   font-weight: bold;
-  font-size: 1.2em;
-  display: inline-block;
 }
 .date {
   font-style: italic;
-  line-height: 24px;
 }
 
 div {
@@ -36,14 +33,20 @@ div {
 
 .overlay {
   position: relative;
-  left: -32.5px;
-  top: -2px;
+  left: -34.5px;
+  top: -1px;
   font-size: 8px;
   width: 20px;
   height: 20px;
-
 }
 
 .timer {
   font-size: 10px;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  size: 12px;
+  align-items: end;
 }
