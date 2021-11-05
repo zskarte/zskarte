@@ -30,6 +30,54 @@ export const ZSO_GUEST: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_BS: ZSO = {
+  id: 'zso_be_bs',
+  name: 'Amt für Bevölkerungsschutz, Sport und Militär des Kantons Bern',
+  auth: 'c177b2827e860f2b55500964ab9dc090',
+  initialViewPort: {
+    coordinates: [830544.7, 5935141.38],
+    zoomLevel: 16,
+  },
+  url: 'https://www.bsm.sid.be.ch/',
+  defaultLocale: 'de',
+};
+
+export const ZSO_FR_FR: ZSO = {
+  id: 'zso_fr_fr',
+  name: 'PCi Fribourgeoise',
+  auth: 'f567e31a75e3e413e018e96b6ea80ac8',
+  initialViewPort: {
+    coordinates: [784702.5323756159, 5912939.19705637],
+    zoomLevel: 10,
+  },
+  url: 'https://www.fr.ch/dsj/sppam/sommaire/protection-civile',
+  defaultLocale: 'fr',
+};
+
+export const ZSO_BE_JB: ZSO = {
+  id: 'zso_be_jb',
+  name: 'PCi Jura Bernois',
+  auth: '954e61c327499c1face095a3ee3182f2',
+  initialViewPort: {
+    coordinates: [791469.33, 5978528.31],
+    zoomLevel: 16,
+  },
+  url: 'https://www.opcjb.ch/',
+  defaultLocale: 'fr',
+};
+
+export const ZSO_BE_RA: ZSO = {
+  id: 'zso_be_ra',
+  name: 'ZS Region Aarberg',
+  auth: '28694ea6267e914855e3488d0b4e6827',
+  initialViewPort: {
+    coordinates: [813362.88, 5954168.67],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zsra.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_AT: ZSO = {
   id: 'zso_be_at',
   name: 'ZSO Aaretal',
@@ -66,18 +114,6 @@ export const ZSO_BE_BP: ZSO = {
   defaultLocale: 'de',
 };
 
-export const ZSO_BE_BS: ZSO = {
-  id: 'zso_be_bs',
-  name: 'Amt für Bevölkerungsschutz, Sport und Militär des Kantons Bern',
-  auth: 'c177b2827e860f2b55500964ab9dc090',
-  initialViewPort: {
-    coordinates: [830544.7, 5935141.38],
-    zoomLevel: 16,
-  },
-  url: 'https://www.bsm.sid.be.ch/',
-  defaultLocale: 'de',
-};
-
 export const ZSO_BE_GN: ZSO = {
   id: 'zso_be_gn',
   name: 'ZSO Grauholz Nord',
@@ -87,30 +123,6 @@ export const ZSO_BE_GN: ZSO = {
     zoomLevel: 16,
   },
   url: 'https://www.bevs-grauholz.ch/',
-  defaultLocale: 'de',
-};
-
-export const ZSO_BE_JB: ZSO = {
-  id: 'zso_be_jb',
-  name: 'PCi Jura Bernois',
-  auth: '954e61c327499c1face095a3ee3182f2',
-  initialViewPort: {
-    coordinates: [791469.33, 5978528.31],
-    zoomLevel: 16,
-  },
-  url: 'https://www.opcjb.ch/',
-  defaultLocale: 'fr',
-};
-
-export const ZSO_BE_RA: ZSO = {
-  id: 'zso_be_ra',
-  name: 'ZS Region Aarberg',
-  auth: '28694ea6267e914855e3488d0b4e6827',
-  initialViewPort: {
-    coordinates: [813362.88, 5954168.67],
-    zoomLevel: 16,
-  },
-  url: 'https://www.zsra.ch/',
   defaultLocale: 'de',
 };
 
@@ -162,27 +174,15 @@ export const ZSO_BE_TP: ZSO = {
   defaultLocale: 'de',
 };
 
-export const ZSO_FR_FR: ZSO = {
-  id: 'zso_fr_fr',
-  name: 'PCi Fribourgeoise',
-  auth: 'f567e31a75e3e413e018e96b6ea80ac8',
-  initialViewPort: {
-    coordinates: [784702.5323756159, 5912939.19705637],
-    zoomLevel: 10,
-  },
-  url: 'https://www.fr.ch/dsj/sppam/sommaire/protection-civile',
-  defaultLocale: 'fr',
-};
-
 export const LIST_OF_ZSO: ZSO[] = [
   ZSO_GUEST,
+  ZSO_BE_BS,
+  ZSO_BE_JB,
+  ZSO_BE_RA,
   ZSO_BE_AT,
   ZSO_BE_BA,
   ZSO_BE_BP,
-  ZSO_BE_BS,
   ZSO_BE_GN,
-  ZSO_BE_JB,
-  ZSO_BE_RA,
   ZSO_BE_SA,
   ZSO_BE_SP,
   ZSO_BE_SZ,
