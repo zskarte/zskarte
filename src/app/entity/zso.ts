@@ -18,6 +18,18 @@ export function getZSOById(zsoId: string): ZSO {
   return null;
 }
 
+export const ZSO_GUEST: ZSO = {
+  id: 'zso_guest',
+  name: 'ZSO Gast (1h)',
+  auth: '',
+  initialViewPort: {
+    coordinates: [828547.63, 5933321.42],
+    zoomLevel: 16,
+  },
+  url: 'https://zskarte.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_AT: ZSO = {
   id: 'zso_be_at',
   name: 'ZSO Aaretal',
@@ -162,19 +174,8 @@ export const ZSO_FR_FR: ZSO = {
   defaultLocale: 'fr',
 };
 
-export const ZSO_GUEST: ZSO = {
-  id: 'zso_guest',
-  name: 'ZSO Gast (1h)',
-  auth: '',
-  initialViewPort: {
-    coordinates: [828547.63, 5933321.42],
-    zoomLevel: 16,
-  },
-  url: 'https://zskarte.ch/',
-  defaultLocale: 'de',
-};
-
 export const LIST_OF_ZSO: ZSO[] = [
+  ZSO_GUEST,
   ZSO_BE_AT,
   ZSO_BE_BA,
   ZSO_BE_BP,
@@ -186,5 +187,4 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_SP,
   ZSO_BE_SZ,
   ZSO_BE_TP,
-  ZSO_GUEST,
 ];
