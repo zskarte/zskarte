@@ -42,6 +42,18 @@ export const ZSO_BE_BS: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_CR: ZSO = {
+  id: 'zso_be_cr',
+  name: 'CRC Jura bernois – Formation',
+  auth: 'be67155b22de9239046294369f22efd0',
+  initialViewPort: {
+    coordinates: [791469.33, 5978528.31],
+    zoomLevel: 16,
+  },
+  url: 'https://www.opcjb.ch/organisation/crc',
+  defaultLocale: 'fr',
+};
+
 export const ZSO_FR_FR: ZSO = {
   id: 'zso_fr_fr',
   name: 'PCi Fribourgeoise',
@@ -56,13 +68,13 @@ export const ZSO_FR_FR: ZSO = {
 
 export const ZSO_BE_JB: ZSO = {
   id: 'zso_be_jb',
-  name: 'PCi Jura Bernois',
+  name: 'PCi Jura bernois',
   auth: '954e61c327499c1face095a3ee3182f2',
   initialViewPort: {
     coordinates: [791469.33, 5978528.31],
     zoomLevel: 16,
   },
-  url: 'https://www.opcjb.ch/',
+  url: 'https://www.opcjb.ch/organisation/opcjb',
   defaultLocale: 'fr',
 };
 
@@ -177,6 +189,7 @@ export const ZSO_BE_TP: ZSO = {
 export const LIST_OF_ZSO: ZSO[] = [
   ZSO_GUEST,
   ZSO_BE_BS,
+  ZSO_BE_CR,
   ZSO_BE_JB,
   ZSO_BE_RA,
   ZSO_BE_AT,
