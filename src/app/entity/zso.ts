@@ -78,6 +78,18 @@ export const ZSO_BE_JB: ZSO = {
   defaultLocale: 'fr',
 };
 
+export const ZSO_BE_ZA: ZSO = {
+  id: 'zso_be_za',
+  name: 'ZAR Ausbildungszentrum',
+  auth: '7a538ad8cfb29a07a9532d4559ade398',
+  initialViewPort: {
+    coordinates: [866188.09, 5982338.42],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zar-ag.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_RA: ZSO = {
   id: 'zso_be_ra',
   name: 'ZS Region Aarberg',
@@ -191,6 +203,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_BS,
   ZSO_BE_CR,
   ZSO_BE_JB,
+  ZSO_BE_ZA,
   ZSO_BE_RA,
   ZSO_BE_AT,
   ZSO_BE_BA,
