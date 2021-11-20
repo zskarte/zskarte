@@ -90,30 +90,6 @@ export const ZSO_BE_ZA: ZSO = {
   defaultLocale: 'de',
 };
 
-export const ZSO_BE_RA: ZSO = {
-  id: 'zso_be_ra',
-  name: 'ZS Region Aarberg',
-  auth: '28694ea6267e914855e3488d0b4e6827',
-  initialViewPort: {
-    coordinates: [813362.88, 5954168.67],
-    zoomLevel: 16,
-  },
-  url: 'https://www.zsra.ch/',
-  defaultLocale: 'de',
-};
-
-export const ZSO_BE_RB: ZSO = {
-  id: 'zso_be_rb',
-  name: 'ZS Region Burgdorf',
-  auth: '347d73226c1727a7c328e8238ef5bf80',
-  initialViewPort: {
-    coordinates: [849267.53, 5950757.09],
-    zoomLevel: 16,
-  },
-  url: 'http://www.zivilschutzregion-burgdorf.ch/',
-  defaultLocale: 'de',
-};
-
 export const ZSO_BE_AT: ZSO = {
   id: 'zso_be_at',
   name: 'ZSO Aaretal',
@@ -159,6 +135,30 @@ export const ZSO_BE_GN: ZSO = {
     zoomLevel: 16,
   },
   url: 'https://www.bevs-grauholz.ch/',
+  defaultLocale: 'de',
+};
+
+export const ZSO_BE_RA: ZSO = {
+  id: 'zso_be_ra',
+  name: 'ZSO Region Aarberg',
+  auth: '28694ea6267e914855e3488d0b4e6827',
+  initialViewPort: {
+    coordinates: [813362.88, 5954168.67],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zsra.ch/',
+  defaultLocale: 'de',
+};
+
+export const ZSO_BE_RB: ZSO = {
+  id: 'zso_be_rb',
+  name: 'ZSO Region Burgdorf',
+  auth: '347d73226c1727a7c328e8238ef5bf80',
+  initialViewPort: {
+    coordinates: [849267.53, 5950757.09],
+    zoomLevel: 16,
+  },
+  url: 'http://www.zivilschutzregion-burgdorf.ch/',
   defaultLocale: 'de',
 };
 
@@ -216,12 +216,12 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_CR,
   ZSO_BE_JB,
   ZSO_BE_ZA,
-  ZSO_BE_RA,
-  ZSO_BE_RB,
   ZSO_BE_AT,
   ZSO_BE_BA,
   ZSO_BE_BP,
   ZSO_BE_GN,
+  ZSO_BE_RA,
+  ZSO_BE_RB,
   ZSO_BE_SA,
   ZSO_BE_SP,
   ZSO_BE_SZ,
