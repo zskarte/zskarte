@@ -102,6 +102,18 @@ export const ZSO_BE_RA: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_RB: ZSO = {
+  id: 'zso_be_rb',
+  name: 'ZS Region Burgdorf',
+  auth: '347d73226c1727a7c328e8238ef5bf80',
+  initialViewPort: {
+    coordinates: [849267.53, 5950757.09],
+    zoomLevel: 16,
+  },
+  url: 'http://www.zivilschutzregion-burgdorf.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_AT: ZSO = {
   id: 'zso_be_at',
   name: 'ZSO Aaretal',
@@ -205,6 +217,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_JB,
   ZSO_BE_ZA,
   ZSO_BE_RA,
+  ZSO_BE_RB,
   ZSO_BE_AT,
   ZSO_BE_BA,
   ZSO_BE_BP,
