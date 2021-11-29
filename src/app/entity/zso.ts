@@ -162,6 +162,18 @@ export const ZSO_BE_RB: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_RL: ZSO = {
+  id: 'zso_be_rl',
+  name: 'ZSO Region Langenthal',
+  auth: '8865f7a13bbaacf4720b493bbdc24437',
+  initialViewPort: {
+    coordinates: [865484.55, 5977956.28],
+    zoomLevel: 16,
+  },
+  url: 'https://zr-langenthal.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_SA: ZSO = {
   id: 'zso_be_sa',
   name: 'ZSO Saanen plus',
@@ -222,6 +234,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_GN,
   ZSO_BE_RA,
   ZSO_BE_RB,
+  ZSO_BE_RL,
   ZSO_BE_SA,
   ZSO_BE_SP,
   ZSO_BE_SZ,
