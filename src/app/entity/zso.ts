@@ -174,6 +174,18 @@ export const ZSO_BE_RL: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_RE: ZSO = {
+  id: 'zso_be_re',
+  name: 'ZSO Region Langnau i.E.',
+  auth: '4fc3b95ff7b90e8d529a002518f96af9',
+  initialViewPort: {
+    coordinates: [866758.05, 5932662.67],
+    zoomLevel: 16,
+  },
+  url: 'https://langnau-ie.ch/politik-verwaltung/verwaltung/oeffentliche-sicherheit',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_SA: ZSO = {
   id: 'zso_be_sa',
   name: 'ZSO Saanen plus',
@@ -235,6 +247,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_RA,
   ZSO_BE_RB,
   ZSO_BE_RL,
+  ZSO_BE_RE,
   ZSO_BE_SA,
   ZSO_BE_SP,
   ZSO_BE_SZ,
