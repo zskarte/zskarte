@@ -138,6 +138,18 @@ export const ZSO_BE_GN: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_GT: ZSO = {
+  id: 'zso_be_gt',
+  name: 'ZSO Gürbetal',
+  auth: '1a45e7ae7006bb586002b555d9838ae1',
+  initialViewPort: {
+    coordinates: [834770.39, 5925649.47],
+    zoomLevel: 16,
+  },
+  url: 'http://www.zso-guerbetal.ch/de/index.html',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_RA: ZSO = {
   id: 'zso_be_ra',
   name: 'ZSO Region Aarberg',
@@ -244,6 +256,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_BA,
   ZSO_BE_BP,
   ZSO_BE_GN,
+  ZSO_BE_GT,
   ZSO_BE_RA,
   ZSO_BE_RB,
   ZSO_BE_RL,
