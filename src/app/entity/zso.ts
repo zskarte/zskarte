@@ -78,6 +78,18 @@ export const ZSO_BE_JB: ZSO = {
   defaultLocale: 'fr',
 };
 
+export const ZSO_BE_RK: ZSO = {
+  id: 'zso_be_rk',
+  name: 'RKZ BBM',
+  auth: '49878b948f181ca1b0b2868fa5953b66',
+  initialViewPort: {
+    coordinates: [826307.88, 5926387.53],
+    zoomLevel: 16,
+  },
+  url: 'https://www.rkzbbm.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_ZA: ZSO = {
   id: 'zso_be_za',
   name: 'ZAR Ausbildungszentrum',
@@ -246,11 +258,24 @@ export const ZSO_BE_TP: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_WB: ZSO = {
+  id: 'zso_be_wb',
+  name: 'ZSO Worb-Bigenthal',
+  auth: '24d5e56c149671c9a32e8c474222d366',
+  initialViewPort: {
+    coordinates: [841872.57, 5929964.62],
+    zoomLevel: 16,
+  },
+  url: 'https://www.worb.ch/unterinstanzen/9703',
+  defaultLocale: 'de',
+};
+
 export const LIST_OF_ZSO: ZSO[] = [
   ZSO_GUEST,
   ZSO_BE_BS,
   ZSO_BE_CR,
   ZSO_BE_JB,
+  ZSO_BE_RK,
   ZSO_BE_ZA,
   ZSO_BE_AT,
   ZSO_BE_BA,
@@ -265,4 +290,5 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_SP,
   ZSO_BE_SZ,
   ZSO_BE_TP,
+  ZSO_BE_WB,
 ];
