@@ -258,6 +258,18 @@ export const ZSO_BE_TP: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_TW: ZSO = {
+  id: 'zso_be_tw',
+  name: 'ZSO Thun-Westamt',
+  auth: '9ad9136edfd1cbf07988b9f3d93d87a5',
+  initialViewPort: {
+    coordinates: [843169.45, 5905178.3],
+    zoomLevel: 16,
+  },
+  url: 'https://www.uetendorf.ch/verwaltung/abteilungen/praesidialabteilung/sicherheit/zivilschutz.html/31',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_WB: ZSO = {
   id: 'zso_be_wb',
   name: 'ZSO Worb-Bigenthal',
@@ -290,5 +302,6 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_SP,
   ZSO_BE_SZ,
   ZSO_BE_TP,
+  ZSO_BE_TW,
   ZSO_BE_WB,
 ];
