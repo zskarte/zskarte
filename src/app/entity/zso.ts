@@ -54,6 +54,18 @@ export const ZSO_BE_CR: ZSO = {
   defaultLocale: 'fr',
 };
 
+export const ZSO_BE_OC: ZSO = {
+  id: 'zso_be_oc',
+  name: 'OCRég Jura bernois',
+  auth: '15871f19c3270f616b2402745f6f9cef',
+  initialViewPort: {
+    coordinates: [791469.33, 5978528.31],
+    zoomLevel: 16,
+  },
+  url: 'https://www.jb-b.ch/1074-organe-de-conduite-regional-(ocreg)',
+  defaultLocale: 'fr',
+};
+
 export const ZSO_FR_FR: ZSO = {
   id: 'zso_fr_fr',
   name: 'PCi Fribourgeoise',
@@ -90,6 +102,18 @@ export const ZSO_BE_RK: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_RS: ZSO = {
+  id: 'zso_be_rs',
+  name: 'RKZ Spiez',
+  auth: 'e9cb5accafe22422f9d0ea2dcedd218b',
+  initialViewPort: {
+    coordinates: [850323.95, 5893773.97],
+    zoomLevel: 16,
+  },
+  url: 'https://www.rkz-spiez.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_ZA: ZSO = {
   id: 'zso_be_za',
   name: 'ZAR Ausbildungszentrum',
@@ -114,6 +138,18 @@ export const ZSO_BE_AT: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_AR: ZSO = {
+  id: 'zso_be_ar',
+  name: 'ZSO Alpenregion',
+  auth: '0243ca694b8e931afcb77088a391be57',
+  initialViewPort: {
+    coordinates: [911613.12, 5897859.04],
+    zoomLevel: 16,
+  },
+  url: 'https://www.meiringen.ch/aemter/8829',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_BA: ZSO = {
   id: 'zso_be_ba',
   name: 'ZSO Bantiger',
@@ -135,6 +171,18 @@ export const ZSO_BE_BP: ZSO = {
     zoomLevel: 16,
   },
   url: 'https://www.bern.ch/politik-und-verwaltung/stadtverwaltung/sue/schutz-und-rettung-bern/zivilschutz/',
+  defaultLocale: 'de',
+};
+
+export const ZSO_BE_GA: ZSO = {
+  id: 'zso_be_ga',
+  name: 'ZSO Gantrisch',
+  auth: '38b6b6405d4870c76db1276a08c379c9',
+  initialViewPort: {
+    coordinates: [832764.41, 5910894.99],
+    zoomLevel: 16,
+  },
+  url: 'https://www.schwarzenburg.ch/ueber-uns/verwaltung/praesidiales/',
   defaultLocale: 'de',
 };
 
@@ -286,12 +334,16 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_GUEST,
   ZSO_BE_BS,
   ZSO_BE_CR,
+  ZSO_BE_OC,
   ZSO_BE_JB,
   ZSO_BE_RK,
+  ZSO_BE_RS,
   ZSO_BE_ZA,
   ZSO_BE_AT,
+  ZSO_BE_AR,
   ZSO_BE_BA,
   ZSO_BE_BP,
+  ZSO_BE_GA,
   ZSO_BE_GN,
   ZSO_BE_GT,
   ZSO_BE_RA,
