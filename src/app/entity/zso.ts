@@ -210,6 +210,18 @@ export const ZSO_BE_GT: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_OA: ZSO = {
+  id: 'zso_be_oa',
+  name: 'ZSO Oberaargau-West',
+  auth: '755f238b5185d267a136f543f6a7062b',
+  initialViewPort: {
+    coordinates: [856181.58, 5986315.9],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zso-oaw.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_RA: ZSO = {
   id: 'zso_be_ra',
   name: 'ZSO Region Aarberg',
@@ -346,6 +358,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_GA,
   ZSO_BE_GN,
   ZSO_BE_GT,
+  ZSO_BE_OA,
   ZSO_BE_RA,
   ZSO_BE_RB,
   ZSO_BE_RL,
