@@ -90,6 +90,18 @@ export const ZSO_BE_JB: ZSO = {
   defaultLocale: 'fr',
 };
 
+export const ZSO_BE_BB: ZSO = {
+  id: 'zso_be_bb',
+  name: 'RFO Biel/Bienne Regio',
+  auth: 'a680215d2db37d55ba0fdbe182e4e8b8',
+  initialViewPort: {
+    coordinates: [807258.89, 5964284.69],
+    zoomLevel: 16,
+  },
+  url: 'https://www.biel-bienne.ch/de/rfo-bielbienne-regio.html/494',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_RK: ZSO = {
   id: 'zso_be_rk',
   name: 'RKZ BBM',
@@ -348,6 +360,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_CR,
   ZSO_BE_OC,
   ZSO_BE_JB,
+  ZSO_BE_BB,
   ZSO_BE_RK,
   ZSO_BE_RS,
   ZSO_BE_ZA,
