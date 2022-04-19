@@ -258,6 +258,18 @@ export const ZSO_BE_RB: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_RP: ZSO = {
+  id: 'zso_be_rp',
+  name: 'ZSO Region Kirchbergplus',
+  auth: '1a29a9793323a33b18dbdabf58732550',
+  initialViewPort: {
+    coordinates: [844343.87, 5956039.4],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zsorkplus.ch/de/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_RL: ZSO = {
   id: 'zso_be_rl',
   name: 'ZSO Region Langenthal',
@@ -374,6 +386,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_OA,
   ZSO_BE_RA,
   ZSO_BE_RB,
+  ZSO_BE_RP,
   ZSO_BE_RL,
   ZSO_BE_RE,
   ZSO_BE_SA,
