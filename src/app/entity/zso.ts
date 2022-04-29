@@ -90,6 +90,18 @@ export const ZSO_BE_JB: ZSO = {
   defaultLocale: 'fr',
 };
 
+export const ZSO_BE_AB: ZSO = {
+  id: 'zso_be_ab',
+  name: 'RFO Aarberg',
+  auth: '445a1b02ed1a32d96fd4b014675adb63',
+  initialViewPort: {
+    coordinates: [813417.09, 5955323.35],
+    zoomLevel: 16,
+  },
+  url: 'https://www.rfoaarberg.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_BB: ZSO = {
   id: 'zso_be_bb',
   name: 'RFO Biel/Bienne Regio',
@@ -372,6 +384,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_CR,
   ZSO_BE_OC,
   ZSO_BE_JB,
+  ZSO_BE_AB,
   ZSO_BE_BB,
   ZSO_BE_RK,
   ZSO_BE_RS,
