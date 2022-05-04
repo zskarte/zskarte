@@ -54,6 +54,18 @@ export const ZSO_BE_CR: ZSO = {
   defaultLocale: 'fr',
 };
 
+export const ZSO_BE_KK: ZSO = {
+  id: 'zso_be_kk',
+  name: 'Kantonales Katastrophen Einsatzelement (KKE) des Kantons Bern',
+  auth: 'bc5d35ec79050596d21920e6c3935db7',
+  initialViewPort: {
+    coordinates: [830544.7, 5935141.38],
+    zoomLevel: 16,
+  },
+  url: 'https://www.bsm.sid.be.ch/de/start/themen/bevoelkerungsschutz-zivilschutz/zivilschutz/zso-kanton-bern.html',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_OC: ZSO = {
   id: 'zso_be_oc',
   name: 'OCRég Jura bernois',
@@ -135,6 +147,18 @@ export const ZSO_BE_RS: ZSO = {
     zoomLevel: 16,
   },
   url: 'https://www.rkz-spiez.ch/',
+  defaultLocale: 'de',
+};
+
+export const ZSO_BE_SE: ZSO = {
+  id: 'zso_be_se',
+  name: 'VKFO Seeland',
+  auth: '81cd74f7dcd3db8df43c9c096e3b3afe',
+  initialViewPort: {
+    coordinates: [813272.37, 5954112.1],
+    zoomLevel: 13,
+  },
+  url: 'https://www.j3l.ch/de/Z10487/biel-bienne-seeland-tourismus',
   defaultLocale: 'de',
 };
 
@@ -382,12 +406,14 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_GUEST,
   ZSO_BE_BS,
   ZSO_BE_CR,
+  ZSO_BE_KK,
   ZSO_BE_OC,
   ZSO_BE_JB,
   ZSO_BE_AB,
   ZSO_BE_BB,
   ZSO_BE_RK,
   ZSO_BE_RS,
+  ZSO_BE_SE,
   ZSO_BE_ZA,
   ZSO_BE_AT,
   ZSO_BE_AR,
