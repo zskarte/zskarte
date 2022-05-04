@@ -155,7 +155,7 @@ export const ZSO_BE_SE: ZSO = {
   name: 'VKFO Seeland',
   auth: '81cd74f7dcd3db8df43c9c096e3b3afe',
   initialViewPort: {
-    coordinates: [813272.37, 5954112.1],
+    coordinates: [809928.33, 5949227.91],
     zoomLevel: 13,
   },
   url: 'https://www.j3l.ch/de/Z10487/biel-bienne-seeland-tourismus',
