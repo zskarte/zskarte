@@ -54,6 +54,18 @@ export const ZSO_BE_CR: ZSO = {
   defaultLocale: 'fr',
 };
 
+export const ZSO_BE_GF: ZSO = {
+  id: 'zso_be_gf',
+  name: 'GFO Köniz',
+  auth: '9ffc6e9fbc80221f5e025d18375fdeab',
+  initialViewPort: {
+    coordinates: [825240.33, 5926977.36],
+    zoomLevel: 16,
+  },
+  url: 'https://www.koeniz.ch/verwaltung/praesidiales-und-finanzen/gemeindefuehrungsorgan.page/802',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_KK: ZSO = {
   id: 'zso_be_kk',
   name: 'Kantonales Katastrophen Einsatzelement (KKE) des Kantons Bern',
@@ -123,6 +135,18 @@ export const ZSO_BE_BB: ZSO = {
     zoomLevel: 16,
   },
   url: 'https://www.biel-bienne.ch/de/rfo-bielbienne-regio.html/494',
+  defaultLocale: 'de',
+};
+
+export const ZSO_BE_RF: ZSO = {
+  id: 'zso_be_rf',
+  name: 'RFO Region Laupen',
+  auth: '22e0af391ec87bdd882b73d8b8dfde17',
+  initialViewPort: {
+    coordinates: [814637.15, 5924874.01],
+    zoomLevel: 16,
+  },
+  url: 'https://www.rfo-regionlaupen.ch/',
   defaultLocale: 'de',
 };
 
@@ -306,6 +330,18 @@ export const ZSO_BE_RP: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_KO: ZSO = {
+  id: 'zso_be_ko',
+  name: 'ZSO Region Köniz',
+  auth: 'be6f24499a13902144bc9416cb99116b',
+  initialViewPort: {
+    coordinates: [825240.33, 5926977.36],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zsoregionkoeniz.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_RL: ZSO = {
   id: 'zso_be_rl',
   name: 'ZSO Region Langenthal',
@@ -406,11 +442,13 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_GUEST,
   ZSO_BE_BS,
   ZSO_BE_CR,
+  ZSO_BE_GF,
   ZSO_BE_KK,
   ZSO_BE_OC,
   ZSO_BE_JB,
   ZSO_BE_AB,
   ZSO_BE_BB,
+  ZSO_BE_RF,
   ZSO_BE_RK,
   ZSO_BE_RS,
   ZSO_BE_SE,
@@ -426,6 +464,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_RA,
   ZSO_BE_RB,
   ZSO_BE_RP,
+  ZSO_BE_KO,
   ZSO_BE_RL,
   ZSO_BE_RE,
   ZSO_BE_SA,
