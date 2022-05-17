@@ -282,6 +282,18 @@ export const ZSO_BE_GT: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_JF: ZSO = {
+  id: 'zso_be_jf',
+  name: 'ZSO Jungfrau',
+  auth: '359d2583dd0f578eb1798e7c13090369',
+  initialViewPort: {
+    coordinates: [875358.59, 5890956.44],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zso-jungfrau.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_OA: ZSO = {
   id: 'zso_be_oa',
   name: 'ZSO Oberaargau-West',
@@ -460,6 +472,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_GA,
   ZSO_BE_GN,
   ZSO_BE_GT,
+  ZSO_BE_JF,
   ZSO_BE_OA,
   ZSO_BE_RA,
   ZSO_BE_RB,
