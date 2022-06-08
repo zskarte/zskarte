@@ -438,6 +438,18 @@ export const ZSO_BE_TW: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_TR: ZSO = {
+  id: 'zso_be_tr',
+  name: 'ZSO Trachselwald PLUS',
+  auth: 'ad894c8539818ca7244e8a82d9eee664',
+  initialViewPort: {
+    coordinates: [855989.0, 5942934.31],
+    zoomLevel: 16,
+  },
+  url: 'https://www.zso-trawplus.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_WB: ZSO = {
   id: 'zso_be_wb',
   name: 'ZSO Worb-Bigenthal',
@@ -485,5 +497,6 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_SZ,
   ZSO_BE_TP,
   ZSO_BE_TW,
+  ZSO_BE_TR,
   ZSO_BE_WB,
 ];
