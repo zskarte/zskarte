@@ -28,7 +28,6 @@ export class RecentlyUsedSignsComponent implements OnInit {
   @Output() selectSign: EventEmitter<Sign> = new EventEmitter<Sign>();
 
   private signsSource: Sign[] = [];
-  private readonly signsMaxLength = 10;
 
   get signs(): Sign[] {
     return this.signsSource;

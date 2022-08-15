@@ -292,9 +292,6 @@ export class SharedStateService {
   }
 
   selectFeature(feature: any) {
-    var sign = feature?.get('sig') as Sign;
-    this.addRecentlyUsedSign(sign);
-
     this.featureSource.next(feature);
   }
 
@@ -304,18 +301,9 @@ export class SharedStateService {
     }
 
     let signs = this.lastUsedSignsSource.getValue();
-
-    const index = signs.findIndex((s) => s.src === sign.src);
-
-    if (index !== -1) {
-      return;
-    }
-
-    signs.push(sign);
-
-    signs = signs.sort((a, b) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); //it has to be new Date. probably because createdAt is nullable
-    });
+    //Remove, if it already exists, then readd at the beginning
+    signs = signs.filter((s) => s.src !== sign.src);
+    signs.unshift(sign);
 
     signs.splice(10, signs.length - 10);
 
