@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Sign, signCategories } from '../entity/sign';
@@ -9,6 +9,7 @@ import { CustomImagesComponent } from '../custom-images/custom-images.component'
 import { CustomImageStoreService } from '../custom-image-store.service';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import capitalizeFirstLetter from '../lib/capitalizeFirstLetter';
+import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 
 @Component({
   selector: 'app-drawing-dialog',
@@ -21,6 +22,8 @@ export class DrawingDialogComponent implements OnInit {
   filteredSigns: Sign[] = [];
   selected: string = null;
   signCategories = Array.from(signCategories.values());
+
+  @Input() drawLayer: DrawlayerComponent;
 
   capitalizeFirstLetter = capitalizeFirstLetter;
 
