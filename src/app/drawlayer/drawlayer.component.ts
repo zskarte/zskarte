@@ -870,7 +870,6 @@ export class DrawlayerComponent implements OnInit {
     // TODO check for use cases of writing from history mode (e.g. download for revert)
     return (
       'data:text/csv;charset=UTF-8,' + encodeURIComponent('\ufeff' + lines.join('\r\n'))
-
     );
   }
 
