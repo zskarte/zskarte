@@ -16,7 +16,6 @@ export class RecentlyUsedComponent implements OnInit {
 
   ngOnInit(): void {
     this.sharedState.recentlyUsedTools.subscribe(_tools => {
-      console.log(_tools);
       this.tools = _tools;
     });
   }
