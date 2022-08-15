@@ -1,4 +1,8 @@
 <form class="signSelect">
+  <app-recently-used-signs
+    [drawLayer]="drawLayer"
+    (selectSign)="select($event)"
+  ></app-recently-used-signs>
   <table class="selectionTable">
     <tr>
       <th class="symbolCol">{{ i18n.get('symbol') }}</th>
