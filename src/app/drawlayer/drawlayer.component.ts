@@ -435,6 +435,7 @@ export class DrawlayerComponent implements OnInit {
             if (r) {
               this.removeFeature(coordinationGroup.feature);
               this.sharedState.selectFeature(null);
+              this.selectedFeature = null; // force to select map coordinates from mouse cursor
             }
           });
         } else if (coordinationGroup.coordinateGroupIndex) {
@@ -775,8 +776,8 @@ export class DrawlayerComponent implements OnInit {
         this.sharedState.setMergeMode(false);
       }
       if (!feat) {
-        this.selectedFeature = null;
         this.sharedState.selectFeature(null);
+        this.selectedFeature = null; // force to select map coordinates from mouse cursor
       } else {
         this.selectedFeature = feat[0];
         this.sharedState.selectFeature(feat[0]);
@@ -893,6 +894,7 @@ export class DrawlayerComponent implements OnInit {
   private clearSelection() {
     this.select.getFeatures().clear();
     this.sharedState.selectFeature(null);
+    this.selectedFeature = null; // force to select map coordinates from mouse cursor
   }
 
   removeAll() {
