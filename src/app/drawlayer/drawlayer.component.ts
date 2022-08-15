@@ -1075,6 +1075,7 @@ export class DrawlayerComponent implements OnInit {
       feature.set('sig', this.currentDrawingSign);
       Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       this.sharedState.selectFeature(feature);
+      this.sharedState.addRecentlyUsedSign(this.currentDrawingSign);
       this.sketch = undefined;
     }
   }
