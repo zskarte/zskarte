@@ -1,0 +1,8 @@
+.recently-used {
+  display: flex;
+  gap: 7px;
+}
+.recently-used img {
+  max-height: 1.8em;
+  max-width: 1.8em;
+}

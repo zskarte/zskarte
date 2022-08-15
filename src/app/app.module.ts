@@ -58,12 +58,13 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RecentlyUsedComponent } from './recently-used/recently-used.component';
 
 registerLocaleData(localeDeCh);
 
 const dbConfig: DBConfig = {
   name: 'zskarte-db1',
-  version: 2,
+  version: 3,
   objectStoresMeta: [
     {
       store: MapStoreService.STORE_MAP,
@@ -77,6 +78,11 @@ const dbConfig: DBConfig = {
     },
     {
       store: CustomImageStoreService.STORE_IMAGES,
+      storeConfig: { keyPath: null, autoIncrement: false },
+      storeSchema: [],
+    },
+    {
+      store: MapStoreService.STORE_RECENT,
       storeConfig: { keyPath: null, autoIncrement: false },
       storeSchema: [],
     },
@@ -110,6 +116,7 @@ const dbConfig: DBConfig = {
     FabMenuComponent,
     SidebarFiltersComponent,
     SidebarRootComponent,
+    RecentlyUsedComponent,
   ],
   imports: [
     BrowserModule,

@@ -209,6 +209,8 @@ export class SharedStateService {
   private sidebarContextSource = new BehaviorSubject<SidebarContext>(null);
   sidebarContext = this.sidebarContextSource.asObservable();
 
+  recentlyUsedTools = new BehaviorSubject<any>([]);
+
   private static getFromQueryParam(
     queryParam: string,
     map: object = null,
@@ -286,6 +288,9 @@ export class SharedStateService {
 
   selectSign(sign: Sign) {
     this.signSource.next(sign);
+    const recentlyUsedTools = [...new Set([sign, ...this.recentlyUsedTools.value])];
+    recentlyUsedTools.splice(4);
+    this.recentlyUsedTools.next(recentlyUsedTools);
   }
 
   selectFeature(feature: any) {

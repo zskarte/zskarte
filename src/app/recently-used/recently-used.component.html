@@ -1,0 +1,5 @@
+<div class="recently-used">
+  <button type="button" *ngFor="let tool of tools" (click)="setSign(tool)">
+    <img [src]="getImageUrl(tool.src)" />
+  </button>
+</div>

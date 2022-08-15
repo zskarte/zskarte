@@ -21,11 +21,19 @@ export class MapStoreService {
           }
         });
       }
+      if (changedSession !== null && this.sharedState.recentlyUsedTools.value.length === 0) {
+        dbService.getByKey(MapStoreService.STORE_RECENT, changedSession.uuid).subscribe(tools => {
+          this.sharedState.recentlyUsedTools.next(tools ?? []);
+        });
+      }
     });
+
+    this.sharedState.recentlyUsedTools.subscribe(tools => this.updateRecentTools(tools))
   }
 
   public static STORE_MAP = 'map';
   public static STORE_HISTORY = 'history';
+  public static STORE_RECENT = 'recent';
 
   private static saveRunnerLock = false;
 
@@ -91,6 +99,13 @@ export class MapStoreService {
         resolve(null);
       });
     });
+  }
+
+  public updateRecentTools(tools: any) {
+    if (this.sharedState.getCurrentSession() === null) {
+      return;
+    }
+    return this.dbService.update(MapStoreService.STORE_RECENT, tools, this.sharedState.getCurrentSession().uuid).toPromise();
   }
 
   private initHistory(history): any {
