@@ -4,11 +4,9 @@
 
 .geocoder {
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 10px;
-}
-
-.input {
-  min-width: 250px;
 }
 
 .currentLocation {
@@ -34,4 +32,17 @@
 .alignCenter {
   display: flex;
   align-items: center;
+}
+
+.inputField{
+  width: 100%;
+  max-width: 350px;
+}
+
+@media (max-width:550px) { 
+  .geocoder{
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
 }
