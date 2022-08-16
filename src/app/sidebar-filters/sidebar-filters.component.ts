@@ -129,9 +129,6 @@ export class SidebarFiltersComponent implements OnInit {
   }
 
   public isCategoryFiltered(category: string): boolean {
-    const i = this.filteredCategories.findIndex((c) => c === category) !== -1;
-    console.log(i);
-
-    return i;
+    return this.filteredCategories.findIndex((c) => c === category) !== -1;
   }
 }
