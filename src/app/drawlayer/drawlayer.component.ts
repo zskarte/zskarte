@@ -235,11 +235,13 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  public toggleFilters(instances: string[], active: boolean) {
+  public toggleFilters(instances: (string | Sign)[], active: boolean) {
     let hasChanges = false;
     instances.forEach((i) => {
-      if (this.filters[i] != active) {
-        this.filters[i] = active;
+      const filterString =
+        typeof i == 'string' ? i : this.getSigFilterString(i);
+      if (this.filters[filterString] != active) {
+        this.filters[filterString] = active;
         hasChanges = true;
       }
     });
