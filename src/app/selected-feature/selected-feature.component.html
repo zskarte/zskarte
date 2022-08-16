@@ -156,7 +156,7 @@
             (ngModelChange)="redraw()"
             *ngIf="
               editMode &&
-              (selectedSignature.type == 'Point' || selectedSignature.src)
+              (selectedSignature.type === 'Point' || selectedSignature.src)
             "
             >{{ i18n.get('labelShow') }}</mat-checkbox
           >
