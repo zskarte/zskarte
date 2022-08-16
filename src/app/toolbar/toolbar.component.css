@@ -97,23 +97,20 @@ app-geocoder {
   align-items: center;
 }
 
-
-.grow{
+.grow {
   flex-grow: 1;
 }
 
-
-@media (max-width:800px) { 
-  .clock, mat-card-title, .credits{
+@media (max-width: 800px) {
+  .clock,
+  mat-card-title,
+  .credits {
     display: none;
   }
-  app-geocoder{
+  app-geocoder {
     width: 100%;
   }
-  .inputField{
+  .inputField {
     width: 100%;
   }
 }
-
-
-

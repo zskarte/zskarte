@@ -34,13 +34,13 @@
   align-items: center;
 }
 
-.inputField{
+.inputField {
   width: 100%;
   max-width: 350px;
 }
 
-@media (max-width:550px) { 
-  .geocoder{
+@media (max-width: 550px) {
+  .geocoder {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
