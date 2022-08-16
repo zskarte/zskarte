@@ -744,6 +744,9 @@ export class DrawStyle {
             scale: iconTextScale,
             fill: this.getColorFill(signature.color),
             padding: [5, 5, 5, 5],
+            backgroundFill: DrawStyle.getColorFill(
+              `rgba(255, 255, 255, ${signature.iconOpacity})`
+            ),
           });
 
           iconStyles.push(
