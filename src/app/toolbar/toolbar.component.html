@@ -29,7 +29,11 @@
           </button>
         </div>
         <mat-menu #mainMenu="matMenu" class="burger-menu">
-          <button mat-menu-item (click)="$event.stopPropagation()">
+          <button
+            mat-menu-item
+            (click)="$event.stopPropagation()"
+            title="ALT+H"
+          >
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('exportSession')"
@@ -79,6 +83,7 @@
             class="tools-menu-item"
             (click)="download()"
             [href]="downloadData"
+            title="ALT+I"
             ><mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('download')"
@@ -99,7 +104,12 @@
             >
             {{ i18n.get('importMap') }}
           </button>
-          <button mat-menu-item (click)="clear()" *ngIf="!historyMode">
+          <button
+            mat-menu-item
+            (click)="clear()"
+            title="ALT+DELETE"
+            *ngIf="!historyMode"
+          >
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('deleteMap')"
@@ -112,6 +122,7 @@
             mat-menu-item
             class="tools-menu-item"
             (click)="tagState()"
+            title="ALT+T"
             *ngIf="!historyMode"
           >
             <mat-icon
@@ -158,12 +169,17 @@
             >
             {{ i18n.get('downloadMapCSV') }}</a
           >
-          <button mat-menu-item (click)="help()">
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            [matMenuTriggerFor]="help"
+          >
             <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')"
               >help</mat-icon
             >
             {{ i18n.get('help') }}
           </button>
+
           <mat-divider></mat-divider>
           <button
             mat-menu-item
@@ -185,6 +201,22 @@
             [ngClass]="{ active: locale === i18n.locale }"
           >
             {{ i18n.get(locale) }}
+          </button>
+        </mat-menu>
+        <mat-menu #help="matMenu">
+          <button mat-menu-item (click)="manual()">
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('manual')"
+              >menu_book</mat-icon
+            >
+            {{ i18n.get('manual') }}
+          </button>
+          <button mat-menu-item (click)="shortcuts()">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('shortcuts')"
+              >info</mat-icon
+            >
+            {{ i18n.get('shortcuts') }}
           </button>
         </mat-menu>
       </div>

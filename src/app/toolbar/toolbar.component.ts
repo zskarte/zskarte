@@ -23,6 +23,8 @@ import { HelpComponent } from '../help/help.component';
 import { ImportDialogComponent } from '../import-dialog/import-dialog.component';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TagStateComponent } from '../tag-state/tag-state.component';
+import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
+import { ShortcutDialogComponent } from '../shortcut-dialog/shortcut-dialog.component';
 
 @Component({
   selector: 'app-toolbar',
@@ -50,7 +52,8 @@ export class ToolbarComponent implements OnInit {
     private preferences: PreferencesService,
     private sessions: SessionsService,
     private mapStore: MapStoreService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private keyboardHandler: KeyboardHandler
   ) {
     this.sharedState.displayMode.subscribe((mode) => {
       this.historyMode = mode === DisplayMode.HISTORY;
@@ -72,6 +75,50 @@ export class ToolbarComponent implements OnInit {
         data: true,
       });
     }
+
+    keyboardHandler.subscribe(
+      new KeyboardHandlerContainer(
+        'KeyH',
+        (global: boolean) => this.onKeyDown(() => this.toggleHistory(), global),
+        'shortcuts_toggleHistory',
+        'shortcuts_toolbar',
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'KeyI',
+        (global: boolean) => this.onKeyDown(() => this.importData(), global),
+        'downloadMap',
+        'shortcuts_toolbar',
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'KeyT',
+        (global: boolean) => this.onKeyDown(() => this.importData(), global),
+        'shortcuts_tagState',
+        'shortcuts_toolbar',
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'Delete',
+        (global: boolean) => this.onKeyDown(() => this.clear(), global),
+        'deleteMap',
+        'shortcuts_toolbar',
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'Backspace',
+        (global: boolean) => this.onKeyDown(() => this.clear(), global),
+        'deleteMap',
+        'shortcuts_toolbar',
+        true
+      )
+    );
+  }
+
+  onKeyDown(callback: () => void, global: boolean) {
+    if (global && !this.sharedState.featureSource.getValue()) {
+      callback();
+    }
   }
 
   static ONBOARDING_VERSION = '1.0';
@@ -86,23 +133,6 @@ export class ToolbarComponent implements OnInit {
   downloadData = null;
   downloadCSVData = null;
   locales: string[] = LOCALES;
-
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    // Only handle global events (to prevent input elements to be considered)
-    const globalEvent = event.target instanceof HTMLBodyElement;
-    if (
-      globalEvent &&
-      !this.sharedState.featureSource.getValue() &&
-      event.altKey
-    ) {
-      switch (event.code) {
-        case 'KeyH':
-          this.toggleHistory();
-          break;
-      }
-    }
-  }
 
   ngOnInit() {
     this.sharedState.session.subscribe((s) => {
@@ -193,8 +223,14 @@ export class ToolbarComponent implements OnInit {
     }
   }
 
-  help(): void {
+  manual(): void {
     this.dialog.open(HelpComponent, { data: false });
+  }
+
+  shortcuts(): void {
+    this.dialog.open(ShortcutDialogComponent, {
+      data: { handlers: this.keyboardHandler.handlers },
+    });
   }
 
   importData(): void {
