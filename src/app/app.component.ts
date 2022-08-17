@@ -8,11 +8,6 @@ import { SharedStateService, SidebarContext } from './shared-state.service';
 })
 export class AppComponent implements OnInit {
   title = 'zsKarteAng';
-
-  //public width: any;
-  
-
-
   SidebarContext = SidebarContext;
   height = window.innerHeight;
   width = window.innerWidth;
