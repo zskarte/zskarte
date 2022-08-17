@@ -21,6 +21,7 @@ export class SidebarFiltersComponent implements OnInit {
   filtersOpenState = false;
   filtersGeneralOpenState = false;
   signCategories = [...signCategories.values()];
+  filteredCategories: string[] = [];
   capitalizeFirstLetter = capitalizeFirstLetter;
 
   constructor(
@@ -115,8 +116,19 @@ export class SidebarFiltersComponent implements OnInit {
     this.drawLayer.toggleFilters(this.filterKeys, active);
   }
 
-  public filterCategory(category) {
+  public filterCategory(category: string) {
+    const index = this.filteredCategories.findIndex((c) => c === category);
+    if (index !== -1) {
+      this.filteredCategories.splice(index, 1);
+    } else {
+      this.filteredCategories.push(category);
+    }
+
     const signs = this.filterSymbols.filter((s) => s.kat === category);
-    signs.forEach((s) => this.drawLayer.toggleFilter(s));
+    this.drawLayer.toggleFilters(signs, index === -1);
+  }
+
+  public isCategoryFiltered(category: string): boolean {
+    return this.filteredCategories.findIndex((c) => c === category) !== -1;
   }
 }

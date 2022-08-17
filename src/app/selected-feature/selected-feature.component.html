@@ -154,7 +154,10 @@
           <mat-checkbox
             [(ngModel)]="selectedSignature.labelShow"
             (ngModelChange)="redraw()"
-            *ngIf="editMode"
+            *ngIf="
+              editMode &&
+              (selectedSignature.type === 'Point' || selectedSignature.src)
+            "
             >{{ i18n.get('labelShow') }}</mat-checkbox
           >
           <div class="label-light">
