@@ -3,3 +3,8 @@
   flex-direction: column;
   height: 100vh;
 }
+
+.sidenav {
+  width: 350px;
+  max-width: calc(100vw - 100px);
+}
