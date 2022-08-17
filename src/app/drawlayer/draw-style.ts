@@ -756,7 +756,8 @@ export class DrawStyle {
                 )[1];
                 return new Point([
                   coordinates[0],
-                  coordinates[1] - 35 / iconTextScale,
+                  coordinates[1] -
+                    (35 / iconTextScale) * Math.max(resolution / 3, 1),
                 ]);
               },
               zIndex: zIndex,
