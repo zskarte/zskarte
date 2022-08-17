@@ -59,6 +59,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RecentlyUsedSignsComponent } from './recently-used-signs/recently-used-signs.component';
+import { ShortcutDialogComponent } from './shortcut-dialog/shortcut-dialog.component';
 
 registerLocaleData(localeDeCh);
 
@@ -107,6 +108,7 @@ const dbConfig: DBConfig = {
     EditCoordinatesComponent,
     DetailImageViewComponent,
     HelpComponent,
+    ShortcutDialogComponent,
     SidebarComponent,
     FabMenuComponent,
     SidebarFiltersComponent,

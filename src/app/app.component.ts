@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { SharedStateService, SidebarContext } from './shared-state.service';
+import { KeyboardHandler } from './keyboard.service';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,10 @@ export class AppComponent implements OnInit {
   SidebarContext = SidebarContext;
   height = window.innerHeight;
 
-  public constructor(public sharedState: SharedStateService) {
+  public constructor(
+    public sharedState: SharedStateService,
+    private keyboardHandler: KeyboardHandler
+  ) {
     sharedState.fetchData();
   }
 
@@ -23,5 +27,10 @@ export class AppComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   setHeight(): void {
     this.height = document.documentElement?.clientHeight || window.innerHeight;
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(e: KeyboardEvent) {
+    this.keyboardHandler.onKeyDown(e);
   }
 }

@@ -1195,6 +1195,116 @@ export class I18NService {
       en: 'Recently used signatures',
       fr: 'Signatures récemment utilisées',
     },
+    shortcuts: {
+      de: 'Taskenkombinationen',
+      en: 'Shortcuts',
+      fr: 'Raccourcis clavier',
+    },
+    general: {
+      de: 'Allgemein',
+      en: 'General',
+      fr: 'Général',
+    },
+    manual: {
+      de: 'Anleitung',
+      en: 'Guide',
+      fr: "mode d'emploi",
+    },
+    shortcut_openTextDialog: {
+      de: 'Den Text Dialog öffnen',
+      en: 'Open the text dialog',
+      fr: 'Ouvrir le dialogue texte',
+    },
+    shortcuts_openSigDialog: {
+      de: 'Den Signatur Dialog öffnen',
+      en: 'Open the sign dialog',
+      fr: 'Ouvrir le dialogue des signatures',
+    },
+    shortcuts_drawPolygon: {
+      de: 'Polygon zeichen',
+      en: 'Draw polygon',
+      fr: 'Dessiner un polygone',
+    },
+    shortcuts_drawLine: {
+      de: 'Linie zeichnen',
+      en: 'Draw line',
+      fr: 'Dessiner une ligne',
+    },
+    shortcuts_endDrawing: {
+      de: 'Zeichnung beenden',
+      en: 'Finish the drawing',
+      fr: 'Finir le dessin',
+    },
+    shortcuts_deleteSig: {
+      de: 'Signatur löschen',
+      en: 'Remove sign',
+      fr: 'Effacer la signature',
+    },
+    shortcuts_incStrokeWidth: {
+      de: 'Strichstärke erhöhen',
+      en: 'Increase stroke width',
+      fr: 'Augmenter la largeur du trait',
+    },
+    shortcuts_decStrokeWidth: {
+      de: 'Strichstärke verringern',
+      en: 'Decrease stroke width',
+      fr: 'Diminuer la largeur du trait',
+    },
+    shortcuts_mergeSig: {
+      de: 'Signaturen verbinden',
+      en: 'Merge signs',
+      fr: 'Fusionner les signes',
+    },
+    shortcuts_UnselectSig: {
+      de: 'Signature deselektieren (Verbinden stoppen)',
+      en: 'Deselect signature (Stop merge)',
+      fr: 'Désélectionner la signature (Arrêtez la fusion)',
+    },
+    shortcuts_bringToFront: {
+      de: 'Signature nach vorne',
+      en: 'Bring sign to front',
+      fr: 'Mettre la signature en avant',
+    },
+    shortcuts_bringToBack: {
+      de: 'Signature nach hinten',
+      en: 'Bring sign to back',
+      fr: 'Apporter la signature au dos',
+    },
+    shortcuts_editSigCoords: {
+      de: 'Koordinaten bearbeiten',
+      en: 'Edit the coordinates',
+      fr: 'Modifier les coordonnées',
+    },
+    shortcuts_drawHole: {
+      de: 'Loch zeichnen (Polygon)',
+      en: 'Draw hole (polygon)',
+      fr: 'Dessiner un trou (polygone)',
+    },
+    shortcuts_tagState: {
+      de: 'Zustand markieren',
+      en: 'Tag state',
+      fr: "Marquer l'état",
+    },
+    shortcuts_toolbar: {
+      de: 'Toolbar',
+      en: 'Toolbar',
+      fr: 'Toolbar',
+    },
+    shortcuts_toggleHistory: {
+      de: 'Historienmodus umschalten',
+      en: 'Toggle history mode',
+      fr: 'Basculer le mode historique',
+    },
+    shortcuts_toggleFreehand: {
+      de: 'Freihandzeichnen umschalten',
+      en: 'Toggle freehand mode',
+      fr: 'Basculer le dessin à main levée',
+    },
+    shortcuts_focusSearch: {
+      de: 'Geo Suchfeld fokusieren',
+      en: 'Focus Geo search field',
+      fr: 'Focaliser le champ de recherche géographique',
+    },
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
