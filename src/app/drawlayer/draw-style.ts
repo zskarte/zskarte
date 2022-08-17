@@ -744,6 +744,9 @@ export class DrawStyle {
             scale: iconTextScale,
             fill: this.getColorFill(signature.color),
             padding: [5, 5, 5, 5],
+            backgroundFill: DrawStyle.getColorFill(
+              `rgba(255, 255, 255, ${signature.iconOpacity})`
+            ),
           });
 
           iconStyles.push(
@@ -756,7 +759,8 @@ export class DrawStyle {
                 )[1];
                 return new Point([
                   coordinates[0],
-                  coordinates[1] - 35 / iconTextScale,
+                  coordinates[1] -
+                    (35 / iconTextScale) * Math.max(resolution / 3, 1),
                 ]);
               },
               zIndex: zIndex,

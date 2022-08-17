@@ -23,9 +23,26 @@
   margin-right: -16px;
 }
 
+.category-list-item-button {
+  padding-left: 0;
+}
+
 .category-list-item-button ::ng-deep .mat-button-wrapper {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.category-color {
+  min-height: 32px;
+  min-width: 15px;
+  max-width: 25px;
+  margin: 2px 8px 2px 0px;
 }

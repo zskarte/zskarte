@@ -235,11 +235,17 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  public toggleFilters(instances: string[], active: boolean) {
+  public toggleFilters(instances: (string | Sign)[], active: boolean) {
     let hasChanges = false;
     instances.forEach((i) => {
-      if (this.filters[i] != active) {
-        this.filters[i] = active;
+      if (i == undefined) {
+        return;
+      }
+
+      const filterString =
+        typeof i === 'string' ? i : this.getSigFilterString(i);
+      if (this.filters[filterString] != active) {
+        this.filters[filterString] = active;
         hasChanges = true;
       }
     });
@@ -435,6 +441,7 @@ export class DrawlayerComponent implements OnInit {
             if (r) {
               this.removeFeature(coordinationGroup.feature);
               this.sharedState.selectFeature(null);
+              this.selectedFeature = null; // force to select map coordinates from mouse cursor
             }
           });
         } else if (coordinationGroup.coordinateGroupIndex) {
@@ -775,8 +782,8 @@ export class DrawlayerComponent implements OnInit {
         this.sharedState.setMergeMode(false);
       }
       if (!feat) {
-        this.selectedFeature = null;
         this.sharedState.selectFeature(null);
+        this.selectedFeature = null; // force to select map coordinates from mouse cursor
       } else {
         this.selectedFeature = feat[0];
         this.sharedState.selectFeature(feat[0]);
@@ -893,6 +900,7 @@ export class DrawlayerComponent implements OnInit {
   private clearSelection() {
     this.select.getFeatures().clear();
     this.sharedState.selectFeature(null);
+    this.selectedFeature = null; // force to select map coordinates from mouse cursor
   }
 
   removeAll() {
