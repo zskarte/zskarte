@@ -1190,6 +1190,11 @@ export class I18NService {
       en: 'Period of validity of your guest session',
       fr: 'Période de validité de votre session',
     },
+    recentlyUsed: {
+      de: 'Kürzlich verwendet',
+      en: 'Recently used',
+      fr: 'Récemment utilisé',
+    },
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
