@@ -21,6 +21,7 @@ const favoriteFeaturesList = [
   'gewässer swisstlm3d',
   'hangneigung ab 30°',
   'strassen und wege swisstlm3d',
+  'kgs inventar',
 ];
 
 const layers: Layer[] = [
