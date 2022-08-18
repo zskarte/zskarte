@@ -289,7 +289,7 @@ export class SharedStateService {
   selectSign(sign: Sign) {
     this.signSource.next(sign);
     const recentlyUsedTools = [...new Set([sign, ...this.recentlyUsedTools.value])];
-    recentlyUsedTools.splice(4);
+    recentlyUsedTools.splice(6);
     this.recentlyUsedTools.next(recentlyUsedTools);
   }
 

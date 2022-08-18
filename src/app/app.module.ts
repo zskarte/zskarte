@@ -163,7 +163,7 @@ const dbConfig: DBConfig = {
     DetailImageViewComponent,
     HelpComponent,
   ],
-  providers: [{ provide: LOCALE_ID, useValue: 'de-CH' }],
+  providers: [{ provide: LOCALE_ID, useValue: 'de-CH' }, DrawingDialogComponent],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
