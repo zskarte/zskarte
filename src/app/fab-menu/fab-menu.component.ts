@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SharedStateService } from '../shared-state.service';
 import { I18NService } from '../i18n.service';
 import { DisplayMode } from '../entity/displayMode';
+import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
 
 @Component({
   selector: 'app-fab-menu',
@@ -20,38 +21,59 @@ export class FabMenuComponent implements OnInit {
     public drawDialog: MatDialog,
     public textDialog: MatDialog,
     private sharedState: SharedStateService,
-    public i18n: I18NService
+    public i18n: I18NService,
+    private keyboard: KeyboardHandler
   ) {}
 
   ngOnInit(): void {
     this.sharedState.displayMode.subscribe((mode) => {
       this.historyMode = mode === DisplayMode.HISTORY;
     });
+    this.keyboard.subscribe(
+      new KeyboardHandlerContainer(
+        'KeyX',
+        (global: boolean) =>
+          this.onKeyDown(() => this.openTextDialog(), global),
+        'shortcut_openTextDialog',
+        undefined,
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'KeyS',
+        (global: boolean) =>
+          this.onKeyDown(() => this.openDrawDialog(), global),
+        'shortcuts_openSigDialog',
+        undefined,
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'KeyP',
+        (global: boolean) => this.onKeyDown(() => this.polygon(), global),
+        'shortcuts_drawPolygon',
+        undefined,
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'KeyL',
+        (global: boolean) => this.onKeyDown(() => this.line(), global),
+        'shortcuts_drawLine',
+        undefined,
+        true
+      ),
+      new KeyboardHandlerContainer(
+        'KeyO',
+        (global: boolean) =>
+          this.onKeyDown(() => this.toggleFreeHandDraw(), global),
+        'shortcuts_toggleFreehand',
+        undefined,
+        true
+      )
+    );
   }
 
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    // Only handle global events (to prevent input elements to be considered)
-    const globalEvent = event.target instanceof HTMLBodyElement;
-    if (
-      globalEvent &&
-      !this.sharedState.featureSource.getValue() &&
-      event.altKey
-    ) {
-      switch (event.code) {
-        case 'KeyX':
-          this.openTextDialog();
-          break;
-        case 'KeyS':
-          this.openDrawDialog();
-          break;
-        case 'KeyP':
-          this.polygon();
-          break;
-        case 'KeyL':
-          this.line();
-          break;
-      }
+  onKeyDown(callback: () => void, global: boolean) {
+    if (global && !this.sharedState.featureSource.getValue()) {
+      callback();
     }
   }
 

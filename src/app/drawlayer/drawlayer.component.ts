@@ -31,6 +31,7 @@ import { getFirstCoordinate, Sign } from '../entity/sign';
 import { availableProjections, mercatorProjection } from '../projections';
 import { filter } from 'rxjs/operators';
 import { getLength, getArea } from 'ol/sphere';
+import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
 
 export const DRAW_LAYER_ZINDEX = 100000;
 export const CLUSTER_LAYER_ZINDEX = DRAW_LAYER_ZINDEX + 1;
@@ -47,18 +48,19 @@ export class DrawlayerComponent implements OnInit {
     public i18n: I18NService,
     private sessions: SessionsService,
     private customImages: CustomImageStoreService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private keyboardHandler: KeyboardHandler
   ) {
     this.startAutosave();
-  }
 
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    switch (event.code) {
-      case 'Escape':
-        this.endDrawing(this.sketch);
-        break;
-    }
+    this.keyboardHandler.subscribe(
+      new KeyboardHandlerContainer(
+        'Escape',
+        () => this.endDrawing(this.sketch),
+        'shortcuts_endDrawing',
+        'drawLayer'
+      )
+    );
   }
 
   private static mapSaveInterval = 1000;

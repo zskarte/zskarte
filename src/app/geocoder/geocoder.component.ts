@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { SharedStateService } from '../shared-state.service';
 import { I18NService } from '../i18n.service';
 import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
+import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
 
 @Component({
   selector: 'app-geocoder',
@@ -24,31 +25,29 @@ export class GeocoderComponent {
   inputText: string = undefined;
   selected = null;
 
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    // Only handle global events (to prevent input elements to be considered)
-    const globalEvent = event.target instanceof HTMLBodyElement;
-    if (
-      globalEvent &&
-      !this.sharedState.featureSource.getValue() &&
-      !event.altKey &&
-      event.code != 'Escape'
-    ) {
-      this.el.nativeElement.focus();
-      this.el.nativeElement.dispatchEvent(
-        new KeyboardEvent('keydown', { key: event.key })
-      );
-    }
-  }
-
   constructor(
     private http: HttpClient,
     private sharedState: SharedStateService,
-    public i18n: I18NService
+    public i18n: I18NService,
+    private keyboardHandler: KeyboardHandler
   ) {
     this.sharedState.session.subscribe((s) => {
       this.selected = null;
     });
+
+    this.keyboardHandler.subscribe(
+      new KeyboardHandlerContainer(
+        'KeyA',
+        (global: boolean) => {
+          if (global && !this.sharedState.featureSource.getValue()) {
+            this.el.nativeElement.focus();
+          }
+        },
+        'shortcuts_focusSearch',
+        'shortcuts_toolbar',
+        true
+      )
+    );
   }
 
   private getCoordinate(geometry) {

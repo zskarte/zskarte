@@ -29,7 +29,7 @@
         mat-raised-button
         class="mat-fab"
         (click)="openTextDialog()"
-        [matTooltip]="i18n.get('text')"
+        [matTooltip]="i18n.get('text') + ' (ALT+X)'"
         matTooltipPosition="left"
       >
         <mat-icon>font_download</mat-icon>
@@ -40,7 +40,7 @@
         mat-raised-button
         class="mat-fab"
         (click)="polygon()"
-        [matTooltip]="i18n.get('polygon')"
+        [matTooltip]="i18n.get('polygon') + ' (ALT+P)'"
         matTooltipPosition="left"
       >
         <mat-icon>widgets</mat-icon>
@@ -51,7 +51,7 @@
         mat-raised-button
         class="mat-fab"
         (click)="line()"
-        [matTooltip]="i18n.get('line')"
+        [matTooltip]="i18n.get('line') + ' (ALT+L)'"
         matTooltipPosition="left"
       >
         <mat-icon>show_chart</mat-icon>
@@ -62,7 +62,7 @@
         mat-raised-button
         class="mat-fab"
         (click)="toggleFreeHandDraw()"
-        [matTooltip]="i18n.get('freehand')"
+        [matTooltip]="i18n.get('freehand') + ' (ALT+O)'"
         matTooltipPosition="left"
       >
         <mat-icon>gesture</mat-icon>
@@ -73,7 +73,7 @@
         mat-raised-button
         class="mat-fab"
         (click)="openDrawDialog()"
-        [matTooltip]="i18n.get('symbol')"
+        [matTooltip]="i18n.get('symbol') + ' (ALT+S)'"
         matTooltipPosition="left"
       >
         <mat-icon>stars</mat-icon>
