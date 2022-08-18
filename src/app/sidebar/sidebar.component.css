@@ -47,6 +47,6 @@ mat-slider {
 @media (max-width: 500px) {
   mat-form-field,
   mat-slider {
-  max-width: 10px;
+    max-width: 10px;
   }
 }
