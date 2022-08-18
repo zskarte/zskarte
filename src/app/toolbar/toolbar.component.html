@@ -31,7 +31,8 @@
         <mat-menu #mainMenu="matMenu" class="burger-menu">
           <button
             mat-menu-item
-            (click)="$event.stopPropagation()"
+            id="historyButton"
+            (click)="toggleHistoryIfButton($event)"
             title="ALT+H"
           >
             <mat-icon
@@ -41,6 +42,7 @@
             >
             {{ i18n.get('history') }}
             <mat-slide-toggle
+              #historySlider
               (toggleChange)="toggleHistory()"
               [checked]="historyMode"
               color="primary"

@@ -311,4 +311,12 @@ export class ToolbarComponent implements OnInit {
   setLocale(locale: string) {
     this.i18n.locale = locale;
   }
+
+  toggleHistoryIfButton(event: MouseEvent) {
+    const element = event.target as HTMLElement;
+    if (element.id === 'historyButton') {
+      this.toggleHistory();
+    }
+    event.stopPropagation();
+  }
 }
