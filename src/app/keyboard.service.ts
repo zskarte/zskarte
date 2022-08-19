@@ -33,9 +33,6 @@ export class KeyboardHandler {
   onKeyDown(e: KeyboardEvent) {
     const globalEvent = e.target instanceof HTMLBodyElement;
 
-    console.log(e);
-    console.log(this.allHandlers);
-
     const event = this.allHandlers.find(
       (h) =>
         (h.code === e.code || h.code === e.key) &&

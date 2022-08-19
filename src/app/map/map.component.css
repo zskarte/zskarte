@@ -46,3 +46,18 @@
   height: auto;
   width: auto;
 }
+
+#placeSymbol {
+  position: absolute;
+  z-index: 200000;
+  transform: translateX(-50%) translateY(-50%);
+  max-width: 32px;
+  max-height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#placeSymbol ::ng-deep .mat-button-wrapper {
+  display: flex;
+}
