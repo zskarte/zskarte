@@ -187,6 +187,11 @@ export class I18NService {
       en: 'Export as CSV',
       fr: 'Exporter a CSV',
     },
+    logTable: {
+      de: 'Tabelle anzeigen',
+      en: 'Display table',
+      fr: 'Display table',
+    },
     filter: {
       de: 'Filter',
       en: 'Filter',
