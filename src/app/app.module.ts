@@ -26,6 +26,7 @@ import { ImportDialogComponent } from './import-dialog/import-dialog.component';
 import { GeocoderComponent } from './geocoder/geocoder.component';
 import { TextDialogComponent } from './text-dialog/text-dialog.component';
 import { SelectedFeatureComponent } from './selected-feature/selected-feature.component';
+import { LogTableComponent } from './log-table/log-table.component';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatListModule } from '@angular/material/list';
 import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
@@ -58,6 +59,8 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RecentlyUsedSignsComponent } from './recently-used-signs/recently-used-signs.component';
+import { ShortcutDialogComponent } from './shortcut-dialog/shortcut-dialog.component';
 
 registerLocaleData(localeDeCh);
 
@@ -97,6 +100,7 @@ const dbConfig: DBConfig = {
     GeocoderComponent,
     TextDialogComponent,
     SelectedFeatureComponent,
+    LogTableComponent,
     SessionCreatorComponent,
     ConfirmationDialogComponent,
     ExportDialogComponent,
@@ -106,10 +110,12 @@ const dbConfig: DBConfig = {
     EditCoordinatesComponent,
     DetailImageViewComponent,
     HelpComponent,
+    ShortcutDialogComponent,
     SidebarComponent,
     FabMenuComponent,
     SidebarFiltersComponent,
     SidebarRootComponent,
+    RecentlyUsedSignsComponent,
   ],
   imports: [
     BrowserModule,

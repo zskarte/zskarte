@@ -8,9 +8,11 @@
 <button mat-button id="removePoint" mat-mini-fab color="warn">
   <i class="material-icons">delete_forever</i>
 </button>
-
 <button mat-button id="rotateSymbol" mat-mini-fab color="primary">
   <i class="material-icons">rotate_left</i>
+</button>
+<button mat-button id="copySymbol" mat-mini-fab color="primary">
+  <i class="material-icons">content_copy</i>
 </button>
 <div class="mat-button coordinates">
   <div class="mat-button-wrapper">
@@ -28,8 +30,6 @@
         )
       }}</ng-container>
     </span>
-    <i class="material-icons" (click)="rotateProjection()"
-      >photo_size_select_small</i
-    >
+    <i class="material-icons" (click)="rotateProjection()">change_circle</i>
   </div>
 </div>

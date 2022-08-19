@@ -1,0 +1,21 @@
+.table-container {
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+}
+
+.table-container ::ng-deep thead {
+  position: sticky;
+  top: 0;
+}
+
+.log-table {
+  width: 100%;
+}
+.log-table th,
+.log-table td {
+  padding-right: 5px;
+}
+.log-table th:last-child,
+.log-table td:last-child {
+  padding-right: 0;
+}

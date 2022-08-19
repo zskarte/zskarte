@@ -1,0 +1,12 @@
+<div mat-dialog-content>
+  <h2>{{ i18n.get('shortcuts') }}</h2>
+  <div *ngFor="let group of grouped">
+    <h3>{{ group.key }}</h3>
+    <table>
+      <tr *ngFor="let handler of group.values">
+        <td class="shortcut">{{ handler.keysToString() }}</td>
+        <td>{{ i18n.get(handler.description) }}</td>
+      </tr>
+    </table>
+  </div>
+</div>

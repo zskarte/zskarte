@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { SharedStateService } from '../shared-state.service';
 import {
   defineDefaultValuesForSignature,
@@ -15,6 +15,8 @@ import { DisplayMode } from '../entity/displayMode';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
 import { Signs } from '../signs/signs';
 import { MatSliderChange } from '@angular/material/slider';
+import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
+import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
 
 @Component({
   selector: 'app-selected-feature',
@@ -25,7 +27,8 @@ export class SelectedFeatureComponent {
   constructor(
     public dialog: MatDialog,
     private sharedState: SharedStateService,
-    public i18n: I18NService
+    public i18n: I18NService,
+    private keyboardHandler: KeyboardHandler
   ) {
     this.sharedState.currentFeature.subscribe((feature) => {
       if (feature && feature.get('features')) {
@@ -53,6 +56,91 @@ export class SelectedFeatureComponent {
     );
     this.editMode =
       this.sharedState.displayMode.getValue() !== DisplayMode.HISTORY;
+
+    this.keyboardHandler.subscribe(
+      new KeyboardHandlerContainer(
+        'Delete',
+        (global: boolean) => this.onKeyDown(() => this.delete(), global),
+        'shortcuts_deleteSig',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        'Backspace',
+        (global: boolean) => this.onKeyDown(() => this.delete(), global),
+        'shortcuts_deleteSig',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        '+',
+        (global: boolean) =>
+          this.onKeyDown(() => {
+            this.selectedSignature.strokeWidth += 0.1;
+            this.redraw();
+          }, global),
+        'shortcuts_incStrokeWidth',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        '-',
+        (global: boolean) =>
+          this.onKeyDown(() => {
+            this.selectedSignature.strokeWidth -= 0.1;
+            this.redraw();
+          }, global),
+        'shortcuts_decStrokeWidth',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        'KeyG',
+        (global: boolean) => this.onKeyDown(() => this.merge(true), global),
+        'shortcuts_mergeSig',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        'Escape',
+        (global: boolean) =>
+          this.onKeyDown(() => {
+            if (this.mergeMode) {
+              this.merge(false);
+            } else {
+              this.sharedState.selectFeature(null);
+            }
+          }, global),
+        'shortcuts_UnselectSig',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        'PageUp',
+        (global: boolean) => this.onKeyDown(() => this.bringToFront(), global),
+        'shortcuts_bringToFront',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        'PageDown',
+        (global: boolean) => this.onKeyDown(() => this.sendToBack(), global),
+        'shortcuts_bringToBack',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        'KeyH',
+        (global: boolean) => this.onKeyDown(() => this.drawHole(), global),
+        'shortcuts_drawHole',
+        'csvSignatur'
+      ),
+      new KeyboardHandlerContainer(
+        'KeyC',
+        (global: boolean) =>
+          this.onKeyDown(() => this.editCoordinates(), global),
+        'shortcuts_editSigCoords',
+        'csvSignatur'
+      )
+    );
+  }
+
+  onKeyDown(callback: () => void, global: boolean) {
+    if (global && this.selectedFeature && this.selectedSignature) {
+      callback();
+    }
   }
 
   get featureGroups() {
@@ -81,6 +169,8 @@ export class SelectedFeatureComponent {
       this.selectedFeature.getGeometry().getCoordinates().length > 1
     );
   }
+
+  @Input() drawLayer: DrawlayerComponent;
 
   groupedFeatures = null;
   editMode: boolean;
@@ -112,50 +202,6 @@ export class SelectedFeatureComponent {
 
   toggleColorSelection() {
     this.colorPicker = !this.colorPicker;
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    // Only handle global events (to prevent input elements to be considered)
-    const globalEvent = event.target instanceof HTMLBodyElement;
-    if (globalEvent && this.selectedFeature && this.selectedSignature) {
-      switch (event.key) {
-        case 'Delete':
-        case 'Backspace':
-          this.delete();
-          break;
-        case '+':
-          this.selectedSignature.strokeWidth += 0.1;
-          this.redraw();
-          break;
-        case '-':
-          this.selectedSignature.strokeWidth -= 0.1;
-          this.redraw();
-          break;
-        case 'g':
-          this.merge(true);
-          break;
-        case 'Escape':
-          if (this.mergeMode) {
-            this.merge(false);
-          } else {
-            this.sharedState.selectFeature(null);
-          }
-          break;
-        case 'PageUp':
-          this.bringToFront();
-          break;
-        case 'PageDown':
-          this.sendToBack();
-          break;
-        case 'h':
-          this.drawHole();
-          break;
-        case 'c':
-          this.editCoordinates();
-          break;
-      }
-    }
   }
 
   private extractFeatureGroups(allFeatures: any[]): any {
@@ -214,7 +260,9 @@ export class SelectedFeatureComponent {
   }
 
   addImage() {
-    const dialogRef = this.dialog.open(DrawingDialogComponent);
+    const dialogRef = this.dialog.open(DrawingDialogComponent, {
+      data: { drawLayer: this.drawLayer },
+    });
     dialogRef.afterClosed().subscribe((result) => {
       if (result && result.src) {
         this.selectedSignature.images.push(result.src);

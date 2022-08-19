@@ -14,9 +14,17 @@ import Icon from 'ol/style/Icon';
 import Point from 'ol/geom/Point';
 import { ScaleLine, defaults as defaultControls } from 'ol/control';
 import { PreferencesService } from '../preferences.service';
-import { CLUSTER_LAYER_ZINDEX } from '../drawlayer/drawlayer.component';
+import {
+  CLUSTER_LAYER_ZINDEX,
+  DrawlayerComponent,
+} from '../drawlayer/drawlayer.component';
 import { defaults } from 'ol/interaction';
-import { MatSidenav } from '@angular/material/sidenav';
+import Overlay from 'ol/Overlay';
+import OverlayPositioning from 'ol/OverlayPositioning';
+import { MatDialog } from '@angular/material/dialog';
+import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.component';
+import { DisplayMode } from '../entity/displayMode';
+import { Sign } from '../entity/sign';
 
 @Component({
   selector: 'app-map',
@@ -25,10 +33,19 @@ import { MatSidenav } from '@angular/material/sidenav';
 })
 export class MapComponent implements OnInit {
   @ViewChild('maploader', { static: false }) loader: ElementRef;
+  @Input() drawLayer: DrawlayerComponent;
 
   map: OlMap = null;
   layer: Layer;
   currentSessionId: string;
+  sidebarContext: SidebarContext = null;
+  sidebarOpen: boolean = false;
+
+  historyMode: boolean;
+
+  placeSymbol: Overlay = null;
+  ADD_SIGN_OFFSET_X = 35;
+  ADD_SIGN_OFFSET_Y = -35;
 
   positionFlagLocation: Point = new Point([0, 0]);
   positionFlag: Feature = new Feature({
@@ -40,6 +57,15 @@ export class MapComponent implements OnInit {
   navigationLayer = new VectorLayer({
     source: this.navigationSource,
   });
+
+  // select = new Select({
+  //   layers: [this.navigationLayer],
+  //   hitTolerance: 10,
+  //   condition: (event) => {
+  //     this.placeSymbol.setPosition(event.coordinate);
+  //     return this.navigationLayer.getVisible();
+  //   },
+  // });
 
   SidebarContext = SidebarContext;
 
@@ -54,6 +80,7 @@ export class MapComponent implements OnInit {
   };
 
   constructor(
+    private dialog: MatDialog,
     public sharedState: SharedStateService,
     private preferences: PreferencesService,
     public i18n: I18NService
@@ -100,6 +127,28 @@ export class MapComponent implements OnInit {
       }),
     });
     this.map.addLayer(this.navigationLayer);
+
+    this.placeSymbol = new Overlay({
+      element: document.getElementById('placeSymbol'),
+      positioning: OverlayPositioning.CENTER_CENTER,
+      offset: [this.ADD_SIGN_OFFSET_X, this.ADD_SIGN_OFFSET_Y],
+    });
+
+    this.placeSymbol.element.addEventListener('click', () => {
+      this.sharedState.disableFreeHandDraw();
+      const dialogRef = this.dialog.open(DrawingDialogComponent);
+      dialogRef.afterClosed().subscribe((result: Sign) => {
+        if (result) {
+          this.drawLayer.startDrawingAutomatically(
+            result,
+            this.positionFlagLocation.getCoordinates()
+          );
+        }
+      });
+    });
+
+    this.map.addOverlay(this.placeSymbol);
+
     this.sharedState.session.subscribe((s) => {
       if (s && s.uuid !== this.currentSessionId) {
         this.currentSessionId = s.uuid;
@@ -122,6 +171,9 @@ export class MapComponent implements OnInit {
         this.positionFlagLocation.setCoordinates(c);
         this.positionFlag.changed();
         this.navigationLayer.setVisible(true);
+
+        this.placeSymbol.setPosition(c);
+        this.toggleAddSignButton();
         if (coordinate.center) {
           setTimeout(() => {
             this.map.getView().animate({ center: c });
@@ -129,6 +181,7 @@ export class MapComponent implements OnInit {
         }
       } else {
         this.navigationLayer.setVisible(false);
+        this.toggleAddSignButton();
       }
     });
     this.sharedState.addAdditionalLayer.subscribe((layer) => {
@@ -156,6 +209,18 @@ export class MapComponent implements OnInit {
       }
     });
 
+    this.sharedState.sidebarContext.subscribe((context) => {
+      if (context === null) {
+        return;
+      }
+      if (this.sidebarContext !== context || !this.sidebarOpen) {
+        this.sidebarOpen = true;
+      } else {
+        this.sidebarOpen = false;
+      }
+      this.sidebarContext = context;
+    });
+
     this.sharedState.selectedFeatures.subscribe((selectedFeatures) => {
       selectedFeatures.forEach((feature) => {
         this.map.removeLayer(feature.layer);
@@ -172,6 +237,23 @@ export class MapComponent implements OnInit {
         }
       }
     });
+
+    this.sharedState.displayMode.subscribe((displayMode) => {
+      this.historyMode = displayMode === DisplayMode.HISTORY;
+      this.toggleAddSignButton();
+    });
+  }
+
+  toggleAddSignButton() {
+    if (this.navigationLayer.getVisible() && !this.historyMode) {
+      this.placeSymbol.getElement().style.display = 'flex';
+    } else {
+      this.placeSymbol.getElement().style.display = 'none';
+    }
+  }
+
+  selectionChanged(feat) {
+    this.sharedState.selectFeature(feat);
   }
 
   zoomIn(): void {

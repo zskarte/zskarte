@@ -21,6 +21,7 @@ const favoriteFeaturesList = [
   'gewässer swisstlm3d',
   'hangneigung ab 30°',
   'strassen und wege swisstlm3d',
+  'kgs inventar',
 ];
 
 const layers: Layer[] = [
@@ -190,6 +191,9 @@ export class SharedStateService {
   private isFreeHandDrawEnabled = new BehaviorSubject(false);
   freeHandDraw = this.isFreeHandDrawEnabled.asObservable();
 
+  private lastUsedSignsSource = new BehaviorSubject<Sign[]>([]);
+  lastUsedSigns = this.lastUsedSignsSource.asObservable();
+
   showMapLoader = new BehaviorSubject<boolean>(false);
   defineCoordinates = new BehaviorSubject<boolean>(null);
   drawingManipulated = new BehaviorSubject<boolean>(false);
@@ -290,6 +294,21 @@ export class SharedStateService {
 
   selectFeature(feature: any) {
     this.featureSource.next(feature);
+  }
+
+  addRecentlyUsedSign(sign: Sign) {
+    if (!sign) {
+      return;
+    }
+
+    let signs = this.lastUsedSignsSource.getValue();
+    //Remove, if it already exists, then readd at the beginning
+    signs = signs.filter((s) => s.src !== sign.src);
+    signs.unshift(sign);
+
+    signs.splice(10, signs.length - 10);
+
+    this.lastUsedSignsSource.next(signs);
   }
 
   deleteFeature(feature: any) {

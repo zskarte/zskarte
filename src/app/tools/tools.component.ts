@@ -9,6 +9,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { TagStateComponent } from '../tag-state/tag-state.component';
 import { MapStoreService } from '../map-store.service';
 import { DisplayMode } from '../entity/displayMode';
+import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
 
 @Component({
   selector: 'app-tools',
@@ -26,7 +27,8 @@ export class ToolsComponent implements OnInit {
     public dialog: MatDialog,
     public i18n: I18NService,
     private sharedState: SharedStateService,
-    private mapStore: MapStoreService
+    private mapStore: MapStoreService,
+    private keyboardHandler: KeyboardHandler
   ) {
     this.sharedState.displayMode.subscribe((d) => {
       this.historyMode = d === DisplayMode.HISTORY;
@@ -38,30 +40,6 @@ export class ToolsComponent implements OnInit {
         ? (this.downloadTime = new Date().toISOString())
         : (this.downloadTime = historyDate)
     );
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    // Only handle global events (to prevent input elements to be considered)
-    const globalEvent = event.target instanceof HTMLBodyElement;
-    if (
-      globalEvent &&
-      !this.sharedState.featureSource.getValue() &&
-      event.altKey
-    ) {
-      switch (event.code) {
-        case 'KeyI':
-          this.importData();
-          break;
-        case 'KeyT':
-          this.tagState();
-          break;
-        case 'Delete':
-        case 'Backspace':
-          this.clear();
-          break;
-      }
-    }
   }
 
   importData(): void {

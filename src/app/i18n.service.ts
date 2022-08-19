@@ -187,6 +187,11 @@ export class I18NService {
       en: 'Export as CSV',
       fr: 'Exporter a CSV',
     },
+    logTable: {
+      de: 'Tabelle anzeigen',
+      en: 'Display table',
+      fr: 'Display table',
+    },
     filter: {
       de: 'Filter',
       en: 'Filter',
@@ -735,9 +740,9 @@ export class I18NService {
     docWelcome: {
       de:
         '<h1>Herzlich Willkommen bei Zivilschutz-Karte</h1>\n' +
-        'Sie finden hier einige Informationen zur Verwendung der Applikation. \n\n' +
+        '<p>Sie finden hier einige Informationen zur Verwendung der Applikation. \n\n' +
         'Sie können diesen Schritt selbstverständlich jederzeit überspringen und bei Bedarf über das Hilfe-Menü wieder aufrufen.\n\n' +
-        'Wir wünschen Ihnen viel Spass bei der Verwendung!',
+        'Wir wünschen Ihnen viel Spass bei der Verwendung!</p>',
       fr:
         '<h1>Bienvenue à Zivilschutz-Karte</h1>\n' +
         "Vous trouverez ici quelques informations sur la manière d'utiliser l'application.\n\n" +
@@ -752,9 +757,15 @@ export class I18NService {
     docNewMap: {
       de:
         '<ul>' +
-        '<li>Um eine neue Karte zu erstellen, müssen Sie zuerst Ihre Zivilschutz-Organisation definieren (welche bei einem zweiten Mal vorgemerkt wird). Ausserdem sollten Sie Ihre Karte benennen (z.B. anhand des aktuellen Ereignisses).</li>' +
-        '<li>Falls bereits Karten bestehen, finden Sie eine entsprechende Möglichkeit, diese zu öffnen</li>' +
-        '<li>Falls Sie eine Karte exportiert haben / von jemandem mit dem Dateiformat .zsjson erhalten haben, können Sie diese hier importieren</li>' +
+        '<li>Um eine neue Karte zu erstellen, müssen Sie zuerst Ihre Zivilschutz-Organisation auswählen und das Password angeben.</li>' +
+        '<li>Sie können sich auch als Gast ohne Organisation und Passwort anmelden, die Sitzung ist dann aber auf eine Stunde beschränkt' +
+        '<ul>' +
+        '<li>Nach Ablauf einer Stunde wird die Sitzung zurückgesetzt und alle Kartendaten gelöscht</li>' +
+        '</ul>' +
+        '</li>' +
+        '<li>Ausserdem müssen Sie Ihre Karte benennen (z.B. anhand des aktuellen Ereignisses).</li>' +
+        '<li>Falls bereits Karten im Browser-Speicher bestehen, finden Sie eine entsprechende Möglichkeit im Tab "Bestehende Karte laden" diese zu öffnen</li>' +
+        '<li>Falls Sie eine Karte exportiert haben / von jemandem mit dem Dateiformat .zsjson erhalten haben, können Sie diese im Tab "Karte importieren" importieren</li>' +
         '</ul>',
       en:
         '<ul>' +
@@ -776,19 +787,31 @@ export class I18NService {
     },
     docInitialView: {
       de:
-        'Nach dem erstellen / laden / importieren einer neuen Karte befinden Sie sich bei der Initial-Darstellung der Karte.\n' +
-        'Sie finden im obersten Bereich folgende Elemente vor:' +
+        '<p>Nach dem erstellen / laden / importieren einer neuen Karte befinden Sie sich bei der Initial-Darstellung der Karte.\n' +
+        'Sie finden in den Randbereichen folgende Elemente vor:</p>' +
+        '<p>Oben:' +
         '<ul>' +
-        '<li>Das Logo der gewählten Zivilschutzorganisation inkl. der Sprachwahl.</li>' +
-        '<li>Den Kartentitel und das <strong>Hauptmenü</strong> (in blau)</li>' +
-        '<li>Die aktuelle Uhrzeit</li>' +
-        '<li>Eine Suche (<strong>Ort finden</strong>) um nach einer Adresse oder einem gezeichneten Element zu suchen</li>' +
-        '<li>Das Menü <strong>Zeichnen</strong></li>' +
-        '<li>Das Menü <strong>Aktuelle Zeichnung</strong></li>' +
-        '<li>as Menü <strong>Ebenen</strong></li>' +
-        '<li>Den <strong>Modus-Schalter</strong> um vom Zeichnungs- zum History / Lese-Modus zu gelangen</li>' +
-        '<li>Einen Knopf um das <strong>Menü zu reduzieren</strong> um den Kartenbereich zu maximieren</li>' +
-        '</ul>',
+        '<li>Das Logo der gewählten <strong>Zivilschutzorganisation</strong> und dem <strong>Ereignistitel</strong></li>' +
+        '<li>Eine <strong>Suche</strong> (<strong>Ort finden</strong>) um nach einer Adresse oder einem gezeichneten Element zu suchen</li>' +
+        '<li>Für Gast-Sitzungen, die <strong>verbleibende Sitzungsdauer</strong></li>' +
+        '<li>Die aktuelle <strong>Uhrzeit</strong></li>' +
+        '<li>Das aufklappbare <strong>Hauptmenü</strong></li>' +
+        '</ul>' +
+        '</p>' +
+        '<p>Rechts:' +
+        '<ul>' +
+        '<li><strong>Zoomfunktion</strong> (funktioniert auch mit Mausrad oder Fingerzoom)</li>' +
+        '<li><strong>Kartenlayer</strong> mit alternativen Karten oder zuschaltbaren Karteninformationen (KGS, Gefahrenkataster, etc.)</li>' +
+        '<li><strong>Filterfunktionen</strong> um Elemente auf der Karte ein- und auszuschalten</li>' +
+        '<li><strong>Element hinzufügen</strong> um weitere Elemente auf der Karte einzufügen</li>' +
+        '</ul>' +
+        '</p>' +
+        '<p>Unten:' +
+        '<ul>' +
+        '<li>Links den <strong>Massstab</strong> der angezeigten Karte</li>' +
+        '<li>Rechts die <strong>Koordinaten</strong> des Mauszeigers resp. des gewählten Symbols, Umschaltbar auf die gängigsten Koordinatensysteme</li>' +
+        '</ul>' +
+        '</p>',
       en:
         'After creating / loading / importing a new map you are at the initial view of the map.\n' +
         'You will find the following elements in the top section:\n' +
@@ -823,12 +846,19 @@ export class I18NService {
     },
     docMainMenu: {
       de:
-        'Das Hauptmenü beinhaltet Funktionen \n' +
-        '<li>zum erstellen / laden einer Karte (analog Schritt 2)</li>' +
-        '<li>zum editieren / umbenennen der aktuellen Karte</li>' +
-        '<li>zum exportieren der aktuellen Karte (mit oder ohne History) - das Ergebnis kann dann z.B. auf einem anderen Browser importiert werden.</li>' +
-        '<li>um die Karte zu löschen</li>' +
-        '<li>um diese Hilfe aufzurufen</li>',
+        '<p>Das Hauptmenü beinhaltet Funktionen \n' +
+        '<li><strong>History-/Lese-Modus</strong>, um nur Änderungen anzuzeigen</li>' +
+        '<li><strong>Sitzung erstellen / laden</strong>, analog Schritt 2</li>' +
+        '<li><strong>Sitzung bearbeiten</strong>, um z.B. Ereignistitel anzupassen</li>' +
+        '<li><strong>Karte herunterladen</strong> zum exportieren der aktuellen Karte - das Ergebnis kann dann z.B. auf einem anderen Browser importiert werden</li>' +
+        '<li><strong>Karte importieren</strong></li>' +
+        '<li><strong>Karte leeren</strong></li>' +
+        '<li><strong>Sprachauswahl</strong> (DE, FR, EN)</li>' +
+        '<li><strong>Drucken</strong> einer optimierten Ansicht</li>' +
+        '<li><strong>Protokoll</strong> anzeigbar als Tabelle oder als CSV-Download</li>' +
+        '<li><strong>Hilfe</strong> diese Hilfeseite sowie verfügbare Tastenkombinationen</li>' +
+        '<li><strong>Sitzung beenden</strong></li>' +
+        '</p>',
       en:
         'The main menu contains functions \n' +
         '<li>to create / load a map (step 2)</li>' +
@@ -845,17 +875,26 @@ export class I18NService {
         '<li>pour indiquer cette aide</li>',
     },
     docSearch: {
-      de: 'Die Suche kann dazu verwendet werden, Adressen und andere Orte zu finden und mittels Selektion zum entsprechenden Ort auf der Karte zu navigieren. Die Suche unterstützt ausserdem gezeichnete Symbole inkl. deren Namen',
+      de:
+        '<p>Die Suche kann dazu verwendet werden, Adressen und andere Orte zu finden und mittels Selektion zum entsprechenden Ort auf der Karte zu navigieren.</p>' +
+        //'<p>Die Suche unterstützt ausserdem gezeichnete Symbole inkl. deren Namen</p>' +
+        '<ul>' +
+        '<li>Der gefundene Ort wird auf der Karte markiert (roter Marker)</li>' +
+        '<li>Mit einem weiteren Symbol (blau/weisser Stern) kann an der Stelle ein Symbol eingefügt werden</li>' +
+        '</ul>',
       en: 'The search can be used to find addresses and other places and navigate to the corresponding location on the map. The search also supports drawn symbols by including their names',
       fr: "La recherche peut être utilisée pour trouver des adresses et d'autres lieux et naviguer jusqu'à l'endroit correspondant sur la carte. La recherche prend également en compte les symboles dessinés, y compris leurs noms",
     },
     docDraw: {
       de:
-        'Dieses Menü erlaubt es, verschiedene Elemente auf die Karte zu zeichnen:\n' +
+        '<p>Beim Klick/Berühren des Symbols in der <strong>unteren rechten Ecke</strong> öffnet sich ein Menü mit verschiedenen Elementen, die auf der Karte hinterlegt werden kann:</p>' +
+        '<ul>' +
         '<li><strong>Text</strong>: Ein Dialog erscheint, welcher es erlaubt einen Text zu definieren. Nach dem Schliessen des Dialoges kann eine Linie auf die Karte gezeichnet werden indem auf die Karte geklickt wird (beenden mit Doppelklick). Anschliessend wird der Text dargestellt und unten links erscheint die <strong>Selektionsansicht</strong>.</li>' +
-        '<li><strong>Symbol</strong>: Es erscheint der <strong>Symbolauswahl</strong> Dialog - nach der entsprechenden Auswahl kann (je nach Symbol) ein Punkt, eine Linie oder eine Fläche (Polygon) gezeichnet werden.</li>' +
         '<li><strong>Polygon</strong>: Es kann direkt begonnen werden, eine Fläche zu zeichnen (bei Bedarf kann auch später über die <strong>Selektionsansicht</strong> ein Symbol definiert werden).</li>' +
-        '<li><strong>Linie</strong>: Analog dem Polygon kann direkt begonnen werden, eine Linie zu zeichnen. Eine Linie kann über die <strong>Selektionsansicht</strong> auch in einen Pfeil umgewandelt werden.</li>',
+        '<li><strong>Linie</strong>: Analog dem Polygon kann direkt begonnen werden, eine Linie zu zeichnen. Eine Linie kann über die <strong>Selektionsansicht</strong> auch in einen Pfeil umgewandelt werden.</li>' +
+        '<li><strong>Freihand</strong>: Erlaubt das Zeichnen von Freihand-Linien.</li>' +
+        '<li><strong>Symbol</strong>: Es erscheint der <strong>Symbolauswahl</strong> Dialog - nach der entsprechenden Auswahl kann (je nach Symbol) ein Punkt, eine Linie oder eine Fläche (Polygon) gezeichnet werden.</li>' +
+        '</ul>',
       en:
         'This menu allows you to draw different elements on the map: \n' +
         '<li><strong>Text</strong>: A dialog appears, which allows you to define a text. After closing the dialog, a line can be drawn on the map by clicking on the map (finish by double click). The text is then displayed and the <strong>selection view</strong> is shown.</li>' +
@@ -876,10 +915,13 @@ export class I18NService {
     },
     docSymbolSelection: {
       de:
-        'Die Symbolauswahl erlaubt es, aus vordefinierten Symbolen auszuwählen, oder eigene Symbole über den Knopf neben dem Filter zu definieren.\n\n' +
-        'Wurde ein eigenes Symbol hochgeladen, so kann definiert werden, um welche Geometrie es sich handelt (Punkt / Linie / Polygon), es kann eine Benennung in einer oder mehreren der unterstützten Sparchen definiert und eine zugehörige Farbe gewählt werden.\n\n' +
-        'Grundsätzlich werden Bilder, welche als Symbole hinzugefügt werden als Kreis ausgeschnitten. Soll das Bild in seiner Originalform für die spätere Detailansicht erhalten bleiben, so kann dies hier selektiert werden. \n\n' +
-        'Auch kann ein Symbol für die Verwendung durch andere Karten auf diesem Browser freigegeben werden.',
+        '<p>Ganz oben werden die <strong>zuletzt verwendeten Symbole</strong> für einen Schnellzugriff aufgelistet</p>' +
+        '<p>Über eine <strong>Suche</strong> oder <strong>Kategorienfilter</strong> kann die Liste der Symbole eingeschränkt werden</p>' +
+        '<p>Die Symbolauswahl erlaubt es, aus vordefinierten Symbolen auszuwählen, oder eigene Symbole über den Knopf neben dem Filter zu definieren.</p>' +
+        '<p><strong>Eigene Bilder</strong></p>' +
+        '<p>Wurde ein eigenes Symbol hochgeladen, so kann definiert werden, um welche Geometrie es sich handelt (Punkt / Linie / Polygon), es kann eine Benennung in einer oder mehreren der unterstützten Sparchen definiert und eine zugehörige Farbe gewählt werden.</p>' +
+        '<p>Grundsätzlich werden Bilder, welche als Symbole hinzugefügt werden als Kreis ausgeschnitten. Soll das Bild in seiner Originalform für die spätere Detailansicht erhalten bleiben, so kann dies hier selektiert werden.</p>',
+      //'Auch kann ein Symbol für die Verwendung durch andere Karten auf diesem Browser freigegeben werden.',
       en:
         'Symbol selection allows you to choose from predefined symbols, or to define your own symbols using the button next to the filter.\n' +
         'If a custom symbol has been uploaded, you can define the geometry (point / line / polygon), define a name in one or more of the supported languages and choose a color.\n' +
@@ -898,23 +940,33 @@ export class I18NService {
     },
     docSelection: {
       de:
-        'Wird ein Element auf der Karte selektiert (z.B. ein Symbol, eine Linie, eine Fläche, etc.), so erscheint in der unteren linken Ecke des Bildschirms eine Selektionsansicht.\n\n' +
-        'Für alle Elemente sind die folgenden Funktionen vorhanden:\n' +
+        '<p>Wird ein Element auf der Karte selektiert (z.B. ein Symbol, eine Linie, eine Fläche, etc.), so erscheint in der unteren linken Ecke des Bildschirms eine Selektionsansicht.</p>' +
+        '<p>Für alle Elemente sind die folgenden Funktionen vorhanden:</p>' +
+        '<ul>' +
         '<li>Es kann ein Name angegeben werden (u.a. um nach dem gezeichneten Element zu suchen)</li>' +
         '<li>Es kann eine Farbe definiert werden</li>' +
         '<li>Die Position kann fixiert werden (solange dies aktiviert ist, ist es nicht möglich das Element zu verschieben oder seine Geometrie zu ändern).</li>' +
         '<li>Unter "Funktionen" kann ein Element in den Vordergrund oder Hintergrund gebracht werden und die Koordinaten des Elements können manuell definiert werden.</li>' +
         '<li>Das Element kann gelöscht werden.\n</li>' +
-        'Zusätzlich unterscheiden sich einige Optionen je nach gewählter Geometrie:\n' +
+        '</ul>' +
+        '<p>Zusätzlich unterscheiden sich einige Optionen je nach gewählter Geometrie:</p>' +
+        '<ul>' +
         '<li><strong>Text</strong>: Die Schriftgrösse kann definiert werden</li>' +
         '<li><strong>Linie</strong>: Die Linie kann als gestrichelt oder durchgängig definiert und die Liniendicke und ein Pfeilende angegeben werden</li>' +
-        '<li><strong>Polygon</strong>: </li>' +
-        '   * Es kann - neben der Möglichkeit die Linie als gestrichelt oder durchgängig sowie deren Dicke zu definieren - ein Muster sowie die Transparenz angegben werden, welches zum Füllen der Fläche verwendet werden soll.\n' +
-        '   * Es kann ein Loch in ein Polygon gezeichnet werden\n' +
-        '   * Polygone können zusammen gruppiert werden (z.B. um unzusammenhängende Bereiche zu vereinen)\n' +
-        '<li><strong>Alle ausser Text</strong>: </li>' +
-        '   * Es kann eine Beschreibung definiert werden indem Bilder (existierende oder selbstgewählte Symbole - ein Klick auf das Bild öffnet die Detailansicht) und/oder Text.\n' +
-        '   * Symbole können definiert / ersetzt / ausgeblendet / vergrössert / verkleinert und gedreht werden und es ist möglich, die Darstellung des Symbols zur besseren Sichtbarkeit vom Ankerpunkt aus zu verschieben',
+        '<li><strong>Polygon</strong>:' +
+        '<ul>' +
+        '<li>Es kann - neben der Möglichkeit die Linie als gestrichelt oder durchgängig sowie deren Dicke zu definieren - ein Muster sowie die Transparenz angegben werden, welches zum Füllen der Fläche verwendet werden soll.</li>' +
+        '<li>Es kann ein Loch in ein Polygon gezeichnet werden</li>' +
+        '<li>Polygone können zusammen gruppiert werden (z.B. um unzusammenhängende Bereiche zu vereinen)</li>' +
+        '</ul>' +
+        '</li>' +
+        '<li><strong>Alle ausser Text</strong>:' +
+        '<ul>' +
+        '<li>Es kann eine Beschreibung definiert werden indem Bilder (existierende oder selbstgewählte Symbole - ein Klick auf das Bild öffnet die Detailansicht) und/oder Text.</li>' +
+        '<li>Symbole können definiert / ersetzt / ausgeblendet / vergrössert / verkleinert und gedreht werden und es ist möglich, die Darstellung des Symbols zur besseren Sichtbarkeit vom Ankerpunkt aus zu verschieben</li>' +
+        '</ul>' +
+        '</li>' +
+        '</ul>',
       en:
         'If an element on the map is selected (e.g. a symbol, a line, an area, etc.), a selection view appears in the lower left corner of the screen.\n\n' +
         'The following functions are available for all elements:\n' +
@@ -953,7 +1005,7 @@ export class I18NService {
         '   * Les symboles peuvent être définis / remplacés / cachés / zoomés / dézoomés et pivotés et il est possible de "déplacer" la représentation du symbole à partir du point d\'ancrage pour une meilleure visibilité',
     },
     docFilter: {
-      de: 'Der Filter erlaubt es, einzelne Symbole oder alle (Symbol: durchgestrichenes Auge) auszublenden, resp. einzublenden (Symbol: Auge)',
+      de: '<p>Der Filter erlaubt es: <strong>alle Symbole</strong>, <strong>einzelne Symbole</strong> oder <strong>Symbolkategorien</strong> auf der Karte auszublenden <em>(Symbol: Auge durchgestrichen)</em> resp. einzublenden <em>(Symbol: Auge)</em></p>',
       en: 'The filter allows you to hide or show individual or all symbols',
       fr: "Le filtre vous permet de cacher ou d'afficher des symboles individuels ou tous",
     },
@@ -982,9 +1034,9 @@ export class I18NService {
     },
     docLayers: {
       de:
-        'Es können verschiedene Karten gewählt werden (u.a. Open Street Map, Satellitenbilder von GeoAdmin oder die Offline-Variante sofern installiert).\n\n' +
-        'Ausserdem kann die Transparenz der aktuellen Karte definiert werden.\n\n' +
-        'Zusätzliche Ebenen stammen von GeoAdmin, welche es erlauben die gezeichnete Karte mit spezifischen Themenkarten zu unterlegen',
+        '<p>Es können verschiedene <strong>Hintergrund-Karten</strong> gewählt werden (u.a. Open Street Map, Satellitenbilder von GeoAdmin oder die Offline-Variante sofern installiert).</p>' +
+        '<p>Ausserdem kann die <strong>Transparenz</strong> der aktuellen Karte definiert werden.</p>' +
+        '<p><strong>Zusätzliche Ebenen</strong> stammen von GeoAdmin, welche es erlauben die gezeichnete Karte mit spezifischen Themenkarten zu unterlegen</p>',
       fr:
         'Différentes cartes peuvent être sélectionnées (entre autres Open Street Map, des images satellites de GeoAdmin ou la version hors ligne si elle est installée).\n' +
         'Vous pouvez également définir la transparence de la carte actuelle. \n' +
@@ -996,8 +1048,8 @@ export class I18NService {
     },
     docHistory: {
       de:
-        'Dieser Modus dient dem Lesen / Präsentieren der Karte. Hier werden Symbole gebündelt, sofern die Karte weit ausgezoomt wird. Ausserdem ist es hier möglich, frühere Kartenzustände welche automatisch aufgezeichnet oder explizit durch den Benutzer getagged wurden aufgerufen werden.\n\n' +
-        'Bei der Selektion eines Elementes erscheint in der linken unteren Ecke eine Übersicht über die definierten Informationen wie Name, Beschreibung, Bilder, etc.',
+        '<p>Dieser Modus dient dem Lesen / Präsentieren der Karte. Hier werden Symbole gebündelt, sofern die Karte weit ausgezoomt wird. Ausserdem ist es hier möglich, frühere Kartenzustände welche automatisch aufgezeichnet oder explizit durch den Benutzer getagged wurden aufgerufen werden.</p>' +
+        '<p>Bei der Selektion eines Elementes erscheint in der linken unteren Ecke eine Übersicht über die definierten Informationen wie Name, Beschreibung, Bilder, etc.</p>',
       fr:
         "Ce mode permet de lire / présenter la carte. C'est là que les symboles sont regroupés, à condition que la carte soit largement dézoomée. Il est également possible d'appeler des états de carte précédents qui ont été automatiquement enregistrés ou explicitement marqués par l'utilisateur.\n" +
         "Lors de la sélection d'un élément, une vue d'ensemble des informations définies telles que le nom, la description, les images, etc. apparaît dans le coin inférieur gauche\n",
@@ -1135,11 +1187,6 @@ export class I18NService {
       en: 'Hide all elements',
       fr: 'Tout cacher',
     },
-    hideShow: {
-      de: 'anzeigen/verstecken',
-      en: 'show/hide',
-      fr: 'afficher/cacher',
-    },
     csvID: {
       de: 'ID',
       en: 'ID',
@@ -1189,6 +1236,126 @@ export class I18NService {
       de: 'Gültigkeitsdauer Ihrer Gastsitzung',
       en: 'Period of validity of your guest session',
       fr: 'Période de validité de votre session',
+    },
+    recentlyUsedSigns: {
+      de: 'Kürzlich verwendete Signaturen',
+      en: 'Recently used signatures',
+      fr: 'Signatures récemment utilisées',
+    },
+    shortcuts: {
+      de: 'Taskenkombinationen',
+      en: 'Shortcuts',
+      fr: 'Raccourcis clavier',
+    },
+    general: {
+      de: 'Allgemein',
+      en: 'General',
+      fr: 'Général',
+    },
+    manual: {
+      de: 'Anleitung',
+      en: 'Guide',
+      fr: "mode d'emploi",
+    },
+    shortcut_openTextDialog: {
+      de: 'Den Text Dialog öffnen',
+      en: 'Open the text dialog',
+      fr: 'Ouvrir le dialogue texte',
+    },
+    shortcuts_openSigDialog: {
+      de: 'Den Signatur Dialog öffnen',
+      en: 'Open the sign dialog',
+      fr: 'Ouvrir le dialogue des signatures',
+    },
+    shortcuts_drawPolygon: {
+      de: 'Polygon zeichen',
+      en: 'Draw polygon',
+      fr: 'Dessiner un polygone',
+    },
+    shortcuts_drawLine: {
+      de: 'Linie zeichnen',
+      en: 'Draw line',
+      fr: 'Dessiner une ligne',
+    },
+    shortcuts_endDrawing: {
+      de: 'Zeichnung beenden',
+      en: 'Finish the drawing',
+      fr: 'Finir le dessin',
+    },
+    shortcuts_deleteSig: {
+      de: 'Signatur löschen',
+      en: 'Remove sign',
+      fr: 'Effacer la signature',
+    },
+    shortcuts_incStrokeWidth: {
+      de: 'Strichstärke erhöhen',
+      en: 'Increase stroke width',
+      fr: 'Augmenter la largeur du trait',
+    },
+    shortcuts_decStrokeWidth: {
+      de: 'Strichstärke verringern',
+      en: 'Decrease stroke width',
+      fr: 'Diminuer la largeur du trait',
+    },
+    shortcuts_mergeSig: {
+      de: 'Signaturen verbinden',
+      en: 'Merge signs',
+      fr: 'Fusionner les signes',
+    },
+    shortcuts_UnselectSig: {
+      de: 'Signature deselektieren (Verbinden stoppen)',
+      en: 'Deselect signature (Stop merge)',
+      fr: 'Désélectionner la signature (Arrêtez la fusion)',
+    },
+    shortcuts_bringToFront: {
+      de: 'Signature nach vorne',
+      en: 'Bring sign to front',
+      fr: 'Mettre la signature en avant',
+    },
+    shortcuts_bringToBack: {
+      de: 'Signature nach hinten',
+      en: 'Bring sign to back',
+      fr: 'Apporter la signature au dos',
+    },
+    shortcuts_editSigCoords: {
+      de: 'Koordinaten bearbeiten',
+      en: 'Edit the coordinates',
+      fr: 'Modifier les coordonnées',
+    },
+    shortcuts_drawHole: {
+      de: 'Loch zeichnen (Polygon)',
+      en: 'Draw hole (polygon)',
+      fr: 'Dessiner un trou (polygone)',
+    },
+    shortcuts_tagState: {
+      de: 'Zustand markieren',
+      en: 'Tag state',
+      fr: "Marquer l'état",
+    },
+    shortcuts_toolbar: {
+      de: 'Toolbar',
+      en: 'Toolbar',
+      fr: 'Toolbar',
+    },
+    shortcuts_toggleHistory: {
+      de: 'Historienmodus umschalten',
+      en: 'Toggle history mode',
+      fr: 'Basculer le mode historique',
+    },
+    shortcuts_toggleFreehand: {
+      de: 'Freihandzeichnen umschalten',
+      en: 'Toggle freehand mode',
+      fr: 'Basculer le dessin à main levée',
+    },
+    shortcuts_focusSearch: {
+      de: 'Geo Suchfeld fokusieren',
+      en: 'Focus Geo search field',
+      fr: 'Focaliser le champ de recherche géographique',
+    },
+    log: {
+      de: 'Protokoll',
+      en: 'Protocol',
+      fr: 'Protocole',
     },
   };
   private _locale: string = DEFAULT_LOCALE;

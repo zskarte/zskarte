@@ -9,7 +9,7 @@ import LineString from 'ol/geom/LineString';
 import Feature from 'ol/Feature';
 import Draw from 'ol/interaction/Draw';
 import OlMap from 'ol/Map';
-import { transform } from 'ol/proj';
+import { transform, get } from 'ol/proj';
 import DrawHole from 'ol-ext/interaction/DrawHole';
 import Overlay from 'ol/Overlay';
 import { getCenter } from 'ol/extent';
@@ -31,6 +31,8 @@ import { getFirstCoordinate, Sign } from '../entity/sign';
 import { availableProjections, mercatorProjection } from '../projections';
 import { filter } from 'rxjs/operators';
 import { getLength, getArea } from 'ol/sphere';
+import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
+import Coordinate from 'ol/coordinate';
 
 export const DRAW_LAYER_ZINDEX = 100000;
 export const CLUSTER_LAYER_ZINDEX = DRAW_LAYER_ZINDEX + 1;
@@ -47,18 +49,19 @@ export class DrawlayerComponent implements OnInit {
     public i18n: I18NService,
     private sessions: SessionsService,
     private customImages: CustomImageStoreService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private keyboardHandler: KeyboardHandler
   ) {
     this.startAutosave();
-  }
 
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    switch (event.code) {
-      case 'Escape':
-        this.endDrawing(this.sketch);
-        break;
-    }
+    this.keyboardHandler.subscribe(
+      new KeyboardHandlerContainer(
+        'Escape',
+        () => this.endDrawing(this.sketch),
+        'shortcuts_endDrawing',
+        'drawLayer'
+      )
+    );
   }
 
   private static mapSaveInterval = 1000;
@@ -151,6 +154,7 @@ export class DrawlayerComponent implements OnInit {
           .getCoordinates();
         this.removeButton.setPosition(event.coordinate);
         this.rotateButton.setPosition(event.coordinate);
+        this.copyButton.setPosition(event.coordinate);
         this.toggleEditButtons(true);
       }
       return true;
@@ -159,6 +163,7 @@ export class DrawlayerComponent implements OnInit {
   });
   removeButton: Overlay = null;
   rotateButton: Overlay = null;
+  copyButton: Overlay = null;
   ROTATE_OFFSET_X = 30;
   ROTATE_OFFSET_Y = -30;
   rotating = false;
@@ -182,7 +187,7 @@ export class DrawlayerComponent implements OnInit {
 
   selectedFeature: Feature;
 
-  private drawers: { [key: string]: Draw } = {};
+  public drawers: { [key: string]: Draw } = {};
 
   private getSigFilterString(sig: Sign): string {
     let filterString = '';
@@ -235,11 +240,17 @@ export class DrawlayerComponent implements OnInit {
     }
   }
 
-  public toggleFilters(instances: string[], active: boolean) {
+  public toggleFilters(instances: (string | Sign)[], active: boolean) {
     let hasChanges = false;
     instances.forEach((i) => {
-      if (this.filters[i] != active) {
-        this.filters[i] = active;
+      if (i == undefined) {
+        return;
+      }
+
+      const filterString =
+        typeof i === 'string' ? i : this.getSigFilterString(i);
+      if (this.filters[filterString] != active) {
+        this.filters[filterString] = active;
         hasChanges = true;
       }
     });
@@ -377,6 +388,9 @@ export class DrawlayerComponent implements OnInit {
 
     this.rotateButton.getElement().style.display =
       allowRotation && !this.historyMode ? 'block' : 'none';
+
+    this.copyButton.getElement().style.display =
+      allowRotation && !this.historyMode ? 'block' : 'none';
   }
 
   private setModifiableFeature(f: Feature) {
@@ -392,11 +406,17 @@ export class DrawlayerComponent implements OnInit {
       positioning: OverlayPositioning.CENTER_CENTER,
       offset: [30, 30],
     });
+    this.copyButton = new Overlay({
+      element: document.getElementById('copySymbol'),
+      positioning: OverlayPositioning.CENTER_CENTER,
+      offset: [-30, 30],
+    });
     this.rotateButton = new Overlay({
       element: document.getElementById('rotateSymbol'),
       positioning: OverlayPositioning.CENTER_CENTER,
       offset: [this.ROTATE_OFFSET_X, this.ROTATE_OFFSET_Y],
     });
+
     this.modify.addEventListener('modifystart', () => {
       this.toggleEditButtons(false);
     });
@@ -406,9 +426,16 @@ export class DrawlayerComponent implements OnInit {
           .getGeometry()
           .getCoordinates();
         this.removeButton.setPosition(e.mapBrowserEvent.coordinate);
+        this.copyButton.setPosition(e.mapBrowserEvent.coordinate);
         this.rotateButton.setPosition(e.mapBrowserEvent.coordinate);
         this.toggleEditButtons(true);
       }
+    });
+
+    this.copyButton.element.addEventListener('click', () => {
+      const coordinationGroup = this.getCoordinationGroupOfLastPoint();
+      this.toggleEditButtons(false);
+      this.doCopySign(coordinationGroup.feature);
     });
 
     this.rotateButton.element.addEventListener('mousedown', () =>
@@ -435,6 +462,7 @@ export class DrawlayerComponent implements OnInit {
             if (r) {
               this.removeFeature(coordinationGroup.feature);
               this.sharedState.selectFeature(null);
+              this.selectedFeature = null; // force to select map coordinates from mouse cursor
             }
           });
         } else if (coordinationGroup.coordinateGroupIndex) {
@@ -460,6 +488,7 @@ export class DrawlayerComponent implements OnInit {
     this.map = this.inputMap;
     this.map.addOverlay(this.removeButton);
     this.map.addOverlay(this.rotateButton);
+    this.map.addOverlay(this.copyButton);
     this.map.addInteraction(this.select);
     this.map.addInteraction(this.modify);
     this.map.addInteraction(this.drawHole);
@@ -775,8 +804,8 @@ export class DrawlayerComponent implements OnInit {
         this.sharedState.setMergeMode(false);
       }
       if (!feat) {
-        this.selectedFeature = null;
         this.sharedState.selectFeature(null);
+        this.selectedFeature = null; // force to select map coordinates from mouse cursor
       } else {
         this.selectedFeature = feat[0];
         this.sharedState.selectFeature(feat[0]);
@@ -869,8 +898,57 @@ export class DrawlayerComponent implements OnInit {
 
     // TODO check for use cases of writing from history mode (e.g. download for revert)
     return (
-      'data:text/csv;charset=UTF-8,' + encodeURIComponent(lines.join('\r\n'))
+      'data:text/csv;charset=UTF-8,' +
+      encodeURIComponent('\ufeff' + lines.join('\r\n'))
     );
+  }
+
+  toArrayData(): Array<{
+    id: string;
+    date: string;
+    group: string;
+    sign: string;
+    location: string;
+    size: string;
+    label: string;
+    description: string;
+  }> {
+    let items = new Array<{
+      id: string;
+      date: string;
+      group: string;
+      sign: string;
+      location: string;
+      size: string;
+      label: string;
+      description: string;
+    }>();
+    const result: { features: Feature } = this.writeFeatures();
+    const features: Feature[] = result.features;
+    for (let i = 0, l = features.length; i < l; i++) {
+      let f: Feature = features[i];
+      if (!f.properties || !f.properties.sig) continue;
+      let s: Sign = f.properties.sig;
+      let sk: string = s.kat
+        ? 'sign' + this.capitalizeFirstLetter(s.kat)
+        : 'csvGroupArea';
+      items.push({
+        id: f.id,
+        date: s.createdAt.toString(),
+        group: sk && this.i18n.has(sk) ? this.i18n.get(sk) : '',
+        sign:
+          this.i18n.locale == 'fr'
+            ? s.fr
+            : this.i18n.locale == 'en'
+            ? s.en
+            : s.de,
+        location: JSON.stringify(f.geometry),
+        size: s.size ? s.size.replace('<sup>2</sup>', '2') : '',
+        label: s.label,
+        description: s.description,
+      });
+    }
+    return items;
   }
 
   capitalizeFirstLetter(string: string) {
@@ -892,6 +970,7 @@ export class DrawlayerComponent implements OnInit {
   private clearSelection() {
     this.select.getFeatures().clear();
     this.sharedState.selectFeature(null);
+    this.selectedFeature = null; // force to select map coordinates from mouse cursor
   }
 
   removeAll() {
@@ -1040,25 +1119,48 @@ export class DrawlayerComponent implements OnInit {
     // }, 0)
   }
 
-  startDrawing(sign) {
+  startDrawingAutomatically(sign: Sign, coords: Coordinate) {
+    //Set the selected sign as if it is drawn by the user
+    this.sharedState.selectSign(sign);
+
+    //"fake" the click on the map with the active signature
+    this.addOrGetDrawer(sign.type)
+      //startDrawing_ is a private function from the Draw class. There is no other way to start the drawing in the code
+      .startDrawing_(coords);
+
+    //Finish the drawing immediately if it is a point. Let the user finish drawing if it's a line/polygon
+    if (sign.type === 'Point') {
+      setTimeout(() => {
+        this.addOrGetDrawer(sign.type).finishDrawing();
+      }, 50);
+    }
+  }
+
+  private addOrGetDrawer(signType: string) {
+    let drawer = this.drawers[signType];
+    if (!drawer) {
+      drawer = this.drawers[signType] = new Draw({
+        source: this.source,
+        type: this.currentDrawingSign.type,
+      });
+      drawer.drawLayer = this;
+      drawer.addEventListener('drawstart', (event) => {
+        this.sketch = event.feature;
+      });
+      drawer.addEventListener('drawend', () => {
+        this.endDrawing(this.sketch);
+      });
+      this.map.addInteraction(drawer);
+    }
+
+    return drawer;
+  }
+
+  startDrawing(sign: Sign) {
     this.currentDrawingSign = sign;
     if (sign) {
       this.toggleFilters([sign.src], false);
-      let drawer = this.drawers[sign.type];
-      if (!drawer) {
-        drawer = this.drawers[sign.type] = new Draw({
-          source: this.source,
-          type: this.currentDrawingSign.type,
-        });
-        drawer.drawLayer = this;
-        drawer.addEventListener('drawstart', (event) => {
-          this.sketch = event.feature;
-        });
-        drawer.addEventListener('drawend', () => {
-          this.endDrawing(this.sketch);
-        });
-        this.map.addInteraction(drawer);
-      }
+      let drawer = this.addOrGetDrawer(sign.type);
       Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       drawer.setActive(true);
     }
@@ -1072,6 +1174,7 @@ export class DrawlayerComponent implements OnInit {
       feature.set('sig', this.currentDrawingSign);
       Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       this.sharedState.selectFeature(feature);
+      this.sharedState.addRecentlyUsedSign(this.currentDrawingSign);
       this.sketch = undefined;
     }
   }
@@ -1224,5 +1327,13 @@ export class DrawlayerComponent implements OnInit {
     feature.get('sig').rotation = rotation > 180 ? rotation - 360 : rotation;
 
     feature.changed();
+  }
+
+  doCopySign(f: Feature) {
+    const sign = f?.get('sig') as Sign;
+    if (!sign || !sign.src) {
+      return null;
+    }
+    this.sharedState.selectSign(sign);
   }
 }

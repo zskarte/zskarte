@@ -2,8 +2,8 @@
   <div style="z-index: 10; position: relative">
     <app-toolbar [drawLayer]="drawLayer"></app-toolbar>
   </div>
-  <mat-sidenav-container style="flex: 1">
-    <mat-sidenav position="end" mode="side" #sidenav style="width: 350px">
+  <mat-sidenav-container style="flex: 1" [hasBackdrop]="width < 800">
+    <mat-sidenav class="sidenav" position="end" mode="side" #sidenav>
       <app-sidebar-root [sidenav]="sidenav">
         <app-sidebar
           [hidden]="
@@ -20,9 +20,13 @@
     </mat-sidenav>
     <mat-sidenav-content>
       <app-history></app-history>
-      <app-map #map style="height: 100%; width: 100%; display: block"></app-map>
+      <app-map
+        [drawLayer]="drawLayer"
+        #map
+        style="height: 100%; width: 100%; display: block"
+      ></app-map>
       <app-drawlayer [inputMap]="map.map" #drawLayer></app-drawlayer>
-      <app-selected-feature></app-selected-feature>
+      <app-selected-feature [drawLayer]="drawLayer"></app-selected-feature>
       <app-fab-menu></app-fab-menu>
     </mat-sidenav-content>
   </mat-sidenav-container>

@@ -8,7 +8,7 @@
     <div class="tools">
       <div class="flexContainer alignCenter justifySpace flex-gap">
         <mat-card-title class="title">{{ session.title }}</mat-card-title>
-        <div class="justify">
+        <div class="grow">
           <app-geocoder
             style="flex: 1; margin-top: -0.08em"
             [drawLayer]="drawLayer"
@@ -29,7 +29,12 @@
           </button>
         </div>
         <mat-menu #mainMenu="matMenu" class="burger-menu">
-          <button mat-menu-item (click)="$event.stopPropagation()">
+          <button
+            mat-menu-item
+            id="historyButton"
+            (click)="toggleHistoryIfButton($event)"
+            title="ALT+H"
+          >
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('exportSession')"
@@ -37,6 +42,7 @@
             >
             {{ i18n.get('history') }}
             <mat-slide-toggle
+              #historySlider
               (toggleChange)="toggleHistory()"
               [checked]="historyMode"
               color="primary"
@@ -79,6 +85,7 @@
             class="tools-menu-item"
             (click)="download()"
             [href]="downloadData"
+            title="ALT+I"
             ><mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('download')"
@@ -99,7 +106,12 @@
             >
             {{ i18n.get('importMap') }}
           </button>
-          <button mat-menu-item (click)="clear()">
+          <button
+            mat-menu-item
+            (click)="clear()"
+            title="ALT+DELETE"
+            *ngIf="!historyMode"
+          >
             <mat-icon
               aria-hidden="false"
               [attr.aria-label]="i18n.get('deleteMap')"
@@ -112,6 +124,7 @@
             mat-menu-item
             class="tools-menu-item"
             (click)="tagState()"
+            title="ALT+T"
             *ngIf="!historyMode"
           >
             <mat-icon
@@ -144,26 +157,27 @@
             >
             {{ i18n.get('print') }}
           </button>
-          <a
+          <button
             mat-menu-item
-            [download]="getDownloadFileNameCSV()"
-            id="exportCSV"
             class="tools-menu-item"
-            (click)="downloadCSV()"
-            [href]="downloadCSVData"
-            ><mat-icon
-              aria-hidden="false"
-              [attr.aria-label]="i18n.get('downloadMapCSV')"
-              >save</mat-icon
-            >
-            {{ i18n.get('downloadMapCSV') }}</a
+            [matMenuTriggerFor]="log"
           >
-          <button mat-menu-item (click)="help()">
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('log')"
+              >list_alt</mat-icon
+            >
+            {{ i18n.get('log') }}
+          </button>
+          <button
+            mat-menu-item
+            class="tools-menu-item"
+            [matMenuTriggerFor]="help"
+          >
             <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')"
               >help</mat-icon
             >
             {{ i18n.get('help') }}
           </button>
+
           <mat-divider></mat-divider>
           <button
             mat-menu-item
@@ -186,6 +200,46 @@
           >
             {{ i18n.get(locale) }}
           </button>
+        </mat-menu>
+        <mat-menu #help="matMenu">
+          <button mat-menu-item (click)="manual()">
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('manual')"
+              >menu_book</mat-icon
+            >
+            {{ i18n.get('manual') }}
+          </button>
+          <button mat-menu-item (click)="shortcuts()">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('shortcuts')"
+              >info</mat-icon
+            >
+            {{ i18n.get('shortcuts') }}
+          </button>
+        </mat-menu>
+        <mat-menu #log="matMenu">
+          <button mat-menu-item class="tools-menu-item" (click)="logTable()">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('logTable')"
+              >table_chart</mat-icon
+            >
+            {{ i18n.get('logTable') }}
+          </button>
+          <a
+            mat-menu-item
+            [download]="getDownloadFileNameCSV()"
+            id="exportCSV"
+            class="tools-menu-item"
+            (click)="downloadCSV()"
+            [href]="downloadCSVData"
+            ><mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('downloadMapCSV')"
+              >save</mat-icon
+            >
+            {{ i18n.get('downloadMapCSV') }}</a
+          >
         </mat-menu>
       </div>
     </div>
