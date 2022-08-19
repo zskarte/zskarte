@@ -153,6 +153,7 @@ export class DrawlayerComponent implements OnInit {
           .getCoordinates();
         this.removeButton.setPosition(event.coordinate);
         this.rotateButton.setPosition(event.coordinate);
+        this.copyButton.setPosition(event.coordinate);
         this.toggleEditButtons(true);
       }
       return true;
@@ -161,6 +162,7 @@ export class DrawlayerComponent implements OnInit {
   });
   removeButton: Overlay = null;
   rotateButton: Overlay = null;
+  copyButton: Overlay = null;
   ROTATE_OFFSET_X = 30;
   ROTATE_OFFSET_Y = -30;
   rotating = false;
@@ -385,6 +387,9 @@ export class DrawlayerComponent implements OnInit {
 
     this.rotateButton.getElement().style.display =
       allowRotation && !this.historyMode ? 'block' : 'none';
+
+    this.copyButton.getElement().style.display =
+      allowRotation && !this.historyMode ? 'block' : 'none';
   }
 
   private setModifiableFeature(f: Feature) {
@@ -400,6 +405,11 @@ export class DrawlayerComponent implements OnInit {
       positioning: OverlayPositioning.CENTER_CENTER,
       offset: [30, 30],
     });
+    this.copyButton = new Overlay({
+      element: document.getElementById('copySymbol'),
+      positioning: OverlayPositioning.CENTER_CENTER,
+      offset: [-30, 30],
+    });
     this.rotateButton = new Overlay({
       element: document.getElementById('rotateSymbol'),
       positioning: OverlayPositioning.CENTER_CENTER,
@@ -414,9 +424,16 @@ export class DrawlayerComponent implements OnInit {
           .getGeometry()
           .getCoordinates();
         this.removeButton.setPosition(e.mapBrowserEvent.coordinate);
+        this.copyButton.setPosition(e.mapBrowserEvent.coordinate);
         this.rotateButton.setPosition(e.mapBrowserEvent.coordinate);
         this.toggleEditButtons(true);
       }
+    });
+
+    this.copyButton.element.addEventListener('click', () => {
+      const coordinationGroup = this.getCoordinationGroupOfLastPoint();
+      this.toggleEditButtons(false);
+      this.doCopySign(coordinationGroup.feature);
     });
 
     this.rotateButton.element.addEventListener('mousedown', () =>
@@ -469,6 +486,7 @@ export class DrawlayerComponent implements OnInit {
     this.map = this.inputMap;
     this.map.addOverlay(this.removeButton);
     this.map.addOverlay(this.rotateButton);
+    this.map.addOverlay(this.copyButton);
     this.map.addInteraction(this.select);
     this.map.addInteraction(this.modify);
     this.map.addInteraction(this.drawHole);
@@ -1261,5 +1279,13 @@ export class DrawlayerComponent implements OnInit {
     feature.get('sig').rotation = rotation > 180 ? rotation - 360 : rotation;
 
     feature.changed();
+  }
+
+  doCopySign(f: Feature) {
+    const sign = f?.get('sig') as Sign;
+    if (!sign || !sign.src) {
+      return null;
+    }
+    this.sharedState.selectSign(sign);
   }
 }
