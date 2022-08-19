@@ -901,8 +901,26 @@ export class DrawlayerComponent implements OnInit {
     );
   }
 
-  toArrayData():Array<{id:string,date:string,group:string,sign:string,location:string,size:string,label:string,description:string}> {
-    let items = new Array<{id:string,date:string,group:string,sign:string,location:string,size:string,label:string,description:string}>();
+  toArrayData(): Array<{
+    id: string;
+    date: string;
+    group: string;
+    sign: string;
+    location: string;
+    size: string;
+    label: string;
+    description: string;
+  }> {
+    let items = new Array<{
+      id: string;
+      date: string;
+      group: string;
+      sign: string;
+      location: string;
+      size: string;
+      label: string;
+      description: string;
+    }>();
     const result: { features: Feature } = this.writeFeatures();
     const features: Feature[] = result.features;
     for (let i = 0, l = features.length; i < l; i++) {
@@ -913,14 +931,19 @@ export class DrawlayerComponent implements OnInit {
         ? 'sign' + this.capitalizeFirstLetter(s.kat)
         : 'csvGroupArea';
       items.push({
-        id:f.id
-        ,date:s.createdAt.toString()
-        ,group:sk && this.i18n.has(sk) ? this.i18n.get(sk) : ''
-        ,sign:this.i18n.locale == 'fr' ? s.fr : this.i18n.locale == 'en' ? s.en : s.de
-        ,location:JSON.stringify(f.geometry)
-        ,size:s.size ? s.size.replace('<sup>2</sup>', '2') : ''
-        ,label:s.label
-        ,description:s.description
+        id: f.id,
+        date: s.createdAt.toString(),
+        group: sk && this.i18n.has(sk) ? this.i18n.get(sk) : '',
+        sign:
+          this.i18n.locale == 'fr'
+            ? s.fr
+            : this.i18n.locale == 'en'
+            ? s.en
+            : s.de,
+        location: JSON.stringify(f.geometry),
+        size: s.size ? s.size.replace('<sup>2</sup>', '2') : '',
+        label: s.label,
+        description: s.description,
       });
     }
     return items;

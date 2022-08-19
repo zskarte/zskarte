@@ -1,40 +1,41 @@
 <div class="table-container">
   <table mat-table [dataSource]="data" class="mat-elevation-z8 log-table">
-
     <ng-container matColumnDef="log-id">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvID')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.get('csvID') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.id }}</td>
     </ng-container>
     <ng-container matColumnDef="log-date">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvDate')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.date}} </td>
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.get('csvDate') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.date }}</td>
     </ng-container>
     <ng-container matColumnDef="log-group">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvGroup')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.group}} </td>
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.get('csvGroup') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.group }}</td>
     </ng-container>
     <ng-container matColumnDef="log-sign">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvSignatur')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.sign}} </td>
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.get('csvSignatur') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.sign }}</td>
     </ng-container>
     <ng-container matColumnDef="log-location">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvLocation')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.location}} </td>
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.get('csvLocation') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.location }}</td>
     </ng-container>
     <ng-container matColumnDef="log-size">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvSize')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.size}} </td>
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.get('csvSize') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.size }}</td>
     </ng-container>
     <ng-container matColumnDef="log-label">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvLabel')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.label}} </td>
+      <th mat-header-cell *matHeaderCellDef>{{ i18n.get('csvLabel') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.label }}</td>
     </ng-container>
     <ng-container matColumnDef="log-description">
-      <th mat-header-cell *matHeaderCellDef> {{i18n.get('csvDescription')}} </th>
-      <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18n.get('csvDescription') }}
+      </th>
+      <td mat-cell *matCellDef="let element">{{ element.description }}</td>
     </ng-container>
-  
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 </div>

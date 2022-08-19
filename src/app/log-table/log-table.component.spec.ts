@@ -11,7 +11,7 @@ describe('LogTableComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [MatDialogModule, HttpClientTestingModule],
-      declarations: [LogTableComponent]
+      declarations: [LogTableComponent],
     });
   });
 

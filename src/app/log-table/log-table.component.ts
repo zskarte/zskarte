@@ -35,9 +35,18 @@ const ELEMENT_DATA: PeriodicElement[] = [
   styleUrls: ['./log-table.component.css'],
 })
 export class LogTableComponent {
-  
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: Array<{id:string,date:string,group:string,sign:string,location:string,size:string,label:string,description:string}>,
+    @Inject(MAT_DIALOG_DATA)
+    public data: Array<{
+      id: string;
+      date: string;
+      group: string;
+      sign: string;
+      location: string;
+      size: string;
+      label: string;
+      description: string;
+    }>,
     public i18n: I18NService
   ) {}
 
@@ -49,8 +58,7 @@ export class LogTableComponent {
     //'log-location',
     //'log-size',
     'log-label',
-    'log-description'
+    'log-description',
   ];
   //dataSource = ELEMENT_DATA;
-
 }
