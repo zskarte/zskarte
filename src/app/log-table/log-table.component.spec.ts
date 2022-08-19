@@ -41,5 +41,4 @@ describe('LogTableComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-});
-*/
+});*/
