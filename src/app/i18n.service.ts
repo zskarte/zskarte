@@ -735,9 +735,9 @@ export class I18NService {
     docWelcome: {
       de:
         '<h1>Herzlich Willkommen bei Zivilschutz-Karte</h1>\n' +
-        'Sie finden hier einige Informationen zur Verwendung der Applikation. \n\n' +
+        '<p>Sie finden hier einige Informationen zur Verwendung der Applikation. \n\n' +
         'Sie können diesen Schritt selbstverständlich jederzeit überspringen und bei Bedarf über das Hilfe-Menü wieder aufrufen.\n\n' +
-        'Wir wünschen Ihnen viel Spass bei der Verwendung!',
+        'Wir wünschen Ihnen viel Spass bei der Verwendung!</p>',
       fr:
         '<h1>Bienvenue à Zivilschutz-Karte</h1>\n' +
         "Vous trouverez ici quelques informations sur la manière d'utiliser l'application.\n\n" +
@@ -752,9 +752,15 @@ export class I18NService {
     docNewMap: {
       de:
         '<ul>' +
-        '<li>Um eine neue Karte zu erstellen, müssen Sie zuerst Ihre Zivilschutz-Organisation definieren (welche bei einem zweiten Mal vorgemerkt wird). Ausserdem sollten Sie Ihre Karte benennen (z.B. anhand des aktuellen Ereignisses).</li>' +
-        '<li>Falls bereits Karten bestehen, finden Sie eine entsprechende Möglichkeit, diese zu öffnen</li>' +
-        '<li>Falls Sie eine Karte exportiert haben / von jemandem mit dem Dateiformat .zsjson erhalten haben, können Sie diese hier importieren</li>' +
+        '<li>Um eine neue Karte zu erstellen, müssen Sie zuerst Ihre Zivilschutz-Organisation auswählen und das Password angeben.</li>' +
+        '<li>Sie können sich auch als Gast ohne Organisation und Passwort anmelden, die Sitzung ist dann aber auf eine Stunde beschränkt' +
+        '<ul>' +
+        '<li>Nach Ablauf einer Stunde wird die Sitzung zurückgesetzt und alle Kartendaten gelöscht</li>' +
+        '</ul>' +
+        '</li>' +
+        '<li>Ausserdem müssen Sie Ihre Karte benennen (z.B. anhand des aktuellen Ereignisses).</li>' +
+        '<li>Falls bereits Karten im Browser-Speicher bestehen, finden Sie eine entsprechende Möglichkeit im Tab "Bestehende Karte laden" diese zu öffnen</li>' +
+        '<li>Falls Sie eine Karte exportiert haben / von jemandem mit dem Dateiformat .zsjson erhalten haben, können Sie diese im Tab "Karte importieren" importieren</li>' +
         '</ul>',
       en:
         '<ul>' +
@@ -776,19 +782,31 @@ export class I18NService {
     },
     docInitialView: {
       de:
-        'Nach dem erstellen / laden / importieren einer neuen Karte befinden Sie sich bei der Initial-Darstellung der Karte.\n' +
-        'Sie finden im obersten Bereich folgende Elemente vor:' +
+        '<p>Nach dem erstellen / laden / importieren einer neuen Karte befinden Sie sich bei der Initial-Darstellung der Karte.\n' +
+        'Sie finden in den Randbereichen folgende Elemente vor:</p>' +
+        '<p>Oben:' +
         '<ul>' +
-        '<li>Das Logo der gewählten Zivilschutzorganisation inkl. der Sprachwahl.</li>' +
-        '<li>Den Kartentitel und das <strong>Hauptmenü</strong> (in blau)</li>' +
-        '<li>Die aktuelle Uhrzeit</li>' +
-        '<li>Eine Suche (<strong>Ort finden</strong>) um nach einer Adresse oder einem gezeichneten Element zu suchen</li>' +
-        '<li>Das Menü <strong>Zeichnen</strong></li>' +
-        '<li>Das Menü <strong>Aktuelle Zeichnung</strong></li>' +
-        '<li>as Menü <strong>Ebenen</strong></li>' +
-        '<li>Den <strong>Modus-Schalter</strong> um vom Zeichnungs- zum History / Lese-Modus zu gelangen</li>' +
-        '<li>Einen Knopf um das <strong>Menü zu reduzieren</strong> um den Kartenbereich zu maximieren</li>' +
-        '</ul>',
+        '<li>Das Logo der gewählten <strong>Zivilschutzorganisation</strong> und dem <strong>Ereignistitel</strong></li>' +
+        '<li>Eine <strong>Suche</strong> (<strong>Ort finden</strong>) um nach einer Adresse oder einem gezeichneten Element zu suchen</li>' +
+        '<li>Für Gast-Sitzungen, die <strong>verbleibende Sitzungsdauer</strong></li>' +
+        '<li>Die aktuelle <strong>Uhrzeit</strong></li>' +
+        '<li>Das aufklappbare <strong>Hauptmenü</strong></li>' +
+        '</ul>' +
+        '</p>' +
+        '<p>Rechts:' +
+        '<ul>' +
+        '<li><strong>Zoomfunktion</strong> (funktioniert auch mit Mausrad oder Fingerzoom)</li>' +
+        '<li><strong>Kartenlayer</strong> mit alternativen Karten oder zuschaltbaren Karteninformationen (KGS, Gefahrenkataster, etc.)</li>' +
+        '<li><strong>Filterfunktionen</strong> um Elemente auf der Karte ein- und auszuschalten</li>' +
+        '<li><strong>Element hinzufügen</strong> um weitere Elemente auf der Karte einzufügen</li>' +
+        '</ul>' +
+        '</p>' +
+        '<p>Unten:' +
+        '<ul>' +
+        '<li>Links den <strong>Massstab</strong> der angezeigten Karte</li>' +
+        '<li>Rechts die Koordinaten des Mauszeigers resp. des gewählten Symbols, Umschaltbar auf die gängigsten Koordinatensysteme</li>' +
+        '</ul>' +
+        '</p>',
       en:
         'After creating / loading / importing a new map you are at the initial view of the map.\n' +
         'You will find the following elements in the top section:\n' +
