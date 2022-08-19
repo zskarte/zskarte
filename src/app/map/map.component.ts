@@ -29,6 +29,8 @@ export class MapComponent implements OnInit {
   map: OlMap = null;
   layer: Layer;
   currentSessionId: string;
+  sidebarContext: SidebarContext = null;
+  sidebarOpen: boolean = false;
 
   positionFlagLocation: Point = new Point([0, 0]);
   positionFlag: Feature = new Feature({
@@ -154,6 +156,18 @@ export class MapComponent implements OnInit {
 
         this.sharedState.didChangeLayer();
       }
+    });
+
+    this.sharedState.sidebarContext.subscribe((context) => {
+      if (context === null) {
+        return;
+      }
+      if (this.sidebarContext !== context || !this.sidebarOpen) {
+        this.sidebarOpen = true;
+      } else {
+        this.sidebarOpen = false;
+      }
+      this.sidebarContext = context;
     });
 
     this.sharedState.selectedFeatures.subscribe((selectedFeatures) => {
