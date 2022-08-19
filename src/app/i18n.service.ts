@@ -875,12 +875,13 @@ export class I18NService {
         '<li>pour indiquer cette aide</li>',
     },
     docSearch: {
-      de: '<p>Die Suche kann dazu verwendet werden, Adressen und andere Orte zu finden und mittels Selektion zum entsprechenden Ort auf der Karte zu navigieren.</p>' +
-          //'<p>Die Suche unterstützt ausserdem gezeichnete Symbole inkl. deren Namen</p>' +
-          '<ul>' + 
-          '<li>Der gefundene Ort wird auf der Karte markiert (roter Marker)</li>' + 
-          '<li>Mit einem weiteren Symbol (blau/weisser Stern) kann an der Stelle ein Symbol eingefügt werden</li>' +
-          '</ul>',
+      de:
+        '<p>Die Suche kann dazu verwendet werden, Adressen und andere Orte zu finden und mittels Selektion zum entsprechenden Ort auf der Karte zu navigieren.</p>' +
+        //'<p>Die Suche unterstützt ausserdem gezeichnete Symbole inkl. deren Namen</p>' +
+        '<ul>' +
+        '<li>Der gefundene Ort wird auf der Karte markiert (roter Marker)</li>' +
+        '<li>Mit einem weiteren Symbol (blau/weisser Stern) kann an der Stelle ein Symbol eingefügt werden</li>' +
+        '</ul>',
       en: 'The search can be used to find addresses and other places and navigate to the corresponding location on the map. The search also supports drawn symbols by including their names',
       fr: "La recherche peut être utilisée pour trouver des adresses et d'autres lieux et naviguer jusqu'à l'endroit correspondant sur la carte. La recherche prend également en compte les symboles dessinés, y compris leurs noms",
     },
@@ -916,11 +917,11 @@ export class I18NService {
       de:
         '<p>Ganz oben werden die <strong>zuletzt verwendeten Symbole</strong> für einen Schnellzugriff aufgelistet</p>' +
         '<p>Über eine <strong>Suche</strong> oder <strong>Kategorienfilter</strong> kann die Liste der Symbole eingeschränkt werden</p>' +
-        '<p>Die Symbolauswahl erlaubt es, aus vordefinierten Symbolen auszuwählen, oder eigene Symbole über den Knopf neben dem Filter zu definieren.</p>' + 
+        '<p>Die Symbolauswahl erlaubt es, aus vordefinierten Symbolen auszuwählen, oder eigene Symbole über den Knopf neben dem Filter zu definieren.</p>' +
         '<p><strong>Eigene Bilder</strong></p>' +
         '<p>Wurde ein eigenes Symbol hochgeladen, so kann definiert werden, um welche Geometrie es sich handelt (Punkt / Linie / Polygon), es kann eine Benennung in einer oder mehreren der unterstützten Sparchen definiert und eine zugehörige Farbe gewählt werden.</p>' +
         '<p>Grundsätzlich werden Bilder, welche als Symbole hinzugefügt werden als Kreis ausgeschnitten. Soll das Bild in seiner Originalform für die spätere Detailansicht erhalten bleiben, so kann dies hier selektiert werden.</p>',
-        //'Auch kann ein Symbol für die Verwendung durch andere Karten auf diesem Browser freigegeben werden.',
+      //'Auch kann ein Symbol für die Verwendung durch andere Karten auf diesem Browser freigegeben werden.',
       en:
         'Symbol selection allows you to choose from predefined symbols, or to define your own symbols using the button next to the filter.\n' +
         'If a custom symbol has been uploaded, you can define the geometry (point / line / polygon), define a name in one or more of the supported languages and choose a color.\n' +
@@ -960,7 +961,7 @@ export class I18NService {
         '</ul>' +
         '</li>' +
         '<li><strong>Alle ausser Text</strong>:' +
-        '<ul>' + 
+        '<ul>' +
         '<li>Es kann eine Beschreibung definiert werden indem Bilder (existierende oder selbstgewählte Symbole - ein Klick auf das Bild öffnet die Detailansicht) und/oder Text.</li>' +
         '<li>Symbole können definiert / ersetzt / ausgeblendet / vergrössert / verkleinert und gedreht werden und es ist möglich, die Darstellung des Symbols zur besseren Sichtbarkeit vom Ankerpunkt aus zu verschieben</li>' +
         '</ul>' +
@@ -1351,11 +1352,11 @@ export class I18NService {
       en: 'Focus Geo search field',
       fr: 'Focaliser le champ de recherche géographique',
     },
-    log:  {
+    log: {
       de: 'Protokoll',
       en: 'Protocol',
       fr: 'Protocole',
-    }
+    },
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
