@@ -25,7 +25,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { TagStateComponent } from '../tag-state/tag-state.component';
 import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
 import { ShortcutDialogComponent } from '../shortcut-dialog/shortcut-dialog.component';
-import {MatMenuTrigger} from "@angular/material/menu";
+import { MatMenuTrigger } from "@angular/material/menu";
+import { LogTableComponent } from '../log-table/log-table.component';
 
 @Component({
   selector: 'app-toolbar',
@@ -228,6 +229,10 @@ export class ToolbarComponent implements OnInit {
 
   manual(): void {
     this.dialog.open(HelpComponent, { data: false });
+  }
+
+  logTable(): void {
+    this.dialog.open(LogTableComponent, { data: this.drawLayer.toArrayData() });
   }
 
   shortcuts(): void {
