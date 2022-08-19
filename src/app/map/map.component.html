@@ -24,6 +24,12 @@
     <button
       mat-icon-button
       (click)="sharedState.setSidebarContext(SidebarContext.Layers)"
+      [color]="
+        (sharedState.sidebarContext | async) === SidebarContext.Layers &&
+        sidebarOpen
+          ? 'primary'
+          : 'basic'
+      "
       [attr.aria-label]="i18n.get('layers')"
     >
       <mat-icon>layers</mat-icon>
@@ -31,9 +37,25 @@
     <button
       mat-icon-button
       (click)="sharedState.setSidebarContext(SidebarContext.Filters)"
+      [color]="
+        (sharedState.sidebarContext | async) === SidebarContext.Filters &&
+        sidebarOpen
+          ? 'primary'
+          : 'basic'
+      "
       [attr.aria-label]="i18n.get('filters')"
     >
       <mat-icon>filter_alt</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      *ngIf="sidebarOpen"
+      (click)="sharedState.setSidebarContext(sidebarContext)"
+      color="accent"
+      [attr.aria-label]="i18n.get('close')"
+    >
+      <mat-icon>close</mat-icon>
     </button>
   </div>
 </div>
