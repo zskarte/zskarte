@@ -19,4 +19,3 @@ jobs:
         uses: creyD/prettier_action@v4.2
         with:
           prettier_options: --write **/*.{ts,html,css,scss}
-          only_changed: True
