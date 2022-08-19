@@ -26,6 +26,7 @@ import { ImportDialogComponent } from './import-dialog/import-dialog.component';
 import { GeocoderComponent } from './geocoder/geocoder.component';
 import { TextDialogComponent } from './text-dialog/text-dialog.component';
 import { SelectedFeatureComponent } from './selected-feature/selected-feature.component';
+import { LogTableComponent } from './log-table/log-table.component';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatListModule } from '@angular/material/list';
 import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
@@ -99,6 +100,7 @@ const dbConfig: DBConfig = {
     GeocoderComponent,
     TextDialogComponent,
     SelectedFeatureComponent,
+    LogTableComponent,
     SessionCreatorComponent,
     ConfirmationDialogComponent,
     ExportDialogComponent,
