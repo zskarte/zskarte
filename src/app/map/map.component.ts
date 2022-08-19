@@ -42,8 +42,8 @@ export class MapComponent implements OnInit {
   historyMode: boolean;
 
   placeSymbol: Overlay = null;
-  ROTATE_OFFSET_X = 35;
-  ROTATE_OFFSET_Y = -35;
+  ADD_SIGN_OFFSET_X = 35;
+  ADD_SIGN_OFFSET_Y = -35;
 
   positionFlagLocation: Point = new Point([0, 0]);
   positionFlag: Feature = new Feature({
@@ -129,7 +129,7 @@ export class MapComponent implements OnInit {
     this.placeSymbol = new Overlay({
       element: document.getElementById('placeSymbol'),
       positioning: OverlayPositioning.CENTER_CENTER,
-      offset: [this.ROTATE_OFFSET_X, this.ROTATE_OFFSET_Y],
+      offset: [this.ADD_SIGN_OFFSET_X, this.ADD_SIGN_OFFSET_Y],
     });
 
     this.placeSymbol.element.addEventListener('click', () => {
