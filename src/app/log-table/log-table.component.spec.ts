@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
 
 import { LogTableComponent } from './log-table.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -10,7 +9,7 @@ describe('LogTableComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [MatDialogModule, HttpClientTestingModule],
+      imports: [HttpClientTestingModule],
       declarations: [LogTableComponent],
     });
   });
