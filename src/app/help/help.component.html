@@ -18,7 +18,9 @@
           class="description"
           [innerHTML]="i18n.get('docInitialView') | nl2br"
         ></div>
-        <div class="screenshot"><img src="assets/doc/initial_view.jpg" /></div>
+        <div class="screenshot">
+          <img src="assets/doc/entry-screen-blank-small.png" />
+        </div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docMainMenuTitle')" completed="false">
@@ -27,7 +29,7 @@
           class="description"
           [innerHTML]="i18n.get('docMainMenu') | nl2br"
         ></div>
-        <div class="screenshot"><img src="assets/doc/main_menu.jpg" /></div>
+        <div class="screenshot"><img src="assets/doc/main_menu.png" /></div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('findPlace')" completed="false">
@@ -36,7 +38,7 @@
           class="description"
           [innerHTML]="i18n.get('docSearch') | nl2br"
         ></div>
-        <div class="screenshot"><img src="assets/doc/search.jpg" /></div>
+        <div class="screenshot"><img src="assets/doc/search-bar.png" /></div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('draw')" completed="false">
@@ -45,7 +47,7 @@
           class="description"
           [innerHTML]="i18n.get('docDraw') | nl2br"
         ></div>
-        <div class="screenshot"><img src="assets/doc/draw.jpg" /></div>
+        <div class="screenshot"><img src="assets/doc/add-element.png" /></div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docSymbolSelectionTitle')" completed="false">
@@ -55,9 +57,7 @@
           [innerHTML]="i18n.get('docSymbolSelection') | nl2br"
         ></div>
         <div class="screenshot">
-          <img src="assets/doc/symbolselection.jpg" /><img
-            src="assets/doc/custom_image.jpg"
-          />
+          <img src="assets/doc/symbol-select.png" />
         </div>
       </div>
     </mat-step>
@@ -68,12 +68,17 @@
           [innerHTML]="i18n.get('docSelection') | nl2br"
         ></div>
         <div class="screenshot">
-          <img src="assets/doc/selectiontext.jpg" />
-          <img src="assets/doc/selectiondescription.jpg" />
-          <img src="assets/doc/selectionsymbol.jpg" />
-          <img src="assets/doc/selectionline.jpg" />
-          <img src="assets/doc/selectionpattern.jpg" />
+          <img src="assets/doc/symbol-settings.png" />
         </div>
+      </div>
+    </mat-step>
+    <mat-step [label]="i18n.get('layers')" completed="false">
+      <div class="section">
+        <div
+          class="description"
+          [innerHTML]="i18n.get('docLayers') | nl2br"
+        ></div>
+        <div class="screenshot"><img src="assets/doc/layers.png" /></div>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('filter')" completed="false">
@@ -82,9 +87,10 @@
           class="description"
           [innerHTML]="i18n.get('docFilter') | nl2br"
         ></div>
-        <div class="screenshot"><img src="assets/doc/filter.jpg" /></div>
+        <div class="screenshot"><img src="assets/doc/filters.png" /></div>
       </div>
     </mat-step>
+    <!--
     <mat-step [label]="i18n.get('currentDrawing')" completed="false">
       <div class="section">
         <div
@@ -96,15 +102,7 @@
         </div>
       </div>
     </mat-step>
-    <mat-step [label]="i18n.get('layers')" completed="false">
-      <div class="section">
-        <div
-          class="description"
-          [innerHTML]="i18n.get('docLayers') | nl2br"
-        ></div>
-        <div class="screenshot"><img src="assets/doc/layers.jpg" /></div>
-      </div>
-    </mat-step>
+  -->
     <mat-step [label]="i18n.get('history')" completed="false">
       <div class="section">
         <div
