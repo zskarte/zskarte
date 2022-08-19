@@ -25,8 +25,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { DrawingDialogComponent } from '../drawing-dialog/drawing-dialog.component';
 import { DisplayMode } from '../entity/displayMode';
 import { Sign } from '../entity/sign';
-import LineString from 'ol/geom/LineString';
-import Polygon from 'ol/geom/Polygon';
 
 @Component({
   selector: 'app-map',
