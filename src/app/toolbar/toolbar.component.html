@@ -157,28 +157,16 @@
             >
             {{ i18n.get('print') }}
           </button>
-          <button mat-menu-item class="tools-menu-item" (click)="logTable()">
-            <mat-icon
-              aria-hidden="false"
-              [attr.aria-label]="i18n.get('logTable')"
-              >table_chart</mat-icon
-            >
-            {{ i18n.get('logTable') }}
-          </button>
-          <a
+          <button
             mat-menu-item
-            [download]="getDownloadFileNameCSV()"
-            id="exportCSV"
             class="tools-menu-item"
-            (click)="downloadCSV()"
-            [href]="downloadCSVData"
-            ><mat-icon
-              aria-hidden="false"
-              [attr.aria-label]="i18n.get('downloadMapCSV')"
-              >save</mat-icon
-            >
-            {{ i18n.get('downloadMapCSV') }}</a
+            [matMenuTriggerFor]="log"
           >
+            <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('log')"
+              >list_alt</mat-icon
+            >
+            {{ i18n.get('log') }}
+          </button>
           <button
             mat-menu-item
             class="tools-menu-item"
@@ -228,6 +216,30 @@
             >
             {{ i18n.get('shortcuts') }}
           </button>
+        </mat-menu>
+        <mat-menu #log="matMenu">
+          <button mat-menu-item class="tools-menu-item" (click)="logTable()">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('logTable')"
+              >table_chart</mat-icon
+            >
+            {{ i18n.get('logTable') }}
+          </button>
+          <a
+            mat-menu-item
+            [download]="getDownloadFileNameCSV()"
+            id="exportCSV"
+            class="tools-menu-item"
+            (click)="downloadCSV()"
+            [href]="downloadCSVData"
+            ><mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="i18n.get('downloadMapCSV')"
+              >save</mat-icon
+            >
+            {{ i18n.get('downloadMapCSV') }}</a
+          >
         </mat-menu>
       </div>
     </div>

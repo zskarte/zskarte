@@ -1305,6 +1305,11 @@ export class I18NService {
       en: 'Focus Geo search field',
       fr: 'Focaliser le champ de recherche géographique',
     },
+    log:  {
+      de: 'Protokoll',
+      en: 'Protocol',
+      fr: 'Protocole',
+    }
   };
   private _locale: string = DEFAULT_LOCALE;
   private localeSource = new BehaviorSubject<string>(null);
