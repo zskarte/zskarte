@@ -20,7 +20,11 @@
     </mat-sidenav>
     <mat-sidenav-content>
       <app-history></app-history>
-      <app-map #map style="height: 100%; width: 100%; display: block"></app-map>
+      <app-map
+        [drawLayer]="drawLayer"
+        #map
+        style="height: 100%; width: 100%; display: block"
+      ></app-map>
       <app-drawlayer [inputMap]="map.map" #drawLayer></app-drawlayer>
       <app-selected-feature [drawLayer]="drawLayer"></app-selected-feature>
       <app-fab-menu></app-fab-menu>
