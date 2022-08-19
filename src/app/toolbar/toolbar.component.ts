@@ -4,7 +4,7 @@ import {
   ElementRef,
   HostListener,
   Input,
-  OnInit,
+  OnInit, ViewChild,
 } from '@angular/core';
 import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
 import { SharedStateService } from '../shared-state.service';
@@ -25,6 +25,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { TagStateComponent } from '../tag-state/tag-state.component';
 import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
 import { ShortcutDialogComponent } from '../shortcut-dialog/shortcut-dialog.component';
+import {MatMenuTrigger} from "@angular/material/menu";
 
 @Component({
   selector: 'app-toolbar',
@@ -32,6 +33,8 @@ import { ShortcutDialogComponent } from '../shortcut-dialog/shortcut-dialog.comp
   styleUrls: ['./toolbar.component.css'],
 })
 export class ToolbarComponent implements OnInit {
+  @ViewChild(MatMenuTrigger) menu: MatMenuTrigger;
+
   get initialLaunch(): boolean {
     const currentOnboardingVersion = localStorage.getItem('onboardingVersion');
     if (currentOnboardingVersion !== ToolbarComponent.ONBOARDING_VERSION) {
@@ -283,7 +286,10 @@ export class ToolbarComponent implements OnInit {
   }
 
   print(): void {
-    window.print();
+    this.menu.closeMenu();
+    setTimeout(() => {
+      window.print();
+    }, 0);
   }
 
   clear(): void {
