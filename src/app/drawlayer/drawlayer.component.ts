@@ -9,7 +9,7 @@ import LineString from 'ol/geom/LineString';
 import Feature from 'ol/Feature';
 import Draw from 'ol/interaction/Draw';
 import OlMap from 'ol/Map';
-import { transform } from 'ol/proj';
+import { transform, get } from 'ol/proj';
 import DrawHole from 'ol-ext/interaction/DrawHole';
 import Overlay from 'ol/Overlay';
 import { getCenter } from 'ol/extent';
@@ -32,6 +32,7 @@ import { availableProjections, mercatorProjection } from '../projections';
 import { filter } from 'rxjs/operators';
 import { getLength, getArea } from 'ol/sphere';
 import { KeyboardHandler, KeyboardHandlerContainer } from '../keyboard.service';
+import Coordinate from 'ol/coordinate';
 
 export const DRAW_LAYER_ZINDEX = 100000;
 export const CLUSTER_LAYER_ZINDEX = DRAW_LAYER_ZINDEX + 1;
@@ -186,7 +187,7 @@ export class DrawlayerComponent implements OnInit {
 
   selectedFeature: Feature;
 
-  private drawers: { [key: string]: Draw } = {};
+  public drawers: { [key: string]: Draw } = {};
 
   private getSigFilterString(sig: Sign): string {
     let filterString = '';
@@ -415,6 +416,7 @@ export class DrawlayerComponent implements OnInit {
       positioning: OverlayPositioning.CENTER_CENTER,
       offset: [this.ROTATE_OFFSET_X, this.ROTATE_OFFSET_Y],
     });
+
     this.modify.addEventListener('modifystart', () => {
       this.toggleEditButtons(false);
     });
@@ -1069,25 +1071,48 @@ export class DrawlayerComponent implements OnInit {
     // }, 0)
   }
 
-  startDrawing(sign) {
+  startDrawingAutomatically(sign: Sign, coords: Coordinate) {
+    //Set the selected sign as if it is drawn by the user
+    this.sharedState.selectSign(sign);
+
+    //"fake" the click on the map with the active signature
+    this.addOrGetDrawer(sign.type)
+      //startDrawing_ is a private function from the Draw class. There is no other way to start the drawing in the code
+      .startDrawing_(coords);
+
+    //Finish the drawing immediately if it is a point. Let the user finish drawing if it's a line/polygon
+    if (sign.type === 'Point') {
+      setTimeout(() => {
+        this.addOrGetDrawer(sign.type).finishDrawing();
+      }, 50);
+    }
+  }
+
+  private addOrGetDrawer(signType: string) {
+    let drawer = this.drawers[signType];
+    if (!drawer) {
+      drawer = this.drawers[signType] = new Draw({
+        source: this.source,
+        type: this.currentDrawingSign.type,
+      });
+      drawer.drawLayer = this;
+      drawer.addEventListener('drawstart', (event) => {
+        this.sketch = event.feature;
+      });
+      drawer.addEventListener('drawend', () => {
+        this.endDrawing(this.sketch);
+      });
+      this.map.addInteraction(drawer);
+    }
+
+    return drawer;
+  }
+
+  startDrawing(sign: Sign) {
     this.currentDrawingSign = sign;
     if (sign) {
       this.toggleFilters([sign.src], false);
-      let drawer = this.drawers[sign.type];
-      if (!drawer) {
-        drawer = this.drawers[sign.type] = new Draw({
-          source: this.source,
-          type: this.currentDrawingSign.type,
-        });
-        drawer.drawLayer = this;
-        drawer.addEventListener('drawstart', (event) => {
-          this.sketch = event.feature;
-        });
-        drawer.addEventListener('drawend', () => {
-          this.endDrawing(this.sketch);
-        });
-        this.map.addInteraction(drawer);
-      }
+      let drawer = this.addOrGetDrawer(sign.type);
       Object.values(this.drawers).forEach((drawer) => drawer.setActive(false));
       drawer.setActive(true);
     }

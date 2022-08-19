@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapComponent } from './map.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { DrawlayerComponent } from '../drawlayer/drawlayer.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('MapComponent', () => {
   let component: MapComponent;
@@ -10,10 +12,10 @@ describe('MapComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      declarations: [MapComponent],
+      imports: [HttpClientTestingModule, MatDialogModule],
+      declarations: [MapComponent, DrawlayerComponent],
       schemas: [NO_ERRORS_SCHEMA],
-    });
+    }).compileComponents();
   });
 
   beforeEach(() => {
