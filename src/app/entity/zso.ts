@@ -95,7 +95,7 @@ export const ZSO_FR_FR: ZSO = {
   name: 'PCi Fribourgeoise',
   auth: 'f567e31a75e3e413e018e96b6ea80ac8',
   initialViewPort: {
-    coordinates: [784702.5323756159, 5912939.19705637],
+    coordinates: [784702.53, 5912939.2],
     zoomLevel: 10,
   },
   url: 'https://www.fr.ch/dsj/sppam/sommaire/protection-civile',
@@ -239,10 +239,22 @@ export const ZSO_BE_BP: ZSO = {
   name: 'ZSO Bern plus',
   auth: '48c8a0ae3e192e2eec155e0c2bc02f02',
   initialViewPort: {
-    coordinates: [829038.2228723184, 5933590.521128002],
+    coordinates: [829038.22, 5933590.52],
     zoomLevel: 16,
   },
   url: 'https://www.bern.ch/politik-und-verwaltung/stadtverwaltung/sue/schutz-und-rettung-bern/zivilschutz/',
+  defaultLocale: 'de',
+};
+
+export const ZSO_BE_SW: ZSO = {
+  id: 'zso_be_sw',
+  name: 'ZSO Bielersee Süd-West',
+  auth: '86e41936caca596479c672ae2d32966c',
+  initialViewPort: {
+    coordinates: [801368.98, 5953198.45],
+    zoomLevel: 16,
+  },
+  url: 'https://bielersee-suedwest.ch/',
   defaultLocale: 'de',
 };
 
@@ -450,6 +462,18 @@ export const ZSO_BE_TR: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_WN: ZSO = {
+  id: 'zso_be_wn',
+  name: 'ZSO Wohlensee Nord',
+  auth: 'a941c8d548474ee7b69117cffb38bb95',
+  initialViewPort: {
+    coordinates: [820268.8, 5943859.94],
+    zoomLevel: 16,
+  },
+  url: 'https://www.wohlen-be.ch/de/verwaltung/dienstleistungen/detail.php?i=294',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_WB: ZSO = {
   id: 'zso_be_wb',
   name: 'ZSO Worb-Bigenthal',
@@ -481,6 +505,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_AR,
   ZSO_BE_BA,
   ZSO_BE_BP,
+  ZSO_BE_SW,
   ZSO_BE_GA,
   ZSO_BE_GN,
   ZSO_BE_GT,
@@ -498,5 +523,6 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_TP,
   ZSO_BE_TW,
   ZSO_BE_TR,
+  ZSO_BE_WN,
   ZSO_BE_WB,
 ];
