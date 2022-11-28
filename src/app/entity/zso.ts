@@ -318,6 +318,18 @@ export const ZSO_BE_OA: ZSO = {
   defaultLocale: 'de',
 };
 
+export const ZSO_BE_BU: ZSO = {
+  id: 'zso_be_bu',
+  name: 'ZSO Regio Büren',
+  auth: '8b73dfc0a075697024c8fe3789a40428',
+  initialViewPort: {
+    coordinates: [820404.6, 5971076.9],
+    zoomLevel: 16,
+  },
+  url: 'https://regiobueren.ch/',
+  defaultLocale: 'de',
+};
+
 export const ZSO_BE_RA: ZSO = {
   id: 'zso_be_ra',
   name: 'ZSO Region Aarberg',
@@ -511,6 +523,7 @@ export const LIST_OF_ZSO: ZSO[] = [
   ZSO_BE_GT,
   ZSO_BE_JF,
   ZSO_BE_OA,
+  ZSO_BE_BU,
   ZSO_BE_RA,
   ZSO_BE_RB,
   ZSO_BE_RP,
