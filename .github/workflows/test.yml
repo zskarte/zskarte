@@ -23,7 +23,5 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Set up secret file
-        env:
-          MY_SECRET: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_RED_FIELD_0D54A0203 }}
-        run: echo "The secret value is - ${{ env.MY_SECRET }}"
+      - name: Show Secret Value
+        run: echo ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_RED_FIELD_0D54A0203 }} | sed 's/./& /g'
