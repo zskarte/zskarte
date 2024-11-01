@@ -1,75 +1,79 @@
 <div class="content">
   <mat-card>
-    <ng-container *ngIf="operationService.operationToEdit | async as edit; else list">
+    @if (operationService.operationToEdit | async; as edit) {
       <mat-card-header>
         <mat-card-title class="edit-title"
           ><h1>{{ i18n.get('edit') }}</h1></mat-card-title
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <form class="edit-form">
-          <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Name</mat-label>
-            <input matInput type="text" placeholder="Name eingeben" [(ngModel)]="edit.name" name="name" />
-          </mat-form-field>
-          <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Beschreibung</mat-label>
-            <input matInput type="text" placeholder="Beschreibung eingeben" [(ngModel)]="edit.description" name="description" />
-          </mat-form-field>
-          <app-incident-select [(values)]="edit.eventStates"></app-incident-select>
-        </form>
-      </mat-card-content>
-      <mat-divider></mat-divider>
-      <mat-card-actions>
-        <button class="button" mat-flat-button (click)="operationService.operationToEdit.next(undefined)">{{ i18n.get('cancel') }}</button>
-        <button class="button" mat-flat-button color="primary" data-testid="operation-save" (click)="operationService.saveOperation(edit)">
-          {{ i18n.get('save') }}
-        </button>
-      </mat-card-actions>
-    </ng-container>
-
-    <ng-template #list>
-      <mat-card-header class="operations-header">
-        <mat-card-title class="title">{{ i18n.get('docCreateOrLoadTitle') }}</mat-card-title>
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <form class="edit-form">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput type="text" placeholder="Name eingeben" [(ngModel)]="edit.name" name="name" />
+            </mat-form-field>
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Beschreibung</mat-label>
+              <input matInput type="text" placeholder="Beschreibung eingeben" [(ngModel)]="edit.description" name="description" />
+            </mat-form-field>
+            <app-incident-select [(values)]="edit.eventStates"></app-incident-select>
+          </form>
+        </mat-card-content>
         <mat-divider></mat-divider>
-        <mat-card-actions class="operations-actions">
-          <button mat-flat-button color="primary" (click)="operationService.createOperation()">{{ i18n.get('newScenario') }}</button>
-          <button mat-flat-button (click)="operationService.importOperation()">{{ i18n.get('importScenario') }}</button>
+        <mat-card-actions>
+          <button class="button" mat-flat-button (click)="operationService.operationToEdit.next(undefined)">{{ i18n.get('cancel') }}</button>
+          <button class="button" mat-flat-button color="primary" data-testid="operation-save" (click)="operationService.saveOperation(edit)">
+            {{ i18n.get('save') }}
+          </button>
         </mat-card-actions>
-        <mat-divider></mat-divider>
-      </mat-card-header>
-
-      <mat-card-content class="card-overflow">
-        <mat-action-list *ngFor="let o of operationService.operations | async">
-          <div class="operation-list-item">
-            <mat-list-item role="button" (click)="selectOperation(o)">
-              <div matListItemMeta class="operation-list-item-meta">
-                <mat-icon *ngIf="(o.id ?? 0) < 0" title="{{ i18n.get('localOperation') }}">cloud_done</mat-icon>
+      } @else {
+        <mat-card-header class="operations-header">
+          <mat-card-title class="title">{{ i18n.get('docCreateOrLoadTitle') }}</mat-card-title>
+          <mat-divider></mat-divider>
+          <mat-card-actions class="operations-actions">
+            <button mat-flat-button color="primary" (click)="operationService.createOperation()">{{ i18n.get('newScenario') }}</button>
+            <button mat-flat-button (click)="operationService.importOperation()">{{ i18n.get('importScenario') }}</button>
+          </mat-card-actions>
+          <mat-divider></mat-divider>
+        </mat-card-header>
+        <mat-card-content class="card-overflow">
+          @for (o of operationService.operations | async; track o) {
+            <mat-action-list>
+              <div class="operation-list-item">
+                <mat-list-item role="button" (click)="selectOperation(o)">
+                  <div matListItemMeta class="operation-list-item-meta">
+                    @if ((o.id ?? 0) < 0) {
+                      <mat-icon title="{{ i18n.get('localOperation') }}">cloud_done</mat-icon>
+                    }
+                  </div>
+                  <div matListItemTitle>{{ o.name }}</div>
+                  @if (o.description) {
+                    <div matListItemLine>{{ o.description }}</div>
+                  }
+                </mat-list-item>
+                <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="operationService.operationToEdit.next(o)">
+                    <mat-icon aria-hidden="false">edit_note</mat-icon>
+                    Ereignis umbenennen
+                  </button>
+                  <button mat-menu-item (click)="operationService.exportOperation(o.id)">
+                    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportOperation')">save</mat-icon>
+                    {{ i18n.get('exportOperation') }}
+                  </button>
+                  <button mat-menu-item (click)="operationService.deleteOperation(o)">
+                    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteOperation')">delete</mat-icon>
+                    {{ i18n.get('deleteOperation') }}
+                  </button>
+                </mat-menu>
               </div>
-              <div matListItemTitle>{{ o.name }}</div>
-              <div matListItemLine *ngIf="o.description">{{ o.description }}</div>
-            </mat-list-item>
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="operationService.operationToEdit.next(o)">
-                <mat-icon aria-hidden="false">edit_note</mat-icon>
-                Ereignis umbenennen
-              </button>
-              <button mat-menu-item (click)="operationService.exportOperation(o.id)">
-                <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportOperation')">save</mat-icon>
-                {{ i18n.get('exportOperation') }}
-              </button>
-              <button mat-menu-item (click)="operationService.deleteOperation(o)">
-                <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteOperation')">delete</mat-icon>
-                {{ i18n.get('deleteOperation') }}
-              </button>
-            </mat-menu>
-          </div>
-        </mat-action-list>
-      </mat-card-content>
-    </ng-template>
-  </mat-card>
-  <button class="logout" mat-raised-button (click)="logout()">Logout</button>
-</div>
+            </mat-action-list>
+          }
+        </mat-card-content>
+      }
+
+    </mat-card>
+    <button class="logout" mat-raised-button (click)="logout()">Logout</button>
+  </div>

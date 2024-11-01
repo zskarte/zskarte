@@ -47,7 +47,7 @@
           [color]="(sidebar.observeContext() | async) === SidebarContext.Menu ? 'primary' : 'basic'"
           (click)="sidebar.toggle(SidebarContext.Menu)"
           [attr.aria-label]="i18n.get('docMapMenuTitle')"
-        >
+          >
           <mat-icon>menu</mat-icon>
         </button>
 
@@ -57,18 +57,24 @@
           [color]="(sidebar.observeContext() | async) === SidebarContext.Connections ? 'primary' : 'basic'"
           (click)="sidebar.toggle(SidebarContext.Connections)"
           [attr.aria-label]="i18n.get('connections')"
-        >
-        @if(workLocal) {
-          @if(canWorkOffline | async) {
-            <mat-icon>cloud_done</mat-icon>
+          >
+          @if(workLocal) {
+            @if(canWorkOffline | async) {
+              <mat-icon>cloud_done</mat-icon>
+            } @else {
+              @if (isOnline | async) {
+                <mat-icon>cloud_queue</mat-icon>
+              } @else {
+                <mat-icon>cloud_off</mat-icon>
+              }
+            }
           } @else {
-            <mat-icon *ngIf="isOnline | async">cloud_queue</mat-icon>
-            <mat-icon *ngIf="!(isOnline | async)">cloud_off</mat-icon>
+            @if (isOnline | async) {
+              <mat-icon [matBadge]="connectionCount | async" matBadgePosition="after">people</mat-icon>
+            } @else {
+              <mat-icon [matBadge]="0" matBadgeColor="warn" matBadgePosition="after">cloud_off</mat-icon>
+            }
           }
-        } @else {
-          <mat-icon *ngIf="isOnline | async" [matBadge]="connectionCount | async" matBadgePosition="after">people</mat-icon>
-          <mat-icon *ngIf="!(isOnline | async)" [matBadge]="0" matBadgeColor="warn" matBadgePosition="after">cloud_off</mat-icon>
-        }
         </button>
         <button
           class="sidebar-button mat-elevation-z3"
@@ -76,7 +82,7 @@
           [color]="(sidebar.observeContext() | async) === SidebarContext.Layers ? 'primary' : 'basic'"
           (click)="sidebar.toggle(SidebarContext.Layers)"
           [attr.aria-label]="i18n.get('layers')"
-        >
+          >
           <mat-icon>layers</mat-icon>
         </button>
         <button
@@ -85,51 +91,56 @@
           [color]="(sidebar.observeContext() | async) === SidebarContext.Filters ? 'primary' : 'basic'"
           (click)="sidebar.toggle(SidebarContext.Filters)"
           [attr.aria-label]="i18n.get('filters')"
-        >
+          >
           <mat-icon>filter_alt</mat-icon>
         </button>
 
-        <button
-          class="sidebar-button mat-elevation-z3"
-          mat-icon-button
-          [color]="(sidebar.observeContext() | async) === SidebarContext.History ? 'primary' : 'basic'"
-          (click)="sidebar.toggle(SidebarContext.History)"
-          [attr.aria-label]="i18n.get('history')"
-          *ngIf="isReadOnly | async"
-        >
-          <mat-icon>history</mat-icon>
-        </button>
+        @if (isReadOnly | async) {
+          <button
+            class="sidebar-button mat-elevation-z3"
+            mat-icon-button
+            [color]="(sidebar.observeContext() | async) === SidebarContext.History ? 'primary' : 'basic'"
+            (click)="sidebar.toggle(SidebarContext.History)"
+            [attr.aria-label]="i18n.get('history')"
+            >
+            <mat-icon>history</mat-icon>
+          </button>
+        }
         <div class="button-toggle mat-elevation-z3">
-          <button
-            mat-icon-button
-            class="toggle-button"
-            *ngIf="!(isReadOnly | async)"
-            [disabled]="!(canUndo | async)"
-            (click)="undo()"
-            [attr.aria-label]="i18n.get('undo')"
-          >
-            <mat-icon>undo</mat-icon>
-          </button>
+          @if (!(isReadOnly | async)) {
+            <button
+              mat-icon-button
+              class="toggle-button"
+              [disabled]="!(canUndo | async)"
+              (click)="undo()"
+              [attr.aria-label]="i18n.get('undo')"
+              >
+              <mat-icon>undo</mat-icon>
+            </button>
+          }
           <mat-divider class="divider"></mat-divider>
-          <button
-            mat-icon-button
-            class="toggle-button"
-            *ngIf="!(isReadOnly | async)"
-            [disabled]="!(canRedo | async)"
-            (click)="redo()"
-            [attr.aria-label]="i18n.get('redo')"
-          >
-            <mat-icon>redo</mat-icon>
-          </button>
+          @if (!(isReadOnly | async)) {
+            <button
+              mat-icon-button
+              class="toggle-button"
+              [disabled]="!(canRedo | async)"
+              (click)="redo()"
+              [attr.aria-label]="i18n.get('redo')"
+              >
+              <mat-icon>redo</mat-icon>
+            </button>
+          }
         </div>
         <div class="button-toggle mat-elevation-z3">
           <button mat-icon-button class="toggle-button" (click)="zoomIn()" [attr.aria-label]="i18n.get('zoomIn')">
             <mat-icon>zoom_in</mat-icon>
           </button>
-          <mat-divider *ngIf="!printView" class="divider"></mat-divider>
-          <button mat-icon-button *ngIf="!printView" class="toggle-button" (click)="zoomToScale()" [attr.aria-label]="i18n.get('zoomToScale')">
-            <mat-icon>linear_scale</mat-icon>
-          </button>
+          @if (!printView) {
+            <mat-divider class="divider"></mat-divider>
+            <button mat-icon-button class="toggle-button" (click)="zoomToScale()" [attr.aria-label]="i18n.get('zoomToScale')">
+              <mat-icon>linear_scale</mat-icon>
+            </button>
+          }
           <mat-divider class="divider"></mat-divider>
           <button mat-icon-button class="toggle-button" (click)="zoomOut()" [attr.aria-label]="i18n.get('zoomOut')">
             <mat-icon>zoom_out</mat-icon>
@@ -137,9 +148,11 @@
         </div>
       </div>
       <div class="fab-button">
-        <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()" *ngIf="!(isReadOnly | async)">
-          <mat-icon>add</mat-icon>
-        </button>
+        @if (!(isReadOnly | async)) {
+          <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()">
+            <mat-icon>add</mat-icon>
+          </button>
+        }
       </div>
     </div>
   </mat-sidenav-content>
