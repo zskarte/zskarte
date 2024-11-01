@@ -1,12 +1,7 @@
 <div #mapElement id="map" class="map"></div>
 @if (mousePosition | async; as mousePosition) {
   @if (currentSketchSize | async; as sketchSize) {
-    <div
-      class="tooltip noprint"
-      [style.left.px]="mousePosition[0]"
-      [style.top.px]="mousePosition[1]"
-      [innerHTML]="sketchSize"
-    ></div>
+    <div class="tooltip noprint" [style.left.px]="mousePosition[0]" [style.top.px]="mousePosition[1]" [innerHTML]="sketchSize"></div>
   }
 }
 

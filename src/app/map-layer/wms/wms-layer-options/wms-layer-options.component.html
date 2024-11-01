@@ -15,7 +15,7 @@
       <mat-option value="_CUSTOM_">custom</mat-option>
       @for (item of sources; track item) {
         <mat-option [value]="item" [disabled]="item.type !== 'wms'">
-          {{item.label}}
+          {{ item.label }}
         </mat-option>
       }
     </mat-select>
@@ -23,12 +23,12 @@
   @if (custom_source) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>
-      <input matInput type="url" [(ngModel)]="custom_source.url"/>
+      <input matInput type="url" [(ngModel)]="custom_source.url" />
     </mat-form-field>
   }
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('wmsLayerName') }}</mat-label>
-    <input matInput type="text" [(ngModel)]="layer.serverLayerName" [disabled]="layer.type !== 'wms_custom'"/>
+    <input matInput type="text" [(ngModel)]="layer.serverLayerName" [disabled]="layer.type !== 'wms_custom'" />
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('publicSource') }}</legend>
@@ -75,7 +75,7 @@
       <mat-select [(value)]="layer.tileFormat">
         <mat-option [value]="undefined"></mat-option>
         @for (item of tileFormats; track item) {
-          <mat-option [value]="item">{{item}}</mat-option>
+          <mat-option [value]="item">{{ item }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
@@ -106,8 +106,8 @@
       </div>
       @for (attr of layer.attribution; track attr; let i = $index) {
         <div class="attribution">
-          <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]"/>
-          <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]"/>
+          <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]" />
+          <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]" />
           <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
         </div>
       }

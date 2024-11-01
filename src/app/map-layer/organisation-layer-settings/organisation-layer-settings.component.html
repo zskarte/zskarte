@@ -6,8 +6,8 @@
     <mat-selection-list class="availableSources">
       @for (source of data.wmsSources; track source) {
         <mat-list-option (click)="toggleSource(source)" [selected]="wms_sources.includes(source.id ?? 0)">
-          <div>{{source.label}}</div>
-          <div>{{source.url}}</div>
+          <div>{{ source.label }}</div>
+          <div>{{ source.url }}</div>
         </mat-list-option>
       }
     </mat-selection-list>
@@ -21,8 +21,8 @@
     <mat-selection-list class="favoriteLayers">
       @for (layer of layer_favorites; track layer) {
         <mat-list-option (click)="removeLayer(layer)" [selected]="true">
-          <div matLine="1">{{layer.label}}{{ this.changedOptions(layer) ? ' *modified*' : ''}}</div>
-          <div matLine="2">{{layer.source?.label ?? layer.source?.url}}</div>
+          <div matLine="1">{{ layer.label }}{{ this.changedOptions(layer) ? ' *modified*' : '' }}</div>
+          <div matLine="2">{{ layer.source?.label ?? layer.source?.url }}</div>
         </mat-list-option>
       }
     </mat-selection-list>
@@ -37,9 +37,11 @@
         <button
           mat-list-item
           (click)="selectLayer(item)"
-          title="{{ item.label }} ({{item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin'}}{{item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''}})"
-          >
-          {{ item.label }}{{ this.changedOptions(item) ? ' *modified*' : ''}}
+          title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
+            item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
+          }})"
+        >
+          {{ item.label }}{{ this.changedOptions(item) ? ' *modified*' : '' }}
         </button>
       }
     </mat-action-list>
@@ -54,7 +56,7 @@
           <mat-option value="_GeoAdmin_">GeoAdmin</mat-option>
           <mat-option value="_GlobalMapLayers_">{{ i18n.get('globalMapLayers') }}</mat-option>
           @for (item of data.selectedSources; track item) {
-            <mat-option [value]="item.url">{{item.label}}</mat-option>
+            <mat-option [value]="item.url">{{ item.label }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -62,14 +64,16 @@
     <mat-form-field appearance="outline">
       <mat-label> {{ i18n.get('filter') }}</mat-label>
       <input type="text" matInput [formControl]="layerFilter"
-      /></mat-form-field>
-      <mat-action-list class="availableLayers">
-        @for (item of filteredAvailableLayers$ | async; track item) {
-          <button
-            mat-list-item
-            (click)="selectLayer(item)"
-            title="{{ item.label }} ({{item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin'}}{{item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''}})"
-            >
+    /></mat-form-field>
+    <mat-action-list class="availableLayers">
+      @for (item of filteredAvailableLayers$ | async; track item) {
+        <button
+          mat-list-item
+          (click)="selectLayer(item)"
+          title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
+            item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
+          }})"
+        >
           {{ item.label }}
         </button>
       }

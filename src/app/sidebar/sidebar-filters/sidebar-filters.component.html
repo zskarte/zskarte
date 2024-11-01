@@ -36,12 +36,7 @@
                 <button mat-button class="filterItem" (click)="toggleSymbolOrFeatureFilter(symbol)">
                   <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center">
                     @if (symbol.src) {
-                      <img
-                        [class.opaque]="symbol.hidden"
-                        [src]="symbol.src"
-                        [title]="symbol.label"
-                        style="max-width: 100%; height: auto"
-                        />
+                      <img [class.opaque]="symbol.hidden" [src]="symbol.src" [title]="symbol.label" style="max-width: 100%; height: auto" />
                     }
                     @if (symbol.icon) {
                       <mat-icon [class.opaque]="symbol.hidden" aria-hidden="false">{{ symbol.icon }}</mat-icon>

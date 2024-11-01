@@ -17,7 +17,7 @@
               [value]="selectedOrganization?.name"
               [matAutocomplete]="auto"
               placeholder="Organisation eingeben"
-              />
+            />
             <mat-icon matSuffix>arrow_drop_down</mat-icon>
             <mat-autocomplete
               #auto="matAutocomplete"
@@ -25,7 +25,7 @@
               (closed)="onCloseAutocomplete()"
               autoActiveFirstOption
               [displayWith]="nameProperty"
-              >
+            >
               @for (organization of filteredOrganizations | async; track organization) {
                 <mat-option [value]="organization">
                   <div class="option-wrapper">
@@ -60,21 +60,12 @@
         <stack [spacing]="5">
           <button class="login-button" mat-raised-button color="primary" (click)="login()">Login</button>
           @if (isLoginWithCodeEnabled) {
-            <button
-              class="login-button"
-              mat-raised-button
-              color="secondary"
-              (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled"
-              >
+            <button class="login-button" mat-raised-button color="secondary" (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
               {{ i18n.get('back') }}
             </button>
           }
           @if (!isLoginWithCodeEnabled) {
-            <button
-              class="alternative-login-button"
-              mat-raised-button
-              (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled"
-              >
+            <button class="alternative-login-button" mat-raised-button (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
               @if (!isLoginWithCodeEnabled) {
                 <span>{{ i18n.get('codeLogin') }}</span>
               }

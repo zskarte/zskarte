@@ -1,5 +1,10 @@
 @if (mapState.isExpertView()) {
-  <button mat-raised-button class="organisationSettings" (click)="editLayerSettings()" [innerText]="i18n.get('organisationSettings')"></button>
+  <button
+    mat-raised-button
+    class="organisationSettings"
+    (click)="editLayerSettings()"
+    [innerText]="i18n.get('organisationSettings')"
+  ></button>
 }
 <mat-accordion multi displayMode="flat">
   <mat-expansion-panel class="mat-elevation-z0">
@@ -15,7 +20,7 @@
             <div class="title">{{ layer.observeName() | async }}</div>
           </div>
           <div>
-            <mat-slider [max]="1" [min]="0" [step]="0.1" class="layer-slider" >
+            <mat-slider [max]="1" [min]="0" [step]="0.1" class="layer-slider">
               <input matSliderThumb [ngModel]="mapState.observeMapOpacity() | async" (ngModelChange)="mapState.setMapOpacity($event)" />
             </mat-slider>
           </div>
@@ -44,7 +49,9 @@
                 <div class="buttons">
                   @switch (mapDownloadStates[mapSource.key]) {
                     @case ('loading') {
-                      <button mat-flat-button color="warn" class="button-cancel" (click)="cancelDownloadMap(mapSource.key)" >{{ i18n.get('cancel') }}</button>
+                      <button mat-flat-button color="warn" class="button-cancel" (click)="cancelDownloadMap(mapSource.key)">
+                        {{ i18n.get('cancel') }}
+                      </button>
                       <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
                     }
                     @case ('downloaded') {
@@ -54,9 +61,13 @@
                       </button>
                     }
                     @default {
-                      <button mat-flat-button color="primary" class="button-download" (click)="downloadMap(mapSource.key)"><mat-icon>file_download</mat-icon>{{ i18n.get('download') }}</button>
-                      <button mat-flat-button color="primary" class="button-upload" (click)="mapUpload.click()"><mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}</button>
-                      <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadMap($event, mapSource.key)" #mapUpload>
+                      <button mat-flat-button color="primary" class="button-download" (click)="downloadMap(mapSource.key)">
+                        <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
+                      </button>
+                      <button mat-flat-button color="primary" class="button-upload" (click)="mapUpload.click()">
+                        <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
+                      </button>
+                      <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadMap($event, mapSource.key)" #mapUpload />
                     }
                   }
                 </div>
@@ -77,11 +88,14 @@
       </mat-expansion-panel-header>
       <ng-template matExpansionPanelContent>
         <div class="allSelected">
-          @for (item of mapState.observeSelectedMapLayers$() | async; track item; let index = $index; let first = $first; let last = $last) {
-            <div
-              title="{{ item.label }}"
-              class="selectedLayer"
-              >
+          @for (
+            item of mapState.observeSelectedMapLayers$() | async;
+            track item;
+            let index = $index;
+            let first = $first;
+            let last = $last
+          ) {
+            <div title="{{ item.label }}" class="selectedLayer">
               <div class="titleRow">
                 <div class="title">{{ item.label }}</div>
                 @if (workLocal) {
@@ -148,10 +162,22 @@
             </div>
           </ng-template>
           @if (mapState.isExpertView()) {
-            <button mat-raised-button class="expertButton" color="primary" (click)="addNewLayer()" [innerText]="i18n.get('addNewLayer')"></button>
+            <button
+              mat-raised-button
+              class="expertButton"
+              color="primary"
+              (click)="addNewLayer()"
+              [innerText]="i18n.get('addNewLayer')"
+            ></button>
           }
           @if (mapState.isExpertView()) {
-            <button mat-raised-button class="expertButton" color="primary" (click)="persistLayers()" [innerText]="i18n.get('persistLayers')"></button>
+            <button
+              mat-raised-button
+              class="expertButton"
+              color="primary"
+              (click)="persistLayers()"
+              [innerText]="i18n.get('persistLayers')"
+            ></button>
           }
         </div>
       </ng-template>
@@ -174,37 +200,44 @@
             <button
               mat-list-item
               (click)="selectLayer(item)"
-              title="{{ item.label }} ({{item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin'}}{{item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''}})"
-              >
+              title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
+                item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
+              }})"
+            >
               @if (isSearchable(item)) {
                 <mat-icon [title]="i18n.get('searchableLayer')">search</mat-icon>
-                }{{ item.label }}
-              </button>
-            }
-          </mat-action-list>
-        }
-      </ng-template>
-    </mat-expansion-panel>
-    <mat-divider></mat-divider>
-    <mat-expansion-panel class="mat-elevation-z0">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          {{ i18n.get('availableLayers') }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <ng-template matExpansionPanelContent>
-        <div class="sourceControl">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>{{ i18n.get('layerSource') }}</mat-label>
-            <mat-select [formControl]="sourceFilter">
-              <mat-option value="ALL">{{ i18n.get('allSources') }}</mat-option>
-              <mat-option value="_GeoAdmin_">GeoAdmin @if (geoAdminLayerError) {
+              }
+              {{ item.label }}
+            </button>
+          }
+        </mat-action-list>
+      }
+    </ng-template>
+  </mat-expansion-panel>
+  <mat-divider></mat-divider>
+  <mat-expansion-panel class="mat-elevation-z0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{ i18n.get('availableLayers') }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div class="sourceControl">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18n.get('layerSource') }}</mat-label>
+          <mat-select [formControl]="sourceFilter">
+            <mat-option value="ALL">{{ i18n.get('allSources') }}</mat-option>
+            <mat-option value="_GeoAdmin_"
+              >GeoAdmin
+              @if (geoAdminLayerError) {
                 <mat-icon class="wmsSourceError" [title]="geoAdminLayerError">warning</mat-icon>
-              }</mat-option>
-              <mat-option value="_GlobalMapLayers_">{{ i18n.get('globalMapLayers') }}</mat-option>
-              @for (item of mapState.observeWmsSources$() | async; track item) {
-                <mat-option [value]="item.url">
-                  {{item.label}} @if (wmsSourceLoadErrors[item.url]) {
+              }
+            </mat-option>
+            <mat-option value="_GlobalMapLayers_">{{ i18n.get('globalMapLayers') }}</mat-option>
+            @for (item of mapState.observeWmsSources$() | async; track item) {
+              <mat-option [value]="item.url">
+                {{ item.label }}
+                @if (wmsSourceLoadErrors[item.url]) {
                   <mat-icon class="wmsSourceError" [title]="wmsSourceLoadErrors[item.url]">warning</mat-icon>
                 }
               </mat-option>
@@ -212,26 +245,31 @@
           </mat-select>
         </mat-form-field>
         @if (mapState.isExpertView()) {
-          <button mat-icon-button (click)="editWmsSources()"><mat-icon [attr.aria-label]="i18n.get('editWmsSources')">edit</mat-icon></button>
+          <button mat-icon-button (click)="editWmsSources()">
+            <mat-icon [attr.aria-label]="i18n.get('editWmsSources')">edit</mat-icon>
+          </button>
         }
       </div>
       <mat-form-field appearance="outline">
         <mat-label> {{ i18n.get('filter') }}</mat-label>
         <input type="text" matInput [formControl]="layerFilter"
-        /></mat-form-field>
-        <mat-action-list class="availableLayers">
-          @for (item of filteredAvailableLayers$ | async; track item) {
-            <button
-              mat-list-item
-              (click)="selectLayer(item)"
-              title="{{ item.label }} ({{item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin'}}{{item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''}})"
-              >
+      /></mat-form-field>
+      <mat-action-list class="availableLayers">
+        @for (item of filteredAvailableLayers$ | async; track item) {
+          <button
+            mat-list-item
+            (click)="selectLayer(item)"
+            title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
+              item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
+            }})"
+          >
             @if (isSearchable(item)) {
               <mat-icon [title]="i18n.get('searchableLayer')">search</mat-icon>
-              }{{ item.label }}
-            </button>
-          }
-        </mat-action-list>
-      </ng-template>
-    </mat-expansion-panel>
-  </mat-accordion>
+            }
+            {{ item.label }}
+          </button>
+        }
+      </mat-action-list>
+    </ng-template>
+  </mat-expansion-panel>
+</mat-accordion>
