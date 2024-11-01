@@ -1,5 +1,9 @@
 <div class="credits">
-  <img [src]="logo" *ngIf="logo" />
-  <mat-icon *ngIf="workLocal">cloud_off</mat-icon>
+  @if (logo) {
+    <img [src]="logo" />
+  }
+  @if (workLocal) {
+    <mat-icon>cloud_off</mat-icon>
+  }
   <h1>{{ operationName }}</h1>
 </div>

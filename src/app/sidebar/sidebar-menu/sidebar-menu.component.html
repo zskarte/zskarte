@@ -3,12 +3,11 @@
 <mat-divider></mat-divider>
 
 <button mat-menu-item (click)="toggleHistory()" title="ALT+H">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')" *ngIf="!(zsMapStateService.observeIsHistoryMode() | async)"
-    >history</mat-icon
-  >
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')" *ngIf="zsMapStateService.observeIsHistoryMode() | async"
-    >brush</mat-icon
-  >
+  @if (!(zsMapStateService.observeIsHistoryMode() | async)) {
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">history</mat-icon>
+  } @else {
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">brush</mat-icon>
+  }
   {{ (zsMapStateService.observeIsHistoryMode() | async) ? i18n.get('drawMode') : i18n.get('history') }}
 </button>
 <mat-divider></mat-divider>
@@ -31,16 +30,16 @@
 </button>
 <mat-divider></mat-divider>
 <button mat-menu-item (click)="zsMapStateService.toggleExpertView()" title="ALT+H">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')" *ngIf="!(zsMapStateService.observeIsExpertView() | async)"
-    >manage_accounts</mat-icon
-  >
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')" *ngIf="zsMapStateService.observeIsExpertView() | async"
-    >person</mat-icon
-  >
+  @if (!(zsMapStateService.observeIsExpertView() | async)) {
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">manage_accounts</mat-icon>
+  }
+  @if (zsMapStateService.observeIsExpertView() | async) {
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">person</mat-icon>
+  }
   {{ (zsMapStateService.observeIsExpertView() | async) ? i18n.get('defaultView') : i18n.get('expertView') }}
 </button>
 <mat-divider></mat-divider>
-<ng-container *ngIf="session.observeHasWritePermission() | async">
+@if (session.observeHasWritePermission() | async) {
   <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="shareOptions">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('share')">share</mat-icon>
     {{ i18n.get('share') }}
@@ -50,18 +49,20 @@
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('navigateOperations')">logout</mat-icon>
     {{ i18n.get('navigateOperations') }}
   </button>
-</ng-container>
-<ng-container *ngIf="!(session.observeHasWritePermission() | async)">
+}
+@if (!(session.observeHasWritePermission() | async)) {
   <button mat-menu-item class="tools-menu-item" (click)="session.logout()">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon>
     {{ i18n.get('logout') }}
   </button>
-</ng-container>
+}
 
 <mat-menu #languageOptions="matMenu">
-  <button mat-menu-item *ngFor="let locale of locales" (click)="setLocale(locale)" [ngClass]="{ active: locale === session.getLocale() }">
-    {{ i18n.get(locale) }}
-  </button>
+  @for (locale of locales; track locale) {
+    <button mat-menu-item (click)="setLocale(locale)" [ngClass]="{ active: locale === session.getLocale() }">
+      {{ i18n.get(locale) }}
+    </button>
+  }
 </mat-menu>
 
 <mat-menu #protocolOptions="matMenu">
@@ -79,7 +80,10 @@
     <app-projection-selection
       [projectionFormatIndex]="data.projectionFormatIndex"
       [numerical]="data.numerical"
-      (projectionChanged)="data.numerical = $event.numerical ?? data.numerical; data.projectionFormatIndex = $event.projectionFormatIndex ?? data.projectionFormatIndex"
+      (projectionChanged)="
+        data.numerical = $event.numerical ?? data.numerical;
+        data.projectionFormatIndex = $event.projectionFormatIndex ?? data.projectionFormatIndex
+      "
     ></app-projection-selection>
   </div>
   <div mat-dialog-actions align="end">

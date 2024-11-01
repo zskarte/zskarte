@@ -13,18 +13,22 @@
     <mat-select [value]="layer.source" (selectionChange)="onSelectionChange($event)" [disabled]="layer.type !== 'wms_custom'">
       <mat-option value="_GeoAdmin_" disabled>GeoAdmin</mat-option>
       <mat-option value="_CUSTOM_">custom</mat-option>
-      <mat-option *ngFor="let item of sources" [value]="item" [disabled]="item.type !== 'wms'">
-        {{item.label}}
-      </mat-option>
+      @for (item of sources; track item) {
+        <mat-option [value]="item" [disabled]="item.type !== 'wms'">
+          {{ item.label }}
+        </mat-option>
+      }
     </mat-select>
   </mat-form-field>
-  <mat-form-field *ngIf="custom_source" appearance="outline" subscriptSizing="dynamic">
-    <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>
-    <input matInput type="url" [(ngModel)]="custom_source.url"/>
-  </mat-form-field>
+  @if (custom_source) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>
+      <input matInput type="url" [(ngModel)]="custom_source.url" />
+    </mat-form-field>
+  }
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('wmsLayerName') }}</mat-label>
-    <input matInput type="text" [(ngModel)]="layer.serverLayerName" [disabled]="layer.type !== 'wms_custom'"/>
+    <input matInput type="text" [(ngModel)]="layer.serverLayerName" [disabled]="layer.type !== 'wms_custom'" />
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('publicSource') }}</legend>
@@ -41,33 +45,47 @@
       <mat-radio-button [value]="true">{{ i18n.get('wmsLayerRenderTypeFullImage') }}</mat-radio-button>
     </mat-radio-group>
   </fieldset>
-  <fieldset *ngIf="layer.subLayersNames != null && layer.type == 'wms'" class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('hideSubLayers') }}</legend>
-    <mat-checkbox *ngFor="let info of sublayerHidden" [checked]="info.hidden" (change)="info.hidden = $event.checked">{{ info.name }}</mat-checkbox>
-  </fieldset>
-  <fieldset *ngIf="layer.subLayersNames != null && layer.type == 'wms'" class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('wmsLayerDrawingMode') }}</legend>
-    <mat-radio-group [(ngModel)]="layer.splitIntoSubLayers">
-      <mat-radio-button [value]="false">{{ i18n.get('mergedLayers') }}</mat-radio-button>
-      <mat-radio-button [value]="true">{{ i18n.get('separatedLevels') }}</mat-radio-button>
-    </mat-radio-group>
-  </fieldset>
-  <mat-form-field *ngIf="!layer.noneTiled" appearance="outline" subscriptSizing="dynamic">
-    <mat-label>{{ i18n.get('tileSize') }}</mat-label>
-    <input matInput min="256" max="undefined" type="number" [(ngModel)]="layer.tileSize" />
-  </mat-form-field>
+  @if (layer.subLayersNames != null && layer.type == 'wms') {
+    <fieldset class="like-mat-form-field-outline">
+      <legend>{{ i18n.get('hideSubLayers') }}</legend>
+      @for (info of sublayerHidden; track info) {
+        <mat-checkbox [checked]="info.hidden" (change)="info.hidden = $event.checked">{{ info.name }}</mat-checkbox>
+      }
+    </fieldset>
+  }
+  @if (layer.subLayersNames != null && layer.type == 'wms') {
+    <fieldset class="like-mat-form-field-outline">
+      <legend>{{ i18n.get('wmsLayerDrawingMode') }}</legend>
+      <mat-radio-group [(ngModel)]="layer.splitIntoSubLayers">
+        <mat-radio-button [value]="false">{{ i18n.get('mergedLayers') }}</mat-radio-button>
+        <mat-radio-button [value]="true">{{ i18n.get('separatedLevels') }}</mat-radio-button>
+      </mat-radio-group>
+    </fieldset>
+  }
+  @if (!layer.noneTiled) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18n.get('tileSize') }}</mat-label>
+      <input matInput min="256" max="undefined" type="number" [(ngModel)]="layer.tileSize" />
+    </mat-form-field>
+  }
 
-  <mat-form-field *ngIf="!custom_source" appearance="outline" subscriptSizing="dynamic">
-    <mat-label>{{ i18n.get('tileFormat') }}</mat-label>
-    <mat-select [(value)]="layer.tileFormat">
-      <mat-option [value]="undefined"></mat-option>
-      <mat-option *ngFor="let item of tileFormats" [value]="item">{{item}}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field *ngIf="custom_source" appearance="outline" subscriptSizing="dynamic">
-    <mat-label>{{ i18n.get('tileFormat') }}</mat-label>
-    <input matInput type="text" [(ngModel)]="layer.tileFormat" />
-  </mat-form-field>
+  @if (!custom_source) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18n.get('tileFormat') }}</mat-label>
+      <mat-select [(value)]="layer.tileFormat">
+        <mat-option [value]="undefined"></mat-option>
+        @for (item of tileFormats; track item) {
+          <mat-option [value]="item">{{ item }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+  @if (custom_source) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18n.get('tileFormat') }}</mat-label>
+      <input matInput type="text" [(ngModel)]="layer.tileFormat" />
+    </mat-form-field>
+  }
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('MaxScaleDenominator') }}</mat-label>
     <input matInput min="0" type="number" [(ngModel)]="layer.MaxScaleDenominator" />
@@ -78,18 +96,22 @@
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('sourceAttribution') }}</legend>
-    <div class="infoText" *ngIf="!custom_source">{{ i18n.get('sourceAttributionInfo') }}</div>
-    <ng-container *ngIf="layer.attribution">
+    @if (!custom_source) {
+      <div class="infoText">{{ i18n.get('sourceAttributionInfo') }}</div>
+    }
+    @if (layer.attribution) {
       <div class="attributionTitle">
         <div class="attr-title">{{ i18n.get('label') }} *</div>
         <div class="attr-url">URL</div>
       </div>
-      <div class="attribution" *ngFor="let attr of layer.attribution; index as i">
-        <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]"/>
-        <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]"/>
-        <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
-      </div>
-    </ng-container>
+      @for (attr of layer.attribution; track attr; let i = $index) {
+        <div class="attribution">
+          <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]" />
+          <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]" />
+          <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
+        </div>
+      }
+    }
     <mat-icon class="attr-add" (click)="addAttribution()">add</mat-icon>
   </fieldset>
 </div>

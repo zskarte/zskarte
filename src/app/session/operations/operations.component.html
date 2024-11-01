@@ -1,6 +1,6 @@
 <div class="content">
   <mat-card>
-    <ng-container *ngIf="operationService.operationToEdit | async as edit; else list">
+    @if (operationService.operationToEdit | async; as edit) {
       <mat-card-header>
         <mat-card-title class="edit-title"
           ><h1>{{ i18n.get('edit') }}</h1></mat-card-title
@@ -26,9 +26,7 @@
           {{ i18n.get('save') }}
         </button>
       </mat-card-actions>
-    </ng-container>
-
-    <ng-template #list>
+    } @else {
       <mat-card-header class="operations-header">
         <mat-card-title class="title">{{ i18n.get('docCreateOrLoadTitle') }}</mat-card-title>
         <mat-divider></mat-divider>
@@ -38,38 +36,43 @@
         </mat-card-actions>
         <mat-divider></mat-divider>
       </mat-card-header>
-
       <mat-card-content class="card-overflow">
-        <mat-action-list *ngFor="let o of operationService.operations | async">
-          <div class="operation-list-item">
-            <mat-list-item role="button" (click)="selectOperation(o)">
-              <div matListItemMeta class="operation-list-item-meta">
-                <mat-icon *ngIf="(o.id ?? 0) < 0" title="{{ i18n.get('localOperation') }}">cloud_done</mat-icon>
-              </div>
-              <div matListItemTitle>{{ o.name }}</div>
-              <div matListItemLine *ngIf="o.description">{{ o.description }}</div>
-            </mat-list-item>
-            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="operationService.operationToEdit.next(o)">
-                <mat-icon aria-hidden="false">edit_note</mat-icon>
-                Ereignis umbenennen
+        @for (o of operationService.operations | async; track o) {
+          <mat-action-list>
+            <div class="operation-list-item">
+              <mat-list-item role="button" (click)="selectOperation(o)">
+                <div matListItemMeta class="operation-list-item-meta">
+                  @if ((o.id ?? 0) < 0) {
+                    <mat-icon title="{{ i18n.get('localOperation') }}">cloud_done</mat-icon>
+                  }
+                </div>
+                <div matListItemTitle>{{ o.name }}</div>
+                @if (o.description) {
+                  <div matListItemLine>{{ o.description }}</div>
+                }
+              </mat-list-item>
+              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">
+                <mat-icon>more_vert</mat-icon>
               </button>
-              <button mat-menu-item (click)="operationService.exportOperation(o.id)">
-                <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportOperation')">save</mat-icon>
-                {{ i18n.get('exportOperation') }}
-              </button>
-              <button mat-menu-item (click)="operationService.deleteOperation(o)">
-                <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteOperation')">delete</mat-icon>
-                {{ i18n.get('deleteOperation') }}
-              </button>
-            </mat-menu>
-          </div>
-        </mat-action-list>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="operationService.operationToEdit.next(o)">
+                  <mat-icon aria-hidden="false">edit_note</mat-icon>
+                  Ereignis umbenennen
+                </button>
+                <button mat-menu-item (click)="operationService.exportOperation(o.id)">
+                  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportOperation')">save</mat-icon>
+                  {{ i18n.get('exportOperation') }}
+                </button>
+                <button mat-menu-item (click)="operationService.deleteOperation(o)">
+                  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteOperation')">delete</mat-icon>
+                  {{ i18n.get('deleteOperation') }}
+                </button>
+              </mat-menu>
+            </div>
+          </mat-action-list>
+        }
       </mat-card-content>
-    </ng-template>
+    }
   </mat-card>
   <button class="logout" mat-raised-button (click)="logout()">Logout</button>
 </div>

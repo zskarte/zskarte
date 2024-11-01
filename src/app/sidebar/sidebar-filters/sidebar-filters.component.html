@@ -28,25 +28,29 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
-      <div class="filterButtons" *ngIf="filterSymbols && filterSymbols.length > 0">
-        <mat-grid-list cols="5" gutterSize="4">
-          <mat-grid-tile *ngFor="let symbol of filterSymbols">
-            <button mat-button class="filterItem" (click)="toggleSymbolOrFeatureFilter(symbol)">
-              <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center">
-                <img
-                  [class.opaque]="symbol.hidden"
-                  *ngIf="symbol.src"
-                  [src]="symbol.src"
-                  [title]="symbol.label"
-                  style="max-width: 100%; height: auto"
-                />
-                <mat-icon [class.opaque]="symbol.hidden" aria-hidden="false" *ngIf="symbol.icon">{{ symbol.icon }}</mat-icon>
-                <mat-icon class="eyeOverlay" *ngIf="symbol.hidden">visibility_off</mat-icon>
-              </div>
-            </button>
-          </mat-grid-tile>
-        </mat-grid-list>
-      </div>
+      @if (filterSymbols && filterSymbols.length > 0) {
+        <div class="filterButtons">
+          <mat-grid-list cols="5" gutterSize="4">
+            @for (symbol of filterSymbols; track symbol) {
+              <mat-grid-tile>
+                <button mat-button class="filterItem" (click)="toggleSymbolOrFeatureFilter(symbol)">
+                  <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center">
+                    @if (symbol.src) {
+                      <img [class.opaque]="symbol.hidden" [src]="symbol.src" [title]="symbol.label" style="max-width: 100%; height: auto" />
+                    }
+                    @if (symbol.icon) {
+                      <mat-icon [class.opaque]="symbol.hidden" aria-hidden="false">{{ symbol.icon }}</mat-icon>
+                    }
+                    @if (symbol.hidden) {
+                      <mat-icon class="eyeOverlay">visibility_off</mat-icon>
+                    }
+                  </div>
+                </button>
+              </mat-grid-tile>
+            }
+          </mat-grid-list>
+        </div>
+      }
     </ng-template>
   </mat-expansion-panel>
   <mat-divider></mat-divider>
@@ -59,10 +63,12 @@
 
     <ng-template matExpansionPanelContent>
       <mat-selection-list>
-        <mat-list-option *ngFor="let category of signCategories" (click)="toggleCategoryFilter(category)" [selected]="!category.isHidden">
-          <div class="categoryDot" [style.background-color]="category.color"></div>
-          {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
-        </mat-list-option>
+        @for (category of signCategories; track category) {
+          <mat-list-option (click)="toggleCategoryFilter(category)" [selected]="!category.isHidden">
+            <div class="categoryDot" [style.background-color]="category.color"></div>
+            {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
+          </mat-list-option>
+        }
       </mat-selection-list>
     </ng-template>
   </mat-expansion-panel>

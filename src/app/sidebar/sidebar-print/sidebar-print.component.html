@@ -5,7 +5,7 @@
     <mat-label>{{ i18n.get('paperFormat') }}</mat-label>
     <mat-select [(value)]="format" (selectionChange)="updateDimension()">
       @for (format of paperDimensions; track format) {
-        <mat-option [value]="format">{{format}}</mat-option>
+        <mat-option [value]="format">{{ format }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
@@ -19,7 +19,7 @@
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('printMargin') }}</mat-label>
-    <input matInput min="0" type="number" [(ngModel)]="printMargin" (change)="updateDimension()"/>
+    <input matInput min="0" type="number" [(ngModel)]="printMargin" (change)="updateDimension()" />
   </mat-form-field>
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -60,24 +60,36 @@
     <mat-checkbox [checked]="emptyMap" (change)="updateSettings('emptyMap', $event.checked)">{{ i18n.get('hideAllInfos') }}</mat-checkbox>
   </fieldset>
 
-  <fieldset *ngIf="!emptyMap" class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('qrCode') }}</legend>
-    <mat-checkbox [checked]="qrCode" (change)="updateSettings('qrCode', $event.checked)">{{ i18n.get('addQRCode') }}</mat-checkbox>
-    <div *ngIf="qrCode">
-      <mat-checkbox [checked]="shareLink" (change)="updateSettings('shareLink', $event.checked)">{{ i18n.get('withShare') }}</mat-checkbox>
-      <fieldset *ngIf="shareLink" class="like-mat-form-field-outline">
-        <legend>{{ i18n.get('type') }}</legend>
-        <mat-radio-group [(ngModel)]="sharePermission" (change)="updateSettings('sharePermission')">
-          <mat-radio-button [value]="PermissionType.READ">{{ i18n.get('read') }}</mat-radio-button>
-          <mat-radio-button [value]="PermissionType.WRITE">{{ i18n.get('write') }}</mat-radio-button>
-        </mat-radio-group>
-      </fieldset>
-    </div>
-  </fieldset>
+  @if (!emptyMap) {
+    <fieldset class="like-mat-form-field-outline">
+      <legend>{{ i18n.get('qrCode') }}</legend>
+      <mat-checkbox [checked]="qrCode" (change)="updateSettings('qrCode', $event.checked)">{{ i18n.get('addQRCode') }}</mat-checkbox>
+      @if (qrCode) {
+        <div>
+          <mat-checkbox [checked]="shareLink" (change)="updateSettings('shareLink', $event.checked)">{{
+            i18n.get('withShare')
+          }}</mat-checkbox>
+          @if (shareLink) {
+            <fieldset class="like-mat-form-field-outline">
+              <legend>{{ i18n.get('type') }}</legend>
+              <mat-radio-group [(ngModel)]="sharePermission" (change)="updateSettings('sharePermission')">
+                <mat-radio-button [value]="PermissionType.READ">{{ i18n.get('read') }}</mat-radio-button>
+                <mat-radio-button [value]="PermissionType.WRITE">{{ i18n.get('write') }}</mat-radio-button>
+              </mat-radio-group>
+            </fieldset>
+          }
+        </div>
+      }
+    </fieldset>
+  }
 
-  <div *ngIf="generateError" class="generate-error">{{ generateError }}</div>
+  @if (generateError) {
+    <div class="generate-error">{{ generateError }}</div>
+  }
 
-  <div *ngIf="generating" class="progress" [style.width]="generatingProgress" #progress></div>
+  @if (generating) {
+    <div class="progress" [style.width]="generatingProgress" #progress></div>
+  }
 
   <button mat-raised-button color="primary" (click)="generate()">
     {{ i18n.get('generatePdf') }}

@@ -1,8 +1,11 @@
 <div mat-dialog-content>
-  <div class="loading" *ngIf="!this.html">
-    <mat-progress-spinner color="primary" mode="indeterminate"> </mat-progress-spinner>
-  </div>
-  <div [innerHTML]="html" *ngIf="this.html"></div>
+  @if (!this.html) {
+    <div class="loading">
+      <mat-progress-spinner color="primary" mode="indeterminate"> </mat-progress-spinner>
+    </div>
+  } @else {
+    <div [innerHTML]="html"></div>
+  }
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button color="primary" [mat-dialog-close]="true">
