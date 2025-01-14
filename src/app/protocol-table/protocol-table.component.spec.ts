@@ -8,7 +8,7 @@ describe('ProtocolTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ProtocolTableComponent],
+      imports: [ProtocolTableComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProtocolTableComponent);

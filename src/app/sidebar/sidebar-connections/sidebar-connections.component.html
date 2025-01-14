@@ -18,7 +18,7 @@
 <hr />
 @if (!isWorkLocal && (isOnline | async)) {
   <div class="connections-container">
-    <mat-slide-toggle color="primary" [ngModel]="showCurrentLocation$ | async" (change)="state.updateShowCurrentLocation($event.checked)">
+    <mat-slide-toggle color="primary" [ngModel]="showCurrentLocation$ | async" (change)="state.updateShowCurrentLocation($any($event).checked)">
       <mat-label>{{ i18n.get('shareLocation') }}</mat-label>
     </mat-slide-toggle>
     <hr />

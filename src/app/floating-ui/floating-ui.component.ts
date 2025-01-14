@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
@@ -14,13 +14,55 @@ import { SidebarService } from '../sidebar/sidebar.service';
 import { ScaleSelectionComponent } from '../scale-selection/scale-selection.component';
 import { ZsMapStateSource } from '../state/interfaces';
 import { db } from '../db/db';
+import { MatIconModule } from '@angular/material/icon';
+import { AsyncPipe, CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDivider } from '@angular/material/divider';
+import { MatBadge } from '@angular/material/badge';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { CreditsComponent } from '../credits/credits.component';
+import { SidebarFiltersComponent } from '../sidebar/sidebar-filters/sidebar-filters.component';
+import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
+import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
+import { SidebarConnectionsComponent } from '../sidebar/sidebar-connections/sidebar-connections.component';
+import { SidebarMenuComponent } from '../sidebar/sidebar-menu/sidebar-menu.component';
+import { SidebarPrintComponent } from '../sidebar/sidebar-print/sidebar-print.component';
+import { SelectedFeatureComponent } from '../selected-feature/selected-feature.component';
+import { GeocoderComponent } from '../geocoder/geocoder.component';
+import { CoordinatesComponent } from '../coordinates/coordinates.component';
 
 @Component({
   selector: 'app-floating-ui',
   templateUrl: './floating-ui.component.html',
   styleUrl: './floating-ui.component.scss',
+  imports: [
+    MatIconModule,
+    AsyncPipe,
+    MatButtonModule,
+    MatDivider,
+    MatBadge,
+    MatSidenavModule,
+    CreditsComponent,
+    SidebarFiltersComponent,
+    SidebarComponent,
+    SidebarHistoryComponent,
+    SidebarConnectionsComponent,
+    SidebarMenuComponent,
+    SidebarPrintComponent,
+    SelectedFeatureComponent,
+    GeocoderComponent,
+    CoordinatesComponent,
+    CommonModule,
+  ],
 })
 export class FloatingUIComponent {
+  i18n = inject(I18NService);
+  _state = inject(ZsMapStateService);
+  private _sync = inject(SyncService);
+  private _session = inject(SessionService);
+  private _dialog = inject(MatDialog);
+  sidebar = inject(SidebarService);
+
   static ONBOARDING_VERSION = '1.0';
 
   SidebarContext = SidebarContext;
@@ -36,14 +78,10 @@ export class FloatingUIComponent {
   public canWorkOffline = new BehaviorSubject<boolean>(false);
   public workLocal: boolean;
 
-  constructor(
-    public i18n: I18NService,
-    public _state: ZsMapStateService,
-    private _sync: SyncService,
-    private _session: SessionService,
-    private _dialog: MatDialog,
-    public sidebar: SidebarService,
-  ) {
+  constructor() {
+    const _state = this._state;
+    const _session = this._session;
+
     if (this.isInitialLaunch()) {
       this._dialog.open(HelpComponent, {
         data: true,

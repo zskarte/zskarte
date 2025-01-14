@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import type { FileFilter } from 'electron';
 import FileSaver from 'file-saver';
 import { isElectron } from '../helper/os';
@@ -8,7 +8,7 @@ import { isElectron } from '../helper/os';
   providedIn: 'root',
 })
 export class IpcService {
-  constructor(private _zone: NgZone) {}
+  private _zone = inject(NgZone);
 
   // skipcq: JS-0105
   private async _invoke<PARAMS = any, RESULT = any>(channel: string, params: PARAMS): Promise<RESULT> {

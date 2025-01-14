@@ -10,7 +10,7 @@ describe('ScaleSelectionComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ScaleSelectionComponent],
+      imports: [ScaleSelectionComponent],
       providers: [
         {
           provide: MatDialogRef,

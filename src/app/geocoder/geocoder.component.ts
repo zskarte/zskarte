@@ -1,11 +1,16 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, inject, viewChild } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { transform } from 'ol/proj';
 import { SessionService } from '../session/session.service';
 import { Subject, takeUntil } from 'rxjs';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { IZsMapSearchConfig, IZsMapSearchResult } from '../state/interfaces';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 interface IFoundLocation {
   attrs: IFoundLocationAttrs;
@@ -26,22 +31,25 @@ interface IResultSet {
 @Component({
   selector: 'app-geocoder',
   templateUrl: './geocoder.component.html',
-  styleUrls: ['./geocoder.component.css'],
+  styleUrls: ['./geocoder.component.scss'],
+  imports: [MatFormFieldModule, MatInputModule, MatIconModule, MatAutocompleteModule, CommonModule, FormsModule],
 })
 export class GeocoderComponent implements OnDestroy {
-  @ViewChild('searchField', { static: false }) el!: ElementRef;
+  i18n = inject(I18NService);
+  zsMapStateService = inject(ZsMapStateService);
+  private _session = inject(SessionService);
+  private ref = inject(ChangeDetectorRef);
+
+  readonly el = viewChild.required<ElementRef>('searchField');
   geocoderUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&searchText=';
   foundLocations: IResultSet[] = [];
   inputText = '';
   selected: IZsMapSearchResult | null = null;
   private _ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public i18n: I18NService,
-    public zsMapStateService: ZsMapStateService,
-    private _session: SessionService,
-    private ref: ChangeDetectorRef,
-  ) {
+  constructor() {
+    const zsMapStateService = this.zsMapStateService;
+
     this._session
       .observeAuthenticated()
       .pipe(takeUntil(this._ngUnsubscribe))

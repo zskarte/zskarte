@@ -1,4 +1,4 @@
-import { Injectable, SecurityContext } from '@angular/core';
+import { Injectable, SecurityContext, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { I18NService } from '../../state/i18n.service';
 import { Observable, firstValueFrom, map, of, tap } from 'rxjs';
@@ -15,15 +15,13 @@ import { DomSanitizer } from '@angular/platform-browser';
   providedIn: 'root',
 })
 export class GeoadminService {
+  private http = inject(HttpClient);
+  i18n = inject(I18NService);
+  private _session = inject(SessionService);
+  private domSanitizer = inject(DomSanitizer);
+
   private _layersCache: GeoAdminMapLayers | undefined;
   private _legendCache: Map<string, string> = new Map();
-
-  constructor(
-    private http: HttpClient,
-    public i18n: I18NService,
-    private _session: SessionService,
-    private domSanitizer: DomSanitizer,
-  ) {}
 
   getLayers(): Observable<GeoAdminMapLayers> {
     if (this._layersCache) {

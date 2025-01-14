@@ -12,9 +12,8 @@ describe('GeocoderComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [GeocoderComponent],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [MatAutocompleteModule],
+      imports: [MatAutocompleteModule, GeocoderComponent],
       providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()],
     });
   });

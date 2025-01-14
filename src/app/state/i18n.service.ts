@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Sign } from '../core/entity/sign';
 import { SessionService } from '../session/session.service';
 
@@ -10,7 +10,7 @@ export const DEFAULT_LOCALE: Locale = LOCALES[0];
   providedIn: 'root',
 })
 export class I18NService {
-  constructor(private _session: SessionService) {}
+  private _session = inject(SessionService);
 
   private static TRANSLATIONS = {
     local: {

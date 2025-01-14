@@ -1,6 +1,9 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { Observable, startWith, switchMap, tap } from 'rxjs';
 import { ApiService } from 'src/app/api/api.service';
 import { StrapiApiResponseList } from 'src/app/helper/strapi-utils';
@@ -20,24 +23,23 @@ type Snapshots = StrapiApiResponseList<Snapshot[]>;
   selector: 'app-sidebar-history',
   templateUrl: './sidebar-history.component.html',
   styleUrls: ['./sidebar-history.component.scss'],
+  imports: [MatTableModule, AsyncPipe, MatPaginatorModule, DatePipe, MatButtonModule],
 })
 export class SidebarHistoryComponent implements AfterViewInit {
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  i18n = inject(I18NService);
+  private apiService = inject(ApiService);
+  private sessionService = inject(SessionService);
+  private stateService = inject(ZsMapStateService);
+  private snackBarService = inject(MatSnackBar);
+
+  readonly paginator = viewChild.required(MatPaginator);
 
   snapshots$?: Observable<Snapshots>;
   resultSize?: number;
   apiPath = '/api/map-snapshots';
 
-  constructor(
-    public i18n: I18NService,
-    private apiService: ApiService,
-    private sessionService: SessionService,
-    private stateService: ZsMapStateService,
-    private snackBarService: MatSnackBar,
-  ) {}
-
   ngAfterViewInit() {
-    this.snapshots$ = this.paginator.page.pipe(
+    this.snapshots$ = this.paginator().page.pipe(
       startWith({ pageIndex: 0 }),
       switchMap((p) => this.loadData(p.pageIndex + 1)),
       tap((r) => {

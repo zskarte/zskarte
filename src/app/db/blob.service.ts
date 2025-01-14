@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Subject, Subscription, lastValueFrom } from 'rxjs';
 import { LocalBlob, LocalBlobMeta, LocalBlobState, db } from './db';
 import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
@@ -17,9 +17,9 @@ export interface BlobOperation {
   providedIn: 'root',
 })
 export class BlobService {
-  private operations = new Map<string, BlobOperation>();
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  private operations = new Map<string, BlobOperation>();
 
   private static async _newBloblMeta(url: string, lastModified?: number) {
     const localBlobMeta = {

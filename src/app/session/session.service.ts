@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   BehaviorSubject,
   concatMap,
@@ -36,19 +36,21 @@ import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-la
   providedIn: 'root',
 })
 export class SessionService {
+  private _router = inject(Router);
+  private _api = inject(ApiService);
+  private _wms = inject(WmsService);
+  private _mapLayerService = inject(MapLayerService);
+  private _operationService = inject(OperationService);
+
   private _session = new BehaviorSubject<IZsMapSession | undefined>(undefined);
   private _clearOperation = new Subject<void>();
   private _state!: ZsMapStateService;
   private _authError = new BehaviorSubject<HttpErrorResponse | undefined>(undefined);
   private _isOnline = new BehaviorSubject<boolean>(true);
 
-  constructor(
-    private _router: Router,
-    private _api: ApiService,
-    private _wms: WmsService,
-    private _mapLayerService: MapLayerService,
-    private _operationService: OperationService,
-  ) {
+  constructor() {
+    const _operationService = this._operationService;
+
     //"solve" circular dependency between OperationService and SessionService
     _operationService.setSessionService(this);
 

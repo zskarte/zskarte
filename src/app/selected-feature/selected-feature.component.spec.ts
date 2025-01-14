@@ -15,9 +15,8 @@ describe('SelectedFeatureComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [SelectedFeatureComponent, SelectSignDialog, ConfirmationDialogComponent, DetailImageViewComponent],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [MatDialogModule],
+      imports: [MatDialogModule, SelectedFeatureComponent, SelectSignDialog, ConfirmationDialogComponent, DetailImageViewComponent],
       providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()],
     });
   });

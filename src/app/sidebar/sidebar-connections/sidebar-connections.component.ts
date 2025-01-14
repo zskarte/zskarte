@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { I18NService } from 'src/app/state/i18n.service';
@@ -14,13 +14,30 @@ import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirm
 import { BlobService } from 'src/app/db/blob.service';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from 'src/app/session/default-map-values';
 import { MapLayerService } from 'src/app/map-layer/map-layer.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { AsyncPipe } from '@angular/common';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-sidebar-connections',
   templateUrl: './sidebar-connections.component.html',
-  styleUrls: ['./sidebar-connections.component.css'],
+  styleUrls: ['./sidebar-connections.component.scss'],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, MatIconModule, MatListModule, AsyncPipe, MatCheckboxModule],
 })
 export class SidebarConnectionsComponent implements OnDestroy {
+  i18n = inject(I18NService);
+  private syncService = inject(SyncService);
+  session = inject(SessionService);
+  state = inject(ZsMapStateService);
+  private _dialog = inject(MatDialog);
+  private _blobService = inject(BlobService);
+  private _mapLayerService = inject(MapLayerService);
+
   connections$: Observable<{ label?: string; currentLocation?: { long: number; lat: number } }[]> | undefined;
   label$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   showCurrentLocation$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -35,15 +52,9 @@ export class SidebarConnectionsComponent implements OnDestroy {
   downloadAvailableLayers = false;
   haveSearchCapability = false;
 
-  constructor(
-    public i18n: I18NService,
-    private syncService: SyncService,
-    public session: SessionService,
-    public state: ZsMapStateService,
-    private _dialog: MatDialog,
-    private _blobService: BlobService,
-    private _mapLayerService: MapLayerService,
-  ) {
+  constructor() {
+    const session = this.session;
+
     this.connections$ = this.syncService.observeConnections().pipe(takeUntil(this._ngUnsubscribe));
     this.label$?.next(this.session.getLabel() ?? '');
     this.state

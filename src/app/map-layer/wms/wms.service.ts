@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, from, of, tap } from 'rxjs';
 import { Coordinate } from 'ol/coordinate';
 import { mercatorProjection, swissProjection } from '../../helper/projections';
@@ -24,17 +24,15 @@ const ATTRIBUTION_POPUP_STYLE =
   providedIn: 'root',
 })
 export class WmsService {
+  private _api = inject(ApiService);
+  private _mapLayerService = inject(MapLayerService);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _capabilitiesCache: Map<string, any> = new Map();
   private _capabilitiesAttributionCache: Map<string, string[] | string> = new Map();
   private _capabilitiesLayerCache: Map<string, MapLayer[]> = new Map();
   private _legendCache: Map<string, Map<string, string | null>> = new Map();
   private _sourceAttributionCache: Map<string, string[]> = new Map();
-
-  constructor(
-    private _api: ApiService,
-    private _mapLayerService: MapLayerService,
-  ) {}
 
   public invalidateCache(capaUrl: string) {
     this._capabilitiesCache.delete(capaUrl);

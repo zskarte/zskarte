@@ -1,7 +1,11 @@
-import { Component, Inject, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
 import { DEFAULT_DPI } from '../session/default-map-values';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 
 export type ScaleType = { scale?: number; dpi?: number };
 
@@ -9,8 +13,13 @@ export type ScaleType = { scale?: number; dpi?: number };
   selector: 'app-scale-selection',
   templateUrl: './scale-selection.component.html',
   styleUrl: './scale-selection.component.scss',
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule],
 })
 export class ScaleSelectionComponent {
+  data = inject<ScaleType>(MAT_DIALOG_DATA);
+  i18n = inject(I18NService);
+  dialogRef = inject<MatDialogRef<ScaleSelectionComponent, ScaleType | undefined>>(MatDialogRef);
+
   scale?: number;
   dpi: number;
   screenDimension: number;
@@ -18,11 +27,9 @@ export class ScaleSelectionComponent {
   screenWidth: number;
   screenHeight: number;
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: ScaleType,
-    public i18n: I18NService,
-    public dialogRef: MatDialogRef<ScaleSelectionComponent, ScaleType | undefined>,
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.scale = data.scale;
     if (data.dpi && data.dpi !== DEFAULT_DPI) {
       this.dpi = data.dpi;

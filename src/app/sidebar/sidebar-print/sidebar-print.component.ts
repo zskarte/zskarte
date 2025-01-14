@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { Subject, map, takeUntil, distinctUntilChanged, Observable, firstValueFrom } from 'rxjs';
 import { jsPDF } from 'jspdf';
 import { ZsMapStateService } from '../../state/state.service';
@@ -15,14 +15,27 @@ import { MM_PER_INCHES } from '../../session/default-map-values';
 import { isWebGLSupported } from 'src/app/map-renderer/utils';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-sidebar-print',
   templateUrl: './sidebar-print.component.html',
   styleUrl: './sidebar-print.component.scss',
+  imports: [MatFormFieldModule, MatButtonModule, MatInputModule, MatSelectModule, MatRadioModule, FormsModule, MatCheckboxModule],
 })
 export class SidebarPrintComponent {
-  @ViewChild('progress', { static: false }) progressEl!: ElementRef;
+  i18n = inject(I18NService);
+  state = inject(ZsMapStateService);
+  session = inject(SessionService);
+  private _dialog = inject(MatDialog);
+
+  readonly progressEl = viewChild.required<ElementRef>('progress');
   private _ngUnsubscribe = new Subject<void>();
   PermissionType = PermissionType;
   paperDimensions = Object.keys(PaperDimensions);
@@ -46,12 +59,9 @@ export class SidebarPrintComponent {
   qrCodeSize = 20;
   attributions?: string[];
 
-  constructor(
-    public i18n: I18NService,
-    public state: ZsMapStateService,
-    public session: SessionService,
-    private _dialog: MatDialog,
-  ) {
+  constructor() {
+    const state = this.state;
+
     firstValueFrom(state.observePrintState()).then((printState) => {
       this.format = printState.format;
       this.orientation = printState.orientation;
@@ -274,8 +284,9 @@ export class SidebarPrintComponent {
   updateGeneratingProgress(percent: number) {
     this.generatingProgress = `${percent.toFixed(1)}%`;
     //update to slow over var binding [style.width]="generatingProgress", do it the native way
-    if (this.progressEl) {
-      this.progressEl.nativeElement.style.width = this.generatingProgress;
+    const progressEl = this.progressEl();
+    if (progressEl) {
+      progressEl.nativeElement.style.width = this.generatingProgress;
     }
   }
 

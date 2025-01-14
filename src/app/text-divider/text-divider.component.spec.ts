@@ -8,7 +8,7 @@ describe('TextDividerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TextDividerComponent],
+      imports: [TextDividerComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TextDividerComponent);

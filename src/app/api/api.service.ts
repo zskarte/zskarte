@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { lastValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SessionService } from '../session/session.service';
@@ -22,10 +22,10 @@ export interface ApiResponse<T> {
   providedIn: 'root',
 })
 export class ApiService {
+  private _http = inject(HttpClient);
+
   private _apiUrl = environment.apiUrl;
   private _session!: SessionService;
-
-  constructor(private _http: HttpClient) {}
 
   public setSessionService(sessionService: SessionService): void {
     this._session = sessionService;

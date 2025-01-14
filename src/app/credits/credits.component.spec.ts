@@ -10,8 +10,7 @@ describe('CreditsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CreditsComponent],
-      imports: [],
+      imports: [CreditsComponent],
       providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()],
     }).compileComponents();
   }));

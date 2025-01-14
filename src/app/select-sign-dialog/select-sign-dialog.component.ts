@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit, inject, output } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Sign, signCategories } from '../core/entity/sign';
 import capitalizeFirstLetter from '../helper/capitalizeFirstLetter';
@@ -6,13 +6,36 @@ import { DrawStyle } from '../map-renderer/draw-style';
 import { Signs } from '../map-renderer/signs';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
+import { RecentlyUsedSignsComponent } from '../recently-used-signs/recently-used-signs.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-select-sign-dialog',
   templateUrl: './select-sign-dialog.component.html',
-  styleUrls: ['./select-sign-dialog.component.css'],
+  styleUrls: ['./select-sign-dialog.component.scss'],
+  imports: [
+    RecentlyUsedSignsComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatSelectModule,
+    MatTableModule,
+    CommonModule,
+    MatIconModule,
+  ],
 })
 export class SelectSignDialog implements OnInit {
+  dialogRef = inject<MatDialogRef<SelectSignDialog>>(MatDialogRef);
+  i18n = inject(I18NService);
+  dialog = inject(MatDialog);
+  private _session = inject(SessionService);
+
   filter = '';
   allSigns: Sign[] = [];
   filteredSigns: Sign[] = [];
@@ -21,14 +44,7 @@ export class SelectSignDialog implements OnInit {
   signCategories = Array.from(signCategories.values()).filter((c) => !this.hiddenTypes.includes(c.name));
 
   capitalizeFirstLetter = capitalizeFirstLetter;
-  @Output() readonly signSelected = new EventEmitter<Sign>();
-
-  constructor(
-    public dialogRef: MatDialogRef<SelectSignDialog>,
-    public i18n: I18NService,
-    public dialog: MatDialog,
-    private _session: SessionService,
-  ) {}
+  readonly signSelected = output<Sign>();
 
   loadSigns() {
     this.allSigns = Signs.SIGNS.sort((a, b) => {

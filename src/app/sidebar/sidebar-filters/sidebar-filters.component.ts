@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { combineLatest, Subject } from 'rxjs';
@@ -9,13 +9,35 @@ import { Sign, signCategories, SignCategory } from 'src/app/core/entity/sign';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { ZsMapBaseDrawElement } from 'src/app/map-renderer/elements/base/base-draw-element';
 import { FeatureLike } from 'ol/Feature';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatDividerModule } from '@angular/material/divider';
+import { AsyncPipe } from '@angular/common';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-sidebar-filters',
   templateUrl: './sidebar-filters.component.html',
-  styleUrls: ['./sidebar-filters.component.css'],
+  styleUrls: ['./sidebar-filters.component.scss'],
+  imports: [
+    MatAccordion,
+    MatExpansionModule,
+    MatSlideToggleModule,
+    MatDividerModule,
+    AsyncPipe,
+    MatGridListModule,
+    MatIconModule,
+    MatListModule,
+    MatButtonModule,
+  ],
 })
 export class SidebarFiltersComponent implements OnInit, OnDestroy {
+  i18n = inject(I18NService);
+  private mapState = inject(ZsMapStateService);
+
   filterSymbols: any[] = [];
   filterKeys: any[] = [];
   signCategories: any[] = [...signCategories.values()];
@@ -28,10 +50,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   capitalizeFirstLetter = capitalizeFirstLetter;
   private _ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public i18n: I18NService,
-    private mapState: ZsMapStateService,
-  ) {
+  constructor() {
     this.hiddenSymbols$ = this.mapState.observeHiddenSymbols().pipe(takeUntil(this._ngUnsubscribe));
     this.hiddenFeatureTypes$ = this.mapState.observeHiddenFeatureTypes().pipe(takeUntil(this._ngUnsubscribe));
     this.hiddenCategories$ = this.mapState.observeHiddenCategories().pipe(takeUntil(this._ngUnsubscribe));

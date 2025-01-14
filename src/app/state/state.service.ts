@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, combineLatest, lastValueFrom, merge, Observable, Subject } from 'rxjs';
 import { applyPatches, Patch, produce } from 'immer';
 import { isEqual } from 'lodash';
@@ -54,6 +54,13 @@ import { OperationService } from '../session/operations/operation.service';
   providedIn: 'root',
 })
 export class ZsMapStateService {
+  i18n = inject(I18NService);
+  private dialog = inject(MatDialog);
+  private _sync = inject(SyncService);
+  private _session = inject(SessionService);
+  private _snackBar = inject(MatSnackBar);
+  private _operationService = inject(OperationService);
+
   private _map = new BehaviorSubject<IZsMapState>(getDefaultIZsMapState());
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
   private _mapInversePatches = new BehaviorSubject<Patch[]>([]);
@@ -80,14 +87,10 @@ export class ZsMapStateService {
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
   private _searchConfigs = new BehaviorSubject<IZsMapSearchConfig[]>([]);
 
-  constructor(
-    public i18n: I18NService,
-    private dialog: MatDialog,
-    private _sync: SyncService,
-    private _session: SessionService,
-    private _snackBar: MatSnackBar,
-    private _operationService: OperationService,
-  ) {
+  constructor() {
+    const _session = this._session;
+    const _operationService = this._operationService;
+
     const _changeOperationId = new Subject<void>();
     _session.observeOperationId().subscribe((operationId) => {
       _changeOperationId.next();

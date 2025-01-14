@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { getResponsiveImageSource } from 'src/app/helper/strapi-utils';
 import { ApiService } from '../../api/api.service';
@@ -9,16 +9,43 @@ import { GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from '../../state/i18n.service';
-import { FormControl } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { CommonModule } from '@angular/common';
+import { StackComponent } from '../../stack/stack.component';
+import { TextDividerComponent } from '../../text-divider/text-divider.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  imports: [
+    MatCardModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    StackComponent,
+    TextDividerComponent,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
 })
 export class LoginComponent implements OnDestroy {
+  session = inject(SessionService);
+  i18n = inject(I18NService);
+  private _api = inject(ApiService);
+  private _dialog = inject(MatDialog);
+  private router = inject(Router);
+
   public selectedOrganization?: IZso = undefined;
   public password = '';
   public organizations = new BehaviorSubject<IZso[]>([]);
@@ -29,13 +56,7 @@ export class LoginComponent implements OnDestroy {
   public hasGuestUser = false;
   private _ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public session: SessionService,
-    public i18n: I18NService,
-    private _api: ApiService,
-    private _dialog: MatDialog,
-    private router: Router,
-  ) {
+  constructor() {
     this.session
       .observeIsOnline()
       .pipe(takeUntil(this._ngUnsubscribe))

@@ -10,7 +10,7 @@ describe('EditCoordinatesComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [EditCoordinatesComponent],
+      imports: [EditCoordinatesComponent],
       providers: [
         {
           provide: MatDialogRef,

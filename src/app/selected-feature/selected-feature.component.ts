@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
@@ -17,13 +17,44 @@ import { ZsMapDrawElementState, ZsMapDrawElementStateType } from '../state/inter
 import { EditCoordinatesComponent } from '../edit-coordinates/edit-coordinates.component';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
 import { SelectSignDialog } from '../select-sign-dialog/select-sign-dialog.component';
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSliderModule } from '@angular/material/slider';
+import { StackComponent } from '../stack/stack.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-selected-feature',
   templateUrl: './selected-feature.component.html',
-  styleUrls: ['./selected-feature.component.css'],
+  styleUrls: ['./selected-feature.component.scss'],
+  imports: [
+    AsyncPipe,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+    MatSelectModule,
+    MatExpansionModule,
+    DatePipe,
+    MatIconModule,
+    MatSliderModule,
+    StackComponent,
+    MatButtonModule,
+    MatCheckboxModule,
+  ],
 })
 export class SelectedFeatureComponent implements OnDestroy {
+  dialog = inject(MatDialog);
+  i18n = inject(I18NService);
+  zsMapStateService = inject(ZsMapStateService);
+
   groupedFeatures = null;
   editMode = new BehaviorSubject(true);
   selectedFeature: Observable<Feature<SimpleGeometry> | undefined>;
@@ -57,11 +88,7 @@ export class SelectedFeatureComponent implements OnDestroy {
     },
   ];
 
-  constructor(
-    public dialog: MatDialog,
-    public i18n: I18NService,
-    public zsMapStateService: ZsMapStateService,
-  ) {
+  constructor() {
     this.selectedFeature = this.zsMapStateService.observeSelectedElement$().pipe(
       takeUntil(this._ngUnsubscribe),
       map((element) => element?.getOlFeature() as Feature<SimpleGeometry> | undefined),

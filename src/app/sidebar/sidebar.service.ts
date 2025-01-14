@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SidebarContext } from './sidebar.interfaces';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { ZsMapStateService } from '../state/state.service';
@@ -7,10 +7,12 @@ import { ZsMapStateService } from '../state/state.service';
   providedIn: 'root',
 })
 export class SidebarService {
+  private _state = inject(ZsMapStateService);
+
   private _context = new BehaviorSubject<SidebarContext | undefined>(undefined);
   private _preventDeselect = false;
 
-  constructor(private _state: ZsMapStateService) {
+  constructor() {
     this._state.observeSelectedFeature$().subscribe((element) => {
       if (element) {
         this.open(SidebarContext.SelectedFeature);

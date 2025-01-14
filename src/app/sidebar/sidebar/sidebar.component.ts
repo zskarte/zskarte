@@ -1,12 +1,12 @@
-import { Component, TemplateRef, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, TemplateRef, ChangeDetectorRef, inject, viewChild } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapLegendDisplayComponent } from '../map-legend-display/map-legend-display.component';
 import { ZsMapStateService } from '../../state/state.service';
 import { ZsMapStateSource, zsMapStateSourceToDownloadUrl } from '../../state/interfaces';
 import { GeoadminService } from '../../map-layer/geoadmin/geoadmin.service';
 import { GeoJSONMapLayer, MapLayer, WMSMapLayer, WmsSource } from '../../map-layer/map-layer-interface';
 import { combineLatest, firstValueFrom, map, mergeMap, Observable, of, share, startWith, catchError, tap } from 'rxjs';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { I18NService } from '../../state/i18n.service';
 import { db, LocalBlobMeta, LocalBlobState, LocalMapInfo } from '../../db/db';
 import { BlobEventType, BlobOperation, BlobService } from 'src/app/db/blob.service';
@@ -22,14 +22,54 @@ import { IZsMapOrganizationMapLayerSettings } from '../../session/operations/ope
 import { MapLayerService } from 'src/app/map-layer/map-layer.service';
 import { BlobMetaOptionsComponent } from 'src/app/map-layer/blob-meta-options/blob-meta-options.component';
 import { LOCAL_MAP_STYLE_PATH } from 'src/app/session/default-map-values';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatActionList } from '@angular/material/list';
+import { MatRadioModule } from '@angular/material/radio';
+import { AsyncPipe } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css'],
+  styleUrls: ['./sidebar.component.scss'],
+  imports: [
+    MatAccordion,
+    MatExpansionModule,
+    MatSliderModule,
+    FormsModule,
+    MatActionList,
+    MatRadioModule,
+    AsyncPipe,
+    MatProgressBarModule,
+    MatIconModule,
+    MatDividerModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+  ],
 })
 export class SidebarComponent {
-  @ViewChild('newLayerTypeTemplate') newLayerTypeTemplate!: TemplateRef<HTMLElement>;
+  mapState = inject(ZsMapStateService);
+  wmsService = inject(WmsService);
+  private operationService = inject(OperationService);
+  private _session = inject(SessionService);
+  i18n = inject(I18NService);
+  dialog = inject(MatDialog);
+  private _blobService = inject(BlobService);
+  private cdRef = inject(ChangeDetectorRef);
+  private _mapLayerService = inject(MapLayerService);
+
+  readonly newLayerTypeTemplate = viewChild.required<TemplateRef<HTMLElement>>('newLayerTypeTemplate');
   newLayerType?: string;
   mapProgress = 0;
 
@@ -64,18 +104,12 @@ export class SidebarComponent {
   geoAdminLayerError: string | undefined;
   workLocal: boolean;
 
-  constructor(
-    public mapState: ZsMapStateService,
-    geoAdminService: GeoadminService,
-    public wmsService: WmsService,
-    private operationService: OperationService,
-    private _session: SessionService,
-    public i18n: I18NService,
-    public dialog: MatDialog,
-    private _blobService: BlobService,
-    private cdRef: ChangeDetectorRef,
-    private _mapLayerService: MapLayerService,
-  ) {
+  constructor() {
+    const mapState = this.mapState;
+    const geoAdminService = inject(GeoadminService);
+    const wmsService = this.wmsService;
+    const _session = this._session;
+
     this.workLocal = _session.isWorkLocal();
     const geoAdminLayers$ = geoAdminService.getLayers().pipe(
       map((layers) => Object.values(layers)),
@@ -321,7 +355,7 @@ export class SidebarComponent {
   }
 
   addNewLayer() {
-    const optionsDialog = this.dialog.open(this.newLayerTypeTemplate);
+    const optionsDialog = this.dialog.open(this.newLayerTypeTemplate());
     optionsDialog.afterClosed().subscribe((type: string) => {
       if (type === 'wms_custom') {
         this.showWmsLayerOptions({ type, serverLayerName: '' } as WMSMapLayer, -1);

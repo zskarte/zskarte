@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BlobService } from 'src/app/db/blob.service';
 import { LocalBlobMeta, LocalMapInfo, LocalMapLayer, db } from 'src/app/db/db';
@@ -6,13 +6,27 @@ import { I18NService } from 'src/app/state/i18n.service';
 import { GeoJSONMapLayer } from '../map-layer-interface';
 import { LOCAL_MAP_STYLE_PATH } from 'src/app/session/default-map-values';
 import { zsMapStateSourceToDownloadUrl } from 'src/app/state/interfaces';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { FormsModule } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-blob-meta-options',
   templateUrl: './blob-meta-options.component.html',
   styleUrl: './blob-meta-options.component.scss',
+  imports: [MatFormFieldModule, MatInputModule, MatProgressBarModule, FormsModule, MatIcon],
 })
 export class BlobMetaOptionsComponent {
+  data = inject<{
+    mapLayer?: LocalMapLayer & GeoJSONMapLayer;
+    localMap?: LocalMapInfo;
+  }>(MAT_DIALOG_DATA);
+  private dialogRef = inject<MatDialogRef<BlobMetaOptionsComponent>>(MatDialogRef);
+  private _blobService = inject(BlobService);
+  i18n = inject(I18NService);
+
   public dataBlobMeta: LocalBlobMeta | undefined;
   public styleBlobMeta: LocalBlobMeta | undefined;
   public label: string | undefined;
@@ -27,13 +41,7 @@ export class BlobMetaOptionsComponent {
   public layerConfigStyle = false;
   public noOfflineText: string | undefined;
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA)
-    public data: { mapLayer?: LocalMapLayer & GeoJSONMapLayer; localMap?: LocalMapInfo },
-    private dialogRef: MatDialogRef<BlobMetaOptionsComponent>,
-    private _blobService: BlobService,
-    public i18n: I18NService,
-  ) {
+  constructor() {
     this.loadBlobMeta();
   }
 

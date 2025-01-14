@@ -12,9 +12,8 @@ describe('TextDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TextDialogComponent],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [],
+      imports: [TextDialogComponent],
       providers: [
         {
           provide: MatDialogRef,

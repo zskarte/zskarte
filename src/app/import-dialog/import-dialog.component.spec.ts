@@ -12,9 +12,8 @@ describe('ImportDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ImportDialogComponent],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [],
+      imports: [ImportDialogComponent],
       providers: [
         {
           provide: MatDialogRef,

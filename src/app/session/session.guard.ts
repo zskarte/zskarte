@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from './session.service';
@@ -7,10 +7,9 @@ import { SessionService } from './session.service';
   providedIn: 'root',
 })
 export class SessionGuard implements CanActivate {
-  constructor(
-    private _session: SessionService,
-    private _router: Router,
-  ) {}
+  private _session = inject(SessionService);
+  private _router = inject(Router);
+
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
     const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
     if (isAuthenticated) {

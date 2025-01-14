@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ZsMapLayerStateType, IZsMapState } from '../../state/interfaces';
 import { IZSMapOperationMapLayers, IZsMapOperation } from './operation.interfaces';
 import { ApiService, IApiRequestOptions } from '../../api/api.service';
@@ -16,6 +16,10 @@ import { db } from '../../db/db';
   providedIn: 'root',
 })
 export class OperationService {
+  private _api = inject(ApiService);
+  _ipc = inject(IpcService);
+  private _dialog = inject(MatDialog);
+
   private _session!: SessionService;
   public operations = new BehaviorSubject<IZsMapOperation[]>([]);
   public operationToEdit = new BehaviorSubject<IZsMapOperation | undefined>(undefined);
@@ -23,12 +27,6 @@ export class OperationService {
   public setSessionService(sessionService: SessionService): void {
     this._session = sessionService;
   }
-
-  constructor(
-    private _api: ApiService,
-    public _ipc: IpcService,
-    private _dialog: MatDialog,
-  ) {}
 
   public async deleteOperation(operation: IZsMapOperation): Promise<void> {
     if (!operation || !operation?.id) {

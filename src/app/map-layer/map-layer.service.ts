@@ -1,4 +1,4 @@
-import { Injectable, SecurityContext } from '@angular/core';
+import { Injectable, SecurityContext, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Coordinate } from 'ol/coordinate';
 import {
@@ -23,11 +23,9 @@ import { BlobService } from '../db/blob.service';
   providedIn: 'root',
 })
 export class MapLayerService {
-  constructor(
-    private _domSanitizer: DomSanitizer,
-    private _api: ApiService,
-    private _blobService: BlobService,
-  ) {}
+  private _domSanitizer = inject(DomSanitizer);
+  private _api = inject(ApiService);
+  private _blobService = inject(BlobService);
 
   public sanitizeHTML(html: string) {
     return this._domSanitizer.sanitize(SecurityContext.HTML, html) ?? '';

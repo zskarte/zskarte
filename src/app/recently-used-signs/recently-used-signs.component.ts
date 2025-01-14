@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, input, output } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { Sign } from '../core/entity/sign';
@@ -6,18 +6,19 @@ import { DrawStyle } from '../map-renderer/draw-style';
 import { ZsMapDrawElementState } from 'src/app/state/interfaces';
 import { SelectSignDialog } from '../select-sign-dialog/select-sign-dialog.component';
 import { Subject, takeUntil } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-recently-used-signs',
   templateUrl: './recently-used-signs.component.html',
-  styleUrls: ['./recently-used-signs.component.css'],
+  styleUrls: ['./recently-used-signs.component.scss'],
+  imports: [MatButtonModule],
 })
 export class RecentlyUsedSignsComponent implements OnInit, OnDestroy {
+  i18n = inject(I18NService);
+  private sharedState = inject(ZsMapStateService);
+
   private _ngUnsubscribe = new Subject<void>();
-  constructor(
-    public i18n: I18NService,
-    private sharedState: ZsMapStateService,
-  ) {}
 
   ngOnInit() {
     this.sharedState
@@ -28,7 +29,7 @@ export class RecentlyUsedSignsComponent implements OnInit, OnDestroy {
         const tmp: Sign[] = [];
 
         for (const e of elements) {
-          const sign = this.dialog.allSigns.find((s) => s.id === e.symbolId);
+          const sign = this.dialog().allSigns.find((s) => s.id === e.symbolId);
           if (sign) {
             tmp.push(sign);
           }
@@ -43,8 +44,8 @@ export class RecentlyUsedSignsComponent implements OnInit, OnDestroy {
     this._ngUnsubscribe.complete();
   }
 
-  @Input() dialog!: SelectSignDialog;
-  @Output() readonly selectSign: EventEmitter<Sign> = new EventEmitter<Sign>();
+  readonly dialog = input.required<SelectSignDialog>();
+  readonly selectSign = output<Sign>();
 
   private signsSource: Sign[] = [];
 

@@ -10,8 +10,7 @@ describe('SidebarFiltersComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SidebarFiltersComponent],
-      imports: [],
+      imports: [SidebarFiltersComponent],
       providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()],
     }).compileComponents();
   });

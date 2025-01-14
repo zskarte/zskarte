@@ -1,41 +1,58 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../state/i18n.service';
 import { MapLayer, WmsSource } from '../map-layer-interface';
 import { MapLayerService } from '../map-layer.service';
 import { IZsMapOrganization, IZsMapOrganizationMapLayerSettings } from 'src/app/session/operations/operation.interfaces';
-import { FormControl } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, combineLatest, map, startWith } from 'rxjs';
 import { getPropertyDifferences } from 'src/app/helper/diff';
 import { LocalMapLayer } from 'src/app/db/db';
+import { MatActionList, MatListOption, MatSelectionList } from '@angular/material/list';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { AsyncPipe } from '@angular/common';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-organisation-layer-settings',
   templateUrl: './organisation-layer-settings.component.html',
   styleUrl: './organisation-layer-settings.component.scss',
+  imports: [
+    MatSelectionList,
+    MatListOption,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    ReactiveFormsModule,
+    MatDialogClose,
+    MatActionList,
+    AsyncPipe,
+  ],
 })
 export class OrganisationLayerSettingsComponent {
+  data = inject<{
+    organization?: IZsMapOrganization;
+    localMapLayerSettings?: IZsMapOrganizationMapLayerSettings;
+    wmsSources: WmsSource[];
+    globalMapLayers: MapLayer[];
+    allLayers: MapLayer[];
+    selectedLayers: MapLayer[];
+    selectedSources: WmsSource[];
+  }>(MAT_DIALOG_DATA);
+  private dialogRef = inject<MatDialogRef<OrganisationLayerSettingsComponent>>(MatDialogRef);
+  private _mapLayerService = inject(MapLayerService);
+  i18n = inject(I18NService);
+
   wms_sources: number[];
   layer_favorites: MapLayer[];
 
   layerFilter = new FormControl('');
   sourceFilter = new FormControl('ALL');
   filteredAvailableLayers$: Observable<MapLayer[]>;
-  constructor(
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      organization?: IZsMapOrganization;
-      localMapLayerSettings?: IZsMapOrganizationMapLayerSettings;
-      wmsSources: WmsSource[];
-      globalMapLayers: MapLayer[];
-      allLayers: MapLayer[];
-      selectedLayers: MapLayer[];
-      selectedSources: WmsSource[];
-    },
-    private dialogRef: MatDialogRef<OrganisationLayerSettingsComponent>,
-    private _mapLayerService: MapLayerService,
-    public i18n: I18NService,
-  ) {
+  constructor() {
+    const data = this.data;
+
     if (data.organization) {
       this.wms_sources = [...data.organization.wms_sources];
       this.layer_favorites = data.allLayers.filter((f) => f.id && data.organization?.map_layer_favorites.includes(f.id));

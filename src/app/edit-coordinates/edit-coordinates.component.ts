@@ -1,18 +1,28 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Coordinate } from 'ol/coordinate';
 import { I18NService } from '../state/i18n.service';
 import { convertTo, convertFrom } from '../helper/projections';
-import { FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormControl, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { of, delay, switchMap, Observable } from 'rxjs';
-import { ChangeType } from '../projection-selection/projection-selection.component';
+import { ChangeType, ProjectionSelectionComponent } from '../projection-selection/projection-selection.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-edit-coordinates',
   templateUrl: './edit-coordinates.component.html',
-  styleUrls: ['./edit-coordinates.component.css'],
+  styleUrls: ['./edit-coordinates.component.scss'],
+  imports: [ProjectionSelectionComponent, MatFormFieldModule, MatInputModule, ReactiveFormsModule],
 })
 export class EditCoordinatesComponent {
+  data = inject<{
+    geometry: string;
+    coordinates: Coordinate;
+  }>(MAT_DIALOG_DATA);
+  i18n = inject(I18NService);
+  dialogRef = inject<MatDialogRef<EditCoordinatesComponent>>(MatDialogRef);
+
   projectionFormatIndex = 0;
   lastProjectionFormatIndex = 0;
   numerical = true;
@@ -22,11 +32,9 @@ export class EditCoordinatesComponent {
   error = '';
   formatedCoordinatesControl: FormControl;
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { geometry: string; coordinates: Coordinate },
-    public i18n: I18NService,
-    public dialogRef: MatDialogRef<EditCoordinatesComponent>,
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.geometry = data.geometry;
     this.coordinates = data.coordinates;
     this.formatedCoordinatesControl = new FormControl(null, undefined, [this.inputValidator.bind(this)]);

@@ -9,7 +9,7 @@ describe('HelpComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [HelpComponent],
+      imports: [HelpComponent],
       providers: [{ provide: MAT_DIALOG_DATA, useValue: {} }],
       schemas: [NO_ERRORS_SCHEMA],
     });

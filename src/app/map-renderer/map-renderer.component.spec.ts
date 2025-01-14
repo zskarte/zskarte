@@ -8,7 +8,7 @@ describe('MapRendererComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MapRendererComponent],
+      imports: [MapRendererComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MapRendererComponent);

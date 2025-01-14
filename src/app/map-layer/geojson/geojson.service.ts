@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { GeoJSONMapLayer, CsvMapLayer } from '../map-layer-interface';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
@@ -13,7 +13,7 @@ import { stylefunction } from 'ol-mapbox-style';
 import { StyleLike } from 'ol/style/Style';
 import { IZsMapSearchResult } from '../../state/interfaces';
 import { transformExtent, transform } from 'ol/proj';
-import { inferSchema, initParser, SchemaColumnType } from 'udsv';
+import { inferSchema, initParser } from 'udsv';
 import { LocalMapLayerMeta } from 'src/app/db/db';
 import { BlobService } from 'src/app/db/blob.service';
 
@@ -22,8 +22,9 @@ const NumberSortCollator = new Intl.Collator(undefined, { numeric: true, sensiti
   providedIn: 'root',
 })
 export class GeoJSONService {
+  private _mapLayerService = inject(MapLayerService);
+
   private _searchRegExPatternsCache: Map<string, RegExp[]> = new Map();
-  constructor(private _mapLayerService: MapLayerService) {}
 
   public invalidateCache(url: string) {
     this._searchRegExPatternsCache.delete(url);
@@ -79,7 +80,7 @@ export class GeoJSONService {
         //force defined delimiter
         const schema = inferSchema(csvContent, { col: layer.delimiter });
         //force number type for coord fields
-        schema.cols.filter((c) => c.name === layer.fieldX || c.name === layer.fieldY).forEach((c) => (c.type = SchemaColumnType.Number));
+        schema.cols.filter((c) => c.name === layer.fieldX || c.name === layer.fieldY).forEach((c) => (c.type = 'n'));
         const parser = initParser(schema);
         const csvLines = parser.typedObjs(csvContent, (rows, append) => {
           rows = rows.filter((row) => {

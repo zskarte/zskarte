@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
 import { defaults, Draw, Interaction, Modify, Select, Translate } from 'ol/interaction';
 import { createBox } from 'ol/interaction/Draw';
 import OlMap from 'ol/Map';
@@ -54,6 +54,8 @@ import TileSource from 'ol/source/Tile';
 import { WmsService } from '../map-layer/wms/wms.service';
 import { GeoAdminMapLayer, WMSMapLayer, GeoJSONMapLayer, CsvMapLayer } from '../map-layer/map-layer-interface';
 import { GeoJSONService } from '../map-layer/geojson/geojson.service';
+import { AsyncPipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 const LAYER_Z_INDEX_CURRENT_LOCATION = 1000000;
 const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000001;
@@ -65,14 +67,24 @@ const LAYER_Z_INDEX_PRINT_DIMENSIONS = 1000100;
   templateUrl: './map-renderer.component.html',
   styleUrls: ['./map-renderer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AsyncPipe, MatIcon],
 })
 export class MapRendererComponent implements AfterViewInit {
-  @ViewChild('mapElement') mapElement!: ElementRef;
-  @ViewChild('delete') deleteElement!: MatButton;
-  @ViewChild('rotate') rotateElement!: MatButton;
-  @ViewChild('copy') copyElement!: MatButton;
-  @ViewChild('draw') drawElement!: MatButton;
-  @ViewChild('close') closeElement!: MatButton;
+  private _state = inject(ZsMapStateService);
+  private _sync = inject(SyncService);
+  private _session = inject(SessionService);
+  i18n = inject(I18NService);
+  private geoAdminService = inject(GeoadminService);
+  private dialog = inject(MatDialog);
+  private wmsService = inject(WmsService);
+  private geoJSONService = inject(GeoJSONService);
+
+  readonly mapElement = viewChild.required<ElementRef>('mapElement');
+  readonly deleteElement = viewChild.required<MatButton>('delete');
+  readonly rotateElement = viewChild.required<MatButton>('rotate');
+  readonly copyElement = viewChild.required<MatButton>('copy');
+  readonly drawElement = viewChild.required<MatButton>('draw');
+  readonly closeElement = viewChild.required<MatButton>('close');
   removeButton?: Overlay;
   rotateButton?: Overlay;
   copyButton?: Overlay;
@@ -132,16 +144,9 @@ export class MapRendererComponent implements AfterViewInit {
   public canUndo = new BehaviorSubject<boolean>(false);
   public canRedo = new BehaviorSubject<boolean>(false);
 
-  constructor(
-    private _state: ZsMapStateService,
-    private _sync: SyncService,
-    private _session: SessionService,
-    public i18n: I18NService,
-    private geoAdminService: GeoadminService,
-    private dialog: MatDialog,
-    private wmsService: WmsService,
-    private geoJSONService: GeoJSONService,
-  ) {
+  constructor() {
+    const _state = this._state;
+
     _state
       .observeSelectedElement$()
       .pipe(takeUntil(this._ngUnsubscribe))
@@ -443,7 +448,7 @@ export class MapRendererComponent implements AfterViewInit {
     });
 
     this._map = new OlMap({
-      target: this.mapElement.nativeElement,
+      target: this.mapElement().nativeElement,
       view: this._view,
       controls: [this._scaleLine, this._attribution],
       interactions: defaults({
@@ -861,29 +866,29 @@ export class MapRendererComponent implements AfterViewInit {
 
   initButtons() {
     this.removeButton = new Overlay({
-      element: this.deleteElement._elementRef.nativeElement,
+      element: this.deleteElement()._elementRef.nativeElement,
       positioning: 'center-center',
       offset: [30, 30],
     });
     this.copyButton = new Overlay({
-      element: this.copyElement._elementRef.nativeElement,
+      element: this.copyElement()._elementRef.nativeElement,
       positioning: 'center-center',
       offset: [-30, 30],
     });
     this.rotateButton = new Overlay({
-      element: this.rotateElement._elementRef.nativeElement,
+      element: this.rotateElement()._elementRef.nativeElement,
       positioning: 'center-center',
       offset: [this.ROTATE_OFFSET_X, this.ROTATE_OFFSET_Y],
     });
 
     this.drawButton = new Overlay({
-      element: this.drawElement._elementRef.nativeElement,
+      element: this.drawElement()._elementRef.nativeElement,
       positioning: 'center-center',
       offset: [30, 15],
     });
 
     this.closeButton = new Overlay({
-      element: this.closeElement._elementRef.nativeElement,
+      element: this.closeElement()._elementRef.nativeElement,
       positioning: 'center-center',
       offset: [30, -45],
     });

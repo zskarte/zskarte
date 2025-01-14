@@ -1,4 +1,5 @@
-import { Component, Inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import QRCode from 'qrcode';
@@ -8,19 +9,22 @@ import { I18NService } from 'src/app/state/i18n.service';
   selector: 'app-share-dialog',
   templateUrl: './share-dialog.component.html',
   styleUrls: ['./share-dialog.component.scss'],
+  imports: [AsyncPipe],
 })
 export class ShareDialogComponent {
+  joinCode = inject(MAT_DIALOG_DATA);
+  private _snackBar = inject(MatSnackBar);
+  i18n = inject(I18NService);
+
   public qrCodeDataUrl!: Promise<string>;
   public get joinLink(): string {
     return `${window.location.origin}/share/${this.joinCode}`;
   }
   public showJoinCode: boolean;
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public joinCode: string,
-    private _snackBar: MatSnackBar,
-    public i18n: I18NService,
-  ) {
+  constructor() {
+    const joinCode = this.joinCode;
+
     this.qrCodeDataUrl = this.generateQrCodeDataUrl();
     this.copyJoinLink();
     // Only show join code if access has an user friendly join code (six digits long).

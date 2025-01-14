@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../api/api.service';
 import { IAuthResult } from '../session.interfaces';
@@ -10,12 +10,12 @@ import { SessionService } from '../session.service';
   styleUrls: ['./share.component.scss'],
 })
 export class ShareComponent {
-  constructor(
-    private _activatedRoute: ActivatedRoute,
-    private _router: Router,
-    private _api: ApiService,
-    private _session: SessionService,
-  ) {
+  private _activatedRoute = inject(ActivatedRoute);
+  private _router = inject(Router);
+  private _api = inject(ApiService);
+  private _session = inject(SessionService);
+
+  constructor() {
     this._activatedRoute.params.subscribe(async (params) => {
       try {
         const accessToken = params['accessToken'];

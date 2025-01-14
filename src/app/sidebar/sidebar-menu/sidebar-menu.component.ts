@@ -1,12 +1,12 @@
-import { ChangeDetectorRef, Component, ViewChild, TemplateRef } from '@angular/core';
+import { ChangeDetectorRef, Component, TemplateRef, inject, viewChild } from '@angular/core';
 import { I18NService, Locale, LOCALES } from '../../state/i18n.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HelpComponent } from '../../help/help.component';
 import { ZsMapStateService } from '../../state/state.service';
 import { BehaviorSubject } from 'rxjs';
 import { SessionService } from '../../session/session.service';
 import { ZsMapBaseDrawElement } from '../../map-renderer/elements/base/base-draw-element';
-import { DatePipe } from '@angular/common';
+import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
 import { exportProtocolExcel, mapProtocolEntry, ProtocolEntry } from '../../helper/protocolEntry';
 import { ProtocolTableComponent } from '../../protocol-table/protocol-table.component';
 import { ShareDialogComponent } from '../../session/share-dialog/share-dialog.component';
@@ -14,33 +14,50 @@ import { AccessTokenType, PermissionType } from '../../session/session.interface
 import { RevokeShareDialogComponent } from '../../session/revoke-share-dialog/revoke-share-dialog.component';
 import { OperationService } from '../../session/operations/operation.service';
 import { first } from 'rxjs/operators';
-import { ChangeType } from '../../projection-selection/projection-selection.component';
+import { ChangeType, ProjectionSelectionComponent } from '../../projection-selection/projection-selection.component';
 import { SidebarContext } from '../sidebar.interfaces';
 import { SidebarService } from '../sidebar.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-sidebar-menu',
   templateUrl: './sidebar-menu.component.html',
   styleUrl: './sidebar-menu.component.scss',
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    IncidentSelectComponent,
+    MatMenuModule,
+    AsyncPipe,
+    CommonModule,
+    MatDialogModule,
+    ProjectionSelectionComponent,
+    MatButtonModule,
+  ],
 })
 export class SidebarMenuComponent {
-  @ViewChild('projectionSelectionTemplate') projectionSelectionTemplate!: TemplateRef<unknown>;
+  i18n = inject(I18NService);
+  private cdr = inject(ChangeDetectorRef);
+  dialog = inject(MatDialog);
+  zsMapStateService = inject(ZsMapStateService);
+  session = inject(SessionService);
+  private datePipe = inject(DatePipe);
+  private _dialog = inject(MatDialog);
+  private _operation = inject(OperationService);
+  sidebar = inject(SidebarService);
+
+  readonly projectionSelectionTemplate = viewChild.required<TemplateRef<unknown>>('projectionSelectionTemplate');
 
   locales: Locale[] = LOCALES;
   protocolEntries: ProtocolEntry[] = [];
   public incidents = new BehaviorSubject<number[]>([]);
 
-  constructor(
-    public i18n: I18NService,
-    private cdr: ChangeDetectorRef,
-    public dialog: MatDialog,
-    public zsMapStateService: ZsMapStateService,
-    public session: SessionService,
-    private datePipe: DatePipe,
-    private _dialog: MatDialog,
-    private _operation: OperationService,
-    public sidebar: SidebarService,
-  ) {
+  constructor() {
     this.incidents.next(this.session.getOperationEventStates() || []);
   }
 
@@ -65,7 +82,7 @@ export class SidebarMenuComponent {
   }
 
   protocolExcelExport(): void {
-    const projectionDialog = this.dialog.open(this.projectionSelectionTemplate, {
+    const projectionDialog = this.dialog.open(this.projectionSelectionTemplate(), {
       width: '450px',
       data: {
         projectionFormatIndex: 0,

@@ -1,25 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { I18NService } from 'src/app/state/i18n.service';
 import { IZsAccess } from '../session.interfaces';
 import { ApiService } from 'src/app/api/api.service';
 import { SessionService } from '../session.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-revoke-share-dialog',
   templateUrl: './revoke-share-dialog.component.html',
   styleUrl: './revoke-share-dialog.component.scss',
+  imports: [MatTableModule, DatePipe],
 })
 export class RevokeShareDialogComponent {
+  i18n = inject(I18NService);
+  private _api = inject(ApiService);
+  private session = inject(SessionService);
+  private _snackBar = inject(MatSnackBar);
+
   shareLinks: IZsAccess[] = [];
   displayedColumns: string[] = ['createdAt', 'type', 'expiresOn', 'actions'];
-
-  constructor(
-    public i18n: I18NService,
-    private _api: ApiService,
-    private session: SessionService,
-    private _snackBar: MatSnackBar,
-  ) {}
 
   async ngOnInit() {
     const { error, result } = await this._api.get<IZsAccess[]>(

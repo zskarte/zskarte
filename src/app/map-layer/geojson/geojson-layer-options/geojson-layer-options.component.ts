@@ -1,27 +1,45 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../../state/i18n.service';
 import { CsvMapLayer, WmsSource } from '../../map-layer-interface';
 import { ZsMapStateService } from '../../../state/state.service';
 import { GeoJSONService } from '../geojson.service';
 import { Extent } from 'ol/extent';
-import { NgModel } from '@angular/forms';
+import { FormsModule, NgModel } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
+import { MatIconModule } from '@angular/material/icon';
+import { RegexValidatorDirective } from '../../regex-validator.directive';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-geojson-layer-options',
   templateUrl: './geojson-layer-options.component.html',
   styleUrl: './geojson-layer-options.component.scss',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatRadioGroup,
+    MatRadioButton,
+    FormsModule,
+    MatIconModule,
+    RegexValidatorDirective,
+    MatCheckboxModule,
+  ],
 })
 export class GeoJSONLayerOptionsComponent {
+  layer = inject<CsvMapLayer>(MAT_DIALOG_DATA);
+  dialogRef = inject<MatDialogRef<GeoJSONLayerOptionsComponent>>(MatDialogRef);
+  i18n = inject(I18NService);
+  mapState = inject(ZsMapStateService);
+  private geoJSONService = inject(GeoJSONService);
+
   sourceUrl = '';
   lastExtent: Extent = [0, 0, 0, 0];
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public layer: CsvMapLayer,
-    public dialogRef: MatDialogRef<GeoJSONLayerOptionsComponent>,
-    public i18n: I18NService,
-    public mapState: ZsMapStateService,
-    private geoJSONService: GeoJSONService,
-  ) {
+  constructor() {
+    let layer = this.layer;
+
     this.layer = layer = { ...layer };
     if (layer.attribution) {
       layer.attribution = layer.attribution.map((a) => [...a]);

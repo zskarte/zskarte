@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import io, { Socket } from 'socket.io-client';
@@ -32,16 +32,16 @@ interface Connection {
   providedIn: 'root',
 })
 export class SyncService {
+  private _api = inject(ApiService);
+  private _session = inject(SessionService);
+
   private _connectionId = uuidv4();
   private _socket: Socket | undefined;
   private _state!: ZsMapStateService;
   private _connectingPromise: Promise<void> | undefined;
   private _connections = new BehaviorSubject<Connection[]>([]);
 
-  constructor(
-    private _api: ApiService,
-    private _session: SessionService,
-  ) {
+  constructor() {
     merge(this._session.observeOperationId(), this._session.observeIsOnline(), this._session.observeLabel())
       .pipe(debounceTime(250))
       .subscribe(async () => {

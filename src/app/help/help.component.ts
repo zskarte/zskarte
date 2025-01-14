@@ -1,15 +1,16 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-help',
   templateUrl: './help.component.html',
-  styleUrls: ['./help.component.css'],
+  styleUrls: ['./help.component.scss'],
+  imports: [MatDialogModule, MatStepperModule, MatButtonModule],
 })
 export class HelpComponent {
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public initialLoad: boolean,
-    public i18n: I18NService,
-  ) {}
+  initialLoad = inject(MAT_DIALOG_DATA);
+  i18n = inject(I18NService);
 }

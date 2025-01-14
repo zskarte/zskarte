@@ -12,9 +12,8 @@ describe('MapLegendDisplayComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [MapLegendDisplayComponent],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [],
+      imports: [MapLegendDisplayComponent],
       providers: [
         {
           provide: MatDialogRef,

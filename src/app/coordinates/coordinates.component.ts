@@ -1,19 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ZsMapStateService } from '../state/state.service';
 import { projectionByIndex } from '../helper/projections';
-import { ChangeType } from '../projection-selection/projection-selection.component';
+import { ChangeType, ProjectionSelectionComponent } from '../projection-selection/projection-selection.component';
 import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-coordinates',
   templateUrl: './coordinates.component.html',
   styleUrl: './coordinates.component.scss',
+  imports: [ProjectionSelectionComponent],
 })
 export class CoordinatesComponent {
+  private _state = inject(ZsMapStateService);
+
   showOptions = false;
   projectionFormatIndexes: number[];
   coordinates: string[] = [];
-  constructor(private _state: ZsMapStateService) {
+  constructor() {
     //TODO: load this from session/state?
     this.projectionFormatIndexes = [0, 1];
     this._state.getCoordinates().subscribe(this.updateCoordinates.bind(this));

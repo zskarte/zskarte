@@ -1,31 +1,41 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../../state/i18n.service';
 import { WMSMapLayer, MapSource, WmsSource } from '../../map-layer-interface';
-import { MatRadioChange } from '@angular/material/radio';
+import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
 import { ZsMapStateService } from '../../../state/state.service';
 import { firstValueFrom } from 'rxjs';
-import { MatSelectChange } from '@angular/material/select';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { WmsService } from '../wms.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FormsModule } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-wms-layer-options',
   templateUrl: './wms-layer-options.component.html',
   styleUrl: './wms-layer-options.component.scss',
+  imports: [MatRadioModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule, FormsModule, MatIcon],
 })
 export class WmsLayerOptionsComponent {
+  layer = inject<WMSMapLayer>(MAT_DIALOG_DATA);
+  dialogRef = inject<MatDialogRef<WmsLayerOptionsComponent>>(MatDialogRef);
+  i18n = inject(I18NService);
+  mapState = inject(ZsMapStateService);
+  private wmsService = inject(WmsService);
+
   hasSublayers = false;
   sublayerHidden: { name: string; hidden: boolean }[] = [];
   sources: WmsSource[] = [];
   tileFormats: string[] = ['image/png'];
   custom_source?: MapSource;
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public layer: WMSMapLayer,
-    public dialogRef: MatDialogRef<WmsLayerOptionsComponent>,
-    public i18n: I18NService,
-    public mapState: ZsMapStateService,
-    private wmsService: WmsService,
-  ) {
+  constructor() {
+    let layer = this.layer;
+    const mapState = this.mapState;
+    const wmsService = this.wmsService;
+
     this.layer = layer = { ...layer };
     if (layer.attribution) {
       layer.attribution = layer.attribution.map((a) => [...a]);

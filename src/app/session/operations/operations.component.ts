@@ -1,25 +1,52 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import { SessionService } from '../session.service';
 import { IZsMapOperation } from './operation.interfaces';
 import { I18NService } from '../../state/i18n.service';
 import { OperationService } from './operation.service';
 import { ActivatedRoute } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { AsyncPipe } from '@angular/common';
+import { MatActionList, MatListItem } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { FormsModule } from '@angular/forms';
+import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-operations',
   templateUrl: './operations.component.html',
   styleUrls: ['./operations.component.scss'],
+  imports: [
+    MatFormFieldModule,
+    MatCardModule,
+    MatDividerModule,
+    AsyncPipe,
+    MatActionList,
+    MatIconModule,
+    MatMenuModule,
+    FormsModule,
+    MatListItem,
+    IncidentSelectComponent,
+    MatButtonModule,
+    MatInputModule,
+  ],
 })
 export class OperationsComponent implements OnDestroy {
+  private _session = inject(SessionService);
+  i18n = inject(I18NService);
+  operationService = inject(OperationService);
+  private route = inject(ActivatedRoute);
+
   private _ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    private _session: SessionService,
-    public i18n: I18NService,
-    public operationService: OperationService,
-    private route: ActivatedRoute,
-  ) {
+  constructor() {
+    const route = this.route;
+
     this.operationService.loadLocal();
     this._session
       .observeOrganizationId()

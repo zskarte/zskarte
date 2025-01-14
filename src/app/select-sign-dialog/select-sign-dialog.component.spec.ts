@@ -13,9 +13,8 @@ describe('DrawingDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [SelectSignDialog],
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [MatDialogModule],
+      imports: [MatDialogModule, SelectSignDialog],
       providers: [
         {
           provide: MatDialogRef,

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ZsMapDrawElementStateType } from '../state/interfaces';
@@ -10,6 +10,8 @@ import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-el
   providedIn: 'root',
 })
 export class ShortcutService {
+  private _state = inject(ZsMapStateService);
+
   private _selectedElement: ZsMapBaseDrawElement | undefined = undefined;
   private _selectedFeatureId: string | undefined = undefined;
   private _copyElement: ZsMapBaseDrawElement | undefined = undefined;
@@ -17,7 +19,7 @@ export class ShortcutService {
   private _keydownObserver: Observable<KeyboardEvent>;
   private _readOnlyMode = false;
 
-  constructor(private _state: ZsMapStateService) {
+  constructor() {
     this._keydownObserver = new Observable((observer) => {
       window.addEventListener('keydown', (event) => {
         observer.next(event);
