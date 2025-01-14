@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "map_layers",
+  "info": {
+    "singularName": "map-layer",
+    "pluralName": "map-layers",
+    "displayName": "Map Layer",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "serverLayerName": {
+      "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "wms",
+        "wms_custom",
+        "wmts",
+        "aggregate",
+        "geojson",
+        "csv"
+      ]
+    },
+    "wms_source": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::wms-source.wms-source",
+      "inversedBy": "map_layers"
+    },
+    "custom_source": {
+      "type": "string"
+    },
+    "options": {
+      "type": "json"
+    },
+    "public": {
+      "type": "boolean"
+    },
+    "organization": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::organization.organization"
+    }
+  }
+}

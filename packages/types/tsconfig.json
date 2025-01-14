@@ -1,0 +1,7 @@
+{
+  "files": ["index.ts"],
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "./dist"
+  }
+}

@@ -1,0 +1,100 @@
+.selectedLayer {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 0.3em;
+}
+
+.titleRow {
+  display: flex;
+}
+
+.availableLayers {
+  max-height: 20vh;
+  overflow: auto;
+}
+
+.selectedLayer .title {
+  flex: 1;
+  font-size: 0.9em;
+}
+
+.selectedLayer i {
+  cursor: pointer;
+  margin-left: 0.5em;
+}
+
+.sectionTitle {
+  margin-top: 1.2em;
+  margin-bottom: 1em;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.content {
+  margin-right: 1em;
+  margin-left: 1em;
+}
+
+mat-form-field,
+mat-slider {
+  width: 100%;
+}
+
+.layer-slider {
+  margin-left: 0;
+  width: 100%;
+}
+
+.map-progress {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.buttons {
+  margin-left: 40px;
+}
+
+.button-download {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.mapfile-input {
+  display: none;
+}
+
+.sourceControl {
+  display: flex;
+}
+.sourceControl mat-form-field {
+  margin-bottom: 5px;
+}
+.sourceControl button {
+  margin-left: 15px;
+}
+
+.material-icons {
+  /*needed as not match for 'visibility_on'*/
+  width: 24px;
+}
+
+.wmsSourceError {
+  color: red;
+}
+
+.organisationSettings,
+.expertButton {
+  transform: translateX(-50%);
+  left: 50%;
+  margin-bottom: 5px;
+}
+
+.mapSourceAvailable i {
+  vertical-align: middle;
+}
+
+.availableLayers button mat-icon {
+  vertical-align: bottom;
+  margin-right: 5px;
+}

@@ -1,0 +1,41 @@
+{
+  "name": "@zskarte/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend for zskarte",
+  "license": "MIT",
+  "author": {
+    "name": "ZSKarte Team"
+  },
+  "scripts": {
+    "dev": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "regenerate": "strapi ts:generate-types",
+    "strapi": "strapi",
+    "lint": "eslint \"src/**/*.ts\"",
+    "prettify": "prettier --write \"**/*.{js,ts,html,css,json,md}\""
+  },
+  "dependencies": {
+    "@strapi/plugin-i18n": "^4.17.0",
+    "@strapi/plugin-users-permissions": "^4.17.0",
+    "@strapi/strapi": "^4.17.0",
+    "immer": "^10.1.1",
+    "lodash": "^4.17.21",
+    "pg": "^8.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^5.2.0",
+    "strapi-plugin-io": "^2.0.5",
+    "strapi-provider-upload-azure-storage": "^3.3.0",
+    "styled-components": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.12",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.10.0",
+    "eslint": "^9.13.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3"
+  }
+}
