@@ -24,7 +24,7 @@ import { BlobMetaOptionsComponent } from 'src/app/map-layer/blob-meta-options/bl
 import { LOCAL_MAP_STYLE_PATH } from 'src/app/session/default-map-values';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatSliderModule } from '@angular/material/slider';
-import { MatActionList } from '@angular/material/list';
+import { MatActionList, MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { AsyncPipe } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -56,6 +56,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatSelectModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatListModule,
   ],
 })
 export class SidebarComponent {
