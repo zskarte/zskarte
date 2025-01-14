@@ -1,0 +1,75 @@
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  STAGE: dev
+  DOCKERHUB_USERNAME: zskarte
+  KUBERNETES_NAMESPACE: zskarte-dev
+  APP_NAME: zskarte-server
+  FULL_IMAGE_NAME: zskarte/zskarte-server:${{ github.sha }}
+  LETSENCRYPT_STAGE: prod
+  DB_HOST: zskarte.postgres.database.azure.com
+  DB_PORT: 5432
+  DB_NAME: zskarte_dev
+  DB_USER: zskarte_admin
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET_DEV }}
+  JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET_DEV }}
+  APP_KEYS: ${{ secrets.STRAPI_APP_KEYS_DEV }}
+  API_TOKEN_SALT: ${{ secrets.STRAPI_API_TOKEN_SALT_DEV }}
+  TRANSFER_TOKEN_SALT: ${{ secrets.STRAPI_TRANSFER_TOKEN_SALT_DEV }}
+  BASE_URL: api-dev.zskarte.ch
+  STORAGE_ACCOUNT: zskarte
+  STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
+  STORAGE_URL: https://zskarte.blob.core.windows.net
+  STORAGE_CONTAINER_NAME: zskarte-dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      # - uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: docker/login-action@v2
+        name: Login to Docker Hub
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image to Docker Hub
+        id: build-image
+        run: |
+          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.FULL_IMAGE_NAME }} --label dockerfile-path=Dockerfile
+          docker push ${{ env.FULL_IMAGE_NAME }}
+
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v1
+        with:
+          kubeconfig: ${{ secrets.aks_zskarteaks_kubeConfig }}
+
+      - name: Create Namespace if not Present
+        run: |
+          namespacePresent=`kubectl get namespace | grep ${{ env.KUBERNETES_NAMESPACE }} | wc -l`
+          if [ $namespacePresent -eq 0 ]
+          then
+              echo `kubectl create namespace ${{ env.KUBERNETES_NAMESPACE }}`
+          fi
+
+      - name: Replace and Apply Kubernetes Manifests
+        uses: swdotcom/update-and-apply-kubernetes-configs@v1
+        with:
+          k8-config-file-paths: |
+            .azure/k8s/strapi-envs.yml
+            .azure/k8s/deployment.yml
+            .azure/k8s/service.yml
+            .azure/k8s/ingress.yml
+          replacement-method: defined
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          CHANGE_CAUSE: ${{ github.event.release.tag_name }}
