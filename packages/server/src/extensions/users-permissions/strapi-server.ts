@@ -5,11 +5,15 @@ export default (plugin) => {
   const me = plugin.controllers.user.me;
   const injectOrganization = async (ctx) => {
     //populate organisation and logo (for normal users)
-    ctx.query.populate = {'organization': {'populate':  {
-      'logo': {},
-      'wms_sources': {'fields':['id']},
-      'map_layer_favorites': {'fields':['id']}
-    }}};
+    ctx.query.populate = {
+      organization: {
+        populate: {
+          logo: {},
+          wms_sources: { fields: ['id'] },
+          map_layer_favorites: { fields: ['id'] },
+        },
+      },
+    };
     await me(ctx);
     const { jwt } = strapi.plugins['users-permissions'].services;
     const { operationId } = await jwt.getToken(ctx);
@@ -21,10 +25,10 @@ export default (plugin) => {
             id: { $eq: operationId },
           },
         },
-        populate:  {
-          'logo': {},
-          'wms_sources': {'fields':['id']},
-          'map_layer_favorites': {'fields':['id']}
+        populate: {
+          logo: {},
+          wms_sources: { fields: ['id'] },
+          map_layer_favorites: { fields: ['id'] },
         },
         limit: 1,
       })) as Organization[];
@@ -41,9 +45,7 @@ export default (plugin) => {
   const fetchAuthenticatedUserWithOrganization = (id) => {
     //this is used for load user into ctx.state.user (https://github.com/strapi/strapi/blob/main/packages/plugins/users-permissions/server/strategies/users-permissions.js#L24)
     //changed: also populate organisation
-    return strapi
-      .query('plugin::users-permissions.user')
-      .findOne({ where: { id }, populate: ['role', 'organization'] });
+    return strapi.query('plugin::users-permissions.user').findOne({ where: { id }, populate: ['role', 'organization'] });
   };
 
   //plugin.services.user is anonymous function not an object
@@ -51,7 +53,7 @@ export default (plugin) => {
   plugin.services.user = (initParamObj) => {
     const userService = userServiceFunc(initParamObj);
     userService.fetchAuthenticatedUser = fetchAuthenticatedUserWithOrganization;
-    return userService
+    return userService;
   };
 
   return plugin;

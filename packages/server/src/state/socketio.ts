@@ -56,7 +56,7 @@ const socketConnection = async ({ strapi }, socket: Socket) => {
       return;
     }
     const sanitizedUser = sanitizeUser(user);
-    operationCache.connections.push({ user:sanitizedUser, socket, identifier, label });
+    operationCache.connections.push({ user: sanitizedUser, socket, identifier, label });
     strapi.log.info(`Socket Connected: ${socket.id}, ${user.email}, OperationId: ${operationId}`);
     await broadcastConnections(operationCache);
     socket.on('disconnect', () => socketDisconnect(operationCache, socket));

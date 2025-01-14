@@ -4,7 +4,7 @@ import { Access } from '../definitions';
 export const deleteExpiredAccessTokens = async (strapi: Strapi) => {
   try {
     const expiredAccesses = (await strapi.entityService.findMany('api::access.access', {
-      filters: { expiresOn: {$lt:Date.now()} },
+      filters: { expiresOn: { $lt: Date.now() } },
       limit: -1,
     })) as Access[];
     for (const expiredAccess of expiredAccesses) {

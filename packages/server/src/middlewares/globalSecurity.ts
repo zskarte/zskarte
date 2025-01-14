@@ -6,9 +6,9 @@ import { Strapi } from '@strapi/strapi';
 import { Context } from 'koa';
 
 export default (config, { strapi }: { strapi: Strapi }) => {
-  return async (ctx:Context, next) => {
+  return async (ctx: Context, next) => {
     //handle only api endpoints
-    if (!ctx.request.url.startsWith('/api')){
+    if (!ctx.request.url.startsWith('/api')) {
       return next();
     }
     const before = JSON.stringify(ctx.query);
@@ -17,20 +17,20 @@ export default (config, { strapi }: { strapi: Strapi }) => {
     //also remove any "population" (for same reasons) => add separate endpoint for the use cases where needed
     delete ctx.query.population;
     const after = JSON.stringify(ctx.query);
-    if (before !== after){
+    if (before !== after) {
       strapi.log.info(`[global::globalSecurity]: query adjusted, was:${before}`);
     }
 
     const result = await next();
 
     //verify the accessControl middleware is executed
-    if (!ctx.state.accessControlExecuted){
+    if (!ctx.state.accessControlExecuted) {
       //the accessControl middleware is not executed
-      if (ctx.request.url.startsWith('/api/auth')){
+      if (ctx.request.url.startsWith('/api/auth')) {
         //do not block default auth endpoints
         return result;
       }
-      if (ctx.request.url.startsWith('/api/users/me')){
+      if (ctx.request.url.startsWith('/api/users/me')) {
         //do not block users/me endpoint
         return result;
       }

@@ -1,7 +1,15 @@
 import { Dexie, Table } from 'dexie';
 import { Patch } from 'immer';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
-import { ZsMapStateSource, MapLayer, IZsMapOrganizationMapLayerSettings, IZsMapSession, IZsMapDisplayState, IZsMapOperation, WmsSource } from '@zskarte/types';
+import {
+  ZsMapStateSource,
+  MapLayer,
+  IZsMapOrganizationMapLayerSettings,
+  IZsMapSession,
+  IZsMapDisplayState,
+  IZsMapOperation,
+  WmsSource,
+} from '@zskarte/types';
 
 export type LocalBlobState = 'loading' | 'downloaded' | 'missing';
 

@@ -66,6 +66,7 @@ docker compose down
 ```
 
 ### Environment Variables
+
 An .env file has to be located inside the root folder for the application to start. There is an example .env file in the repo called ".env.example". For local development only, you can use the example file (rename it to ".env").
 
 ### PGAdmin
@@ -102,101 +103,113 @@ docker exec -it pgadmin sh
 # Dump Actual connections into servers.json file to
 /venv/bin/python setup.py dump-servers --user info@zskarte.ch servers.json
 ```
+
 ##### Troubleshooting
+
 Your should have created empty file servers.json before starting the container (with docker compose) or docker would create an folder, that does not fit the needs.
 If this happen use
+
 ```bash
 /venv/bin/python setup.py dump-servers --user info@zskarte.ch servers.json/file
 ```
+
 to save the configuration instead.
 Than stop the compose, move the file out of the folder, delete the folder and rename file to server.json.
 Now remove the old pgadmin-zskarte (`docker rm pgadmin-zskarte`) and start the compose again.
 
 #### Seed data & set up authorization
+
 The application needs some data in order to work propperly. Curently, there is no seeding mechanism for an example organization. Follow those steps to create one:
+
 1. Open the [strapi admin](http://localhost:1337/admin) (call `yarn start` if not yet started)
 2. Create an organization
-    - Content Manager -> Organisation -> Create new entry
+   - Content Manager -> Organisation -> Create new entry
 3. Create an user for the organization
-    - Content Manager -> User -> Create new entry
-      - Add role "Authenticated"
-      - Add organization (the one created in step 2)
+   - Content Manager -> User -> Create new entry
+     - Add role "Authenticated"
+     - Add organization (the one created in step 2)
 4. Set permissions for "Authenticated" role
-    - Settings -> User & Permissions Plugin -> Roles -> Authenticated
-      - Give "find" and "findOne" rights on Organization
-      - Give all rights (except "delete" and "update") on Operation
-      - Give "find" and "findOne" rights on Map-snapshot
-      - Give "me" right on Users-permission -> USER
+   - Settings -> User & Permissions Plugin -> Roles -> Authenticated
+     - Give "find" and "findOne" rights on Organization
+     - Give all rights (except "delete" and "update") on Operation
+     - Give "find" and "findOne" rights on Map-snapshot
+     - Give "me" right on Users-permission -> USER
 5. Set permissions for "Public" role (to make login page work)
-    - Settings -> User & Permissions Plugin -> Roles -> Public
-      - Give "forLogin" right on Organization
-      - Give "find" right on Users-permission -> USER
+   - Settings -> User & Permissions Plugin -> Roles -> Public
+     - Give "forLogin" right on Organization
+     - Give "find" right on Users-permission -> USER
 
 ##### Enable guest login
+
 To activate this function you need to add a special organisation with specific user & password:
+
 1. Create an organization
-    - Content Manager -> Organisation -> Create new entry
-      - Name the Organisation "ZSO Gast (1h)"
+   - Content Manager -> Organisation -> Create new entry
+     - Name the Organisation "ZSO Gast (1h)"
 2. Create an user for the organization
-    - Content Manager -> User -> Create new entry
-      - Name the user "zso_guest"
-      - Use password "zsogast"
-      - Add role "Authenticated"
-      - Add organization "ZSO Gast (1h)"
+   - Content Manager -> User -> Create new entry
+     - Name the user "zso_guest"
+     - Use password "zsogast"
+     - Add role "Authenticated"
+     - Add organization "ZSO Gast (1h)"
 
 ##### Enable share links
+
 To activate this function you need to update rights, add a special users and authenticate roles:
+
 1. Set permissions for "Authenticated" role
-    - Settings -> User & Permissions Plugin -> Roles -> Authenticated
-      - Give all rights on Access
+   - Settings -> User & Permissions Plugin -> Roles -> Authenticated
+     - Give all rights on Access
 2. Set permissions for "Public" role (to make login page work)
-    - Settings -> User & Permissions Plugin -> Roles -> Public
-      - Give "token" rights on Access
+   - Settings -> User & Permissions Plugin -> Roles -> Public
+     - Give "token" rights on Access
 3. Create roles for share modes (read/write)
-    - Settings -> User & Permissions Plugin -> Roles -> Create new entry
-      - Name the role "ShareRead"
-      - Use "Read role for share links" as description
-      - Give "currentLocation", "findOne", "overview" right on Operation
-      - Give "find" and "findOne" rights on Map-snapshot
-      - Give "me" right on Users-permission -> USER
-    - Settings -> User & Permissions Plugin -> Roles -> Create new entry
-      - Name the role "ShareWrite"
-      - Use "Write role for share links" as description
-      - Give "currentLocation", "findOne", "overview", "patch", "updateMeta" right on Operation
-      - Give "find" and "findOne" rights on Map-snapshot
-      - Give "me" right on Users-permission -> USER
+   - Settings -> User & Permissions Plugin -> Roles -> Create new entry
+     - Name the role "ShareRead"
+     - Use "Read role for share links" as description
+     - Give "currentLocation", "findOne", "overview" right on Operation
+     - Give "find" and "findOne" rights on Map-snapshot
+     - Give "me" right on Users-permission -> USER
+   - Settings -> User & Permissions Plugin -> Roles -> Create new entry
+     - Name the role "ShareWrite"
+     - Use "Write role for share links" as description
+     - Give "currentLocation", "findOne", "overview", "patch", "updateMeta" right on Operation
+     - Give "find" and "findOne" rights on Map-snapshot
+     - Give "me" right on Users-permission -> USER
 4. Create an user for the Share roles
-    - Content Manager -> User -> Create new entry
-      - Name the user "operation_read"
-      - Use a secure password
-      - Add role "ShareRead"
-      - Add NO organization
-    - Content Manager -> User -> Create new entry
-      - Name the user "operation_write"
-      - Use a secure password
-      - Add role "ShareWrite"
-      - Add NO organization
+   - Content Manager -> User -> Create new entry
+     - Name the user "operation_read"
+     - Use a secure password
+     - Add role "ShareRead"
+     - Add NO organization
+   - Content Manager -> User -> Create new entry
+     - Name the user "operation_write"
+     - Use a secure password
+     - Add role "ShareWrite"
+     - Add NO organization
 
 ##### Enable Wms-Source and Map-Layer persistency
+
 To activate this function you need to update rights:
+
 1. Set permissions for "Authenticated" role
-    - Settings -> User & Permissions Plugin -> Roles -> Authenticated
-      - Give all rights on Map-layer
-      - Give "updateLayerSettings" rights on Organization
-      - Give all rights on Wms-source
+   - Settings -> User & Permissions Plugin -> Roles -> Authenticated
+     - Give all rights on Map-layer
+     - Give "updateLayerSettings" rights on Organization
+     - Give all rights on Wms-source
 2. Set permissions for "Public" role (to access on local/offline mode)
-    - Settings -> User & Permissions Plugin -> Roles -> Public
-      - Give "find" and "findOne" rights on Map-layer
-      - Give "find" and "findOne" rights on Wms-source
-2. Set permissions for "ShareRead" role (to access on local/offline mode)
-    - Settings -> User & Permissions Plugin -> Roles -> ShareRead
-      - Give "find" and "findOne" rights on Map-layer
-      - Give "find" and "findOne" rights on Wms-source
-2. Set permissions for "ShareWrite" role (to access on local/offline mode)
-    - Settings -> User & Permissions Plugin -> Roles -> ShareWrite
-      - Give all rights (except "delete") on Map-layer
-      - Give "updateMapLayers" right on Operation
-      - Give all rights (except "delete") on Wms-source
+   - Settings -> User & Permissions Plugin -> Roles -> Public
+     - Give "find" and "findOne" rights on Map-layer
+     - Give "find" and "findOne" rights on Wms-source
+3. Set permissions for "ShareRead" role (to access on local/offline mode)
+   - Settings -> User & Permissions Plugin -> Roles -> ShareRead
+     - Give "find" and "findOne" rights on Map-layer
+     - Give "find" and "findOne" rights on Wms-source
+4. Set permissions for "ShareWrite" role (to access on local/offline mode)
+   - Settings -> User & Permissions Plugin -> Roles -> ShareWrite
+     - Give all rights (except "delete") on Map-layer
+     - Give "updateMapLayers" right on Operation
+     - Give all rights (except "delete") on Wms-source
 
 ## Azure
 

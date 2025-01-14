@@ -28,7 +28,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const { identifier, operationid } = ctx.request.headers;
     if (!identifier || !operationid) {
       ctx.status = 400;
-      return { message: 'Missing headers: identifier or operationId' }
+      return { message: 'Missing headers: identifier or operationId' };
     }
     const patches: PatchExtended[] = ctx.request.body;
     await updateMapState(operationid, identifier, patches);
@@ -39,20 +39,20 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const { identifier, operationid } = ctx.request.headers;
     if (!identifier || !operationid) {
       ctx.status = 400;
-      return { message: 'Missing headers: identifier or operationId' }
+      return { message: 'Missing headers: identifier or operationId' };
     }
     const { long, lat } = ctx.request.body;
-    if (!_.isEmpty(ctx.request.body) && (typeof(long) !== 'number' || typeof(long) !== 'number')){
+    if (!_.isEmpty(ctx.request.body) && (typeof long !== 'number' || typeof long !== 'number')) {
       //if value submitted but not number, prevent save / populate to other user
       ctx.status = 400;
-      return { message: 'invalid coordinates' }
+      return { message: 'invalid coordinates' };
     }
     await updateCurrentLocation(operationid, identifier, { long, lat });
     ctx.status = 200;
     return { success: true };
   },
   async overview(ctx) {
-    ctx.query.fields = ['name','description','status','eventStates'];
+    ctx.query.fields = ['name', 'description', 'status', 'eventStates'];
     return await this.find(ctx, undefined);
   },
   async archive(ctx) {
@@ -72,14 +72,14 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const data = ctx.request.body?.data;
     if (!_.isObject(data)) {
       ctx.status = 400;
-      return { message: 'Missing "data" payload in the request body' }
+      return { message: 'Missing "data" payload in the request body' };
     }
 
     const sanitizedInputData = await this.sanitizeInput(data, ctx);
     //filter out not allowed fields for meta call
     const filteredInputData = {};
     Object.keys(sanitizedInputData).forEach((field) => {
-      if (allowedMetaFields.includes(field)){
+      if (allowedMetaFields.includes(field)) {
         filteredInputData[field] = sanitizedInputData[field];
       }
     });
@@ -98,11 +98,11 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const data = ctx.request.body?.data;
     if (!_.isObject(data)) {
       ctx.status = 400;
-      return { message: 'Missing "data" payload in the request body' }
+      return { message: 'Missing "data" payload in the request body' };
     }
 
     await strapi.service('api::operation.operation').update(id, {
-      data: {mapLayers: data},
+      data: { mapLayers: data },
     });
     ctx.status = 200;
     return { success: true };

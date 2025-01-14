@@ -1,7 +1,6 @@
 import { MapLayer } from "../map-layer/interfaces";
 import { IZsMapState, ZsMapStateSource } from "../state/interfaces";
 
-
 export interface IZSMapOperationMapLayers {
   baseLayer: ZsMapStateSource;
   layerConfigs: MapLayer[];
@@ -13,7 +12,7 @@ export interface IZsMapOperation {
   description: string;
   mapState: IZsMapState;
   eventStates: number[];
-  status: 'active' | 'archived';
+  status: "active" | "archived";
   mapLayers?: IZSMapOperationMapLayers;
 }
 

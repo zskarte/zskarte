@@ -31,7 +31,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { ZsMapStateSource, MapLayer, WmsSource, IZsMapOrganizationMapLayerSettings, WMSMapLayer, GeoJSONMapLayer, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
+import {
+  ZsMapStateSource,
+  MapLayer,
+  WmsSource,
+  IZsMapOrganizationMapLayerSettings,
+  WMSMapLayer,
+  GeoJSONMapLayer,
+  zsMapStateSourceToDownloadUrl,
+} from '@zskarte/types';
 
 @Component({
   selector: 'app-sidebar',

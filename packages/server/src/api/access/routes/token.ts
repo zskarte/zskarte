@@ -9,8 +9,8 @@ export default {
       handler: 'access.token',
       config: {
         //no real accessControl needed as no query parameter used inside => AccessControlType.NO_CHECK
-        middlewares: [CreateAccessControlMiddlewareConfig({type:'api::access.access', check: AccessControlTypes.NO_CHECK})]
-      }
+        middlewares: [CreateAccessControlMiddlewareConfig({ type: 'api::access.access', check: AccessControlTypes.NO_CHECK })],
+      },
     },
     {
       method: 'POST',
@@ -18,8 +18,8 @@ export default {
       handler: 'access.generate',
       config: {
         //no accessControl handling needed as it's verified inside controller directly => AccessControlType.NO_CHECK
-        middlewares: [CreateAccessControlMiddlewareConfig({type:'api::access.access', check: AccessControlTypes.NO_CHECK})]
-      }
+        middlewares: [CreateAccessControlMiddlewareConfig({ type: 'api::access.access', check: AccessControlTypes.NO_CHECK })],
+      },
     },
   ],
 };

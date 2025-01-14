@@ -14,12 +14,12 @@ export default factories.createCoreController('api::organization.organization', 
       fields: ['name'],
       populate: {
         users: {
-          fields: ['username','email'],
+          fields: ['username', 'email'],
         },
-        logo: {}
+        logo: {},
       },
-      pagination: {limit: -1},
-      sort: ['name']
+      pagination: { limit: -1 },
+      sort: ['name'],
     });
 
     const sanitizedResults = await this.sanitizeOutput(results, ctx);
@@ -32,22 +32,22 @@ export default factories.createCoreController('api::organization.organization', 
     const data = ctx.request.body?.data;
     if (!_.isObject(data)) {
       ctx.status = 400;
-      return { message: 'Missing "data" payload in the request body' }
+      return { message: 'Missing "data" payload in the request body' };
     }
 
-    const sanitizedInputData = await this.sanitizeInput(data, ctx) as object;
+    const sanitizedInputData = (await this.sanitizeInput(data, ctx)) as object;
     //only allow to insert id's, on read/return of the data only id's are returned
     //perhaps check for valid(own/public) id's here anyway?
-    const filteredInputData:{wms_sources?: number[], map_layer_favorites?: number[]} = {};
+    const filteredInputData: { wms_sources?: number[]; map_layer_favorites?: number[] } = {};
     if ('wms_sources' in sanitizedInputData) {
       const wms_sources = sanitizedInputData.wms_sources;
-      if (wms_sources && Array.isArray(wms_sources)){
+      if (wms_sources && Array.isArray(wms_sources)) {
         filteredInputData.wms_sources = wms_sources.filter((s) => Number.isFinite(s));
       }
     }
     if ('map_layer_favorites' in sanitizedInputData) {
       const map_layer_favorites = sanitizedInputData.map_layer_favorites;
-      if (map_layer_favorites && Array.isArray(map_layer_favorites)){
+      if (map_layer_favorites && Array.isArray(map_layer_favorites)) {
         filteredInputData.map_layer_favorites = map_layer_favorites.filter((s) => Number.isFinite(s));
       }
     }

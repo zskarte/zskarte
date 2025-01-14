@@ -7,7 +7,17 @@ import { getPropertyDifferences } from '../helper/diff';
 import TileGrid, { Options as TileGridOptions } from 'ol/tilegrid/TileGrid';
 import { LocalMapLayer, LocalMapLayerMeta, db } from '../db/db';
 import { BlobService } from '../db/blob.service';
-import { MapLayerSourceApi, WmsSource, MapSource, MapLayerApi, MapLayer, MapLayerAllFields, MapLayerOptionsApi, GeoJSONMapLayer, IZsMapOrganizationMapLayerSettings } from '@zskarte/types';
+import {
+  MapLayerSourceApi,
+  WmsSource,
+  MapSource,
+  MapLayerApi,
+  MapLayer,
+  MapLayerAllFields,
+  MapLayerOptionsApi,
+  GeoJSONMapLayer,
+  IZsMapOrganizationMapLayerSettings,
+} from '@zskarte/types';
 
 @Injectable({
   providedIn: 'root',

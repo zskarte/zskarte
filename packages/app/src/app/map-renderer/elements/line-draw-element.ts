@@ -1,10 +1,5 @@
 import { Feature } from 'ol';
-import {
-  IZsMapBaseDrawElementState,
-  ZsMapDrawElementStateType,
-  ZsMapElementToDraw,
-  ZsMapTextDrawElementState,
-} from '@zskarte/types';
+import { IZsMapBaseDrawElementState, ZsMapDrawElementStateType, ZsMapElementToDraw, ZsMapTextDrawElementState } from '@zskarte/types';
 import { ZsMapStateService } from '../../state/state.service';
 import { ZsMapBaseDrawElement } from './base/base-draw-element';
 import { LineString } from 'ol/geom';

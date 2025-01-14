@@ -10,9 +10,12 @@
     <div>
       <div>{{ i18n.get('selectFormat') }}:</div>
       @for (projection of availableProjections; track projection; let i = $index) {
-        <mat-checkbox [checked]="projectionFormatIndexes().includes(i)" (change)="updateFormats(i, $event.checked)" [disabled]="disabled()">{{
-          projection.name
-        }}</mat-checkbox>
+        <mat-checkbox
+          [checked]="projectionFormatIndexes().includes(i)"
+          (change)="updateFormats(i, $event.checked)"
+          [disabled]="disabled()"
+          >{{ projection.name }}</mat-checkbox
+        >
       }
     </div>
   }

@@ -11,7 +11,7 @@ import { Strapi } from '@strapi/strapi';
 import { AccessTokenTypes } from '../../../definitions/constants/AccessTokenType';
 const { sanitize } = utils;
 
-const MINUTES_15 = 1000*60*15;
+const MINUTES_15 = 1000 * 60 * 15;
 const sanitizeUser = (user, ctx) => {
   const { auth } = ctx.state;
   const userSchema = strapi.getModel('plugin::users-permissions.user');
@@ -77,9 +77,8 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
     });
   },
   async generate(ctx) {
-    const { id:organizationId } = ctx.state?.user?.organization || {};
-    if (!organizationId)
-      return ctx.forbidden('This action is forbidden, invalid context.');
+    const { id: organizationId } = ctx.state?.user?.organization || {};
+    if (!organizationId) return ctx.forbidden('This action is forbidden, invalid context.');
     const { name, type, operationId, tokenType } = ctx.request.body;
 
     if (!type) return ctx.badRequest('You must define the "type" property');
@@ -100,11 +99,10 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
       return ctx.badRequest('The operation you provided does not exist or the operation does not match your account organization!');
     const operation = _.first(operations);
 
-    const accessToken = tokenType === AccessTokenTypes.LONG ?
-     crypto.randomBytes(16).toString('hex') :
-     crypto.randomInt(999999).toString().padStart(6, '0');
+    const accessToken =
+      tokenType === AccessTokenTypes.LONG ? crypto.randomBytes(16).toString('hex') : crypto.randomInt(999999).toString().padStart(6, '0');
 
-    const expiresOn = tokenType === AccessTokenTypes.LONG ? null : (new Date(Date.now()+MINUTES_15));
+    const expiresOn = tokenType === AccessTokenTypes.LONG ? null : new Date(Date.now() + MINUTES_15);
 
     await strapi.entityService.create('api::access.access', {
       data: {
@@ -113,8 +111,8 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
         type,
         accessToken,
         operation,
-        expiresOn
-       },
+        expiresOn,
+      },
     });
 
     ctx.send({ accessToken });

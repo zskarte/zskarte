@@ -27,7 +27,18 @@ import { WmsService } from '../map-layer/wms/wms.service';
 import { MapLayerService } from '../map-layer/map-layer.service';
 import { OperationService } from './operations/operation.service';
 import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
-import { IZsMapSession, IZsMapDisplayState, IZsMapOrganizationMapLayerSettings, IZsMapOperation, IAuthResult, IZsMapOrganization, DEFAULT_LOCALE, PermissionType, Locale, AccessTokenType } from '@zskarte/types';
+import {
+  IZsMapSession,
+  IZsMapDisplayState,
+  IZsMapOrganizationMapLayerSettings,
+  IZsMapOperation,
+  IAuthResult,
+  IZsMapOrganization,
+  DEFAULT_LOCALE,
+  PermissionType,
+  Locale,
+  AccessTokenType,
+} from '@zskarte/types';
 
 @Injectable({
   providedIn: 'root',

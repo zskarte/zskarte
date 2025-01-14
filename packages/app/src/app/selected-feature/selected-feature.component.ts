@@ -27,7 +27,14 @@ import { StackComponent } from '../stack/stack.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Sign, ZsMapDrawElementState, getColorForCategory, ZsMapDrawElementStateType, FillStyle, signatureDefaultValues } from '@zskarte/types';
+import {
+  Sign,
+  ZsMapDrawElementState,
+  getColorForCategory,
+  ZsMapDrawElementStateType,
+  FillStyle,
+  signatureDefaultValues,
+} from '@zskarte/types';
 
 @Component({
   selector: 'app-selected-feature',
