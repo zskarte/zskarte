@@ -9,7 +9,11 @@
     "start:server": "cd packages/server && npm start",
     "lint": "run-s lint:*",
     "lint:app": "cd packages/app && npm run lint",
+    "lint:server": "cd packages/server && npm run lint",
     "build": "run-s build:*",
+    "build:app:dev": "cd packages/app && npm run ng:build:dev",
+    "build:app:prod": "cd packages/app && npm run ng:build:prod",
+    "build:server": "cd packages/server && npm run build",
     "build:types": "cd packages/types && npm run build"
   },
   "devDependencies": {

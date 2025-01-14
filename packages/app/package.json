@@ -18,7 +18,7 @@
     "build": "run-p ng:build:prod electron:build",
     "start": "run-p ng:serve:dev electron:serve",
     "start:local": "run-p ng:serve:local electron:serve",
-    "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
+    "lint": "eslint \"./**/*.ts\" --max-warnings=0",
     "prettify": "prettier --write \"**/*.{js,ts,html,css,json,md}\"",
     "test:e2e": "playwright test"
   },
