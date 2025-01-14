@@ -17,9 +17,9 @@
     "prettify": "prettier --write \"**/*.{js,ts,html,css,json,md}\""
   },
   "dependencies": {
-    "@strapi/plugin-i18n": "^4.17.0",
-    "@strapi/plugin-users-permissions": "^4.17.0",
-    "@strapi/strapi": "^4.17.0",
+    "@strapi/plugin-i18n": "^4.25.13",
+    "@strapi/plugin-users-permissions": "^4.25.13",
+    "@strapi/strapi": "^4.25.13",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "pg": "^8.13.0",

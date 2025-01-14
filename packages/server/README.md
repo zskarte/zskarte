@@ -7,7 +7,7 @@ Strapi comes with a full featured [Command Line Interface](https://docs.strapi.i
 Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-develop)
 
 ```
-yarn dev
+npm run dev
 ```
 
 ### `start`
@@ -15,7 +15,7 @@ yarn dev
 Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start)
 
 ```
-yarn start
+npm run start
 ```
 
 ### `build`
@@ -23,7 +23,34 @@ yarn start
 Build your admin panel. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-build)
 
 ```
-yarn build
+npm run build
+```
+
+### Quick Start Guide
+
+```bash
+# Install packages
+npm install
+
+# Start the postgresql and pgadmin services
+cd packages/server
+docker-compose up -d
+
+# Restore postgresql dump with pgadmin
+# Open pgadmin on http://localhost:7050
+# Login with credentials: User -> info@zskarte.ch, Password -> zskarte
+
+# Copy .env example file and rename it to .env you can keep the values as they are
+cp .env.example .env
+
+# Start the Strapi application
+npm run build # Sometimes needed to build the admin panel initially
+npm run dev
+
+# Open the Strapi admin panel
+# http://localhost:1337/admin
+# Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
+
 ```
 
 ## Supporting Tools for Development
@@ -37,8 +64,6 @@ Different containerized services to use in the development process like postgres
 mkdir -p data/postgresql
 # Add the UID 1001 (non-root user of postgresql) as the folder owner
 chown -R 1001:1001 data/postgresql
-# prepare the database connections persist file
-touch servers.json
 ```
 
 ### Docker-Compose
@@ -121,12 +146,12 @@ Now remove the old pgadmin-zskarte (`docker rm pgadmin-zskarte`) and start the c
 
 The application needs some data in order to work propperly. Curently, there is no seeding mechanism for an example organization. Follow those steps to create one:
 
-1. Open the [strapi admin](http://localhost:1337/admin) (call `yarn start` if not yet started)
+1. Open the [strapi admin](http://localhost:1337/admin) (call `npm run start` if not yet started)
 2. Create an organization
    - Content Manager -> Organisation -> Create new entry
 3. Create an user for the organization
    - Content Manager -> User -> Create new entry
-     - Add role "Authenticated"
+     - Add role "Organization"
      - Add organization (the one created in step 2)
 4. Set permissions for "Authenticated" role
    - Settings -> User & Permissions Plugin -> Roles -> Authenticated
@@ -197,15 +222,20 @@ To activate this function you need to update rights:
      - Give all rights on Map-layer
      - Give "updateLayerSettings" rights on Organization
      - Give all rights on Wms-source
-2. Set permissions for "Public" role (to access on local/offline mode)
+2. Set permissions for "Organization" role
+   - Settings -> User & Permissions Plugin -> Roles -> Organization
+     - Give all rights on Map-layer
+     - Give "updateLayerSettings" rights on Organization
+     - Give all rights on Wms-source
+3. Set permissions for "Public" role (to access on local/offline mode)
    - Settings -> User & Permissions Plugin -> Roles -> Public
      - Give "find" and "findOne" rights on Map-layer
      - Give "find" and "findOne" rights on Wms-source
-3. Set permissions for "ShareRead" role (to access on local/offline mode)
+4. Set permissions for "ShareRead" role (to access on local/offline mode)
    - Settings -> User & Permissions Plugin -> Roles -> ShareRead
      - Give "find" and "findOne" rights on Map-layer
      - Give "find" and "findOne" rights on Wms-source
-4. Set permissions for "ShareWrite" role (to access on local/offline mode)
+5. Set permissions for "ShareWrite" role (to access on local/offline mode)
    - Settings -> User & Permissions Plugin -> Roles -> ShareWrite
      - Give all rights (except "delete") on Map-layer
      - Give "updateMapLayers" right on Operation

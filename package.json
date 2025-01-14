@@ -1,20 +1,21 @@
 {
-    "name": "@zskarte/workspace",
-    "workspaces": [
-        "./packages/*"
-    ],
-    "scripts": {
-        "start": "run-s start:*",
-        "start:app": "cd packages/app && npm start",
-        "lint": "run-s lint:*",
-        "lint:app": "cd packages/app && npm run lint",
-        "build": "run-s build:*",
-        "build:types": "cd packages/types && npm run build"
-    },
-    "devDependencies": {
-        "npm-run-all": "^4.1.5"
-    },
-    "dependencies": {
-        "ol": "^10.3.1"
-    }
+  "name": "@zskarte/workspace",
+  "workspaces": [
+    "./packages/*"
+  ],
+  "scripts": {
+    "start": "run-s start:*",
+    "start:app": "cd packages/app && npm start",
+    "start:server": "cd packages/server && npm start",
+    "lint": "run-s lint:*",
+    "lint:app": "cd packages/app && npm run lint",
+    "build": "run-s build:*",
+    "build:types": "cd packages/types && npm run build"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  },
+  "dependencies": {
+    "ol": "^10.3.1"
+  }
 }

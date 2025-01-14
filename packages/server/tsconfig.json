@@ -3,7 +3,8 @@
   "compilerOptions": {
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "esModuleInterop": true
   },
   "include": ["./", "src/**/*.json"],
   "exclude": ["node_modules/", "build/", "dist/", ".cache/", ".tmp/", "src/admin/", "**/*.test.ts", "src/plugins/**"]
