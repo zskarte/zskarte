@@ -6,12 +6,13 @@ import { ZsMapBaseLayer } from '../map-renderer/layers/base-layer';
 import { ZsMapDrawElementStateType } from '../state/interfaces';
 import { MatIconModule } from '@angular/material/icon';
 import { SelectSignDialog } from '../select-sign-dialog/select-sign-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-draw-dialog',
   templateUrl: './draw-dialog.component.html',
   styleUrl: './draw-dialog.component.scss',
-  imports: [MatIconModule, SelectSignDialog],
+  imports: [MatIconModule, SelectSignDialog, MatButtonModule],
 })
 export class DrawDialogComponent {
   dialogRef = inject<MatDialogRef<DrawDialogComponent>>(MatDialogRef);
