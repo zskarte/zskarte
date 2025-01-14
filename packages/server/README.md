@@ -39,6 +39,9 @@ docker-compose up -d
 # Restore postgresql dump with pgadmin
 # Open pgadmin on http://localhost:7050
 # Login with credentials: User -> info@zskarte.ch, Password -> zskarte
+# Add Server: (Check in README) PGAdmin -> Create a database 
+# Use the dump file in packages/server/database -> *_DEFAULT.bak.tar
+# Right click on Databases -> zskarte -> Restore -> Select the dump file -> Restore
 
 # Copy .env example file and rename it to .env you can keep the values as they are
 cp .env.example .env
@@ -104,7 +107,7 @@ A postgresql database management tool
 
 #### Create a database
 
-1. Open [pgadmin](http://localhost:10050/)
+1. Open [pgadmin](http://localhost:7050/)
 2. Login
    - Email: info@zskarte.ch
    - Password: zskarte
