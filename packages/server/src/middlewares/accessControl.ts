@@ -217,7 +217,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       } else {
         const entry = (await strapi.entityService.findOne(contentType, entryId, {
           fields: ['id'],
-          populate: { operation: { fields: ['id'], populate: { organization: { fields: ['id'] } } } },
+          populate: { operation: { fields: ['id', 'status'], populate: { organization: { fields: ['id'] } } } },
         })) as { id: number; operation: Operation };
         return entry;
       }
@@ -231,6 +231,12 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
           fields: ['id', 'public'],
           populate: { organization: { fields: ['id'] } },
         })) as { id: number; public: boolean; organization: Organization };
+        return entry;
+      } else if (isOperation(contentType)) {
+        const entry = (await strapi.entityService.findOne(contentType, entryId, {
+          fields: ['id', 'status'],
+          populate: { organization: { fields: ['id'] } },
+        })) as { id: number; status: string; organization: Organization };
         return entry;
       } else {
         const entry = (await strapi.entityService.findOne(contentType, entryId, {
@@ -283,17 +289,20 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     }
     const paramId = getIdIfValid(ctx.params?.id);
     const headerOperationId = getIdIfValid(ctx.request.headers?.operationid);
-    const entryId = isOperation(config.type) ? paramId ?? headerOperationId : paramId;
+    const entryId = isOperation(config.type) ? (paramId ?? headerOperationId) : paramId;
     if (!entryId) {
       return ctx.forbidden('This action is forbidden.');
     }
     const { entry, operation, organization } = await getEntry(config.type, entryId);
 
     //prevent update archived operations
-    if (isOperation(config.type) && (handler.endsWith('.patch') || handler.endsWith('.update'))) {
-      if (operation?.status === OperationStates.ARCHIVED) {
-        return ctx.forbidden('The operation is archived, no update allowed.');
-      }
+    if (
+      isOperation(config.type) &&
+      operation?.status !== OperationStates.ACTIVE &&
+      !handler.endsWith('.unarchive') &&
+      !handler.endsWith('.findOne')
+    ) {
+      return ctx.forbidden('The operation is archived, no update allowed.');
     }
 
     //check if object access is allowed

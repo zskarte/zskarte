@@ -49,8 +49,15 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
     if (operation.status === OperationStates.ARCHIVED) {
       delete operationCaches[operation.id];
       return;
+    } else if (!(operation.id in operationCaches)) {
+      //maybe an "unarchive" operation
+      const mapState = operation.mapState || {};
+      operationCaches[operation.id] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
+      if (!operation.organization) return;
+      operationCaches[operation.id].users.push(...operation.organization.users);
+    } else {
+      operationCaches[operation.id].operation = operation;
     }
-    operationCaches[operation.id].operation = operation;
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_DELETE) {
     delete operationCaches[operation.id];

@@ -189,10 +189,30 @@ export class I18NService {
       en: 'Export event',
       fr: 'Exporter événement',
     },
-    deleteOperation: {
-      de: 'Ereignis löschen',
-      en: 'Delete event',
-      fr: 'Effacer événement',
+    archiveOperation: {
+      de: 'Ereignis Archivieren',
+      en: 'Archive event',
+      fr: 'Archiver événement',
+    },
+    unarchiveOperation: {
+      de: 'Ereignis wiederherstellen',
+      en: 'Unarchive event',
+      fr: 'Désarchiver événement',
+    },
+    lastModified: {
+      de: 'Zuletzt geändert:',
+      en: 'Last modified:',
+      fr: 'Dernière modification:',
+    },
+    showArchivedScenarios: {
+      de: 'Archivierte Ereignise anzeigen',
+      en: 'View archived events',
+      fr: 'Afficher les événements archivés',
+    },
+    showActiveScenarios: {
+      de: 'Aktive Ereignise anzeigen',
+      en: 'Show active events',
+      fr: 'Afficher les événements actifs',
     },
     downloadMapCSV: {
       de: 'Als CSV exportieren',
@@ -363,6 +383,11 @@ export class I18NService {
       de: 'Aktuelle Zeichnung',
       fr: 'Dessin actuel',
       en: 'Current drawing',
+    },
+    viewArchivedOperation: {
+      de: 'Dies ist ein archiviertes Ereignis',
+      fr: 'This is an archived event',
+      en: 'Ceci est un événement archivé',
     },
     history: {
       de: 'History- / Lese-Modus',
@@ -1926,7 +1951,7 @@ export class I18NService {
       fr: 'Utilisez des couches de carte avec une fonctionnalité de recherche hors ligne.',
     },
     howtoFindSearchCapability: {
-      de: 'Kartenebene(n) mit Offline-Suchfunktion zeigen in der Liste der „Verfügbaren Ebenen“ ein Lupensymbol an und gehören zur Ebenenquelle „Freigegebene Ebenen“.',
+      de: 'Kartenebene(n) mit Offline-Suchfunktion zeigen in der Liste der „Verfügbaren Ebenen“ ein Lupensymbol an und gehören zur Ebenen Quelle „Geteilte Ebenen“.',
       en: 'Map layer(s) with offline search capability show a Magnifying glass symbol on the list of "Available layers" and they are of "Shared layers" Layer Source.',
       fr: 'Les couches de carte avec capacité de recherche hors ligne affichent un symbole de loupe sur la liste des "Couches cartographiques disponibles" et elles appartiennent à la source de couche "Couches partagées".',
     },

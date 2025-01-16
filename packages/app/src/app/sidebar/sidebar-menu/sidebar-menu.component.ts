@@ -56,16 +56,22 @@ export class SidebarMenuComponent {
   locales: Locale[] = LOCALES;
   protocolEntries: ProtocolEntry[] = [];
   public incidents = new BehaviorSubject<number[]>([]);
+  public hasWritePermission = false;
+  public isArchived = true;
 
   constructor() {
     this.incidents.next(this.session.getOperationEventStates() || []);
+    this.hasWritePermission = this.session.hasWritePermission();
+    this.isArchived = this.session.isArchived();
   }
 
   async updateIncidents(incidents: number[]): Promise<void> {
     const operation = this.session.getOperation();
     if (operation) {
-      operation.eventStates = incidents;
-      await this._operation.updateMeta(operation);
+      if (operation.eventStates.toString() !== incidents.toString()) {
+        operation.eventStates = incidents;
+        await this._operation.updateMeta(operation);
+      }
     }
   }
 

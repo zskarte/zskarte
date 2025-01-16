@@ -990,7 +990,7 @@ export class ZsMapStateService {
   }
 
   public updateMapState(fn: (draft: IZsMapState) => void, preventPatches = false) {
-    if (!preventPatches && !this._session.hasWritePermission()) {
+    if (!preventPatches && !this._session.hasWritePermission() && this._session.isArchived()) {
       return;
     }
     const newState = produce<IZsMapState>(this._map.value || {}, fn, (patches, inversePatches) => {
@@ -1150,11 +1150,12 @@ export class ZsMapStateService {
   }
 
   observeIsReadOnly(): Observable<boolean> {
-    return merge(this.observeIsHistoryMode(), this._session.observeHasWritePermission()).pipe(
+    return merge(this.observeIsHistoryMode(), this._session.observeHasWritePermission(), this._session.observeIsArchived()).pipe(
       map(() => {
         const isHistoryMode = this.isHistoryMode();
         const hasWritePermission = this._session.hasWritePermission();
-        return !hasWritePermission || isHistoryMode;
+        const isArchived = this._session.isArchived();
+        return !hasWritePermission || isArchived || isHistoryMode;
       }),
     );
   }
