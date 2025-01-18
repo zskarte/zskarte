@@ -88,6 +88,10 @@ export class OperationService {
     }
   }
 
+  public async deleteNoneLocalOperations() {
+    return db.localOperation.where('id').aboveOrEqual(0).delete();
+  }
+
   public static async persistLocalOpertaion(operation: IZsMapOperation) {
     await db.localOperation.put(operation);
   }
@@ -110,12 +114,10 @@ export class OperationService {
     }
     if (!this._session.isWorkLocal()) {
       const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>('/api/operations/overview?status=active');
-      if (!error && savedOperations) {
-        operations = [...operations, ...savedOperations];
+      if (!error && savedOperations != undefined) {
+        operations = [...operations.filter((x) => x.id && x.id < 0), ...savedOperations];
       }
-      if (operations.length > 0) {
-        this.operations.next(operations);
-      }
+      this.operations.next(operations);
     } else {
       this.operations.next(operations);
     }
