@@ -18,9 +18,10 @@ RUN npm run lint:server
 RUN NODE_ENV=production npm run build:server && rm -rf /app/packages/server/src
 
 
-FROM node:20.18.1-alpine AS release
-
-RUN apk update && apk add --no-cache tzdata
+FROM node:20.18.1-slim AS release
+# switzerchees: Optimize for alpine again fix sharp install issue first
+# FROM node:20.18.1-alpine AS release
+# RUN apk update && apk add --no-cache tzdata
 
 WORKDIR /app
 ENV HOST=0.0.0.0
