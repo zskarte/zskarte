@@ -1,60 +1,42 @@
-## 🚀 Getting started with Strapi
+## Quick Start Guide
 
-Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html) (CLI) which lets you scaffold and manage your project in seconds.
-
-### `develop`
-
-Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-develop)
-
-```
-npm run dev
-```
-
-### `start`
-
-Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start)
-
-```
-npm run start
-```
-
-### `build`
-
-Build your admin panel. [Learn more](https://docs.strapi.io/developer-docs/latest/developer-resources/cli/CLI.html#strapi-build)
-
-```
-npm run build
-```
-
-### Quick Start Guide
-
+### 1. Install packages
 ```bash
-# Install packages
 npm install
+```
 
-# Start the postgresql and pgadmin services
+### 2. Start the postgresql and pgadmin services
+```bash
 cd packages/server
 docker-compose up -d
+```
 
-# Restore postgresql dump with pgadmin
-# Open pgadmin on http://localhost:7050
-# Login with credentials: User -> info@zskarte.ch, Password -> zskarte
-# Add Server: (Check in README) PGAdmin -> Create a database 
-# Use the dump file in packages/server/database -> *_DEFAULT.bak.tar
-# Right click on Databases -> zskarte -> Restore -> Select the dump file -> Restore
+### 3. Restore postgresql dump with pgadmin
+  1. Open pgadmin on http://localhost:7050
+  2. Login with credentials: User -> info@zskarte.ch, Password -> zskarte
+  3. Add Server: (Check in README) PGAdmin -> Create a database 
+  4. Use the dump file in packages/server/database -> *_DEFAULT.bak.tar
+  5. Right click on Databases -> zskarte -> Restore -> Select the dump file -> Restore
 
-# Copy .env example file and rename it to .env you can keep the values as they are
+### 4. Copy .env example file and rename it to .env you can keep the values as they are
+```bash
 cp .env.example .env
+```
 
+### 5. Start the Strapi application
+```bash
 # Start the Strapi application
 npm run build # Sometimes needed to build the admin panel initially
 npm run dev
-
-# Open the Strapi admin panel
-# http://localhost:1337/admin
-# Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
-
 ```
+
+### 6. Open the Strapi admin panel
+  1. http://localhost:1337/admin
+  2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
+
+### 7. Check Strapi docs for more information
+  1. https://docs.strapi.io/
+
 
 ## Supporting Tools for Development
 
