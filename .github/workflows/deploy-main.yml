@@ -30,7 +30,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
 
       - name: Get Latest Tag
         id: previoustag
@@ -52,7 +52,7 @@ jobs:
       - name: Set Kubernetes Context
         uses: azure/k8s-set-context@v1
         with:
-          kubeconfig: ${{ secrets.aks_zskarteaks_kubeConfig }}
+          kubeconfig: ${{ secrets.KUBECONFIG }}
 
       - name: Create Namespace if not Present
         run: |

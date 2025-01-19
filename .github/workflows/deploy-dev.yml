@@ -27,14 +27,10 @@ env:
   STORAGE_CONTAINER_NAME: zskarte-dev
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-server:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-
-      # - uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: actions/checkout@v4
 
       - uses: docker/login-action@v2
         name: Login to Docker Hub
@@ -51,7 +47,7 @@ jobs:
       - name: Set Kubernetes Context
         uses: azure/k8s-set-context@v1
         with:
-          kubeconfig: ${{ secrets.aks_zskarteaks_kubeConfig }}
+          kubeconfig: ${{ secrets.KUBECONFIG }}
 
       - name: Create Namespace if not Present
         run: |
@@ -73,3 +69,24 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
           CHANGE_CAUSE: ${{ github.event.release.tag_name }}
+
+  build-and-deploy-app:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DEV }}
+          # repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          action: 'upload'
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: '/' # App source code path
+          api_location: '' # Api source code path - optional
+          app_build_command: 'npm run build:app:dev'
+          output_location: 'packages/app/dist/zskarte-v3/browser' # Built app content directory - optional
+          config_file_location: '/' # Config file path - optional
+          ###### End of Repository/Build Configurations ######

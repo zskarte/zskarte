@@ -3,10 +3,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Strapi v4 Debug",
+      "name": "Strapi Debug",
       "type": "node",
       "request": "launch",
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/packages/server",
       "runtimeExecutable": "node",
       "runtimeArgs": ["--inspect"],
       "skipFiles": ["<node_internals>/**"],

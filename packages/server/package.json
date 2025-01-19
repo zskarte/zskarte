@@ -17,21 +17,21 @@
     "prettify": "prettier --write \"**/*.{js,ts,html,css,json,md}\""
   },
   "dependencies": {
-    "@strapi/plugin-i18n": "^4.17.0",
-    "@strapi/plugin-users-permissions": "^4.17.0",
-    "@strapi/strapi": "^4.17.0",
+    "@strapi/plugin-i18n": "^4.25.13",
+    "@strapi/plugin-users-permissions": "^4.25.13",
+    "@strapi/strapi": "^4.25.13",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "pg": "^8.13.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^5.2.0",
-    "strapi-plugin-io": "^2.0.5",
-    "strapi-provider-upload-azure-storage": "^3.3.0",
+    "strapi-plugin-io": "^2.0.6",
+    "strapi-provider-upload-azure-storage": "^3.4.0",
     "styled-components": "^5.2.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.12",
+    "@types/lodash": "^4.17.14",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "@typescript-eslint/parser": "^8.10.0",
     "eslint": "^9.13.0",
