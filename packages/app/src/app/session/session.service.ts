@@ -523,7 +523,7 @@ export class SessionService {
         return;
       }
     }
-    this._operationService.deleteNoneLocalOperations();
+    OperationService.deleteNoneLocalOperations();
     this._session.next(undefined);
     await this._router.navigateByUrl('/login');
   }
