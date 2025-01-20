@@ -38,11 +38,12 @@ jobs:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image to Docker Hub
-        id: build-image
-        run: |
-          docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t ${{ env.FULL_IMAGE_NAME }} --label dockerfile-path=Dockerfile
-          docker push ${{ env.FULL_IMAGE_NAME }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ env.FULL_IMAGE_NAME }}
 
       - name: Set Kubernetes Context
         uses: azure/k8s-set-context@v4
