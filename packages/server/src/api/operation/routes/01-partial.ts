@@ -22,6 +22,14 @@ export default {
     },
     {
       method: 'PUT',
+      path: '/operations/:id/unarchive',
+      handler: 'operation.unarchive',
+      config: {
+        middlewares: [CreateAccessControlMiddlewareConfig({ type: 'api::operation.operation', check: AccessControlTypes.BY_ID })],
+      },
+    },
+    {
+      method: 'PUT',
       path: '/operations/:id/meta',
       handler: 'operation.updateMeta',
       config: {

@@ -34,9 +34,9 @@ jobs:
 
       - name: Get Latest Tag
         id: previoustag
-        uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+        uses: WyriHaximus/github-action-get-previous-tag@v1
 
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         name: Login to Docker Hub
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
@@ -50,21 +50,15 @@ jobs:
           tags: ${{ env.IMAGE_TAG }}:${{ steps.previoustag.outputs.tag }}
 
       - name: Set Kubernetes Context
-        uses: azure/k8s-set-context@v1
+        uses: azure/k8s-set-context@v4
         with:
           kubeconfig: ${{ secrets.KUBECONFIG }}
 
-      - name: Create Namespace if not Present
-        run: |
-          namespacePresent=`kubectl get namespace | grep ${{ env.KUBERNETES_NAMESPACE }} | wc -l`
-          if [ $namespacePresent -eq 0 ]
-          then
-              echo `kubectl create namespace ${{ env.KUBERNETES_NAMESPACE }}`
-          fi
       - name: Replace and Apply Kubernetes Manifests
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:
           k8-config-file-paths: |
+            .azure/k8s/namespace.yml
             .azure/k8s/strapi-envs.yml
             .azure/k8s/deployment.yml
             .azure/k8s/service.yml
@@ -72,3 +66,23 @@ jobs:
           replacement-method: defined
         env:
           FULL_IMAGE_NAME: ${{ env.IMAGE_TAG }}:${{ steps.previoustag.outputs.tag }}
+
+  build-and-deploy-app:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PROD }}
+          action: 'upload'
+          app_location: '/' # App source code path
+          api_location: '' # Api source code path - optional
+          app_build_command: 'npm run build:types && npm run build:app:prod'
+          output_location: 'packages/app/dist/zskarte-v3/browser' # Built app content directory - optional
+          config_file_location: 'packages/app/' # Config file path - optional
+          ###### End of Repository/Build Configurations ######

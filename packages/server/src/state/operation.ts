@@ -19,7 +19,7 @@ const operationCaches: { [key: number]: OperationCache } = {};
 const loadOperations = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      where: { status: OperationStates.ACTIVE },
+      filters: { status: OperationStates.ACTIVE },
       populate: ['organization'],
       limit: -1,
     })) as Operation[];
@@ -49,8 +49,15 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
     if (operation.status === OperationStates.ARCHIVED) {
       delete operationCaches[operation.id];
       return;
+    } else if (!(operation.id in operationCaches)) {
+      //maybe an "unarchive" operation
+      const mapState = operation.mapState || {};
+      operationCaches[operation.id] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
+      if (!operation.organization) return;
+      operationCaches[operation.id].users.push(...operation.organization.users);
+    } else {
+      operationCaches[operation.id].operation = operation;
     }
-    operationCaches[operation.id].operation = operation;
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_DELETE) {
     delete operationCaches[operation.id];
@@ -134,7 +141,7 @@ const persistMapStates = async (strapi: Strapi) => {
 const archiveOperations = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      where: { status: OperationStates.ACTIVE },
+      filters: { status: OperationStates.ACTIVE },
       limit: -1,
     })) as Operation[];
     for (const operation of activeOperations) {
@@ -175,9 +182,9 @@ const deleteGuestOperations = async (strapi: Strapi) => {
 const createMapStateSnapshots = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      where: { status: OperationStates.ACTIVE },
+      filters: { status: OperationStates.ACTIVE },
       limit: -1,
-    })) as unknown as Operation[];
+    })) as Operation[];
 
     strapi.log.debug(`Found ${activeOperations.length} operation to create snapshots from`);
 

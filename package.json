@@ -7,9 +7,12 @@
     "start": "run-s start:*",
     "start:app": "cd packages/app && npm start",
     "start:server": "cd packages/server && npm start",
-    "lint": "run-s lint:*",
-    "lint:app": "cd packages/app && npm run lint",
-    "lint:server": "cd packages/server && npm run lint",
+    "lint": "run-p lint:*",
+    "lint:app": "biome lint ./packages/app/src",
+    "lint:server": "biome lint ./packages/server/src",
+    "lint:types": "biome lint ./packages/types",
+    "prettify": "run-p prettify:*",
+    "prettify:app": "prettier --write \"./packages/app/src/**/*.{js,ts,html,css,json,md}\"",
     "build": "run-s build:*",
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
     "build:app:prod": "cd packages/app && npm run ng:build:prod",
@@ -17,9 +20,11 @@
     "build:types": "cd packages/types && npm run build"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "npm-run-all": "^4.1.5"
   },
   "dependencies": {
-    "ol": "^10.3.1"
+    "ol": "^10.3.1",
+    "prettier": "^3.4.2"
   }
 }

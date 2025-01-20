@@ -101,3 +101,14 @@ node_modules
 
 testApp
 coverage
+
+############################
+# Tests
+############################
+
+**/.strapi
+**/.angular
+**/dist/
+
+**/data
+.env

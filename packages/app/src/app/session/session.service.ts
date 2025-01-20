@@ -555,6 +555,18 @@ export class SessionService {
     return !(this._session.value?.permission === PermissionType.READ);
   }
 
+  public observeIsArchived(): Observable<boolean> {
+    return this._session.pipe(
+      map((session) => {
+        return session?.operation?.status === 'archived';
+      }),
+    );
+  }
+
+  public isArchived(): boolean {
+    return this._session.value?.operation?.status === 'archived';
+  }
+
   public getDefaultMapCenter(): number[] {
     if (coordinatesProjection && mercatorProjection) {
       if (this._session.value?.defaultLatitude && this._session.value?.defaultLongitude) {
