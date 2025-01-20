@@ -31,10 +31,6 @@ export abstract class ZsMapBaseLayer {
   protected _olLayer: VectorLayer<VectorSource> = new VectorLayer({
     source: this._clusterSource,
     style: (feature: FeatureLike, resolution: number) => {
-      if (feature.get('hidden') === true) {
-        return undefined;
-      }
-
       return DrawStyle.styleFunction(feature, resolution);
     },
   });

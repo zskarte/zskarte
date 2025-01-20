@@ -34,8 +34,6 @@ export class DrawStyle {
 
   private static lastResolution = 0;
 
-  filter = null;
-
   public static getImageUrl(file: string): string {
     return `assets/img/signs/${file}`;
   }
