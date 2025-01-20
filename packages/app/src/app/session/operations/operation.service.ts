@@ -1,21 +1,21 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService, IApiRequestOptions } from '../../api/api.service';
-import { SessionService } from '../session.service';
-import { v4 as uuidv4 } from 'uuid';
-import { DateTime } from 'luxon';
-import { OperationExportFileVersion } from '../../core/entity/operationExportFile';
-import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
-import { BehaviorSubject } from 'rxjs';
-import { IpcService } from '../../ipc/ipc.service';
 import { MatDialog } from '@angular/material/dialog';
-import { db } from '../../db/db';
 import {
-  IZsMapOperation,
-  ZsOperationStatus,
   IZSMapOperationMapLayers,
-  IZsMapState,
+  IZsMapOperation,
+  ZsMapState,
   ZsMapLayerStateType,
+  ZsOperationStatus,
 } from '@zskarte/types';
+import { DateTime } from 'luxon';
+import { BehaviorSubject } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
+import { ApiService, IApiRequestOptions } from '../../api/api.service';
+import { OperationExportFileVersion } from '../../core/entity/operationExportFile';
+import { db } from '../../db/db';
+import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
+import { IpcService } from '../../ipc/ipc.service';
+import { SessionService } from '../session.service';
 
 @Injectable({
   providedIn: 'root',
@@ -159,7 +159,7 @@ export class OperationService {
     }
   }
 
-  public async updateLocalMapState(mapState: IZsMapState) {
+  public async updateLocalMapState(mapState: ZsMapState) {
     const operation = this._session.getOperation();
     if (operation) {
       operation.mapState = mapState;
@@ -224,13 +224,14 @@ export class OperationService {
     });
   }
 
-  private createMapstate(): IZsMapState {
+  private createMapstate(): ZsMapState {
+    const initLayerId = uuidv4();
     return {
-      version: 1,
+      version: 2,
       id: uuidv4(),
       center: this._session.getOrganizationLongLat(),
       name: '',
-      layers: [{ id: uuidv4(), type: ZsMapLayerStateType.DRAW, name: 'Layer 1' }],
+      layers: { [initLayerId]: { id: uuidv4(), type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
     };
   }
 }
