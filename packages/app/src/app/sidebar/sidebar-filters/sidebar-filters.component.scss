@@ -45,3 +45,32 @@
   display: inline-block;
   margin-right: 8px;
 }
+
+.mat-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.listItemContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.categoryLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer; /* Show pointer to indicate it's clickable */
+  gap: 8px; /* Space between dot and text */
+}
+
+mat-checkbox.categoryCheckbox {
+  width: 100%;
+  ::ng-deep .mdc-form-field {
+    width: 100%;
+    label {
+      width: 100%;
+    }
+  }
+}

@@ -17,6 +17,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-sidebar-filters',
@@ -32,6 +33,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatIconModule,
     MatListModule,
     MatButtonModule,
+    MatCheckboxModule
   ],
 })
 export class SidebarFiltersComponent implements OnInit, OnDestroy {
@@ -39,11 +41,9 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   private mapState = inject(ZsMapStateService);
 
   filterSymbols: any[] = [];
-  filterKeys: any[] = [];
   signCategories: any[] = [...signCategories.values()];
   hiddenSymbols$: Observable<number[]>;
   hiddenFeatureTypes$: Observable<string[]>;
-  hiddenCategories$: Observable<string[]>;
   enableClustering$: Observable<boolean>;
   filtersOpenState = false;
   filtersGeneralOpenState = false;
@@ -53,7 +53,6 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   constructor() {
     this.hiddenSymbols$ = this.mapState.observeHiddenSymbols().pipe(takeUntil(this._ngUnsubscribe));
     this.hiddenFeatureTypes$ = this.mapState.observeHiddenFeatureTypes().pipe(takeUntil(this._ngUnsubscribe));
-    this.hiddenCategories$ = this.mapState.observeHiddenCategories().pipe(takeUntil(this._ngUnsubscribe));
     this.enableClustering$ = this.mapState.observeEnableClustering().pipe(takeUntil(this._ngUnsubscribe));
   }
 
@@ -62,11 +61,10 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
       this.mapState.observeDrawElements(),
       this.mapState.observeHiddenSymbols(),
       this.mapState.observeHiddenFeatureTypes(),
-      this.mapState.observeHiddenCategories(),
     ])
       .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes, hiddenCategories]) => {
-        this.updateFilterSymbolsAndFeatureTypes(drawElements, hiddenSymbols, hiddenFeatureTypes, hiddenCategories);
+      .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
+        this.updateFilterSymbolsAndFeatureTypes(drawElements, hiddenSymbols, hiddenFeatureTypes);
       });
   }
 
@@ -79,19 +77,29 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     elements: ZsMapBaseDrawElement[],
     hiddenSymbols: number[],
     hiddenFeatureTypes: string[],
-    hiddenCategories: string[],
   ) {
     const symbols = {};
     if (elements && elements.length > 0) {
-      elements.forEach((element) => this.extractSymbol(element.getOlFeature(), symbols));
+      elements.forEach((element) => {
+        this.extractSymbol(element.getOlFeature(), symbols)
+      });
     }
-    this.filterKeys = Object.keys(symbols);
     this.filterSymbols = Object.values(symbols)
       .sort((a: any, b: any) => a.label.localeCompare(b.label))
       .map((symbol: any) => ({ ...symbol, hidden: hiddenSymbols.includes(symbol.id) || hiddenFeatureTypes.includes(symbol.filterValue) }));
-    this.signCategories.forEach((category) => {
-      category.isHidden = hiddenCategories?.includes(category.name);
+
+    const availableKats = Object.values(symbols).map((s:any) => s.kat)
+    const catObjects = [...signCategories.values()].filter(s => availableKats.includes(s.name));
+    catObjects.forEach((category: any) => {
+      const categorySymbols = this.filterSymbols.filter((symbol: any) => symbol.kat === category.name);
+
+      const allHidden = categorySymbols.every((symbol: any) => symbol.hidden);
+      const someHidden = categorySymbols.some((symbol: any) => symbol.hidden);
+
+      category.isVisible = !allHidden && !someHidden;
+      category.isPartiallyVisible = !allHidden && someHidden;
     });
+    this.signCategories = catObjects
   }
 
   extractSymbol(f: FeatureLike, symbols: Record<string, any>) {
@@ -144,7 +152,6 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     this.mapState.filterAll(
       active,
       this.filterSymbols.map((symbol) => symbol.filterValue),
-      signCategories.map((category) => category.name),
     );
   }
 
@@ -156,9 +163,23 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     }
   }
 
-  public toggleCategoryFilter(category: SignCategory) {
-    if (category.name !== '' && category.name !== undefined) {
-      this.mapState.toggleCategory(category.name);
+  public toggleCategoryFilter($event: MatCheckboxChange, category: SignCategory) {
+    const categorySymbols = this.filterSymbols.filter(
+      (symbol: Sign) => symbol.kat === category.name
+    );
+
+    if($event.checked) {
+      categorySymbols.forEach((symbol: any) => {
+        if (symbol.hidden) {
+          this.toggleSymbolOrFeatureFilter(symbol);
+        }
+      })
+    } else {
+      categorySymbols.forEach((symbol: any) => {
+        if (!symbol.hidden) {
+          this.toggleSymbolOrFeatureFilter(symbol);
+        }
+      })
     }
   }
 
