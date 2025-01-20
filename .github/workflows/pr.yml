@@ -39,7 +39,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Test npm cache
       # Deactivate until fixed
       # - name: Lint
       #   run: npm run lint
