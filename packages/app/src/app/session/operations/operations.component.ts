@@ -1,14 +1,14 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import { SessionService } from '../session.service';
-import { IZsMapOperation } from '@zskarte/types';
+import { IZsMapOperation, ZsOperationStatus } from '@zskarte/types';
 import { I18NService } from '../../state/i18n.service';
 import { OperationService } from './operation.service';
 import { ActivatedRoute } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { MatActionList, MatListItem } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -26,6 +26,7 @@ import { MatInputModule } from '@angular/material/input';
     MatCardModule,
     MatDividerModule,
     AsyncPipe,
+    DatePipe,
     MatActionList,
     MatIconModule,
     MatMenuModule,
@@ -43,17 +44,18 @@ export class OperationsComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
 
   private _ngUnsubscribe = new Subject<void>();
+  public showOpStatus: ZsOperationStatus = 'active';
 
   constructor() {
     const route = this.route;
 
-    this.operationService.loadLocal();
+    this.operationService.loadLocal(this.showOpStatus);
     this._session
       .observeOrganizationId()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe(async (organizationId) => {
         if (organizationId) {
-          await this.operationService.reload();
+          await this.operationService.reload(this.showOpStatus);
         }
       });
     //select operationId if set as parameter and have access to
@@ -87,5 +89,15 @@ export class OperationsComponent implements OnDestroy {
 
   public async logout(): Promise<void> {
     await this._session.logout('logout');
+  }
+
+  public async showActiveScenarios(): Promise<void> {
+    this.showOpStatus = 'active';
+    await this.operationService.reload(this.showOpStatus);
+  }
+
+  public async showArchivedScenarios(): Promise<void> {
+    this.showOpStatus = 'archived';
+    await this.operationService.reload(this.showOpStatus);
   }
 }

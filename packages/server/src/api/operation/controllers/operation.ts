@@ -50,7 +50,8 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return { success: true };
   },
   async overview(ctx) {
-    ctx.query.fields = ['name', 'description', 'status', 'eventStates'];
+    ctx.query.fields = ['name', 'description', 'status', 'eventStates', 'updatedAt'];
+    ctx.query.sort = 'updatedAt:DESC';
     return await this.find(ctx, undefined);
   },
   async archive(ctx) {
@@ -58,6 +59,16 @@ export default factories.createCoreController('api::operation.operation', ({ str
     await strapi.entityService.update('api::operation.operation', id, {
       data: {
         status: OperationStates.ARCHIVED,
+      },
+    });
+    ctx.status = 200;
+    return { success: true };
+  },
+  async unarchive(ctx) {
+    const { id } = ctx.params;
+    await strapi.entityService.update('api::operation.operation', id, {
+      data: {
+        status: OperationStates.ACTIVE,
       },
     });
     ctx.status = 200;

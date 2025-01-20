@@ -9,7 +9,13 @@ import { BehaviorSubject } from 'rxjs';
 import { IpcService } from '../../ipc/ipc.service';
 import { MatDialog } from '@angular/material/dialog';
 import { db } from '../../db/db';
-import { IZsMapOperation, IZSMapOperationMapLayers, IZsMapState, ZsMapLayerStateType } from '@zskarte/types';
+import {
+  IZsMapOperation,
+  ZsOperationStatus,
+  IZSMapOperationMapLayers,
+  IZsMapState,
+  ZsMapLayerStateType,
+} from '@zskarte/types';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +33,7 @@ export class OperationService {
     this._session = sessionService;
   }
 
-  public async deleteOperation(operation: IZsMapOperation): Promise<void> {
+  public async archiveOperation(operation: IZsMapOperation): Promise<void> {
     if (!operation || !operation?.id) {
       return;
     }
@@ -38,7 +44,21 @@ export class OperationService {
     } else {
       await this._api.put(`/api/operations/${operation.id}/archive`, null);
     }
-    await this.reload();
+    await this.reload('active');
+  }
+
+  public async unarchiveOperation(operation: IZsMapOperation): Promise<void> {
+    if (!operation || !operation?.id) {
+      return;
+    }
+
+    operation.status = 'active';
+    if (operation?.id < 0) {
+      await OperationService.persistLocalOpertaion(operation);
+    } else {
+      await this._api.put(`/api/operations/${operation.id}/unarchive`, null);
+    }
+    await this.reload('archived');
   }
 
   public async saveOperation(operation: IZsMapOperation): Promise<void> {
@@ -47,7 +67,7 @@ export class OperationService {
     } else {
       await this.insertOperation(operation);
     }
-    await this.reload();
+    await this.reload('active');
     this.operationToEdit.next(undefined);
   }
 
@@ -64,7 +84,9 @@ export class OperationService {
       operation.id = minId - 1;
       await db.localOperation.add(operation);
     } else {
-      await this._api.post('/api/operations', { data: { ...operation, organization: this._session.getOrganizationId() } });
+      await this._api.post('/api/operations', {
+        data: { ...operation, organization: this._session.getOrganizationId() },
+      });
     }
   }
 
@@ -96,25 +118,27 @@ export class OperationService {
     await db.localOperation.put(operation);
   }
 
-  private static getLocalOperations() {
-    return db.localOperation.where('status').equals('active').toArray();
+  private static getLocalOperations(status: ZsOperationStatus) {
+    return db.localOperation.where('status').equals(status).toArray();
   }
 
-  public async loadLocal(): Promise<void> {
-    const localOperations = await OperationService.getLocalOperations();
+  public async loadLocal(status: ZsOperationStatus): Promise<void> {
+    const localOperations = await OperationService.getLocalOperations(status);
     if (!localOperations) return;
     this.operations.next(localOperations);
   }
 
-  public async reload(): Promise<void> {
+  public async reload(status: ZsOperationStatus): Promise<void> {
     let operations: IZsMapOperation[] = [];
-    const localOperations = await OperationService.getLocalOperations();
+    const localOperations = await OperationService.getLocalOperations(status);
     if (localOperations) {
       operations = localOperations;
     }
     if (!this._session.isWorkLocal()) {
-      const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>('/api/operations/overview?status=active');
-      if (!error && savedOperations != undefined) {
+      const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>(
+        `/api/operations/overview?status=${status}`,
+      );
+      if (!error && savedOperations !== undefined) {
         operations = [...operations.filter((x) => x.id && x.id < 0), ...savedOperations];
       }
       this.operations.next(operations);
