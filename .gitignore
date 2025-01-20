@@ -109,3 +109,6 @@ coverage
 **/.strapi
 **/.angular
 **/dist/
+
+**/data
+.env
