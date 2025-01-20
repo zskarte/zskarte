@@ -176,7 +176,7 @@ export const availableProjections: Array<ZsKarteProjection> = [
       return `${prefix ? 'Mercator ' : ''}${longitude} / ${latitude}`;
     },
     parse(coords: string): Coordinate | undefined {
-      const values = coords.match(/(\d+(?:\.\d+)?) *\/ *(\d+(?:\.\d+)?)/);
+      const values = coords.match(/(\d+(?:\.\d+)?)*\s?(\/|,)\s? *(\d+(?:\.\d+)?)/);
       if (!values) {
         return undefined;
       }
@@ -185,6 +185,8 @@ export const availableProjections: Array<ZsKarteProjection> = [
     },
   }),
 ];
+export const projections: {[key: string]: ZsKarteProjection} = availableProjections
+  .reduce((acc, next) => ({ ...acc, [next.name]: next }), {});
 
 function getCoordinatesProjection() {
   return get('EPSG:4326'); // see: https://epsg.io/4326 > WGS84 - World Geodetic System 1984, used in GPS

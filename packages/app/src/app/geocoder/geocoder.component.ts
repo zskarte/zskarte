@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-
+import { coordinateFromString } from '../helper/coordinates-extract';
 interface IFoundLocation {
   attrs: IFoundLocationAttrs;
 }
@@ -56,6 +56,8 @@ export class GeocoderComponent implements OnDestroy {
       .subscribe(() => {
         this.selected = null;
       });
+
+    zsMapStateService.addSearch(this.coordinateSearch.bind(this), 'Koordinaten', undefined, 1);
     zsMapStateService.addSearch(this.geoAdminLocationSearch.bind(this), 'Geo Admin', undefined, 100);
   }
 
@@ -63,6 +65,16 @@ export class GeocoderComponent implements OnDestroy {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
   }
+
+  async coordinateSearch(text: string) {
+    const coords = coordinateFromString(text);
+
+    if (coords) {
+      return [{ label: text, lonLat: coords }]
+    }
+
+    return [];
+  } 
 
   async geoAdminLocationSearch(text: string, maxResultCount?: number) {
     if (!navigator.onLine) {
