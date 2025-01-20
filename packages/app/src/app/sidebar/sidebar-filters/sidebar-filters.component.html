@@ -62,14 +62,22 @@
     </mat-expansion-panel-header>
 
     <ng-template matExpansionPanelContent>
-      <mat-selection-list>
+      <mat-list>
         @for (category of signCategories; track category) {
-          <mat-list-option (click)="toggleCategoryFilter(category)" [selected]="!category.isHidden">
-            <div class="categoryDot" [style.background-color]="category.color"></div>
-            {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
-          </mat-list-option>
+          <mat-list-item>
+            <mat-checkbox labelPosition="before" class="categoryCheckbox"
+              [checked]="category.isVisible" [indeterminate]="category.isPartiallyVisible"
+              (change)="toggleCategoryFilter($event, category)">
+              <div class="listItemContent">
+                <div class="categoryLabel">
+                  <div class="categoryDot" [style.background-color]="category.color"></div>
+                  {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
+                </div>
+              </div>
+            </mat-checkbox>
+          </mat-list-item>
         }
-      </mat-selection-list>
+      </mat-list>
     </ng-template>
   </mat-expansion-panel>
 </mat-accordion>
