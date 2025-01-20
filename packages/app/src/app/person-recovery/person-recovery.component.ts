@@ -20,6 +20,27 @@ type PersonRecoveryRow = ZsMapDrawElementState & {
   sign: PersonRecoverySign;
 }
 
+async function svg2png(url?: string, width = 100, height = 100) {
+  if (!url) {
+    return '';
+  }
+
+  const img = new Image();
+
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = url;
+  });
+
+  const canvas = document.createElement("canvas");
+  [canvas.width, canvas.height] = [width, height];
+
+  canvas.getContext("2d")?.drawImage(img, 0, 0, width, height);
+
+  return canvas.toDataURL("image/png");
+}
+
 @Component({
   selector: 'app-person-recovery',
   imports: [AsyncPipe, MatButton],
@@ -65,8 +86,6 @@ export class PersonRecoveryComponent {
   private destroyRef = inject(DestroyRef);
   i18n = inject(I18NService);
 
-  private recoveryEl = viewChild<ElementRef<HTMLDivElement>>('recovery');
-
   private printMargin = 10;
   private dimensions = PaperDimensions['A4'];
 
@@ -74,13 +93,14 @@ export class PersonRecoveryComponent {
     takeUntilDestroyed(this.destroyRef),
     map(elements => elements
       .filter(e => (e.elementState?.affectedPersons ?? 0) > 0)
-      .map(e => ({ ...e.elementState!, sign: this.getSign(e.elementState!) }))
+      .map(e => e.elementState as ZsMapDrawElementState)
+      .map(state => ({ ...state, sign: this.getSign(state) }))
       .reduce((acc, next) => {
         const el = acc.find(el => el.symbolId === next.symbolId);
         if (!el) {
           return [...acc, next];
         }
-        el.affectedPersons! += next.affectedPersons!;
+        el.affectedPersons = (el.affectedPersons ?? 0) + (next.affectedPersons ?? 0);
         return acc;
       }, [] as PersonRecoveryRow[])
     ),
@@ -100,13 +120,9 @@ export class PersonRecoveryComponent {
     const rowHeight = 20;
     const numberWidth = 15;
     const imageWidth = 20;
+
     let offsetY = 36;
-
-    const rowsWithImage = await Promise.all(
-      rows.map(r => fetch(r.sign.src!).then(res => res.blob()).then(svg => ({ ...r, svg })))
-    )
-
-    for (const row of rowsWithImage) {
+    for (const row of rows) {
       const textOffsetY = offsetY + rowHeight / 2;
       const imageOffsetX = this.printMargin + numberWidth + gap;
       const textOffsetX = imageOffsetX + imageWidth + gap;
@@ -114,11 +130,11 @@ export class PersonRecoveryComponent {
       pdf
         .setFontSize(24)
         .setTextColor('red')
-        .text(row.affectedPersons!.toString(), this.printMargin, textOffsetY, { maxWidth: numberWidth, baseline: 'middle' })
-        .addImage(await this.svg2png(row.sign.src!), 'PNG', imageOffsetX, offsetY, imageWidth, imageWidth)
+        .text(row.affectedPersons?.toString() ?? '', this.printMargin, textOffsetY, { maxWidth: numberWidth, baseline: 'middle' })
+        .addImage(await svg2png(row.sign.src), 'PNG', imageOffsetX, offsetY, imageWidth, imageWidth)
         .setTextColor('black')
         .setFontSize(20)
-        .text(row.sign.text!, textOffsetX, textOffsetY, { maxWidth: width - textOffsetX, baseline: 'middle' });
+        .text(row.sign.text ?? '', textOffsetX, textOffsetY, { maxWidth: width - textOffsetX, baseline: 'middle' });
 
       offsetY += rowHeight + gap;
     }
@@ -135,23 +151,5 @@ export class PersonRecoveryComponent {
       text: sign?.[this.session.getLocale()],
       src: DrawStyle.getImageUrl(sign?.src ?? ''),
     }
-  }
-
-  private async svg2png(url: string, width = 100, height = 100) {
-    const img = new Image();
-  
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = url;
-    });
-
-    const canvas = document.createElement("canvas");
-    [canvas.width, canvas.height] = [width, height];
-  
-    const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(img, 0, 0, width, height);
-  
-    return canvas.toDataURL("image/png");
   }
 }

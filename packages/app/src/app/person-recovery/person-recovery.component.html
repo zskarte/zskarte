@@ -1,4 +1,4 @@
-<div class="recovery" #recovery>
+<div class="recovery">
   <h2>{{ i18n.get('personRecoveryOverview') }}</h2>
   @let affectedPersons = affectedPersons$ | async;
   @for (element of affectedPersons; track $index) {
