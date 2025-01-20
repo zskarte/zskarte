@@ -351,7 +351,7 @@ export class SessionService {
   }
 
   private static isLoadedOperation(operation?: IZsMapOperation): boolean {
-    return operation !== undefined && operation.mapState !== undefined && operation.mapState.drawElements !== undefined && operation.mapState.drawElements.length > 0;
+    return !!operation?.mapState?.drawElements?.length;
   }
 
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
