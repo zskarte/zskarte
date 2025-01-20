@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../node_modules/ol/obj.js"],
-  "sourcesContent": ["/**\n * @module ol/obj\n */\n\n/**\n * Removes all properties from an object.\n * @param {Object<string, unknown>} object The object to clear.\n */\nexport function clear(object) {\n  for (const property in object) {\n    delete object[property];\n  }\n}\n\n/**\n * Determine if an object has any properties.\n * @param {Object} object The object to check.\n * @return {boolean} The object is empty.\n */\nexport function isEmpty(object) {\n  let property;\n  for (property in object) {\n    return false;\n  }\n  return !property;\n}"],
-  "mappings": ";AAQO,SAAS,MAAM,QAAQ;AAC5B,aAAW,YAAY,QAAQ;AAC7B,WAAO,OAAO,QAAQ;AAAA,EACxB;AACF;AAOO,SAAS,QAAQ,QAAQ;AAC9B,MAAI;AACJ,OAAK,YAAY,QAAQ;AACvB,WAAO;AAAA,EACT;AACA,SAAO,CAAC;AACV;",
-  "names": []
-}

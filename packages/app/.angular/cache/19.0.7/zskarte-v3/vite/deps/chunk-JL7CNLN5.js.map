@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../node_modules/ol/util.js"],
-  "sourcesContent": ["/**\n * @module ol/util\n */\n\n/**\n * @return {never} Any return.\n */\nexport function abstract() {\n  throw new Error('Unimplemented abstract method.');\n}\n\n/**\n * Counter for getUid.\n * @type {number}\n * @private\n */\nlet uidCounter_ = 0;\n\n/**\n * Gets a unique ID for an object. This mutates the object so that further calls\n * with the same object as a parameter returns the same value. Unique IDs are generated\n * as a strictly increasing sequence. Adapted from goog.getUid.\n *\n * @param {Object} obj The object to get the unique ID for.\n * @return {string} The unique ID for the object.\n * @api\n */\nexport function getUid(obj) {\n  return obj.ol_uid || (obj.ol_uid = String(++uidCounter_));\n}\n\n/**\n * OpenLayers version.\n * @type {string}\n */\nexport const VERSION = '10.3.1';"],
-  "mappings": ";AAOO,SAAS,WAAW;AACzB,QAAM,IAAI,MAAM,gCAAgC;AAClD;AAOA,IAAI,cAAc;AAWX,SAAS,OAAO,KAAK;AAC1B,SAAO,IAAI,WAAW,IAAI,SAAS,OAAO,EAAE,WAAW;AACzD;AAMO,IAAM,UAAU;",
-  "names": []
-}

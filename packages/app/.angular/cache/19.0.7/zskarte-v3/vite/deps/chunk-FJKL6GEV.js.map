@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../node_modules/ol/tilegrid/common.js"],
-  "sourcesContent": ["/**\n * @module ol/tilegrid/common\n */\n\n/**\n * Default maximum zoom for default tile grids.\n * @type {number}\n */\nexport const DEFAULT_MAX_ZOOM = 42;\n\n/**\n * Default tile size.\n * @type {number}\n */\nexport const DEFAULT_TILE_SIZE = 256;"],
-  "mappings": ";AAQO,IAAM,mBAAmB;AAMzB,IAAM,oBAAoB;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../node_modules/ol/layer/TileProperty.js"],
-  "sourcesContent": ["/**\n * @module ol/layer/TileProperty\n */\n\n/**\n * @enum {string}\n */\nexport default {\n  PRELOAD: 'preload',\n  USE_INTERIM_TILES_ON_ERROR: 'useInterimTilesOnError'\n};"],
-  "mappings": ";AAOA,IAAO,uBAAQ;AAAA,EACb,SAAS;AAAA,EACT,4BAA4B;AAC9B;",
-  "names": []
-}

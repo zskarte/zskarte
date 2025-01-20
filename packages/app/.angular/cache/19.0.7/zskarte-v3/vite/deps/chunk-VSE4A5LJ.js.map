@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../node_modules/ol/resolution.js"],
-  "sourcesContent": ["/**\n * @module ol/resolution\n */\n\n/**\n * @typedef {number|Array<number>} ResolutionLike\n */\n\n/**\n * @param {ResolutionLike} resolution Resolution.\n * @return {number} Resolution.\n */\nexport function fromResolutionLike(resolution) {\n  if (Array.isArray(resolution)) {\n    return Math.min(...resolution);\n  }\n  return resolution;\n}"],
-  "mappings": ";AAYO,SAAS,mBAAmB,YAAY;AAC7C,MAAI,MAAM,QAAQ,UAAU,GAAG;AAC7B,WAAO,KAAK,IAAI,GAAG,UAAU;AAAA,EAC/B;AACA,SAAO;AACT;",
-  "names": []
-}

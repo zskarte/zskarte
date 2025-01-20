@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../node_modules/ol/asserts.js"],
-  "sourcesContent": ["/**\n * @module ol/asserts\n */\n\n/**\n * @param {*} assertion Assertion we expected to be truthy.\n * @param {string} errorMessage Error message.\n */\nexport function assert(assertion, errorMessage) {\n  if (!assertion) {\n    throw new Error(errorMessage);\n  }\n}"],
-  "mappings": ";AAQO,SAAS,OAAO,WAAW,cAAc;AAC9C,MAAI,CAAC,WAAW;AACd,UAAM,IAAI,MAAM,YAAY;AAAA,EAC9B;AACF;",
-  "names": []
-}
