@@ -10,5 +10,5 @@ export default ({ env }) => ({
   apiToken: {
     salt: env('API_TOKEN_SALT'),
   },
-  watchIgnoreFiles: ['**/data/**', '**/.git/**', '**/test/**'],
+  watchIgnoreFiles: ['**/data/**', '**/.git/**', '**/test/**', '**/config/sync/**'],
 });
