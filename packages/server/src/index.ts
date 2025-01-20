@@ -1,4 +1,4 @@
-import { loadOperations } from './state/operation';
+import { loadOperations, persistMapStates } from './state/operation';
 
 export default {
   /**
@@ -18,5 +18,14 @@ export default {
    */
   async bootstrap({ strapi }) {
     await loadOperations(strapi);
+  },
+
+  /**
+   * An asynchronous destroy function that runs before
+   * your application gets shut down.
+   */
+  async destroy({ strapi }) {
+    strapi.log.info('application shutdown initiated');
+    await persistMapStates(strapi);
   },
 };

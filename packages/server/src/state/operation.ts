@@ -19,7 +19,7 @@ const operationCaches: { [key: number]: OperationCache } = {};
 const loadOperations = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      where: { status: OperationStates.ACTIVE },
+      filters: { status: OperationStates.ACTIVE },
       populate: ['organization'],
       limit: -1,
     })) as Operation[];
@@ -134,7 +134,7 @@ const persistMapStates = async (strapi: Strapi) => {
 const archiveOperations = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      where: { status: OperationStates.ACTIVE },
+      filters: { status: OperationStates.ACTIVE },
       limit: -1,
     })) as Operation[];
     for (const operation of activeOperations) {
@@ -175,9 +175,9 @@ const deleteGuestOperations = async (strapi: Strapi) => {
 const createMapStateSnapshots = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      where: { status: OperationStates.ACTIVE },
+      filters: { status: OperationStates.ACTIVE },
       limit: -1,
-    })) as unknown as Operation[];
+    })) as Operation[];
 
     strapi.log.debug(`Found ${activeOperations.length} operation to create snapshots from`);
 
