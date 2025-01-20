@@ -32,7 +32,7 @@ jobs:
           key: node-modules-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
-        run: npm instal
+        run: npm install
 
       - name: Build
         run: npm run build
