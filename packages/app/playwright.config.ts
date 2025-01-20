@@ -109,7 +109,7 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `yarn ng:serve:dev --host 0.0.0.0 --port ${PORT}`,
+    command: `npm run ng:serve:dev --host 0.0.0.0 --port ${PORT}`,
     port: PORT,
     reuseExistingServer: true,
     timeout: 120 * 1000,
