@@ -9,7 +9,13 @@ import { BehaviorSubject } from 'rxjs';
 import { IpcService } from '../../ipc/ipc.service';
 import { MatDialog } from '@angular/material/dialog';
 import { db } from '../../db/db';
-import { IZsMapOperation, ZsOperationStatus, IZSMapOperationMapLayers, IZsMapState, ZsMapLayerStateType } from '@zskarte/types';
+import {
+  IZsMapOperation,
+  ZsOperationStatus,
+  IZSMapOperationMapLayers,
+  IZsMapState,
+  ZsMapLayerStateType,
+} from '@zskarte/types';
 
 @Injectable({
   providedIn: 'root',
@@ -78,7 +84,9 @@ export class OperationService {
       operation.id = minId - 1;
       await db.localOperation.add(operation);
     } else {
-      await this._api.post('/api/operations', { data: { ...operation, organization: this._session.getOrganizationId() } });
+      await this._api.post('/api/operations', {
+        data: { ...operation, organization: this._session.getOrganizationId() },
+      });
     }
   }
 
@@ -123,8 +131,10 @@ export class OperationService {
       operations = localOperations;
     }
     if (!this._session.isWorkLocal()) {
-      const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>(`/api/operations/overview?status=${status}`);
-      if (!error && savedOperations != undefined) {
+      const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>(
+        `/api/operations/overview?status=${status}`,
+      );
+      if (!error && savedOperations !== undefined) {
         operations = [...operations, ...savedOperations];
       }
       this.operations.next(operations);
