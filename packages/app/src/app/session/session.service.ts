@@ -351,7 +351,8 @@ export class SessionService {
   }
 
   private static isLoadedOperation(operation?: IZsMapOperation): boolean {
-    return !!operation?.mapState?.drawElements?.length;
+    const elementCount = operation?.mapState?.drawElements?.length;
+    return elementCount !== undefined && elementCount > 0;
   }
 
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
