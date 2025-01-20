@@ -37,6 +37,7 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Test npm caching
       # Deactivate until fixed
       # - name: Lint
       #   run: npm run lint
