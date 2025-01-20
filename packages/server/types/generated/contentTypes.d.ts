@@ -308,6 +308,49 @@ export interface ApiAccessAccess extends Schema.CollectionType {
   };
 }
 
+export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
+  collectionName: 'journal_entries';
+  info: {
+    description: '';
+    displayName: 'JournalEntry';
+    pluralName: 'journal-entries';
+    singularName: 'journal-entry';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    communication_details: Attribute.String;
+    communication_type: Attribute.String;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
+    creator: Attribute.String;
+    date_created: Attribute.DateTime;
+    date_visum_decision_deliverer: Attribute.DateTime;
+    date_visum_decision_receiver: Attribute.DateTime;
+    date_visum_message: Attribute.DateTime;
+    date_visum_triage: Attribute.DateTime;
+    decision: Attribute.Text;
+    department: Attribute.String;
+    is_key_message: Attribute.Boolean;
+    message_content: Attribute.Text;
+    message_number: Attribute.Integer;
+    message_subject: Attribute.String;
+    operation: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::operation.operation'>;
+    organization: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::organization.organization'>;
+    publishedAt: Attribute.DateTime;
+    related_symbols: Attribute.JSON;
+    sender: Attribute.String;
+    status: Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
+    visum_decision_deliverer: Attribute.String;
+    visum_decision_receiver: Attribute.String;
+    visum_message: Attribute.String;
+    visum_triage: Attribute.String;
+  };
+}
+
 export interface ApiMapLayerMapLayer extends Schema.CollectionType {
   collectionName: 'map_layers';
   info: {
@@ -749,6 +792,7 @@ declare module '@strapi/types' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::access.access': ApiAccessAccess;
+      'api::journal-entry.journal-entry': ApiJournalEntryJournalEntry;
       'api::map-layer.map-layer': ApiMapLayerMapLayer;
       'api::map-snapshot.map-snapshot': ApiMapSnapshotMapSnapshot;
       'api::operation.operation': ApiOperationOperation;
