@@ -2,7 +2,7 @@ import { IZsMapStateV1, IZsMapStateV2, ZsMapState, ZsMapStateAllVersions } from 
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-export const migrateMapState = (mapState: ZsMapStateAllVersions | undefined): ZsMapState | undefined => {
+export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined): ZsMapState | undefined => {
   if (!mapState) {
     return mapState;
   }
