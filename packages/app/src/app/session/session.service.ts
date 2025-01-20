@@ -246,7 +246,7 @@ export class SessionService {
     const currentSession = this._session.value;
     if (currentSession?.operation && !this._state.isHistoryMode()) {
       const mapState = await firstValueFrom(this._state.observeMapState());
-      if (mapState?.drawElements?.length) {
+      if (Object.keys(mapState?.drawElements || {})?.length) {
         currentSession.operation.mapState = mapState;
         //only persist current mapState (to ensure offline state), without call this._session.next() / reload all settings & values
         await db.sessions.put(currentSession);
@@ -351,7 +351,7 @@ export class SessionService {
   }
 
   private static isLoadedOperation(operation?: IZsMapOperation): boolean {
-    const elementCount = operation?.mapState?.drawElements?.length;
+    const elementCount = Object.keys(operation?.mapState?.drawElements || {})?.length;
     return elementCount !== undefined && elementCount > 0;
   }
 
