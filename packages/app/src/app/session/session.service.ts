@@ -27,6 +27,7 @@ import { WmsService } from '../map-layer/wms/wms.service';
 import { MapLayerService } from '../map-layer/map-layer.service';
 import { OperationService } from './operations/operation.service';
 import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
+import { debounceLeading } from '../helper/debounce';
 import {
   IZsMapSession,
   IZsMapDisplayState,
@@ -39,6 +40,8 @@ import {
   Locale,
   AccessTokenType,
 } from '@zskarte/types';
+
+export type LogoutReason = 'logout' | 'networkError' | 'expired' | 'noToken';
 
 @Injectable({
   providedIn: 'root',
@@ -72,8 +75,12 @@ export class SessionService {
         await db.sessions.put(session);
         if (session.operation?.id) {
           await this._state?.refreshMapState();
-          const displayState = await db.displayStates.get({ id: session.operation?.id });
+          let displayState = await db.displayStates.get({ id: session.operation?.id });
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
+          if (displayState && (!displayState.version || displayState.layers === undefined)) {
+            //ignore invalid/empty saved displayState
+            displayState = undefined;
+          }
           this._state.setDisplayState(displayState);
           if (queryParams) {
             this._state.updateDisplayState((draft) => SessionService.overrideDisplayStateFromQueryParams(draft, queryParams));
@@ -188,6 +195,7 @@ export class SessionService {
         return;
       }
 
+      //if no valid login and not work local delete all display states and sessions
       await db.displayStates.clear();
       await db.sessions.clear();
       return;
@@ -200,6 +208,18 @@ export class SessionService {
     window.addEventListener('offline', () => {
       this._isOnline.next(false);
     });
+    window.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.persistMapState();
+      }
+    });
+    window.addEventListener('blur', () => {
+      this.persistMapState();
+    });
+    window.addEventListener('pagehide', () => {
+      this.persistMapState();
+    });
+
     this._isOnline
       .asObservable()
       .pipe(skip(1), distinctUntilChanged())
@@ -221,6 +241,20 @@ export class SessionService {
           });
       });
   }
+
+  public persistMapState = debounceLeading(async () => {
+    const currentSession = this._session.value;
+    if (currentSession?.operation && !this._state.isHistoryMode()) {
+      const mapState = await firstValueFrom(this._state.observeMapState());
+      if (mapState?.drawElements?.length) {
+        currentSession.operation.mapState = mapState;
+        //only persist current mapState (to ensure offline state), without call this._session.next() / reload all settings & values
+        await db.sessions.put(currentSession);
+        return true;
+      }
+    }
+    return false;
+  }, 30000);
 
   private static overrideDisplayStateFromQueryParams(displayState: IZsMapDisplayState, queryParams: Params) {
     if (queryParams['center']) {
@@ -316,8 +350,18 @@ export class SessionService {
     return this._session.pipe(map((session) => session?.organization?.id));
   }
 
-  public setOperation(operation?: IZsMapOperation): void {
+  private static isLoadedOperation(operation?: IZsMapOperation): boolean {
+    const elementCount = operation?.mapState?.drawElements?.length;
+    return elementCount !== undefined && elementCount > 0;
+  }
+
+  public async setOperation(operation?: IZsMapOperation): Promise<void> {
     if (this._session?.value) {
+      const sessionOperation = this._session.value.operation;
+      if (operation === undefined && sessionOperation !== undefined && SessionService.isLoadedOperation(sessionOperation)) {
+        //backup operation in case offline / no server connection to allow continue work later
+        await OperationService.persistLocalOpertaion(sessionOperation);
+      }
       this._session.value.operation = operation;
     }
     this._session.next(this._session.value);
@@ -388,17 +432,29 @@ export class SessionService {
   public async updateJWT(jwt: string) {
     const decoded = decodeJWT(jwt);
     if (decoded.expired) {
-      await this.logout();
-      return;
-    }
-
-    const { error, result: meResult } = await this._api.get<{ organization: IZsMapOrganization }>('/api/users/me', { token: jwt });
-    if (error || !meResult) {
-      await this.logout();
+      await this.logout('expired');
       return;
     }
 
     const currentSession = await this.getSavedSession();
+
+    const { error, result: meResult } = await this._api.get<{ organization: IZsMapOrganization }>('/api/users/me', { token: jwt });
+
+    if (error || !meResult) {
+      if (
+        currentSession &&
+        !currentSession.workLocal &&
+        currentSession.jwt === jwt &&
+        ((error?.status ?? 0) >= 500 || !this._isOnline.value)
+      ) {
+        //session is not expired but there seams to be a network problem, keep current session
+        this._session.next(currentSession);
+        return;
+      }
+      await this.logout((error?.status ?? 0) >= 500 ? 'networkError' : 'noToken');
+      return;
+    }
+
     let newSession: IZsMapSession;
 
     if (currentSession && !currentSession.workLocal) {
@@ -459,7 +515,16 @@ export class SessionService {
     this._session.next(newSession);
   }
 
-  public async logout(): Promise<void> {
+  public async logout(reason: LogoutReason): Promise<void> {
+    if (reason === 'networkError' || (!this._isOnline.value && reason !== 'logout')) {
+      //local backup operation if "logout" because of networkError
+      const operation = this._session.value?.operation;
+      if (operation) {
+        await OperationService.persistLocalOpertaion(operation);
+        return;
+      }
+    }
+    OperationService.deleteNoneLocalOperations();
     this._session.next(undefined);
     await this._router.navigateByUrl('/login');
   }
@@ -470,7 +535,7 @@ export class SessionService {
     }
     const currentToken = this._session.value?.jwt;
     if (!currentToken) {
-      await this.logout();
+      await this.logout('noToken');
       return;
     }
 
@@ -479,7 +544,14 @@ export class SessionService {
     });
 
     if (authError || !result?.jwt) {
-      await this.logout();
+      if (decodeJWT(currentToken).expired) {
+        await this.logout('expired');
+      } else if ((authError?.status ?? 0) >= 500 || !this._isOnline.value) {
+        //await this.logout('networkError');
+        //session is not expired but there seams to be a network problem, keep current session without refresh
+      } else {
+        await this.logout('noToken');
+      }
       return;
     }
 
@@ -500,7 +572,7 @@ export class SessionService {
           return false;
         }
         if (decodeJWT(session.jwt).expired) {
-          this.logout();
+          this.logout('expired');
           return false;
         }
         return true;

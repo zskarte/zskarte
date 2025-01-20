@@ -88,7 +88,7 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public async logout(): Promise<void> {
-    await this._session.logout();
+    await this._session.logout('logout');
   }
 
   public async showActiveScenarios(): Promise<void> {

@@ -269,9 +269,14 @@ export class ZsMapStateService {
   }
 
   public async toggleDisplayMode() {
-    // Make sure to get the latest mapState when the historyMode is toggled
-    // This prevents old states from the history getting applied to the state
-    await this.refreshMapState();
+    if (!this.isHistoryMode()) {
+      //make sure latest live mapState is backedup on session before entering historyMode
+      await this._session.persistMapState();
+    } else {
+      // Make sure to get the latest mapState when the historyMode is toggled
+      // This prevents old states from the history getting applied to the state
+      await this.refreshMapState();
+    }
     this.updateDisplayState((draft) => {
       if (draft.displayMode === ZsMapDisplayMode.HISTORY) {
         draft.displayMode = ZsMapDisplayMode.DRAW;
@@ -1128,7 +1133,11 @@ export class ZsMapStateService {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
         return Array.prototype.map.call(new Uint8Array(buf), (x) => `00${(x as number).toString(16)}`.slice(-2)).join('');
       };
-      const operation = await this._operationService.getOperation(operationId);
+      let operation = await this._operationService.getOperation(operationId);
+      if (!operation?.mapState) {
+        //on load error / offline, get back saved mapState to prevent "work" on history snapshot
+        operation = this._session.getOperation();
+      }
       if (operation?.mapState) {
         const [oldDigest, newDigest] = await Promise.all([
           sha256(JSON.stringify(this._map.value)),

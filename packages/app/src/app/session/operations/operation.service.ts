@@ -110,6 +110,10 @@ export class OperationService {
     }
   }
 
+  public static async deleteNoneLocalOperations() {
+    return await db.localOperation.where('id').aboveOrEqual(0).delete();
+  }
+
   public static async persistLocalOpertaion(operation: IZsMapOperation) {
     await db.localOperation.put(operation);
   }
@@ -135,7 +139,7 @@ export class OperationService {
         `/api/operations/overview?status=${status}`,
       );
       if (!error && savedOperations !== undefined) {
-        operations = [...operations, ...savedOperations];
+        operations = [...operations.filter((x) => x.id && x.id < 0), ...savedOperations];
       }
       this.operations.next(operations);
     } else {
