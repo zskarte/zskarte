@@ -312,7 +312,7 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
   collectionName: 'journal_entries';
   info: {
     description: '';
-    displayName: 'JournalEntry';
+    displayName: 'Journal Entry';
     pluralName: 'journal-entries';
     singularName: 'journal-entry';
   };
