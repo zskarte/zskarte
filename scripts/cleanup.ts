@@ -23,7 +23,7 @@ import { glob } from 'glob';
   console.log('cleanup successful');
   console.log('reinstalling dependencies...');
 
-  const process = spawn('npm', ['i'], {
+  spawn('npm', ['i'], {
     stdio: 'inherit',
     shell: true,
   });
