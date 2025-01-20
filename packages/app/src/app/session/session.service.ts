@@ -244,9 +244,9 @@ export class SessionService {
 
   public persistMapState = debounceLeading(async () => {
     const currentSession = this._session.value;
-    if (currentSession && currentSession.operation && !this._state.isHistoryMode()) {
+    if (currentSession?.operation && !this._state.isHistoryMode()) {
       const mapState = await firstValueFrom(this._state.observeMapState());
-      if (mapState && mapState.drawElements && mapState.drawElements.length) {
+      if (mapState?.drawElements?.length) {
         currentSession.operation.mapState = mapState;
         //only persist current mapState (to ensure offline state), without call this._session.next() / reload all settings & values
         await db.sessions.put(currentSession);
@@ -350,14 +350,14 @@ export class SessionService {
     return this._session.pipe(map((session) => session?.organization?.id));
   }
 
-  private isLoadedOperation(operation?: IZsMapOperation): boolean {
+  private static isLoadedOperation(operation?: IZsMapOperation): boolean {
     return operation !== undefined && operation.mapState !== undefined && operation.mapState.drawElements !== undefined && operation.mapState.drawElements.length > 0;
   }
 
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
     if (this._session?.value) {
       const sessionOperation = this._session.value.operation;
-      if (operation === undefined && sessionOperation !== undefined && this.isLoadedOperation(sessionOperation)) {
+      if (operation === undefined && sessionOperation !== undefined && SessionService.isLoadedOperation(sessionOperation)) {
         //backup operation in case offline / no server connection to allow continue work later
         await OperationService.persistLocalOpertaion(sessionOperation);
       }

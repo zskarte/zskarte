@@ -110,8 +110,8 @@ export class OperationService {
     }
   }
 
-  public async deleteNoneLocalOperations() {
-    return db.localOperation.where('id').aboveOrEqual(0).delete();
+  public static async deleteNoneLocalOperations() {
+    return await db.localOperation.where('id').aboveOrEqual(0).delete();
   }
 
   public static async persistLocalOpertaion(operation: IZsMapOperation) {
