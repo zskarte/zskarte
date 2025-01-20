@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, inject, viewChild } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { ZsMapStateService } from '../state/state.service';
 import { map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
