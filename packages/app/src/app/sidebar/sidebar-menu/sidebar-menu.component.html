@@ -27,6 +27,10 @@
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('protocol')">list_alt</mat-icon>
   {{ i18n.get('protocol') }}
 </button>
+<button mat-menu-item class="tools-menu-item" (click)="personRecovery()">
+  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('personRecoveryOverview')">sensor_occupied</mat-icon>
+  {{ i18n.get('personRecoveryOverview') }}
+</button>
 <button mat-menu-item (click)="help()">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon>
   {{ i18n.get('help') }}
