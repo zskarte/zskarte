@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, NgZone, inject } from '@angular/core';
-import type { FileFilter } from 'electron';
+// import type { FileFilter } from 'electron';
 import FileSaver from 'file-saver';
 import { isElectron } from '../helper/os';
 
@@ -15,7 +15,7 @@ export class IpcService {
     return await (window as any).zskarte.ipcInvoke(channel, params);
   }
 
-  public async saveFile(params: { data: string; fileName: string; mimeType: string; filters?: FileFilter[] }): Promise<void> {
+  public async saveFile(params: { data: string; fileName: string; mimeType: string; filters?: any[] }): Promise<void> {
     if (isElectron()) {
       await this._invoke('fs:saveFile', params);
       return;
@@ -25,7 +25,7 @@ export class IpcService {
     FileSaver.saveAs(blob, params.fileName);
   }
 
-  public async openFile(params: { filters: FileFilter[] }): Promise<string> {
+  public async openFile(params: { filters: any[] }): Promise<string> {
     return await this._invoke('fs:openFile', params);
   }
 }

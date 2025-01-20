@@ -135,7 +135,7 @@ export class BlobService {
 
     const file = event.target['files'][0] as File;
 
-    const url = file.path ?? file.name;
+    const url = (file as any).path ?? file.name;
     let localBlobMeta: LocalBlobMeta | undefined;
     //check if an entry with same name and modify timestamp already exist.
     localBlobMeta = (await db.localBlobMeta.where('url').equals(url).toArray()).find((meta) => meta.lastModified === file.lastModified);
