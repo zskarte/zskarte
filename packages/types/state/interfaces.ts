@@ -18,8 +18,19 @@ export const zsMapStateSourceToDownloadUrl = {
     "https://zskarte.blob.core.windows.net/etienne/ch.swisstopo.pmtiles",
 };
 
-export interface IZsMapState {
+export type ZsMapState = IZsMapStateV2;
+
+export interface IZsMapStateV2 {
   version: number;
+  id: string;
+  name?: string;
+  layers?: Record<string, ZsMapLayerState>;
+  drawElements?: Record<string, ZsMapDrawElementState>;
+  center: Coordinate;
+}
+
+export interface IZsMapStateV1 {
+  version: 1;
   id: string;
   name?: string;
   layers?: ZsMapLayerState[];
@@ -27,8 +38,12 @@ export interface IZsMapState {
   center: Coordinate;
 }
 
-export const getDefaultIZsMapState = (): IZsMapState => {
-  return {} as IZsMapState;
+export type ZsMapStateAllVersions = IZsMapStateV1 | IZsMapStateV2;
+
+
+
+export const getDefaultZsMapState = (): ZsMapState => {
+  return {} as ZsMapState;
 };
 
 export interface IPositionFlag {
@@ -110,7 +125,7 @@ export enum ZsMapLayerStateType {
 }
 
 interface IZsMapBaseLayerState {
-  id?: string;
+  id: string;
   type: ZsMapLayerStateType;
   name?: string;
 }
