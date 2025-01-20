@@ -106,6 +106,6 @@ coverage
 # Tests
 ############################
 
-.strapi
-.angular
-dist
+**/.strapi
+**/.angular
+**/dist/
