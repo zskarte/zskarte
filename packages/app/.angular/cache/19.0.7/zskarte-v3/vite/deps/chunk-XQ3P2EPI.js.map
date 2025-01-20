@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../node_modules/ol/layer/Tile.js"],
+  "sourcesContent": ["/**\n * @module ol/layer/Tile\n */\nimport BaseTileLayer from './BaseTile.js';\nimport CanvasTileLayerRenderer from '../renderer/canvas/TileLayer.js';\n\n/**\n * @classdesc\n * For layer sources that provide pre-rendered, tiled images in grids that are\n * organized by zoom levels for specific resolutions.\n * Note that any property set in the options is set as a {@link module:ol/Object~BaseObject}\n * property on the layer object; for example, setting `title: 'My Title'` in the\n * options means that `title` is observable, and has get/set accessors.\n *\n * @template {import(\"../source/Tile.js\").default} [TileSourceType=import(\"../source/Tile.js\").default]\n * @extends BaseTileLayer<TileSourceType, CanvasTileLayerRenderer>\n * @api\n */\nclass TileLayer extends BaseTileLayer {\n  /**\n   * @param {import(\"./BaseTile.js\").Options<TileSourceType>} [options] Tile layer options.\n   */\n  constructor(options) {\n    super(options);\n  }\n\n  /**\n   * @override\n   */\n  createRenderer() {\n    return new CanvasTileLayerRenderer(this, {\n      cacheSize: this.getCacheSize()\n    });\n  }\n}\nexport default TileLayer;"],
+  "mappings": ";;;;;;;;AAkBA,IAAM,YAAN,cAAwB,iBAAc;AAAA;AAAA;AAAA;AAAA,EAIpC,YAAY,SAAS;AACnB,UAAM,OAAO;AAAA,EACf;AAAA;AAAA;AAAA;AAAA,EAKA,iBAAiB;AACf,WAAO,IAAI,kBAAwB,MAAM;AAAA,MACvC,WAAW,KAAK,aAAa;AAAA,IAC/B,CAAC;AAAA,EACH;AACF;AACA,IAAO,eAAQ;",
+  "names": []
+}

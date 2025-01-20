@@ -1,0 +1,857 @@
+import {
+  Image_default as Image_default2
+} from "./chunk-3HIDFUJU.js";
+import {
+  TileImage_default
+} from "./chunk-SPH4UQGL.js";
+import {
+  Image_default
+} from "./chunk-LWNIN62S.js";
+import {
+  Tile_default as Tile_default2
+} from "./chunk-XQ3P2EPI.js";
+import {
+  ImageCanvas_default
+} from "./chunk-4ZWJ4I6P.js";
+import {
+  Tile_default,
+  createFromTemplates
+} from "./chunk-45BLP2OC.js";
+import {
+  createXYZ,
+  extentFromProjection
+} from "./chunk-Z7PA7HSF.js";
+import {
+  TileQueue_default
+} from "./chunk-VSNQJHK5.js";
+import {
+  Source_default
+} from "./chunk-6MWGMXNZ.js";
+import {
+  createCanvasContext2D
+} from "./chunk-73LIRBW3.js";
+import {
+  create
+} from "./chunk-5DM6XDPZ.js";
+import {
+  get3 as get,
+  getTransformFromProjections
+} from "./chunk-QPOUXWMH.js";
+import {
+  applyTransform,
+  equals,
+  getCenter,
+  getHeight,
+  getWidth,
+  intersects
+} from "./chunk-IHYRLUFT.js";
+import {
+  Disposable_default,
+  EventType_default,
+  Event_default
+} from "./chunk-X7DDFSZC.js";
+import {
+  getUid
+} from "./chunk-JL7CNLN5.js";
+
+// ../../node_modules/ol/source/Raster.js
+function createMinion(operation) {
+  return function(data) {
+    const buffers = data["buffers"];
+    const meta = data["meta"];
+    const imageOps = data["imageOps"];
+    const width = data["width"];
+    const height = data["height"];
+    const numBuffers = buffers.length;
+    const numBytes = buffers[0].byteLength;
+    if (imageOps) {
+      const images = new Array(numBuffers);
+      for (let b = 0; b < numBuffers; ++b) {
+        images[b] = new ImageData(new Uint8ClampedArray(buffers[b]), width, height);
+      }
+      const output2 = operation(images, meta).data;
+      return output2.buffer;
+    }
+    const output = new Uint8ClampedArray(numBytes);
+    const arrays = new Array(numBuffers);
+    const pixels = new Array(numBuffers);
+    for (let b = 0; b < numBuffers; ++b) {
+      arrays[b] = new Uint8ClampedArray(buffers[b]);
+      pixels[b] = [0, 0, 0, 0];
+    }
+    for (let i = 0; i < numBytes; i += 4) {
+      for (let j = 0; j < numBuffers; ++j) {
+        const array = arrays[j];
+        pixels[j][0] = array[i];
+        pixels[j][1] = array[i + 1];
+        pixels[j][2] = array[i + 2];
+        pixels[j][3] = array[i + 3];
+      }
+      const pixel = operation(pixels, meta);
+      output[i] = pixel[0];
+      output[i + 1] = pixel[1];
+      output[i + 2] = pixel[2];
+      output[i + 3] = pixel[3];
+    }
+    return output.buffer;
+  };
+}
+function createWorker(config, onMessage) {
+  const lib = Object.keys(config.lib || {}).map(function(name) {
+    return "const " + name + " = " + config.lib[name].toString() + ";";
+  });
+  const lines = lib.concat(["const __minion__ = (" + createMinion.toString() + ")(", config.operation.toString(), ");", 'self.addEventListener("message", function(event) {', "  const buffer = __minion__(event.data);", "  self.postMessage({buffer: buffer, meta: event.data.meta}, [buffer]);", "});"]);
+  const worker = new Worker(typeof Blob === "undefined" ? "data:text/javascript;base64," + Buffer.from(lines.join("\n"), "binary").toString("base64") : URL.createObjectURL(new Blob(lines, {
+    type: "text/javascript"
+  })));
+  worker.addEventListener("message", onMessage);
+  return worker;
+}
+function createFauxWorker(config, onMessage) {
+  const minion = createMinion(config.operation);
+  let terminated = false;
+  return {
+    postMessage: function(data) {
+      setTimeout(function() {
+        if (terminated) {
+          return;
+        }
+        onMessage({
+          data: {
+            buffer: minion(data),
+            meta: data["meta"]
+          }
+        });
+      }, 0);
+    },
+    terminate: function() {
+      terminated = true;
+    }
+  };
+}
+var Processor = class extends Disposable_default {
+  /**
+   * @param {ProcessorOptions} config Configuration.
+   */
+  constructor(config) {
+    super();
+    this.imageOps_ = !!config.imageOps;
+    let threads;
+    if (config.threads === 0) {
+      threads = 0;
+    } else if (this.imageOps_) {
+      threads = 1;
+    } else {
+      threads = config.threads || 1;
+    }
+    const workers = new Array(threads);
+    if (threads) {
+      for (let i = 0; i < threads; ++i) {
+        workers[i] = createWorker(config, this.onWorkerMessage_.bind(this, i));
+      }
+    } else {
+      workers[0] = createFauxWorker(config, this.onWorkerMessage_.bind(this, 0));
+    }
+    this.workers_ = workers;
+    this.queue_ = [];
+    this.maxQueueLength_ = config.queue || Infinity;
+    this.running_ = 0;
+    this.dataLookup_ = {};
+    this.job_ = null;
+  }
+  /**
+   * Run operation on input data.
+   * @param {Array<ImageData>} inputs Array of image data.
+   * @param {Object} meta A user data object.  This is passed to all operations
+   *     and must be serializable.
+   * @param {function(Error, ImageData, Object): void} callback Called when work
+   *     completes.  The first argument is any error.  The second is the ImageData
+   *     generated by operations.  The third is the user data object.
+   */
+  process(inputs, meta, callback) {
+    this.enqueue_({
+      inputs,
+      meta,
+      callback
+    });
+    this.dispatch_();
+  }
+  /**
+   * Add a job to the queue.
+   * @param {Job} job The job.
+   */
+  enqueue_(job) {
+    this.queue_.push(job);
+    while (this.queue_.length > this.maxQueueLength_) {
+      this.queue_.shift().callback(null, null);
+    }
+  }
+  /**
+   * Dispatch a job.
+   */
+  dispatch_() {
+    if (this.running_ || this.queue_.length === 0) {
+      return;
+    }
+    const job = this.queue_.shift();
+    this.job_ = job;
+    const width = job.inputs[0].width;
+    const height = job.inputs[0].height;
+    const buffers = job.inputs.map(function(input) {
+      return input.data.buffer;
+    });
+    const threads = this.workers_.length;
+    this.running_ = threads;
+    if (threads === 1) {
+      this.workers_[0].postMessage({
+        buffers,
+        meta: job.meta,
+        imageOps: this.imageOps_,
+        width,
+        height
+      }, buffers);
+      return;
+    }
+    const length = job.inputs[0].data.length;
+    const segmentLength = 4 * Math.ceil(length / 4 / threads);
+    for (let i = 0; i < threads; ++i) {
+      const offset = i * segmentLength;
+      const slices = [];
+      for (let j = 0, jj = buffers.length; j < jj; ++j) {
+        slices.push(buffers[j].slice(offset, offset + segmentLength));
+      }
+      this.workers_[i].postMessage({
+        buffers: slices,
+        meta: job.meta,
+        imageOps: this.imageOps_,
+        width,
+        height
+      }, slices);
+    }
+  }
+  /**
+   * Handle messages from the worker.
+   * @param {number} index The worker index.
+   * @param {MessageEvent} event The message event.
+   */
+  onWorkerMessage_(index, event) {
+    if (this.disposed) {
+      return;
+    }
+    this.dataLookup_[index] = event.data;
+    --this.running_;
+    if (this.running_ === 0) {
+      this.resolveJob_();
+    }
+  }
+  /**
+   * Resolve a job.  If there are no more worker threads, the processor callback
+   * will be called.
+   */
+  resolveJob_() {
+    const job = this.job_;
+    const threads = this.workers_.length;
+    let data, meta;
+    if (threads === 1) {
+      data = new Uint8ClampedArray(this.dataLookup_[0]["buffer"]);
+      meta = this.dataLookup_[0]["meta"];
+    } else {
+      const length = job.inputs[0].data.length;
+      data = new Uint8ClampedArray(length);
+      meta = new Array(threads);
+      const segmentLength = 4 * Math.ceil(length / 4 / threads);
+      for (let i = 0; i < threads; ++i) {
+        const buffer = this.dataLookup_[i]["buffer"];
+        const offset = i * segmentLength;
+        data.set(new Uint8ClampedArray(buffer), offset);
+        meta[i] = this.dataLookup_[i]["meta"];
+      }
+    }
+    this.job_ = null;
+    this.dataLookup_ = {};
+    job.callback(null, new ImageData(data, job.inputs[0].width, job.inputs[0].height), meta);
+    this.dispatch_();
+  }
+  /**
+   * Terminate all workers associated with the processor.
+   * @override
+   */
+  disposeInternal() {
+    for (let i = 0; i < this.workers_.length; ++i) {
+      this.workers_[i].terminate();
+    }
+    this.workers_.length = 0;
+  }
+};
+var RasterEventType = {
+  /**
+   * Triggered before operations are run.  Listeners will receive an event object with
+   * a `data` property that can be used to make data available to operations.
+   * @event module:ol/source/Raster.RasterSourceEvent#beforeoperations
+   * @api
+   */
+  BEFOREOPERATIONS: "beforeoperations",
+  /**
+   * Triggered after operations are run.  Listeners will receive an event object with
+   * a `data` property.  If more than one thread is used, `data` will be an array of
+   * objects.  If a single thread is used, `data` will be a single object.
+   * @event module:ol/source/Raster.RasterSourceEvent#afteroperations
+   * @api
+   */
+  AFTEROPERATIONS: "afteroperations"
+};
+var RasterSourceEvent = class extends Event_default {
+  /**
+   * @param {string} type Type.
+   * @param {import("../Map.js").FrameState} frameState The frame state.
+   * @param {Object|Array<Object>} data An object made available to operations.  For "afteroperations" evenets
+   * this will be an array of objects if more than one thread is used.
+   */
+  constructor(type, frameState, data) {
+    super(type);
+    this.extent = frameState.extent;
+    this.resolution = frameState.viewState.resolution / frameState.pixelRatio;
+    this.data = data;
+  }
+};
+var RasterSource = class extends Image_default2 {
+  /**
+   * @param {Options} options Options.
+   */
+  constructor(options) {
+    super({
+      projection: null
+    });
+    this.on;
+    this.once;
+    this.un;
+    this.processor_ = null;
+    this.operationType_ = options.operationType !== void 0 ? options.operationType : "pixel";
+    this.threads_ = options.threads !== void 0 ? options.threads : 1;
+    this.layers_ = createLayers(options.sources);
+    const changed = this.changed.bind(this);
+    for (let i = 0, ii = this.layers_.length; i < ii; ++i) {
+      this.layers_[i].addEventListener(EventType_default.CHANGE, changed);
+    }
+    this.useResolutions_ = options.resolutions !== null;
+    this.tileQueue_ = new TileQueue_default(function() {
+      return 1;
+    }, this.processSources_.bind(this));
+    this.requestedFrameState_;
+    this.renderedImageCanvas_ = null;
+    this.renderedRevision_;
+    this.frameState_ = {
+      animate: false,
+      coordinateToPixelTransform: create(),
+      declutter: null,
+      extent: null,
+      index: 0,
+      layerIndex: 0,
+      layerStatesArray: getLayerStatesArray(this.layers_),
+      pixelRatio: 1,
+      pixelToCoordinateTransform: create(),
+      postRenderFunctions: [],
+      size: [0, 0],
+      tileQueue: this.tileQueue_,
+      time: Date.now(),
+      usedTiles: {},
+      viewState: (
+        /** @type {import("../View.js").State} */
+        {
+          rotation: 0
+        }
+      ),
+      viewHints: [],
+      wantedTiles: {},
+      mapId: getUid(this),
+      renderTargets: {}
+    };
+    this.setAttributions(function(frameState) {
+      const attributions = [];
+      for (let i = 0, iMax = options.sources.length; i < iMax; ++i) {
+        const sourceOrLayer = options.sources[i];
+        const source = sourceOrLayer instanceof Source_default ? sourceOrLayer : sourceOrLayer.getSource();
+        if (!source) {
+          continue;
+        }
+        const sourceAttributions = source.getAttributions()?.(frameState);
+        if (typeof sourceAttributions === "string") {
+          attributions.push(sourceAttributions);
+        } else if (sourceAttributions !== void 0) {
+          attributions.push(...sourceAttributions);
+        }
+      }
+      return attributions;
+    });
+    if (options.operation !== void 0) {
+      this.setOperation(options.operation, options.lib);
+    }
+  }
+  /**
+   * Set the operation.
+   * @param {Operation} operation New operation.
+   * @param {Object} [lib] Functions that will be available to operations run
+   *     in a worker.
+   * @api
+   */
+  setOperation(operation, lib) {
+    if (this.processor_) {
+      this.processor_.dispose();
+    }
+    this.processor_ = new Processor({
+      operation,
+      imageOps: this.operationType_ === "image",
+      queue: 1,
+      lib,
+      threads: this.threads_
+    });
+    this.changed();
+  }
+  /**
+   * Update the stored frame state.
+   * @param {import("../extent.js").Extent} extent The view extent (in map units).
+   * @param {number} resolution The view resolution.
+   * @param {import("../proj/Projection.js").default} projection The view projection.
+   * @return {import("../Map.js").FrameState} The updated frame state.
+   * @private
+   */
+  updateFrameState_(extent, resolution, projection) {
+    const frameState = (
+      /** @type {import("../Map.js").FrameState} */
+      Object.assign({}, this.frameState_)
+    );
+    frameState.viewState = /** @type {import("../View.js").State} */
+    Object.assign({}, frameState.viewState);
+    const center = getCenter(extent);
+    frameState.size[0] = Math.ceil(getWidth(extent) / resolution);
+    frameState.size[1] = Math.ceil(getHeight(extent) / resolution);
+    frameState.extent = [center[0] - frameState.size[0] * resolution / 2, center[1] - frameState.size[1] * resolution / 2, center[0] + frameState.size[0] * resolution / 2, center[1] + frameState.size[1] * resolution / 2];
+    frameState.time = Date.now();
+    const viewState = frameState.viewState;
+    viewState.center = center;
+    viewState.projection = projection;
+    viewState.resolution = resolution;
+    return frameState;
+  }
+  /**
+   * Determine if all sources are ready.
+   * @return {boolean} All sources are ready.
+   * @private
+   */
+  allSourcesReady_() {
+    let ready = true;
+    let source;
+    for (let i = 0, ii = this.layers_.length; i < ii; ++i) {
+      source = this.layers_[i].getSource();
+      if (!source || source.getState() !== "ready") {
+        ready = false;
+        break;
+      }
+    }
+    return ready;
+  }
+  /**
+   * @param {import("../extent.js").Extent} extent Extent.
+   * @param {number} resolution Resolution.
+   * @param {number} pixelRatio Pixel ratio.
+   * @param {import("../proj/Projection.js").default} projection Projection.
+   * @return {import("../ImageCanvas.js").default} Single image.
+   * @override
+   */
+  getImage(extent, resolution, pixelRatio, projection) {
+    if (!this.allSourcesReady_()) {
+      return null;
+    }
+    this.tileQueue_.loadMoreTiles(16, 16);
+    resolution = this.findNearestResolution(resolution);
+    const frameState = this.updateFrameState_(extent, resolution, projection);
+    this.requestedFrameState_ = frameState;
+    if (this.renderedImageCanvas_) {
+      const renderedResolution = this.renderedImageCanvas_.getResolution();
+      const renderedExtent = this.renderedImageCanvas_.getExtent();
+      if (resolution !== renderedResolution || !equals(frameState.extent, renderedExtent)) {
+        this.renderedImageCanvas_ = null;
+      }
+    }
+    if (!this.renderedImageCanvas_ || this.getRevision() !== this.renderedRevision_) {
+      this.processSources_();
+    }
+    if (frameState.animate) {
+      requestAnimationFrame(this.changed.bind(this));
+    }
+    return this.renderedImageCanvas_;
+  }
+  /**
+   * Start processing source data.
+   * @private
+   */
+  processSources_() {
+    const frameState = this.requestedFrameState_;
+    const len = this.layers_.length;
+    const imageDatas = new Array(len);
+    for (let i = 0; i < len; ++i) {
+      frameState.layerIndex = i;
+      frameState.renderTargets = {};
+      const imageData = getImageData(this.layers_[i], frameState);
+      if (imageData) {
+        imageDatas[i] = imageData;
+      } else {
+        return;
+      }
+    }
+    const data = {};
+    this.dispatchEvent(new RasterSourceEvent(RasterEventType.BEFOREOPERATIONS, frameState, data));
+    this.processor_.process(imageDatas, data, this.onWorkerComplete_.bind(this, frameState));
+  }
+  /**
+   * Called when pixel processing is complete.
+   * @param {import("../Map.js").FrameState} frameState The frame state.
+   * @param {Error} err Any error during processing.
+   * @param {ImageData} output The output image data.
+   * @param {Object|Array<Object>} data The user data (or an array if more than one thread).
+   * @private
+   */
+  onWorkerComplete_(frameState, err, output, data) {
+    if (err || !output) {
+      return;
+    }
+    const extent = frameState.extent;
+    const resolution = frameState.viewState.resolution;
+    if (resolution !== this.requestedFrameState_.viewState.resolution || !equals(extent, this.requestedFrameState_.extent)) {
+      return;
+    }
+    let context;
+    if (this.renderedImageCanvas_) {
+      context = this.renderedImageCanvas_.getImage().getContext("2d");
+    } else {
+      const width = Math.round(getWidth(extent) / resolution);
+      const height = Math.round(getHeight(extent) / resolution);
+      context = createCanvasContext2D(width, height);
+      this.renderedImageCanvas_ = new ImageCanvas_default(extent, resolution, 1, context.canvas);
+    }
+    context.putImageData(output, 0, 0);
+    if (frameState.animate) {
+      requestAnimationFrame(this.changed.bind(this));
+    } else {
+      this.changed();
+    }
+    this.renderedRevision_ = this.getRevision();
+    this.dispatchEvent(new RasterSourceEvent(RasterEventType.AFTEROPERATIONS, frameState, data));
+  }
+  /**
+   * @param {import("../proj/Projection").default} [projection] Projection.
+   * @return {Array<number>|null} Resolutions.
+   * @override
+   */
+  getResolutions(projection) {
+    if (!this.useResolutions_) {
+      return null;
+    }
+    let resolutions = super.getResolutions();
+    if (!resolutions) {
+      for (let i = 0, ii = this.layers_.length; i < ii; ++i) {
+        const source = this.layers_[i].getSource();
+        resolutions = source.getResolutions(projection);
+        if (resolutions) {
+          break;
+        }
+      }
+    }
+    return resolutions;
+  }
+  /**
+   * @override
+   */
+  disposeInternal() {
+    if (this.processor_) {
+      this.processor_.dispose();
+    }
+    super.disposeInternal();
+  }
+};
+RasterSource.prototype.dispose;
+var sharedContext = null;
+function getImageData(layer, frameState) {
+  const renderer = layer.getRenderer();
+  if (!renderer) {
+    throw new Error("Unsupported layer type: " + layer);
+  }
+  if (!renderer.prepareFrame(frameState)) {
+    return null;
+  }
+  const width = frameState.size[0];
+  const height = frameState.size[1];
+  if (width === 0 || height === 0) {
+    return null;
+  }
+  const container = renderer.renderFrame(frameState, null);
+  let element;
+  if (container instanceof HTMLCanvasElement) {
+    element = container;
+  } else {
+    if (container) {
+      element = container.firstElementChild;
+    }
+    if (!(element instanceof HTMLCanvasElement)) {
+      throw new Error("Unsupported rendered element: " + element);
+    }
+    if (element.width === width && element.height === height) {
+      const context = element.getContext("2d");
+      return context.getImageData(0, 0, width, height);
+    }
+  }
+  if (!sharedContext) {
+    sharedContext = createCanvasContext2D(width, height, void 0, {
+      willReadFrequently: true
+    });
+  } else {
+    const canvas = sharedContext.canvas;
+    if (canvas.width !== width || canvas.height !== height) {
+      sharedContext = createCanvasContext2D(width, height, void 0, {
+        willReadFrequently: true
+      });
+    } else {
+      sharedContext.clearRect(0, 0, width, height);
+    }
+  }
+  sharedContext.drawImage(element, 0, 0, width, height);
+  return sharedContext.getImageData(0, 0, width, height);
+}
+function getLayerStatesArray(layers) {
+  return layers.map(function(layer) {
+    return layer.getLayerState();
+  });
+}
+function createLayers(sources) {
+  const len = sources.length;
+  const layers = new Array(len);
+  for (let i = 0; i < len; ++i) {
+    layers[i] = createLayer(sources[i]);
+  }
+  return layers;
+}
+function createLayer(layerOrSource) {
+  let layer;
+  if (layerOrSource instanceof Source_default) {
+    if (layerOrSource instanceof Tile_default) {
+      layer = new Tile_default2({
+        source: layerOrSource
+      });
+    } else if (layerOrSource instanceof Image_default2) {
+      layer = new Image_default({
+        source: layerOrSource
+      });
+    }
+  } else {
+    layer = layerOrSource;
+  }
+  return layer;
+}
+var Raster_default = RasterSource;
+
+// ../../node_modules/ol/net.js
+function jsonp(url, callback, errback, callbackParam) {
+  const script = document.createElement("script");
+  const key = "olc_" + getUid(callback);
+  function cleanup() {
+    delete window[key];
+    script.parentNode.removeChild(script);
+  }
+  script.async = true;
+  script.src = url + (url.includes("?") ? "&" : "?") + (callbackParam || "callback") + "=" + key;
+  const timer = setTimeout(function() {
+    cleanup();
+    if (errback) {
+      errback();
+    }
+  }, 1e4);
+  window[key] = function(data) {
+    clearTimeout(timer);
+    cleanup();
+    callback(data);
+  };
+  document.head.appendChild(script);
+}
+var ResponseError = class extends Error {
+  /**
+   * @param {XMLHttpRequest} response The XHR object.
+   */
+  constructor(response) {
+    const message = "Unexpected response status: " + response.status;
+    super(message);
+    this.name = "ResponseError";
+    this.response = response;
+  }
+};
+var ClientError = class extends Error {
+  /**
+   * @param {XMLHttpRequest} client The XHR object.
+   */
+  constructor(client) {
+    super("Failed to issue request");
+    this.name = "ClientError";
+    this.client = client;
+  }
+};
+function getJSON(url) {
+  return new Promise(function(resolve, reject) {
+    function onLoad(event) {
+      const client2 = event.target;
+      if (!client2.status || client2.status >= 200 && client2.status < 300) {
+        let data;
+        try {
+          data = JSON.parse(client2.responseText);
+        } catch (err) {
+          const message = "Error parsing response text as JSON: " + err.message;
+          reject(new Error(message));
+          return;
+        }
+        resolve(data);
+        return;
+      }
+      reject(new ResponseError(client2));
+    }
+    function onError(event) {
+      reject(new ClientError(event.target));
+    }
+    const client = new XMLHttpRequest();
+    client.addEventListener("load", onLoad);
+    client.addEventListener("error", onError);
+    client.open("GET", url);
+    client.setRequestHeader("Accept", "application/json");
+    client.send();
+  });
+}
+function resolveUrl(base, url) {
+  if (url.includes("://")) {
+    return url;
+  }
+  return new URL(url, base).href;
+}
+
+// ../../node_modules/ol/source/TileJSON.js
+var TileJSON = class extends TileImage_default {
+  /**
+   * @param {Options} options TileJSON options.
+   */
+  constructor(options) {
+    super({
+      attributions: options.attributions,
+      cacheSize: options.cacheSize,
+      crossOrigin: options.crossOrigin,
+      interpolate: options.interpolate,
+      projection: get("EPSG:3857"),
+      reprojectionErrorThreshold: options.reprojectionErrorThreshold,
+      state: "loading",
+      tileLoadFunction: options.tileLoadFunction,
+      wrapX: options.wrapX !== void 0 ? options.wrapX : true,
+      transition: options.transition,
+      zDirection: options.zDirection
+    });
+    this.tileJSON_ = null;
+    this.tileSize_ = options.tileSize;
+    if (options.url) {
+      if (options.jsonp) {
+        jsonp(options.url, this.handleTileJSONResponse.bind(this), this.handleTileJSONError.bind(this));
+      } else {
+        const client = new XMLHttpRequest();
+        client.addEventListener("load", this.onXHRLoad_.bind(this));
+        client.addEventListener("error", this.onXHRError_.bind(this));
+        client.open("GET", options.url);
+        client.send();
+      }
+    } else if (options.tileJSON) {
+      this.handleTileJSONResponse(options.tileJSON);
+    } else {
+      throw new Error("Either `url` or `tileJSON` options must be provided");
+    }
+  }
+  /**
+   * @private
+   * @param {Event} event The load event.
+   */
+  onXHRLoad_(event) {
+    const client = (
+      /** @type {XMLHttpRequest} */
+      event.target
+    );
+    if (!client.status || client.status >= 200 && client.status < 300) {
+      let response;
+      try {
+        response = /** @type {Config} */
+        JSON.parse(client.responseText);
+      } catch (err) {
+        this.handleTileJSONError();
+        return;
+      }
+      this.handleTileJSONResponse(response);
+    } else {
+      this.handleTileJSONError();
+    }
+  }
+  /**
+   * @private
+   * @param {Event} event The error event.
+   */
+  onXHRError_(event) {
+    this.handleTileJSONError();
+  }
+  /**
+   * @return {Config} The tilejson object.
+   * @api
+   */
+  getTileJSON() {
+    return this.tileJSON_;
+  }
+  /**
+   * @protected
+   * @param {Config} tileJSON Tile JSON.
+   */
+  handleTileJSONResponse(tileJSON) {
+    const epsg4326Projection = get("EPSG:4326");
+    const sourceProjection = this.getProjection();
+    let extent;
+    if (tileJSON["bounds"] !== void 0) {
+      const transform = getTransformFromProjections(epsg4326Projection, sourceProjection);
+      extent = applyTransform(tileJSON["bounds"], transform);
+    }
+    const gridExtent = extentFromProjection(sourceProjection);
+    const minZoom = tileJSON["minzoom"] || 0;
+    const maxZoom = tileJSON["maxzoom"] || 22;
+    const tileGrid = createXYZ({
+      extent: gridExtent,
+      maxZoom,
+      minZoom,
+      tileSize: this.tileSize_
+    });
+    this.tileGrid = tileGrid;
+    this.tileUrlFunction = createFromTemplates(tileJSON["tiles"], tileGrid);
+    if (tileJSON["attribution"] && !this.getAttributions()) {
+      const attributionExtent = extent !== void 0 ? extent : gridExtent;
+      this.setAttributions(function(frameState) {
+        if (intersects(attributionExtent, frameState.extent)) {
+          return [tileJSON["attribution"]];
+        }
+        return null;
+      });
+    }
+    this.tileJSON_ = tileJSON;
+    this.setState("ready");
+  }
+  /**
+   * @protected
+   */
+  handleTileJSONError() {
+    this.setState("error");
+  }
+};
+var TileJSON_default = TileJSON;
+
+export {
+  Raster_default,
+  jsonp,
+  getJSON,
+  resolveUrl,
+  TileJSON_default
+};
+//# sourceMappingURL=chunk-RD66JAWX.js.map

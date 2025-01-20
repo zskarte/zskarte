@@ -1,0 +1,15 @@
+{
+  "cSpell.words": [
+    "dexie",
+    "mapstate",
+    "moveend",
+    "zskarte"
+  ],
+  "editor.defaultFormatter": "biomejs.biome",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

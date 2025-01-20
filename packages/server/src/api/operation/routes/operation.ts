@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * operation router.
  */

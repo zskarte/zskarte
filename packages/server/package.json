@@ -12,9 +12,7 @@
     "start": "strapi start",
     "build": "strapi build",
     "regenerate": "strapi ts:generate-types",
-    "strapi": "strapi",
-    "lint": "eslint \"src/**/*.ts\"",
-    "prettify": "prettier --write \"**/*.{js,ts,html,css,json,md}\""
+    "strapi": "strapi"
   },
   "dependencies": {
     "@strapi/plugin-i18n": "^4.25.13",
@@ -31,11 +29,6 @@
     "styled-components": "^5.2.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.14",
-    "@typescript-eslint/eslint-plugin": "^8.10.0",
-    "@typescript-eslint/parser": "^8.10.0",
-    "eslint": "^9.13.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "prettier": "^3.3.3"
+    "@types/lodash": "^4.17.14"
   }
 }
