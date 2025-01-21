@@ -17,7 +17,7 @@
         <ng-template matExpansionPanelContent>
           <div *ngIf="!editing">
             <div class="journal-entry-details">
-              <h3>{{selectedJournalEntry.name}}</h3>
+              <h3>{{selectedJournalEntry.subject}}</h3>
               <p>{{selectedJournalEntry.content}}</p>
               <span>{{selectedJournalEntry.dateCreated.toLocaleString('de-CH')}}</span>
               <button mat-raised-button (click)="toggleEditing()">
@@ -30,12 +30,59 @@
           <div *ngIf="editing">
             <div class="journal-entry-details">
               <mat-form-field>
-                <mat-label>Name</mat-label>
-                <input matInput [value]="selectedJournalEntry.name">
+                <mat-label>Meldungsnr.</mat-label>
+                <input matInput>
               </mat-form-field>
               <mat-form-field>
-                <mat-label>Beschreibung</mat-label>
+                <mat-label>Absender</mat-label>
+                <input matInput>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Empfänger</mat-label>
+                <input matInput>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Datum</mat-label>
+                <input matInput [matDatepicker]="picker">
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Zeit</mat-label>
+                <input matInput [matTimepicker]="pickerTime">
+                <mat-timepicker-toggle matIconSuffix [for]="pickerTime"/>
+                <mat-timepicker #pickerTime/>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Kommunikationsmittel</mat-label>
+                <select matNativeControl required>
+                  <option value="telefon">Telefon</option>
+                  <option value="funk">Funk</option>
+                  <option value="email">E-Mail</option>
+                  <option value="fax">Fax</option>
+                  <option value="sms">SMS</option>
+                  <option value="kurier">Kurier</option>
+                  <option value="anderes">Anderes</option>
+                </select>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Nummer/Kanal</mat-label>
+                <input matInput>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Betreff</mat-label>
+                <input matInput [value]="selectedJournalEntry.subject">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Meldungsinhalt</mat-label>
                 <textarea matInput [value]="selectedJournalEntry.content" rows="10"></textarea>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Visum</mat-label>
+                <input matInput>
               </mat-form-field>
 
               <button mat-raised-button (click)="toggleEditing()">
@@ -80,9 +127,9 @@
           <td mat-cell *matCellDef="let element"> {{element.nr}} </td>
         </ng-container>
 
-        <ng-container matColumnDef="name">
+        <ng-container matColumnDef="subject">
           <th mat-header-cell *matHeaderCellDef>Name </th>
-          <td mat-cell *matCellDef="let element">{{element.name}}</td>
+          <td mat-cell *matCellDef="let element">{{element.subject}}</td>
         </ng-container>
 
         <ng-container matColumnDef="content">

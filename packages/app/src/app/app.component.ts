@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatTabsModule } from "@angular/material/tabs";
 import {NgFor} from "@angular/common";
 
@@ -29,15 +29,12 @@ export class AppComponent implements OnInit {
   height = window.innerHeight;
   width = window.innerWidth;
 
-  constructor(private router: Router) {
+  constructor() {
     this._shortcut.initialize();
   }
 
   ngOnInit(): void {
     this.setSize();
-    /*this.router.events.subscribe((res) => {
-      this.activeLinkIndex = this.navLinks.indexOf(this.navLinks.find(tab => tab.link === '.' + this.router.url));
-    });*/
   }
 
   @HostListener('window:resize', ['$event'])
