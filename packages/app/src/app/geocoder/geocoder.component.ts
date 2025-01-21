@@ -57,7 +57,7 @@ export class GeocoderComponent implements OnDestroy {
         this.selected = null;
       });
 
-    zsMapStateService.addSearch(this.coordinateSearch.bind(this), 'Koordinaten', undefined, 1);
+    zsMapStateService.addSearch(this.coordinateSearch.bind(this), this.i18n.get('csvLocation'), undefined, 1);
     zsMapStateService.addSearch(this.geoAdminLocationSearch.bind(this), 'Geo Admin', undefined, 100);
   }
 
@@ -70,11 +70,11 @@ export class GeocoderComponent implements OnDestroy {
     const coords = coordinateFromString(text);
 
     if (coords) {
-      return [{ label: text, lonLat: coords }]
+      return [{ label: text, lonLat: coords }];
     }
 
     return [];
-  } 
+  }
 
   async geoAdminLocationSearch(text: string, maxResultCount?: number) {
     if (!navigator.onLine) {
