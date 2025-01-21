@@ -105,14 +105,12 @@ export class SelectedFeatureComponent implements OnDestroy {
       takeUntil(this._ngUnsubscribe),
       switchMap((element) => element?.observeElement() ?? EMPTY),
     );
-    this.selectedSignature = this.zsMapStateService.observeSelectedElement$().pipe(
-      takeUntil(this._ngUnsubscribe),
+    this.selectedSignature = this.selectedDrawElement.pipe(
       map((element) => {
-        const sig = element?.getOlFeature()?.get('sig');
+        const sig = Signs.getSignById(element?.symbolId);
         if (!sig) return undefined;
-        const signById = sig.id ? Signs.getSignById(sig.id) : { ...sig };
-        signById.createdBy = element?.elementState?.createdBy;
-        return signById;
+        sig.createdBy = element?.createdBy;
+        return sig;
       }),
     );
 
@@ -204,6 +202,17 @@ export class SelectedFeatureComponent implements OnDestroy {
     return result;
   }
 
+  patchProperties(element: ZsMapDrawElementState, update: Partial<ZsMapDrawElementState> = {}) {
+    const el = this._drawElementCache[element?.id ?? ''];
+    if (!el) {
+      return;
+    }
+
+    el.updateElementState(draft => {
+      Object.entries(update).forEach(([key, value]) => draft[key] = value);
+    });
+  }
+
   updateProperty<T extends keyof ZsMapDrawElementState>(
     element: ZsMapDrawElementState,
     field: T | string,
@@ -237,10 +246,23 @@ export class SelectedFeatureComponent implements OnDestroy {
   chooseSymbol(drawElement: ZsMapDrawElementState) {
     const dialogRef = this.dialog.open(SelectSignDialog);
     dialogRef.afterClosed().subscribe((result: Sign) => {
+      console.log(result.type)
       if (result) {
-        this.updateProperty(drawElement, 'symbolId', result.id);
-
-        this.zsMapStateService.setSelectedFeature(drawElement.id);
+        if (result.type === "Polygon" || result.type === "LineString") {
+          // Add all default styles of the new signature, if it's a Line or Polygon
+          // This way if a Polygon changes i.e. from "Actions" to "Damage" the Polygon goes from blue to red
+          this.patchProperties(drawElement, {
+            symbolId: result.id,
+            color: result.color,
+            arrow: result.arrow ?? '', // if arrow is undefined the immer patch does not work properly
+            style: result.style ?? '', // if style is undefined the immer patch does not work properly
+            fillStyle: result.fillStyle,
+            fillOpacity: result.fillOpacity,
+            hideIcon: result.hideIcon,
+          })
+        } else {
+          this.updateProperty(drawElement, 'symbolId', result.id);
+        }
       }
     });
   }
