@@ -20,7 +20,10 @@
     "target": "es2020",
     "module": "es2020",
     "lib": ["es2020", "dom"],
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "paths": {
+      "@zskarte/types": ["../types"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
