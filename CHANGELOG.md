@@ -1,6 +1,10 @@
 # Changelog
 
-## V4
+## 5.0.0
+
+- TBD
+
+## 4.0.0
 
 - Implement new floating design
 - Add undo/redo
