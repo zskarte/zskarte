@@ -1,4 +1,7 @@
+import type {Common} from "@strapi/types/dist/types";
+
 export interface JournalEntry {
+  uid: Common.UID.ContentType;
   communication_details: string;
   communication_type: string;
   createdAt: Date;

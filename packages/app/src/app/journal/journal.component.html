@@ -1,114 +1,109 @@
 <mat-sidenav-container>
-  <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="side" [opened]="selectedJournalEntry != null">
+  <mat-sidenav *ngIf="selectedJournalEntry" class="journal-sidebar mat-elevation-z3" position="end" mode="side" [opened]="selectedJournalEntry != null">
     <div class="sidebar-header">
-      <h1>Meldenr. {{selectedJournalEntry?.nr}}</h1>
+      <h1>{{selectedJournalEntry.message_number !== undefined ? selectedJournalEntry.message_number.toString().padStart(3, "0") : ''}} | {{selectedJournalEntry.message_subject ?? ""}}</h1>
       <button (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
         <mat-icon>close</mat-icon>
       </button>
     </div>
 
-    <mat-accordion *ngIf="selectedJournalEntry" multi="true" displayMode="flat">
-      <mat-expansion-panel expanded="true" class="mat-elevation-z0">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Meldeinformationen
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <ng-template matExpansionPanelContent>
-          <div *ngIf="!editing">
-            <div class="journal-entry-details">
-              <h3>{{selectedJournalEntry.subject}}</h3>
-              <p>{{selectedJournalEntry.content}}</p>
-              <span>{{selectedJournalEntry.dateCreated.toLocaleString('de-CH')}}</span>
-              <button mat-stroked-button (click)="toggleEditing()" style="align-self: start;">
-                <mat-icon>edit</mat-icon>
-                {{ i18n.get('edit') }}
-              </button>
-            </div>
+   <div *ngIf="!editing">
+      <div class="journal-entry-details">
+          <p>
+              <strong>Absender:</strong> {{selectedJournalEntry.sender}}<br>
+              <strong>Empfänger:</strong> {{selectedJournalEntry.creator}}<br>
+              <strong>Datum:</strong> {{selectedJournalEntry.date_created?.toLocaleString('de-CH')}}<br>
+              <strong>Kommunikationsmittel:</strong> {{selectedJournalEntry.communication_type}}<br>
+              <strong>Nummer/Kanal:</strong> {{selectedJournalEntry.communication_details}}<br><br>
+              <strong>Meldungsinhalt:</strong><br>{{selectedJournalEntry.message_content}}
+          </p>
+          <button mat-stroked-button (click)="toggleEditing()" style="align-self: start;">
+              <mat-icon>edit</mat-icon>
+              {{ i18n.get('edit') }}
+          </button>
+      </div>
 
-          </div>
-          <div *ngIf="editing">
-            <div class="journal-entry-details">
-              <div style="width: 100px;">
-                <mat-form-field>
+  </div>
+      <div *ngIf="editing">
+      <div class="journal-entry-details">
+          <div style="width: 100px;">
+              <mat-form-field>
                   <mat-label>Meldungsnr.</mat-label>
-                  <input matInput disabled [value]="selectedJournalEntry.nr">
-                </mat-form-field>
-              </div>
-              <div style="display: flex; gap: 6px;">
-                <mat-form-field>
+                  <input matInput disabled [ngModel]="selectedJournalEntry.message_number">
+              </mat-form-field>
+          </div>
+          <div style="display: flex; gap: 6px;">
+              <mat-form-field>
                   <mat-label>Absender</mat-label>
-                  <input matInput>
-                </mat-form-field>
-                <mat-form-field>
+                  <input matInput [ngModel]="selectedJournalEntry.sender">
+              </mat-form-field>
+              <mat-form-field>
                   <mat-label>Empfänger</mat-label>
-                  <input matInput>
-                </mat-form-field>
-              </div>
-              <div style="display: flex; gap: 6px;">
-                <mat-form-field>
+                  <input matInput [ngModel]="selectedJournalEntry.creator">
+              </mat-form-field>
+          </div>
+          <div style="display: flex; gap: 6px;">
+              <mat-form-field>
                   <mat-label>Datum</mat-label>
                   <input matInput [matDatepicker]="picker">
                   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field>
-                <mat-form-field>
+              </mat-form-field>
+              <mat-form-field>
                   <mat-label>Zeit</mat-label>
                   <input matInput [matTimepicker]="pickerTime">
                   <mat-timepicker-toggle matIconSuffix [for]="pickerTime"/>
                   <mat-timepicker #pickerTime/>
-                </mat-form-field>
-              </div>
-              <div style="display: flex; gap: 6px;">
-                <mat-form-field>
+              </mat-form-field>
+          </div>
+          <div style="display: flex; gap: 6px;">
+              <mat-form-field>
                   <mat-label>Kommunikationsmittel</mat-label>
-                  <select matNativeControl required>
-                    <option value="telefon">Telefon</option>
-                    <option value="funk">Funk</option>
-                    <option value="email">E-Mail</option>
-                    <option value="fax">Fax</option>
-                    <option value="sms">SMS</option>
-                    <option value="kurier">Kurier</option>
-                    <option value="anderes">Anderes</option>
+                  <select matNativeControl required [ngModel]="selectedJournalEntry.communication_type">
+                      <option value="telefon">Telefon</option>
+                      <option value="funk">Funk</option>
+                      <option value="email">E-Mail</option>
+                      <option value="fax">Fax</option>
+                      <option value="sms">SMS</option>
+                      <option value="kurier">Kurier</option>
+                      <option value="anderes">Anderes</option>
                   </select>
-                </mat-form-field>
+              </mat-form-field>
 
-                <mat-form-field>
+              <mat-form-field>
                   <mat-label>Nummer/Kanal</mat-label>
-                  <input matInput>
-                </mat-form-field>
-              </div>
+                  <input matInput [ngModel]="selectedJournalEntry.communication_details">
+              </mat-form-field>
+          </div>
 
+          <mat-form-field>
+              <mat-label>Betreff</mat-label>
+              <input matInput [value]="selectedJournalEntry.message_subject">
+          </mat-form-field>
+          <mat-form-field>
+              <mat-label>Meldungsinhalt</mat-label>
+              <textarea matInput [value]="selectedJournalEntry.message_content" rows="10"></textarea>
+          </mat-form-field>
+          <div style="width: 100px;">
               <mat-form-field>
-                <mat-label>Betreff</mat-label>
-                <input matInput [value]="selectedJournalEntry.subject">
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Meldungsinhalt</mat-label>
-                <textarea matInput [value]="selectedJournalEntry.content" rows="10"></textarea>
-              </mat-form-field>
-              <div style="width: 100px;">
-                <mat-form-field>
                   <mat-label>Visum</mat-label>
-                  <input matInput>
-                </mat-form-field>
-              </div>
+                  <input matInput [value]="selectedJournalEntry.visum_decision_receiver">
+              </mat-form-field>
+          </div>
 
-              <div style="display:flex; justify-content: end; gap: 6px;">
-                <button mat-stroked-button (click)="toggleEditing()">
+          <div style="display:flex; justify-content: end; gap: 6px;">
+              <button mat-stroked-button (click)="toggleEditing()">
                   <mat-icon>close</mat-icon>
                   {{ i18n.get('cancel') }}
-                </button>
-                <button mat-flat-button color="primary" (click)="save()">
+              </button>
+              <button mat-flat-button color="primary" (click)="save()">
                   <mat-icon>check</mat-icon>
                   {{ i18n.get('save') }}
-                </button>
-              </div>
-            </div>
+              </button>
           </div>
-        </ng-template>
-      </mat-expansion-panel>
-      <mat-divider></mat-divider>
+      </div>
+  </div>
+    <mat-accordion multi="true" displayMode="flat">
       <mat-expansion-panel class="mat-elevation-z0">
         <mat-expansion-panel-header>
           <mat-panel-title>
