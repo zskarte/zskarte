@@ -1,0 +1,404 @@
+{
+  "name": "Editor",
+  "code": "strapi-editor",
+  "description": "Editors can manage and publish contents including those of other users.",
+  "permissions": [
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "actionParameters": {},
+      "subject": "api::access.access",
+      "properties": {
+        "fields": [
+          "accessToken",
+          "operation",
+          "type",
+          "name",
+          "active",
+          "expiresOn"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "actionParameters": {},
+      "subject": "api::access.access",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "actionParameters": {},
+      "subject": "api::access.access",
+      "properties": {
+        "fields": [
+          "accessToken",
+          "operation",
+          "type",
+          "name",
+          "active",
+          "expiresOn"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "actionParameters": {},
+      "subject": "api::access.access",
+      "properties": {
+        "fields": [
+          "accessToken",
+          "operation",
+          "type",
+          "name",
+          "active",
+          "expiresOn"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "actionParameters": {},
+      "subject": "api::map-layer.map-layer",
+      "properties": {
+        "fields": [
+          "label",
+          "serverLayerName",
+          "type",
+          "wms_source",
+          "custom_source",
+          "options",
+          "public",
+          "organization"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "actionParameters": {},
+      "subject": "api::map-layer.map-layer",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "actionParameters": {},
+      "subject": "api::map-layer.map-layer",
+      "properties": {
+        "fields": [
+          "label",
+          "serverLayerName",
+          "type",
+          "wms_source",
+          "custom_source",
+          "options",
+          "public",
+          "organization"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "actionParameters": {},
+      "subject": "api::map-layer.map-layer",
+      "properties": {
+        "fields": [
+          "label",
+          "serverLayerName",
+          "type",
+          "wms_source",
+          "custom_source",
+          "options",
+          "public",
+          "organization"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "actionParameters": {},
+      "subject": "api::map-snapshot.map-snapshot",
+      "properties": {
+        "fields": [
+          "mapState",
+          "operation"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "actionParameters": {},
+      "subject": "api::map-snapshot.map-snapshot",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.publish",
+      "actionParameters": {},
+      "subject": "api::map-snapshot.map-snapshot",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "actionParameters": {},
+      "subject": "api::map-snapshot.map-snapshot",
+      "properties": {
+        "fields": [
+          "mapState",
+          "operation"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "actionParameters": {},
+      "subject": "api::map-snapshot.map-snapshot",
+      "properties": {
+        "fields": [
+          "mapState",
+          "operation"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "actionParameters": {},
+      "subject": "api::operation.operation",
+      "properties": {
+        "fields": [
+          "name",
+          "description",
+          "status",
+          "organization",
+          "mapState",
+          "mapSnapshots",
+          "eventStates",
+          "mapLayers"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "actionParameters": {},
+      "subject": "api::operation.operation",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "actionParameters": {},
+      "subject": "api::operation.operation",
+      "properties": {
+        "fields": [
+          "name",
+          "description",
+          "status",
+          "organization",
+          "mapState",
+          "mapSnapshots",
+          "eventStates",
+          "mapLayers"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "actionParameters": {},
+      "subject": "api::operation.operation",
+      "properties": {
+        "fields": [
+          "name",
+          "description",
+          "status",
+          "organization",
+          "mapState",
+          "mapSnapshots",
+          "eventStates",
+          "mapLayers"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "actionParameters": {},
+      "subject": "api::organization.organization",
+      "properties": {
+        "fields": [
+          "name",
+          "mapLongitude",
+          "mapLatitude",
+          "mapZoomLevel",
+          "defaultLocale",
+          "url",
+          "logo",
+          "operations",
+          "users",
+          "wms_sources",
+          "map_layer_favorites"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "actionParameters": {},
+      "subject": "api::organization.organization",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "actionParameters": {},
+      "subject": "api::organization.organization",
+      "properties": {
+        "fields": [
+          "name",
+          "mapLongitude",
+          "mapLatitude",
+          "mapZoomLevel",
+          "defaultLocale",
+          "url",
+          "logo",
+          "operations",
+          "users",
+          "wms_sources",
+          "map_layer_favorites"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "actionParameters": {},
+      "subject": "api::organization.organization",
+      "properties": {
+        "fields": [
+          "name",
+          "mapLongitude",
+          "mapLatitude",
+          "mapZoomLevel",
+          "defaultLocale",
+          "url",
+          "logo",
+          "operations",
+          "users",
+          "wms_sources",
+          "map_layer_favorites"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.create",
+      "actionParameters": {},
+      "subject": "api::wms-source.wms-source",
+      "properties": {
+        "fields": [
+          "label",
+          "type",
+          "url",
+          "attribution",
+          "public",
+          "organization",
+          "map_layers"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.delete",
+      "actionParameters": {},
+      "subject": "api::wms-source.wms-source",
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.read",
+      "actionParameters": {},
+      "subject": "api::wms-source.wms-source",
+      "properties": {
+        "fields": [
+          "label",
+          "type",
+          "url",
+          "attribution",
+          "public",
+          "organization",
+          "map_layers"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::content-manager.explorer.update",
+      "actionParameters": {},
+      "subject": "api::wms-source.wms-source",
+      "properties": {
+        "fields": [
+          "label",
+          "type",
+          "url",
+          "attribution",
+          "public",
+          "organization",
+          "map_layers"
+        ]
+      },
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.copy-link",
+      "actionParameters": {},
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.create",
+      "actionParameters": {},
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.download",
+      "actionParameters": {},
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.assets.update",
+      "actionParameters": {},
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.configure-view",
+      "actionParameters": {},
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    },
+    {
+      "action": "plugin::upload.read",
+      "actionParameters": {},
+      "subject": null,
+      "properties": {},
+      "conditions": []
+    }
+  ]
+}

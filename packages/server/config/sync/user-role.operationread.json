@@ -1,0 +1,43 @@
+{
+  "name": "OperationRead",
+  "description": "The role for the default operation_read user.",
+  "type": "operationread",
+  "permissions": [
+    {
+      "action": "api::access.access.refresh"
+    },
+    {
+      "action": "api::journal-entry.journal-entry.find"
+    },
+    {
+      "action": "api::map-layer.map-layer.find"
+    },
+    {
+      "action": "api::map-layer.map-layer.findOne"
+    },
+    {
+      "action": "api::map-snapshot.map-snapshot.find"
+    },
+    {
+      "action": "api::map-snapshot.map-snapshot.findOne"
+    },
+    {
+      "action": "api::operation.operation.currentLocation"
+    },
+    {
+      "action": "api::operation.operation.findOne"
+    },
+    {
+      "action": "api::operation.operation.overview"
+    },
+    {
+      "action": "api::wms-source.wms-source.find"
+    },
+    {
+      "action": "api::wms-source.wms-source.findOne"
+    },
+    {
+      "action": "plugin::users-permissions.user.me"
+    }
+  ]
+}

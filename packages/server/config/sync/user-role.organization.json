@@ -1,0 +1,115 @@
+{
+  "name": "Organization",
+  "description": "Main Organization Users",
+  "type": "organization",
+  "permissions": [
+    {
+      "action": "api::access.access.create"
+    },
+    {
+      "action": "api::access.access.delete"
+    },
+    {
+      "action": "api::access.access.find"
+    },
+    {
+      "action": "api::access.access.findOne"
+    },
+    {
+      "action": "api::access.access.generate"
+    },
+    {
+      "action": "api::access.access.refresh"
+    },
+    {
+      "action": "api::access.access.token"
+    },
+    {
+      "action": "api::access.access.update"
+    },
+    {
+      "action": "api::journal-entry.journal-entry.create"
+    },
+    {
+      "action": "api::journal-entry.journal-entry.find"
+    },
+    {
+      "action": "api::journal-entry.journal-entry.update"
+    },
+    {
+      "action": "api::map-layer.map-layer.create"
+    },
+    {
+      "action": "api::map-layer.map-layer.delete"
+    },
+    {
+      "action": "api::map-layer.map-layer.find"
+    },
+    {
+      "action": "api::map-layer.map-layer.findOne"
+    },
+    {
+      "action": "api::map-layer.map-layer.update"
+    },
+    {
+      "action": "api::map-snapshot.map-snapshot.find"
+    },
+    {
+      "action": "api::map-snapshot.map-snapshot.findOne"
+    },
+    {
+      "action": "api::operation.operation.archive"
+    },
+    {
+      "action": "api::operation.operation.create"
+    },
+    {
+      "action": "api::operation.operation.currentLocation"
+    },
+    {
+      "action": "api::operation.operation.find"
+    },
+    {
+      "action": "api::operation.operation.findOne"
+    },
+    {
+      "action": "api::operation.operation.overview"
+    },
+    {
+      "action": "api::operation.operation.patch"
+    },
+    {
+      "action": "api::operation.operation.unarchive"
+    },
+    {
+      "action": "api::operation.operation.updateMapLayers"
+    },
+    {
+      "action": "api::operation.operation.updateMeta"
+    },
+    {
+      "action": "api::organization.organization.find"
+    },
+    {
+      "action": "api::organization.organization.updateLayerSettings"
+    },
+    {
+      "action": "api::wms-source.wms-source.create"
+    },
+    {
+      "action": "api::wms-source.wms-source.delete"
+    },
+    {
+      "action": "api::wms-source.wms-source.find"
+    },
+    {
+      "action": "api::wms-source.wms-source.findOne"
+    },
+    {
+      "action": "api::wms-source.wms-source.update"
+    },
+    {
+      "action": "plugin::users-permissions.user.me"
+    }
+  ]
+}
