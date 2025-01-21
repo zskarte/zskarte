@@ -1,14 +1,14 @@
+import { ZsMapDrawElementStateType, ZsMapLayerState } from '@zskarte/types';
+import Feature, { FeatureLike } from 'ol/Feature';
+import { getCenter } from 'ol/extent';
+import { Geometry, Point } from 'ol/geom';
+import VectorLayer from 'ol/layer/Vector';
+import { Cluster } from 'ol/source';
+import VectorSource from 'ol/source/Vector';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
-import { ZsMapDrawElementStateType, ZsMapLayerState } from '@zskarte/types';
 import { ZsMapStateService } from '../../state/state.service';
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import Feature, { FeatureLike } from 'ol/Feature';
 import { DrawStyle } from '../draw-style';
-import { Cluster } from 'ol/source';
-import { Geometry, Point } from 'ol/geom';
-import { getCenter } from 'ol/extent';
 
 export abstract class ZsMapBaseLayer {
   protected _layer: Observable<ZsMapLayerState | undefined>;
@@ -45,10 +45,7 @@ export abstract class ZsMapBaseLayer {
   ) {
     this._layer = this._state.observeMapState().pipe(
       map((o) => {
-        if (o?.layers && o.layers.length > 0) {
-          return o.layers.find((i) => i.id === this._id);
-        }
-        return undefined;
+        return o?.layers?.[this._id];
       }),
       distinctUntilChanged((x, y) => x === y),
       takeUntil(this._unsubscribe),
@@ -72,11 +69,13 @@ export abstract class ZsMapBaseLayer {
         this._olLayer.setOpacity(opacity);
       });
 
-    combineLatest([this.observeMapZoom(), this._state.observeEnableClustering()]).subscribe(([mapZoom, enableClustering]) => {
-      // don't show clustering if zoomed in more than 14
-      const shouldCluster = enableClustering && mapZoom < 14;
-      this._olLayer.setSource(shouldCluster ? this._clusterSource : this._olSource);
-    });
+    combineLatest([this.observeMapZoom(), this._state.observeEnableClustering()]).subscribe(
+      ([mapZoom, enableClustering]) => {
+        // don't show clustering if zoomed in more than 14
+        const shouldCluster = enableClustering && mapZoom < 14;
+        this._olLayer.setSource(shouldCluster ? this._clusterSource : this._olSource);
+      },
+    );
   }
 
   public getId(): string {
@@ -126,7 +125,7 @@ export abstract class ZsMapBaseLayer {
 
   public setName(name: string): void {
     this._state.updateMapState((draft) => {
-      const found = draft?.layers?.find((o) => o.id === this._id);
+      const found = draft?.layers?.[this._id];
       if (found) {
         found.name = name;
       }
