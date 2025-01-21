@@ -12,11 +12,12 @@ mat-card.selection {
 
 .titleCard {
   min-height: 10vh;
+  margin-bottom: 1rem;
 }
 
 mat-card,
 mat-expansion-panel {
-  margin-bottom: 1em;
+  margin-bottom: 1rem;
 }
 
 mat-card.featureGroup .mat-expansion-panel-header-title {
@@ -35,55 +36,36 @@ mat-slider {
 
 .imgwrapper {
   text-align: center;
-  margin-bottom: 1em;
+  margin-bottom: 1rem;
   cursor: pointer;
 }
 
 .featureGroup .imgwrapper img {
-  max-height: 5em;
-  max-width: 5em;
+  max-height: 5rem;
+  max-width: 5rem;
 }
 
 .imgwrapper img {
-  max-height: 5em;
-  max-width: 5em;
+  max-height: 5rem;
+  max-width: 5rem;
 }
 
 .buttonPanel {
-  margin-top: 0.5em;
+  margin-top: 0.5rem;
   text-align: center;
 }
 
 .label {
   text-align: center;
-  margin-bottom: 1em;
+  margin-bottom: 1rem;
 }
 
 .label-gray {
   color: #787878;
-  gap: 5px;
   display: flex;
-  justify-content: center;
-}
-
-.label-light {
-  text-align: center;
-  margin-bottom: 1em;
-  color: #787878;
-  white-space: nowrap;
-  border-top: 1px solid #787878;
-  line-height: 1.2em;
-  padding-top: 5px;
-}
-
-.label-left {
-  float: left;
-}
-
-.clearfix::after {
-  content: '';
-  display: table;
-  clear: both;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 
 .time {
@@ -93,7 +75,7 @@ mat-slider {
 
 .title {
   text-align: center;
-  font-size: 1.2em;
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
@@ -109,16 +91,16 @@ mat-expansion-panel button {
   display: block;
   width: 100%;
   text-align: left;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 mat-expansion-panel .filter {
-  margin-top: 1em;
+  margin-top: 1rem;
 }
 
 mat-expansion-panel button i {
-  margin-right: 1em;
+  margin-right: 1rem;
 }
 
 .separator {
@@ -131,12 +113,12 @@ mat-expansion-panel button i {
 
 .markdownEditor {
   position: relative;
-  margin-bottom: 2.5em;
+  margin-bottom: 2.5rem;
 }
 
 .markdownEditor .fab {
-  font-size: 1.5em;
-  margin-left: 1em;
+  font-size: 1.5rem;
+  margin-left: 1rem;
   cursor: pointer;
   position: absolute;
   top: 0;
@@ -144,13 +126,13 @@ mat-expansion-panel button i {
 }
 
 .markdownEditor textarea {
-  min-height: 5em;
+  min-height: 5rem;
 }
 
 .markdownEditor a {
-  font-size: 0.8em;
+  font-size: 0.8rem;
   position: absolute;
-  bottom: -0.6em;
+  bottom: -0.6rem;
   right: 0;
 }
 
@@ -158,8 +140,8 @@ mat-expansion-panel button i {
   border-bottom: 1px dashed;
   border-left: 1px dashed;
   border-right: 1px dashed;
-  margin-bottom: 1em;
-  padding: 1em;
+  margin-bottom: 1rem;
+  padding: 1rem;
 }
 
 .images {
@@ -167,13 +149,13 @@ mat-expansion-panel button i {
   align-items: center;
   white-space: nowrap;
   overflow-x: auto;
-  padding: 0.5em;
+  padding: 0.5rem;
 }
 
 .images > div {
   display: inline-block;
-  margin-right: 2em;
-  margin-top: 1em;
+  margin-right: 2rem;
+  margin-top: 1rem;
   position: relative;
 }
 
@@ -182,19 +164,19 @@ mat-expansion-panel button i {
 }
 
 .images img {
-  max-height: 2.5em;
-  max-width: 2.5em;
+  max-height: 2.5rem;
+  max-width: 2.5rem;
   cursor: pointer;
 }
 
 .images .removeButton {
   position: absolute;
-  top: -1em;
-  right: -1em;
+  top: -1rem;
+  right: -1rem;
 }
 
 .images i.removeButton {
-  font-size: 1.2em;
+  font-size: 1.2rem;
 }
 
 div.flex {
