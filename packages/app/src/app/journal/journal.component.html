@@ -11,11 +11,11 @@
         {{ selectedJournalEntry.message_number !== undefined ? selectedJournalEntry.message_number.toString().padStart(3, '0') : '' }} |
         {{ selectedJournalEntry.message_subject ?? '' }}
       </h1>
+
       <button (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
         <mat-icon>close</mat-icon>
       </button>
     </div>
-
     <div *ngIf="!editing">
       <div class="journal-entry-details">
         <p>
@@ -112,7 +112,7 @@
       </div>
     </div>
 
-    <mat-accordion multi="true" displayMode="flat" *ngIf="selectedJournalEntry.uid">
+    <mat-accordion multi="true" displayMode="flat">
       <mat-expansion-panel class="mat-elevation-z0">
         <mat-expansion-panel-header>
           <mat-panel-title> Log </mat-panel-title>
@@ -129,34 +129,35 @@
       </mat-expansion-panel>
     </mat-accordion>
   </mat-sidenav>
+
   <mat-sidenav-content>
     <div class="journal-header mat-elevation-z3">
       <h1>Journal</h1>
     </div>
     <div class="journal-content">
       <table mat-table matSort [dataSource]="dataSource">
-        <ng-container matColumnDef="nr">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Meldungsnr.</th>
-          <td mat-cell *matCellDef="let element">{{ element.nr }}</td>
+        <ng-container matColumnDef="message_number">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>message_number</th>
+          <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="subject">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let element">{{ element.subject }}</td>
+        <ng-container matColumnDef="message_subject">
+          <th mat-header-cell *matHeaderCellDef>message_subject</th>
+          <td mat-cell *matCellDef="let element">{{ element.message_subject }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="content">
-          <th mat-header-cell *matHeaderCellDef>Beschreibung</th>
-          <td mat-cell *matCellDef="let element">{{ element.content }}</td>
+        <ng-container matColumnDef="message_content">
+          <th mat-header-cell *matHeaderCellDef>message_content</th>
+          <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="dateCreated">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Erstellt am</th>
-          <td mat-cell *matCellDef="let element">{{ element.dateCreated.toLocaleString('de-CH') }}</td>
+        <ng-container matColumnDef="date_created">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>date_created</th>
+          <td mat-cell *matCellDef="let element">{{ element.date_created.toLocaleString('de-CH') }}</td>
         </ng-container>
 
         <ng-container matColumnDef="creator">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Erstellt von</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>creator</th>
           <td mat-cell *matCellDef="let element">{{ element.creator }}</td>
         </ng-container>
 
