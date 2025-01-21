@@ -34,10 +34,10 @@ export default (plugin) => {
       })) as Organization[];
       const organization = _.first(organizations);
       ctx.body.organization = organization;
+      //want to return wms-source/map-layer id's only, strapi cannot do that (v14.7) therefore the population with fields, and here map the results to an id array
+      ctx.body.organization.wms_sources = ctx.body.organization.wms_sources?.map((x) => x.id);
+      ctx.body.organization.map_layer_favorites = ctx.body.organization.map_layer_favorites?.map((x) => x.id);
     }
-    //want to return wms-source/map-layer id's only, strapi cannot do that (v14.7) therefore the population with fields, and here map the results to an id array
-    ctx.body.organization.wms_sources = ctx.body.organization.wms_sources?.map((x) => x.id);
-    ctx.body.organization.map_layer_favorites = ctx.body.organization.map_layer_favorites?.map((x) => x.id);
   };
   plugin.controllers.user.me = injectOrganization;
 
@@ -45,7 +45,9 @@ export default (plugin) => {
   const fetchAuthenticatedUserWithOrganization = (id) => {
     //this is used for load user into ctx.state.user (https://github.com/strapi/strapi/blob/main/packages/plugins/users-permissions/server/strategies/users-permissions.js#L24)
     //changed: also populate organisation
-    return strapi.query('plugin::users-permissions.user').findOne({ where: { id }, populate: ['role', 'organization'] });
+    return strapi
+      .query('plugin::users-permissions.user')
+      .findOne({ where: { id }, populate: ['role', 'organization'] });
   };
 
   //plugin.services.user is anonymous function not an object
