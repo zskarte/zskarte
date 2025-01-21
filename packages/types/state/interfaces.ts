@@ -1,21 +1,20 @@
-import { Coordinate } from "ol/coordinate";
-import { MapLayer, WmsSource } from "../map-layer/interfaces";
-import { FillStyle } from "../sign/interfaces";
-import { Feature } from "ol";
-import { PermissionType } from "../session/interfaces";
+import { Coordinate } from 'ol/coordinate';
+import { MapLayer, WmsSource } from '../map-layer/interfaces';
+import { FillStyle } from '../sign/interfaces';
+import { Feature } from 'ol';
+import { PermissionType } from '../session/interfaces';
 
 export enum ZsMapStateSource {
-  OPEN_STREET_MAP = "openStreetMap",
-  GEO_ADMIN_SWISS_IMAGE = "geoAdminSwissImage",
-  GEO_ADMIN_PIXEL = "geoAdminPixel",
-  GEO_ADMIN_PIXEL_BW = "geoAdminPixelBW",
-  LOCAL = "local",
-  NONE = "noBaseMap",
+  OPEN_STREET_MAP = 'openStreetMap',
+  GEO_ADMIN_SWISS_IMAGE = 'geoAdminSwissImage',
+  GEO_ADMIN_PIXEL = 'geoAdminPixel',
+  GEO_ADMIN_PIXEL_BW = 'geoAdminPixelBW',
+  LOCAL = 'local',
+  NONE = 'noBaseMap',
 }
 
 export const zsMapStateSourceToDownloadUrl = {
-  [ZsMapStateSource.LOCAL]:
-    "https://zskarte.blob.core.windows.net/etienne/ch.swisstopo.pmtiles",
+  [ZsMapStateSource.LOCAL]: 'https://zskarte.blob.core.windows.net/etienne/ch.swisstopo.pmtiles',
 };
 
 export type ZsMapState = IZsMapStateV2;
@@ -40,8 +39,6 @@ export interface IZsMapStateV1 {
 
 export type ZsMapStateAllVersions = IZsMapStateV1 | IZsMapStateV2;
 
-
-
 export const getDefaultZsMapState = (): ZsMapState => {
   return {} as ZsMapState;
 };
@@ -52,8 +49,8 @@ export interface IPositionFlag {
 }
 
 export enum ZsMapDisplayMode {
-  DRAW = "draw",
-  HISTORY = "history",
+  DRAW = 'draw',
+  HISTORY = 'history',
 }
 
 export interface IZsMapDisplayState {
@@ -101,7 +98,7 @@ export interface IZsMapPrintExtent {
 export interface IZsMapPrintState extends IZsMapPrintExtent {
   printView: boolean;
   format: string;
-  orientation: "landscape" | "portrait";
+  orientation: 'landscape' | 'portrait';
   printMargin: number;
   printScale: boolean;
   emptyMap: boolean;
@@ -119,8 +116,8 @@ export interface IZsMapPrintState extends IZsMapPrintExtent {
 export type ZsMapLayerState = IZsMapDrawLayerState | IZsMapGeoDataLayerState;
 
 export enum ZsMapLayerStateType {
-  DRAW = "draw",
-  GEO_DATA = "geoData",
+  DRAW = 'draw',
+  GEO_DATA = 'geoData',
 }
 
 interface IZsMapBaseLayerState {
@@ -138,11 +135,11 @@ export interface IZsMapGeoDataLayerState extends IZsMapBaseLayerState {
 }
 
 export enum ZsMapDrawElementStateType {
-  TEXT = "text",
-  SYMBOL = "symbol",
-  POLYGON = "polygon",
-  LINE = "line",
-  FREEHAND = "freehand",
+  TEXT = 'text',
+  SYMBOL = 'symbol',
+  POLYGON = 'polygon',
+  LINE = 'line',
+  FREEHAND = 'freehand',
 }
 
 export type ZsMapDrawElementState =
@@ -191,8 +188,7 @@ export interface ZsMapTextDrawElementState extends IZsMapBaseDrawElementState {
   text?: string;
 }
 
-export interface ZsMapSymbolDrawElementState
-  extends IZsMapBaseDrawElementState {
+export interface ZsMapSymbolDrawElementState extends IZsMapBaseDrawElementState {
   type: ZsMapDrawElementStateType.SYMBOL;
   coordinates: number[] | number[][];
 }
@@ -201,13 +197,11 @@ export interface ZsMapLineDrawElementState extends IZsMapBaseDrawElementState {
   type: ZsMapDrawElementStateType.LINE;
 }
 
-export interface ZsMapPolygonDrawElementState
-  extends IZsMapBaseDrawElementState {
+export interface ZsMapPolygonDrawElementState extends IZsMapBaseDrawElementState {
   type: ZsMapDrawElementStateType.POLYGON;
 }
 
-export interface ZsMapFreehandDrawElementState
-  extends IZsMapBaseDrawElementState {
+export interface ZsMapFreehandDrawElementState extends IZsMapBaseDrawElementState {
   type: ZsMapDrawElementStateType.FREEHAND;
 }
 
@@ -218,24 +212,19 @@ export interface ZsMapElementToDraw {
   text?: string;
 }
 
-export type ZsMapDrawElementParams =
-  | IZsMapBaseDrawElementParams
-  | IZsMapSymbolDrawElementParams
-  | IZsMapTextDrawElementParams;
+export type ZsMapDrawElementParams = IZsMapBaseDrawElementParams | IZsMapSymbolDrawElementParams | IZsMapTextDrawElementParams;
 
 interface IZsMapBaseDrawElementParams {
   type: ZsMapDrawElementStateType;
   layer: string;
 }
 
-export interface IZsMapSymbolDrawElementParams
-  extends IZsMapBaseDrawElementParams {
+export interface IZsMapSymbolDrawElementParams extends IZsMapBaseDrawElementParams {
   type: ZsMapDrawElementStateType.SYMBOL;
   symbolId: number;
 }
 
-export interface IZsMapTextDrawElementParams
-  extends IZsMapBaseDrawElementParams {
+export interface IZsMapTextDrawElementParams extends IZsMapBaseDrawElementParams {
   type: ZsMapDrawElementStateType.TEXT;
   text: string;
 }
@@ -248,10 +237,7 @@ export interface IZsMapSearchResult {
   internal?;
 }
 
-export type SearchFunction = (
-  searchText: string,
-  maxResultCount?: number,
-) => Promise<IZsMapSearchResult[]>;
+export type SearchFunction = (searchText: string, maxResultCount?: number) => Promise<IZsMapSearchResult[]>;
 
 export interface IZsMapSearchConfig {
   label: string;

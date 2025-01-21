@@ -1,4 +1,8 @@
-<app-incident-select [values]="(incidents | async) || []" (valuesChange)="updateIncidents($event)" [disabled]="!hasWritePermission || isArchived"></app-incident-select>
+<app-incident-select
+  [values]="(incidents | async) || []"
+  (valuesChange)="updateIncidents($event)"
+  [disabled]="!hasWritePermission || isArchived"
+></app-incident-select>
 
 @if (isArchived) {
   <p class="archived">{{ i18n.get('viewArchivedOperation') }}</p>

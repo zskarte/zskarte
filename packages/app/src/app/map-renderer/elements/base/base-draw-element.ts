@@ -14,9 +14,7 @@ import { Signs } from '../../signs';
 import { ZsMapBaseElement } from './base-element';
 import { ZsMapOLFeatureProps } from './ol-feature-props';
 
-export abstract class ZsMapBaseDrawElement<
-  T extends ZsMapDrawElementState = ZsMapDrawElementState,
-> extends ZsMapBaseElement<T> {
+export abstract class ZsMapBaseDrawElement<T extends ZsMapDrawElementState = ZsMapDrawElementState> extends ZsMapBaseElement<T> {
   public elementState?: T;
 
   constructor(
@@ -145,11 +143,7 @@ export abstract class ZsMapBaseDrawElement<
   protected static _enhanceOlDrawOptions(options: Options) {
     return options;
   }
-  protected static _parseFeature(
-    event: Feature<Geometry>,
-    state: ZsMapStateService,
-    element: ZsMapElementToDraw,
-  ): void {
+  protected static _parseFeature(event: Feature<Geometry>, state: ZsMapStateService, element: ZsMapElementToDraw): void {
     console.error('static fn _parseFeature is not implemented', { event, state, element });
     throw new Error('static fn _parseFeature is not implemented');
   }

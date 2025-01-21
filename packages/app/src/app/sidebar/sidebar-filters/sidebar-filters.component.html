@@ -65,9 +65,13 @@
       <mat-list>
         @for (category of signCategories; track category) {
           <mat-list-item>
-            <mat-checkbox labelPosition="before" class="categoryCheckbox"
-              [checked]="category.isVisible" [indeterminate]="category.isPartiallyVisible"
-              (change)="toggleCategoryFilter($event, category)">
+            <mat-checkbox
+              labelPosition="before"
+              class="categoryCheckbox"
+              [checked]="category.isVisible"
+              [indeterminate]="category.isPartiallyVisible"
+              (change)="toggleCategoryFilter($event, category)"
+            >
               <div class="listItemContent">
                 <div class="categoryLabel">
                   <div class="categoryDot" [style.background-color]="category.color"></div>

@@ -137,9 +137,7 @@ export class WmsLayerOptionsComponent {
   ok() {
     if (this.layer.type === 'wms') {
       if (this.hasSublayers) {
-        this.layer.hiddenSubLayers = this.sublayerHidden
-          .filter((sublayer) => sublayer.hidden)
-          .map((sublayer) => sublayer.name);
+        this.layer.hiddenSubLayers = this.sublayerHidden.filter((sublayer) => sublayer.hidden).map((sublayer) => sublayer.name);
         if (this.layer.hiddenSubLayers.length === 0) {
           delete this.layer.hiddenSubLayers;
         }

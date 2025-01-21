@@ -1,13 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  HostListener,
-  inject,
-  viewChild,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
 import { MatButton, MatButtonModule, MatMiniFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -340,8 +332,7 @@ export class MapRendererComponent implements AfterViewInit {
         const nextElement = this._drawElementCache[feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
 
         if (this._mergeMode) {
-          const selectedElement =
-            this._drawElementCache[this.selectedFeature.getValue()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
+          const selectedElement = this._drawElementCache[this.selectedFeature.getValue()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
           this._state.mergePolygons(selectedElement.element, nextElement.element);
         } else {
           if (feature && !feature.get('sig')?.protected) {
@@ -357,10 +348,7 @@ export class MapRendererComponent implements AfterViewInit {
           this.selectedVertexPoint.next(null);
 
           // only show buttons on select for Symbols
-          if (
-            !this.isReadOnly.getValue() &&
-            nextElement?.element?.elementState?.type === ZsMapDrawElementStateType.SYMBOL
-          ) {
+          if (!this.isReadOnly.getValue() && nextElement?.element?.elementState?.type === ZsMapDrawElementStateType.SYMBOL) {
             this.toggleEditButtons(true, true);
           }
         }
@@ -670,56 +658,52 @@ export class MapRendererComponent implements AfterViewInit {
       });
     });
 
-
     combineLatest([this._state.observeDrawElements(), this._state.observeHiddenSymbols(), this._state.observeHiddenFeatureTypes()])
-    .pipe(takeUntil(this._ngUnsubscribe))
-    .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
+        // Filter out hidden elements
+        drawElements = drawElements.filter((element) => {
+          const feature = element.getOlFeature();
+          const filterType = element.elementState?.type as string;
+          const hidden = hiddenSymbols.includes(feature?.get('sig')?.id) || hiddenFeatureTypes.includes(filterType);
+          return !hidden;
+        });
 
-      // Filter out hidden elements
-      drawElements = drawElements.filter(element => {
-        const feature = element.getOlFeature();
-        const filterType = element.elementState?.type as string;
-        const hidden =
-          hiddenSymbols.includes(feature?.get('sig')?.id) ||
-          hiddenFeatureTypes.includes(filterType);
-        return !hidden
-      })
-
-      for (const element of drawElements) {
-        if (!this._drawElementCache[element.getId()]) {
+        for (const element of drawElements) {
+          if (!this._drawElementCache[element.getId()]) {
             this._drawElementCache[element.getId()] = {
               element,
               layer: undefined,
-          }
-          element
-            .observeLayer()
-            .pipe(takeUntil(element.observeUnsubscribe()))
-            .subscribe((layer) => {
-              const cache = this._drawElementCache[element.getId()];
-              const feature = element.getOlFeature();
-              if (cache.layer) {
-                const cachedLayer = this._state.getLayer(cache.layer);
-                if (cachedLayer) {
-                  cachedLayer.removeOlFeature(feature);
+            };
+            element
+              .observeLayer()
+              .pipe(takeUntil(element.observeUnsubscribe()))
+              .subscribe((layer) => {
+                const cache = this._drawElementCache[element.getId()];
+                const feature = element.getOlFeature();
+                if (cache.layer) {
+                  const cachedLayer = this._state.getLayer(cache.layer);
+                  if (cachedLayer) {
+                    cachedLayer.removeOlFeature(feature);
+                  }
                 }
-              }
-              cache.layer = layer;
-              const newLayer = this._state.getLayer(layer ?? '');
-              newLayer?.addOlFeature(feature);
-            });
+                cache.layer = layer;
+                const newLayer = this._state.getLayer(layer ?? '');
+                newLayer?.addOlFeature(feature);
+              });
+          }
         }
-      }
 
-      // Removed old elements
-      for (const element of Object.values(this._drawElementCache)) {
-        if (drawElements.every((e) => e.getId() !== element.element.getId())) {
-          // New elements do not contain element from cache
-          this._state.getLayer(element.layer ?? '').removeOlFeature(element.element.getOlFeature());
-          // skipcq: JS-0320
-          delete this._drawElementCache[element.element.getId()];
+        // Removed old elements
+        for (const element of Object.values(this._drawElementCache)) {
+          if (drawElements.every((e) => e.getId() !== element.element.getId())) {
+            // New elements do not contain element from cache
+            this._state.getLayer(element.layer ?? '').removeOlFeature(element.element.getOlFeature());
+            // skipcq: JS-0320
+            delete this._drawElementCache[element.element.getId()];
+          }
         }
-      }
-    });
+      });
 
     this._state
       .observeSelectedMapLayers$()
@@ -751,10 +735,7 @@ export class MapRendererComponent implements AfterViewInit {
               const name = index > 0 ? `${mapLayer.fullId}:${index}` : mapLayer.fullId;
               this._mapLayerCache.set(name, olLayer);
               let searchFunc: SearchFunction;
-              if (
-                (mapLayer.type === 'geojson' || mapLayer.type === 'csv') &&
-                (mapLayer as GeoJSONMapLayer).searchable
-              ) {
+              if ((mapLayer.type === 'geojson' || mapLayer.type === 'csv') && (mapLayer as GeoJSONMapLayer).searchable) {
                 searchFunc = (searchText: string, maxResultCount?: number) => {
                   return Promise.resolve(
                     this.geoJSONService.search(
@@ -822,10 +803,7 @@ export class MapRendererComponent implements AfterViewInit {
     this._printDimensionLayer.setZIndex(LAYER_Z_INDEX_PRINT_DIMENSIONS);
     this._map.addLayer(this._printDimensionLayer);
 
-    this._state
-      .observePrintExtent()
-      .pipe(skip(1), takeUntil(this._ngUnsubscribe))
-      .subscribe(this.updatePrintViewExtent.bind(this));
+    this._state.observePrintExtent().pipe(skip(1), takeUntil(this._ngUnsubscribe)).subscribe(this.updatePrintViewExtent.bind(this));
 
     this._state
       .observePrintState()
@@ -1222,12 +1200,7 @@ export class MapRendererComponent implements AfterViewInit {
                 draft.autoScaleVal = (resolution * INCHES_PER_METER * draft.dpi) / 1000;
                 */
                 const extendResolution = this._view.getResolutionForExtent(extend, draft.dimensions);
-                const resolution = getPointResolution(
-                  this._view.getState().projection,
-                  extendResolution,
-                  draft.printCenter,
-                  'm',
-                );
+                const resolution = getPointResolution(this._view.getState().projection, extendResolution, draft.printCenter, 'm');
                 draft.autoScaleVal = resolution;
               });
               this._printDimensionLayer?.getSource()?.removeFeature(event.feature);
@@ -1332,8 +1305,7 @@ export class MapRendererComponent implements AfterViewInit {
     const height = Math.round((printState.dimensions[1] * printState.dpi) / MM_PER_INCHES);
     const scale = printState.scale ?? printState.autoScaleVal ?? 50;
     const printCenter = printState.printCenter ?? this._view.getCenter() ?? DEFAULT_COORDINATES;
-    const scaleResolution =
-      scale / getPointResolution(this._view.getProjection(), printState.dpi / MM_PER_INCHES, printCenter);
+    const scaleResolution = scale / getPointResolution(this._view.getProjection(), printState.dpi / MM_PER_INCHES, printCenter);
     this._scaleLine.setDpi(printState.dpi);
     this._map.getTargetElement().style.width = `${width}px`;
     this._map.getTargetElement().style.height = `${height}px`;
@@ -1362,9 +1334,7 @@ export class MapRendererComponent implements AfterViewInit {
               (s.updateCacheSize as any)(tileCount, this._view.getProjection());
             }
             if (printState.tileEventCallback) {
-              printState.tileEventCallback(
-                new CustomEvent<{ tileCount: number }>('tileCountInfo', { detail: { tileCount } }),
-              );
+              printState.tileEventCallback(new CustomEvent<{ tileCount: number }>('tileCountInfo', { detail: { tileCount } }));
             }
           }
         }

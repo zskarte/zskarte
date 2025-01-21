@@ -45,13 +45,7 @@ import { ZsMapBaseLayer } from '../map-renderer/layers/base-layer';
 import { ZsMapDrawLayer } from '../map-renderer/layers/draw-layer';
 import { Signs } from '../map-renderer/signs';
 import { SelectSignDialog } from '../select-sign-dialog/select-sign-dialog.component';
-import {
-  DEFAULT_COORDINATES,
-  DEFAULT_DPI,
-  DEFAULT_ZOOM,
-  INCHES_PER_METER,
-  LOG2_ZOOM_0_RESOLUTION,
-} from '../session/default-map-values';
+import { DEFAULT_COORDINATES, DEFAULT_DPI, DEFAULT_ZOOM, INCHES_PER_METER, LOG2_ZOOM_0_RESOLUTION } from '../session/default-map-values';
 import { OperationService } from '../session/operations/operation.service';
 import { SessionService } from '../session/session.service';
 import { SyncService } from '../sync/sync.service';
@@ -641,9 +635,7 @@ export class ZsMapStateService {
       map((o) => {
         return o?.layers?.filter((feature) => !feature.deleted);
       }),
-      distinctUntilChanged(
-        (x, y) => x && y && x.length === y.length && x.map((l, i) => l === y[i]).filter((l) => l).length === x.length,
-      ),
+      distinctUntilChanged((x, y) => x && y && x.length === y.length && x.map((l, i) => l === y[i]).filter((l) => l).length === x.length),
     );
   }
 
@@ -892,11 +884,7 @@ export class ZsMapStateService {
     return this._recentlyUsedElement.asObservable();
   }
 
-  public updateDrawElementState<T extends keyof ZsMapDrawElementState>(
-    id: string,
-    field: T,
-    value: ZsMapDrawElementState[T],
-  ) {
+  public updateDrawElementState<T extends keyof ZsMapDrawElementState>(id: string, field: T, value: ZsMapDrawElementState[T]) {
     this.updateMapState((draft) => {
       if (draft?.drawElements?.[id]) {
         draft.drawElements[id][field] = value;
@@ -1126,9 +1114,7 @@ export class ZsMapStateService {
       }
       const sha256 = async (str: string): Promise<string> => {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-        return Array.prototype.map
-          .call(new Uint8Array(buf), (x) => `00${(x as number).toString(16)}`.slice(-2))
-          .join('');
+        return Array.prototype.map.call(new Uint8Array(buf), (x) => `00${(x as number).toString(16)}`.slice(-2)).join('');
       };
       let operation = await this._operationService.getOperation(operationId);
       if (!operation?.mapState) {
@@ -1156,11 +1142,7 @@ export class ZsMapStateService {
   }
 
   observeIsReadOnly(): Observable<boolean> {
-    return merge(
-      this.observeIsHistoryMode(),
-      this._session.observeHasWritePermission(),
-      this._session.observeIsArchived(),
-    ).pipe(
+    return merge(this.observeIsHistoryMode(), this._session.observeHasWritePermission(), this._session.observeIsArchived()).pipe(
       map(() => {
         const isHistoryMode = this.isHistoryMode();
         const hasWritePermission = this._session.hasWritePermission();

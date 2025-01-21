@@ -27,7 +27,17 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
   selector: 'app-sidebar-connections',
   templateUrl: './sidebar-connections.component.html',
   styleUrls: ['./sidebar-connections.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatSlideToggleModule, FormsModule, MatIconModule, MatListModule, AsyncPipe, MatCheckboxModule],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSlideToggleModule,
+    FormsModule,
+    MatIconModule,
+    MatListModule,
+    AsyncPipe,
+    MatCheckboxModule,
+  ],
 })
 export class SidebarConnectionsComponent implements OnDestroy {
   i18n = inject(I18NService);

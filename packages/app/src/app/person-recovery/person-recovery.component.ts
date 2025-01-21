@@ -18,7 +18,7 @@ type PersonRecoverySign = Partial<Sign> & {
 
 type PersonRecoveryRow = ZsMapDrawElementState & {
   sign: PersonRecoverySign;
-}
+};
 
 async function svg2png(url?: string, width = 100, height = 100) {
   if (!url) {
@@ -33,12 +33,12 @@ async function svg2png(url?: string, width = 100, height = 100) {
     img.src = url;
   });
 
-  const canvas = document.createElement("canvas");
+  const canvas = document.createElement('canvas');
   [canvas.width, canvas.height] = [width, height];
 
-  canvas.getContext("2d")?.drawImage(img, 0, 0, width, height);
+  canvas.getContext('2d')?.drawImage(img, 0, 0, width, height);
 
-  return canvas.toDataURL("image/png");
+  return canvas.toDataURL('image/png');
 }
 
 @Component({
@@ -52,7 +52,7 @@ async function svg2png(url?: string, width = 100, height = 100) {
       flex-direction: column;
       gap: 10px;
     }
-    
+
     .recovery .actions {
       display: flex;
       justify-content: flex-end;
@@ -74,11 +74,11 @@ async function svg2png(url?: string, width = 100, height = 100) {
       height: 30px;
       width: auto;
     }
-    
+
     .recovery-empty {
       color: var(--mdc-dialog-supporting-text-color);
     }
-  `
+  `,
 })
 export class PersonRecoveryComponent {
   private state = inject(ZsMapStateService);
@@ -91,18 +91,19 @@ export class PersonRecoveryComponent {
 
   affectedPersons$ = this.state.observeDrawElements().pipe(
     takeUntilDestroyed(this.destroyRef),
-    map(elements => elements
-      .filter(e => (e.elementState?.affectedPersons ?? 0) > 0)
-      .map(e => e.elementState as ZsMapDrawElementState)
-      .map(state => ({ ...state, sign: this.getSign(state) }))
-      .reduce((acc, next) => {
-        const el = acc.find(el => el.symbolId === next.symbolId);
-        if (!el) {
-          return [...acc, next];
-        }
-        el.affectedPersons = (el.affectedPersons ?? 0) + (next.affectedPersons ?? 0);
-        return acc;
-      }, [] as PersonRecoveryRow[])
+    map((elements) =>
+      elements
+        .filter((e) => (e.elementState?.affectedPersons ?? 0) > 0)
+        .map((e) => e.elementState as ZsMapDrawElementState)
+        .map((state) => ({ ...state, sign: this.getSign(state) }))
+        .reduce((acc, next) => {
+          const el = acc.find((el) => el.symbolId === next.symbolId);
+          if (!el) {
+            return [...acc, next];
+          }
+          el.affectedPersons = (el.affectedPersons ?? 0) + (next.affectedPersons ?? 0);
+          return acc;
+        }, [] as PersonRecoveryRow[]),
     ),
   );
 
@@ -139,8 +140,7 @@ export class PersonRecoveryComponent {
       offsetY += rowHeight + gap;
     }
 
-    pdf
-      .save('recovery.pdf');
+    pdf.save('recovery.pdf');
   }
 
   private getSign(state: ZsMapDrawElementState): PersonRecoverySign {
@@ -150,6 +150,6 @@ export class PersonRecoveryComponent {
       ...sign,
       text: sign?.[this.session.getLocale()],
       src: DrawStyle.getImageUrl(sign?.src ?? ''),
-    }
+    };
   }
 }

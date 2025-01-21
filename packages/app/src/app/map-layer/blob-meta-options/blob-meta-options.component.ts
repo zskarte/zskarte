@@ -16,15 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-blob-meta-options',
   templateUrl: './blob-meta-options.component.html',
   styleUrl: './blob-meta-options.component.scss',
-  imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    MatProgressBarModule,
-    FormsModule,
-    MatIcon,
-    MatButtonModule,
-    MatDialogModule,
-  ],
+  imports: [MatFormFieldModule, MatInputModule, MatProgressBarModule, FormsModule, MatIcon, MatButtonModule, MatDialogModule],
 })
 export class BlobMetaOptionsComponent {
   data = inject<{
@@ -58,12 +50,8 @@ export class BlobMetaOptionsComponent {
       this.label = this.data.mapLayer.label;
       if (this.data.mapLayer.type === 'geojson' || this.data.mapLayer.type === 'csv') {
         this.data.mapLayer = { ...this.data.mapLayer };
-        this.dataBlobMeta = this.data.mapLayer.sourceBlobId
-          ? await db.localBlobMeta.get(this.data.mapLayer.sourceBlobId)
-          : undefined;
-        this.styleBlobMeta = this.data.mapLayer.styleBlobId
-          ? await db.localBlobMeta.get(this.data.mapLayer.styleBlobId)
-          : undefined;
+        this.dataBlobMeta = this.data.mapLayer.sourceBlobId ? await db.localBlobMeta.get(this.data.mapLayer.sourceBlobId) : undefined;
+        this.styleBlobMeta = this.data.mapLayer.styleBlobId ? await db.localBlobMeta.get(this.data.mapLayer.styleBlobId) : undefined;
         this.layerConfigStyle = this.data.mapLayer.styleSourceType === 'text';
         this.dataUrlDefault = this.data.mapLayer.source?.url;
         this.styleUrlDefault = this.data.mapLayer.styleUrl;
@@ -75,12 +63,8 @@ export class BlobMetaOptionsComponent {
     } else if (this.data.localMap) {
       this.label = this.i18n.get(this.data.localMap.map);
       if (this.data.localMap.map in zsMapStateSourceToDownloadUrl) {
-        this.dataBlobMeta = this.data.localMap.mapBlobId
-          ? await db.localBlobMeta.get(this.data.localMap.mapBlobId)
-          : undefined;
-        this.styleBlobMeta = this.data.localMap.styleBlobId
-          ? await db.localBlobMeta.get(this.data.localMap.styleBlobId)
-          : undefined;
+        this.dataBlobMeta = this.data.localMap.mapBlobId ? await db.localBlobMeta.get(this.data.localMap.mapBlobId) : undefined;
+        this.styleBlobMeta = this.data.localMap.styleBlobId ? await db.localBlobMeta.get(this.data.localMap.styleBlobId) : undefined;
         this.dataUrlDefault = zsMapStateSourceToDownloadUrl[this.data.localMap.map];
         this.styleUrlDefault = LOCAL_MAP_STYLE_PATH;
         this.dataUrl = this.dataBlobMeta?.url ?? this.dataUrlDefault;
@@ -166,14 +150,12 @@ export class BlobMetaOptionsComponent {
       this.data.mapLayer.sourceBlobId = this.dataBlobMeta?.id;
       this.data.mapLayer.styleBlobId = this.styleBlobMeta?.id;
       this.data.mapLayer.offlineAvailable =
-        this.dataBlobMeta?.blobState === 'downloaded' &&
-        (this.layerConfigStyle || this.styleBlobMeta?.blobState === 'downloaded');
+        this.dataBlobMeta?.blobState === 'downloaded' && (this.layerConfigStyle || this.styleBlobMeta?.blobState === 'downloaded');
       this.dialogRef.close(this.data.mapLayer);
     } else if (this.data.localMap) {
       this.data.localMap.mapBlobId = this.dataBlobMeta?.id;
       this.data.localMap.styleBlobId = this.styleBlobMeta?.id;
-      this.data.localMap.offlineAvailable =
-        this.dataBlobMeta?.blobState === 'downloaded' && this.styleBlobMeta?.blobState === 'downloaded';
+      this.data.localMap.offlineAvailable = this.dataBlobMeta?.blobState === 'downloaded' && this.styleBlobMeta?.blobState === 'downloaded';
       this.data.localMap.styleSourceName = this.styleSourceName;
       this.dialogRef.close(this.data.localMap);
     }

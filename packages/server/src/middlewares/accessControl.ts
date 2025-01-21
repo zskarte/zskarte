@@ -289,7 +289,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     }
     const paramId = getIdIfValid(ctx.params?.id);
     const headerOperationId = getIdIfValid(ctx.request.headers?.operationid);
-    const entryId = isOperation(config.type) ? (paramId ?? headerOperationId) : paramId;
+    const entryId = isOperation(config.type) ? paramId ?? headerOperationId : paramId;
     if (!entryId) {
       return ctx.forbidden('This action is forbidden.');
     }

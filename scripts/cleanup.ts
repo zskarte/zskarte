@@ -5,10 +5,7 @@ import { glob } from 'glob';
 (async () => {
   const tempFoldersGlob = 'node_modules,dist,.angular,.strapi';
 
-  const [rootFolders, packageFolders] = await Promise.all([
-    glob(`{${tempFoldersGlob}}/`),
-    glob(`packages/*/{${tempFoldersGlob}}/`),
-  ]);
+  const [rootFolders, packageFolders] = await Promise.all([glob(`{${tempFoldersGlob}}/`), glob(`packages/*/{${tempFoldersGlob}}/`)]);
 
   const folders = [...rootFolders, ...packageFolders];
 

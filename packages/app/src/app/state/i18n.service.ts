@@ -1968,13 +1968,13 @@ export class I18NService {
     personRecoveryOverview: {
       de: 'Personenbergungsübersicht',
       en: 'Person recovery overview',
-      fr: 'Aperçu des personnes hébergées'
+      fr: 'Aperçu des personnes hébergées',
     },
     noMissingPersons: {
       de: 'Keine auswirkungen auf Personen gefunden',
       en: 'No impacts on persons found',
-      fr: 'Aucun effet sur les personnes'
-    }
+      fr: 'Aucun effet sur les personnes',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {
