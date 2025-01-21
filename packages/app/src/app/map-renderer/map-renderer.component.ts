@@ -62,7 +62,6 @@ import { DrawStyle } from './draw-style';
 import { ZsMapBaseDrawElement } from './elements/base/base-draw-element';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 import { ZsMapBaseLayer } from './layers/base-layer';
-import { Signs } from './signs';
 
 const LAYER_Z_INDEX_CURRENT_LOCATION = 1000000;
 const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000001;
