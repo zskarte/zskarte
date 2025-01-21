@@ -8,7 +8,7 @@ import { DrawStyle } from '../map-renderer/draw-style';
 import { Signs } from '../map-renderer/signs';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
-import { MatButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import jsPDF from 'jspdf';
 
 type PersonRecoverySign = Partial<Sign> & {
@@ -43,7 +43,7 @@ async function svg2png(url?: string, width = 100, height = 100) {
 
 @Component({
   selector: 'app-person-recovery',
-  imports: [AsyncPipe, MatButton],
+  imports: [AsyncPipe, MatButtonModule],
   templateUrl: './person-recovery.component.html',
   styles: `
     .recovery {

@@ -35,6 +35,7 @@ import {
   FillStyle,
   signatureDefaultValues,
 } from '@zskarte/types';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-selected-feature',
@@ -54,6 +55,7 @@ import {
     StackComponent,
     MatButtonModule,
     MatCheckboxModule,
+    MatDividerModule,
   ],
 })
 export class SelectedFeatureComponent implements OnDestroy {

@@ -32,59 +32,20 @@ body {
 
 /********** Levin's Material Style changes ***********/
 
-.mat-mdc-menu-content,
-.mat-accordion,
-.mat-accordion-multi {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
 
-.mat-mdc-list-item:hover,
-.mat-mdc-list-item:focus,
-.mdc-list-item:hover,
-.mdc-list-item:focus,
-.mat-mdc-list-item-interactive:hover,
-.mat-mdc-list-item-interactive:focus,
-.mat-mdc-menu-item:hover,
-.mat-mdc-menu-item:focus,
-.mat-mdc-option-active {
-  border-radius: 2rem !important;
-}
-
-.mat-mdc-autocomplete-panel,
 .mat-mdc-select-panel {
   padding: 0.5rem !important;
 }
 
-.mat-expansion-panel {
-  border-radius: 1rem !important;
-}
-
-.mat-mdc-menu-panel {
-  border-radius: 1rem !important;
-  margin-top: 0.25rem;
-  padding: 0.25rem 0.5rem;
-}
-
-mat-card {
-  border-radius: 1rem !important;
+.mat-mdc-dialog-surface,
+.mdc-dialog__surface {
+  padding: 1rem;
 }
 
 .mdc-button,
 .mat-mdc-button,
 .mat-mdc-button-base {
   border-radius: 2rem !important;
-}
-
-.mdc-dialog__container {
-  border-radius: 1rem !important;
-  overflow: hidden;
-}
-
-.mat-mdc-dialog-surface,
-.mdc-dialog__surface {
-  padding: 1rem;
 }
 
 .cdk-overlay-pane {
