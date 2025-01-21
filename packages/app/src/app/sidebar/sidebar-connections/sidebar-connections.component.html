@@ -5,7 +5,7 @@
       <input type="text" matInput [ngModel]="session.getLabel()" (ngModelChange)="label$.next($event)" />
     </mat-form-field>
   } @else {
-    <span>{{ session.getLabel() }}</span>
+    <span class="label-span">{{ session.getLabel() }}</span>
   }
   <button mat-icon-button color="basic" (click)="toggleEditLabel()">
     @if (!labelEdit) {
@@ -31,7 +31,7 @@
       @for (connection of connections$ | async; track connection) {
         <mat-list-item class="flex-container">
           <div class="flex-container-connection">
-            <div style="display: flex; gap: 5px; align-items: center">
+            <div class="flex-container-connection-label">
               <mat-icon mat-list-icon>person</mat-icon>
               <span>{{ connection.label }}</span>
             </div>

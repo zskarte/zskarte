@@ -18,9 +18,9 @@
               @if (selectedSignature.createdBy || drawElement.createdAt) {
                 <div class="label label-gray">
                   @if (selectedSignature.createdBy) {
-                    <div>
+                    <div class="createdBy-container">
                       <span>{{ i18n.get('createdBy') }}</span>
-                      <span style="font-weight: bold"> {{ selectedSignature.createdBy }}</span>
+                      <span class="createdBy-container-span"> {{ selectedSignature.createdBy }}</span>
                     </div>
                   }
                   @if (drawElement.createdAt) {

@@ -198,3 +198,14 @@ div.flex {
 .hidden {
   display: none;
 }
+
+.createdBy-container {
+  width: 100%;
+}
+
+.createdBy-container-span {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-weight: bold;
+}
