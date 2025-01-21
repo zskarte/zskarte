@@ -8,7 +8,7 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatButtonModule, MatMiniFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { IZsMapPrintState, SearchFunction, Sign, ZsMapDrawElementStateType } from '@zskarte/types';
@@ -73,7 +73,7 @@ const LAYER_Z_INDEX_PRINT_DIMENSIONS = 1000100;
   templateUrl: './map-renderer.component.html',
   styleUrls: ['./map-renderer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, MatIcon],
+  imports: [AsyncPipe, MatIcon, MatMiniFabButton, MatButtonModule],
 })
 export class MapRendererComponent implements AfterViewInit {
   private _state = inject(ZsMapStateService);

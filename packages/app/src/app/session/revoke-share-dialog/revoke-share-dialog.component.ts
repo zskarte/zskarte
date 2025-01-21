@@ -6,12 +6,13 @@ import { SessionService } from '../session.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { DatePipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-revoke-share-dialog',
   templateUrl: './revoke-share-dialog.component.html',
   styleUrl: './revoke-share-dialog.component.scss',
-  imports: [MatTableModule, DatePipe],
+  imports: [MatTableModule, DatePipe, MatButtonModule],
 })
 export class RevokeShareDialogComponent {
   i18n = inject(I18NService);

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../../state/i18n.service';
 import { CsvMapLayer, WmsSource } from '@zskarte/types';
 import { ZsMapStateService } from '../../../state/state.service';
@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RegexValidatorDirective } from '../../regex-validator.directive';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-geojson-layer-options',
@@ -26,6 +27,8 @@ import { MatInputModule } from '@angular/material/input';
     MatIconModule,
     RegexValidatorDirective,
     MatCheckboxModule,
+    MatDialogModule,
+    MatButtonModule,
   ],
 })
 export class GeoJSONLayerOptionsComponent {
