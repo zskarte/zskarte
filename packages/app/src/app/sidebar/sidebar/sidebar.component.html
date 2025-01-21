@@ -1,11 +1,4 @@
-@if (mapState.isExpertView()) {
-  <button
-    mat-raised-button
-    class="organisationSettings"
-    (click)="editLayerSettings()"
-    [innerText]="i18n.get('organisationSettings')"
-  ></button>
-}
+
 <mat-accordion multi displayMode="flat">
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
@@ -273,3 +266,12 @@
     </ng-template>
   </mat-expansion-panel>
 </mat-accordion>
+<mat-divider></mat-divider>
+@if (mapState.isExpertView()) {
+  <button
+    mat-raised-button
+    class="organisationSettings"
+    (click)="editLayerSettings()"
+    [innerText]="i18n.get('organisationSettings')"
+  ></button>
+}
