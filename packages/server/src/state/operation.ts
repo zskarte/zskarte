@@ -117,7 +117,7 @@ const updateMapState = async (operationId: string, identifier: string, patches: 
   const oldMapState = operationCache.mapState;
   for (const patch of validatedPatches) {
     try {
-      operationCache.mapState = applyPatches(oldMapState, [patch]);
+      operationCache.mapState = applyPatches(operationCache.mapState, [patch]);
     } catch (error) {
       strapi.log.error(error);
     }
