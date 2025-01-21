@@ -1,60 +1,68 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
-import { defaults, Draw, Interaction, Modify, Select, Translate } from 'ol/interaction';
-import { createBox } from 'ol/interaction/Draw';
+import { AsyncPipe } from '@angular/common';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  viewChild,
+} from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
+import { IZsMapPrintState, SearchFunction, Sign, ZsMapDrawElementStateType } from '@zskarte/types';
+import { CsvMapLayer, GeoAdminMapLayer, GeoJSONMapLayer, WMSMapLayer } from '@zskarte/types';
+import { Collection, Feature, Geolocation as OlGeolocation, Overlay } from 'ol';
+import DrawHole from 'ol-ext/interaction/DrawHole';
+import { FeatureLike } from 'ol/Feature';
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
-import DrawHole from 'ol-ext/interaction/DrawHole';
+import { Attribution, ScaleLine } from 'ol/control';
+import { Coordinate } from 'ol/coordinate';
+import { getCenter } from 'ol/extent';
+import { LineString, Point, Polygon, SimpleGeometry } from 'ol/geom';
+import { Draw, Interaction, Modify, Select, Translate, defaults } from 'ol/interaction';
+import { createBox } from 'ol/interaction/Draw';
+import { Layer } from 'ol/layer';
+import VectorLayer from 'ol/layer/Vector';
+import { getPointResolution, transform } from 'ol/proj';
+import TileSource from 'ol/source/Tile';
+import VectorSource from 'ol/source/Vector';
+import { Circle, Fill, Icon, Stroke, Style } from 'ol/style';
 import {
   BehaviorSubject,
+  Observable,
+  Subject,
   combineLatest,
+  concatMap,
   filter,
   firstValueFrom,
   map,
-  Observable,
-  Subject,
+  skip,
   switchMap,
   takeUntil,
-  skip,
-  concatMap,
 } from 'rxjs';
-import { ZsMapBaseDrawElement } from './elements/base/base-draw-element';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { areArraysEqual } from '../helper/array';
+import { formatArea, formatLength, indexOfPointInCoordinateGroup } from '../helper/coordinates';
+import { debounce } from '../helper/debounce';
 import { DrawElementHelper } from '../helper/draw-element-helper';
-import { ZsMapBaseLayer } from './layers/base-layer';
+import { projectionByIndex } from '../helper/projections';
+import { GeoadminService } from '../map-layer/geoadmin/geoadmin.service';
+import { GeoJSONService } from '../map-layer/geojson/geojson.service';
+import { WmsService } from '../map-layer/wms/wms.service';
+import { DEFAULT_COORDINATES, DEFAULT_RESOLUTION, DEFAULT_ZOOM, MM_PER_INCHES } from '../session/default-map-values';
+import { SessionService } from '../session/session.service';
+import { I18NService } from '../state/i18n.service';
 import { ZsMapSources } from '../state/map-sources';
 import { ZsMapStateService } from '../state/state.service';
-import { debounce } from '../helper/debounce';
-import { I18NService } from '../state/i18n.service';
-import { ZsMapDrawElementStateType, IZsMapPrintState, SearchFunction, Sign } from '@zskarte/types';
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import { Collection, Feature, Geolocation as OlGeolocation, Overlay } from 'ol';
-import { LineString, Point, Polygon, SimpleGeometry } from 'ol/geom';
-import { Circle, Fill, Icon, Stroke, Style } from 'ol/style';
-import { GeoadminService } from '../map-layer/geoadmin/geoadmin.service';
-import { DrawStyle } from './draw-style';
-import { formatArea, formatLength, indexOfPointInCoordinateGroup } from '../helper/coordinates';
-import { FeatureLike } from 'ol/Feature';
-import { projectionByIndex } from '../helper/projections';
-import { getCenter } from 'ol/extent';
-import { transform, getPointResolution } from 'ol/proj';
-import { ScaleLine, Attribution } from 'ol/control';
-import { Coordinate } from 'ol/coordinate';
-import { MatButton } from '@angular/material/button';
-import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { Signs } from './signs';
-import { DEFAULT_COORDINATES, DEFAULT_RESOLUTION, DEFAULT_ZOOM, MM_PER_INCHES } from '../session/default-map-values';
 import { SyncService } from '../sync/sync.service';
-import { SessionService } from '../session/session.service';
-import { Layer } from 'ol/layer';
-import TileSource from 'ol/source/Tile';
-import { WmsService } from '../map-layer/wms/wms.service';
-import { GeoAdminMapLayer, WMSMapLayer, GeoJSONMapLayer, CsvMapLayer } from '@zskarte/types';
-import { GeoJSONService } from '../map-layer/geojson/geojson.service';
-import { AsyncPipe } from '@angular/common';
-import { MatIcon } from '@angular/material/icon';
+import { DrawStyle } from './draw-style';
+import { ZsMapBaseDrawElement } from './elements/base/base-draw-element';
+import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
+import { ZsMapBaseLayer } from './layers/base-layer';
+import { Signs } from './signs';
 
 const LAYER_Z_INDEX_CURRENT_LOCATION = 1000000;
 const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000001;
@@ -336,7 +344,8 @@ export class MapRendererComponent implements AfterViewInit {
         const nextElement = this._drawElementCache[feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
 
         if (this._mergeMode) {
-          const selectedElement = this._drawElementCache[this.selectedFeature.getValue()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
+          const selectedElement =
+            this._drawElementCache[this.selectedFeature.getValue()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
           this._state.mergePolygons(selectedElement.element, nextElement.element);
         } else {
           if (feature && !feature.get('sig')?.protected) {
@@ -352,7 +361,10 @@ export class MapRendererComponent implements AfterViewInit {
           this.selectedVertexPoint.next(null);
 
           // only show buttons on select for Symbols
-          if (!this.isReadOnly.getValue() && nextElement?.element?.elementState?.type === ZsMapDrawElementStateType.SYMBOL) {
+          if (
+            !this.isReadOnly.getValue() &&
+            nextElement?.element?.elementState?.type === ZsMapDrawElementStateType.SYMBOL
+          ) {
             this.toggleEditButtons(true, true);
           }
         }
@@ -662,10 +674,16 @@ export class MapRendererComponent implements AfterViewInit {
       });
     });
 
-    combineLatest([this._state.observeHiddenSymbols(), this._state.observeHiddenFeatureTypes(), this._state.observeHiddenCategories()])
+    combineLatest([
+      this._state.observeHiddenSymbols(),
+      this._state.observeHiddenFeatureTypes(),
+      this._state.observeHiddenCategories(),
+    ])
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe(([hiddenSymbols, hiddenFeatureTypes, hiddenCategories]) => {
-        const hiddenSignIds = Signs.SIGNS.filter((sign) => sign.kat && hiddenCategories?.includes(sign.kat)).map((sig) => sig.id);
+        const hiddenSignIds = Signs.SIGNS.filter((sign) => sign.kat && hiddenCategories?.includes(sign.kat)).map(
+          (sig) => sig.id,
+        );
         for (const _el of Object.values(this._drawElementCache)) {
           if (!_el) continue;
           const feature = _el.element.getOlFeature();
@@ -748,7 +766,10 @@ export class MapRendererComponent implements AfterViewInit {
               const name = index > 0 ? `${mapLayer.fullId}:${index}` : mapLayer.fullId;
               this._mapLayerCache.set(name, olLayer);
               let searchFunc: SearchFunction;
-              if ((mapLayer.type === 'geojson' || mapLayer.type === 'csv') && (mapLayer as GeoJSONMapLayer).searchable) {
+              if (
+                (mapLayer.type === 'geojson' || mapLayer.type === 'csv') &&
+                (mapLayer as GeoJSONMapLayer).searchable
+              ) {
                 searchFunc = (searchText: string, maxResultCount?: number) => {
                   return Promise.resolve(
                     this.geoJSONService.search(
@@ -816,7 +837,10 @@ export class MapRendererComponent implements AfterViewInit {
     this._printDimensionLayer.setZIndex(LAYER_Z_INDEX_PRINT_DIMENSIONS);
     this._map.addLayer(this._printDimensionLayer);
 
-    this._state.observePrintExtent().pipe(skip(1), takeUntil(this._ngUnsubscribe)).subscribe(this.updatePrintViewExtent.bind(this));
+    this._state
+      .observePrintExtent()
+      .pipe(skip(1), takeUntil(this._ngUnsubscribe))
+      .subscribe(this.updatePrintViewExtent.bind(this));
 
     this._state
       .observePrintState()
@@ -865,29 +889,29 @@ export class MapRendererComponent implements AfterViewInit {
 
   initButtons() {
     this.removeButton = new Overlay({
-      element: this.deleteElement()._elementRef.nativeElement,
+      element: this.deleteElement()?._elementRef?.nativeElement,
       positioning: 'center-center',
       offset: [30, 30],
     });
     this.copyButton = new Overlay({
-      element: this.copyElement()._elementRef.nativeElement,
+      element: this.copyElement()?._elementRef?.nativeElement,
       positioning: 'center-center',
       offset: [-30, 30],
     });
     this.rotateButton = new Overlay({
-      element: this.rotateElement()._elementRef.nativeElement,
+      element: this.rotateElement()?._elementRef?.nativeElement,
       positioning: 'center-center',
       offset: [this.ROTATE_OFFSET_X, this.ROTATE_OFFSET_Y],
     });
 
     this.drawButton = new Overlay({
-      element: this.drawElement()._elementRef.nativeElement,
+      element: this.drawElement()?._elementRef?.nativeElement,
       positioning: 'center-center',
       offset: [30, 15],
     });
 
     this.closeButton = new Overlay({
-      element: this.closeElement()._elementRef.nativeElement,
+      element: this.closeElement()?._elementRef?.nativeElement,
       positioning: 'center-center',
       offset: [30, -45],
     });
@@ -1213,7 +1237,12 @@ export class MapRendererComponent implements AfterViewInit {
                 draft.autoScaleVal = (resolution * INCHES_PER_METER * draft.dpi) / 1000;
                 */
                 const extendResolution = this._view.getResolutionForExtent(extend, draft.dimensions);
-                const resolution = getPointResolution(this._view.getState().projection, extendResolution, draft.printCenter, 'm');
+                const resolution = getPointResolution(
+                  this._view.getState().projection,
+                  extendResolution,
+                  draft.printCenter,
+                  'm',
+                );
                 draft.autoScaleVal = resolution;
               });
               this._printDimensionLayer?.getSource()?.removeFeature(event.feature);
@@ -1318,7 +1347,8 @@ export class MapRendererComponent implements AfterViewInit {
     const height = Math.round((printState.dimensions[1] * printState.dpi) / MM_PER_INCHES);
     const scale = printState.scale ?? printState.autoScaleVal ?? 50;
     const printCenter = printState.printCenter ?? this._view.getCenter() ?? DEFAULT_COORDINATES;
-    const scaleResolution = scale / getPointResolution(this._view.getProjection(), printState.dpi / MM_PER_INCHES, printCenter);
+    const scaleResolution =
+      scale / getPointResolution(this._view.getProjection(), printState.dpi / MM_PER_INCHES, printCenter);
     this._scaleLine.setDpi(printState.dpi);
     this._map.getTargetElement().style.width = `${width}px`;
     this._map.getTargetElement().style.height = `${height}px`;
@@ -1347,7 +1377,9 @@ export class MapRendererComponent implements AfterViewInit {
               (s.updateCacheSize as any)(tileCount, this._view.getProjection());
             }
             if (printState.tileEventCallback) {
-              printState.tileEventCallback(new CustomEvent<{ tileCount: number }>('tileCountInfo', { detail: { tileCount } }));
+              printState.tileEventCallback(
+                new CustomEvent<{ tileCount: number }>('tileCountInfo', { detail: { tileCount } }),
+              );
             }
           }
         }
