@@ -1,3 +1,9 @@
+/*
+
+
+switzerchees: WILL BE DELETED/REFACTORED into types or common package shortly
+
+*/
 import { IZsMapStateV1, IZsMapStateV2, ZsMapState, ZsMapStateAllVersions } from '@zskarte/types';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
