@@ -1,0 +1,114 @@
+<mat-sidenav-container>
+  <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="side" [opened]="selectedJournalEntry != null">
+    <div class="sidebar-header">
+      <h1>Meldenr. {{selectedJournalEntry?.nr}}</h1>
+      <button (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <mat-accordion *ngIf="selectedJournalEntry" multi="true" displayMode="flat">
+      <mat-expansion-panel expanded="true" class="mat-elevation-z0">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Meldeinformationen
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+          <div *ngIf="!editing">
+            <div class="journal-entry-details">
+              <h3>{{selectedJournalEntry.name}}</h3>
+              <p>{{selectedJournalEntry.content}}</p>
+              <span>{{selectedJournalEntry.dateCreated.toLocaleString('de-CH')}}</span>
+              <button mat-raised-button (click)="toggleEditing()">
+                <mat-icon>edit</mat-icon>
+                {{ i18n.get('edit') }}
+              </button>
+            </div>
+
+          </div>
+          <div *ngIf="editing">
+            <div class="journal-entry-details">
+              <mat-form-field>
+                <mat-label>Name</mat-label>
+                <input matInput [value]="selectedJournalEntry.name">
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Beschreibung</mat-label>
+                <textarea matInput [value]="selectedJournalEntry.content" rows="10"></textarea>
+              </mat-form-field>
+
+              <button mat-raised-button (click)="toggleEditing()">
+                <mat-icon>close</mat-icon>
+                {{ i18n.get('cancel') }}
+              </button>
+              <button mat-raised-button (click)="save()">
+                <mat-icon>check</mat-icon>
+                {{ i18n.get('save') }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </mat-expansion-panel>
+      <mat-divider></mat-divider>
+      <mat-expansion-panel class="mat-elevation-z0">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Log
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+          <mat-list class="journal-log-list">
+            <mat-list-item>
+              <span matListItemTitle>Titel bearbeitet</span>
+              <span matListItemLine>Pascal Knecht</span>
+              <span matListItemLine>20.01.2025</span>
+            </mat-list-item>
+          </mat-list>
+        </ng-template>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="journal-header mat-elevation-z3">
+      <h1>Journal</h1>
+    </div>
+    <div class="journal-content">
+      <table mat-table matSort [dataSource]="dataSource">
+        <ng-container matColumnDef="nr">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Meldungsnr.</th>
+          <td mat-cell *matCellDef="let element"> {{element.nr}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name </th>
+          <td mat-cell *matCellDef="let element">{{element.name}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="content">
+          <th mat-header-cell *matHeaderCellDef>Beschreibung</th>
+          <td mat-cell *matCellDef="let element">{{element.content}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateCreated">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Erstellt am</th>
+          <td mat-cell *matCellDef="let element">{{element.dateCreated.toLocaleString('de-CH')}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="creator">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Erstellt von</th>
+          <td mat-cell *matCellDef="let element">{{element.creator}}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row class="journal-table-row" *matRowDef="let row; columns: displayedColumns;" (click)="selectEntry(row)"></tr>
+      </table>
+
+      <div class="fab-button">
+        <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

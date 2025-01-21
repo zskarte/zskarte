@@ -7,3 +7,12 @@ main {
   height: 100%;
   width: 100%;
 }
+
+.main-tabs {
+  border-radius: 2em;
+  position: fixed;
+  bottom: 2em;
+  left: 2em;
+  z-index: 50;
+  background-color: white;
+}

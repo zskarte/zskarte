@@ -172,14 +172,14 @@ export class SessionService {
               }
             });
 
-          await this._router.navigate(['map'], {
+          /*await this._router.navigate(['map'], {
             queryParams: {
               center: null, //handled in overrideDisplayStateFromQueryParams
               size: null, //handled in overrideDisplayStateFromQueryParams
               operationId: null, //handled in updateJWT / OperationsComponent
             },
             queryParamsHandling: 'merge',
-          });
+          });*/
         } else {
           await this._router.navigate(['operations'], { queryParamsHandling: 'preserve' });
           this._state.setMapState(undefined);
