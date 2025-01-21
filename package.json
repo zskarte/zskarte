@@ -1,8 +1,6 @@
 {
   "name": "@zskarte/workspace",
-  "workspaces": [
-    "./packages/*"
-  ],
+  "workspaces": ["./packages/*"],
   "scripts": {
     "start": "run-s start:*",
     "start:app": "cd packages/app && npm start",
@@ -26,12 +24,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "npm-run-all": "^4.1.5"
-  },
-  "dependencies": {
     "glob": "^11.0.1",
-    "ol": "^10.3.1",
+    "npm-run-all": "^4.1.5",
     "prettier": "^3.4.2",
     "tsx": "^4.19.2"
+  },
+  "dependencies": {
+    "ol": "^10.3.1"
   }
 }
