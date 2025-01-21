@@ -15,6 +15,8 @@ import {
 import { broadcastConnections, broadcastPatches } from './socketio';
 
 import type { Attribute } from '@strapi/strapi';
+import { ZsMapStateAllVersions } from '@zskarte/types';
+import { zsMapStateMigration } from './operationMigration';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
 const MIN = 1000 * 60;
@@ -22,6 +24,25 @@ const MIN = 1000 * 60;
 enablePatches();
 
 const operationCaches: { [key: number]: OperationCache } = {};
+
+const migrateOperations = async (strapi: Strapi) => {
+  try {
+    const operations = (await strapi.entityService.findMany('api::operation.operation', {
+      limit: -1,
+    })) as Operation[];
+    for (const operation of operations) {
+      if (!operation.mapState) continue;
+      operation.mapState = zsMapStateMigration(operation.mapState as ZsMapStateAllVersions);
+      await strapi.entityService.update('api::operation.operation', operation.id, {
+        data: {
+          mapState: operation.mapState as any,
+        },
+      });
+    }
+  } catch (error) {
+    strapi.log.error(error);
+  }
+};
 
 /** Loads all active operations initially and generates the in-memory cache */
 const loadOperations = async (strapi: Strapi) => {
@@ -225,6 +246,7 @@ const createMapStateSnapshots = async (strapi: Strapi) => {
 };
 
 export {
+  migrateOperations,
   operationCaches,
   loadOperations,
   lifecycleOperation,

@@ -1,4 +1,4 @@
-import { loadOperations, persistMapStates } from './state/operation';
+import { loadOperations, migrateOperations, persistMapStates } from './state/operation';
 
 export default {
   /**
@@ -17,6 +17,7 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
+    await migrateOperations(strapi);
     await loadOperations(strapi);
   },
 
