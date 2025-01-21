@@ -1,0 +1,21 @@
+<div class="recovery">
+  <h2>{{ i18n.get('personRecoveryOverview') }}</h2>
+  @let affectedPersons = affectedPersons$ | async;
+  @for (element of affectedPersons; track $index) {
+    <div class="recovery-row">
+      <img [src]="element.sign.src" [alt]="element.sign.text">
+      <span class="text">{{ element.sign.text }}</span>
+      <span>{{ element.affectedPersons }}</span>
+    </div>
+  } @empty {
+    <p class="recovery-empty">{{ i18n.get('noMissingPersons') }}</p>
+  }
+
+  @if (affectedPersons?.length) {
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="print(affectedPersons ?? [])">
+        {{i18n.get('print')}}
+      </button>
+    </div>
+  }
+</div>

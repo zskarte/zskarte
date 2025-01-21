@@ -1,0 +1,10 @@
+@if (qrCodeDataUrl | async; as qrCode) {
+  <div>
+    @if (qrCode) {
+      <img [src]="qrCode" alt="QR Code" />
+    }
+    @if (qrCode && showJoinCode) {
+      <span>{{ joinCode }}</span>
+    }
+  </div>
+}

@@ -1,0 +1,95 @@
+{
+  "kind": "collectionType",
+  "collectionName": "journal_entries",
+  "info": {
+    "singularName": "journal-entry",
+    "pluralName": "journal-entries",
+    "displayName": "Journal Entry",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "sender": {
+      "type": "string"
+    },
+    "creator": {
+      "type": "string"
+    },
+    "date_created": {
+      "type": "datetime"
+    },
+    "message_number": {
+      "type": "integer"
+    },
+    "communication_type": {
+      "type": "string"
+    },
+    "communication_details": {
+      "type": "string"
+    },
+    "message_subject": {
+      "type": "string"
+    },
+    "message_content": {
+      "type": "text"
+    },
+    "visum_message": {
+      "type": "string"
+    },
+    "is_key_message": {
+      "type": "boolean"
+    },
+    "department": {
+      "type": "string"
+    },
+    "date_visum_message": {
+      "type": "datetime"
+    },
+    "visum_triage": {
+      "type": "string"
+    },
+    "date_visum_triage": {
+      "type": "datetime"
+    },
+    "decision": {
+      "type": "text"
+    },
+    "visum_decision_deliverer": {
+      "type": "string"
+    },
+    "date_visum_decision_deliverer": {
+      "type": "datetime"
+    },
+    "visum_decision_receiver": {
+      "type": "string"
+    },
+    "date_visum_decision_receiver": {
+      "type": "datetime"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "awaiting_triage",
+        "awaiting_drawing",
+        "awaiting_decision",
+        "completed"
+      ]
+    },
+    "operation": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::operation.operation"
+    },
+    "organization": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::organization.organization"
+    },
+    "related_symbols": {
+      "type": "json"
+    }
+  }
+}

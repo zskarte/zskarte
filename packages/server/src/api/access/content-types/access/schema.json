@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "accesses",
+  "info": {
+    "singularName": "access",
+    "pluralName": "accesses",
+    "displayName": "Access",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "accessToken": {
+      "type": "string",
+      "required": true,
+      "private": true,
+      "unique": true
+    },
+    "operation": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::operation.operation"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "read",
+        "write",
+        "all"
+      ],
+      "required": true,
+      "default": "read"
+    },
+    "name": {
+      "type": "string"
+    },
+    "active": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    },
+    "expiresOn": {
+      "type": "datetime"
+    }
+  }
+}

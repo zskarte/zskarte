@@ -1,0 +1,32 @@
+services:
+  postgresql-zskarte:
+    image: bitnami/postgresql:16.3.0
+    container_name: postgresql-zskarte
+    restart: unless-stopped
+    volumes:
+      - ./data/postgresql:/bitnami/postgresql
+    ports:
+      - 55432:5432
+    environment:
+      - POSTGRESQL_PASSWORD=supersecret123
+      - POSTGRESQL_DATABASE=zskarte
+    networks:
+      - zskarte
+
+  pgadmin-zskarte:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-zskarte
+    restart: unless-stopped
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+    ports:
+      - 7050:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=info@zskarte.ch
+      - PGADMIN_DEFAULT_PASSWORD=zskarte
+    networks:
+      - zskarte
+
+networks:
+  zskarte:
+    driver: bridge

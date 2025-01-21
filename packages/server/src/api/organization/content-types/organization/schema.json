@@ -1,0 +1,75 @@
+{
+  "kind": "collectionType",
+  "collectionName": "organizations",
+  "info": {
+    "singularName": "organization",
+    "pluralName": "organizations",
+    "displayName": "Organization",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "mapLongitude": {
+      "type": "float",
+      "default": 7.44297
+    },
+    "mapLatitude": {
+      "type": "float",
+      "default": 46.94635
+    },
+    "mapZoomLevel": {
+      "type": "decimal",
+      "default": 16
+    },
+    "defaultLocale": {
+      "type": "enumeration",
+      "enum": [
+        "de-CH",
+        "fr-CH",
+        "it-CH",
+        "en-US"
+      ],
+      "default": "de-CH"
+    },
+    "url": {
+      "type": "string"
+    },
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "operations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::operation.operation",
+      "mappedBy": "organization"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "organization"
+    },
+    "wms_sources": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::wms-source.wms-source"
+    },
+    "map_layer_favorites": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::map-layer.map-layer"
+    }
+  }
+}

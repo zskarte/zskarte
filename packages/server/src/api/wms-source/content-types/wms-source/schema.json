@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "wms_sources",
+  "info": {
+    "singularName": "wms-source",
+    "pluralName": "wms-sources",
+    "displayName": "WMS Source",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "wms",
+        "wmts"
+      ]
+    },
+    "url": {
+      "type": "string"
+    },
+    "attribution": {
+      "type": "json"
+    },
+    "public": {
+      "type": "boolean"
+    },
+    "organization": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::organization.organization"
+    },
+    "map_layers": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::map-layer.map-layer",
+      "mappedBy": "wms_source"
+    }
+  }
+}

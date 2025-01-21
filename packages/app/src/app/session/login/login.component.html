@@ -1,0 +1,101 @@
+<form class="login-form">
+  <mat-card>
+    <mat-card-header class="title">
+      <mat-card-title><h1>Login</h1></mat-card-title>
+      <img style="border-radius: 10px" mat-card-sm-image src="/assets/img/favicon/zskarte-logo.png" />
+    </mat-card-header>
+
+    @if (isOnline) {
+      <mat-card-content>
+        @if (!isLoginWithCodeEnabled) {
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>ZSO</mat-label>
+            <input
+              matInput
+              [formControl]="filterControl"
+              (input)="filterOrganizations()"
+              [value]="selectedOrganization?.name"
+              [matAutocomplete]="auto"
+              placeholder="Organisation eingeben"
+            />
+            <mat-icon matSuffix>arrow_drop_down</mat-icon>
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              (optionSelected)="onSelectOrg($event)"
+              (closed)="onCloseAutocomplete()"
+              autoActiveFirstOption
+              [displayWith]="nameProperty"
+            >
+              @for (organization of filteredOrganizations | async; track organization) {
+                <mat-option [value]="organization">
+                  <div class="option-wrapper">
+                    @if (organization.logoSrc) {
+                      <img [src]="organization.logoSrc" [srcset]="organization.logoSrcSet" class="login-logo" />
+                    }
+                    {{ organization.name }}
+                  </div>
+                </mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        }
+        @if (!isLoginWithCodeEnabled) {
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Passwort</mat-label>
+            <input matInput type="password" placeholder="Passwort eingeben" [(ngModel)]="password" name="password" />
+          </mat-form-field>
+        }
+        @if (session.getAuthError() && !isLoginWithCodeEnabled) {
+          <mat-error>{{
+            session.getAuthError()?.error?.error?.message || session.getAuthError()?.statusText || session.getAuthError()?.message
+          }}</mat-error>
+        }
+        <!-- Login with code dialog-->
+        @if (isLoginWithCodeEnabled) {
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Login-Code</mat-label>
+            <input matInput type="text" placeholder="Login-Code eingeben" [(ngModel)]="joinCode" name="joinCode" />
+          </mat-form-field>
+        }
+        <stack [spacing]="5">
+          <button class="login-button" mat-raised-button color="primary" (click)="login()">Login</button>
+          @if (isLoginWithCodeEnabled) {
+            <button class="login-button" mat-raised-button color="secondary" (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
+              {{ i18n.get('back') }}
+            </button>
+          }
+          @if (!isLoginWithCodeEnabled) {
+            <button class="alternative-login-button" mat-raised-button (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
+              @if (!isLoginWithCodeEnabled) {
+                <span>{{ i18n.get('codeLogin') }}</span>
+              }
+              @if (isLoginWithCodeEnabled) {
+                <span>{{ i18n.get('cancel') }}</span>
+              }
+            </button>
+          }
+          @if (!isLoginWithCodeEnabled && hasGuestUser) {
+            <text-divider>{{ i18n.get('or') }}</text-divider>
+          }
+          @if (!isLoginWithCodeEnabled && hasGuestUser) {
+            <button class="alternative-login-button" mat-raised-button (click)="guestLogin()">
+              {{ i18n.get('guestLogin') }}
+            </button>
+          }
+          @if (!isLoginWithCodeEnabled) {
+            <text-divider>{{ i18n.get('or') }}</text-divider>
+          }
+          @if (!isLoginWithCodeEnabled) {
+            <button class="alternative-login-button" mat-raised-button (click)="workLocal()">
+              {{ i18n.get('workLocal') }}
+            </button>
+          }
+        </stack>
+      </mat-card-content>
+    } @else {
+      <button class="alternative-login-button" mat-raised-button (click)="workLocal()">
+        {{ i18n.get('workLocal') }}
+      </button>
+    }
+  </mat-card>
+</form>

@@ -1,0 +1,15 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "main": "socketio-test-client.js",
+  "scripts": {
+    "start": "node socketio-test-client.js"
+  },
+  "dependencies": {
+    "axios": "^0.28.0",
+    "socket.io-client": "^4.7.4"
+  }
+}

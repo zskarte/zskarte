@@ -3,26 +3,86 @@ on:
     types:
       - published
 
+env:
+  STAGE: prod
+  DOCKERHUB_USERNAME: zskarte
+  KUBERNETES_NAMESPACE: zskarte-prod
+  APP_NAME: zskarte-server
+  IMAGE_TAG: zskarte/zskarte-server
+  LETSENCRYPT_STAGE: prod
+  DB_HOST: zskarte.postgres.database.azure.com
+  DB_PORT: 5432
+  DB_NAME: zskarte_prod
+  DB_USER: zskarte_admin
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET_PROD }}
+  JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET_PROD }}
+  APP_KEYS: ${{ secrets.STRAPI_APP_KEYS_PROD }}
+  API_TOKEN_SALT: ${{ secrets.STRAPI_API_TOKEN_SALT_PROD }}
+  TRANSFER_TOKEN_SALT: ${{ secrets.STRAPI_TRANSFER_TOKEN_SALT_PROD }}
+  BASE_URL: api.zskarte.ch
+  STORAGE_ACCOUNT: zskarte
+  STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
+  STORAGE_URL: https://zskarte.blob.core.windows.net
+  STORAGE_CONTAINER_NAME: zskarte-prod
+
 jobs:
-  build:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Latest Tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+
+      - uses: docker/login-action@v3
+        name: Login to Docker Hub
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_TAG }}:${{ steps.previoustag.outputs.tag }}
+
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v4
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - name: Replace and Apply Kubernetes Manifests
+        uses: swdotcom/update-and-apply-kubernetes-configs@v1
+        with:
+          k8-config-file-paths: |
+            .azure/k8s/namespace.yml
+            .azure/k8s/strapi-envs.yml
+            .azure/k8s/deployment.yml
+            .azure/k8s/service.yml
+            .azure/k8s/ingress.yml
+          replacement-method: defined
+        env:
+          FULL_IMAGE_NAME: ${{ env.IMAGE_TAG }}:${{ steps.previoustag.outputs.tag }}
+
+  build-and-deploy-app:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
+      - uses: actions/checkout@v4
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_RED_FIELD_0D54A0203 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
-          app_build_command: "yarn ng:build:prod"
-          output_location: "dist/zskarte-v3" # Built app content directory - optional
-          config_file_location: "/" # Config file path - optional
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PROD }}
+          action: 'upload'
+          app_location: '/' # App source code path
+          api_location: '' # Api source code path - optional
+          app_build_command: 'npm run build:app'
+          output_location: 'packages/app/dist/zskarte-v3/browser' # Built app content directory - optional
+          config_file_location: 'packages/app/' # Config file path - optional
           ###### End of Repository/Build Configurations ######

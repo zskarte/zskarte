@@ -1,0 +1,20 @@
+<div class="coordinates mat-elevation-z3">
+  @if (showOptions) {
+    <app-projection-selection
+      [projectionFormatIndexes]="projectionFormatIndexes"
+      [showNumerical]="false"
+      [multiple]="true"
+      (projectionChanged)="updateProjection($event)"
+    ></app-projection-selection>
+  }
+  <div class="box">
+    <div class="coords">
+      @for (coordinate of coordinates; track coordinate) {
+        <span>
+          {{ coordinate }}
+        </span>
+      }
+    </div>
+    <span class="menu" (click)="showOptions = !showOptions">{{ showOptions ? '&cross;' : '&#x2637;' }}</span>
+  </div>
+</div>

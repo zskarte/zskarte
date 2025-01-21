@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "map_snapshots",
+  "info": {
+    "singularName": "map-snapshot",
+    "pluralName": "map-snapshots",
+    "displayName": "Map Snapshot",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "mapState": {
+      "type": "json"
+    },
+    "operation": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::operation.operation",
+      "inversedBy": "mapSnapshots"
+    }
+  }
+}

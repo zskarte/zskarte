@@ -3,7 +3,10 @@ name: PR
 on:
   pull_request:
     branches:
-      - '**'
+      - dev
+    types:
+      - opened
+      - synchronize
 
 env:
   NODE_VERSION: 20.x
@@ -23,48 +26,18 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Cache Node Modules
-        uses: actions/cache@v3
+        id: cache-node-modules
+        uses: actions/cache@v4
         with:
-          path: ~/.yarn
+          path: node_modules
           key: node-modules-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
-        run: yarn
-
-      - name: Lint
-        run: yarn lint
-
-      # - name: Test
-      #   run: yarn test
-      #   env:
-      #     CI: 'true'
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm install
 
       - name: Build
-        run: yarn build
+        run: npm run build
 
-      - name: Store Playwright's Version
-        run: |
-          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
-          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
-          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
-
-      - name: Cache Playwright Browsers for Playwright's Version
-        id: cache-playwright-browsers
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
-
-      - name: Setup Playwright
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright tests
-        run: npx playwright test
-
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+      - name: Lint
+        run: npm run lint

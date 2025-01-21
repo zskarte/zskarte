@@ -1,0 +1,37 @@
+{
+  "name": "@zskarte/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend for zskarte",
+  "license": "MIT",
+  "author": {
+    "name": "ZSKarte Team"
+  },
+  "scripts": {
+    "dev": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "regenerate": "strapi ts:generate-types",
+    "export": "config-sync export --yes --type user-role && config-sync export --yes --type admin-role",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@strapi/plugin-i18n": "^4.25.13",
+    "@strapi/plugin-users-permissions": "^4.25.13",
+    "@strapi/strapi": "^4.25.13",
+    "immer": "^10.1.1",
+    "lodash": "^4.17.21",
+    "pg": "^8.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^5.2.0",
+    "strapi-plugin-config-sync": "^1.2.6",
+    "strapi-plugin-io": "^2.0.6",
+    "strapi-provider-upload-azure-storage": "^3.4.0",
+    "styled-components": "^5.2.1",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.14"
+  }
+}

@@ -1,0 +1,14 @@
+<div mat-dialog-content>
+  @if (!this.html) {
+    <div class="loading">
+      <mat-progress-spinner color="primary" mode="indeterminate"> </mat-progress-spinner>
+    </div>
+  } @else {
+    <div [innerHTML]="html"></div>
+  }
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" [mat-dialog-close]="true">
+    {{ i18n.get('ok') }}
+  </button>
+</div>

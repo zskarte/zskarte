@@ -1,0 +1,51 @@
+<div class="geocoder">
+  <mat-form-field subscriptSizing="dynamic" appearance="outline" class="mat-elevation-z3">
+    <input
+      matInput
+      [placeholder]="i18n.get('findPlace')"
+      [matAutocomplete]="auto"
+      [(ngModel)]="inputText"
+      (ngModelChange)="geoCodeLoad()"
+      #searchField
+    />
+    <mat-icon aria-hidden="false" aria-label="Search" matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    (optionSelected)="geoCodeSelected($event)"
+    (optionActivated)="previewCoordinate($event.option?.value)"
+  >
+    <ng-template let-location="location" #option>
+      <mat-option [value]="location" (mouseenter)="previewCoordinate(location)" (mouseleave)="goToCoordinate(false)">
+        <span [innerHTML]="location.label" [title]="getLabel(location)"></span>
+      </mat-option>
+    </ng-template>
+    @if (foundLocations.length === 1) {
+      @for (location of foundLocations[0].results; track location) {
+        <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
+      }
+    } @else {
+      @for (group of foundLocations; track group) {
+        <mat-optgroup [label]="group.config.label + ' (' + group.results.length + ')'" (mousedown)="expandGroup(group, $event)">
+          <ng-container>
+            @if (group.collapsed === 'peek') {
+              @for (location of group.results | slice: 0 : 3; track location) {
+                <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
+              }
+              @if (group.results.length > 3) {
+                <div class="hasMore">...</div>
+              }
+            } @else if (!group.collapsed) {
+              @for (location of group.results; track location) {
+                <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
+              }
+            } @else {
+              <mat-option class="dummyOption"></mat-option>
+            }
+          </ng-container>
+        </mat-optgroup>
+      }
+    }
+  </mat-autocomplete>
+</div>
