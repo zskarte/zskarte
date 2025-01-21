@@ -1,4 +1,4 @@
-import { IZsMapState } from '@zskarte/types';
+import { ZsMapState } from '@zskarte/types';
 
 export enum OperationExportFileVersion {
   V1 = 'V1',
@@ -10,5 +10,5 @@ export interface OperationExportFile {
   name: string;
   description: string;
   version: OperationExportFileVersion;
-  map: IZsMapState;
+  map: ZsMapState;
 }

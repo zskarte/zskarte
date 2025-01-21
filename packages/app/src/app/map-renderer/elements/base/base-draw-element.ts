@@ -1,20 +1,22 @@
-import { Feature } from 'ol';
-import { Observable } from 'rxjs';
 import { IZsMapBaseDrawElementState, ZsMapDrawElementState, ZsMapElementToDraw } from '@zskarte/types';
-import { ZsMapStateService } from '../../../state/state.service';
-import { ZsMapBaseElement } from './base-element';
-import { Draw } from 'ol/interaction';
-import VectorSource from 'ol/source/Vector';
-import { Options } from 'ol/interaction/Draw';
+import { Feature } from 'ol';
 import { Geometry } from 'ol/geom';
-import { distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
-import { ZsMapOLFeatureProps } from './ol-feature-props';
 import { Type } from 'ol/geom/Geometry';
+import { Draw } from 'ol/interaction';
+import { Options } from 'ol/interaction/Draw';
+import VectorSource from 'ol/source/Vector';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
 import { areCoordinatesEqual } from '../../../helper/coordinates';
 import { debounce } from '../../../helper/debounce';
+import { ZsMapStateService } from '../../../state/state.service';
 import { Signs } from '../../signs';
+import { ZsMapBaseElement } from './base-element';
+import { ZsMapOLFeatureProps } from './ol-feature-props';
 
-export abstract class ZsMapBaseDrawElement<T extends ZsMapDrawElementState = ZsMapDrawElementState> extends ZsMapBaseElement<T> {
+export abstract class ZsMapBaseDrawElement<
+  T extends ZsMapDrawElementState = ZsMapDrawElementState,
+> extends ZsMapBaseElement<T> {
   public elementState?: T;
 
   constructor(
@@ -27,7 +29,7 @@ export abstract class ZsMapBaseDrawElement<T extends ZsMapDrawElementState = ZsM
     this._element = this._state.observeMapState().pipe(
       map((o) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return o.drawElements?.find((o) => o.id === this._id) as any;
+        return o.drawElements?.[this._id] as any;
       }),
       distinctUntilChanged((x, y) => x === y),
       takeUntil(this._unsubscribe),
@@ -97,7 +99,7 @@ export abstract class ZsMapBaseDrawElement<T extends ZsMapDrawElementState = ZsM
 
   private _debouncedUpdateElementState = debounce((updateFn: (draft: ZsMapDrawElementState) => void) => {
     this._state.updateMapState((draft) => {
-      const element = draft.drawElements?.find((o) => o.id === this._id);
+      const element = draft.drawElements?.[this._id];
       if (element) {
         updateFn(element);
       }
@@ -143,7 +145,11 @@ export abstract class ZsMapBaseDrawElement<T extends ZsMapDrawElementState = ZsM
   protected static _enhanceOlDrawOptions(options: Options) {
     return options;
   }
-  protected static _parseFeature(event: Feature<Geometry>, state: ZsMapStateService, element: ZsMapElementToDraw): void {
+  protected static _parseFeature(
+    event: Feature<Geometry>,
+    state: ZsMapStateService,
+    element: ZsMapElementToDraw,
+  ): void {
     console.error('static fn _parseFeature is not implemented', { event, state, element });
     throw new Error('static fn _parseFeature is not implemented');
   }

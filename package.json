@@ -1,23 +1,33 @@
 {
   "name": "@zskarte/workspace",
-  "workspaces": [
-    "./packages/*"
-  ],
+  "workspaces": ["./packages/*"],
   "scripts": {
     "start": "run-s start:*",
     "start:app": "cd packages/app && npm start",
     "start:server": "cd packages/server && npm start",
-    "lint": "run-s lint:*",
-    "lint:app": "cd packages/app && npm run lint",
-    "lint:server": "cd packages/server && npm run lint",
-    "build": "run-s build:*",
+    "lint": "run-p lint:*",
+    "lint:app": "biome lint ./packages/app/src",
+    "lint:server": "biome lint ./packages/server/src",
+    "lint:types": "biome lint ./packages/types",
+    "lint:common": "biome lint ./packages/common",
+    "format": "run-p format:*",
+    "format:app-prettier": "prettier --write \"./packages/app/src/**/*.{js,ts,html,scss,json,md}\" --log-level silent",
+    "format:app-biome": "npm run lint:app -- --fix",
+    "format:server": "npm run lint:server -- --fix",
+    "format:types": "npm run lint:types -- --fix",
+    "format:common": "npm run lint:common -- --fix",
+    "build": "run-p build:*",
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
-    "build:app:prod": "cd packages/app && npm run ng:build:prod",
+    "build:app": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
-    "build:types": "cd packages/types && npm run build"
+    "cleanup": "tsx scripts/cleanup.ts"
   },
   "devDependencies": {
-    "npm-run-all": "^4.1.5"
+    "@biomejs/biome": "1.9.4",
+    "glob": "^11.0.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2"
   },
   "dependencies": {
     "ol": "^10.3.1"

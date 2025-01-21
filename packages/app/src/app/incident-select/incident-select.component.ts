@@ -30,6 +30,14 @@ export class IncidentSelectComponent {
   get values(): number[] {
     return this.incidents.value?.map((o) => o) || [];
   }
+  @Input()
+  set disabled(value: boolean) {
+    if (value) {
+      this.incidents.disable();
+    } else {
+      this.incidents.enable();
+    }
+  }
   readonly valuesChange = output<number[]>();
   incidents = new FormControl<number[]>([]);
   incidentList = new BehaviorSubject<{ id: number | undefined; icon: string | undefined; name: string | undefined }[]>([]);
@@ -48,6 +56,9 @@ export class IncidentSelectComponent {
     this.incidents.valueChanges.pipe(takeUntilDestroyed()).subscribe((values) => {
       this.valuesChange.emit(values?.map((o) => o) || []);
     });
+    if (this.disabled) {
+      this.incidents.disable();
+    }
   }
 
   getIncident(id: number | undefined) {

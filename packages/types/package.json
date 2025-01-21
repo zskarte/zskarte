@@ -1,15 +1,13 @@
 {
   "name": "@zskarte/types",
   "version": "0.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "author": "",
   "license": "MIT",
   "description": "",
@@ -17,5 +15,4 @@
     "typescript": "^5.7.3",
     "ol": "^10.3.1"
   }
-  
 }

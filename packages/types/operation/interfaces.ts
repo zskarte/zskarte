@@ -1,18 +1,21 @@
 import { MapLayer } from "../map-layer/interfaces";
-import { IZsMapState, ZsMapStateSource } from "../state/interfaces";
+import { ZsMapState, ZsMapStateSource } from '../state/interfaces';
 
 export interface IZSMapOperationMapLayers {
   baseLayer: ZsMapStateSource;
   layerConfigs: MapLayer[];
 }
 
+export type ZsOperationStatus = 'active' | 'archived';
+
 export interface IZsMapOperation {
   id?: number;
   name: string;
   description: string;
-  mapState: IZsMapState;
+  updatedAt?: string;
+  mapState: ZsMapState;
   eventStates: number[];
-  status: "active" | "archived";
+  status: ZsOperationStatus;
   mapLayers?: IZSMapOperationMapLayers;
 }
 

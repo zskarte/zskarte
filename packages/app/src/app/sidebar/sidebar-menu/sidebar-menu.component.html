@@ -1,5 +1,8 @@
-<app-incident-select [values]="(incidents | async) || []" (valuesChange)="updateIncidents($event)"></app-incident-select>
+<app-incident-select [values]="(incidents | async) || []" (valuesChange)="updateIncidents($event)" [disabled]="!hasWritePermission || isArchived"></app-incident-select>
 
+@if (isArchived) {
+  <p class="archived">{{ i18n.get('viewArchivedOperation') }}</p>
+}
 <mat-divider></mat-divider>
 
 <button mat-menu-item (click)="toggleHistory()" title="ALT+H">
@@ -23,6 +26,10 @@
 <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="protocolOptions">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('protocol')">list_alt</mat-icon>
   {{ i18n.get('protocol') }}
+</button>
+<button mat-menu-item class="tools-menu-item" (click)="personRecovery()">
+  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('personRecoveryOverview')">sensor_occupied</mat-icon>
+  {{ i18n.get('personRecoveryOverview') }}
 </button>
 <button mat-menu-item (click)="help()">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon>
@@ -51,7 +58,7 @@
   </button>
 }
 @if (!(session.observeHasWritePermission() | async)) {
-  <button mat-menu-item class="tools-menu-item" (click)="session.logout()">
+  <button mat-menu-item class="tools-menu-item" (click)="session.logout('logout')">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon>
     {{ i18n.get('logout') }}
   </button>

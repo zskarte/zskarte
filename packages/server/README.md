@@ -42,13 +42,17 @@ npm run dev
 
 Different containerized services to use in the development process like postgresql and pgadmn
 
-### Linux prerequisites
+### Linux/WSL prerequisites
 
 ```bash
 # Create the data/postgresql folder
 mkdir -p data/postgresql
 # Add the UID 1001 (non-root user of postgresql) as the folder owner
 chown -R 1001:1001 data/postgresql
+# Create the data/pgadmin folder
+mkdir -p data/pgadmin
+# Add the UID 5050 (non-root user of pgadmin) as the folder owner
+chown -R 5050:5050 data/pgadmin
 ```
 
 ### Docker-Compose
@@ -104,28 +108,6 @@ A postgresql database management tool
 4. Create database (right click on Servers -> Server -> Databases)
    - Create -> Database
      - Name: zskarte
-
-#### Persist database connections
-
-```bash
-# Execute inside pgadmin docker container
-docker exec -it pgadmin sh
-# Dump Actual connections into servers.json file to
-/venv/bin/python setup.py dump-servers --user info@zskarte.ch servers.json
-```
-
-##### Troubleshooting
-
-Your should have created empty file servers.json before starting the container (with docker compose) or docker would create an folder, that does not fit the needs.
-If this happen use
-
-```bash
-/venv/bin/python setup.py dump-servers --user info@zskarte.ch servers.json/file
-```
-
-to save the configuration instead.
-Than stop the compose, move the file out of the folder, delete the folder and rename file to server.json.
-Now remove the old pgadmin-zskarte (`docker rm pgadmin-zskarte`) and start the compose again.
 
 #### Seed data & set up authorization
 

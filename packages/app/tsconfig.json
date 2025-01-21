@@ -17,10 +17,14 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "skipLibCheck": true,
-    "target": "es2020",
-    "module": "es2020",
-    "lib": ["es2020", "dom"],
-    "noImplicitAny": false
+    "target": "es2022",
+    "module": "es2022",
+    "lib": ["es2022", "dom"],
+    "noImplicitAny": false,
+    "paths": {
+      "@zskarte/types": ["../types"],
+      "@zskarte/common": ["../common"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

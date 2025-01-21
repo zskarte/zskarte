@@ -22,6 +22,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types';
+import { PersonRecoveryComponent } from "../../person-recovery/person-recovery.component";
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -38,7 +39,7 @@ import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types
     MatDialogModule,
     ProjectionSelectionComponent,
     MatButtonModule,
-  ],
+],
 })
 export class SidebarMenuComponent {
   i18n = inject(I18NService);
@@ -56,16 +57,22 @@ export class SidebarMenuComponent {
   locales: Locale[] = LOCALES;
   protocolEntries: ProtocolEntry[] = [];
   public incidents = new BehaviorSubject<number[]>([]);
+  public hasWritePermission = false;
+  public isArchived = true;
 
   constructor() {
     this.incidents.next(this.session.getOperationEventStates() || []);
+    this.hasWritePermission = this.session.hasWritePermission();
+    this.isArchived = this.session.isArchived();
   }
 
   async updateIncidents(incidents: number[]): Promise<void> {
     const operation = this.session.getOperation();
     if (operation) {
-      operation.eventStates = incidents;
-      await this._operation.updateMeta(operation);
+      if (operation.eventStates.toString() !== incidents.toString()) {
+        operation.eventStates = incidents;
+        await this._operation.updateMeta(operation);
+      }
     }
   }
 
@@ -79,6 +86,10 @@ export class SidebarMenuComponent {
 
   protocolTable(): void {
     this.dialog.open(ProtocolTableComponent, { data: false });
+  }
+
+  personRecovery(): void {
+    this.dialog.open(PersonRecoveryComponent);
   }
 
   protocolExcelExport(): void {
