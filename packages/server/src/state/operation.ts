@@ -15,7 +15,6 @@ import {
 import { broadcastConnections, broadcastPatches } from './socketio';
 
 import type { Attribute } from '@strapi/strapi';
-import { ZsMapStateAllVersions } from '@zskarte/types';
 import { zsMapStateMigration } from './operationMigration';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
@@ -32,7 +31,8 @@ const migrateOperations = async (strapi: Strapi) => {
     })) as Operation[];
     for (const operation of operations) {
       if (!operation.mapState) continue;
-      operation.mapState = zsMapStateMigration(operation.mapState as ZsMapStateAllVersions);
+      operation.mapState = zsMapStateMigration(operation.mapState as any);
+      // switzerchees: TODO fix -> operation.mapState = zsMapStateMigration(operation.mapState as ZsMapStateAllVersions);
       await strapi.entityService.update('api::operation.operation', operation.id, {
         data: {
           mapState: operation.mapState as any,
