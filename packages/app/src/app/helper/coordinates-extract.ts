@@ -1,13 +1,13 @@
 import { transform } from "ol/proj";
-import { coordinatesProjection, projectionByName, projections, swissProjection } from "./projections"
-import { containsCoordinate, Extent } from "ol/extent";
+import { coordinatesProjection, lv03Projection, swissProjection } from "./projections"
+import { containsCoordinate } from "ol/extent";
 
 const BOUNDS_LV95 = swissProjection.getExtent();
 const BOUNDS_AS_WGS84 = [BOUNDS_LV95.slice(0, 2), BOUNDS_LV95.slice(2)]
   .flatMap(coords => transform(coords, swissProjection, coordinatesProjection!));
+const BOUNDS_AS_LV03 = [BOUNDS_LV95.slice(0, 2), BOUNDS_LV95.slice(2)]
+  .flatMap(coords => transform(coords, swissProjection, lv03Projection!));
 
-console.log(BOUNDS_AS_WGS84, BOUNDS_LV95)
-  
 const RE_DEGREE_IDENTIFIER = '\\s*°\\s*'
 const RE_DEGREE = `\\d{1,3}(\\.\\d+)?`
 const RE_MIN_IDENTIFIER = "\\s*['‘’‛′]\\s*"
@@ -83,7 +83,7 @@ const REGEX_WGS_84_WITH_SECONDS_PREFIXED = new RegExp(
  * @param {String} text
  * @returns {[Number, Number] | undefined}
  */
-function extractWGS84Coordinates(text) {
+function extractWGS84Coordinates(text: string): number[] | undefined {
     const regexMatch = [
         REGEX_WGS_84,
         REGEX_WGS_84_WITH_CARDINALS,
@@ -101,39 +101,39 @@ function extractWGS84Coordinates(text) {
     return undefined
 }
 
-const wgs84Extractor = (regexMatches) => {
+const wgs84Extractor = (regexMatches: RegExpExecArray | null): number[] | undefined => {
   if (!regexMatches) {
       return undefined
   }
-  let firstNumber, secondNumber
-  let firstCardinal, secondCardinal
+  let firstNumber: number, secondNumber: number;
+  let firstCardinal: string | undefined, secondCardinal: string | undefined;
 
   // Extract degrees
-  firstNumber = Number(regexMatches.groups.degree1)
-  secondNumber = Number(regexMatches.groups.degree2)
+  firstNumber = Number(regexMatches.groups?.["degree1"])
+  secondNumber = Number(regexMatches.groups?.["degree2"])
 
   // Extract minutes if any
-  if (regexMatches.groups.min1) {
-      firstNumber += Number(regexMatches.groups.min1) / 60
+  if (regexMatches.groups?.["min1"]) {
+      firstNumber += Number(regexMatches.groups["min1"]) / 60
   }
-  if (regexMatches.groups.min2) {
-      secondNumber += Number(regexMatches.groups.min2) / 60
+  if (regexMatches.groups?.["min2"]) {
+      secondNumber += Number(regexMatches.groups["min2"]) / 60
   }
 
   // Extract seconds if any
-  if (regexMatches.groups.sec1) {
-      firstNumber += Number(regexMatches.groups.sec1) / 3600
+  if (regexMatches.groups?.["sec1"]) {
+      firstNumber += Number(regexMatches.groups["sec1"]) / 3600
   }
-  if (regexMatches.groups.sec2) {
-      secondNumber += Number(regexMatches.groups.sec2) / 3600
+  if (regexMatches.groups?.["sec2"]) {
+      secondNumber += Number(regexMatches.groups["sec2"]) / 3600
   }
 
   // Extract cardinal if any
-  if (regexMatches.groups.card1) {
-      firstCardinal = regexMatches.groups.card1
+  if (regexMatches.groups?.["card1"]) {
+      firstCardinal = regexMatches.groups["card1"]
   }
-  if (regexMatches.groups.card2) {
-      secondCardinal = regexMatches.groups.card2
+  if (regexMatches.groups?.["card2"]) {
+      secondCardinal = regexMatches.groups["card2"]
   }
 
   if (firstNumber && secondNumber) {
@@ -170,23 +170,79 @@ const wgs84Extractor = (regexMatches) => {
 
       if (containsCoordinate(BOUNDS_AS_WGS84, [lon, lat])) {
         return [lon, lat]
-      }
-
-      if (containsCoordinate(BOUNDS_AS_WGS84, [lat, lon])) {
+      } else if (containsCoordinate(BOUNDS_AS_WGS84, [lat, lon])) {
         return [lat, lon]
       }
   }
-  return null
+  return undefined
 }
 
+// LV95, LV03, metric WebMercator (EPSG:3857)
+const REGEX_METRIC_COORDINATES =
+    /^(?<coord1>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)\s*[,/ \t]\s*(?<coord2>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)$/i
 
-export const coordinateFromString = (text) => {
+
+/**
+ * @param {String} text
+ * @returns {[Number, Number] | undefined}
+ */
+function extractLV95Coordinates(text: string): number[] | undefined {
+    const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
+    if (coordinates) {
+        if (containsCoordinate(BOUNDS_LV95, [coordinates[0], coordinates[1]])) {
+            return [coordinates[0], coordinates[1]];
+        } else if (containsCoordinate(BOUNDS_LV95, [coordinates[1], coordinates[0]])) {
+            return [coordinates[1], coordinates[0]];
+        }
+    }
+    return undefined
+}
+
+function extractLV03Coordinates(text: string): number[] | undefined {
+    const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
+    if (coordinates) {
+        if (containsCoordinate(BOUNDS_AS_LV03, [coordinates[0], coordinates[1]])) {
+            return [coordinates[0], coordinates[1]];
+        } else if (containsCoordinate(BOUNDS_AS_LV03, [coordinates[1], coordinates[0]])) {
+            return [coordinates[1], coordinates[0]];
+        }
+    }
+    return undefined
+}
+
+const thousandSeparatorRegex = /['`´ ]/g
+
+const numericalExtractor = (regexMatches: RegExpExecArray | null): number[] | undefined => {
+    if (!regexMatches) {
+        return undefined
+    }
+    // removing thousand separators
+    const x = Number(regexMatches.groups?.["coord1"]?.replace(thousandSeparatorRegex, ''))
+    const y = Number(regexMatches.groups?.["coord2"]?.replace(thousandSeparatorRegex, ''))
+    if (Number.isNaN(x) || Number.isNaN(y)) {
+        return undefined
+    }
+    return [x, y]
+}
+
+export const coordinateFromString = (text: string) => {
   if (typeof text !== 'string') {
       return undefined
   }
-  const wgs84Result = extractWGS84Coordinates(text)
+  const wgs84Result = extractWGS84Coordinates(text);
   if (wgs84Result) {
-    return wgs84Result as number[];
+    return wgs84Result;
   }
+
+  const lv95Result  = extractLV95Coordinates(text);
+  if (lv95Result) {
+    return transform(lv95Result, swissProjection, coordinatesProjection!);
+  }
+
+  const lv03Result = extractLV03Coordinates(text);
+  if (lv03Result) {
+    return transform(lv03Result, lv03Projection!, coordinatesProjection!);
+  }
+
   return undefined
 }
