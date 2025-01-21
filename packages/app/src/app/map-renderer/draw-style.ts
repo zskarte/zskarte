@@ -22,6 +22,7 @@ import { Geometry, MultiPolygon } from 'ol/geom';
 import { FeatureLike } from 'ol/Feature';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 
+// skipcq: JS-0327
 export class DrawStyle {
   static defaultScaleFactor = 0.2;
 
@@ -33,8 +34,6 @@ export class DrawStyle {
   private static clusterStyleCache = {};
 
   private static lastResolution = 0;
-
-  filter = null;
 
   public static getImageUrl(file: string): string {
     return `assets/img/signs/${file}`;
