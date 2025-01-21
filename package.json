@@ -11,7 +11,7 @@
     "lint:types": "biome lint ./packages/types",
     "lint:common": "biome lint ./packages/common",
     "format": "run-p format:*",
-    "format:app-prettier": "prettier --write \"./packages/app/src/**/*.{js,ts,html,scss,json,md}\" --log-level silent",
+    "format:app-prettier": "prettier --write \"./packages/app/src/**/*.{html,scss,md}\" --log-level silent",
     "format:app-biome": "npm run lint:app -- --fix",
     "format:server": "npm run lint:server -- --fix",
     "format:types": "npm run lint:types -- --fix",
