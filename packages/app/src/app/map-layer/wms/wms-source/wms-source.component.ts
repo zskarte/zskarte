@@ -6,13 +6,14 @@ import { WmsService } from '../wms.service';
 import { BehaviorSubject } from 'rxjs';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
-import { MAT_DIALOG_DATA, MatDialogClose } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogClose, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-wms-source',
@@ -28,6 +29,8 @@ import { MatInputModule } from '@angular/material/input';
     MatRadioModule,
     MatIconModule,
     MatDialogClose,
+    MatDialogModule,
+    MatButtonModule,
   ],
 })
 export class WmsSourceComponent {

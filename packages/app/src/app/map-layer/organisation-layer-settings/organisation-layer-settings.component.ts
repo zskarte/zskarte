@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogClose, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../state/i18n.service';
 import { MapLayerService } from '../map-layer.service';
 import { IZsMapOrganization, IZsMapOrganizationMapLayerSettings, MapLayer, WmsSource } from '@zskarte/types';
@@ -7,11 +7,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, combineLatest, map, startWith } from 'rxjs';
 import { getPropertyDifferences } from 'src/app/helper/diff';
 import { LocalMapLayer } from 'src/app/db/db';
-import { MatActionList, MatListOption, MatSelectionList } from '@angular/material/list';
+import { MatActionList, MatListModule, MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { AsyncPipe } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-organisation-layer-settings',
@@ -26,7 +27,10 @@ import { MatInputModule } from '@angular/material/input';
     ReactiveFormsModule,
     MatDialogClose,
     MatActionList,
+    MatListModule,
     AsyncPipe,
+    MatDialogModule,
+    MatButtonModule,
   ],
 })
 export class OrganisationLayerSettingsComponent {
