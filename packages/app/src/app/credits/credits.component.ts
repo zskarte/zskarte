@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input, input } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { SessionService } from '../session/session.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [MatIconModule],
 })
 export class CreditsComponent {
+  @Input() 
+  public showLogo: boolean = true;
+  @Input() 
+  public title: string = "";
+
   i18n = inject(I18NService);
   session = inject(SessionService);
 
@@ -19,8 +24,6 @@ export class CreditsComponent {
 
   constructor() {
     const session = this.session;
-
-    this.operationName = session.getOperationName() ?? '';
     this.logo = session.getLogo() ?? '';
     this.workLocal = session.isWorkLocal();
   }

@@ -61,6 +61,7 @@ export class FloatingUIComponent {
   private _sync = inject(SyncService);
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
+  session = inject(SessionService);
   sidebar = inject(SidebarService);
 
   static ONBOARDING_VERSION = '1.0';
@@ -77,6 +78,8 @@ export class FloatingUIComponent {
   public printView = false;
   public canWorkOffline = new BehaviorSubject<boolean>(false);
   public workLocal: boolean;
+  public showLogo: boolean = true;
+  public sidebarTitle: string = ""
 
   constructor() {
     const _state = this._state;
@@ -89,6 +92,43 @@ export class FloatingUIComponent {
     }
 
     this._state.observeIsReadOnly().pipe(takeUntil(this._ngUnsubscribe)).subscribe(this.isReadOnly);
+
+    this.sidebar.observeContext()
+    .pipe(takeUntil(this._ngUnsubscribe))
+    .subscribe(sidebarContext => {
+      switch (sidebarContext) {
+        case SidebarContext.Filters:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('filters');
+          break;
+        case SidebarContext.Layers:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('layers');
+          break;
+        case SidebarContext.History:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('history');
+          break;
+        case SidebarContext.Connections:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('connections');
+          break;
+        case SidebarContext.Print:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('print');
+          break;
+        case SidebarContext.SelectedFeature:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('selectedFeature');
+          break;
+        case SidebarContext.Menu:
+        case SidebarContext.SelectedFeature:
+        default:
+          this.showLogo = true;
+          this.sidebarTitle = this.session.getOperationName() ?? ''  
+          break;
+      }
+    });
 
     this._state
       .observeHistory()

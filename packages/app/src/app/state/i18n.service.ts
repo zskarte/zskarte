@@ -1034,6 +1034,11 @@ export class I18NService {
       en: 'Connections',
       fr: 'Connexions',
     },
+    selectedFeature: {
+      de: 'Ausgewähltes Feature',
+      en: 'Selected Feature',
+      fr: 'Fonctionnalité sélectionnée',
+    },    
     generalFilters: {
       de: 'Globale Filter',
       en: 'Global filters',

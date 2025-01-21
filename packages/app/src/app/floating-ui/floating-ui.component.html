@@ -1,7 +1,7 @@
 <mat-sidenav-container>
   <mat-sidenav class="mat-elevation-z3 noprint" position="end" mode="side" #sidenav [opened]="sidebar.observeIsOpen() | async">
     <div class="sidebar-header">
-      <app-credits />
+      <app-credits [title]="sidebarTitle" [showLogo]="showLogo" />
       <button mat-icon-button (click)="sidebar.close()" color="accent" [attr.aria-label]="i18n.get('close')">
         <mat-icon>close</mat-icon>
       </button>
