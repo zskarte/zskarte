@@ -1,19 +1,19 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { Sign, signCategories } from '@zskarte/types';
 import capitalizeFirstLetter from '../helper/capitalizeFirstLetter';
 import { DrawStyle } from '../map-renderer/draw-style';
 import { Signs } from '../map-renderer/signs';
+import { RecentlyUsedSignsComponent } from '../recently-used-signs/recently-used-signs.component';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
-import { RecentlyUsedSignsComponent } from '../recently-used-signs/recently-used-signs.component';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-select-sign-dialog',
@@ -83,7 +83,7 @@ export class SelectSignDialog implements OnInit {
     const toEmit = JSON.parse(JSON.stringify(sign));
     // If this was directly called as a dialog, close it
     // Else emit an event
-    if (this.dialogRef.componentInstance?.constructor?.name === 'SelectSignDialog') {
+    if (this.dialogRef.componentInstance instanceof SelectSignDialog) {
       this.dialogRef.close(toEmit);
     } else {
       this.signSelected.emit(toEmit);
