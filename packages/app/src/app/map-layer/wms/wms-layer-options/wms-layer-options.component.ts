@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../../state/i18n.service';
 import { WMSMapLayer, MapSource, WmsSource } from '@zskarte/types';
 import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
@@ -12,12 +12,23 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-wms-layer-options',
   templateUrl: './wms-layer-options.component.html',
   styleUrl: './wms-layer-options.component.scss',
-  imports: [MatRadioModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule, FormsModule, MatIcon],
+  imports: [
+    MatRadioModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    FormsModule,
+    MatIcon,
+    MatDialogModule,
+    MatButtonModule,
+  ],
 })
 export class WmsLayerOptionsComponent {
   layer = inject<WMSMapLayer>(MAT_DIALOG_DATA);
@@ -126,7 +137,9 @@ export class WmsLayerOptionsComponent {
   ok() {
     if (this.layer.type === 'wms') {
       if (this.hasSublayers) {
-        this.layer.hiddenSubLayers = this.sublayerHidden.filter((sublayer) => sublayer.hidden).map((sublayer) => sublayer.name);
+        this.layer.hiddenSubLayers = this.sublayerHidden
+          .filter((sublayer) => sublayer.hidden)
+          .map((sublayer) => sublayer.name);
         if (this.layer.hiddenSubLayers.length === 0) {
           delete this.layer.hiddenSubLayers;
         }

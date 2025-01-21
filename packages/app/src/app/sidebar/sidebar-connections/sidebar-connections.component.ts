@@ -21,12 +21,13 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ZsMapStateSource, GeoJSONMapLayer, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-sidebar-connections',
   templateUrl: './sidebar-connections.component.html',
   styleUrls: ['./sidebar-connections.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, MatIconModule, MatListModule, AsyncPipe, MatCheckboxModule],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatSlideToggleModule, FormsModule, MatIconModule, MatListModule, AsyncPipe, MatCheckboxModule],
 })
 export class SidebarConnectionsComponent implements OnDestroy {
   i18n = inject(I18NService);
