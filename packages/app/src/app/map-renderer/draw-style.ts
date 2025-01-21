@@ -22,7 +22,7 @@ import { Geometry, MultiPolygon } from 'ol/geom';
 import { FeatureLike } from 'ol/Feature';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 
-// eslint-disable-next-line no-class-namespace
+// skipcq: JS-0327
 export class DrawStyle {
   static defaultScaleFactor = 0.2;
 
