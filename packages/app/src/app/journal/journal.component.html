@@ -20,7 +20,7 @@
               <h3>{{selectedJournalEntry.subject}}</h3>
               <p>{{selectedJournalEntry.content}}</p>
               <span>{{selectedJournalEntry.dateCreated.toLocaleString('de-CH')}}</span>
-              <button mat-raised-button (click)="toggleEditing()">
+              <button mat-stroked-button (click)="toggleEditing()" style="align-self: start;">
                 <mat-icon>edit</mat-icon>
                 {{ i18n.get('edit') }}
               </button>
@@ -29,48 +29,56 @@
           </div>
           <div *ngIf="editing">
             <div class="journal-entry-details">
-              <mat-form-field>
-                <mat-label>Meldungsnr.</mat-label>
-                <input matInput>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Absender</mat-label>
-                <input matInput>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Empfänger</mat-label>
-                <input matInput>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Datum</mat-label>
-                <input matInput [matDatepicker]="picker">
-                <mat-hint>MM/DD/YYYY</mat-hint>
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Zeit</mat-label>
-                <input matInput [matTimepicker]="pickerTime">
-                <mat-timepicker-toggle matIconSuffix [for]="pickerTime"/>
-                <mat-timepicker #pickerTime/>
-              </mat-form-field>
-              <mat-form-field>
-                <mat-label>Kommunikationsmittel</mat-label>
-                <select matNativeControl required>
-                  <option value="telefon">Telefon</option>
-                  <option value="funk">Funk</option>
-                  <option value="email">E-Mail</option>
-                  <option value="fax">Fax</option>
-                  <option value="sms">SMS</option>
-                  <option value="kurier">Kurier</option>
-                  <option value="anderes">Anderes</option>
-                </select>
-              </mat-form-field>
+              <div style="width: 100px;">
+                <mat-form-field>
+                  <mat-label>Meldungsnr.</mat-label>
+                  <input matInput disabled [value]="selectedJournalEntry.nr">
+                </mat-form-field>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <mat-form-field>
+                  <mat-label>Absender</mat-label>
+                  <input matInput>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Empfänger</mat-label>
+                  <input matInput>
+                </mat-form-field>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <mat-form-field>
+                  <mat-label>Datum</mat-label>
+                  <input matInput [matDatepicker]="picker">
+                  <mat-hint>MM/DD/YYYY</mat-hint>
+                  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Zeit</mat-label>
+                  <input matInput [matTimepicker]="pickerTime">
+                  <mat-timepicker-toggle matIconSuffix [for]="pickerTime"/>
+                  <mat-timepicker #pickerTime/>
+                </mat-form-field>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <mat-form-field>
+                  <mat-label>Kommunikationsmittel</mat-label>
+                  <select matNativeControl required>
+                    <option value="telefon">Telefon</option>
+                    <option value="funk">Funk</option>
+                    <option value="email">E-Mail</option>
+                    <option value="fax">Fax</option>
+                    <option value="sms">SMS</option>
+                    <option value="kurier">Kurier</option>
+                    <option value="anderes">Anderes</option>
+                  </select>
+                </mat-form-field>
 
-              <mat-form-field>
-                <mat-label>Nummer/Kanal</mat-label>
-                <input matInput>
-              </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Nummer/Kanal</mat-label>
+                  <input matInput>
+                </mat-form-field>
+              </div>
 
               <mat-form-field>
                 <mat-label>Betreff</mat-label>
@@ -80,19 +88,23 @@
                 <mat-label>Meldungsinhalt</mat-label>
                 <textarea matInput [value]="selectedJournalEntry.content" rows="10"></textarea>
               </mat-form-field>
-              <mat-form-field>
-                <mat-label>Visum</mat-label>
-                <input matInput>
-              </mat-form-field>
+              <div style="width: 100px;">
+                <mat-form-field>
+                  <mat-label>Visum</mat-label>
+                  <input matInput>
+                </mat-form-field>
+              </div>
 
-              <button mat-raised-button (click)="toggleEditing()">
-                <mat-icon>close</mat-icon>
-                {{ i18n.get('cancel') }}
-              </button>
-              <button mat-raised-button (click)="save()">
-                <mat-icon>check</mat-icon>
-                {{ i18n.get('save') }}
-              </button>
+              <div style="display:flex; justify-content: end; gap: 6px;">
+                <button mat-stroked-button (click)="toggleEditing()">
+                  <mat-icon>close</mat-icon>
+                  {{ i18n.get('cancel') }}
+                </button>
+                <button mat-flat-button color="primary" (click)="save()">
+                  <mat-icon>check</mat-icon>
+                  {{ i18n.get('save') }}
+                </button>
+              </div>
             </div>
           </div>
         </ng-template>
