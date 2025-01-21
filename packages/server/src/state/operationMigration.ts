@@ -31,6 +31,7 @@ export const zsMapStateMigration = (mapState: any): any => {
         : {};
       newMapState.drawElements = oldMapState.drawElements
         ? oldMapState.drawElements.reduce((acc, element) => {
+            if (!element) return acc;
             if (!element.id) {
               element.id = uuidv4();
             }
