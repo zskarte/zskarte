@@ -22,7 +22,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types';
-import { PersonRecoveryComponent } from "../../person-recovery/person-recovery.component";
+import { PersonRecoveryComponent } from '../../person-recovery/person-recovery.component';
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -39,7 +39,7 @@ import { PersonRecoveryComponent } from "../../person-recovery/person-recovery.c
     MatDialogModule,
     ProjectionSelectionComponent,
     MatButtonModule,
-],
+  ],
 })
 export class SidebarMenuComponent {
   i18n = inject(I18NService);

@@ -3,15 +3,7 @@ import { Strapi } from '@strapi/strapi';
 import _ from 'lodash';
 import crypto from 'crypto';
 
-import {
-  Operation,
-  OperationCache,
-  OperationStates,
-  PatchExtended,
-  StrapiLifecycleHook,
-  StrapiLifecycleHooks,
-  User,
-} from '../definitions';
+import { Operation, OperationCache, OperationStates, PatchExtended, StrapiLifecycleHook, StrapiLifecycleHooks, User } from '../definitions';
 import { broadcastConnections, broadcastPatches } from './socketio';
 
 import type { Attribute } from '@strapi/strapi';
@@ -135,11 +127,7 @@ const updateMapState = async (operationId: string, identifier: string, patches: 
 };
 
 /** Updates the current location of a connection */
-const updateCurrentLocation = async (
-  operationId: string,
-  identifier: string,
-  longLat: { long: number; lat: number },
-) => {
+const updateCurrentLocation = async (operationId: string, identifier: string, longLat: { long: number; lat: number }) => {
   const operationCache: OperationCache = operationCaches[operationId];
   if (!operationCache) return;
   for (const connection of operationCache.connections) {
@@ -205,9 +193,7 @@ const deleteGuestOperations = async (strapi: Strapi) => {
     const { operations } = guestUser.organization;
     for (const operation of operations) {
       strapi.log.info(`Deleting operation ${operation.name} of guest user`);
-      await strapi.db
-        .query('api::map-snapshot.map-snapshot')
-        .deleteMany({ filters: { operation: { id: operation.id } } });
+      await strapi.db.query('api::map-snapshot.map-snapshot').deleteMany({ filters: { operation: { id: operation.id } } });
       await strapi.db.query('api::access.access').deleteMany({ filters: { operation: { id: operation.id } } });
       await strapi.entityService.delete('api::operation.operation', operation.id);
     }

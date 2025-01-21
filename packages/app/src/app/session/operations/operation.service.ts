@@ -1,12 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  IZSMapOperationMapLayers,
-  IZsMapOperation,
-  ZsMapState,
-  ZsMapLayerStateType,
-  ZsOperationStatus,
-} from '@zskarte/types';
+import { IZSMapOperationMapLayers, IZsMapOperation, ZsMapState, ZsMapLayerStateType, ZsOperationStatus } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
@@ -135,9 +129,7 @@ export class OperationService {
       operations = localOperations;
     }
     if (!this._session.isWorkLocal()) {
-      const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>(
-        `/api/operations/overview?status=${status}`,
-      );
+      const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>(`/api/operations/overview?status=${status}`);
       if (!error && savedOperations !== undefined) {
         operations = [...operations.filter((x) => x.id && x.id < 0), ...savedOperations];
       }

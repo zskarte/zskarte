@@ -34,11 +34,21 @@
           <button mat-flat-button color="primary" (click)="operationService.createOperation()">{{ i18n.get('newScenario') }}</button>
           <button mat-flat-button (click)="operationService.importOperation()">{{ i18n.get('importScenario') }}</button>
           @if (showOpStatus == 'active') {
-            <button mat-icon-button (click)="showArchivedScenarios()" [attr.aria-label]="i18n.get('showArchivedScenarios')" [title]="i18n.get('showArchivedScenarios')">
+            <button
+              mat-icon-button
+              (click)="showArchivedScenarios()"
+              [attr.aria-label]="i18n.get('showArchivedScenarios')"
+              [title]="i18n.get('showArchivedScenarios')"
+            >
               <mat-icon>archive</mat-icon>
             </button>
           } @else {
-            <button mat-icon-button (click)="showActiveScenarios()" [attr.aria-label]="i18n.get('showActiveScenarios')" [title]="i18n.get('showActiveScenarios')">
+            <button
+              mat-icon-button
+              (click)="showActiveScenarios()"
+              [attr.aria-label]="i18n.get('showActiveScenarios')"
+              [title]="i18n.get('showActiveScenarios')"
+            >
               <mat-icon>unarchive</mat-icon>
             </button>
           }
@@ -49,7 +59,11 @@
         @for (o of operationService.operations | async; track o) {
           <mat-action-list>
             <div class="operation-list-item">
-              <mat-list-item role="button" [lines]="0 + (o.description ? 1 : 0) + (showOpStatus != 'active' ? 1 : 0)" (click)="selectOperation(o)">
+              <mat-list-item
+                role="button"
+                [lines]="0 + (o.description ? 1 : 0) + (showOpStatus != 'active' ? 1 : 0)"
+                (click)="selectOperation(o)"
+              >
                 <div matListItemMeta class="operation-list-item-meta">
                   @if ((o.id ?? 0) < 0) {
                     <mat-icon title="{{ i18n.get('localOperation') }}">cloud_done</mat-icon>
@@ -60,7 +74,7 @@
                   <div matListItemLine>{{ o.description }}</div>
                 }
                 @if (showOpStatus != 'active') {
-                  <div matListItemLine>{{ i18n.get('lastModified') }} {{ o.updatedAt | date:'dd.MM.YYYY HH:mm' }}</div>
+                  <div matListItemLine>{{ i18n.get('lastModified') }} {{ o.updatedAt | date: 'dd.MM.YYYY HH:mm' }}</div>
                 }
               </mat-list-item>
               <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">

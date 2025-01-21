@@ -45,9 +45,7 @@ export default (plugin) => {
   const fetchAuthenticatedUserWithOrganization = (id) => {
     //this is used for load user into ctx.state.user (https://github.com/strapi/strapi/blob/main/packages/plugins/users-permissions/server/strategies/users-permissions.js#L24)
     //changed: also populate organisation
-    return strapi
-      .query('plugin::users-permissions.user')
-      .findOne({ where: { id }, populate: ['role', 'organization'] });
+    return strapi.query('plugin::users-permissions.user').findOne({ where: { id }, populate: ['role', 'organization'] });
   };
 
   //plugin.services.user is anonymous function not an object

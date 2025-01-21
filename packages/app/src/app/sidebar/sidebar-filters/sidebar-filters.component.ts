@@ -33,7 +33,7 @@ import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox
     MatIconModule,
     MatListModule,
     MatButtonModule,
-    MatCheckboxModule
+    MatCheckboxModule,
   ],
 })
 export class SidebarFiltersComponent implements OnInit, OnDestroy {
@@ -57,11 +57,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    combineLatest([
-      this.mapState.observeDrawElements(),
-      this.mapState.observeHiddenSymbols(),
-      this.mapState.observeHiddenFeatureTypes(),
-    ])
+    combineLatest([this.mapState.observeDrawElements(), this.mapState.observeHiddenSymbols(), this.mapState.observeHiddenFeatureTypes()])
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
         this.updateFilterSymbolsAndFeatureTypes(drawElements, hiddenSymbols, hiddenFeatureTypes);
@@ -73,23 +69,19 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     this._ngUnsubscribe.complete();
   }
 
-  updateFilterSymbolsAndFeatureTypes(
-    elements: ZsMapBaseDrawElement[],
-    hiddenSymbols: number[],
-    hiddenFeatureTypes: string[],
-  ) {
+  updateFilterSymbolsAndFeatureTypes(elements: ZsMapBaseDrawElement[], hiddenSymbols: number[], hiddenFeatureTypes: string[]) {
     const symbols = {};
     if (elements && elements.length > 0) {
       elements.forEach((element) => {
-        this.extractSymbol(element.getOlFeature(), symbols)
+        this.extractSymbol(element.getOlFeature(), symbols);
       });
     }
     this.filterSymbols = Object.values(symbols)
       .sort((a: any, b: any) => a.label.localeCompare(b.label))
       .map((symbol: any) => ({ ...symbol, hidden: hiddenSymbols.includes(symbol.id) || hiddenFeatureTypes.includes(symbol.filterValue) }));
 
-    const availableKats = Object.values(symbols).map((s:any) => s.kat)
-    const catObjects = [...signCategories.values()].filter(s => availableKats.includes(s.name));
+    const availableKats = Object.values(symbols).map((s: any) => s.kat);
+    const catObjects = [...signCategories.values()].filter((s) => availableKats.includes(s.name));
     catObjects.forEach((category: any) => {
       const categorySymbols = this.filterSymbols.filter((symbol: any) => symbol.kat === category.name);
 
@@ -99,7 +91,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
       category.isVisible = !allHidden && !someHidden;
       category.isPartiallyVisible = !allHidden && someHidden;
     });
-    this.signCategories = catObjects
+    this.signCategories = catObjects;
   }
 
   extractSymbol(f: FeatureLike, symbols: Record<string, any>) {
@@ -164,22 +156,20 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   }
 
   public toggleCategoryFilter($event: MatCheckboxChange, category: SignCategory) {
-    const categorySymbols = this.filterSymbols.filter(
-      (symbol: Sign) => symbol.kat === category.name
-    );
+    const categorySymbols = this.filterSymbols.filter((symbol: Sign) => symbol.kat === category.name);
 
-    if($event.checked) {
+    if ($event.checked) {
       categorySymbols.forEach((symbol: any) => {
         if (symbol.hidden) {
           this.toggleSymbolOrFeatureFilter(symbol);
         }
-      })
+      });
     } else {
       categorySymbols.forEach((symbol: any) => {
         if (!symbol.hidden) {
           this.toggleSymbolOrFeatureFilter(symbol);
         }
-      })
+      });
     }
   }
 

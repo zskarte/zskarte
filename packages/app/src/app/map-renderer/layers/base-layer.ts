@@ -65,13 +65,11 @@ export abstract class ZsMapBaseLayer {
         this._olLayer.setOpacity(opacity);
       });
 
-    combineLatest([this.observeMapZoom(), this._state.observeEnableClustering()]).subscribe(
-      ([mapZoom, enableClustering]) => {
-        // don't show clustering if zoomed in more than 14
-        const shouldCluster = enableClustering && mapZoom < 14;
-        this._olLayer.setSource(shouldCluster ? this._clusterSource : this._olSource);
-      },
-    );
+    combineLatest([this.observeMapZoom(), this._state.observeEnableClustering()]).subscribe(([mapZoom, enableClustering]) => {
+      // don't show clustering if zoomed in more than 14
+      const shouldCluster = enableClustering && mapZoom < 14;
+      this._olLayer.setSource(shouldCluster ? this._clusterSource : this._olSource);
+    });
   }
 
   public getId(): string {

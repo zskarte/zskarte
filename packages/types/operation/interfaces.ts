@@ -1,4 +1,4 @@
-import { MapLayer } from "../map-layer/interfaces";
+import { MapLayer } from '../map-layer/interfaces';
 import { ZsMapState, ZsMapStateSource } from '../state/interfaces';
 
 export interface IZSMapOperationMapLayers {

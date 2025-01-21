@@ -1,29 +1,34 @@
 ## Quick Start Guide
 
 ### 1. Install packages
+
 ```bash
 npm install
 ```
 
 ### 2. Start the postgresql and pgadmin services
+
 ```bash
 cd packages/server
 docker-compose up -d
 ```
 
 ### 3. Restore postgresql dump with pgadmin
-  1. Open pgadmin on http://localhost:7050
-  2. Login with credentials: User -> info@zskarte.ch, Password -> zskarte
-  3. Add Server: (Check in README) PGAdmin -> Create a database 
-  4. Use the dump file in packages/server/database -> *_DEFAULT.bak
-  5. Right click on Databases -> zskarte -> Restore -> Select the dump file -> Restore
+
+1. Open pgadmin on http://localhost:7050
+2. Login with credentials: User -> info@zskarte.ch, Password -> zskarte
+3. Add Server: (Check in README) PGAdmin -> Create a database
+4. Use the dump file in packages/server/database -> \*\_DEFAULT.bak
+5. Right click on Databases -> zskarte -> Restore -> Select the dump file -> Restore
 
 ### 4. Copy .env example file and rename it to .env you can keep the values as they are
+
 ```bash
 cp .env.example .env
 ```
 
 ### 5. Start the Strapi application
+
 ```bash
 # Start the Strapi application
 npm run build # Sometimes needed to build the admin panel initially
@@ -31,12 +36,13 @@ npm run dev
 ```
 
 ### 6. Open the Strapi admin panel
-  1. http://localhost:1337/admin
-  2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
+
+1. http://localhost:1337/admin
+2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
 
 ### 7. Check Strapi docs for more information
-  1. https://docs.strapi.io/
 
+1. https://docs.strapi.io/
 
 ## Supporting Tools for Development
 
