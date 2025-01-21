@@ -4,6 +4,7 @@ import { lastValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { SessionService } from '../session/session.service';
 import transformResponse, { TransformerOptions } from './transformer';
+import { deserialize, SuperJSONResult } from 'superjson';
 
 export interface IApiRequestOptions {
   headers?: { [key: string]: string };
@@ -35,13 +36,17 @@ export class ApiService {
     return this._apiUrl;
   }
 
-  private async _retry<RESPONSE>(fn: Observable<RESPONSE>, options?: IApiRequestOptions): Promise<ApiResponse<RESPONSE>> {
+  private async _retry<RESPONSE>(
+    fn: Observable<RESPONSE>,
+    options?: IApiRequestOptions,
+  ): Promise<ApiResponse<RESPONSE>> {
     const maxRetries = options?.retries || 3;
     let lastError: HttpErrorResponse = new HttpErrorResponse({ status: 0 });
     for (let i = 0; i < maxRetries; i++) {
       try {
+        const rawResponse = await lastValueFrom(fn);
         return {
-          result: transformResponse(await lastValueFrom(fn)),
+          result: transformResponse(deserialize(rawResponse as SuperJSONResult)),
         };
       } catch (error) {
         if (error instanceof HttpErrorResponse) {
@@ -59,7 +64,9 @@ export class ApiService {
     params: REQUEST,
     options?: IApiRequestOptions,
   ): Promise<ApiResponse<RESPONSE>> {
-    return await this._retry(this._http.post<RESPONSE>(`${this._apiUrl}${subUrl}`, params, { headers: this._getDefaultHeaders(options) }));
+    return await this._retry(
+      this._http.post<RESPONSE>(`${this._apiUrl}${subUrl}`, params, { headers: this._getDefaultHeaders(options) }),
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,17 +75,27 @@ export class ApiService {
     params: REQUEST,
     options?: IApiRequestOptions,
   ): Promise<ApiResponse<RESPONSE>> {
-    return await this._retry(this._http.put<RESPONSE>(`${this._apiUrl}${subUrl}`, params, { headers: this._getDefaultHeaders(options) }));
+    return await this._retry(
+      this._http.put<RESPONSE>(`${this._apiUrl}${subUrl}`, params, { headers: this._getDefaultHeaders(options) }),
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public get$<RESPONSE = any>(subUrl: string, options?: IApiRequestOptions): Observable<RESPONSE> {
-    return this._http.get<RESPONSE>(`${this._apiUrl}${subUrl}`, { headers: this._getDefaultHeaders(options) });
+    return new Observable((subscriber) => {
+      this._http.get<RESPONSE>(`${this._apiUrl}${subUrl}`, { headers: this._getDefaultHeaders(options) }).subscribe({
+        next: (response) => subscriber.next(deserialize(response as SuperJSONResult)),
+        error: (error) => subscriber.error(error),
+        complete: () => subscriber.complete(),
+      });
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async get<RESPONSE = any>(subUrl: string, options?: IApiRequestOptions): Promise<ApiResponse<RESPONSE>> {
-    return await this._retry(this._http.get<RESPONSE>(`${this._apiUrl}${subUrl}`, { headers: this._getDefaultHeaders(options) }));
+    return await this._retry(
+      this._http.get<RESPONSE>(`${this._apiUrl}${subUrl}`, { headers: this._getDefaultHeaders(options) }),
+    );
   }
 
   private _getDefaultHeaders(options?: IApiRequestOptions): { [key: string]: string } {
@@ -93,6 +110,8 @@ export class ApiService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async delete<RESPONSE = any>(subUrl: string, options?: IApiRequestOptions): Promise<ApiResponse<RESPONSE>> {
-    return await this._retry(this._http.delete<RESPONSE>(`${this._apiUrl}${subUrl}`, { headers: this._getDefaultHeaders(options) }));
+    return await this._retry(
+      this._http.delete<RESPONSE>(`${this._apiUrl}${subUrl}`, { headers: this._getDefaultHeaders(options) }),
+    );
   }
 }
