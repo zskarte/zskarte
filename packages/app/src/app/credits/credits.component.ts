@@ -11,9 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class CreditsComponent {
   @Input() 
-  public showLogo: boolean = true;
+  public showLogo = true;
   @Input() 
-  public title: string = "";
+  public title = "";
 
   i18n = inject(I18NService);
   session = inject(SessionService);

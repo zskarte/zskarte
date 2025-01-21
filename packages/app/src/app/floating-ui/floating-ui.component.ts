@@ -78,8 +78,8 @@ export class FloatingUIComponent {
   public printView = false;
   public canWorkOffline = new BehaviorSubject<boolean>(false);
   public workLocal: boolean;
-  public showLogo: boolean = true;
-  public sidebarTitle: string = ""
+  public showLogo = true;
+  public sidebarTitle = ""
 
   constructor() {
     const _state = this._state;
@@ -122,7 +122,6 @@ export class FloatingUIComponent {
           this.sidebarTitle = this.i18n.get('selectedFeature');
           break;
         case SidebarContext.Menu:
-        case SidebarContext.SelectedFeature:
         default:
           this.showLogo = true;
           this.sidebarTitle = this.session.getOperationName() ?? ''  
