@@ -208,8 +208,8 @@ export class SelectedFeatureComponent implements OnDestroy {
       return;
     }
 
-    el.updateElementState(draft => {
-      Object.entries(update).forEach(([key, value]) => draft[key] = value);
+    el.updateElementState((draft) => {
+      Object.entries(update).forEach(([key, value]) => (draft[key] = value));
     });
   }
 
@@ -246,9 +246,8 @@ export class SelectedFeatureComponent implements OnDestroy {
   chooseSymbol(drawElement: ZsMapDrawElementState) {
     const dialogRef = this.dialog.open(SelectSignDialog);
     dialogRef.afterClosed().subscribe((result: Sign) => {
-      console.log(result.type)
       if (result) {
-        if (result.type === "Polygon" || result.type === "LineString") {
+        if (result.type === 'Polygon' || result.type === 'LineString') {
           // Add all default styles of the new signature, if it's a Line or Polygon
           // This way if a Polygon changes i.e. from "Actions" to "Damage" the Polygon goes from blue to red
           this.patchProperties(drawElement, {
@@ -259,7 +258,7 @@ export class SelectedFeatureComponent implements OnDestroy {
             fillStyle: result.fillStyle,
             fillOpacity: result.fillOpacity,
             hideIcon: result.hideIcon,
-          })
+          });
         } else {
           this.updateProperty(drawElement, 'symbolId', result.id);
         }
