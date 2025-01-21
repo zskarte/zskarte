@@ -1,25 +1,24 @@
-import {Component, inject} from '@angular/core';
-import {MatTableModule} from "@angular/material/table";
-import {MatSidenavModule} from "@angular/material/sidenav";
-import {MatListModule} from "@angular/material/list";
-import {NgIf} from "@angular/common";
-import {MatIconModule} from "@angular/material/icon";
-import {MatButtonModule} from "@angular/material/button";
-import {I18NService} from "../state/i18n.service";
-import {MatSortModule} from "@angular/material/sort";
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatInputModule} from "@angular/material/input";
-import {MatDialog} from "@angular/material/dialog";
-import {MatAccordion, MatExpansionModule, MatExpansionPanel} from "@angular/material/expansion";
-import {MatDividerModule} from "@angular/material/divider";
-import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatTimepickerModule} from "@angular/material/timepicker";
-import {provideNativeDateAdapter} from "@angular/material/core";
-import {FormsModule} from "@angular/forms";
-import {JournalEntry} from "./journal.types";
+import { Component, inject } from '@angular/core';
+import { MatTableModule } from '@angular/material/table';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { NgIf } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { I18NService } from '../state/i18n.service';
+import { MatSortModule } from '@angular/material/sort';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDialog } from '@angular/material/dialog';
+import { MatAccordion, MatExpansionModule, MatExpansionPanel } from '@angular/material/expansion';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTimepickerModule } from '@angular/material/timepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
+import { JournalEntry } from './journal.types';
 
 const ELEMENT_DATA: JournalEntry[] = [];
-
 
 @Component({
   selector: 'app-journal',
@@ -43,7 +42,7 @@ const ELEMENT_DATA: JournalEntry[] = [];
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
-  styleUrl: './journal.component.scss'
+  styleUrl: './journal.component.scss',
 })
 export class JournalComponent {
   i18n = inject(I18NService);
@@ -62,6 +61,7 @@ export class JournalComponent {
 
   resetEntry() {
     this.selectedJournalEntry = null;
+    this.editing = false;
   }
 
   openJournalAddDialog() {
@@ -72,7 +72,8 @@ export class JournalComponent {
       message_subject: '',
       message_content: '',
       date_created: new Date(),
-      creator: ''
+      creator: '',
+      visum_decision_receiver: '',
     };
   }
 
@@ -80,7 +81,5 @@ export class JournalComponent {
     this.editing = !this.editing;
   }
 
-  save() {
-
-  }
+  save() {}
 }
