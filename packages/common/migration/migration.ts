@@ -7,6 +7,7 @@ export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined)
     return mapState;
   }
 
+  // TODO implement migration over multiple versions
   switch (mapState.version) {
     case undefined:
     case 1: {

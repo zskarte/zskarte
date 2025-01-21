@@ -2,13 +2,12 @@
   "name": "@zskarte/common",
   "version": "0.0.0",
   "main": "./index.ts",
+  "types": "./index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "author": "",
   "license": "MIT",
   "description": "",
@@ -16,5 +15,4 @@
     "typescript": "^5.7.3",
     "ol": "^10.3.1"
   }
-  
 }
