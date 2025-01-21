@@ -83,7 +83,7 @@ export class SelectSignDialog implements OnInit {
     const toEmit = JSON.parse(JSON.stringify(sign));
     // If this was directly called as a dialog, close it
     // Else emit an event
-    if (this.dialogRef.componentInstance?.constructor?.name === 'SelectSignDialog') {
+    if (this.dialogRef.componentInstance?.constructor?.name === '_SelectSignDialog') {
       this.dialogRef.close(toEmit);
     } else {
       this.signSelected.emit(toEmit);
