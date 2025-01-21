@@ -57,7 +57,7 @@ import { SessionService } from '../session/session.service';
 import { SyncService } from '../sync/sync.service';
 import { TextDialogComponent } from '../text-dialog/text-dialog.component';
 import { I18NService } from './i18n.service';
-import { migrateMapState } from './migration';
+import { zsMapStateMigration } from '@zskarte/common';
 
 @Injectable({
   providedIn: 'root',
@@ -247,7 +247,7 @@ export class ZsMapStateService {
   }
 
   public setMapState(newState?: ZsMapState): void {
-    newState = migrateMapState(newState);
+    newState = zsMapStateMigration(newState);
 
     const cached = Object.keys(this._layerCache);
     for (const c of cached) {

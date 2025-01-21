@@ -17,7 +17,6 @@
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
     "build:app:prod": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
-    "build:types": "cd packages/types && npm run build",
     "cleanup": "tsx scripts/cleanup.ts"
   },
   "devDependencies": {
