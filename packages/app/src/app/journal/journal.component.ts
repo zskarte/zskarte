@@ -43,7 +43,6 @@ const ELEMENT_DATA: JournalEntry[] = [
     MatButtonModule,
     MatSortModule,
     MatListModule,
-    NgForOf,
     MatFormFieldModule,
     MatInputModule,
     MatAccordion,
