@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import {
   Operation,
   OperationCache,
+  OperationPhases,
   PatchExtended,
   StrapiLifecycleHook,
   StrapiLifecycleHooks,
@@ -14,7 +15,6 @@ import {
 import { broadcastConnections, broadcastPatches } from './socketio';
 
 import type { Attribute } from '@strapi/strapi';
-import { OperationPhases } from 'src/definitions/constants/OperationPhase';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
 const MIN = 1000 * 60;

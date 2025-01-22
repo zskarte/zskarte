@@ -1,4 +1,4 @@
-import { OperationPhase } from 'src/definitions/constants/OperationPhase';
+import { OperationPhase } from '../../../definitions';
 import { Organization, StrapiObject } from '.';
 import { PatchExtended } from '../PatchExtended';
 import { MapSnapshot } from './MapSnapshot';

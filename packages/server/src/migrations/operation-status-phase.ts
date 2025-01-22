@@ -4,9 +4,8 @@
 switzerchees: WILL BE DELETED/REFACTORED shortly
 
 */
-import { Operation } from 'src/definitions';
+import { Operation, OperationPhase } from '../definitions';
 import { Strapi } from '@strapi/strapi';
-import { OperationPhase } from 'src/definitions/constants/OperationPhase';
 // import { Core } from '@strapi/strapi'; -> V5
 
 // switzerchees: Remove at the end of the week
