@@ -27,7 +27,7 @@
         "deleted"
       ],
       "default": "active",
-      "required": true
+      "required": false
     },
     "organization": {
       "type": "relation",

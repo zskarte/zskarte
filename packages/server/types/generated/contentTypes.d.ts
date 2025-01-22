@@ -426,9 +426,7 @@ export interface ApiOperationOperation extends Schema.CollectionType {
     phase: Attribute.Enumeration<['active', 'archived', 'deleted']> &
       Attribute.Required &
       Attribute.DefaultTo<'active'>;
-    status: Attribute.Enumeration<['active', 'archived', 'deleted']> &
-      Attribute.Required &
-      Attribute.DefaultTo<'active'>;
+    status: Attribute.Enumeration<['active', 'archived', 'deleted']> & Attribute.DefaultTo<'active'>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'api::operation.operation', 'oneToOne', 'admin::user'> & Attribute.Private;
   };
