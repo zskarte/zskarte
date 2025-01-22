@@ -51,6 +51,7 @@ import {
   DEFAULT_ZOOM,
   INCHES_PER_METER,
   LOG2_ZOOM_0_RESOLUTION,
+  MAX_DRAW_ELEMENTS_GUEST,
 } from '../session/default-map-values';
 import { OperationService } from '../session/operations/operation.service';
 import { SessionService } from '../session/session.service';
@@ -1195,5 +1196,17 @@ export class ZsMapStateService {
 
   public getSearchConfigs(): IZsMapSearchConfig[] {
     return this._searchConfigs.value;
+  }
+
+  public canAddElements(): boolean {
+    const elementCount = Object.keys(this._drawElementCache).length;
+
+    return !this._session.isGuest() || elementCount < MAX_DRAW_ELEMENTS_GUEST;
+  }
+
+  public drawElementCount(): Observable<number> {
+    return this.observeDrawElements().pipe(
+      map(res => res.length)
+    );
   }
 }

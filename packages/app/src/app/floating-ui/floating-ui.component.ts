@@ -1,5 +1,5 @@
-import { Component, HostListener, inject } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, Observable, Subject, takeUntil } from 'rxjs';
+import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
+import { BehaviorSubject, firstValueFrom, map, Observable, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
@@ -29,6 +29,11 @@ import { SelectedFeatureComponent } from '../selected-feature/selected-feature.c
 import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
 import { ZsMapStateSource } from '@zskarte/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MAX_DRAW_ELEMENTS_GUEST } from '../session/default-map-values';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 
 @Component({
   selector: 'app-floating-ui',
@@ -61,6 +66,7 @@ export class FloatingUIComponent {
   private _dialog = inject(MatDialog);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
+  snackbar = inject(MatSnackBar);
 
   static ONBOARDING_VERSION = '1.0';
 
@@ -80,9 +86,15 @@ export class FloatingUIComponent {
   public logo = '';
   public workLocal = false;
 
+  public isGuest = signal(false);
+  public elementCount$ = this._state.drawElementCount();
+  public limitReached$ = this.elementCount$.pipe(
+    map(count => count >= MAX_DRAW_ELEMENTS_GUEST)
+  );
+  public maxElements = MAX_DRAW_ELEMENTS_GUEST;
+
   constructor() {
     const _state = this._state;
-    const _session = this._session;
 
     if (this.isInitialLaunch()) {
       this._dialog.open(HelpComponent, {
@@ -93,6 +105,7 @@ export class FloatingUIComponent {
     const session = this.session;
     this.logo = session.getLogo() ?? '';
     this.workLocal = session.isWorkLocal();
+    this.isGuest.set(session.isGuest());
     this._state.observeIsReadOnly().pipe(takeUntil(this._ngUnsubscribe)).subscribe(this.isReadOnly);
 
     this.sidebar.observeContext()
@@ -239,6 +252,12 @@ export class FloatingUIComponent {
     const layer = await firstValueFrom(this._state.observeActiveLayer());
     const ref = this._dialog.open(DrawDialogComponent);
     ref.componentRef?.instance.setLayer(layer);
+  }
+
+  public openLimitDialog(limitReached: boolean | null) {
+    if (limitReached) {
+      this._dialog.open(GuestLimitDialogComponent);
+    }
   }
 
   @HostListener('window:keydown.Control.p', ['$event'])

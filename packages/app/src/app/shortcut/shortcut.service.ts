@@ -5,12 +5,15 @@ import { ZsMapDrawElementStateType } from '@zskarte/types';
 import { ZsMapStateService } from '../state/state.service';
 import { IShortcut } from './shortcut.interfaces';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
+import { MatDialog } from '@angular/material/dialog';
+import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ShortcutService {
   private _state = inject(ZsMapStateService);
+  private _dialog = inject(MatDialog)
 
   private _selectedElement: ZsMapBaseDrawElement | undefined = undefined;
   private _selectedFeatureId: string | undefined = undefined;
@@ -42,30 +45,11 @@ export class ShortcutService {
       }
     });
 
-    this._listen({ shortcut: 'mod+1', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.TEXT);
-    });
-
-    this._listen({ shortcut: 'mod+2', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.POLYGON);
-    });
-
-    this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.LINE);
-    });
-
-    this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.FREEHAND);
-    });
-
-    this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.SYMBOL);
-    });
+    this._listen({ shortcut: 'mod+1', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.TEXT));
+    this._listen({ shortcut: 'mod+2', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.POLYGON));
+    this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.LINE));
+    this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.FREEHAND));
+    this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.SYMBOL));
 
     this._listen({ shortcut: 'mod+c' }).subscribe(() => {
       this._copyElement = this._selectedElement;
@@ -88,6 +72,16 @@ export class ShortcutService {
     this._listen({ shortcut: 'escape', drawModeOnly: true }).subscribe(() => {
       this._state.cancelDrawing();
     });
+  }
+
+  private _draw(type: ZsMapDrawElementStateType) {
+    return () => {
+      const layer = this._state.getActiveLayer();
+      const success = layer?.draw(type);
+      if (!success) {
+        this._dialog.open(GuestLimitDialogComponent);
+      }
+    }
   }
 
   private _listen({ shortcut, preventDefault = true, drawModeOnly = false }: IShortcut): Observable<KeyboardEvent> {

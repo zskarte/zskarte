@@ -3,7 +3,7 @@ import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { getResponsiveImageSource } from 'src/app/helper/strapi-utils';
 import { ApiService } from '../../api/api.service';
 import { SessionService } from '../session.service';
-import { GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';
+import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from '../../state/i18n.service';
@@ -53,6 +53,7 @@ export class LoginComponent implements OnDestroy {
   public joinCode = '';
   public isOnline = true;
   public hasGuestUser = false;
+  public allowOfflineAccess = localStorage.getItem(ALLOW_OFFLINE_ACCESS_KEY);
   private _ngUnsubscribe = new Subject<void>();
 
   constructor() {

@@ -40,6 +40,7 @@ import {
   Locale,
   AccessTokenType,
 } from '@zskarte/types';
+import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_ORG } from './userLogic';
 
 export type LogoutReason = 'logout' | 'networkError' | 'expired' | 'noToken';
 
@@ -295,6 +296,10 @@ export class SessionService {
     return this._session.value?.organization;
   }
 
+  public isGuest() {
+    return this.getOrganization()?.name === GUEST_USER_ORG;
+  }
+
   public getOrganizationId(): number | undefined {
     return this._session.value?.organization?.id;
   }
@@ -439,6 +444,11 @@ export class SessionService {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
+
+    if (params.identifier !== GUEST_USER_IDENTIFIER) {
+      localStorage.setItem(ALLOW_OFFLINE_ACCESS_KEY, '1');
+    }
+
     await this.updateJWT(result.jwt);
   }
 

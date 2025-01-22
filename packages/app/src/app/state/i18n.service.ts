@@ -2005,6 +2005,21 @@ export class I18NService {
       en: 'Coordinates',
       fr: 'Coordonnées',
     },
+    guestLimitReachedShort: {
+      de: 'Gastmodus Limit erreicht',
+      en: 'Guest limit reached',
+      fr: 'Limite d\'invités atteinte',
+    },
+    guestLimitReached: {
+      de: 'Die maximale Anzahl von Elementen für den Gastzugang ist erreicht. Wenn Sie Interesse an einem dauerhaften Zugang zur ZSKarte haben, wenden Sie sich bitte an info@zskarte.ch.',
+      en: 'The maximum number of elements for guest access has been reached. If yo\'re interested in having permanent access to the ZSKarte, please contact info@zskarte.ch.',
+      fr: 'Le nombre maximum d\'éléments pour l\'accès invité a été atteint. Si vous êtes intéressé par un accès permanent à la ZSKarte, veuillez contacter info@zskarte.ch.'
+    },
+    guestLimitElements: {
+      de: 'Elemente auf der Karte im Gastmodus',
+      en: 'Elements on the map in guest mode',
+      fr: 'Éléments de la carte en mode invité'
+    },
   };
 
   public getLabelForSign(sign: Sign): string {
