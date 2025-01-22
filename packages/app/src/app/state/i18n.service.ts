@@ -1400,6 +1400,252 @@ export class I18NService {
       fr: "Cliquez sur un <strong>dessin</strong> sur la carte pour afficher les <strong>fonctions rapides</strong>. Cela comprend: <ul><li>Supprimer le dessin ou le point d'ancrage</li><li>Copier le dessin: Cliquez à nouveau sur la carte pour insérer la <strong>copie</strong> du dessin</li><li>Rotation de la signature</li></ul>",
       en: 'Click on a <strong>drawing</strong> on the map to display the <strong>quick functions</strong>. This includes: <ul><li>Delete the drawing or anchor point</li><li>Copy the drawing: Click again on the map to insert the <strong>copy</strong> of the drawing</li><li>Rotate the signature</li></ul>',
     },
+    docExpertIntroTitle: {
+      de: 'Standard Ansicht vs Experten Ansicht',
+      fr: 'Default view vs Expert view',
+      en: "Vue générale vs Point de vue d'expert",
+    },
+    docExpertIntro: {
+      de: `Die Standard Ansicht ist die welche normalerweise verwendet wird.<br>
+          In dieser Ansicht sind alle Dinge möglich um mit Basiskarten, Ebenen, Favoriten und den vordefinierten Verfügbare Ebenen zu arbeiten.<br>
+          <br>
+          Die Experten Ansicht ist für die gedacht, welche spezielle Map Layer hinzufügen wollen.<br>
+          Diese Spezielle Ansicht ermöglicht es:
+          <ul>
+            <li>externe WMS / WMTS Quellen zu definieren</li>
+            <li>WMS/WMTS Ebenen zu konfigurieren</li>
+            <li>externe GeoJSON Ebenen hinzuzufügen</li>
+            <li>externe CSV Ebenen hinzuzufügen</li>
+            <li>Aktive Ebenen auf Operation persistieren</li>
+            <li>Default Ebenen Favoriten für die Organisation zu setzen</li>
+          </ul>`,
+      fr: 'TODO fr Translation: Carte de base, Couches cartographiques, Favoris et prédéfinies Couches cartographiques disponibles',
+      en: 'TODO en translation: Base map, Layers, Favorites and predefined Available layers',
+    },
+    docExpertWmsSourceTitle: {
+      de: 'WMS / WMTS Quellen',
+      fr: 'WMS/WMTS Sources',
+      en: "sources WMS/WMTS",
+    },
+    docExpertWmsSourceButton: {
+      de: `Wenn die Experten Ansicht aktiv ist, wird unter "Verfügbare Ebenen" neben dem "Ebenen Quelle" dropdown ein editier Symbol / Button angezeigt(1)`,
+      fr: 'TODO fr Translation "Couches cartographiques disponibles", "Source du couche"',
+      en: 'TODO en translation "Available layers", "Layer Source"',
+    },
+    docExpertWmsSource: {
+      de: `Durch den klick darauf erhält man die Möglichkeit über "Quelle auswählen"(1) eine bestehende, als Öffentlich markierte (oder eine eigene Gespeicherte), Quelle zur aktuellen Ansicht hinzuzufügen.<br>
+          Alternativ kann man über "Neue Quelle Hinzufügen"(2) die Informationen eines WMS / WMTS Anbieters hinterlegen.`,
+      fr: 'TODO fr Translation "sélectionner la source"(1), "Ajouter une nouvelle source"(2)',
+      en: 'TODO en translation "select source"(1), "Add new source"(2)',
+    },
+    docExpertWmsSourceDetails: {
+      de: `Nachdem man eine vorhandene Quelle oder eine Neue hinzugefüght hat, ist diese im Dropdown(1) ausgewählt und die Details der Quelle werden angezeigt.<br>
+          Man kann über das Dropdown weitere Quellen hinzufügen oder eine auswählen um dessen Details zu sehen.<br>
+          Wenn man auf [OK](2) klickt werden die hinzugefügten / geänderten Quellen unter "Verfügbare Ebenen" in den "Ebenen Quelle" aktualisiert.<br>
+          <br>
+          Wenn man eine neue Quelle angelegt hat, müssen die Felder entsprechend gefüllt werden.<br>
+          Es muss darauf geachtet werden das der richtige "Ebenentype"(3) ausgewählt wird, da die Verarbeitung der Capabilities und daraus die verfügbaren Map-Layer für die Typen unterschiedlich sind.<br>
+          Wenn bei der "Quell-URL" nur die Haupt domain/URL ohne den Capabilities Teil angegeben wird, ergänzt das System den Capabilities Teil automatisch.<br>
+          Die effektiv verwendete URL wird beim verlassen des Feldes darunter angezeigt/aktualisert(4). Sollte diese nicht den Infos des Anbieters entsprechen, muss die volle URL zu den Capabilities angegeben werden.<br>
+          <br>
+          Alle WMS / WMTS Anbieter haben entsprechende Copyright Bedingungen, welche sagen unter welchen Bedingungen die Services gebraucht werden dürfen.<br>
+          Viele Kantonale Anbieter sind Kostenlos und daher hier verwendbar, sie verlangen aber die Nennung der entsprechenden "Quellenabgabe"(5).<br>
+          Hier können die geforderten Texte mit entsprecheder Verlinkung gemäss Anbieter hinterlegt werden.<br>
+          <br>
+          Wenn die Copyright Bedingungen des Anbieters eine generelle Nutzung oder eine welche mit ZS Karte kompatibel ist zulassen, kann "Öffentliche Quelle"(6) aktiviert werden damit andere ZSO auch auf diese Quelle zugreiffen können.<br>
+          <br>
+          Wurde versehentlich eine neue Quelle angelegt, oder wird eine ausgewählte nicht mehr gebraucht kann sie über [entfernen](7) wieder aus den aktiven Quellen gelöscht werden.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertWmsLayersTitle: {
+      de: 'WMS/WMTS Ebenen konfigurieren',
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertAvailableLayers: {
+      de: `Wenn spezielle Ebenen Quellen hinzugefügt wurden, werden dessen Ebenen aus den Capabilities ausgelesen und unter "Verfügbare Ebenen"(1) entspechend aufgelistet(2).<br>
+          Über "Ebenen Quelle"(3) kann die Anzeige der Ebenen entsprechend auf spezifische Quellen und über das "Filter"(4) Feld weiter eingeschränkt / durchsucht werden.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertSelectedLayers: {
+      de: `Ausgewählte/angeklickte Ebenen werden automatisch unter "Ebenen"(1) hinzugefügt.<br>
+          In der Experten Ansicht wird bei den Ebenen ein zusätzliches Zahnrad(2) Symbol angezeigt, welches die Konfigurations Ansicht der WMS Ebene öffnen Läst.<br>
+          Bei WMTS Ebenen (oder standard Ebenen der GeoAdmin Quelle) gibt es kein Zahnrad, da WMTS Ebenen per Definition nicht Konfigurierbar sind, da es sich um fixe vorgerenderte Bilder/Tiles handelt.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertWmsLayers: {
+      de: `In der Konfigurations Ansicht der WMS Ebene, werden die Informationen angezeigt welche aus den Capabilities extrahiert wurden.<br>
+          Alle Ebenen haben einen "Ebenennamen"(1), welche die Datenquelle bestimmt was auf den einzelnen Bilder/Kacheln angezeigt werden soll.<br>
+          <br>
+          Wurde eine Ebenen Konfiguration erstellt welche einen effektiven Mehrwert zur standard Ebene darstellt und man Potential sieht das andere ZSO diese auch Benutzen können/wollen, kann sie als "Öffentliche Quelle"(2) markiert werden, damit andere ZSO sie als "geteilten Ebenen" angezeigt bekommen.<br>
+          Wenn die Konfiguration einer Ebene geändert wird(und vor allem wenn Öffentlich), sollte die Beschriftung entsprechend angepasst werden, um sie von der standard Ebene zu unterscheiden(3).<br>
+          Unter "Ebenen Generierung"(4) kann angegeben werden ob die Bilder vom WMS "gekachelt" und dadurch wiederverwendbar generiert werden sollen oder "Vollbilld" welches den ganzen Kartenausschnitt/Bildschirm bei jedem zoomen / scollen neu generiert. (Aus performance Sicht macht die 2. Option nur Sinn, wenn die gekachelte variante Artefakte/fehldarstellungen bei den Kachel übergänge hat.)<br>
+          "Kachelgrösse"(5) überschreibt bei der gekachelten(4) Generierung wie gross eine Kachel sein soll, höhere Zahlen bedeuten das weniger Kacheln gebraucht werden, die Einzelnen Kachel aber länger zum generieren braucht. Ohne Angabe wird der standard aus den Capabilities verwendet. (Die Zahl sollten als 2er Potenz (128,256,512...) angegeben werden, da viele Systeme darauf optimiert sind.)<br>
+          Über "Inhaltstyp"(6) könnte das Format png/jpg/... der Generierung überschrieben werden.<br>
+          Die Felder "Max / Min Skalennenner"(7/8) Steuern bei welchen Zoomstufen (aber über Angabe der Skala) ein Layer angezeigt (oder oft auch verfügbar) ist/werden soll<br>
+          Zu guter letzt können auf den einzelnen Ebenen die Quellenagaben(9), aus der WMS Quelle, überschrieben werden, falls dafür spezielle Angaben nötig sind.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertWmsLayersGroup: {
+      de: `Viele WMS Anbieter haben auch vordefinierte Gruppen, welche aus eine Liste von Unterebenen(10) besteht aber der einfachheitshalber über den Gruppennamen als "Ebenennamen"(1) referenziet werden können.<br>
+          Es ist aber auch möglich eigentlich getrennte Ebenen über eine Komma separierte Liste der entsprechenden Ebenen anzugeben(7), welche dann als eine Kachel gerendert werden.<br>
+          (Um diese Funktion zu verwenden/Ebenennamen überschreiben zu können, muss der Ebenentyp auf "WMS (custom)" geändert werden.)<br>
+          Wenn man eine Gruppe verwenden aber einige "Unterebenen ausblenden"(10) möchte, kann dies über die entsprechende Option eingestellt werden. (Hier übernimmt die Logik intern das auflisten aller anzuzeigender Unterebene als Komma separierte Liste.)<br>
+          <br>
+          Bei WMS Gruppen gibt es die Option "Ebenen-Zeichenmodus"(11), hier macht der default Wert "zusammengeführte Ebenen" am meisten sinn, ändert man dies auf "aufgetrennte Ebenen" behandelt das System jede Unterebene als währe sie in der Ebenen Liste separat aufgenommen und fordert für jede ein eigenes Bild an. (Bei Gruppen mit viel Unterebenen belastet dies das WMS system und die Performance stark. Sinnvoll ist dies nur unter Umständen wenn viele unterschiedliche Kombinationen aus diesen gleichen WMS Ebenen regelmässig verwendet werden, da dann jede Ebene separat gecached werden kann.)<br>
+          Bei Ebenen Gruppen kommt es vor das die Unterebenen intern mit eigenen min/max Skalennennern ausgestatet werden, welche jedoch nicht sichtbar sind / angezeigt werden. Werden bei solchen Gruppen einzelne Unterebenen ausgeblendet funktioniert diese filterung nicht mehr, da dann nicht die Gruppe sondern die einzelnen noch sichtbaren Ebenen referenziert/übergeben werden.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertGeoJsonLayersTitle: {
+      de: 'GeoJSON Ebene',
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertNewLayer: {
+      de: `In der Experten Ansicht hat es am Ende des Ebenen Blocks ein Button [Neue Ebene erstellen](1), über diesen können neue Ebenen unabhängig von WMS Quellen erstellt werden.<br>
+          Nach klick auf den Button muss nun ausgewählt werden ob eine WMS Ebene mit freien Feldeingabe, ein GeoJSON Layer oder ein CSV Layer erstellt werden soll.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertGeoJsonLayers: {
+      de: `Bei Angabe der Quell-URL(1) muss entsprechend eine URL zu einer geojson Datei angeben werden, entsprechende Dateien müssen über einen Webserver / online Storage gehostet und ohne Login aufgerufen werden können.<br>
+          Damit GeoJSON Daten auf einer Karte angezeigt werden können, muss konfiguriert werden wie die einzelnen 'Features' gezeichnet werden sollen, als "StilFormat"(2) werden die Formate "MapBox GL Style" und "OpenLayers Flat" unterstützt. Die Spezifikationen wie eine solche Style Datei aufgebaut werden muss, ist entsprechend verlinkt.<br> 
+          Bei MapBox können in einer Spezifikation mehrer Styles definiert werden, daher muss der "Name der Stillquelle"(3) welcher verwendet werden soll angegeben werden.<br>
+          Anschliessend kann bei "Stillquellentype"(4) angegeben werden ob die Style Infos ebenfalls über eine URL referenziert oder sie direkt in der Ebenen definition als Text hinterlegt werden soll.<br>
+          <br>
+          Für Beschreibungen zu "Ist die Ebene durchsuchbar?"(5) siehe "Ebenen durchsuchbar machen" weiter unten.
+          Die restlichen Felder sind die gleichen wie bereits unter "WMS/WMTS Ebenen konfigurieren" beschrieben.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertCsvLayersTitle: {
+      de: 'CSV Ebene',
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertCsvLayers: {
+      de: `Wenn bei der Erstellung einer neuen Ebene der Ebenentyp CSV ausgewählt wird, sind die gleichen Felder verfügbar wie bei GeoJSON, aber zusätzlich noch ein paar CSV spezifische.<br>
+          CSV Ebenen sind eigenlich auch GeoJSON Ebenen, da sie beim Laden der Datei gemäss konfiguration in ein GeoJSON convertiert werden. Dabei wird jede Zeile zu einem GeoJSON Feature und die Spalten zu einem Feld/Eigenschaft davon.<br>
+          <br>
+          Damit die Konvertierung funktioniert muss bei "Trennzeichen"(1) angegeben werden mit welchem Zeichen die einzelnen Felder im CSV getrennt sind, normalerweise ist das Komma "," oder Semikolon ";".<br>
+          Bei "Feldname der X-Koordinate"(2) bzw "Feldname der Y-Koordinate"(3) muss der Feldname/Titel der entsprechenden Spalte angegeben werden in welcher die Zahl steht.<br>
+          Die Koordinaten können auf verschiedene Arten kodiert sein, daher muss angegebn werden welchr "Konfigurationscode für die Datenprojektion"(4) diese kodierung beschreibt.<br>
+          Die in ZS Karte verwendeten standard Codes mit ihrem Verwendungskontext sind aufgeführt, weitere können auf <a href="https://epsg.io/">https://epsg.io/</a> gesucht werden, bzw. sind bei der Datenquelle zu prüfen/erfragen.<br>`,
+          fr: 'TODO fr Translation',
+          en: 'TODO en translation',
+        },
+    docExpertCsvLayersFilter: {
+      de: `
+          Optimalerweise sind die CSV Dateien aufbereitet und unpassende/ungewollte Zeilen wurden entfernt.<br>
+          Wurde dies nicht gemacht können unter "RegEx Muster für Daten Filter"(5) Felder und RegEx Pattern definiert werden um die Daten zu filtern.<br>
+          Wenn für ein Feld nur 1 Wert zugelassen werden soll, kann einfach der Wert ins RegEx Feld geschrieben werden.<br>
+          Sollen mehrer bestimmte Werte zugelassen werden, müssen diese in ein Klammern paar eingehüllt und mit einem Pipe "|" getrennt angegeben werden, z.B. "(wert1|wert2|wert3)"<br>
+          Sollen alle Werte erlaubt werden welche mit "test_" beginnen kann dieser Teil mit einem all match ".*" ergänzt werden, z.B. "test_.*<br>
+          Sollen alle Werte erlaubt werden welche mit "test_" enden kann diesem Teil ein all match ".*" vorangestellt werden, z.B. ".*_test<br>
+          Sollen alle Werte erlaubt werden welche mit "_test" enden kann dies über ".*_test" definiert werden<br>
+          Eine fixe Werte Liste und erlaubte prefixes/suffixes können auch kombiniert werden, z.B. "(wert1|wert2|wert3|test_.*|.*_test)"<br>
+          Wenn alles zugelassen werden soll ausser bestimmt Werte kann dies über ein all match ".*" (oder ein prefix/suffix/Werteliste wie vorher) gefolgt von einem negativen Lookbehind (nur fixe Werte keine prefix/suffixe logiken) für jeden auszuschliessenden Wert angegeben werden, z.B. ".*(?<!wert1)(?<!wert2)" oder "test_.*(?<!test_temp)(?<!test_klein)"<br>
+          <br>
+          Zusätzlich können über "Gültiger Bereich"(6) min/max X und Y Koordinaten angegeben werden für welche Features/Zeilen zugelassen werden. Diese Werte müssen mit dem gleichen System kodiert sein wie die X/Y Felder der Zeilen selbst.<br>
+          Wird keine Einschränkung definiert, filtert das System automatisch alles raus, welcher ausserhalb eines Quadrates über der Schweiz hinausgehen. Dies hat hauptsächlich den Grund fehlerhafte Daten (z.B. mit Koordinaten 0/0) auszuschliessen da dies zu Problemen führen können.<br>
+          Die restlichen Felder sind die gleichen wie bereits unter "GeoJSON Ebene" bzw. "WMS/WMTS Ebenen konfigurieren" beschrieben.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertSucheTitle: {
+      de: 'Ebenen durchsuchbar machen',
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertSuche: {
+      de: `Bei GeoJSON und CSV Ebenen kann die Option "Ist die Ebene durchsuchbar?"(1) aktiviert werden das man in diesen Ebenen suchen kann.
+        Dadurch sind weitere infos nötig welche die Suche konfiguriert.<br>
+        Bei der "Suchergebnis Beschriftungs-Maske"(2) wird Angegeben was angezeigt werden soll, wenn ein Treffer gefunden wird. Dafür können die Feldnamen der Eigenschaften eines Features im GeoJSON/Spalten im CSV über die Notation <code>\${FeldName}</code> angegeben werden.<br>
+        Bei "RegEx Muster für Suche"(3) müssen Suchmuster definiert werden für welche die Suche in der GeoJSON/CSV Ebene suchen soll. Da ein Feature/Zeile in einem GeoJSON/CSV unterschiedliche Felder hat muss in der Suchmaske kodiert werden welcher Teil der Maske in welchem GeoJSON/CSV Feld vorkommen muss.<br>
+        Dies wird über sogenannte benannte Gruppen im RegEx gemacht welche die Form "<code>(?<FeldName>regex such maske)</code>" haben. Mehr informationen und Hilfe zum erstellen von RegEx Patterns kann z.B. auf https://regex101.com geholt werden, hier werden die relevanten Basics erklärt, inkl. Muster zum übernehmen.<br>
+        <ul>
+          <li>Wenn erlaubte Zeichen für die Suchmaske alle Zeichen sind welche in Worten vorkommen können (in allen Sprachen) kann dafür "<code>\\p{L}</code>" für ein einzelnes Zeichen verwendet werden.</li>
+          <li>Soll eine Ziffer gesucht werden geht dies über "<code>\\d</code>".</li>
+          <li>Sollen alle Zeichen (Wortzeichen, Zahlen, Sonderzeichen) möglich sein wird dies durch "<code>.</code>" angegeben.</li>
+          <li>Soll nicht ein einzelnes Zeichen, sondern 1-mehrere kann dies durch "<code>+</code>" 0-mehrere mit "<code>*</code>" 0-1 mit "<code>?</code>" nach der Maske gekennzeichnet werden(sogenannte quantifier).</li>
+          <li>Soll eine Gruppe einer RegexMaske mehrfach wiederholt werden können/optional sein, muss dies in eine sogenannte non-capturing group mit "<code>(?:maske)</code>" gepackt und einem quantifier <code>+/*/?</code> entsprechend markiert werden.</li>
+        </ul>
+        Daraus ergeben sich nun z.B. folgene Wiederverwendbaren notationen
+        <ul>
+          <li>"<code>(?<FeldName>.+)</code>" es wird nach der gesammten Suchmasken Eingabe in FeldName gesucht.</li>
+          <li>"<code>(?<FeldName1>\\p{L}+)</code>" wenn genau 1 Wort mit 1 bis unendlich Zeichen in der Suchmaske eingegeben wird, wird in FeldName1 danach gesucht</li>
+          <li>"<code>(?<FeldName2>\\d+)</code>" wenn genau eine Zahl mit 1 bis unendlich Ziffern in der Suchmaske eingegeben wird, wird in FeldName2 danach gesucht</li>
+          <li>"<code>(?<FeldName3>\\p{L}+(?: \\p{L}+)*)</code>" wenn mindestens 1 Wort bis unendlich Worte alle jeweils mit einem Leerzeichen getrennt in der Suchmaske eingegeben werden, wird in FeldName3 danach gesucht</li>
+          <li>"<code>(?<entranceNumber>\\d+ ?\\p{L}?)</code>" wenn eine Zahl mit 1 bis unendlich Ziffern, mit einem optionalen Leerzeichen und/oder einem einzelnen optionalen WortZeichen in der Suchmaske eingegeben werden, wird in entranceNumber danach gesucht</li>
+          <li>"<code>(?<FeldName4>\\p{L}+(?: \\p{L}+)*), (?<FeldName5>\\p{L}+(?: \\p{L}+)*)</code>" wenn 1 - x Worte, gefolgt von einem Komme und Leerzeichen, und wieder 1 - x Worte angegeben werden, wird der Text entsprechend in FeldName4 und FeldName5 gesucht.<br>
+              Die Felder mit etwas anderem als einem Leerzeichen zu Trennen ist hier wichtig, da sonnst alles bis auf des letzte Wort in FeldName4 gesucht wird und nur das letzte/einte pflicht Wort (da 1 - x) in FeldName5</li>
+        </ul>
+        In einem GeoJSON/CSV file können tausende von separate Objekte/Features/Zeilen sein und somit auch potentiel viele welche auf die Sucheingabe passen. Damit bei vielen ähnlichen gefundenen Features ein differenzierteres Ergebnis ausgegeben werden kann, können Feldnamen angegeben werden nach welchen die Ergebnisse gruppiert werden sollen wenn es ziviele gibt.<br>
+        Weiter kann die "Max Anzahl Suchergebnisse"(4) definiert werden welche angezeigt werden sollen.<br>
+        <br>
+        Bei Suchergebnissen kann analog der standard Logik das Ergebnis angeklickt werden um zu diesem zu springen.<br>
+        Zusätzlich wird während dem Suchen bei allen gefundenen Features das Feld "<code>ZsMapSearchResult</code>" auf den boolean Wert true gesetzt, dies kann in den Style definitionen entsprechend beachtet und die Features dadurch entsprechend hervorgehoben werden.<br>
+        In einem MapBox Style z.B. roter statt schwarzer Text wenn Teil des Suchergebnisses über:<br>
+        <code>
+        {
+          ...
+          "layers": [
+            ...
+            {
+              ...
+              "paint": {
+                "text-color": ["case", ["get", "ZsMapSearchResult"], "#ff0000", "#000000"],
+                ...
+              }
+            }
+          ]
+        }
+        </code>
+        `,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertPersistLayersTitle: {
+      de: 'Aktive Ebenen auf Ereignis persistieren',
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertPersistLayers: {
+      de: `In der Experten Ansicht hat es am Ende des Ebenen Blocks ein Button [Ebenen auf Ereignis speichern](1).<br>
+          Wird dieser gedrückt werden die aktuell verwendeten Ebenen inkl. all deren Einstellungen, der Reihenfolge, Transparent und sichtbarkeit auf dem Ereignis persistiert.<br>
+          Wenn anschliessend jemand (/oder man selbst) sich an einem anderen Gerät neu anmeldet und somit noch keine eigene Ebnene Konfiguration hat wird diese aus dem Ereignis geladen.`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertOrganisationDefaultsTitle: {
+      de: 'Default Ebenen Favoriten für Organisation',
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertOrganisationDefaultsButton: {
+      de: 'In der Experten Ansicht hat es ganz unten in der Ebenen Sidebar den Button [Organisationseinstellungen](1), dieser öffnet eine Ansicht um WMS/WMTS Quellen sowie die Favoriten Ebenen für die eigene Organisation Ereignis und Session übergreifend zu definieren.',
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
+    docExpertOrganisationDefaults: {
+      de: `Bei "Vorab ausgewählte WMS-Quellen"(1) werden alle Quellen angezeigt welche selbst erstellt wurden oder öffentlich sind. Hier ausgewählte Quellen sind nach dem Login auf ZS Karte automatisch geladen und werden auch in der Standard Ansicht unter den "Verfügbare Ebenen" angezeigt.<br>
+          <br>
+          Unter "Favoriten"(2) werden die aktiven Favoriten angezeigt.<br>
+          Wenn man eigene Favoriten definiert werden zukünftig diese anstatt den Standard Favoriten von ZS Karte angezeigt.<br>
+          Man kann durch anklicken einer Ebene aus "Von aktiven hinzufügen"(3) oder "Aus Liste hinzufügen"(4) entsprechende Favoriten auswählen, bzw. durch anklicken eines der Favoriten diese aus den Favoriten entfernen.<br>
+          In der Liste der Favoriten wird unter der Beschriftung der Ebene auch die Quelle(4) angegeben aus welcher diese stammt.<br>              
+          <br>
+          Bei den aktiven Ebenen/Favoriten wird über *modified* angezeigt das es keine standard Ebene (bzw. zuvor gespeicherte) ist, sondern eine bei der die Einstellungen angepasst wurden.<br>
+          Wenn eine solche Ebene als öffentlich definiert wurde, wird diese erst dann effektiv in der Datenbank gespeichert und ist öffentlich verwendbar wenn diese mindestens einmalig als Favorit gespeichert wurde.<br>
+          Bei bereits zuvor mal gespeicherte Ebenen welche nochmals angepasst wurden, kann beim klick auf [OK](5) definiert werden ob die bestehende Einstellung angepasst oder es als neue Ebene gespeichert werden soll`,
+      fr: 'TODO fr Translation',
+      en: 'TODO en translation',
+    },
     openStreetMap: {
       de: 'OpenStreetMap',
       fr: 'OpenStreetMap',
@@ -1505,6 +1751,11 @@ export class I18NService {
       en: 'Save layers to event',
       fr: "Enregistrer les couches dans l'événement",
     },
+    toastPersistLayers: {
+      de: 'Ebenen auf Ereignis gespeichert',
+      en: 'Layers saved on event',
+      fr: "Couches enregistrées sur événement",
+    },
     layerSource: {
       de: 'Ebenen Quelle',
       en: 'Layer Source',
@@ -1596,9 +1847,9 @@ export class I18NService {
       fr: 'nom du calque',
     },
     wmsLayerRenderType: {
-      de: 'Ebenentyp',
-      en: 'Layer type',
-      fr: 'Type de calque',
+      de: 'Ebenen Generierung',
+      en: 'Layer generation',
+      fr: 'Génération de calque',
     },
     wmsLayerRenderTypeTiled: {
       de: 'gekachelt',

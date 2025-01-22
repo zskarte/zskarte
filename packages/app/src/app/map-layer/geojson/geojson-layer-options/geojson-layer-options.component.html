@@ -104,13 +104,6 @@
   }
 
   <fieldset class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('styleSourceType') }}</legend>
-    <mat-radio-group [(ngModel)]="layer.styleSourceType">
-      <mat-radio-button value="url">{{ i18n.get('styleSourceTypeUrl') }}</mat-radio-button>
-      <mat-radio-button value="text">{{ i18n.get('styleSourceTypeText') }}</mat-radio-button>
-    </mat-radio-group>
-  </fieldset>
-  <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('styleFormat') }}</legend>
     <mat-radio-group [(ngModel)]="layer.styleFormat">
       <mat-radio-button value="mapbox"
@@ -131,6 +124,13 @@
       <input matInput type="url" [(ngModel)]="layer.styleSourceName" />
     </mat-form-field>
   }
+  <fieldset class="like-mat-form-field-outline">
+    <legend>{{ i18n.get('styleSourceType') }}</legend>
+    <mat-radio-group [(ngModel)]="layer.styleSourceType">
+      <mat-radio-button value="url">{{ i18n.get('styleSourceTypeUrl') }}</mat-radio-button>
+      <mat-radio-button value="text">{{ i18n.get('styleSourceTypeText') }}</mat-radio-button>
+    </mat-radio-group>
+  </fieldset>
   @if (layer.styleSourceType === 'url') {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('styleSourceUrl') }}</mat-label>

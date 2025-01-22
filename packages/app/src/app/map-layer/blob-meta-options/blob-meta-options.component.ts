@@ -48,6 +48,7 @@ export class BlobMetaOptionsComponent {
   public styleSourceName: string | undefined;
   public layerConfigStyle = false;
   public noOfflineText: string | undefined;
+  public mapUploadType = '*';
 
   constructor() {
     this.loadBlobMeta();
@@ -57,6 +58,7 @@ export class BlobMetaOptionsComponent {
     if (this.data.mapLayer) {
       this.label = this.data.mapLayer.label;
       if (this.data.mapLayer.type === 'geojson' || this.data.mapLayer.type === 'csv') {
+        this.mapUploadType = '.' + this.data.mapLayer.type;
         this.data.mapLayer = { ...this.data.mapLayer };
         this.dataBlobMeta = this.data.mapLayer.sourceBlobId
           ? await db.localBlobMeta.get(this.data.mapLayer.sourceBlobId)
@@ -73,6 +75,7 @@ export class BlobMetaOptionsComponent {
         this.noOfflineText = this.i18n.get('blobMetaNotOfflineLayer');
       }
     } else if (this.data.localMap) {
+      this.mapUploadType = '.pmtiles';
       this.label = this.i18n.get(this.data.localMap.map);
       if (this.data.localMap.map in zsMapStateSourceToDownloadUrl) {
         this.dataBlobMeta = this.data.localMap.mapBlobId
