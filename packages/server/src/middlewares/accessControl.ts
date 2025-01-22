@@ -153,7 +153,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       strapi.log.error(`[global::accessControl] unknown context, handler: ${handler}, url: ${ctx.request.url}`);
       console.log(jwtOperationId);
       // TODO: remove this
-      return next();
+      // return next();
       return ctx.forbidden('This action is forbidden, unknown context.');
     }
   };

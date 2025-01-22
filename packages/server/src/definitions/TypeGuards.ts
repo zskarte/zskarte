@@ -48,12 +48,14 @@ export type HasPublicType = Utils.Guard.Never<
 //unfortunately as types are striped away on runtime we have to define them here explizite. But the type definitions above help the intellisense show all possible/valid values.
 const IsOperationTypes: IsOperationType[] = ['api::operation.operation'];
 const IsOrganizationTypes: IsOrganizationType[] = ['api::organization.organization'];
-const HasOperationTypes: HasOperationType[] = ['api::access.access', 'api::map-snapshot.map-snapshot'];
+const HasOperationTypes: HasOperationType[] = ['api::access.access', 'api::map-snapshot.map-snapshot','api::journal-entry.journal-entry'];
 const HasOrganizationTypes: HasOrganizationType[] = [
   'plugin::users-permissions.user',
   'api::operation.operation',
   'api::wms-source.wms-source',
   'api::map-layer.map-layer',
+  'api::journal-entry.journal-entry',
+  
 ];
 const AccessCheckableTypes: AccessCheckableType[] = [
   ...IsOperationTypes,

@@ -101,7 +101,7 @@
           </div>
 
           <div style="display: flex; justify-content: end; gap: 6px">
-            <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntry.uid">
+            <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntry.id">
               <mat-icon>close</mat-icon>
               {{ i18n.get('cancel') }}
             </button>
@@ -139,27 +139,27 @@
     <div class="journal-content">
       <table mat-table matSort [dataSource]="dataSource">
         <ng-container matColumnDef="message_number">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>message_number</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('message_number') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>
         </ng-container>
 
         <ng-container matColumnDef="message_subject">
-          <th mat-header-cell *matHeaderCellDef>message_subject</th>
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_subject') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.message_subject }}</td>
         </ng-container>
 
         <ng-container matColumnDef="message_content">
-          <th mat-header-cell *matHeaderCellDef>message_content</th>
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_content') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
         </ng-container>
 
         <ng-container matColumnDef="date_created">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>date_created</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('date_created') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.date_created.toLocaleString('de-CH') }}</td>
         </ng-container>
 
         <ng-container matColumnDef="creator">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>creator</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('creator') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.creator }}</td>
         </ng-container>
 

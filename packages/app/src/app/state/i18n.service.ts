@@ -1980,6 +1980,31 @@ export class I18NService {
       en: 'No impacts on persons found',
       fr: 'Aucun effet sur les personnes'
     },
+    message_number: {
+      de: 'Nummer',
+      en: 'Number',
+      fr: 'Numéro'
+    },
+    message_subject: {
+      de: 'Betreff',
+      en: 'Subject',
+      fr: 'Sujet'
+    },
+    message_content: {
+      de: 'Meldungsinhalt',
+      en: 'Message content',
+      fr: 'Contenu du message'
+    },
+    date_created: {
+      de: 'Erstellungsdatum',
+      en: 'Creation date',
+      fr: 'Date de création'
+    },
+    creator: {
+      de: 'Empfänger',
+      en: 'Receiver',
+      fr: 'Destinataire'
+    },
     coordinates: {
       de: 'Koordinaten',
       en: 'Coordinates',
