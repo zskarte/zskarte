@@ -166,7 +166,7 @@
       </div>
       <div class="fab-button">
         @if (!(isReadOnly | async)) {
-          <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()" [disabled]="limitReached$ | async">
+          <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()" [disabled]="(limitReached$ | async) && isGuest()">
             <mat-icon>add</mat-icon>
           </button>
         }
