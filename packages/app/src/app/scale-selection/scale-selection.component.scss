@@ -12,3 +12,11 @@
   width: 200px;
   flex-grow: 1;
 }
+
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: .5rem;
+}
