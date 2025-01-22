@@ -70,6 +70,8 @@ export class JournalComponent {
       publishedAt: new Date(entry.publishedAt),
       updatedAt: new Date(entry.updatedAt),
     }));
+
+    console.log('dataSource', this.dataSource);
   }
 
   async selectEntry(entry: JournalEntry) {
@@ -86,7 +88,6 @@ export class JournalComponent {
     this.editing = true;
 
     this.selectedJournalEntry = {
-      message_number: 0,
       message_subject: '',
       message_content: '',
       date_created: new Date(),
@@ -99,5 +100,15 @@ export class JournalComponent {
     this.editing = !this.editing;
   }
 
-  save() {}
+  async save() {
+    if (this.selectedJournalEntry?.id) {
+      await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry.id}`, { data: this.selectedJournalEntry });
+    } else {
+      await this.apiService.post('/api/journal-entries', { data: this.selectedJournalEntry });
+    }
+    await this.loadJournalEntries();
+
+    this.selectedJournalEntry = null;
+    this.editing = false;
+  }
 }
