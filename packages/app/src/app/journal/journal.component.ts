@@ -145,7 +145,7 @@ export class JournalComponent {
     }
 
     if (this.triageFilter) {
-      filtered = filtered.filter((entry) => entry.status === 'awaiting_triage');
+      filtered = filtered.filter((entry) => entry.entryStatus === 'awaiting_triage');
     }
 
     if (this.keyMessageFilter) {
@@ -153,11 +153,11 @@ export class JournalComponent {
     }
 
     if (this.outgoingFilter) {
-      filtered = filtered.filter((entry) => entry.status === 'awaiting_completion');
+      filtered = filtered.filter((entry) => entry.entryStatus === 'awaiting_completion');
     }
 
     if (this.decisionFilter) {
-      filtered = filtered.filter((entry) => entry.status === 'awaiting_decision');
+      filtered = filtered.filter((entry) => entry.entryStatus === 'awaiting_decision');
     }
 
     if (searchTerm) {
@@ -167,10 +167,10 @@ export class JournalComponent {
         .filter(
           (item) =>
             (!department || item.department === department) &&
-            (!this.triageFilter || item.status === 'awaiting_triage') &&
+            (!this.triageFilter || item.entryStatus === 'awaiting_triage') &&
             (!this.keyMessageFilter || item.is_key_message) &&
-            (!this.outgoingFilter || item.status === 'awaiting_completion') &&
-            (!this.decisionFilter || item.status === 'awaiting_decision'),
+            (!this.outgoingFilter || item.entryStatus === 'awaiting_completion') &&
+            (!this.decisionFilter || item.entryStatus === 'awaiting_decision'),
         );
     }
 
@@ -201,7 +201,7 @@ export class JournalComponent {
       is_key_message: entry.is_key_message,
       visum_triage: entry.visum_triage,
       decision: entry.decision,
-      status: entry.status,
+      status: entry.entryStatus,
     });
   }
 
@@ -214,7 +214,7 @@ export class JournalComponent {
     this.editing = true;
 
     this.selectedJournalEntry = {
-      status: 'awaiting_triage',
+      entryStatus: 'awaiting_triage',
     } as JournalEntry;
 
     this.journalForm.patchValue({
