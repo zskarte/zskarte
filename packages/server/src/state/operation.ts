@@ -15,6 +15,7 @@ import {
 import { broadcastConnections, broadcastPatches } from './socketio';
 
 import type { Attribute } from '@strapi/strapi';
+import { OperationPhases } from 'src/definitions/constants/OperationPhase';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
 const MIN = 1000 * 60;
@@ -27,7 +28,7 @@ const operationCaches: { [key: number]: OperationCache } = {};
 const loadOperations = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      filters: { status: OperationStates.ACTIVE },
+      filters: { phase: OperationPhases.ACTIVE },
       populate: ['organization'],
       limit: -1,
     })) as Operation[];
@@ -155,14 +156,14 @@ const persistMapStates = async (strapi: Strapi) => {
 const archiveOperations = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      filters: { status: OperationStates.ACTIVE },
+      filters: { phase: OperationPhases.ACTIVE },
       limit: -1,
     })) as Operation[];
     for (const operation of activeOperations) {
       if (new Date(operation.updatedAt).getTime() + WEEK > new Date().getTime()) continue;
       await strapi.entityService.update('api::operation.operation', operation.id, {
         data: {
-          status: OperationStates.ARCHIVED,
+          phase: OperationPhases.ARCHIVED,
         },
       });
     }
@@ -198,7 +199,7 @@ const deleteGuestOperations = async (strapi: Strapi) => {
 const createMapStateSnapshots = async (strapi: Strapi) => {
   try {
     const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
-      filters: { status: OperationStates.ACTIVE },
+      filters: { phase: OperationPhases.ACTIVE },
       limit: -1,
     })) as Operation[];
 

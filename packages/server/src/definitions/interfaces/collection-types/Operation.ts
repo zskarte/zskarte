@@ -6,7 +6,7 @@ import { MapSnapshot } from './MapSnapshot';
 export interface Operation extends StrapiObject {
   name: string;
   description: string;
-  status: string; //Deprecated
+  status?: string; //Deprecated
   mapState: object;
   organization: Organization;
   patches: PatchExtended[];

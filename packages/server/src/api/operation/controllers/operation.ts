@@ -6,6 +6,7 @@ import { factories } from '@strapi/strapi';
 import { Operation, PatchExtended, OperationStates } from '../../../definitions';
 import { operationCaches, updateCurrentLocation, updateMapState } from '../../../state/operation';
 import _ from 'lodash';
+import { OperationPhases } from 'src/definitions/constants/OperationPhase';
 
 const allowedMetaFields = ['name', 'description', 'eventStates'];
 
@@ -63,7 +64,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const { id } = ctx.params;
     await strapi.entityService.update('api::operation.operation', id, {
       data: {
-        status: OperationStates.ARCHIVED,
+        phase: OperationPhases.ARCHIVED,
       },
     });
     ctx.status = 200;
@@ -73,7 +74,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const { id } = ctx.params;
     await strapi.entityService.update('api::operation.operation', id, {
       data: {
-        status: OperationStates.DELETED,
+        phase: OperationPhases.DELETED,
       },
     });
     ctx.status = 200;
@@ -83,7 +84,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const { id } = ctx.params;
     await strapi.entityService.update('api::operation.operation', id, {
       data: {
-        status: OperationStates.ACTIVE,
+        phase: OperationPhases.ACTIVE,
       },
     });
     ctx.status = 200;
