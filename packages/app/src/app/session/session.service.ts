@@ -83,7 +83,9 @@ export class SessionService {
           }
           this._state.setDisplayState(displayState);
           if (queryParams) {
-            this._state.updateDisplayState((draft) => SessionService.overrideDisplayStateFromQueryParams(draft, queryParams));
+            this._state.updateDisplayState((draft) =>
+              SessionService.overrideDisplayStateFromQueryParams(draft, queryParams),
+            );
           }
 
           const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.id ?? 0);
@@ -100,7 +102,10 @@ export class SessionService {
           } else {
             this._state.setGlobalWmsSources(globalWmsSources);
           }
-          const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(globalWmsSources, session.organization?.id ?? 0);
+          const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(
+            globalWmsSources,
+            session.organization?.id ?? 0,
+          );
           if (session?.workLocal) {
             const localMapLayers = await MapLayerService.getLocalMapLayers();
             if (globalMapLayers.length > 0) {
@@ -130,13 +135,17 @@ export class SessionService {
           if (!displayState) {
             if (session.organization?.wms_sources && session.organization?.wms_sources.length > 0) {
               //if no session state, fill default wms sources from organisation settings
-              const selectedSources = globalWmsSources.filter((s) => s.id && session.organization?.wms_sources.includes(s.id));
+              const selectedSources = globalWmsSources.filter(
+                (s) => s.id && session.organization?.wms_sources.includes(s.id),
+              );
               this._state.setWmsSources(selectedSources);
             } else {
               //if no session state, fill default wms sources from local settings
               const localMapLayerSettings = await MapLayerService.loadLocalMapLayerSettings();
               if (localMapLayerSettings?.wms_sources && localMapLayerSettings?.wms_sources.length > 0) {
-                const selectedSources = globalWmsSources.filter((s) => s.id && localMapLayerSettings?.wms_sources.includes(s.id));
+                const selectedSources = globalWmsSources.filter(
+                  (s) => s.id && localMapLayerSettings?.wms_sources.includes(s.id),
+                );
                 this._state.setWmsSources(selectedSources);
               }
             }
@@ -358,7 +367,11 @@ export class SessionService {
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
     if (this._session?.value) {
       const sessionOperation = this._session.value.operation;
-      if (operation === undefined && sessionOperation !== undefined && SessionService.isLoadedOperation(sessionOperation)) {
+      if (
+        operation === undefined &&
+        sessionOperation !== undefined &&
+        SessionService.isLoadedOperation(sessionOperation)
+      ) {
         //backup operation in case offline / no server connection to allow continue work later
         await OperationService.persistLocalOpertaion(sessionOperation);
       }
@@ -438,7 +451,9 @@ export class SessionService {
 
     const currentSession = await this.getSavedSession();
 
-    const { error, result: meResult } = await this._api.get<{ organization: IZsMapOrganization }>('/api/users/me', { token: jwt });
+    const { error, result: meResult } = await this._api.get<{ organization: IZsMapOrganization }>('/api/users/me', {
+      token: jwt,
+    });
 
     if (error || !meResult) {
       if (
@@ -647,7 +662,10 @@ export class SessionService {
           coordinatesProjection,
           mercatorProjection,
         );
-      } else if (this._session.value?.operation?.mapState?.center[0] && this._session.value?.operation?.mapState?.center[1]) {
+      } else if (
+        this._session.value?.operation?.mapState?.center[0] &&
+        this._session.value?.operation?.mapState?.center[1]
+      ) {
         return transform(this._session.value.operation.mapState.center, coordinatesProjection, mercatorProjection);
       }
     }
