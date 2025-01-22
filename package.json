@@ -4,9 +4,12 @@
     "./packages/*"
   ],
   "scripts": {
-    "start": "run-p start:*",
+    "start": "npm run docker-run && run-p start:*",
     "start:app": "cd packages/app && npm start",
-    "start:server": "cd packages/server && npm start",
+    "start:server": "cd packages/server && npm run build && npm start",
+    "start:server:prod": "cd packages/server && npm start",
+    "docker-run": "tsx scripts/run-docker.ts",
+    "docker-stop": "docker-compose down",
     "lint": "run-p lint:*",
     "lint:app": "biome lint ./packages/app/src",
     "lint:server": "biome lint ./packages/server/src",
@@ -22,7 +25,8 @@
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
     "build:app": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
-    "cleanup": "tsx scripts/cleanup.ts"
+    "cleanup": "tsx scripts/cleanup.ts",
+    "exec": "tsx scripts/docker-compose-up.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -33,7 +37,9 @@
   },
   "dependencies": {
     "fix-esm": "^1.0.1",
+    "inquirer": "^12.3.2",
     "ol": "^10.3.1",
-    "superjson": "^2.2.2"
+    "superjson": "^2.2.2",
+    "wait-on": "^8.0.2"
   }
 }
