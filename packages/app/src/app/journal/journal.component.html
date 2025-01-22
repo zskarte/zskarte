@@ -9,15 +9,24 @@
     <form [formGroup]="journalForm" (ngSubmit)="save($event)">
       <div class="sidebar-header">
         <h1>
-          {{ selectedJournalEntry.message_number !== undefined ? selectedJournalEntry.message_number.toString().padStart(3, '0') : '' }} |
-          {{ selectedJournalEntry.message_subject ?? '' }}
+          {{
+            selectedJournalEntry.message_number !== undefined ?
+              selectedJournalEntry.message_number.toString().padStart(3, '0')
+            : ''
+          }}
+          |
+          {{ selectedJournalEntry.message_subject }}
         </h1>
 
         <button (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <mat-tab-group animationDuration="0ms" [selectedIndex]="selectedIndex" (selectedIndexChange)="selectedIndex = $event">
+      <mat-tab-group
+        animationDuration="0ms"
+        [selectedIndex]="selectedIndex"
+        (selectedIndexChange)="selectedIndex = $event"
+      >
         <mat-tab label="Eingang">
           <div *ngIf="!editing">
             <div class="journal-entry-details">
@@ -200,7 +209,10 @@
               </div>
             </div>
 
-            <div *ngIf="selectedJournalEntry.entryStatus === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
+            <div
+              *ngIf="selectedJournalEntry.entryStatus === 'awaiting_decision'"
+              style="border: 1px solid lightgray; padding: 14px"
+            >
               <h3>Falscher Fachbereich?</h3>
               <p>Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.</p>
               <button mat-button type="button" (click)="resetState()">Zurück an Triage senden</button>
@@ -242,37 +254,49 @@
       <h1>Journal</h1>
     </div>
     <div class="journal-filter">
-      <mat-form-field class="journal-filter-search">
-        <mat-label>Suche</mat-label>
-        <input matInput type="text" [formControl]="searchControl" />
-      </mat-form-field>
-      <mat-form-field class="journal-filter-department">
-        <mat-label>Bereich</mat-label>
-        <mat-select [formControl]="departmentControl">
-          <mat-option>None</mat-option>
-          <mat-option value="politische-behoerde">Politische Behörde</mat-option>
-          <mat-option value="chef-fuehrungsorgan">Chef Führungsorgan</mat-option>
-          <mat-option value="stabschef">Stabschef</mat-option>
-          <mat-option value="fb-lage">FB Lage</mat-option>
-          <mat-option value="fb-information">FB Information</mat-option>
-          <mat-option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</mat-option>
-          <mat-option value="fb-schutz-rettung">FB Schutz + Rettung</mat-option>
-          <mat-option value="fb-gesundheit">FB Gesundheit</mat-option>
-          <mat-option value="fb-logistik">FB Logistik</mat-option>
-          <mat-option value="fb-infrastukturen">FB Infrastrukturen</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <div class="journal-filter-row">
+        <mat-form-field class="journal-filter-search">
+          <mat-label>Suche</mat-label>
+          <input matInput type="text" [formControl]="searchControl" />
+        </mat-form-field>
+        <mat-form-field class="journal-filter-department">
+          <mat-label>Bereich</mat-label>
+          <mat-select [formControl]="departmentControl">
+            <mat-option>Alle Bereiche</mat-option>
+            <mat-option value="politische-behoerde">Politische Behörde</mat-option>
+            <mat-option value="chef-fuehrungsorgan">Chef Führungsorgan</mat-option>
+            <mat-option value="stabschef">Stabschef</mat-option>
+            <mat-option value="fb-lage">FB Lage</mat-option>
+            <mat-option value="fb-information">FB Information</mat-option>
+            <mat-option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</mat-option>
+            <mat-option value="fb-schutz-rettung">FB Schutz + Rettung</mat-option>
+            <mat-option value="fb-gesundheit">FB Gesundheit</mat-option>
+            <mat-option value="fb-logistik">FB Logistik</mat-option>
+            <mat-option value="fb-infrastukturen">FB Infrastrukturen</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-      <mat-chip-listbox>
-        <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
-          Schlüsselnachricht
-        </mat-chip-option>
-      </mat-chip-listbox>
-      <mat-button-toggle-group multiple>
-        <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)"> Triage </mat-button-toggle>
-        <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)"> Entscheidung </mat-button-toggle>
-        <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)"> Ausgang </mat-button-toggle>
-      </mat-button-toggle-group>
+      <div class="journal-filter-row">
+        <div class="journal-filter-buttons">
+          <mat-button-toggle-group hideSingleSelectionIndicator multiple>
+            <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+              Triage
+            </mat-button-toggle>
+            <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+              Entscheidung
+            </mat-button-toggle>
+            <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+              Ausgang
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        <mat-chip-listbox>
+          <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
+            Schlüsselnachricht
+          </mat-chip-option>
+        </mat-chip-listbox>
+      </div>
     </div>
     <div class="journal-content">
       <table mat-table matSort [dataSource]="dataSourceFiltered">
@@ -293,7 +317,7 @@
 
         <ng-container matColumnDef="date_created">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('date_created') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.date_created.toLocaleString('de-CH') }}</td>
+          <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
         </ng-container>
 
         <ng-container matColumnDef="creator">
@@ -302,7 +326,12 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row class="journal-table-row" *matRowDef="let row; columns: displayedColumns" (click)="selectEntry(row)"></tr>
+        <tr
+          mat-row
+          class="journal-table-row"
+          *matRowDef="let row; columns: displayedColumns"
+          (click)="selectEntry(row)"
+        ></tr>
       </table>
 
       <div class="fab-button">

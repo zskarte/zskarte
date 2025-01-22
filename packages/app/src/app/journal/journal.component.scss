@@ -14,7 +14,6 @@
   border-right-style: solid;
   position: sticky;
   padding: 10px;
-  margin-bottom: 20px;
 }
 
 .journal-header h1 {
@@ -94,10 +93,28 @@
 .journal-filter {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: start;
   gap: 10px;
+
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 22px;
+    align-items: start;
+    justify-content: center;
+  }
+}
+
+.journal-filter-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
 }
 
 .journal-filter-search,
 .journal-filter-department {
   width: 20em;
+  margin-top: 22px;
 }
