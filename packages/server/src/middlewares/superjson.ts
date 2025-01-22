@@ -19,10 +19,16 @@ const transformDates = (data) => {
 export default (_index, { strapi }: { strapi: Strapi }) => {
   return async (ctx: Context, next) => {
     await next();
-    if (ctx.response.body && typeof ctx.response.body === 'object') {
+    try {
+      if (!ctx.response.body || typeof ctx.response.body !== 'object') {
+        strapi.log.warn('Response body is not an object, skipping superjson serialization');
+        return;
+      }
       let body = transformDates(ctx.response.body);
       body = superjson.serialize(body);
       ctx.response.body = body;
+    } catch (e) {
+      strapi.log.error(e);
     }
   };
 };
