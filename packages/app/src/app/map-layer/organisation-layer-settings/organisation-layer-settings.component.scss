@@ -1,7 +1,25 @@
+.content-container {
+  max-height: 70vh;
+  overflow-y: auto;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
 .sectionTitle {
-  font-size: 1.5em;
+  font-size: 1em;
   font-weight: bold;
   margin-top: 5px;
+}
+
+h2 {
+  margin-bottom: 0.5rem;
+}
+
+.buttonMargin {
+  margin-bottom: 1rem;
 }
 
 mat-form-field {
@@ -12,10 +30,22 @@ mat-form-field {
 .favoriteLayers,
 .selectedLayers,
 .availableLayers {
-  max-height: 300px;
-  overflow: auto;
+  border: solid 1px var(--mdc-outlined-button-outline-color, var(--mat-sys-outline));
+  border-radius: 1rem;
+  max-height: 10rem;
+  overflow-y: auto;
 }
 
 .sourceControl mat-form-field {
   margin-bottom: 5px;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  button {
+    margin: 0;
+  }
 }

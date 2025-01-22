@@ -1,5 +1,5 @@
-import { Component, HostListener, inject } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, Observable, Subject, takeUntil } from 'rxjs';
+import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
+import { BehaviorSubject, firstValueFrom, map, Observable, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
@@ -19,7 +19,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatBadge } from '@angular/material/badge';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { CreditsComponent } from '../credits/credits.component';
 import { SidebarFiltersComponent } from '../sidebar/sidebar-filters/sidebar-filters.component';
 import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
 import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
@@ -30,6 +29,11 @@ import { SelectedFeatureComponent } from '../selected-feature/selected-feature.c
 import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
 import { ZsMapStateSource } from '@zskarte/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MAX_DRAW_ELEMENTS_GUEST } from '../session/default-map-values';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 
 @Component({
   selector: 'app-floating-ui',
@@ -42,7 +46,6 @@ import { ZsMapStateSource } from '@zskarte/types';
     MatDivider,
     MatBadge,
     MatSidenavModule,
-    CreditsComponent,
     SidebarFiltersComponent,
     SidebarComponent,
     SidebarHistoryComponent,
@@ -61,7 +64,9 @@ export class FloatingUIComponent {
   private _sync = inject(SyncService);
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
+  session = inject(SessionService);
   sidebar = inject(SidebarService);
+  snackbar = inject(MatSnackBar);
 
   static ONBOARDING_VERSION = '1.0';
 
@@ -76,11 +81,20 @@ export class FloatingUIComponent {
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;
   public canWorkOffline = new BehaviorSubject<boolean>(false);
-  public workLocal: boolean;
+  public showLogo = true;
+  public sidebarTitle = '';
+  public logo = '';
+  public workLocal = false;
+
+  public isGuest = signal(false);
+  public elementCount$ = this._state.drawElementCount();
+  public limitReached$ = this.elementCount$.pipe(
+    map(count => count >= MAX_DRAW_ELEMENTS_GUEST)
+  );
+  public maxElements = MAX_DRAW_ELEMENTS_GUEST;
 
   constructor() {
     const _state = this._state;
-    const _session = this._session;
 
     if (this.isInitialLaunch()) {
       this._dialog.open(HelpComponent, {
@@ -88,7 +102,46 @@ export class FloatingUIComponent {
       });
     }
 
+    const session = this.session;
+    this.logo = session.getLogo() ?? '';
+    this.workLocal = session.isWorkLocal();
+    this.isGuest.set(session.isGuest());
     this._state.observeIsReadOnly().pipe(takeUntil(this._ngUnsubscribe)).subscribe(this.isReadOnly);
+
+    this.sidebar.observeContext()
+    .pipe(takeUntil(this._ngUnsubscribe))
+    .subscribe(sidebarContext => {
+      switch (sidebarContext) {
+        case SidebarContext.Filters:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('filters');
+          break;
+        case SidebarContext.Layers:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('layers');
+          break;
+        case SidebarContext.History:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('history');
+          break;
+        case SidebarContext.Connections:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('connections');
+          break;
+        case SidebarContext.Print:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('print');
+          break;
+        case SidebarContext.SelectedFeature:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('selectedFeature');
+          break;
+        default:
+          this.showLogo = true;
+          this.sidebarTitle = this.session.getOperationName() ?? ''  
+          break;
+      }
+    });
 
     this._state
       .observeHistory()
@@ -112,7 +165,6 @@ export class FloatingUIComponent {
         this.connectionCount.next(connections.length);
       });
 
-    this.workLocal = _session.isWorkLocal();
     if (this.workLocal) {
       this._state
         .observeDisplayState()
@@ -200,6 +252,12 @@ export class FloatingUIComponent {
     const layer = await firstValueFrom(this._state.observeActiveLayer());
     const ref = this._dialog.open(DrawDialogComponent);
     ref.componentRef?.instance.setLayer(layer);
+  }
+
+  public openLimitDialog(limitReached: boolean | null) {
+    if (limitReached) {
+      this._dialog.open(GuestLimitDialogComponent);
+    }
   }
 
   @HostListener('window:keydown.Control.p', ['$event'])

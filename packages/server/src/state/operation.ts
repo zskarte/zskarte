@@ -6,15 +6,13 @@ import crypto from 'crypto';
 import {
   Operation,
   OperationCache,
-  OperationStates,
+  OperationPhases,
   PatchExtended,
   StrapiLifecycleHook,
   StrapiLifecycleHooks,
   User,
 } from '../definitions';
 import { broadcastConnections, broadcastPatches } from './socketio';
-
-import { zsMapStateMigration } from './operationMigration';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
 const MIN = 1000 * 60;
@@ -23,44 +21,11 @@ enablePatches();
 
 const operationCaches: { [key: number]: OperationCache } = {};
 
-// switzerchees: Remove at the end of the week
-const migrateOperations = async (strapi: Core.Strapi) => {
-  try {
-    const operations = (await strapi.documents('api::operation.operation').findMany({
-      limit: -1,
-    })) as unknown as Operation[];
-    strapi.log.info(`Found ${operations.length} operations to migrate`);
-    const operationCount = operations.length;
-    let currentOperation = 1;
-    for (const operation of operations) {
-      try {
-        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.id}`);
-        if (!operation.mapState) continue;
-        operation.mapState = zsMapStateMigration(operation.mapState as any);
-        // switzerchees: TODO fix -> operation.mapState = zsMapStateMigration(operation.mapState as ZsMapStateAllVersions);
-        await strapi.documents('api::operation.operation').update({
-          documentId: operation.id.toString(),
-
-          data: {
-            mapState: operation.mapState as any,
-          },
-        });
-        strapi.log.info(`Operation ${operation.id} migrated`);
-      } catch (error) {
-        strapi.log.error(error);
-      }
-      currentOperation++;
-    }
-  } catch (error) {
-    strapi.log.error(error);
-  }
-};
-
 /** Loads all active operations initially and generates the in-memory cache */
 const loadOperations = async (strapi: Core.Strapi) => {
   try {
-    const activeOperations = (await strapi.documents('api::operation.operation').findMany({
-      filters: { status: OperationStates.ACTIVE },
+    const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
+      filters: { phase: OperationPhases.ACTIVE },
       populate: ['organization'],
       limit: -1,
     })) as unknown as Operation[];
@@ -88,7 +53,7 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
     operationCaches[operation.id].users.push(...(operation.organization.users || []));
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_UPDATE) {
-    if (operation.status === OperationStates.ARCHIVED) {
+    if (operation.phase === OperationPhases.ARCHIVED) {
       delete operationCaches[operation.id];
       return;
     } else if (!(operation.id in operationCaches)) {
@@ -189,8 +154,8 @@ const persistMapStates = async (strapi: Core.Strapi) => {
 /** Archive operations who are active and are not updated since 7 days */
 const archiveOperations = async (strapi: Core.Strapi) => {
   try {
-    const activeOperations = (await strapi.documents('api::operation.operation').findMany({
-      filters: { status: OperationStates.ACTIVE },
+    const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
+      filters: { phase: OperationPhases.ACTIVE },
       limit: -1,
     })) as unknown as Operation[];
     for (const operation of activeOperations) {
@@ -198,7 +163,7 @@ const archiveOperations = async (strapi: Core.Strapi) => {
       await strapi.documents('api::operation.operation').update({
         documentId: operation.id.toString(),
         data: {
-          status: OperationStates.ARCHIVED,
+          phase: OperationPhases.ARCHIVED,
         },
       });
     }
@@ -237,7 +202,7 @@ const deleteGuestOperations = async (strapi: Core.Strapi) => {
 const createMapStateSnapshots = async (strapi: Core.Strapi) => {
   try {
     const activeOperations = (await strapi.documents('api::operation.operation').findMany({
-      filters: { status: OperationStates.ACTIVE },
+      filters: { phase: OperationPhases.ACTIVE },
       limit: -1,
     })) as unknown as Operation[];
 
@@ -264,7 +229,6 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
 };
 
 export {
-  migrateOperations,
   operationCaches,
   loadOperations,
   lifecycleOperation,

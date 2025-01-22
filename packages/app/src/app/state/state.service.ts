@@ -51,6 +51,7 @@ import {
   DEFAULT_ZOOM,
   INCHES_PER_METER,
   LOG2_ZOOM_0_RESOLUTION,
+  MAX_DRAW_ELEMENTS_GUEST,
 } from '../session/default-map-values';
 import { OperationService } from '../session/operations/operation.service';
 import { SessionService } from '../session/session.service';
@@ -87,6 +88,7 @@ export class ZsMapStateService {
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<ZsMapElementToDraw | undefined>(undefined);
   private _selectedFeature = new BehaviorSubject<string | undefined>(undefined);
+  private _hideSelectedFeature = new BehaviorSubject<boolean>(false);
   private _recentlyUsedElement = new BehaviorSubject<ZsMapDrawElementState[]>([]);
 
   private _mergeMode = new BehaviorSubject<boolean>(false);
@@ -441,6 +443,10 @@ export class ZsMapStateService {
     this._selectedFeature.next(undefined);
   }
 
+  public setHideSelectedFeature(hide: boolean) {
+    this._hideSelectedFeature.next(hide);
+  }
+
   public setMapZoom(zoom: number) {
     this.updateDisplayState((draft) => {
       draft.mapZoom = zoom;
@@ -659,6 +665,10 @@ export class ZsMapStateService {
 
   public observeSelectedFeature$(): Observable<string | undefined> {
     return this._selectedFeature.asObservable();
+  }
+
+  public observeHideSelectedFeature$(): Observable<boolean> {
+    return this._hideSelectedFeature.asObservable().pipe(debounceTime(100));
   }
 
   public observeSelectedElement$(): Observable<ZsMapBaseDrawElement | undefined> {
@@ -1195,5 +1205,17 @@ export class ZsMapStateService {
 
   public getSearchConfigs(): IZsMapSearchConfig[] {
     return this._searchConfigs.value;
+  }
+
+  public canAddElements(): boolean {
+    const elementCount = Object.keys(this._drawElementCache).length;
+
+    return !this._session.isGuest() || elementCount < MAX_DRAW_ELEMENTS_GUEST;
+  }
+
+  public drawElementCount(): Observable<number> {
+    return this.observeDrawElements().pipe(
+      map(res => res.length)
+    );
   }
 }

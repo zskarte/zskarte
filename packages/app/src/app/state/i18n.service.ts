@@ -199,6 +199,16 @@ export class I18NService {
       en: 'Unarchive event',
       fr: 'Désarchiver événement',
     },
+    deleteOperation: {
+      de: 'Ereignis löschen',
+      en: 'Delete event',
+      fr: 'Supprimer événement',
+    },
+    deleteOperationConfirm: {
+      de: 'Möchten Sie dieses Ereignis wirklich unwiderruflich löschen?',
+      fr: 'Voulez-vous vraiment supprimer définitivement cet événement ?',
+      en: 'Do you really want to permanently delete this event?',
+    },
     lastModified: {
       de: 'Zuletzt geändert:',
       en: 'Last modified:',
@@ -425,9 +435,9 @@ export class I18NService {
       en: 'Color',
     },
     colorPickerMode: {
-      de: 'Farbauswahlmodus',
-      fr: 'Mode sélecteur de couleurs',
-      en: 'Color picker mode',
+      de: 'Weitere Farben',
+      fr: 'Plus de couleurs',
+      en: 'More colors',
     },
     drawHole: {
       de: 'Loch zeichnen',
@@ -1034,6 +1044,11 @@ export class I18NService {
       en: 'Connections',
       fr: 'Connexions',
     },
+    selectedFeature: {
+      de: 'Ausgewähltes Feature',
+      en: 'Selected Feature',
+      fr: 'Fonctionnalité sélectionnée',
+    },    
     generalFilters: {
       de: 'Globale Filter',
       en: 'Global filters',
@@ -1825,6 +1840,11 @@ export class I18NService {
       en: 'Pre-selected WMS sources',
       fr: 'Sources WMS présélectionnées',
     },
+    noWmsSourcesAvailable: {
+      de: 'Keine WMS-Quellen verfügbar',
+      en: 'No WMS sources available',
+      fr: 'Aucune source WMS disponible',
+    },
     favoriteLayersSettings: {
       de: 'Ebenen favoriten',
       en: 'Favorite layers',
@@ -1834,6 +1854,11 @@ export class I18NService {
       de: 'Von aktiven hinzufügen',
       en: 'Add from active',
       fr: 'Ajouter depuis actif',
+    },
+    noActiveLayers: {
+      de: 'Keine aktiven Ebenen verfügbar',
+      en: 'No active layers available',
+      fr: 'Aucune couche active disponible',
     },
     addFromList: {
       de: 'Aus Liste hinzufügen',
@@ -1974,7 +1999,27 @@ export class I18NService {
       de: 'Keine auswirkungen auf Personen gefunden',
       en: 'No impacts on persons found',
       fr: 'Aucun effet sur les personnes'
-    }
+    },
+    coordinates: {
+      de: 'Koordinaten',
+      en: 'Coordinates',
+      fr: 'Coordonnées',
+    },
+    guestLimitReachedShort: {
+      de: 'Gastmodus Limit erreicht',
+      en: 'Guest limit reached',
+      fr: 'Limite d\'invités atteinte',
+    },
+    guestLimitReached: {
+      de: 'Die maximale Anzahl von Elementen für den Gastzugang ist erreicht. Wenn Sie Interesse an einem dauerhaften Zugang zur ZSKarte haben, wenden Sie sich bitte an info@zskarte.ch.',
+      en: 'The maximum number of elements for guest access has been reached. If yo\'re interested in having permanent access to the ZSKarte, please contact info@zskarte.ch.',
+      fr: 'Le nombre maximum d\'éléments pour l\'accès invité a été atteint. Si vous êtes intéressé par un accès permanent à la ZSKarte, veuillez contacter info@zskarte.ch.'
+    },
+    guestLimitElements: {
+      de: 'Elemente auf der Karte im Gastmodus',
+      en: 'Elements on the map in guest mode',
+      fr: 'Éléments de la carte en mode invité'
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

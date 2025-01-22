@@ -3,7 +3,7 @@
  */
 
 import { factories } from '@strapi/strapi';
-import { Operation, PatchExtended, OperationStates } from '../../../definitions';
+import { Operation, PatchExtended, OperationPhases } from '../../../definitions';
 import { operationCaches, updateCurrentLocation, updateMapState } from '../../../state/operation';
 import _ from 'lodash';
 
@@ -50,7 +50,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return { success: true };
   },
   async overview(ctx) {
-    ctx.query.fields = ['name', 'description', 'status', 'eventStates', 'updatedAt'];
+    ctx.query.fields = ['name', 'description', 'phase', 'eventStates', 'updatedAt'];
     ctx.query.sort = 'updatedAt:DESC';
     if (ctx.query.pagination) {
       (ctx.query.pagination as any).limit = -1; //TODO: Remove ANY
@@ -65,7 +65,17 @@ export default factories.createCoreController('api::operation.operation', ({ str
       documentId: id,
 
       data: {
-        status: OperationStates.ARCHIVED,
+        phase: OperationPhases.ARCHIVED,
+      },
+    });
+    ctx.status = 200;
+    return { success: true };
+  },
+  async shadowDelete(ctx) {
+    const { id } = ctx.params;
+    await strapi.entityService.update('api::operation.operation', id, {
+      data: {
+        phase: OperationPhases.DELETED,
       },
     });
     ctx.status = 200;
@@ -77,7 +87,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
       documentId: id,
 
       data: {
-        status: OperationStates.ACTIVE,
+        phase: OperationPhases.ACTIVE,
       },
     });
     ctx.status = 200;

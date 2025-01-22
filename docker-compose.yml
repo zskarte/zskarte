@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./data/postgresql:/bitnami/postgresql
+      - ./packages/server/init:/docker-entrypoint-initdb.d
     ports:
       - 55432:5432
     environment:
@@ -19,6 +20,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./data/pgadmin:/var/lib/pgadmin
+      - ./packages/server/init/servers.json:/pgadmin4/servers.json
     ports:
       - 7050:80
     environment:

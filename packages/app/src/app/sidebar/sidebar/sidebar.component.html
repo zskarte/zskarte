@@ -1,11 +1,4 @@
-@if (mapState.isExpertView()) {
-  <button
-    mat-raised-button
-    class="organisationSettings"
-    (click)="editLayerSettings()"
-    [innerText]="i18n.get('organisationSettings')"
-  ></button>
-}
+
 <mat-accordion multi displayMode="flat">
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
@@ -16,16 +9,19 @@
     <ng-template matExpansionPanelContent>
       @if (mapState.getActiveLayer(); as layer) {
         <div class="selectedLayer">
-          <div class="titleRow">
-            <div class="title">{{ layer.observeName() | async }}</div>
-          </div>
+          
           <div>
-            <mat-slider [max]="1" [min]="0" [step]="0.1" class="layer-slider">
-              <input matSliderThumb [ngModel]="mapState.observeMapOpacity() | async" (ngModelChange)="mapState.setMapOpacity($event)" />
-            </mat-slider>
+            <div class="titleRow">
+              <div class="title">{{ layer.observeName() | async }}</div>
+            </div>
+            <div>
+              <mat-slider [max]="1" [min]="0" [step]="0.1" class="layer-slider">
+                <input matSliderThumb [ngModel]="mapState.observeMapOpacity() | async" (ngModelChange)="mapState.setMapOpacity($event)" />
+              </mat-slider>
+            </div>
           </div>
           @for (mapSource of mapSources; track mapSource; let index = $index) {
-            <mat-action-list>
+            <div>
               <mat-radio-group>
                 <mat-radio-button [value]="mapSource.key" (click)="switchMapSource(mapSource.key)" [checked]="mapSource.selected">
                   {{ mapSource.translation }}
@@ -61,10 +57,10 @@
                       </button>
                     }
                     @default {
-                      <button mat-flat-button color="primary" class="button-download" (click)="downloadMap(mapSource.key)">
+                      <button mat-stroked-button class="button-download" (click)="downloadMap(mapSource.key)">
                         <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
                       </button>
-                      <button mat-flat-button color="primary" class="button-upload" (click)="mapUpload.click()">
+                      <button mat-stroked-button class="button-upload" (click)="mapUpload.click()">
                         <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
                       </button>
                       <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadMap($event, mapSource.key)" #mapUpload />
@@ -72,7 +68,7 @@
                   }
                 </div>
               }
-            </mat-action-list>
+            </div>
           }
         </div>
       }
@@ -96,85 +92,80 @@
             let last = $last
           ) {
             <div title="{{ item.label }}" class="selectedLayer">
-              <div class="titleRow">
-                <div class="title">{{ item.label }}</div>
-                @if (workLocal) {
-                  <div (click)="showLocalInfo(item, index)">
-                    @if (item.type === 'geojson' || item.type === 'csv') {
-                      @if (item.offlineAvailable) {
-                        <i class="material-icons">cloud_done</i>
-                      }
-                      @if (!item.offlineAvailable) {
-                        <i class="material-icons">cloud</i>
-                      }
-                    } @else {
-                      <i class="material-icons">cloud_off</i>
-                    }
-                  </div>
-                }
-                @if (item.type !== 'geojson' && item.type !== 'csv') {
-                  <i (click)="showLegend(item)" class="material-icons">info</i>
-                }
-                @if (mapState.isExpertView() && item.source && (item.type === 'wms' || item.type === 'wms_custom')) {
-                  <i (click)="showWmsLayerOptions(item, index)" class="material-icons">settings</i>
-                }
-                @if (mapState.isExpertView() && item.source && (item.type === 'geojson' || item.type === 'csv')) {
-                  <i (click)="showGeoJSONLayerOptions(item, index)" class="material-icons">settings</i>
-                }
-                @if (!item.hidden) {
-                  <i (click)="mapState.toggleMapLayer(item, index)" class="material-icons">visibility_off</i>
-                } @else {
-                  <i (click)="mapState.toggleMapLayer(item, index)" class="material-icons">visibility_on</i>
-                }
-                <i (click)="mapState.removeMapLayer(index)" class="material-icons">remove_circle_outline</i>
-                @if (!first) {
-                  <i (click)="mapState.sortMapLayerUp(index)" class="material-icons">arrow_upward</i>
-                }
-                @if (!last) {
-                  <i (click)="mapState.sortMapLayerDown(index)" class="material-icons">arrow_downward</i>
-                }
-              </div>
               <div>
-                <mat-slider [max]="1" [min]="0" [step]="0.1" [disabled]="item.hidden">
-                  <input matSliderThumb [ngModel]="item.opacity" (ngModelChange)="mapState.setMapLayerOpacity(index, $event)" />
-                </mat-slider>
+                <div class="titleRow">
+                  <div class="title">{{ item.label }}</div>
+                  @if (workLocal) {
+                    <div (click)="showLocalInfo(item, index)">
+                      @if (item.type === 'geojson' || item.type === 'csv') {
+                        @if (item.offlineAvailable) {
+                          <i class="material-icons">cloud_done</i>
+                        }
+                        @if (!item.offlineAvailable) {
+                          <i class="material-icons">cloud</i>
+                        }
+                      } @else {
+                        <i class="material-icons">cloud_off</i>
+                      }
+                    </div>
+                  }
+                  @if (item.type !== 'geojson' && item.type !== 'csv') {
+                    <i (click)="showLegend(item)" class="material-icons">info</i>
+                  }
+                  @if (mapState.isExpertView() && item.source && (item.type === 'wms' || item.type === 'wms_custom')) {
+                    <i (click)="showWmsLayerOptions(item, index)" class="material-icons">settings</i>
+                  }
+                  @if (mapState.isExpertView() && item.source && (item.type === 'geojson' || item.type === 'csv')) {
+                    <i (click)="showGeoJSONLayerOptions(item, index)" class="material-icons">settings</i>
+                  }
+                  @if (!item.hidden) {
+                    <i (click)="mapState.toggleMapLayer(item, index)" class="material-icons">visibility_off</i>
+                  } @else {
+                    <i (click)="mapState.toggleMapLayer(item, index)" class="material-icons">visibility_on</i>
+                  }
+                  <i (click)="mapState.removeMapLayer(index)" class="material-icons">remove_circle_outline</i>
+                  @if (!first) {
+                    <i (click)="mapState.sortMapLayerUp(index)" class="material-icons">arrow_upward</i>
+                  }
+                  @if (!last) {
+                    <i (click)="mapState.sortMapLayerDown(index)" class="material-icons">arrow_downward</i>
+                  }
+                </div>
+                <div>
+                  <mat-slider [max]="1" [min]="0" [step]="0.1" [disabled]="item.hidden">
+                    <input matSliderThumb [ngModel]="item.opacity" (ngModelChange)="mapState.setMapLayerOpacity(index, $event)" />
+                  </mat-slider>
+                </div>
               </div>
-              @if (!last) {
-                <mat-divider></mat-divider>
-              }
+              
             </div>
           }
           <ng-template #newLayerTypeTemplate>
             <div mat-dialog-title>{{ i18n.get('newLayerType') }}</div>
             <div mat-dialog-content>
-              <fieldset class="like-mat-form-field-outline">
-                <legend>{{ i18n.get('mapLayerType') }}</legend>
-                <mat-radio-group [(ngModel)]="newLayerType">
+                <mat-radio-group [(ngModel)]="newLayerType" class="newLayerType">
                   <mat-radio-button value="wms_custom">WMS (custom)</mat-radio-button>
                   <mat-radio-button value="geojson">GeoJSON</mat-radio-button>
                   <mat-radio-button value="csv">CSV</mat-radio-button>
                 </mat-radio-group>
-              </fieldset>
             </div>
             <div mat-dialog-actions align="end">
-              <button mat-raised-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
-              <button mat-raised-button color="primary" [mat-dialog-close]="newLayerType" [innerText]="i18n.get('ok')"></button>
+              <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
+              <button mat-flat-button color="primary" [mat-dialog-close]="newLayerType" [innerText]="i18n.get('ok')"></button>
             </div>
           </ng-template>
           @if (mapState.isExpertView()) {
             <button
-              mat-raised-button
+              mat-stroked-button
               class="expertButton"
-              color="primary"
               (click)="addNewLayer()"
               [innerText]="i18n.get('addNewLayer')"
             ></button>
           }
           @if (mapState.isExpertView()) {
             <button
-              mat-raised-button
+              mat-stroked-button
               class="expertButton"
-              color="primary"
               (click)="persistLayers()"
               [innerText]="i18n.get('persistLayers')"
             ></button>
@@ -273,3 +264,14 @@
     </ng-template>
   </mat-expansion-panel>
 </mat-accordion>
+<mat-divider></mat-divider>
+@if (mapState.isExpertView()) {
+  <div class="buttonContent">
+    <button
+      mat-stroked-button
+      class="organisationSettings"
+      (click)="editLayerSettings()"
+      [innerText]="i18n.get('organisationSettings')"
+    ></button>
+  </div>
+}

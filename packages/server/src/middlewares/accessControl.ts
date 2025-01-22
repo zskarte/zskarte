@@ -3,7 +3,7 @@
  */
 
 import { Core, UID } from '@strapi/strapi';
-import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationStates } from '../definitions';
+import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationPhases } from '../definitions';
 import type { HasOperationType, HasOrganizationType, AccessCheckableType } from '../definitions/TypeGuards';
 import {
   isOperation,
@@ -88,20 +88,20 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
     return next();
   };
 
-  const addStatusFilter = (statusFilter, filterContext) => {
-    if (statusFilter === 'all') {
+  const addphaseFilter = (phaseFilter, filterContext) => {
+    if (phaseFilter === 'all') {
       //no filter needed
-    } else if (statusFilter === OperationStates.ARCHIVED) {
-      filterContext.status = { $eq: OperationStates.ARCHIVED };
+    } else if (phaseFilter === OperationPhases.ARCHIVED) {
+      filterContext.phase = { $eq: OperationPhases.ARCHIVED };
     } else {
       //active or not set
-      filterContext.status = { $eq: OperationStates.ACTIVE };
+      filterContext.phase = { $eq: OperationPhases.ACTIVE };
     }
   };
 
   const doListChecks = (ctx, next, userOrganisationId, jwtOperationId) => {
     //add filter to make sure only elements that are allowed are returned.
-    const statusFilter = ctx.query?.status;
+    const phaseFilter = ctx.query?.phase;
     const operationIdFilter = ctx.query?.operationId;
     if (hasOperation(config.type)) {
       if (jwtOperationId) {
@@ -122,7 +122,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
           ctx.query.filters.operation.id = { $eq: operationIdFilter };
         }
       }
-      addStatusFilter(statusFilter, ctx.query.filters.operation);
+      addphaseFilter(phaseFilter, ctx.query.filters.operation);
       return next();
     } else if (hasOrganization(config.type)) {
       if (isOperation(config.type)) {
@@ -134,7 +134,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
             ctx.query.filters.id = { $eq: operationIdFilter };
           }
         }
-        addStatusFilter(statusFilter, ctx.query.filters);
+        addphaseFilter(phaseFilter, ctx.query.filters);
       } else {
         if (jwtOperationId) {
           return ctx.unauthorized('This action is unauthorized, unknown context.');
@@ -231,7 +231,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
           //TODO: Remove ANY
           documentId: entryId,
           fields: ['id'],
-          populate: { operation: { fields: ['id', 'status'], populate: { organization: { fields: ['id'] } } } },
+          populate: { operation: { fields: ['id', 'phase'], populate: { organization: { fields: ['id'] } } } },
         })) as { id: number; operation: Operation };
         return entry;
       }
@@ -249,12 +249,11 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
         })) as unknown as { id: number; public: boolean; organization: Organization };
         return entry;
       } else if (isOperation(contentType)) {
-        const entry = (await strapi.documents(contentType as any).findOne({
-          //TODO: Remove ANY
-          documentId: entryId,
-          fields: ['id', 'status'],
-          populate: { organization: { fields: ['id'] } },
-        })) as { id: number; status: string; organization: Organization };
+        const entry = (await strapi.documents(contentType).findOne({
+          documentId: entryId.toString(),
+          fields: ['id', 'phase'],
+          populate: { organization: { fields: ['id'] } as any },
+        })) as { id: number; phase: string; organization: Organization };
         return entry;
       } else {
         const entry = (await strapi.documents(contentType as any).findOne({
@@ -318,8 +317,8 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
     //prevent update archived operations
     if (
       isOperation(config.type) &&
-      operation?.status !== OperationStates.ACTIVE &&
-      !handler.endsWith('.unarchive') &&
+      operation?.phase !== OperationPhases.ACTIVE &&
+      !(handler.endsWith('.unarchive') || handler.endsWith('.shadowDelete')) &&
       !handler.endsWith('.findOne')
     ) {
       return ctx.forbidden('The operation is archived, no update allowed.');

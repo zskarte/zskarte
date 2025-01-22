@@ -4,16 +4,19 @@
     "./packages/*"
   ],
   "scripts": {
-    "start": "run-s start:*",
+    "start": "npm run docker-run && run-p start:*",
     "start:app": "cd packages/app && npm start",
-    "start:server": "cd packages/server && npm start",
+    "start:server": "cd packages/server && npm run build && npm start",
+    "start:server:prod": "cd packages/server && npm start",
+    "docker-run": "tsx scripts/run-docker.ts",
+    "docker-stop": "docker-compose down",
     "lint": "run-p lint:*",
     "lint:app": "biome lint ./packages/app/src",
     "lint:server": "biome lint ./packages/server/src",
     "lint:types": "biome lint ./packages/types",
     "lint:common": "biome lint ./packages/common",
     "format": "run-p format:*",
-    "format:app-prettier": "prettier --write \"./packages/app/src/**/*.{js,ts,html,scss,json,md}\" --log-level silent",
+    "format:app-prettier": "prettier --write \"./packages/app/src/**/*.{html,scss,md}\" --log-level silent",
     "format:app-biome": "npm run lint:app -- --fix",
     "format:server": "npm run lint:server -- --fix",
     "format:types": "npm run lint:types -- --fix",
@@ -33,7 +36,9 @@
   },
   "dependencies": {
     "fix-esm": "^1.0.1",
+    "inquirer": "^12.3.2",
     "ol": "^10.3.1",
-    "superjson": "^2.2.2"
+    "superjson": "^2.2.2",
+    "wait-on": "^8.0.2"
   }
 }

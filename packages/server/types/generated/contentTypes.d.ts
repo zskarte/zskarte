@@ -44,13 +44,12 @@ export interface AdminApiToken extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         minLength: 1;
       }>;
-    permissions: Schema.Attribute.Relation<'oneToMany', 'admin::api-token-permission'>;
-    publishedAt: Schema.Attribute.DateTime;
-    type: Schema.Attribute.Enumeration<['read-only', 'full-access', 'custom']> &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'read-only'>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    permissions: Attribute.Relation<'admin::api-token', 'oneToMany', 'admin::api-token-permission'>;
+    type: Attribute.Enumeration<['read-only', 'full-access', 'custom']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'read-only'>;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'admin::api-token', 'oneToOne', 'admin::user'> & Attribute.Private;
   };
 }
 
@@ -261,7 +260,8 @@ export interface AdminTransferTokenPermission extends Struct.CollectionTypeSchem
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'admin::transfer-token-permission'> & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'admin::transfer-token-permission'> &
+      Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     token: Schema.Attribute.Relation<'manyToOne', 'admin::transfer-token'>;
     updatedAt: Schema.Attribute.DateTime;
@@ -339,7 +339,10 @@ export interface ApiAccessAccess extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    accessToken: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Private & Schema.Attribute.Unique;
+    accessToken: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Private &
+      Schema.Attribute.Unique;
     active: Schema.Attribute.Boolean & Schema.Attribute.Required & Schema.Attribute.DefaultTo<true>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
@@ -349,7 +352,9 @@ export interface ApiAccessAccess extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String;
     operation: Schema.Attribute.Relation<'oneToOne', 'api::operation.operation'>;
     publishedAt: Schema.Attribute.DateTime;
-    type: Schema.Attribute.Enumeration<['read', 'write', 'all']> & Schema.Attribute.Required & Schema.Attribute.DefaultTo<'read'>;
+    type: Schema.Attribute.Enumeration<['read', 'write', 'all']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'read'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
   };
@@ -367,36 +372,34 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     draftAndPublish: true;
   };
   attributes: {
-    communication_details: Schema.Attribute.String;
-    communication_type: Schema.Attribute.String;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    creator: Schema.Attribute.String;
-    date_created: Schema.Attribute.DateTime;
-    date_visum_decision_deliverer: Schema.Attribute.DateTime;
-    date_visum_decision_receiver: Schema.Attribute.DateTime;
-    date_visum_message: Schema.Attribute.DateTime;
-    date_visum_triage: Schema.Attribute.DateTime;
-    decision: Schema.Attribute.Text;
-    department: Schema.Attribute.String;
-    is_key_message: Schema.Attribute.Boolean;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::journal-entry.journal-entry'> & Schema.Attribute.Private;
-    message_content: Schema.Attribute.Text;
-    message_number: Schema.Attribute.Integer;
-    message_subject: Schema.Attribute.String;
-    operation: Schema.Attribute.Relation<'oneToOne', 'api::operation.operation'>;
-    organization: Schema.Attribute.Relation<'oneToOne', 'api::organization.organization'>;
-    publishedAt: Schema.Attribute.DateTime;
-    related_symbols: Schema.Attribute.JSON;
-    sender: Schema.Attribute.String;
-    status: Schema.Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    visum_decision_deliverer: Schema.Attribute.String;
-    visum_decision_receiver: Schema.Attribute.String;
-    visum_message: Schema.Attribute.String;
-    visum_triage: Schema.Attribute.String;
+    communication_details: Attribute.String;
+    communication_type: Attribute.String;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
+    creator: Attribute.String;
+    date_created: Attribute.DateTime;
+    date_visum_decision_deliverer: Attribute.DateTime;
+    date_visum_decision_receiver: Attribute.DateTime;
+    date_visum_message: Attribute.DateTime;
+    date_visum_triage: Attribute.DateTime;
+    decision: Attribute.Text;
+    department: Attribute.String;
+    entryStatus: Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
+    is_key_message: Attribute.Boolean;
+    message_content: Attribute.Text;
+    message_number: Attribute.Integer;
+    message_subject: Attribute.String;
+    operation: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::operation.operation'>;
+    organization: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::organization.organization'>;
+    publishedAt: Attribute.DateTime;
+    related_symbols: Attribute.JSON;
+    sender: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
+    visum_decision_deliverer: Attribute.String;
+    visum_decision_receiver: Attribute.String;
+    visum_message: Attribute.String;
+    visum_triage: Attribute.String;
   };
 }
 
@@ -466,21 +469,21 @@ export interface ApiOperationOperation extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    description: Schema.Attribute.RichText;
-    eventStates: Schema.Attribute.JSON;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::operation.operation'> & Schema.Attribute.Private;
-    mapLayers: Schema.Attribute.JSON;
-    mapSnapshots: Schema.Attribute.Relation<'oneToMany', 'api::map-snapshot.map-snapshot'>;
-    mapState: Schema.Attribute.JSON;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
-    organization: Schema.Attribute.Relation<'manyToOne', 'api::organization.organization'>;
-    publishedAt: Schema.Attribute.DateTime;
-    status: Schema.Attribute.Enumeration<['active', 'archived']> & Schema.Attribute.Required & Schema.Attribute.DefaultTo<'active'>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::operation.operation', 'oneToOne', 'admin::user'> & Attribute.Private;
+    description: Attribute.RichText;
+    eventStates: Attribute.JSON;
+    mapLayers: Attribute.JSON;
+    mapSnapshots: Attribute.Relation<'api::operation.operation', 'oneToMany', 'api::map-snapshot.map-snapshot'>;
+    mapState: Attribute.JSON;
+    name: Attribute.String & Attribute.Required;
+    organization: Attribute.Relation<'api::operation.operation', 'manyToOne', 'api::organization.organization'>;
+    phase: Attribute.Enumeration<['active', 'archived', 'deleted']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'active'>;
+    status: Attribute.Enumeration<['active', 'archived', 'deleted']> & Attribute.DefaultTo<'active'>;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'api::operation.operation', 'oneToOne', 'admin::user'> & Attribute.Private;
   };
 }
 
@@ -498,7 +501,8 @@ export interface ApiOrganizationOrganization extends Struct.CollectionTypeSchema
   attributes: {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    defaultLocale: Schema.Attribute.Enumeration<['de-CH', 'fr-CH', 'it-CH', 'en-US']> & Schema.Attribute.DefaultTo<'de-CH'>;
+    defaultLocale: Schema.Attribute.Enumeration<['de-CH', 'fr-CH', 'it-CH', 'en-US']> &
+      Schema.Attribute.DefaultTo<'de-CH'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::organization.organization'> & Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;
@@ -565,19 +569,20 @@ export interface PluginContentReleasesRelease extends Struct.CollectionTypeSchem
     };
   };
   attributes: {
-    actions: Schema.Attribute.Relation<'oneToMany', 'plugin::content-releases.release-action'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::content-releases.release'> & Schema.Attribute.Private;
-    name: Schema.Attribute.String & Schema.Attribute.Required;
-    publishedAt: Schema.Attribute.DateTime;
-    releasedAt: Schema.Attribute.DateTime;
-    scheduledAt: Schema.Attribute.DateTime;
-    status: Schema.Attribute.Enumeration<['ready', 'blocked', 'failed', 'done', 'empty']> & Schema.Attribute.Required;
-    timezone: Schema.Attribute.String;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    actions: Attribute.Relation<
+      'plugin::content-releases.release',
+      'oneToMany',
+      'plugin::content-releases.release-action'
+    >;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'plugin::content-releases.release', 'oneToOne', 'admin::user'> & Attribute.Private;
+    name: Attribute.String & Attribute.Required;
+    releasedAt: Attribute.DateTime;
+    scheduledAt: Attribute.DateTime;
+    status: Attribute.Enumeration<['ready', 'blocked', 'failed', 'done', 'empty']> & Attribute.Required;
+    timezone: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'plugin::content-releases.release', 'oneToOne', 'admin::user'> & Attribute.Private;
   };
 }
 
@@ -600,18 +605,22 @@ export interface PluginContentReleasesReleaseAction extends Struct.CollectionTyp
     };
   };
   attributes: {
-    contentType: Schema.Attribute.String & Schema.Attribute.Required;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    entryDocumentId: Schema.Attribute.String;
-    isEntryValid: Schema.Attribute.Boolean;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::content-releases.release-action'> & Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    release: Schema.Attribute.Relation<'manyToOne', 'plugin::content-releases.release'>;
-    type: Schema.Attribute.Enumeration<['publish', 'unpublish']> & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    contentType: Attribute.String & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'plugin::content-releases.release-action', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    entry: Attribute.Relation<'plugin::content-releases.release-action', 'morphToOne'>;
+    isEntryValid: Attribute.Boolean;
+    locale: Attribute.String;
+    release: Attribute.Relation<
+      'plugin::content-releases.release-action',
+      'manyToOne',
+      'plugin::content-releases.release'
+    >;
+    type: Attribute.Enumeration<['publish', 'unpublish']> & Attribute.Required;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'plugin::content-releases.release-action', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
   };
 }
 
@@ -680,7 +689,8 @@ export interface PluginReviewWorkflowsWorkflow extends Struct.CollectionTypeSche
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::review-workflows.workflow'> & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::review-workflows.workflow'> &
+      Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     stageRequiredToPublish: Schema.Attribute.Relation<'oneToOne', 'plugin::review-workflows.workflow-stage'>;
@@ -716,7 +726,8 @@ export interface PluginReviewWorkflowsWorkflowStage extends Struct.CollectionTyp
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::review-workflows.workflow-stage'> & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::review-workflows.workflow-stage'> &
+      Schema.Attribute.Private;
     name: Schema.Attribute.String;
     permissions: Schema.Attribute.Relation<'manyToMany', 'admin::permission'>;
     publishedAt: Schema.Attribute.DateTime;
@@ -842,15 +853,14 @@ export interface PluginUsersPermissionsPermission extends Struct.CollectionTypeS
     };
   };
   attributes: {
-    action: Schema.Attribute.String & Schema.Attribute.Required;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::users-permissions.permission'> & Schema.Attribute.Private;
-    publishedAt: Schema.Attribute.DateTime;
-    role: Schema.Attribute.Relation<'manyToOne', 'plugin::users-permissions.role'>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    action: Attribute.String & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'plugin::users-permissions.permission', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    role: Attribute.Relation<'plugin::users-permissions.permission', 'manyToOne', 'plugin::users-permissions.role'>;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'plugin::users-permissions.permission', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
   };
 }
 
@@ -885,12 +895,15 @@ export interface PluginUsersPermissionsRole extends Struct.CollectionTypeSchema 
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
-    permissions: Schema.Attribute.Relation<'oneToMany', 'plugin::users-permissions.permission'>;
-    publishedAt: Schema.Attribute.DateTime;
-    type: Schema.Attribute.String & Schema.Attribute.Unique;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    users: Schema.Attribute.Relation<'oneToMany', 'plugin::users-permissions.user'>;
+    permissions: Attribute.Relation<
+      'plugin::users-permissions.role',
+      'oneToMany',
+      'plugin::users-permissions.permission'
+    >;
+    type: Attribute.String & Attribute.Unique;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<'plugin::users-permissions.role', 'oneToOne', 'admin::user'> & Attribute.Private;
+    users: Attribute.Relation<'plugin::users-permissions.role', 'oneToMany', 'plugin::users-permissions.user'>;
   };
 }
 

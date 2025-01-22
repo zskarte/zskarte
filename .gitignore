@@ -70,6 +70,7 @@ $RECYCLE.BIN/
 *.sql
 *.sqlite
 *.sqlite3
+!packages/server/init/init.sql
 
 
 ############################
@@ -80,8 +81,8 @@ $RECYCLE.BIN/
 ssl
 .idea
 nbproject
-public/uploads/*
-!public/uploads/.gitkeep
+packages/server/public/uploads/*
+!packages/server/public/uploads/.gitkeep
 
 ############################
 # Node.js
@@ -107,6 +108,7 @@ coverage
 ############################
 
 **/.strapi
+.strapi-updater.json
 **/.angular
 **/dist/
 

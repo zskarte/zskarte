@@ -1,8 +1,16 @@
 <mat-sidenav-container>
   <mat-sidenav class="mat-elevation-z3 noprint" position="end" mode="side" #sidenav [opened]="sidebar.observeIsOpen() | async">
     <div class="sidebar-header">
-      <app-credits />
-      <button mat-icon-button (click)="sidebar.close()" color="accent" [attr.aria-label]="i18n.get('close')">
+      <div class="credits">
+        @if (showLogo && logo) {
+          <img [src]="logo" />
+        }
+        @if (workLocal) {
+          <mat-icon>cloud_off</mat-icon>
+        }
+        <h1>{{sidebarTitle}}</h1>
+      </div>
+      <button mat-icon-button (click)="sidebar.close()" [attr.aria-label]="i18n.get('close')">
         <mat-icon>close</mat-icon>
       </button>
     </div>
@@ -33,9 +41,18 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <div class="main noprint">
-      <div class="horizontal-stack">
-        <app-geocoder [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
-        <span></span>
+      <div class="search" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
+        <app-geocoder />
+        @if (this.isGuest()) {
+          @let limitReached = limitReached$ | async;
+          <button class="limit" [attr.data-limit-reached]="limitReached" (click)="openLimitDialog(limitReached)">
+            @if (limitReached) {
+              <span>{{i18n.get('guestLimitReachedShort')}}</span>
+            } @else {
+              {{ elementCount$ | async }} / {{ maxElements }} <span>{{i18n.get('guestLimitElements')}}</span>
+            }
+          </button>
+        }
       </div>
       <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
     </div>
@@ -149,7 +166,7 @@
       </div>
       <div class="fab-button">
         @if (!(isReadOnly | async)) {
-          <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()">
+          <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()" [disabled]="limitReached$ | async">
             <mat-icon>add</mat-icon>
           </button>
         }
