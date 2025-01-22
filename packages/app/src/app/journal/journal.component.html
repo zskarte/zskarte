@@ -6,7 +6,7 @@
     mode="side"
     [opened]="selectedJournalEntry !== null"
   >
-    <form [formGroup]="journalForm" (ngSubmit)="save()">
+    <form [formGroup]="journalForm" (ngSubmit)="save($event)">
       <div class="sidebar-header">
         <h1>
           {{ selectedJournalEntry.message_number !== undefined ? selectedJournalEntry.message_number.toString().padStart(3, '0') : '' }} |
@@ -17,19 +17,19 @@
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <mat-tab-group>
+      <mat-tab-group animationDuration="0ms" [selectedIndex]="selectedIndex" (selectedIndexChange)="selectedIndex = $event">
         <mat-tab label="Eingang">
           <div *ngIf="!editing">
             <div class="journal-entry-details">
               <p>
                 <strong>Absender:</strong> {{ selectedJournalEntry.sender }}<br />
                 <strong>Empfänger:</strong> {{ selectedJournalEntry.creator }}<br />
-                <strong>Datum:</strong> {{ selectedJournalEntry.date_created?.toLocaleString('de-CH') }}<br />
+                <strong>Datum:</strong> {{ selectedJournalEntry.date_message.toLocaleString() }}<br />
                 <strong>Kommunikationsmittel:</strong> {{ selectedJournalEntry.communication_type }}<br />
                 <strong>Nummer/Kanal:</strong> {{ selectedJournalEntry.communication_details }}<br /><br />
                 <strong>Meldungsinhalt:</strong><br />{{ selectedJournalEntry.message_content }}
               </p>
-              <button mat-stroked-button (click)="toggleEditing()" style="align-self: start">
+              <button mat-stroked-button type="button" (click)="toggleEditing()" style="align-self: start">
                 <mat-icon>edit</mat-icon>
                 {{ i18n.get('edit') }}
               </button>
@@ -107,7 +107,7 @@
                   <mat-icon>close</mat-icon>
                   {{ i18n.get('cancel') }}
                 </button>
-                <button mat-flat-button color="primary">
+                <button mat-flat-button color="primary" name="save">
                   <mat-icon>check</mat-icon>
                   {{ i18n.get('save') }}
                 </button>
@@ -133,7 +133,7 @@
               <mat-checkbox formControlName="is_key_message">Schlüsselnachricht</mat-checkbox>
               <mat-form-field>
                 <mat-label>Bereich</mat-label>
-                <select matNativeControl formControlName="communication_type">
+                <select matNativeControl formControlName="department">
                   <option value="politische-behoerde">Politische Behörde</option>
                   <option value="chef-fuehrungsorgan">Chef Führungsorgan</option>
                   <option value="stabschef">Stabschef</option>
@@ -149,7 +149,7 @@
 
               <mat-form-field>
                 <mat-label>Visum</mat-label>
-                <input matInput formControlName="visum_decision_receiver" />
+                <input matInput formControlName="visum_triage" />
               </mat-form-field>
 
               <div class="journal-entry-save-buttons">
@@ -182,12 +182,12 @@
               </mat-form-field>
               <mat-form-field>
                 <mat-label>Visum</mat-label>
-                <input matInput formControlName="visum_decision_receiver" />
+                <input matInput formControlName="visum_decider" />
               </mat-form-field>
 
               <mat-form-field>
                 <mat-label>Mitteilen an</mat-label>
-                <input matInput formControlName="visum_decision_receiver" />
+                <input matInput formControlName="receiver_decision" />
               </mat-form-field>
 
               <div class="journal-entry-save-buttons">
@@ -217,18 +217,12 @@
           <div class="journal-entry-details">
             <p *ngIf="selectedJournalEntry.visum_decision_deliverer">
               <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.visum_decision_deliverer }}<br />
-              <strong>Mitgeteilt an: </strong> {{ selectedJournalEntry.visum_decision_receiver }}<br />
               <strong>Übermittlungszeit: </strong> 21.1.2025, 07:00:00
             </p>
             <div *ngIf="!selectedJournalEntry.visum_decision_deliverer">
               <mat-form-field>
-                <mat-label>Mitgeteilt an</mat-label>
-                <input matInput formControlName="visum_decision_receiver" />
-              </mat-form-field>
-
-              <mat-form-field>
                 <mat-label>Mitgeteilt durch</mat-label>
-                <input matInput formControlName="visum_decision_receiver" />
+                <input matInput formControlName="visum_decision_deliverer" />
               </mat-form-field>
 
               <button mat-flat-button color="primary">

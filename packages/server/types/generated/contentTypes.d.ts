@@ -328,10 +328,10 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     createdBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
     creator: Attribute.String;
     date_created: Attribute.DateTime;
-    date_visum_decision_deliverer: Attribute.DateTime;
-    date_visum_decision_receiver: Attribute.DateTime;
-    date_visum_message: Attribute.DateTime;
-    date_visum_triage: Attribute.DateTime;
+    date_decision: Attribute.DateTime;
+    date_decision_delivered: Attribute.DateTime;
+    date_message: Attribute.DateTime;
+    date_triage: Attribute.DateTime;
     decision: Attribute.Text;
     department: Attribute.String;
     is_key_message: Attribute.Boolean;
@@ -346,8 +346,6 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     status: Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
-    visum_decision_deliverer: Attribute.String;
-    visum_decision_receiver: Attribute.String;
     visum_message: Attribute.String;
     visum_triage: Attribute.String;
   };
