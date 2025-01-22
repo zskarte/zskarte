@@ -25,8 +25,7 @@
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
     "build:app": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
-    "cleanup": "tsx scripts/cleanup.ts",
-    "exec": "tsx scripts/docker-compose-up.ts"
+    "cleanup": "tsx scripts/cleanup.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
