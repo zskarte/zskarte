@@ -5,11 +5,11 @@
 }
 <mat-divider></mat-divider>
 
-<button mat-menu-item (click)="toggleHistory()" title="ALT+H">
+<button mat-menu-item (click)="toggleHistory()">
   @if (!(zsMapStateService.observeIsHistoryMode() | async)) {
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">history</mat-icon>
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('history')">history</mat-icon>
   } @else {
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">brush</mat-icon>
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('drawMode')">brush</mat-icon>
   }
   {{ (zsMapStateService.observeIsHistoryMode() | async) ? i18n.get('drawMode') : i18n.get('history') }}
 </button>
@@ -34,16 +34,6 @@
 <button mat-menu-item (click)="help()">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon>
   {{ i18n.get('help') }}
-</button>
-<mat-divider></mat-divider>
-<button mat-menu-item (click)="zsMapStateService.toggleExpertView()" title="ALT+H">
-  @if (!(zsMapStateService.observeIsExpertView() | async)) {
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">manage_accounts</mat-icon>
-  }
-  @if (zsMapStateService.observeIsExpertView() | async) {
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">person</mat-icon>
-  }
-  {{ (zsMapStateService.observeIsExpertView() | async) ? i18n.get('defaultView') : i18n.get('expertView') }}
 </button>
 <mat-divider></mat-divider>
 @if (session.observeHasWritePermission() | async) {

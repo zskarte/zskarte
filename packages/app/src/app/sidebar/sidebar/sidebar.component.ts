@@ -40,6 +40,8 @@ import {
   GeoJSONMapLayer,
   zsMapStateSourceToDownloadUrl,
 } from '@zskarte/types';
+import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expert-view-help.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-sidebar',
@@ -75,6 +77,7 @@ export class SidebarComponent {
   private _blobService = inject(BlobService);
   private cdRef = inject(ChangeDetectorRef);
   private _mapLayerService = inject(MapLayerService);
+  private _snackBar = inject(MatSnackBar);
 
   readonly newLayerTypeTemplate = viewChild.required<TemplateRef<HTMLElement>>('newLayerTypeTemplate');
   newLayerType?: string;
@@ -243,6 +246,10 @@ export class SidebarComponent {
     });
   }
 
+  showExpertViewHelp(){
+    this.dialog.open(ExpertViewHelpComponent);
+  }
+
   selectLayer(layer: MapLayer) {
     this.mapState.addMapLayer(layer);
   }
@@ -388,7 +395,11 @@ export class SidebarComponent {
       if (operation) {
         operation.mapLayers = mapLayers;
       }
-      this.operationService.updateMapLayers(operationId, mapLayers);
+      await this.operationService.updateMapLayers(operationId, mapLayers);
+
+      this._snackBar.open(this.i18n.get('toastPersistLayers'), 'OK', {
+        duration: 2000,
+      });
     }
   }
 
