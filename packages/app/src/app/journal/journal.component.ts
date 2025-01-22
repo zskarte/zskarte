@@ -71,21 +71,12 @@ export class JournalComponent {
 
   async loadJournalEntries() {
     const { result } = await this.apiService.get('/api/journal-entries');
-    this.dataSource = result.map((entry) => ({
-      ...entry,
-      createdAt: new Date(entry.createdAt),
-      date_created: new Date(entry.date_created),
-      date_visum_decision_deliverer: entry.date_visum_decision_deliverer ? new Date(entry.date_visum_decision_deliverer) : undefined,
-      date_visum_decision_receiver: entry.date_visum_decision_receiver ? new Date(entry.date_visum_decision_receiver) : undefined,
-      date_visum_message: entry.date_visum_message ? new Date(entry.date_visum_message) : undefined,
-      date_visum_triage: entry.date_visum_triage ? new Date(entry.date_visum_triage) : undefined,
-      publishedAt: new Date(entry.publishedAt),
-      updatedAt: new Date(entry.updatedAt),
-    }));
+    this.dataSource = result;
   }
 
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntry = entry;
+    console.log(entry.date_created);
     this.journalForm.patchValue({
       message_number: entry.message_number,
       sender: entry.sender,
@@ -95,10 +86,8 @@ export class JournalComponent {
       message_subject: entry.message_subject,
       message_content: entry.message_content,
       visum_decision_receiver: entry.visum_decision_receiver,
-      date_created_date: new Date(),
-      date_created_time: new Date(),
-      /*date_created_date: entry.date_created.getDate(),
-      date_created_time: entry.date_created.getTime(),*/
+      date_created_date: entry.date_created,
+      date_created_time: entry.date_created,
     });
   }
 
