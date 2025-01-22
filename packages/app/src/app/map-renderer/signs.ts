@@ -1431,6 +1431,26 @@ export class Signs {
       en: 'Emergency meeting point',
       fr: 'Point de rencontre d’urgence',
     },
+    {
+      id: 159,
+      kat: 'danger',
+      type: 'Point',
+      color: '#FF9100',
+      src: 'BABS/Gefahr.svg',
+      de: 'Allgemeine Gefahr',
+      en: 'General danger',
+      fr: 'Danger général',
+    },
+    {
+      id: 160,
+      kat: 'action',
+      type: 'Polygon',
+      color: '#0000FF',
+      src: 'BABS/Spurenschutz.svg',
+      de: 'Spurenschutz',
+      en: 'Trace protection',
+      fr: 'Protection des traces',
+    },
   ];
 
   public static getSignById(id: number | undefined): Sign | undefined {
