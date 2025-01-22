@@ -82,9 +82,10 @@
     "decision_receiver": {
       "type": "string"
     },
-    "entryStatus": {
+    "entry_status": {
       "type": "enumeration",
       "enum": [
+        "awaiting_message",
         "awaiting_triage",
         "awaiting_drawing",
         "awaiting_decision",

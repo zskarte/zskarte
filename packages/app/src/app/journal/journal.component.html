@@ -17,11 +17,7 @@
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <mat-tab-group
-        animationDuration="0ms"
-        [selectedIndex]="selectedIndex"
-        (selectedIndexChange)="selectedIndex = $event"
-      >
+      <mat-tab-group animationDuration="0ms" [selectedIndex]="selectedIndex" (selectedIndexChange)="selectedIndex = $event">
         <mat-tab label="Eingang">
           <div *ngIf="!editing">
             <div class="journal-entry-details">
@@ -119,9 +115,9 @@
             </div>
           </div>
         </mat-tab>
-        <mat-tab label="Triage" [disabled]="selectedJournalEntry.entryStatus === 'awaiting_message'">
+        <mat-tab label="Triage" [disabled]="selectedJournalEntry.entry_status === 'awaiting_message'">
           <div class="journal-entry-details">
-            <p *ngIf="selectedJournalEntry.entryStatus !== 'awaiting_triage'">
+            <p *ngIf="selectedJournalEntry.entry_status !== 'awaiting_triage'">
               <strong>Schlüsselnachricht: </strong>
               {{
                 selectedJournalEntry.is_key_message !== undefined ?
@@ -134,7 +130,7 @@
               <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}<br />
               <strong>Triagedatum: </strong> {{ selectedJournalEntry.date_triage?.toLocaleString() }}
             </p>
-            <div *ngIf="selectedJournalEntry.entryStatus === 'awaiting_triage'">
+            <div *ngIf="selectedJournalEntry.entry_status === 'awaiting_triage'">
               <mat-checkbox formControlName="is_key_message">Schlüsselnachricht</mat-checkbox>
               <mat-form-field>
                 <mat-label>Bereich</mat-label>
@@ -168,16 +164,16 @@
         </mat-tab>
         <mat-tab
           label="Entscheidung"
-          [disabled]="selectedJournalEntry.entryStatus === 'awaiting_triage' || selectedJournalEntry.entryStatus === 'awaiting_drawing'"
+          [disabled]="selectedJournalEntry.entry_status === 'awaiting_triage' || selectedJournalEntry.entry_status === 'awaiting_drawing'"
         >
           <div class="journal-entry-details">
-            <p *ngIf="selectedJournalEntry.entryStatus !== 'awaiting_decision'">
+            <p *ngIf="selectedJournalEntry.entry_status !== 'awaiting_decision'">
               <strong>Entscheidung: </strong> {{ selectedJournalEntry.decision }}<br />
               <strong>Mitteilen wem: </strong> {{ selectedJournalEntry.decision_receiver }}<br />
               <strong>Visum: </strong> {{ selectedJournalEntry.visum_decider }}<br />
               <strong>Entscheidungszeit: </strong> {{ selectedJournalEntry.date_decision?.toLocaleString() }}
             </p>
-            <div *ngIf="selectedJournalEntry.entryStatus === 'awaiting_decision'">
+            <div *ngIf="selectedJournalEntry.entry_status === 'awaiting_decision'">
               <mat-form-field>
                 <mat-label>Entscheidung</mat-label>
                 <textarea matInput formControlName="decision" rows="10"></textarea>
@@ -200,10 +196,7 @@
               </div>
             </div>
 
-            <div
-              *ngIf="selectedJournalEntry.entryStatus === 'awaiting_decision'"
-              style="border: 1px solid lightgray; padding: 14px"
-            >
+            <div *ngIf="selectedJournalEntry.entry_status === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
               <h3>Falscher Fachbereich?</h3>
               <p>Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.</p>
               <button mat-button type="button" (click)="resetState()">Zurück an Triage senden</button>
@@ -213,17 +206,17 @@
         <mat-tab
           label="Ausgang"
           [disabled]="
-            selectedJournalEntry.entryStatus === 'awaiting_triage' ||
-            selectedJournalEntry.entryStatus === 'awaiting_drawing' ||
-            selectedJournalEntry.entryStatus === 'awaiting_decision'
+            selectedJournalEntry.entry_status === 'awaiting_triage' ||
+            selectedJournalEntry.entry_status === 'awaiting_drawing' ||
+            selectedJournalEntry.entry_status === 'awaiting_decision'
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="selectedJournalEntry.entryStatus === 'completed'">
+            <p *ngIf="selectedJournalEntry.entry_status === 'completed'">
               <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.visum_decision_deliverer }}<br />
               <strong>Übermittlungszeit: </strong> {{ selectedJournalEntry.date_decision_delivered?.toLocaleString() }}
             </p>
-            <div *ngIf="selectedJournalEntry.entryStatus !== 'completed'">
+            <div *ngIf="selectedJournalEntry.entry_status !== 'completed'">
               <mat-form-field>
                 <mat-label>Mitgeteilt durch</mat-label>
                 <input matInput formControlName="visum_decision_deliverer" />
@@ -271,15 +264,9 @@
       <div class="journal-filter-row">
         <div class="journal-filter-buttons">
           <mat-button-toggle-group hideSingleSelectionIndicator multiple>
-            <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
-              Triage
-            </mat-button-toggle>
-            <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
-              Entscheidung
-            </mat-button-toggle>
-            <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
-              Ausgang
-            </mat-button-toggle>
+            <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)"> Triage </mat-button-toggle>
+            <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)"> Entscheidung </mat-button-toggle>
+            <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)"> Ausgang </mat-button-toggle>
           </mat-button-toggle-group>
         </div>
         <mat-chip-listbox>
@@ -317,12 +304,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr
-          mat-row
-          class="journal-table-row"
-          *matRowDef="let row; columns: displayedColumns"
-          (click)="selectEntry(row)"
-        ></tr>
+        <tr mat-row class="journal-table-row" *matRowDef="let row; columns: displayedColumns" (click)="selectEntry(row)"></tr>
       </table>
 
       <div class="fab-button">

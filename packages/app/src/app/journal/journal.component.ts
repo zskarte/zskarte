@@ -94,7 +94,7 @@ export class JournalComponent {
     status: new FormControl(),
     receiver_decision: new FormControl(),
     visum_decision_deliverer: new FormControl(),
-    entryStatus: new FormControl(),
+    entry_status: new FormControl(),
   });
 
   editing = false;
@@ -146,7 +146,7 @@ export class JournalComponent {
     }
 
     if (this.triageFilter) {
-      filtered = filtered.filter((entry) => entry.entryStatus === 'awaiting_triage');
+      filtered = filtered.filter((entry) => entry.entry_status === 'awaiting_triage');
     }
 
     if (this.keyMessageFilter) {
@@ -154,11 +154,11 @@ export class JournalComponent {
     }
 
     if (this.outgoingFilter) {
-      filtered = filtered.filter((entry) => entry.entryStatus === 'awaiting_completion');
+      filtered = filtered.filter((entry) => entry.entry_status === 'awaiting_completion');
     }
 
     if (this.decisionFilter) {
-      filtered = filtered.filter((entry) => entry.entryStatus === 'awaiting_decision');
+      filtered = filtered.filter((entry) => entry.entry_status === 'awaiting_decision');
     }
 
     if (searchTerm) {
@@ -168,10 +168,10 @@ export class JournalComponent {
         .filter(
           (item) =>
             (!department || item.department === department) &&
-            (!this.triageFilter || item.entryStatus === 'awaiting_triage') &&
+            (!this.triageFilter || item.entry_status === 'awaiting_triage') &&
             (!this.keyMessageFilter || item.is_key_message) &&
-            (!this.outgoingFilter || item.entryStatus === 'awaiting_completion') &&
-            (!this.decisionFilter || item.entryStatus === 'awaiting_decision'),
+            (!this.outgoingFilter || item.entry_status === 'awaiting_completion') &&
+            (!this.decisionFilter || item.entry_status === 'awaiting_decision'),
         );
     }
 
@@ -202,7 +202,7 @@ export class JournalComponent {
       is_key_message: entry.is_key_message,
       visum_triage: entry.visum_triage,
       decision: entry.decision,
-      status: entry.entryStatus,
+      entry_status: entry.entry_status,
     });
   }
 
@@ -229,8 +229,7 @@ export class JournalComponent {
       date_created_time: new Date(),
       is_key_message: false,
       decision: '',
-      status: null,
-      entryStatus: 'awaiting_message',
+      entry_status: 'awaiting_message',
     });
   }
 
@@ -261,18 +260,18 @@ export class JournalComponent {
 
   async save(event: any) {
     if (event.submitter.name !== 'save') {
-      let status = this.journalForm.value.status;
-      if (status === 'awaiting_message') {
-        status = 'awaiting_triage';
-      } else if (status === 'awaiting_triage') {
-        status = 'awaiting_decision';
-      } else if (status === 'awaiting_decision') {
-        status = 'awaiting_completion';
+      let entry_status = this.journalForm.value.entry_status;
+      if (entry_status === 'awaiting_message') {
+        entry_status = 'awaiting_triage';
+      } else if (entry_status === 'awaiting_triage') {
+        entry_status = 'awaiting_decision';
+      } else if (entry_status === 'awaiting_decision') {
+        entry_status = 'awaiting_completion';
       } else {
-        status = 'completed';
+        entry_status = 'completed';
       }
 
-      this.journalForm.patchValue({ status });
+      this.journalForm.patchValue({ entry_status });
     }
     const operation = this.sessionService.getOperation();
     const organization = this.sessionService.getOrganization();
@@ -293,6 +292,7 @@ export class JournalComponent {
             ...this.journalForm.value,
             operation: operation?.id,
             organization: organization?.id,
+            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time)),
           },
         });
       }
