@@ -5,8 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { BehaviorSubject, filter, Observable, startWith, switchMap, tap } from 'rxjs';
-import { ApiResponse, ApiService } from 'src/app/api/api.service';
+import { BehaviorSubject, filter, startWith, switchMap, tap } from 'rxjs';
+import {  ApiService } from 'src/app/api/api.service';
 import { StrapiApiResponseList } from 'src/app/helper/strapi-utils';
 import { SessionService } from 'src/app/session/session.service';
 import { I18NService } from 'src/app/state/i18n.service';
@@ -48,6 +48,7 @@ export class SidebarHistoryComponent implements AfterViewInit {
           const operationId = this.sessionService.getOperationId();
           const response = await this.apiService.get<Snapshots>(
             `${this.apiPath}?fields[0]=createdAt&operationId=${operationId}&sort[0]=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=20`,
+            { keepMeta: true },
           );
           return response.result;
         }),
@@ -55,11 +56,10 @@ export class SidebarHistoryComponent implements AfterViewInit {
           this.resultSize = r?.meta.pagination.total;
         }),
         filter((r) => !!r),
-        takeUntilDestroyed()
+        takeUntilDestroyed(),
       )
       .subscribe(this.snapshots$);
   }
-
 
   async setHistory(snapshot: Snapshot) {
     const { result } = await this.apiService.get(`${this.apiPath}/${snapshot.id}`);
