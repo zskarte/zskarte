@@ -43,7 +43,7 @@ const loadOperations = async (strapi: Core.Strapi) => {
 const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation: Operation) => {
   operation =
     ((await strapi.documents('api::operation.operation').findOne({
-      documentId: operation.id.toString(),
+      documentId: operation.id,
       populate: ['organization.users'],
     })) as unknown as Operation) || operation;
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_CREATE) {
@@ -161,7 +161,7 @@ const archiveOperations = async (strapi: Core.Strapi) => {
     for (const operation of activeOperations) {
       if (new Date(operation.updatedAt).getTime() + WEEK > new Date().getTime()) continue;
       await strapi.documents('api::operation.operation').update({
-        documentId: operation.id.toString(),
+        documentId: operation.id,
         data: {
           phase: OperationPhases.ARCHIVED,
         },
@@ -191,7 +191,7 @@ const deleteGuestOperations = async (strapi: Core.Strapi) => {
         .deleteMany({ filters: { operation: { id: operation.id } } });
       await strapi.db.query('api::access.access').deleteMany({ filters: { operation: { id: operation.id } } });
       await strapi.documents('api::operation.operation').delete({
-        documentId: operation.id.toString(),
+        documentId: operation.id,
       });
     }
   } catch (error) {

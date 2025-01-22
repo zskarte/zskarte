@@ -24,7 +24,7 @@ export const migrateOperationStatusesToPhases = async (strapi: Core.Strapi) => {
           continue;
         }
         await strapi.documents('api::operation.operation').update({
-          documentId: operation.id.toString(),
+          documentId: operation.id,
           data: {
             phase: operation.status as OperationPhase,
           },

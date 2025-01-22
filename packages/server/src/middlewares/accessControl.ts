@@ -250,7 +250,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
         return entry;
       } else if (isOperation(contentType)) {
         const entry = (await strapi.documents(contentType).findOne({
-          documentId: entryId.toString(),
+          documentId: entryId,
           fields: ['id', 'phase'],
           populate: { organization: { fields: ['id'] } as any },
         })) as { id: number; phase: string; organization: Organization };
