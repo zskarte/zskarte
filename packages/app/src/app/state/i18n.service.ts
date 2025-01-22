@@ -1921,9 +1921,9 @@ export class I18NService {
       fr: 'Cette carte de base ne peut pas être rendue accessible hors ligne.',
     },
     localAvailabilityStepsIntro: {
-      de: 'Um vollständig offline arbeiten zu können, müssen folgende Dinge überprüft werden.',
-      en: 'To allow working fully offline the following things have to be verified.',
-      fr: 'Pour permettre de travailler entièrement hors ligne, les éléments suivants doivent être vérifiés.',
+      de: 'Um vollständig offline arbeiten zu können, müssen folgende Dinge überprüft werden:',
+      en: 'The following things have to be verified to allow working offline:',
+      fr: 'Pour permettre de travailler entièrement hors ligne, les éléments suivants doivent être vérifiés:',
     },
     localAvailabilitySteps: {
       de: 'Schritte zum Offline-Arbeiten.',

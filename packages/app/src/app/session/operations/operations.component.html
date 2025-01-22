@@ -52,7 +52,7 @@
               <mat-list-item role="button" [lines]="0 + (o.description ? 1 : 0) + (showOpStatus != 'active' ? 1 : 0)" (click)="selectOperation(o)">
                 <div matListItemMeta class="operation-list-item-meta">
                   @if ((o.id ?? 0) < 0) {
-                    <mat-icon title="{{ i18n.get('localOperation') }}">cloud_done</mat-icon>
+                    <mat-icon title="{{ i18n.get('localOperation') }}">file_download_done</mat-icon>
                   }
                 </div>
                 <div matListItemTitle>{{ o.name }}</div>
