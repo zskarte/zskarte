@@ -1,10 +1,12 @@
 {
   "name": "@zskarte/workspace",
-  "workspaces": ["./packages/*"],
+  "workspaces": [
+    "./packages/*"
+  ],
   "scripts": {
     "start": "run-p start:*",
     "start:app": "cd packages/app && npm start",
-    "start:server": "cd packages/server && npm run dev",
+    "start:server": "cd packages/server && npm start",
     "lint": "run-p lint:*",
     "lint:app": "biome lint ./packages/app/src",
     "lint:server": "biome lint ./packages/server/src",
