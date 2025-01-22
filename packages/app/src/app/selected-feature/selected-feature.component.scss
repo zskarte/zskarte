@@ -15,9 +15,10 @@ mat-card.selection {
   margin-bottom: 1rem;
 }
 
-mat-card,
-mat-expansion-panel {
-  margin-bottom: 1rem;
+.colorPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
 }
 
 mat-card.featureGroup .mat-expansion-panel-header-title {
@@ -31,7 +32,7 @@ mat-form-field {
 }
 
 mat-slider {
-  width: 100%;
+  width: 95%;
 }
 
 .imgwrapper {
@@ -87,16 +88,15 @@ mat-slider {
   transform: scale(0.6);
 }
 
-mat-expansion-panel button {
-  display: block;
-  width: 100%;
-  text-align: left;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+
+mat-expansion-panel .noPadding {
+  padding: 0;
 }
 
-mat-expansion-panel .filter {
-  margin-top: 1rem;
+mat-expansion-panel button, .matexpansion-panel-body button {
+  display: block;
+  text-align: left;
+  width: fit-content;
 }
 
 mat-expansion-panel button i {
@@ -113,7 +113,7 @@ mat-expansion-panel button i {
 
 .markdownEditor {
   position: relative;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0rem;
 }
 
 .markdownEditor .fab {

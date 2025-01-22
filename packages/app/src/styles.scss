@@ -32,13 +32,42 @@ body {
 
 /********** Levin's Material Style changes ***********/
 
-
-.mat-mdc-select-panel {
-  padding: 0.5rem !important;
+mat-action-list {
+  border-left: solid 1px var(--mdc-outlined-button-outline-color, var(--mat-sys-outline));
+  border-top: solid 1px var(--mdc-outlined-button-outline-color, var(--mat-sys-outline));
+  border-bottom: solid 1px var(--mdc-outlined-button-outline-color, var(--mat-sys-outline));
+  border-radius: 1rem 0 0 1rem;
+  overflow: auto;
 }
 
 .mat-mdc-dialog-surface,
 .mdc-dialog__surface {
+  padding: 1rem;
+}
+
+.mat-accordion .mat-expansion-panel {
+  overflow: visible;
+}
+
+.mat-expansion-panel .mat-expansion-panel-header {
+  padding: 0 1rem 0 1rem;
+}
+
+.mat-expansion-panel-content-wrapper .mat-expansion-panel-body {
+  padding: 0 1rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.mat-drawer .mat-drawer-inner-container {
+  overflow: unset;
+}
+
+.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .titleCard,
+.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .stack,
+.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .flex-label {
   padding: 1rem;
 }
 

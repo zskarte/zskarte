@@ -425,9 +425,9 @@ export class I18NService {
       en: 'Color',
     },
     colorPickerMode: {
-      de: 'Farbauswahlmodus',
-      fr: 'Mode sélecteur de couleurs',
-      en: 'Color picker mode',
+      de: 'Weitere Farben',
+      fr: 'Plus de couleurs',
+      en: 'More colors',
     },
     drawHole: {
       de: 'Loch zeichnen',
