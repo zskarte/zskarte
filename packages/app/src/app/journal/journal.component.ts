@@ -76,7 +76,6 @@ export class JournalComponent {
 
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntry = entry;
-    console.log(entry.date_created);
     this.journalForm.patchValue({
       message_number: entry.message_number,
       sender: entry.sender,
@@ -99,13 +98,9 @@ export class JournalComponent {
   openJournalAddDialog() {
     this.editing = true;
 
-    this.selectedJournalEntry = {
-      message_subject: '',
-      message_content: '',
-      date_created: new Date(),
-      creator: '',
-      visum_decision_receiver: '',
-    };
+    this.selectedJournalEntry = {};
+
+    this.journalForm.reset();
   }
 
   toggleEditing() {

@@ -113,7 +113,7 @@
         </div>
       </div>
 
-      <mat-accordion multi="true" displayMode="flat">
+      <mat-accordion multi="true" displayMode="flat" *ngIf="selectedJournalEntry.id && !editing">
         <mat-expansion-panel class="mat-elevation-z0">
           <mat-expansion-panel-header>
             <mat-panel-title> Log </mat-panel-title>
