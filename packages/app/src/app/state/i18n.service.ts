@@ -199,6 +199,16 @@ export class I18NService {
       en: 'Unarchive event',
       fr: 'Désarchiver événement',
     },
+    deleteOperation: {
+      de: 'Ereignis löschen',
+      en: 'Delete event',
+      fr: 'Supprimer événement',
+    },
+    deleteOperationConfirm: {
+      de: 'Möchten Sie dieses Ereignis wirklich unwiderruflich löschen?',
+      fr: 'Voulez-vous vraiment supprimer définitivement cet événement ?',
+      en: 'Do you really want to permanently delete this event?',
+    },
     lastModified: {
       de: 'Zuletzt geändert:',
       en: 'Last modified:',
