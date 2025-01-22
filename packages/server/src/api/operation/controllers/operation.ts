@@ -69,6 +69,16 @@ export default factories.createCoreController('api::operation.operation', ({ str
     ctx.status = 200;
     return { success: true };
   },
+  async shadowDelete(ctx) {
+    const { id } = ctx.params;
+    await strapi.entityService.update('api::operation.operation', id, {
+      data: {
+        status: OperationStates.DELETED,
+      },
+    });
+    ctx.status = 200;
+    return { success: true };
+  },
   async unarchive(ctx) {
     const { id } = ctx.params;
     await strapi.entityService.update('api::operation.operation', id, {

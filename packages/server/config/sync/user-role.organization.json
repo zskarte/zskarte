@@ -79,6 +79,9 @@
       "action": "api::operation.operation.patch"
     },
     {
+      "action": "api::operation.operation.shadowDelete"
+    },
+    {
       "action": "api::operation.operation.unarchive"
     },
     {

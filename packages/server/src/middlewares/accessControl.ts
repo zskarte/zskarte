@@ -299,7 +299,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     if (
       isOperation(config.type) &&
       operation?.status !== OperationStates.ACTIVE &&
-      !handler.endsWith('.unarchive') &&
+      !(handler.endsWith('.unarchive') || handler.endsWith('.shadowDelete')) &&
       !handler.endsWith('.findOne')
     ) {
       return ctx.forbidden('The operation is archived, no update allowed.');

@@ -23,7 +23,8 @@
       "type": "enumeration",
       "enum": [
         "active",
-        "archived"
+        "archived",
+        "deleted"
       ],
       "default": "active",
       "required": true

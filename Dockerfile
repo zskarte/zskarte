@@ -33,4 +33,4 @@ COPY --from=build --chown=node:node /app/packages/server /app/packages/server
 COPY --from=build --chown=node:node /app/package.json /app/package.json
 
 # start command
-CMD ["npm", "run", "start:server"] 
+CMD ["npm", "run", "start:server:prod"] 
