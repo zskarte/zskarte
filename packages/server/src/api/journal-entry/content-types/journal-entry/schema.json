@@ -45,28 +45,19 @@
     "department": {
       "type": "string"
     },
-    "date_visum_message": {
+    "date_message": {
       "type": "datetime"
     },
     "visum_triage": {
       "type": "string"
     },
-    "date_visum_triage": {
+    "date_triage": {
       "type": "datetime"
     },
     "decision": {
       "type": "text"
     },
-    "visum_decision_deliverer": {
-      "type": "string"
-    },
-    "date_visum_decision_deliverer": {
-      "type": "datetime"
-    },
-    "visum_decision_receiver": {
-      "type": "string"
-    },
-    "date_visum_decision_receiver": {
+    "date_decision": {
       "type": "datetime"
     },
     "status": {
@@ -90,6 +81,9 @@
     },
     "related_symbols": {
       "type": "json"
+    },
+    "date_decision_delivered": {
+      "type": "datetime"
     }
   }
 }

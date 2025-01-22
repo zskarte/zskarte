@@ -51,8 +51,9 @@ export class JournalComponent {
 
   displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_created', 'creator'];
   dataSource: JournalEntry[] = [];
+  selectedIndex: number = 0;
 
-  selectedJournalEntry: Partial<JournalEntry> | null = null;
+  selectedJournalEntry: JournalEntry | null = null;
 
   journalForm = new FormGroup({
     message_number: new FormControl(),
@@ -63,11 +64,16 @@ export class JournalComponent {
     message_subject: new FormControl(),
     message_content: new FormControl(),
     visum_decision_receiver: new FormControl(),
+    department: new FormControl(),
     date_created_date: new FormControl(),
     date_created_time: new FormControl(),
     is_key_message: new FormControl(),
+    visum_triage: new FormControl(),
+    visum_decider: new FormControl(),
     decision: new FormControl(),
     status: new FormControl(),
+    receiver_decision: new FormControl(),
+    visum_decision_deliverer: new FormControl(),
   });
 
   editing = false;
@@ -91,10 +97,12 @@ export class JournalComponent {
       communication_details: entry.communication_details,
       message_subject: entry.message_subject,
       message_content: entry.message_content,
+      department: entry.department,
       visum_decision_receiver: entry.visum_decision_receiver,
       date_created_date: entry.date_created,
       date_created_time: entry.date_created,
       is_key_message: entry.is_key_message,
+      visum_triage: entry.visum_triage,
       decision: entry.decision,
       status: entry.status,
     });
@@ -108,7 +116,7 @@ export class JournalComponent {
   openJournalAddDialog() {
     this.editing = true;
 
-    this.selectedJournalEntry = {};
+    this.selectedJournalEntry = {} as JournalEntry;
 
     this.journalForm.patchValue({
       message_number: '',
@@ -142,20 +150,24 @@ export class JournalComponent {
       },
     });
 
+    await this.loadJournalEntries();
+
     const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
 
     if (currentEntry) {
       await this.selectEntry(currentEntry);
+      this.selectedIndex = this.selectedIndex - 1;
     }
   }
 
-  async save() {
+  async save(event: any) {
+    if (event.submitter.name !== 'save') {
+      this.journalForm.patchValue({ status: this.journalForm.value.status === 'awaiting_triage' ? 'awaiting_decision' : 'completed' });
+    }
+
     if (this.selectedJournalEntry?.id) {
       await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
-        data: {
-          ...this.journalForm.value,
-          status: this.journalForm.value.status === 'awaiting_triage' ? 'awaiting_decision' : 'completed',
-        },
+        data: this.journalForm.value,
       });
     } else {
       await this.apiService.post('/api/journal-entries', { data: this.journalForm.value });
@@ -171,6 +183,4 @@ export class JournalComponent {
 
     this.editing = false;
   }
-
-  protected readonly Date = Date;
 }
