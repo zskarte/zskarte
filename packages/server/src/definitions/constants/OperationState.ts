@@ -1,3 +1,5 @@
+// DEPRECATED!!!
+
 export const OperationStates = {
   ACTIVE: 'active',
   ARCHIVED: 'archived',

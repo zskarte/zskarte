@@ -48,6 +48,16 @@
     },
     "mapLayers": {
       "type": "json"
+    },
+    "phase": {
+      "type": "enumeration",
+      "enum": [
+        "active",
+        "archived",
+        "deleted"
+      ],
+      "required": true,
+      "default": "active"
     }
   }
 }
