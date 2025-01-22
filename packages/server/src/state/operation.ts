@@ -6,7 +6,6 @@ import crypto from 'crypto';
 import {
   Operation,
   OperationCache,
-  OperationStates,
   PatchExtended,
   StrapiLifecycleHook,
   StrapiLifecycleHooks,
@@ -55,7 +54,7 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
     operationCaches[operation.id].users.push(...operation.organization.users);
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_UPDATE) {
-    if (operation.status === OperationStates.ARCHIVED) {
+    if (operation.phase === OperationPhases.ARCHIVED) {
       delete operationCaches[operation.id];
       return;
     } else if (!(operation.id in operationCaches)) {

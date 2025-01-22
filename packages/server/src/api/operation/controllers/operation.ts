@@ -3,10 +3,9 @@
  */
 
 import { factories } from '@strapi/strapi';
-import { Operation, PatchExtended, OperationStates } from '../../../definitions';
+import { Operation, PatchExtended, OperationPhases } from '../../../definitions';
 import { operationCaches, updateCurrentLocation, updateMapState } from '../../../state/operation';
 import _ from 'lodash';
-import { OperationPhases } from 'src/definitions/constants/OperationPhase';
 
 const allowedMetaFields = ['name', 'description', 'eventStates'];
 
