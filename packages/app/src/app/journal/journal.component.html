@@ -3,14 +3,14 @@
     *ngIf="selectedJournalEntry"
     class="journal-sidebar mat-elevation-z3"
     position="end"
-    mode="side"
+    mode="over"
     [opened]="selectedJournalEntry !== null"
   >
     <form [formGroup]="journalForm" (ngSubmit)="save($event)">
       <div class="sidebar-header">
         <h1>
-          {{ selectedJournalEntry.message_number !== undefined ? selectedJournalEntry.message_number.toString().padStart(3, '0') : '' }} |
-          {{ selectedJournalEntry.message_subject ?? '' }}
+          {{ journalForm.value.message_number !== undefined ? journalForm.value.message_number.toString().padStart(3, '0') : '' }} |
+          {{ journalForm.value.message_subject ?? '' }}
         </h1>
 
         <button (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
@@ -115,7 +115,7 @@
             </div>
           </div>
         </mat-tab>
-        <mat-tab label="Triage">
+        <mat-tab label="Triage" [disabled]="selectedJournalEntry.entryStatus === 'awaiting_message'">
           <div class="journal-entry-details">
             <p *ngIf="selectedJournalEntry.entryStatus !== 'awaiting_triage'">
               <strong>Schlüsselnachricht: </strong>
@@ -164,11 +164,7 @@
         </mat-tab>
         <mat-tab
           label="Entscheidung"
-          [disabled]="
-            selectedJournalEntry.entryStatus === null ||
-            selectedJournalEntry.entryStatus === 'awaiting_triage' ||
-            selectedJournalEntry.entryStatus === 'awaiting_drawing'
-          "
+          [disabled]="selectedJournalEntry.entryStatus === 'awaiting_triage' || selectedJournalEntry.entryStatus === 'awaiting_drawing'"
         >
           <div class="journal-entry-details">
             <p *ngIf="selectedJournalEntry.entryStatus !== 'awaiting_decision'">
