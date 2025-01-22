@@ -37,9 +37,7 @@
     padding: 0;
   }
 
-  mat-card-content {
-    padding: 1rem 0;
-  }
+
 
   mat-card-actions {
     display: flex;
@@ -52,6 +50,14 @@
   .operations-actions,
   .card-overflow {
     padding: 0rem;
+  }
+
+  .mat-mdc-card mat-card-content {
+    padding: 1rem 0;
+  }
+
+  mat-action-list {
+    border: none;
   }
 
   mat-card:first-child {

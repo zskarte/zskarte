@@ -1,3 +1,18 @@
+.mdc-button {
+  margin-bottom: 1rem;
+}
+
+h2 {
+  margin-bottom: 0.5rem;
+}
+
+.content {
+  display: flex; 
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
 .sectionTitle {
   font-size: 1.5em;
   font-weight: bold;
@@ -12,10 +27,27 @@ mat-form-field {
 .favoriteLayers,
 .selectedLayers,
 .availableLayers {
-  max-height: 300px;
+  max-height: 200px;
   overflow: auto;
 }
 
+.favoriteLayers, .selectedLayers {
+  border-radius: 1rem;
+  border: solid 1px var(--mdc-outlined-button-outline-color, var(--mat-sys-outline));
+}
+
+
+
 .sourceControl mat-form-field {
   margin-bottom: 5px;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  & button {
+    margin: 0;
+  }
 }

@@ -18,8 +18,7 @@ mat-sidenav-content {
 
 mat-sidenav {
   background: white;
-  padding: 1em;
-  width: 30em;
+  width: 30rem;
   max-width: 75%;
   pointer-events: auto;
 }
@@ -137,8 +136,10 @@ app-geocoder {
   position: sticky;
   top: 0;
   z-index: 10;
+  padding: .5rem 1rem .5rem 1rem;
+  box-shadow: -6px -11px 20px 3px;
   background: white;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 

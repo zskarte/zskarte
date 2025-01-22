@@ -24,7 +24,7 @@
     <input matInput type="text" [(ngModel)]="dpi" name="dpi" disabled />
   </mat-form-field>
 </div>
-<div mat-dialog-actions align="end">
-  <button mat-raised-button (click)="cancel()">{{ i18n.get('cancel') }}</button>
-  <button mat-raised-button (click)="ok()" color="primary">{{ i18n.get('ok') }}</button>
+<div mat-dialog-actions class="buttons" align="end">
+  <button mat-stroked-button (click)="cancel()">{{ i18n.get('cancel') }}</button>
+  <button mat-flat-button (click)="ok()" color="primary">{{ i18n.get('ok') }}</button>
 </div>
