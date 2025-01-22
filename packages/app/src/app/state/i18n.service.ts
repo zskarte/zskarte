@@ -1840,6 +1840,11 @@ export class I18NService {
       en: 'Pre-selected WMS sources',
       fr: 'Sources WMS présélectionnées',
     },
+    noWmsSourcesAvailable: {
+      de: 'Keine WMS-Quellen verfügbar',
+      en: 'No WMS sources available',
+      fr: 'Aucune source WMS disponible',
+    },
     favoriteLayersSettings: {
       de: 'Ebenen favoriten',
       en: 'Favorite layers',
@@ -1849,6 +1854,11 @@ export class I18NService {
       de: 'Von aktiven hinzufügen',
       en: 'Add from active',
       fr: 'Ajouter depuis actif',
+    },
+    noActiveLayers: {
+      de: 'Keine aktiven Ebenen verfügbar',
+      en: 'No active layers available',
+      fr: 'Aucune couche active disponible',
     },
     addFromList: {
       de: 'Aus Liste hinzufügen',
