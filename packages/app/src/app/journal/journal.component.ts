@@ -65,6 +65,7 @@ export class JournalComponent {
     visum_decision_receiver: new FormControl(),
     date_created_date: new FormControl(),
     date_created_time: new FormControl(),
+    is_key_message: new FormControl(),
     decision: new FormControl(),
     status: new FormControl(),
   });
@@ -93,6 +94,7 @@ export class JournalComponent {
       visum_decision_receiver: entry.visum_decision_receiver,
       date_created_date: entry.date_created,
       date_created_time: entry.date_created,
+      is_key_message: entry.is_key_message,
       decision: entry.decision,
       status: entry.status,
     });
@@ -108,22 +110,67 @@ export class JournalComponent {
 
     this.selectedJournalEntry = {};
 
-    this.journalForm.reset();
+    this.journalForm.patchValue({
+      message_number: '',
+      sender: '',
+      creator: '',
+      communication_type: '',
+      communication_details: '',
+      message_subject: '',
+      message_content: '',
+      visum_decision_receiver: '',
+      date_created_date: new Date(),
+      date_created_time: new Date(),
+      is_key_message: false,
+      decision: '',
+      status: null,
+    });
   }
 
   toggleEditing() {
     this.editing = !this.editing;
   }
 
+  async resetState() {
+    this.journalForm.patchValue({
+      status: 'awaiting_triage',
+    });
+
+    await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
+      data: {
+        ...this.journalForm.value,
+      },
+    });
+
+    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
+
+    if (currentEntry) {
+      await this.selectEntry(currentEntry);
+    }
+  }
+
   async save() {
     if (this.selectedJournalEntry?.id) {
-      await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry.id}`, { data: this.selectedJournalEntry });
+      await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
+        data: {
+          ...this.journalForm.value,
+          status: this.journalForm.value.status === 'awaiting_triage' ? 'awaiting_decision' : 'completed',
+        },
+      });
     } else {
-      await this.apiService.post('/api/journal-entries', { data: this.selectedJournalEntry });
+      await this.apiService.post('/api/journal-entries', { data: this.journalForm.value });
     }
+
     await this.loadJournalEntries();
 
-    this.selectedJournalEntry = null;
+    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
+
+    if (currentEntry) {
+      await this.selectEntry(currentEntry);
+    }
+
     this.editing = false;
   }
+
+  protected readonly Date = Date;
 }

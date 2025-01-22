@@ -102,7 +102,7 @@
                 </mat-form-field>
               </div>
 
-              <div style="display: flex; justify-content: end; gap: 6px">
+              <div class="journal-entry-save-buttons">
                 <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntry.id">
                   <mat-icon>close</mat-icon>
                   {{ i18n.get('cancel') }}
@@ -116,45 +116,49 @@
           </div>
         </mat-tab>
         <mat-tab label="Triage">
-          <p *ngIf="selectedJournalEntry.status !== 'awaiting_triage'">
-            <strong>Schlüsselnachricht: </strong>
-            {{
-              selectedJournalEntry.is_key_message !== undefined ?
-                selectedJournalEntry.is_key_message ?
-                  'Ja'
-                : 'Nein'
-              : ''
-            }}<br />
-            <strong>Bereich: </strong> {{ selectedJournalEntry.department }}<br />
-            <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
-          </p>
-          <div *ngIf="selectedJournalEntry.status === 'awaiting_triage'">
-            <mat-checkbox>Schlüsselnachricht</mat-checkbox>
-            <mat-form-field>
-              <mat-label>Bereich</mat-label>
-              <select matNativeControl formControlName="communication_type">
-                <option value="politische-behoerde">Politische Behörde</option>
-                <option value="chef-fuehrungsorgan">Chef Führungsorgan</option>
-                <option value="stabschef">Stabschef</option>
-                <option value="fb-lage">FB Lage</option>
-                <option value="fb-information">FB Information</option>
-                <option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</option>
-                <option value="fb-schutz-rettung">FB Schutz + Rettung</option>
-                <option value="fb-gesundheit">FB Gesundheit</option>
-                <option value="fb-logistik">FB Logistik</option>
-                <option value="fb-infrastukturen">FB Infrastrukturen</option>
-              </select>
-            </mat-form-field>
+          <div class="journal-entry-details">
+            <p *ngIf="selectedJournalEntry.status !== 'awaiting_triage'">
+              <strong>Schlüsselnachricht: </strong>
+              {{
+                selectedJournalEntry.is_key_message !== undefined ?
+                  selectedJournalEntry.is_key_message ?
+                    'Ja'
+                  : 'Nein'
+                : ''
+              }}<br />
+              <strong>Bereich: </strong> {{ selectedJournalEntry.department }}<br />
+              <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
+            </p>
+            <div *ngIf="selectedJournalEntry.status === 'awaiting_triage'">
+              <mat-checkbox formControlName="is_key_message">Schlüsselnachricht</mat-checkbox>
+              <mat-form-field>
+                <mat-label>Bereich</mat-label>
+                <select matNativeControl formControlName="communication_type">
+                  <option value="politische-behoerde">Politische Behörde</option>
+                  <option value="chef-fuehrungsorgan">Chef Führungsorgan</option>
+                  <option value="stabschef">Stabschef</option>
+                  <option value="fb-lage">FB Lage</option>
+                  <option value="fb-information">FB Information</option>
+                  <option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</option>
+                  <option value="fb-schutz-rettung">FB Schutz + Rettung</option>
+                  <option value="fb-gesundheit">FB Gesundheit</option>
+                  <option value="fb-logistik">FB Logistik</option>
+                  <option value="fb-infrastukturen">FB Infrastrukturen</option>
+                </select>
+              </mat-form-field>
 
-            <mat-form-field>
-              <mat-label>Visum</mat-label>
-              <input matInput formControlName="visum_decision_receiver" />
-            </mat-form-field>
+              <mat-form-field>
+                <mat-label>Visum</mat-label>
+                <input matInput formControlName="visum_decision_receiver" />
+              </mat-form-field>
 
-            <button mat-flat-button color="primary">
-              <mat-icon>check</mat-icon>
-              {{ i18n.get('save') }}
-            </button>
+              <div class="journal-entry-save-buttons">
+                <button mat-flat-button color="primary">
+                  <mat-icon>check</mat-icon>
+                  {{ i18n.get('save') }}
+                </button>
+              </div>
+            </div>
           </div>
         </mat-tab>
         <mat-tab
@@ -165,25 +169,40 @@
             selectedJournalEntry.status === 'awaiting_drawing'
           "
         >
-          <p *ngIf="selectedJournalEntry.status !== 'awaiting_decision'">
-            <strong>Entscheidung: </strong> {{ selectedJournalEntry.decision }}<br />
-            <strong>Mitteilen wem: </strong> {{ selectedJournalEntry.decision }}<br />
-            <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
-          </p>
-          <div *ngIf="selectedJournalEntry.status === 'awaiting_decision'">
-            <mat-form-field>
-              <mat-label>Entscheidung</mat-label>
-              <textarea matInput formControlName="decision" rows="10"></textarea>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Visum</mat-label>
-              <input matInput formControlName="visum_decision_receiver" />
-            </mat-form-field>
+          <div class="journal-entry-details">
+            <p *ngIf="selectedJournalEntry.status !== 'awaiting_decision'">
+              <strong>Entscheidung: </strong> {{ selectedJournalEntry.decision }}<br />
+              <strong>Mitteilen wem: </strong> {{ selectedJournalEntry.decision }}<br />
+              <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
+            </p>
+            <div *ngIf="selectedJournalEntry.status === 'awaiting_decision'">
+              <mat-form-field>
+                <mat-label>Entscheidung</mat-label>
+                <textarea matInput formControlName="decision" rows="10"></textarea>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Visum</mat-label>
+                <input matInput formControlName="visum_decision_receiver" />
+              </mat-form-field>
 
-            <button mat-flat-button color="primary">
-              <mat-icon>check</mat-icon>
-              {{ i18n.get('save') }}
-            </button>
+              <mat-form-field>
+                <mat-label>Mitteilen an</mat-label>
+                <input matInput formControlName="visum_decision_receiver" />
+              </mat-form-field>
+
+              <div class="journal-entry-save-buttons">
+                <button mat-flat-button color="primary">
+                  <mat-icon>check</mat-icon>
+                  {{ i18n.get('save') }}
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="selectedJournalEntry.status === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
+              <h3>Falscher Fachbereich?</h3>
+              <p>Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.</p>
+              <button mat-button type="button" (click)="resetState()">Zurück an Triage senden</button>
+            </div>
           </div>
         </mat-tab>
         <mat-tab
@@ -195,24 +214,28 @@
             selectedJournalEntry.status === 'awaiting_decision'
           "
         >
-          <p *ngIf="selectedJournalEntry.visum_decision_deliverer">
-            <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.visum_decision_deliverer }}<br />
-            <strong>Mitgeteilt an: </strong> {{ selectedJournalEntry.visum_decision_receiver }}
-          </p>
-          <div *ngIf="!selectedJournalEntry.visum_decision_deliverer">
-            <mat-form-field>
-              <mat-label>Mitgeteilt durch</mat-label>
-              <input matInput formControlName="visum_decision_receiver" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Mitgeteilt an</mat-label>
-              <input matInput formControlName="visum_decision_receiver" />
-            </mat-form-field>
+          <div class="journal-entry-details">
+            <p *ngIf="selectedJournalEntry.visum_decision_deliverer">
+              <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.visum_decision_deliverer }}<br />
+              <strong>Mitgeteilt an: </strong> {{ selectedJournalEntry.visum_decision_receiver }}<br />
+              <strong>Übermittlungszeit: </strong> 21.1.2025, 07:00:00
+            </p>
+            <div *ngIf="!selectedJournalEntry.visum_decision_deliverer">
+              <mat-form-field>
+                <mat-label>Mitgeteilt an</mat-label>
+                <input matInput formControlName="visum_decision_receiver" />
+              </mat-form-field>
 
-            <button mat-flat-button color="primary">
-              <mat-icon>check</mat-icon>
-              {{ i18n.get('save') }}
-            </button>
+              <mat-form-field>
+                <mat-label>Mitgeteilt durch</mat-label>
+                <input matInput formControlName="visum_decision_receiver" />
+              </mat-form-field>
+
+              <button mat-flat-button color="primary">
+                <mat-icon>check</mat-icon>
+                {{ i18n.get('save') }}
+              </button>
+            </div>
           </div>
         </mat-tab>
       </mat-tab-group>

@@ -84,3 +84,9 @@
     margin: 0;
   }
 }
+
+.journal-entry-save-buttons {
+  display: flex;
+  justify-content: end;
+  gap: 6px
+}
