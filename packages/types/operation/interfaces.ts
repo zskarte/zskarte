@@ -15,7 +15,7 @@ export interface IZsMapOperation {
   updatedAt?: Date;
   mapState: ZsMapState;
   eventStates: number[];
-  phase: string;
+  phase: ZsOperationPhase;
   mapLayers?: IZSMapOperationMapLayers;
 }
 
