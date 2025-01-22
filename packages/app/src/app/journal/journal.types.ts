@@ -1,4 +1,4 @@
-import type {Common} from "@strapi/types/dist/types";
+import type { Common } from '@strapi/types/dist/types';
 
 export interface JournalEntry {
   // uid: Common.UID.ContentType;$
@@ -30,7 +30,7 @@ export interface JournalEntry {
   publishedAt: Date;
   related_symbols: any;
   sender: string;
-  status: 'awaiting_triage' | 'awaiting_drawing' | 'awaiting_decision' | 'completed';
+  status: 'awaiting_triage' | 'awaiting_drawing' | 'awaiting_decision' | 'completed' | null;
   updatedAt: Date;
   updatedBy?: string;
   visum_decision_deliverer: string;

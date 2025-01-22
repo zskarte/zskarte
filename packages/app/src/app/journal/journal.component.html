@@ -17,118 +17,205 @@
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <div *ngIf="!editing">
-        <div class="journal-entry-details">
-          <p>
-            <strong>Absender:</strong> {{ selectedJournalEntry.sender }}<br />
-            <strong>Empfänger:</strong> {{ selectedJournalEntry.creator }}<br />
-            <strong>Datum:</strong> {{ selectedJournalEntry.date_created?.toLocaleString('de-CH') }}<br />
-            <strong>Kommunikationsmittel:</strong> {{ selectedJournalEntry.communication_type }}<br />
-            <strong>Nummer/Kanal:</strong> {{ selectedJournalEntry.communication_details }}<br /><br />
-            <strong>Meldungsinhalt:</strong><br />{{ selectedJournalEntry.message_content }}
+      <mat-tab-group>
+        <mat-tab label="Eingang">
+          <div *ngIf="!editing">
+            <div class="journal-entry-details">
+              <p>
+                <strong>Absender:</strong> {{ selectedJournalEntry.sender }}<br />
+                <strong>Empfänger:</strong> {{ selectedJournalEntry.creator }}<br />
+                <strong>Datum:</strong> {{ selectedJournalEntry.date_created?.toLocaleString('de-CH') }}<br />
+                <strong>Kommunikationsmittel:</strong> {{ selectedJournalEntry.communication_type }}<br />
+                <strong>Nummer/Kanal:</strong> {{ selectedJournalEntry.communication_details }}<br /><br />
+                <strong>Meldungsinhalt:</strong><br />{{ selectedJournalEntry.message_content }}
+              </p>
+              <button mat-stroked-button (click)="toggleEditing()" style="align-self: start">
+                <mat-icon>edit</mat-icon>
+                {{ i18n.get('edit') }}
+              </button>
+            </div>
+          </div>
+          <div *ngIf="editing">
+            <div class="journal-entry-details">
+              <div style="width: 100px">
+                <mat-form-field>
+                  <mat-label>Meldungsnr.</mat-label>
+                  <input matInput formControlName="message_number" />
+                </mat-form-field>
+              </div>
+              <div style="display: flex; gap: 6px">
+                <mat-form-field>
+                  <mat-label>Absender</mat-label>
+                  <input matInput formControlName="sender" />
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Empfänger</mat-label>
+                  <input matInput formControlName="creator" />
+                </mat-form-field>
+              </div>
+              <div style="display: flex; gap: 6px">
+                <mat-form-field>
+                  <mat-label>Datum</mat-label>
+                  <input matInput [matDatepicker]="picker" formControlName="date_created_date" />
+                  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Zeit</mat-label>
+                  <input matInput [matTimepicker]="pickerTime" formControlName="date_created_time" />
+                  <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
+                  <mat-timepicker #pickerTime />
+                </mat-form-field>
+              </div>
+              <div style="display: flex; gap: 6px">
+                <mat-form-field>
+                  <mat-label>Kommunikationsmittel</mat-label>
+                  <select matNativeControl formControlName="communication_type">
+                    <option value="telefon">Telefon</option>
+                    <option value="funk">Funk</option>
+                    <option value="email">E-Mail</option>
+                    <option value="fax">Fax</option>
+                    <option value="sms">SMS</option>
+                    <option value="kurier">Kurier</option>
+                    <option value="anderes">Anderes</option>
+                  </select>
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Nummer/Kanal</mat-label>
+                  <input matInput formControlName="communication_details" />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field>
+                <mat-label>Betreff</mat-label>
+                <input matInput formControlName="message_subject" />
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Meldungsinhalt</mat-label>
+                <textarea matInput formControlName="message_content" rows="10"></textarea>
+              </mat-form-field>
+              <div style="width: 100px">
+                <mat-form-field>
+                  <mat-label>Visum</mat-label>
+                  <input matInput formControlName="visum_decision_receiver" />
+                </mat-form-field>
+              </div>
+
+              <div style="display: flex; justify-content: end; gap: 6px">
+                <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntry.id">
+                  <mat-icon>close</mat-icon>
+                  {{ i18n.get('cancel') }}
+                </button>
+                <button mat-flat-button color="primary">
+                  <mat-icon>check</mat-icon>
+                  {{ i18n.get('save') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab label="Triage">
+          <p *ngIf="selectedJournalEntry.status !== 'awaiting_triage'">
+            <strong>Schlüsselnachricht: </strong>
+            {{
+              selectedJournalEntry.is_key_message !== undefined ?
+                selectedJournalEntry.is_key_message ?
+                  'Ja'
+                : 'Nein'
+              : ''
+            }}<br />
+            <strong>Bereich: </strong> {{ selectedJournalEntry.department }}<br />
+            <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
           </p>
-          <button mat-stroked-button (click)="toggleEditing()" style="align-self: start">
-            <mat-icon>edit</mat-icon>
-            {{ i18n.get('edit') }}
-          </button>
-        </div>
-      </div>
-      <div *ngIf="editing">
-        <div class="journal-entry-details">
-          <div style="width: 100px">
+          <div *ngIf="selectedJournalEntry.status === 'awaiting_triage'">
+            <mat-checkbox>Schlüsselnachricht</mat-checkbox>
             <mat-form-field>
-              <mat-label>Meldungsnr.</mat-label>
-              <input matInput formControlName="message_number" />
-            </mat-form-field>
-          </div>
-          <div style="display: flex; gap: 6px">
-            <mat-form-field>
-              <mat-label>Absender</mat-label>
-              <input matInput formControlName="sender" />
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Empfänger</mat-label>
-              <input matInput formControlName="creator" />
-            </mat-form-field>
-          </div>
-          <div style="display: flex; gap: 6px">
-            <mat-form-field>
-              <mat-label>Datum</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="date_created_date" />
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label>Zeit</mat-label>
-              <input matInput [matTimepicker]="pickerTime" formControlName="date_created_time" />
-              <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
-              <mat-timepicker #pickerTime />
-            </mat-form-field>
-          </div>
-          <div style="display: flex; gap: 6px">
-            <mat-form-field>
-              <mat-label>Kommunikationsmittel</mat-label>
+              <mat-label>Bereich</mat-label>
               <select matNativeControl formControlName="communication_type">
-                <option value="telefon">Telefon</option>
-                <option value="funk">Funk</option>
-                <option value="email">E-Mail</option>
-                <option value="fax">Fax</option>
-                <option value="sms">SMS</option>
-                <option value="kurier">Kurier</option>
-                <option value="anderes">Anderes</option>
+                <option value="politische-behoerde">Politische Behörde</option>
+                <option value="chef-fuehrungsorgan">Chef Führungsorgan</option>
+                <option value="stabschef">Stabschef</option>
+                <option value="fb-lage">FB Lage</option>
+                <option value="fb-information">FB Information</option>
+                <option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</option>
+                <option value="fb-schutz-rettung">FB Schutz + Rettung</option>
+                <option value="fb-gesundheit">FB Gesundheit</option>
+                <option value="fb-logistik">FB Logistik</option>
+                <option value="fb-infrastukturen">FB Infrastrukturen</option>
               </select>
             </mat-form-field>
 
             <mat-form-field>
-              <mat-label>Nummer/Kanal</mat-label>
-              <input matInput formControlName="communication_details" />
-            </mat-form-field>
-          </div>
-
-          <mat-form-field>
-            <mat-label>Betreff</mat-label>
-            <input matInput formControlName="message_subject" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Meldungsinhalt</mat-label>
-            <textarea matInput formControlName="message_content" rows="10"></textarea>
-          </mat-form-field>
-          <div style="width: 100px">
-            <mat-form-field>
               <mat-label>Visum</mat-label>
               <input matInput formControlName="visum_decision_receiver" />
             </mat-form-field>
-          </div>
 
-          <div style="display: flex; justify-content: end; gap: 6px">
-            <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntry.id">
-              <mat-icon>close</mat-icon>
-              {{ i18n.get('cancel') }}
-            </button>
             <button mat-flat-button color="primary">
               <mat-icon>check</mat-icon>
               {{ i18n.get('save') }}
             </button>
           </div>
-        </div>
-      </div>
+        </mat-tab>
+        <mat-tab
+          label="Entscheidung"
+          [disabled]="
+            selectedJournalEntry.status === null ||
+            selectedJournalEntry.status === 'awaiting_triage' ||
+            selectedJournalEntry.status === 'awaiting_drawing'
+          "
+        >
+          <p *ngIf="selectedJournalEntry.status !== 'awaiting_decision'">
+            <strong>Entscheidung: </strong> {{ selectedJournalEntry.decision }}<br />
+            <strong>Mitteilen wem: </strong> {{ selectedJournalEntry.decision }}<br />
+            <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
+          </p>
+          <div *ngIf="selectedJournalEntry.status === 'awaiting_decision'">
+            <mat-form-field>
+              <mat-label>Entscheidung</mat-label>
+              <textarea matInput formControlName="decision" rows="10"></textarea>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Visum</mat-label>
+              <input matInput formControlName="visum_decision_receiver" />
+            </mat-form-field>
 
-      <mat-accordion multi="true" displayMode="flat" *ngIf="selectedJournalEntry.id && !editing">
-        <mat-expansion-panel class="mat-elevation-z0">
-          <mat-expansion-panel-header>
-            <mat-panel-title> Log </mat-panel-title>
-          </mat-expansion-panel-header>
-          <ng-template matExpansionPanelContent>
-            <mat-list class="journal-log-list">
-              <mat-list-item>
-                <span matListItemTitle>Titel bearbeitet</span>
-                <span matListItemLine>Pascal Knecht</span>
-                <span matListItemLine>20.01.2025</span>
-              </mat-list-item>
-            </mat-list>
-          </ng-template>
-        </mat-expansion-panel>
-      </mat-accordion>
+            <button mat-flat-button color="primary">
+              <mat-icon>check</mat-icon>
+              {{ i18n.get('save') }}
+            </button>
+          </div>
+        </mat-tab>
+        <mat-tab
+          label="Ausgang"
+          [disabled]="
+            selectedJournalEntry.status === null ||
+            selectedJournalEntry.status === 'awaiting_triage' ||
+            selectedJournalEntry.status === 'awaiting_drawing' ||
+            selectedJournalEntry.status === 'awaiting_decision'
+          "
+        >
+          <p *ngIf="selectedJournalEntry.visum_decision_deliverer">
+            <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.visum_decision_deliverer }}<br />
+            <strong>Mitgeteilt an: </strong> {{ selectedJournalEntry.visum_decision_receiver }}
+          </p>
+          <div *ngIf="!selectedJournalEntry.visum_decision_deliverer">
+            <mat-form-field>
+              <mat-label>Mitgeteilt durch</mat-label>
+              <input matInput formControlName="visum_decision_receiver" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Mitgeteilt an</mat-label>
+              <input matInput formControlName="visum_decision_receiver" />
+            </mat-form-field>
+
+            <button mat-flat-button color="primary">
+              <mat-icon>check</mat-icon>
+              {{ i18n.get('save') }}
+            </button>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </form>
   </mat-sidenav>
 

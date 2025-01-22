@@ -17,6 +17,8 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JournalEntry } from './journal.types';
 import { ApiService } from '../api/api.service';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-journal',
@@ -33,6 +35,8 @@ import { ApiService } from '../api/api.service';
     MatDatepickerModule,
     MatTimepickerModule,
     MatDividerModule,
+    MatCheckboxModule,
+    MatTabsModule,
     NgIf,
     ReactiveFormsModule,
     FormsModule,
@@ -61,6 +65,8 @@ export class JournalComponent {
     visum_decision_receiver: new FormControl(),
     date_created_date: new FormControl(),
     date_created_time: new FormControl(),
+    decision: new FormControl(),
+    status: new FormControl(),
   });
 
   editing = false;
@@ -87,6 +93,8 @@ export class JournalComponent {
       visum_decision_receiver: entry.visum_decision_receiver,
       date_created_date: entry.date_created,
       date_created_time: entry.date_created,
+      decision: entry.decision,
+      status: entry.status,
     });
   }
 
