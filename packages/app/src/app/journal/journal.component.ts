@@ -94,6 +94,7 @@ export class JournalComponent {
     status: new FormControl(),
     receiver_decision: new FormControl(),
     visum_decision_deliverer: new FormControl(),
+    entryStatus: new FormControl(),
   });
 
   editing = false;
@@ -213,9 +214,7 @@ export class JournalComponent {
   openJournalAddDialog() {
     this.editing = true;
 
-    this.selectedJournalEntry = {
-      entryStatus: 'awaiting_triage',
-    } as JournalEntry;
+    this.selectedJournalEntry = {} as JournalEntry;
 
     this.journalForm.patchValue({
       message_number: '',
@@ -231,6 +230,7 @@ export class JournalComponent {
       is_key_message: false,
       decision: '',
       status: null,
+      entryStatus: 'awaiting_message',
     });
   }
 
@@ -262,7 +262,9 @@ export class JournalComponent {
   async save(event: any) {
     if (event.submitter.name !== 'save') {
       let status = this.journalForm.value.status;
-      if (status === 'awaiting_triage') {
+      if (status === 'awaiting_message') {
+        status = 'awaiting_triage';
+      } else if (status === 'awaiting_triage') {
         status = 'awaiting_decision';
       } else if (status === 'awaiting_decision') {
         status = 'awaiting_completion';
@@ -282,6 +284,7 @@ export class JournalComponent {
             ...this.journalForm.value,
             operation: operation?.id,
             organization: organization?.id,
+            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time)),
           },
         });
       } else {
