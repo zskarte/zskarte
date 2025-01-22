@@ -19,7 +19,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatBadge } from '@angular/material/badge';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { CreditsComponent } from '../credits/credits.component';
 import { SidebarFiltersComponent } from '../sidebar/sidebar-filters/sidebar-filters.component';
 import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
 import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
@@ -42,7 +41,6 @@ import { ZsMapStateSource } from '@zskarte/types';
     MatDivider,
     MatBadge,
     MatSidenavModule,
-    CreditsComponent,
     SidebarFiltersComponent,
     SidebarComponent,
     SidebarHistoryComponent,
@@ -61,6 +59,7 @@ export class FloatingUIComponent {
   private _sync = inject(SyncService);
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
+  session = inject(SessionService);
   sidebar = inject(SidebarService);
 
   static ONBOARDING_VERSION = '1.0';
@@ -76,7 +75,10 @@ export class FloatingUIComponent {
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;
   public canWorkOffline = new BehaviorSubject<boolean>(false);
-  public workLocal: boolean;
+  public showLogo = true;
+  public sidebarTitle = '';
+  public logo = '';
+  public workLocal = false;
 
   constructor() {
     const _state = this._state;
@@ -88,7 +90,45 @@ export class FloatingUIComponent {
       });
     }
 
+    const session = this.session;
+    this.logo = session.getLogo() ?? '';
+    this.workLocal = session.isWorkLocal();
     this._state.observeIsReadOnly().pipe(takeUntil(this._ngUnsubscribe)).subscribe(this.isReadOnly);
+
+    this.sidebar.observeContext()
+    .pipe(takeUntil(this._ngUnsubscribe))
+    .subscribe(sidebarContext => {
+      switch (sidebarContext) {
+        case SidebarContext.Filters:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('filters');
+          break;
+        case SidebarContext.Layers:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('layers');
+          break;
+        case SidebarContext.History:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('history');
+          break;
+        case SidebarContext.Connections:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('connections');
+          break;
+        case SidebarContext.Print:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('print');
+          break;
+        case SidebarContext.SelectedFeature:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('selectedFeature');
+          break;
+        default:
+          this.showLogo = true;
+          this.sidebarTitle = this.session.getOperationName() ?? ''  
+          break;
+      }
+    });
 
     this._state
       .observeHistory()
@@ -112,7 +152,6 @@ export class FloatingUIComponent {
         this.connectionCount.next(connections.length);
       });
 
-    this.workLocal = _session.isWorkLocal();
     if (this.workLocal) {
       this._state
         .observeDisplayState()

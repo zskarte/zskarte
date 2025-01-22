@@ -24,20 +24,31 @@ enablePatches();
 
 const operationCaches: { [key: number]: OperationCache } = {};
 
+// switzerchees: Remove at the end of the week
 const migrateOperations = async (strapi: Strapi) => {
   try {
     const operations = (await strapi.entityService.findMany('api::operation.operation', {
       limit: -1,
     })) as Operation[];
+    strapi.log.info(`Found ${operations.length} operations to migrate`);
+    const operationCount = operations.length;
+    let currentOperation = 1;
     for (const operation of operations) {
-      if (!operation.mapState) continue;
-      operation.mapState = zsMapStateMigration(operation.mapState as any);
-      // switzerchees: TODO fix -> operation.mapState = zsMapStateMigration(operation.mapState as ZsMapStateAllVersions);
-      await strapi.entityService.update('api::operation.operation', operation.id, {
-        data: {
-          mapState: operation.mapState as any,
-        },
-      });
+      try {
+        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.id}`);
+        if (!operation.mapState) continue;
+        operation.mapState = zsMapStateMigration(operation.mapState as any);
+        // switzerchees: TODO fix -> operation.mapState = zsMapStateMigration(operation.mapState as ZsMapStateAllVersions);
+        await strapi.entityService.update('api::operation.operation', operation.id, {
+          data: {
+            mapState: operation.mapState as any,
+          },
+        });
+        strapi.log.info(`Operation ${operation.id} migrated`);
+      } catch (error) {
+        strapi.log.error(error);
+      }
+      currentOperation++;
     }
   } catch (error) {
     strapi.log.error(error);
@@ -117,7 +128,7 @@ const updateMapState = async (operationId: string, identifier: string, patches: 
   const oldMapState = operationCache.mapState;
   for (const patch of validatedPatches) {
     try {
-      operationCache.mapState = applyPatches(oldMapState, [patch]);
+      operationCache.mapState = applyPatches(operationCache.mapState, [patch]);
     } catch (error) {
       strapi.log.error(error);
     }

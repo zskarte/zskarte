@@ -38,4 +38,5 @@ export default [
   'strapi::favicon',
   'strapi::public',
   'global::globalSecurity',
+  'global::superjson',
 ];

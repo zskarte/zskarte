@@ -1,4 +1,4 @@
-import { Extent } from "ol/extent";
+import { Extent } from 'ol/extent';
 
 interface PresistedSettings {
   id?: number;
@@ -9,7 +9,7 @@ interface PresistedSettings {
 export interface WmsSource extends PresistedSettings {
   url: string;
   label: string;
-  type: "wmts" | "wms";
+  type: 'wmts' | 'wms';
   attribution?: [string, string][];
 }
 
@@ -20,8 +20,8 @@ export interface MapSource extends Partial<WmsSource> {
 
 export interface WmsSourceApi extends WmsSource {
   organization?: { id: number };
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 interface SelectedMapLayerSettings {
@@ -43,10 +43,7 @@ export interface GenericOptionalMapLayerOptions {
   attribution?: [string, string][];
 }
 
-export interface MapLayer
-  extends PresistedSettings,
-    SelectedMapLayerSettings,
-    MapLayerGeneralSettings {
+export interface MapLayer extends PresistedSettings, SelectedMapLayerSettings, MapLayerGeneralSettings {
   source?: MapSource | WmsSource;
   fullId: string;
   offlineAvailable?: boolean;
@@ -63,13 +60,11 @@ export interface WMSMapLayer extends MapLayer, GenericOptionalMapLayerOptions {
   tileFormat?: string;
 }
 
-export interface GeoJSONMapLayer
-  extends MapLayer,
-    GenericOptionalMapLayerOptions {
-  styleSourceType: "url" | "text";
+export interface GeoJSONMapLayer extends MapLayer, GenericOptionalMapLayerOptions {
+  styleSourceType: 'url' | 'text';
   styleUrl?: string;
   styleText?: string;
-  styleFormat: "mapbox" | "olFlat";
+  styleFormat: 'mapbox' | 'olFlat';
   styleSourceName?: string;
   searchable?: boolean;
   searchRegExPatterns?: string[][];
@@ -112,13 +107,9 @@ export interface GeoAdminMapLayers {
   [key: string]: GeoAdminMapLayer;
 }
 
-export type MapLayerAllFields = Omit<
-  Partial<GeoAdminMapLayer & WMSMapLayer & CsvMapLayer>,
-  "serverLayerName"
-> &
+export type MapLayerAllFields = Omit<Partial<GeoAdminMapLayer & WMSMapLayer & CsvMapLayer>, 'serverLayerName'> &
   Partial<MapLayerGeneralSettings>;
-export interface MapLayerOptionsApi
-  extends Omit<MapLayerAllFields, keyof MapLayer> {
+export interface MapLayerOptionsApi extends Omit<MapLayerAllFields, keyof MapLayer> {
   opacity?: number;
 }
 
@@ -127,10 +118,7 @@ export interface MapLayerSourceApi {
   custom_source?: string;
 }
 
-export interface MapLayerApi
-  extends Partial<PresistedSettings>,
-    MapLayerGeneralSettings,
-    MapLayerSourceApi {
+export interface MapLayerApi extends Partial<PresistedSettings>, MapLayerGeneralSettings, MapLayerSourceApi {
   options: MapLayerOptionsApi;
   organization?: { id: number };
   public: boolean;

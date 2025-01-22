@@ -1,6 +1,8 @@
 {
   "name": "@zskarte/workspace",
-  "workspaces": ["./packages/*"],
+  "workspaces": [
+    "./packages/*"
+  ],
   "scripts": {
     "start": "run-s start:*",
     "start:app": "cd packages/app && npm start",
@@ -11,7 +13,7 @@
     "lint:types": "biome lint ./packages/types",
     "lint:common": "biome lint ./packages/common",
     "format": "run-p format:*",
-    "format:app-prettier": "prettier --write \"./packages/app/src/**/*.{js,ts,html,scss,json,md}\" --log-level silent",
+    "format:app-prettier": "prettier --write \"./packages/app/src/**/*.{html,scss,md}\" --log-level silent",
     "format:app-biome": "npm run lint:app -- --fix",
     "format:server": "npm run lint:server -- --fix",
     "format:types": "npm run lint:types -- --fix",
@@ -30,6 +32,8 @@
     "tsx": "^4.19.2"
   },
   "dependencies": {
-    "ol": "^10.3.1"
+    "fix-esm": "^1.0.1",
+    "ol": "^10.3.1",
+    "superjson": "^2.2.2"
   }
 }
