@@ -47,7 +47,7 @@ export class SelectSignDialog implements OnInit {
   readonly signSelected = output<Sign>();
 
   loadSigns() {
-    this.allSigns = Signs.SIGNS.sort((a, b) => {
+    this.allSigns = Signs.SIGNS.filter(sign=>!sign.deprecated).sort((a, b) => {
       let aValue = a[this._session.getLocale()];
       let bValue = b[this._session.getLocale()];
       aValue = aValue ? aValue.toLowerCase() : '';

@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "postgres-local",
+      "Group": "Servers",
+      "Host": "postgresql-zskarte",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "postgres",
+      "Password": "supersecret123",
+      "SSLMode": "prefer",
+      "ConnectNow": true
+    }
+  }
+}
