@@ -30,7 +30,7 @@ export interface JournalEntry {
   publishedAt: Date;
   related_symbols: any;
   sender: string;
-  status: 'awaiting_triage' | 'awaiting_drawing' | 'awaiting_decision' | 'completed' | null;
+  status: 'awaiting_triage' | 'awaiting_drawing' | 'awaiting_decision' | 'completed' | 'awaiting_completion' | null;
   updatedAt: Date;
   updatedBy?: string;
   visum_decision_deliverer: string;

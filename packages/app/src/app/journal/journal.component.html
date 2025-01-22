@@ -246,8 +246,40 @@
     <div class="journal-header mat-elevation-z3">
       <h1>Journal</h1>
     </div>
+    <div class="journal-filter">
+      <mat-form-field>
+        <mat-label>Suche</mat-label>
+        <input matInput type="text" [formControl]="searchControl" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Bereich</mat-label>
+        <mat-select [formControl]="departmentControl">
+          <mat-option value="politische-behoerde">Politische Behörde</mat-option>
+          <mat-option value="chef-fuehrungsorgan">Chef Führungsorgan</mat-option>
+          <mat-option value="stabschef">Stabschef</mat-option>
+          <mat-option value="fb-lage">FB Lage</mat-option>
+          <mat-option value="fb-information">FB Information</mat-option>
+          <mat-option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</mat-option>
+          <mat-option value="fb-schutz-rettung">FB Schutz + Rettung</mat-option>
+          <mat-option value="fb-gesundheit">FB Gesundheit</mat-option>
+          <mat-option value="fb-logistik">FB Logistik</mat-option>
+          <mat-option value="fb-infrastukturen">FB Infrastrukturen</mat-option>
+        </mat-select>
+      </mat-form-field>
+        <div class="checkbox-group">
+          <mat-checkbox [checked]="triageFilter" (change)="toggleTriageFilter($event)" >
+            Triage
+          </mat-checkbox>
+          <mat-checkbox [checked]="keyMessageFilter" (change)="toggleKeyMessageFilter($event)">
+            Schlüsselnachricht
+          </mat-checkbox>
+          <mat-checkbox [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+            Ausgang
+          </mat-checkbox>
+        </div>
+    </div>
     <div class="journal-content">
-      <table mat-table matSort [dataSource]="dataSource">
+      <table mat-table matSort [dataSource]="dataSourceFiltered">
         <ng-container matColumnDef="message_number">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('message_number') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>

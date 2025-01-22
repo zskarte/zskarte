@@ -14,12 +14,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JournalEntry } from './journal.types';
 import { ApiService } from '../api/api.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { SessionService } from '../session/session.service';
+import Fuse from 'fuse.js';
 
 @Component({
   selector: 'app-journal',
@@ -41,6 +43,7 @@ import { SessionService } from '../session/session.service';
     NgIf,
     ReactiveFormsModule,
     FormsModule,
+    MatSelectModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -53,6 +56,16 @@ export class JournalComponent {
 
   displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_created', 'creator'];
   dataSource: JournalEntry[] = [];
+  dataSourceFiltered: JournalEntry[] = [];
+  searchControl = new FormControl('');
+  departmentControl = new FormControl('');
+  triageFilter = false;
+  keyMessageFilter = false;
+  outgoingFilter = false;
+  private fuse: Fuse<JournalEntry> = new Fuse([], {
+    includeScore: true,
+    keys: ['message_subject', 'message_content', 'decision']
+  });
 
   selectedJournalEntry: Partial<JournalEntry> | null = null;
 
@@ -76,11 +89,74 @@ export class JournalComponent {
 
   constructor() {
     this.loadJournalEntries();
+    this.initializeSearch();
+    this.initializeDepartmentFilter();
+  }
+
+  private initializeSearch() {
+    this.searchControl.valueChanges.subscribe(searchTerm => {
+      this.filterEntries(searchTerm, this.departmentControl.value);
+    });
+  }
+
+  private initializeDepartmentFilter() {
+    this.departmentControl.valueChanges.subscribe(department => {
+      this.filterEntries(this.searchControl.value, department);
+    });
+  }
+
+  toggleTriageFilter(event: any) {
+    this.triageFilter = event.source.checked;
+    this.filterEntries(this.searchControl.value, this.departmentControl.value);
+  }
+
+  toggleKeyMessageFilter(event: any) {
+    this.keyMessageFilter = event.source.checked;
+    this.filterEntries(this.searchControl.value, this.departmentControl.value);
+  }
+
+  toggleOutgoingFilter(event: any) {
+    this.outgoingFilter = event.source.checked;
+    this.filterEntries(this.searchControl.value, this.departmentControl.value);
+  }
+
+  private filterEntries(searchTerm: string | null, department: string | null) {
+    let filtered = this.dataSource;
+
+    if (department) {
+      filtered = filtered.filter(entry => entry.department === department);
+    }
+
+    if (this.triageFilter) {
+      filtered = filtered.filter(entry => entry.status === 'awaiting_triage');
+    }
+
+    if (this.keyMessageFilter) {
+      filtered = filtered.filter(entry => entry.is_key_message === true);
+    }
+
+    if (this.outgoingFilter) {
+      filtered = filtered.filter(entry => entry.status === 'awaiting_completion');
+    }
+
+    if (searchTerm) {
+      const results = this.fuse.search(searchTerm);
+      filtered = results.map(result => result.item).filter(item => 
+        (!department || item.department === department) &&
+        (!this.triageFilter || item.status === 'awaiting_triage') &&
+        (!this.keyMessageFilter || item.is_key_message === true) &&
+        (!this.outgoingFilter || item.status === 'awaiting_completion')
+      );
+    }
+
+    this.dataSourceFiltered = filtered;
   }
 
   async loadJournalEntries() {
-    const { result } = await this.apiService.get('/api/journal-entries');
-    this.dataSource = result;
+    const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
+    this.dataSource = result || [];
+    this.dataSourceFiltered = this.dataSource;
+    this.fuse.setCollection(this.dataSource);
   }
 
   async selectEntry(entry: JournalEntry) {
@@ -138,7 +214,7 @@ export class JournalComponent {
       status: 'awaiting_triage',
     });
 
-    await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
+    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
       data: {
         ...this.journalForm.value,
       },
@@ -157,7 +233,7 @@ export class JournalComponent {
 
     try {
       if (this.selectedJournalEntry?.id) {
-        await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
+        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
           data: {
             ...this.journalForm.value,
             status: this.journalForm.value.status === 'awaiting_triage' ? 'awaiting_decision' : 'completed',
@@ -166,7 +242,7 @@ export class JournalComponent {
           },
         });
       } else {
-        await this.apiService.post('/api/journal-entries', { 
+        await this.apiService.post<JournalEntry>('/api/journal-entries', { 
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
