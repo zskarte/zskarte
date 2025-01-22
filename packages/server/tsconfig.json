@@ -4,7 +4,11 @@
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": ".",
-    "esModuleInterop": true
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "paths": {
+      "@zskarte/*": ["@zskarte/*"],
+    }
   },
   "include": ["./", "src/**/*.json"],
   "exclude": ["node_modules/", "build/", "dist/", ".cache/", ".tmp/", "src/admin/", "**/*.test.ts", "src/plugins/**"]

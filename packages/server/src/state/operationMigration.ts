@@ -1,17 +1,23 @@
-import { IZsMapStateV1, IZsMapStateV2, ZsMapState, ZsMapStateAllVersions } from '@zskarte/types';
+/*
+
+
+switzerchees: WILL BE DELETED/REFACTORED into types or common package shortly
+
+*/
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-export const migrateMapState = (mapState: ZsMapStateAllVersions | undefined): ZsMapState | undefined => {
+export const zsMapStateMigration = (mapState: any): any => {
   if (!mapState) {
-    return mapState;
+    return;
   }
 
+  // TODO implement migration over multiple versions
   switch (mapState.version) {
     case undefined:
     case 1: {
-      const oldMapState = cloneDeep(mapState) as IZsMapStateV1;
-      const newMapState = cloneDeep(mapState) as IZsMapStateV2;
+      const oldMapState = cloneDeep(mapState);
+      const newMapState = cloneDeep(mapState);
 
       newMapState.version = 2;
       newMapState.layers = oldMapState.layers
@@ -25,6 +31,7 @@ export const migrateMapState = (mapState: ZsMapStateAllVersions | undefined): Zs
         : {};
       newMapState.drawElements = oldMapState.drawElements
         ? oldMapState.drawElements.reduce((acc, element) => {
+            if (!element) return acc;
             if (!element.id) {
               element.id = uuidv4();
             }
@@ -36,6 +43,6 @@ export const migrateMapState = (mapState: ZsMapStateAllVersions | undefined): Zs
       return newMapState;
     }
     default:
-      return mapState as IZsMapStateV2;
+      return mapState;
   }
 };

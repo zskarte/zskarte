@@ -57,7 +57,7 @@ import { SessionService } from '../session/session.service';
 import { SyncService } from '../sync/sync.service';
 import { TextDialogComponent } from '../text-dialog/text-dialog.component';
 import { I18NService } from './i18n.service';
-import { migrateMapState } from './migration';
+import { zsMapStateMigration } from '@zskarte/common';
 
 @Injectable({
   providedIn: 'root',
@@ -143,7 +143,6 @@ export class ZsMapStateService {
       wmsSources: [],
       hiddenSymbols: [],
       hiddenFeatureTypes: [],
-      hiddenCategories: [],
       enableClustering: true,
     };
     if (!mapState) {
@@ -247,7 +246,7 @@ export class ZsMapStateService {
   }
 
   public setMapState(newState?: ZsMapState): void {
-    newState = migrateMapState(newState);
+    newState = zsMapStateMigration(newState);
 
     const cached = Object.keys(this._layerCache);
     for (const c of cached) {
@@ -1051,11 +1050,10 @@ export class ZsMapStateService {
     this._print.next(newState);
   }
 
-  public filterAll(active: boolean, featureTypes: string[], categoryNames: string[]) {
+  public filterAll(active: boolean, featureTypes: string[]) {
     this.updateDisplayState((draft) => {
       draft.hiddenSymbols = active ? [...Signs.SIGNS.map((s) => s.id!)] : [];
       draft.hiddenFeatureTypes = active ? featureTypes : [];
-      draft.hiddenCategories = active ? categoryNames : [];
     });
   }
 
@@ -1077,15 +1075,6 @@ export class ZsMapStateService {
     });
   }
 
-  public toggleCategory(category: string) {
-    if (!category) {
-      return;
-    }
-    this.updateDisplayState((draft) => {
-      toggleInArray<string>(draft.hiddenCategories, category);
-    });
-  }
-
   public toggleClustering() {
     this.updateDisplayState((draft) => {
       draft.enableClustering = !draft.enableClustering;
@@ -1104,15 +1093,6 @@ export class ZsMapStateService {
     return this._display.pipe(
       map((o) => {
         return o?.hiddenFeatureTypes.filter((f) => f !== undefined);
-      }),
-      distinctUntilChanged((x, y) => x === y),
-    );
-  }
-
-  public observeHiddenCategories() {
-    return this._display.pipe(
-      map((o) => {
-        return o?.hiddenCategories;
       }),
       distinctUntilChanged((x, y) => x === y),
     );

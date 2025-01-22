@@ -1,0 +1,37 @@
+{
+  "name": "Public",
+  "description": "Default role given to unauthenticated user.",
+  "type": "public",
+  "permissions": [
+    {
+      "action": "api::access.access.token"
+    },
+    {
+      "action": "api::map-layer.map-layer.find"
+    },
+    {
+      "action": "api::map-layer.map-layer.findOne"
+    },
+    {
+      "action": "api::organization.organization.find"
+    },
+    {
+      "action": "api::organization.organization.forLogin"
+    },
+    {
+      "action": "api::wms-source.wms-source.find"
+    },
+    {
+      "action": "api::wms-source.wms-source.findOne"
+    },
+    {
+      "action": "plugin::users-permissions.auth.callback"
+    },
+    {
+      "action": "plugin::users-permissions.auth.connect"
+    },
+    {
+      "action": "plugin::users-permissions.user.find"
+    }
+  ]
+}

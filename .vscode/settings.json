@@ -1,8 +1,13 @@
 {
   "cSpell.words": [
+    "defence",
     "dexie",
+    "Karte",
     "mapstate",
     "moveend",
+    "organisation",
+    "organisations",
+    "Zivilschutz",
     "zskarte"
   ],
   "editor.defaultFormatter": "biomejs.biome",
@@ -10,6 +15,12 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[md]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

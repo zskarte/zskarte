@@ -5,6 +5,26 @@
   gap: 10px;
 }
 
+.flex-container-connection-label {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  width: 100%;
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.label-span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .connections-container {
   margin-left: 20px;
   margin-right: 20px;
@@ -54,6 +74,8 @@ mat-form-field {
   overflow: hidden;
   text-overflow: ellipsis;
   height: 58px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 hr {

@@ -1,6 +1,6 @@
 # Zivilschutz-Karte V3
 
-[![GitHub issues](https://img.shields.io/github/issues/zskarte/zskarte-v3)](https://github.com/zskarte/zskarte-v3/issues)
+[![GitHub issues](https://img.shields.io/github/issues/zskarte/zskarte)](https://github.com/zskarte/zskarte/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![ZSKarte.ch](https://img.shields.io/website?url=https%3A%2F%2Fwww.zskarte.ch)](https://www.zskarte.ch)
 
@@ -13,25 +13,23 @@ Zivilschutz-Karte is a javascript application (based on Angular) which allows to
 
 Zivilschutz-Karte is optimized and tested for use with Google Chrome - nevertheless other browsers might work as well and are supported in a best effort manner.
 
-If you don't have a Google Chrome installation and do not have the permissions to install software, please see http://portableapps.com/apps/internet/google_chrome_portable
+If you don't have Google Chrome installed and do not have the permissions to install any software, please see [http://portableapps.com/apps/internet/google_chrome_portable]([http://portableapps.com/apps/internet/google_chrome_portable)
 
 ### Use
 
-You can run Zivilschutz-Karte without installation from https://zskarte.ch. This is the production application. Please request access from your civil defence organisation or use the guest mode to try out.
+You can run Zivilschutz-Karte without installation from [https://zskarte.ch](https://zskarte.ch). This is the production application. Please request access from your civil defence organisation or use the guest mode to try out.
 
 ## Terms of use
 
 Please note, that this application integrates several different map provider services. Since the terms of use of the different services usually restrict the extent of use (limited quotas, restricted access to data layers), it's the liability of the user to make sure that the corresponding limitations and/or preconditions are fulfilled.
 
-### Development server
+### Development
 
 Run `npm install` to install dependencies.
 
-Run `npm start` for a dev server. The Angular server will announce itself, usually at `http://localhost:4200/`.
+Run `npm start` for a dev server. The Angular server will announce itself, usually at `http://localhost:4300/`.
 
 The app will automatically reload if you change any of the source files.
-
-To use your own local backend (https://github.com/zskarte/zskarte-server) run `npm run start:local`.
 
 ### Code scaffolding
 
@@ -39,8 +37,8 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ### Build
 
-A build is automatically created when merging into master.
+A build is automatically created when merging into dev (development environment) or main (production environment).
 
 ### Help or Feedback
 
-Create an issue here on github or send feedback to feedback@zskarte.ch. We will use your feedback in the next iteration of the project.
+Create an issue here on github or send feedback to [feedback@zskarte.ch](mailto:feedback@zskarte.ch). We will use your feedback in the next iteration of the project.

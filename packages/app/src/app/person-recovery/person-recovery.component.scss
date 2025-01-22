@@ -1,0 +1,32 @@
+.recovery {
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recovery .actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.recovery-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.recovery-row .text {
+  flex: 1;
+}
+
+.recovery-row img {
+  height: 30px;
+  width: auto;
+}
+
+.recovery-empty {
+  color: var(--mdc-dialog-supporting-text-color);
+}

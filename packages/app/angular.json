@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "zskarte-v3": {
+    "zskarte": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -18,7 +18,7 @@
           "builder": "@angular-devkit/build-angular:application",
           "options": {
             "outputPath": {
-              "base": "dist/zskarte-v3"
+              "base": "dist/zskarte"
             },
             "index": "src/index.html",
             "polyfills": [
@@ -83,17 +83,17 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "zskarte-v3:build:production"
+              "buildTarget": "zskarte:build:production"
             },
             "development": {
-              "buildTarget": "zskarte-v3:build:development"
+              "buildTarget": "zskarte:build:development"
             },
             "development-local": {
-              "buildTarget": "zskarte-v3:build:local",
+              "buildTarget": "zskarte:build:local",
               "proxyConfig": "src/proxy-dev.conf.json"
             },
             "local": {
-              "buildTarget": "zskarte-v3:build:local",
+              "buildTarget": "zskarte:build:local",
               "proxyConfig": "src/proxy-local.conf.json"
             }
           },
@@ -102,7 +102,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "zskarte-v3:build"
+            "buildTarget": "zskarte:build"
           }
         },
         "test": {

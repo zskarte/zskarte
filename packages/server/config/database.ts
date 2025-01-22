@@ -11,14 +11,14 @@ export default ({ env }) => {
         password: env('DATABASE_PASSWORD', 'supersecret123'),
         ssl: env.bool('DATABASE_SSL', false),
       },
-    }
-  }
+    },
+  };
   if (env('DATABASE_CA_CERT', null)) {
     dbConfig.connection.connection.ssl = {
       //need to be false for allow self signed root ca not matching DATABASE_HOST
       rejectUnauthorized: env.bool('DATABASE_SSL_REJECT_SELF', false),
       ca: fs.readFileSync(env('DATABASE_CA_CERT', null)),
-    }
+    };
   }
   return dbConfig;
 };
