@@ -82,17 +82,15 @@
               {{ i18n.get('guestLogin') }}
             </button>
           }
-          @if (!isLoginWithCodeEnabled) {
+          @if (!isLoginWithCodeEnabled && allowOfflineAccess) {
             <text-divider>{{ i18n.get('or') }}</text-divider>
-          }
-          @if (!isLoginWithCodeEnabled) {
-            <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
+            <button class="alternative-login-button" mat-raised-button (click)="workLocal()">
               {{ i18n.get('workLocal') }}
             </button>
           }
         </stack>
       </mat-card-content>
-    } @else {
+    } @else if (allowOfflineAccess) {
       <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
         {{ i18n.get('workLocal') }}
       </button>
