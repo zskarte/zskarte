@@ -40,7 +40,9 @@ export interface AdminApiToken extends Schema.CollectionType {
         minLength: 1;
       }>;
     permissions: Attribute.Relation<'admin::api-token', 'oneToMany', 'admin::api-token-permission'>;
-    type: Attribute.Enumeration<['read-only', 'full-access', 'custom']> & Attribute.Required & Attribute.DefaultTo<'read-only'>;
+    type: Attribute.Enumeration<['read-only', 'full-access', 'custom']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'read-only'>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'admin::api-token', 'oneToOne', 'admin::user'> & Attribute.Private;
   };
@@ -502,7 +504,11 @@ export interface PluginContentReleasesRelease extends Schema.CollectionType {
     };
   };
   attributes: {
-    actions: Attribute.Relation<'plugin::content-releases.release', 'oneToMany', 'plugin::content-releases.release-action'>;
+    actions: Attribute.Relation<
+      'plugin::content-releases.release',
+      'oneToMany',
+      'plugin::content-releases.release-action'
+    >;
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'plugin::content-releases.release', 'oneToOne', 'admin::user'> & Attribute.Private;
     name: Attribute.String & Attribute.Required;
@@ -536,14 +542,20 @@ export interface PluginContentReleasesReleaseAction extends Schema.CollectionTyp
   attributes: {
     contentType: Attribute.String & Attribute.Required;
     createdAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<'plugin::content-releases.release-action', 'oneToOne', 'admin::user'> & Attribute.Private;
+    createdBy: Attribute.Relation<'plugin::content-releases.release-action', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
     entry: Attribute.Relation<'plugin::content-releases.release-action', 'morphToOne'>;
     isEntryValid: Attribute.Boolean;
     locale: Attribute.String;
-    release: Attribute.Relation<'plugin::content-releases.release-action', 'manyToOne', 'plugin::content-releases.release'>;
+    release: Attribute.Relation<
+      'plugin::content-releases.release-action',
+      'manyToOne',
+      'plugin::content-releases.release'
+    >;
     type: Attribute.Enumeration<['publish', 'unpublish']> & Attribute.Required;
     updatedAt: Attribute.DateTime;
-    updatedBy: Attribute.Relation<'plugin::content-releases.release-action', 'oneToOne', 'admin::user'> & Attribute.Private;
+    updatedBy: Attribute.Relation<'plugin::content-releases.release-action', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
   };
 }
 
@@ -696,10 +708,12 @@ export interface PluginUsersPermissionsPermission extends Schema.CollectionType 
   attributes: {
     action: Attribute.String & Attribute.Required;
     createdAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<'plugin::users-permissions.permission', 'oneToOne', 'admin::user'> & Attribute.Private;
+    createdBy: Attribute.Relation<'plugin::users-permissions.permission', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
     role: Attribute.Relation<'plugin::users-permissions.permission', 'manyToOne', 'plugin::users-permissions.role'>;
     updatedAt: Attribute.DateTime;
-    updatedBy: Attribute.Relation<'plugin::users-permissions.permission', 'oneToOne', 'admin::user'> & Attribute.Private;
+    updatedBy: Attribute.Relation<'plugin::users-permissions.permission', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
   };
 }
 
@@ -729,7 +743,11 @@ export interface PluginUsersPermissionsRole extends Schema.CollectionType {
       Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
-    permissions: Attribute.Relation<'plugin::users-permissions.role', 'oneToMany', 'plugin::users-permissions.permission'>;
+    permissions: Attribute.Relation<
+      'plugin::users-permissions.role',
+      'oneToMany',
+      'plugin::users-permissions.permission'
+    >;
     type: Attribute.String & Attribute.Unique;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'plugin::users-permissions.role', 'oneToOne', 'admin::user'> & Attribute.Private;

@@ -52,6 +52,11 @@ export default factories.createCoreController('api::operation.operation', ({ str
   async overview(ctx) {
     ctx.query.fields = ['name', 'description', 'status', 'eventStates', 'updatedAt'];
     ctx.query.sort = 'updatedAt:DESC';
+    if (ctx.query.pagination) {
+      ctx.query.pagination.limit = -1;
+    } else {
+      ctx.query.pagination = { limit: -1 };
+    }
     return await this.find(ctx, undefined);
   },
   async archive(ctx) {

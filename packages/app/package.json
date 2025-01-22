@@ -44,7 +44,6 @@
     "luxon": "^3.5.0",
     "material-icons": "^1.13.12",
     "ngx-indexed-db": "^19.3.1",
-    "ol": "^10.3.1",
     "ol-ext": "^4.0.24",
     "ol-mapbox-style": "^12.4.0",
     "ol-pmtiles": "^2.0.0",

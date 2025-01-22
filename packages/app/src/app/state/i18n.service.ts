@@ -1034,6 +1034,11 @@ export class I18NService {
       en: 'Connections',
       fr: 'Connexions',
     },
+    selectedFeature: {
+      de: 'Ausgewähltes Feature',
+      en: 'Selected Feature',
+      fr: 'Fonctionnalité sélectionnée',
+    },    
     generalFilters: {
       de: 'Globale Filter',
       en: 'Global filters',
@@ -1999,7 +2004,12 @@ export class I18NService {
       de: 'Empfänger',
       en: 'Receiver',
       fr: 'Destinataire'
-    }
+    },
+    coordinates: {
+      de: 'Koordinaten',
+      en: 'Coordinates',
+      fr: 'Coordonnées',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

@@ -8,11 +8,16 @@ proj4.defs(
   'EPSG:2056',
   '+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1 +x_0=2600000 +y_0=1200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs',
 );
+proj4.defs(
+  'EPSG:21781',
+  '+proj=somerc +lat_0=46.9524055555556 +lon_0=7.43958333333333 +k_0=1 +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0 +units=m +no_defs +type=crs',
+);
 register(proj4);
 
 export const coordinatesProjection = getCoordinatesProjection();
 export const mercatorProjection = getMercatorProjection();
 export const swissProjection = getSwissProjection();
+export const lv03Projection = getLV03Projection();
 
 type CoordinateTypes<T> = T | Array<T> | Array<Array<T>>;
 
@@ -176,7 +181,7 @@ export const availableProjections: Array<ZsKarteProjection> = [
       return `${prefix ? 'Mercator ' : ''}${longitude} / ${latitude}`;
     },
     parse(coords: string): Coordinate | undefined {
-      const values = coords.match(/(\d+(?:\.\d+)?) *\/ *(\d+(?:\.\d+)?)/);
+      const values = coords.match(/(\d+(?:\.\d+)?)*\s?(\/|,)\s? *(\d+(?:\.\d+)?)/);
       if (!values) {
         return undefined;
       }
@@ -185,6 +190,10 @@ export const availableProjections: Array<ZsKarteProjection> = [
     },
   }),
 ];
+export const projections: { [key: string]: ZsKarteProjection } = availableProjections.reduce(
+  (acc, next) => ({ ...acc, [next.name]: next }),
+  {},
+);
 
 function getCoordinatesProjection() {
   return get('EPSG:4326'); // see: https://epsg.io/4326 > WGS84 - World Geodetic System 1984, used in GPS
@@ -211,6 +220,10 @@ function getSwissProjection() {
     projection.resolutions = RESOLUTIONS;
   }
   return projection;
+}
+
+function getLV03Projection() {
+  return get('EPSG:21781');
 }
 
 export const projectionByIndex = (projectionIndex: number) => {

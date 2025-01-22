@@ -6,129 +6,132 @@
     mode="side"
     [opened]="selectedJournalEntry !== null"
   >
-    <div class="sidebar-header">
-      <h1>
-        {{ selectedJournalEntry.message_number !== undefined ? selectedJournalEntry.message_number.toString().padStart(3, '0') : '' }} |
-        {{ selectedJournalEntry.message_subject ?? '' }}
-      </h1>
+    <form [formGroup]="journalForm" (ngSubmit)="save()">
+      <div class="sidebar-header">
+        <h1>
+          {{ selectedJournalEntry.message_number !== undefined ? selectedJournalEntry.message_number.toString().padStart(3, '0') : '' }} |
+          {{ selectedJournalEntry.message_subject ?? '' }}
+        </h1>
 
-      <button (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-    <div *ngIf="!editing">
-      <div class="journal-entry-details">
-        <p>
-          <strong>Absender:</strong> {{ selectedJournalEntry.sender }}<br />
-          <strong>Empfänger:</strong> {{ selectedJournalEntry.creator }}<br />
-          <strong>Datum:</strong> {{ selectedJournalEntry.date_created?.toLocaleString('de-CH') }}<br />
-          <strong>Kommunikationsmittel:</strong> {{ selectedJournalEntry.communication_type }}<br />
-          <strong>Nummer/Kanal:</strong> {{ selectedJournalEntry.communication_details }}<br /><br />
-          <strong>Meldungsinhalt:</strong><br />{{ selectedJournalEntry.message_content }}
-        </p>
-        <button mat-stroked-button (click)="toggleEditing()" style="align-self: start">
-          <mat-icon>edit</mat-icon>
-          {{ i18n.get('edit') }}
+        <button (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
+          <mat-icon>close</mat-icon>
         </button>
       </div>
-    </div>
-    <div *ngIf="editing">
-      <div class="journal-entry-details">
-        <div style="width: 100px">
-          <mat-form-field>
-            <mat-label>Meldungsnr.</mat-label>
-            <input matInput disabled [ngModel]="selectedJournalEntry.message_number" />
-          </mat-form-field>
-        </div>
-        <div style="display: flex; gap: 6px">
-          <mat-form-field>
-            <mat-label>Absender</mat-label>
-            <input matInput [ngModel]="selectedJournalEntry.sender" />
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Empfänger</mat-label>
-            <input matInput [ngModel]="selectedJournalEntry.creator" />
-          </mat-form-field>
-        </div>
-        <div style="display: flex; gap: 6px">
-          <mat-form-field>
-            <mat-label>Datum</mat-label>
-            <input matInput [matDatepicker]="picker" />
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Zeit</mat-label>
-            <input matInput [matTimepicker]="pickerTime" />
-            <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
-            <mat-timepicker #pickerTime />
-          </mat-form-field>
-        </div>
-        <div style="display: flex; gap: 6px">
-          <mat-form-field>
-            <mat-label>Kommunikationsmittel</mat-label>
-            <select matNativeControl [ngModel]="selectedJournalEntry.communication_type">
-              <option value="telefon">Telefon</option>
-              <option value="funk">Funk</option>
-              <option value="email">E-Mail</option>
-              <option value="fax">Fax</option>
-              <option value="sms">SMS</option>
-              <option value="kurier">Kurier</option>
-              <option value="anderes">Anderes</option>
-            </select>
-          </mat-form-field>
-
-          <mat-form-field>
-            <mat-label>Nummer/Kanal</mat-label>
-            <input matInput [ngModel]="selectedJournalEntry.communication_details" />
-          </mat-form-field>
-        </div>
-
-        <mat-form-field>
-          <mat-label>Betreff</mat-label>
-          <input matInput [ngModel]="selectedJournalEntry.message_subject" />
-        </mat-form-field>
-        <mat-form-field>
-          <mat-label>Meldungsinhalt</mat-label>
-          <textarea matInput [ngModel]="selectedJournalEntry.message_content" rows="10"></textarea>
-        </mat-form-field>
-        <div style="width: 100px">
-          <mat-form-field>
-            <mat-label>Visum</mat-label>
-            <input matInput [ngModel]="selectedJournalEntry.visum_decision_receiver" />
-          </mat-form-field>
-        </div>
-
-        <div style="display: flex; justify-content: end; gap: 6px">
-          <button mat-stroked-button (click)="toggleEditing()" *ngIf="selectedJournalEntry.id">
-            <mat-icon>close</mat-icon>
-            {{ i18n.get('cancel') }}
-          </button>
-          <button mat-flat-button color="primary" (click)="save()">
-            <mat-icon>check</mat-icon>
-            {{ i18n.get('save') }}
+      <div *ngIf="!editing">
+        <div class="journal-entry-details">
+          <p>
+            <strong>Absender:</strong> {{ selectedJournalEntry.sender }}<br />
+            <strong>Empfänger:</strong> {{ selectedJournalEntry.creator }}<br />
+            <strong>Datum:</strong> {{ selectedJournalEntry.date_created?.toLocaleString('de-CH') }}<br />
+            <strong>Kommunikationsmittel:</strong> {{ selectedJournalEntry.communication_type }}<br />
+            <strong>Nummer/Kanal:</strong> {{ selectedJournalEntry.communication_details }}<br /><br />
+            <strong>Meldungsinhalt:</strong><br />{{ selectedJournalEntry.message_content }}
+          </p>
+          <button mat-stroked-button (click)="toggleEditing()" style="align-self: start">
+            <mat-icon>edit</mat-icon>
+            {{ i18n.get('edit') }}
           </button>
         </div>
       </div>
-    </div>
+      <div *ngIf="editing">
+        <div class="journal-entry-details">
+          <div style="width: 100px">
+            <mat-form-field>
+              <mat-label>Meldungsnr.</mat-label>
+              <input matInput formControlName="message_number" />
+            </mat-form-field>
+          </div>
+          <div style="display: flex; gap: 6px">
+            <mat-form-field>
+              <mat-label>Absender</mat-label>
+              <input matInput formControlName="sender" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Empfänger</mat-label>
+              <input matInput formControlName="creator" />
+            </mat-form-field>
+          </div>
+          <div style="display: flex; gap: 6px">
+            <mat-form-field>
+              <mat-label>Datum</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="date_created_date" />
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Zeit</mat-label>
+              <input matInput [matTimepicker]="pickerTime" formControlName="date_created_time" />
+              <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
+              <mat-timepicker #pickerTime />
+            </mat-form-field>
+          </div>
+          <div style="display: flex; gap: 6px">
+            <mat-form-field>
+              <mat-label>Kommunikationsmittel</mat-label>
+              <select matNativeControl formControlName="communication_type">
+                <option value="telefon">Telefon</option>
+                <option value="funk">Funk</option>
+                <option value="email">E-Mail</option>
+                <option value="fax">Fax</option>
+                <option value="sms">SMS</option>
+                <option value="kurier">Kurier</option>
+                <option value="anderes">Anderes</option>
+              </select>
+            </mat-form-field>
 
-    <mat-accordion multi="true" displayMode="flat">
-      <mat-expansion-panel class="mat-elevation-z0">
-        <mat-expansion-panel-header>
-          <mat-panel-title> Log </mat-panel-title>
-        </mat-expansion-panel-header>
-        <ng-template matExpansionPanelContent>
-          <mat-list class="journal-log-list">
-            <mat-list-item>
-              <span matListItemTitle>Titel bearbeitet</span>
-              <span matListItemLine>Pascal Knecht</span>
-              <span matListItemLine>20.01.2025</span>
-            </mat-list-item>
-          </mat-list>
-        </ng-template>
-      </mat-expansion-panel>
-    </mat-accordion>
+            <mat-form-field>
+              <mat-label>Nummer/Kanal</mat-label>
+              <input matInput formControlName="communication_details" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field>
+            <mat-label>Betreff</mat-label>
+            <input matInput formControlName="message_subject" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Meldungsinhalt</mat-label>
+            <textarea matInput formControlName="message_content" rows="10"></textarea>
+          </mat-form-field>
+          <div style="width: 100px">
+            <mat-form-field>
+              <mat-label>Visum</mat-label>
+              <input matInput formControlName="visum_decision_receiver" />
+            </mat-form-field>
+          </div>
+
+          <div style="display: flex; justify-content: end; gap: 6px">
+            <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntry.id">
+              <mat-icon>close</mat-icon>
+              {{ i18n.get('cancel') }}
+            </button>
+            <button mat-flat-button color="primary">
+              <mat-icon>check</mat-icon>
+              {{ i18n.get('save') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <mat-accordion multi="true" displayMode="flat">
+        <mat-expansion-panel class="mat-elevation-z0">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Log </mat-panel-title>
+          </mat-expansion-panel-header>
+          <ng-template matExpansionPanelContent>
+            <mat-list class="journal-log-list">
+              <mat-list-item>
+                <span matListItemTitle>Titel bearbeitet</span>
+                <span matListItemLine>Pascal Knecht</span>
+                <span matListItemLine>20.01.2025</span>
+              </mat-list-item>
+            </mat-list>
+          </ng-template>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </form>
   </mat-sidenav>
+
   <mat-sidenav-content>
     <div class="journal-header mat-elevation-z3">
       <h1>Journal</h1>

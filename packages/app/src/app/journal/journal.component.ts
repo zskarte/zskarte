@@ -9,13 +9,12 @@ import { I18NService } from '../state/i18n.service';
 import { MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JournalEntry } from './journal.types';
 import { ApiService } from '../api/api.service';
 
@@ -35,6 +34,7 @@ import { ApiService } from '../api/api.service';
     MatTimepickerModule,
     MatDividerModule,
     NgIf,
+    ReactiveFormsModule,
     FormsModule,
   ],
   providers: [provideNativeDateAdapter()],
@@ -43,13 +43,25 @@ import { ApiService } from '../api/api.service';
 })
 export class JournalComponent {
   i18n = inject(I18NService);
-  private dialog = inject(MatDialog);
   private apiService = inject(ApiService);
 
   displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_created', 'creator'];
   dataSource: JournalEntry[] = [];
 
   selectedJournalEntry: Partial<JournalEntry> | null = null;
+
+  journalForm = new FormGroup({
+    message_number: new FormControl(),
+    sender: new FormControl(),
+    creator: new FormControl(),
+    communication_type: new FormControl(),
+    communication_details: new FormControl(),
+    message_subject: new FormControl(),
+    message_content: new FormControl(),
+    visum_decision_receiver: new FormControl(),
+    date_created_date: new FormControl(),
+    date_created_time: new FormControl(),
+  });
 
   editing = false;
 
@@ -59,24 +71,24 @@ export class JournalComponent {
 
   async loadJournalEntries() {
     const { result } = await this.apiService.get('/api/journal-entries');
-    this.dataSource = result.map((entry) => ({
-      ...entry,
-      createdAt: new Date(entry.createdAt),
-      date_created: new Date(entry.date_created),
-      date_visum_decision_deliverer: entry.date_visum_decision_deliverer ? new Date(entry.date_visum_decision_deliverer) : undefined,
-      date_visum_decision_receiver: entry.date_visum_decision_receiver ? new Date(entry.date_visum_decision_receiver) : undefined,
-      date_visum_message: entry.date_visum_message ? new Date(entry.date_visum_message) : undefined,
-      date_visum_triage: entry.date_visum_triage ? new Date(entry.date_visum_triage) : undefined,
-      publishedAt: new Date(entry.publishedAt),
-      updatedAt: new Date(entry.updatedAt),
-    }));
-
-    console.log('dataSource', this.dataSource);
+    this.dataSource = result;
   }
 
   async selectEntry(entry: JournalEntry) {
-    console.log(entry);
     this.selectedJournalEntry = entry;
+    console.log(entry.date_created);
+    this.journalForm.patchValue({
+      message_number: entry.message_number,
+      sender: entry.sender,
+      creator: entry.creator,
+      communication_type: entry.communication_type,
+      communication_details: entry.communication_details,
+      message_subject: entry.message_subject,
+      message_content: entry.message_content,
+      visum_decision_receiver: entry.visum_decision_receiver,
+      date_created_date: entry.date_created,
+      date_created_time: entry.date_created,
+    });
   }
 
   resetEntry() {
