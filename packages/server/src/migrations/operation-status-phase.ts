@@ -11,7 +11,7 @@ import { Strapi } from '@strapi/strapi';
 // switzerchees: Remove at the end of the week
 export const migrateOperationStatusesToPhases = async (strapi: Strapi) => {
   try {
-    const operations = (await strapi.entityService.findMany('api::operation.operation', {
+    const operations = (await strapi.documents('api::operation.operation').findMany({
       limit: -1,
     })) as unknown as Operation[];
     strapi.log.info(`Found ${operations.length} operations to migrate status`);
@@ -24,7 +24,8 @@ export const migrateOperationStatusesToPhases = async (strapi: Strapi) => {
           strapi.log.info(`Operation ${operation.id} already migrated`);
           continue;
         }
-        await strapi.entityService.update('api::operation.operation', operation.id, {
+        await strapi.documents('api::operation.operation').update({
+          documentId: operation.id.toString(),
           data: {
             phase: operation.status as OperationPhase,
           },

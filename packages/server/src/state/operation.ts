@@ -24,7 +24,7 @@ const operationCaches: { [key: number]: OperationCache } = {};
 /** Loads all active operations initially and generates the in-memory cache */
 const loadOperations = async (strapi: Core.Strapi) => {
   try {
-    const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
+    const activeOperations = (await strapi.documents('api::operation.operation').findMany({
       filters: { phase: OperationPhases.ACTIVE },
       populate: ['organization'],
       limit: -1,
@@ -154,7 +154,7 @@ const persistMapStates = async (strapi: Core.Strapi) => {
 /** Archive operations who are active and are not updated since 7 days */
 const archiveOperations = async (strapi: Core.Strapi) => {
   try {
-    const activeOperations = (await strapi.entityService.findMany('api::operation.operation', {
+    const activeOperations = (await strapi.documents('api::operation.operation').findMany({
       filters: { phase: OperationPhases.ACTIVE },
       limit: -1,
     })) as unknown as Operation[];
