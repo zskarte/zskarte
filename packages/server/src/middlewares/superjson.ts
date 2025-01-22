@@ -20,6 +20,7 @@ export default (_index, { strapi }: { strapi: Strapi }) => {
   return async (ctx: Context, next) => {
     // Ignore non api requests
     if (!ctx.url.startsWith('/api/')) return await next();
+    await next();
     try {
       if (!ctx.response.body || typeof ctx.response.body !== 'object') {
         strapi.log.warn('Response body is not an object, skipping superjson serialization');
