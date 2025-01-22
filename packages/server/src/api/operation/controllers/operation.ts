@@ -29,7 +29,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
       return { message: 'Missing headers: identifier or operationId' };
     }
     const patches: PatchExtended[] = ctx.request.body;
-    await updateMapState(operationid, identifier, patches);
+    await updateMapState(operationid as string, identifier as string, patches); //TODO: Remove as string
     ctx.status = 200;
     return { success: true };
   },
@@ -45,7 +45,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
       ctx.status = 400;
       return { message: 'invalid coordinates' };
     }
-    await updateCurrentLocation(operationid, identifier, { long, lat });
+    await updateCurrentLocation(operationid as string, identifier as string, { long, lat }); //TODO: Remove as string
     ctx.status = 200;
     return { success: true };
   },
@@ -53,7 +53,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     ctx.query.fields = ['name', 'description', 'status', 'eventStates', 'updatedAt'];
     ctx.query.sort = 'updatedAt:DESC';
     if (ctx.query.pagination) {
-      ctx.query.pagination.limit = -1;
+      (ctx.query.pagination as any).limit = -1; //TODO: Remove ANY
     } else {
       ctx.query.pagination = { limit: -1 };
     }

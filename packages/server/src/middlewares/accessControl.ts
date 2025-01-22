@@ -2,7 +2,7 @@
  * `accessControl` middleware
  */
 
-import { Strapi, Common } from '@strapi/strapi';
+import { Core, UID } from '@strapi/strapi';
 import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationStates } from '../definitions';
 import type { HasOperationType, HasOrganizationType, AccessCheckableType } from '../definitions/TypeGuards';
 import {
@@ -14,7 +14,7 @@ import {
   hasPublic,
 } from '../definitions/TypeGuards';
 
-export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>, { strapi }: { strapi: Strapi }) => {
+export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { strapi }: { strapi: Core.Strapi }) => {
   const logAccessViolation = (ctx, message: string, userOrganisationId, jwtOperationId) => {
     strapi.log.warn(
       `[global::accessControl]: ${message}, url:${ctx.request.url}, userOrganisationId:${userOrganisationId}, jwtOperationId:${jwtOperationId}, ip:${ctx.request.ip}, user-agent:${ctx.request.headers['user-agent']}`,
@@ -227,7 +227,8 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
         return entry;
         */
       } else {
-        const entry = (await strapi.documents(contentType).findOne({
+        const entry = (await strapi.documents(contentType as any).findOne({
+          //TODO: Remove ANY
           documentId: entryId,
           fields: ['id'],
           populate: { operation: { fields: ['id', 'status'], populate: { organization: { fields: ['id'] } } } },
@@ -240,21 +241,24 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
   const getOrganization = async (contentType: HasOrganizationType, entryId) => {
     if (entryId) {
       if (hasPublic(contentType)) {
-        const entry = (await strapi.documents(contentType).findOne({
+        const entry = (await strapi.documents(contentType as any).findOne({
+          //TODO: Remove ANY
           documentId: entryId,
           fields: ['id', 'public'],
           populate: { organization: { fields: ['id'] } },
-        })) as { id: number; public: boolean; organization: Organization };
+        })) as unknown as { id: number; public: boolean; organization: Organization };
         return entry;
       } else if (isOperation(contentType)) {
-        const entry = (await strapi.documents(contentType).findOne({
+        const entry = (await strapi.documents(contentType as any).findOne({
+          //TODO: Remove ANY
           documentId: entryId,
           fields: ['id', 'status'],
           populate: { organization: { fields: ['id'] } },
         })) as { id: number; status: string; organization: Organization };
         return entry;
       } else {
-        const entry = (await strapi.documents(contentType).findOne({
+        const entry = (await strapi.documents(contentType as any).findOne({
+          //TODO: Remove ANY
           documentId: entryId,
           fields: ['id'],
           populate: { organization: { fields: ['id'] } },

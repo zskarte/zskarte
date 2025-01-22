@@ -31,7 +31,7 @@ export default (plugin) => {
           map_layer_favorites: { fields: ['id'] },
         },
         limit: 1,
-      })) as Organization[];
+      })) as unknown as Organization[];
       const organization = _.first(organizations);
       ctx.body.organization = organization;
       //want to return wms-source/map-layer id's only, strapi cannot do that (v14.7) therefore the population with fields, and here map the results to an id array

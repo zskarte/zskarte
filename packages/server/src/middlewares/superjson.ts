@@ -1,4 +1,4 @@
-import { Strapi } from '@strapi/strapi';
+import { Core } from '@strapi/strapi';
 import { Context } from 'koa';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 export const superjson = require('fix-esm').require('superjson') as typeof import('superjson');
@@ -16,8 +16,10 @@ const transformDates = (data) => {
   return data;
 };
 
-export default (_index, { strapi }: { strapi: Strapi }) => {
+export default (_index, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx: Context, next) => {
+    // Ignore non api requests
+    if (!ctx.url.startsWith('/api/')) return await next();
     await next();
     try {
       if (!ctx.response.body || typeof ctx.response.body !== 'object') {

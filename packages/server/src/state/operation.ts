@@ -85,7 +85,7 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
     const mapState = operation.mapState || {};
     operationCaches[operation.id] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
     if (!operation.organization) return;
-    operationCaches[operation.id].users.push(...operation.organization.users);
+    operationCaches[operation.id].users.push(...(operation.organization.users || []));
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_UPDATE) {
     if (operation.status === OperationStates.ARCHIVED) {
@@ -96,7 +96,7 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
       const mapState = operation.mapState || {};
       operationCaches[operation.id] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
       if (!operation.organization) return;
-      operationCaches[operation.id].users.push(...operation.organization.users);
+      operationCaches[operation.id].users.push(...(operation.organization.users || []));
     } else {
       operationCaches[operation.id].operation = operation;
     }
@@ -209,7 +209,8 @@ const archiveOperations = async (strapi: Core.Strapi) => {
 
 const deleteGuestOperations = async (strapi: Core.Strapi) => {
   try {
-    const guestUsers = (await strapi.documents('plugin::users-permissions.user').findMany({
+    const guestUsers = (await strapi.documents('plugin::users-permissions.user' as any).findMany({
+      //TODO: Remove ANY
       fields: ['id', 'username', 'email'],
       filters: { username: 'zso_guest' },
       populate: ['organization.operations'],
@@ -252,7 +253,7 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
       await strapi.documents('api::map-snapshot.map-snapshot').create({
         data: {
           operation,
-          mapState: operation.mapState as Attribute.JsonValue,
+          mapState: operation.mapState as any,
           publishedAt: Date.now(),
         },
       });
