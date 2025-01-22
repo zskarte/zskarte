@@ -1451,6 +1451,26 @@ export class Signs {
       en: 'Trace protection',
       fr: 'Protection des traces',
     },
+    {
+      id: 161,
+      kat: 'formation',
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BSM/Sanitaetsdienst.svg',
+      de: 'Sanitätsdienst',
+      en: 'Medical service',
+      fr: 'Service sanitaire',
+    },
+    {
+      id: 162,
+      kat: 'action',
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BABS/Rettungswagen.svg',
+      de: 'Rettungswagen / Ambulanz',
+      en: 'Abulance',
+      fr: 'Ambulance',
+    },
   ];
 
   public static getSignById(id: number | undefined): Sign | undefined {
