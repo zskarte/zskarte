@@ -334,7 +334,6 @@ export class MapRendererComponent implements AfterViewInit {
         }
       });
     this._select.on('select', (event) => {
-      console.log('selected!!')
       this._modifyCache.clear();
       this.toggleEditButtons(false);
       for (const cluster of event.selected) {
@@ -392,10 +391,12 @@ export class MapRendererComponent implements AfterViewInit {
     this._modify.on('modifystart', (event) => {
       this._currentSketch = this.getFeatureInsideCluster(event.features.getArray()[0]);
       this.toggleEditButtons(false);
-      this._state.resetSelectedFeature();
+      this._state.setHideSelectedFeature(true);
     });
 
     this._modify.on('modifyend', (e) => {
+      this._state.setHideSelectedFeature(false);
+
       if (e.features.getLength() <= 0) {
         return;
       }
@@ -403,8 +404,6 @@ export class MapRendererComponent implements AfterViewInit {
       this._currentSketch = undefined;
       // only first feature is relevant
       const feature = this.getFeatureInsideCluster(e.features.getArray()[0] as Feature<SimpleGeometry>);
-      this._state.setSelectedFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
-
       const element = this._drawElementCache[feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
       element.element.setCoordinates(feature.getGeometry()?.getCoordinates() ?? []);
       if (this._modify['vertexFeature_']) {
@@ -424,10 +423,12 @@ export class MapRendererComponent implements AfterViewInit {
 
     this._translate.on('translatestart', () => {
       this.toggleEditButtons(false);
-      this._state.resetSelectedFeature();
+      this._state.setHideSelectedFeature(true);
     });
 
     this._translate.on('translateend', (e) => {
+      this._state.setHideSelectedFeature(false);
+
       if (e.features.getLength() <= 0) {
         return;
       }
@@ -435,7 +436,6 @@ export class MapRendererComponent implements AfterViewInit {
       const feature = this.getFeatureInsideCluster(e.features.getArray()[0]);
       const element = this._drawElementCache[feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
       element.element.setCoordinates((feature.getGeometry() as SimpleGeometry).getCoordinates() as number[]);
-      this._state.setSelectedFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
 
       if (element.element.elementState?.type === ZsMapDrawElementStateType.SYMBOL) {
         // Hack to ensure, the buttons show up at the correct location immediately
