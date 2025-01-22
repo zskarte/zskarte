@@ -241,13 +241,14 @@
       <h1>Journal</h1>
     </div>
     <div class="journal-filter">
-      <mat-form-field>
+      <mat-form-field class="journal-filter-search">
         <mat-label>Suche</mat-label>
         <input matInput type="text" [formControl]="searchControl" />
       </mat-form-field>
-      <mat-form-field>
+      <mat-form-field class="journal-filter-department">
         <mat-label>Bereich</mat-label>
         <mat-select [formControl]="departmentControl">
+          <mat-option>None</mat-option>
           <mat-option value="politische-behoerde">Politische Behörde</mat-option>
           <mat-option value="chef-fuehrungsorgan">Chef Führungsorgan</mat-option>
           <mat-option value="stabschef">Stabschef</mat-option>
@@ -260,17 +261,22 @@
           <mat-option value="fb-infrastukturen">FB Infrastrukturen</mat-option>
         </mat-select>
       </mat-form-field>
-        <div class="checkbox-group">
-          <mat-checkbox [checked]="triageFilter" (change)="toggleTriageFilter($event)" >
-            Triage
-          </mat-checkbox>
-          <mat-checkbox [checked]="keyMessageFilter" (change)="toggleKeyMessageFilter($event)">
-            Schlüsselnachricht
-          </mat-checkbox>
-          <mat-checkbox [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
-            Ausgang
-          </mat-checkbox>
-        </div>
+      <mat-chip-listbox>
+        <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
+          Schlüsselnachricht
+        </mat-chip-option>
+      </mat-chip-listbox>
+      <mat-button-toggle-group multiple>
+        <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+          Triage
+        </mat-button-toggle>
+        <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+          Entscheidung
+        </mat-button-toggle>
+        <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+          Ausgang
+        </mat-button-toggle>
+      </mat-button-toggle-group>
     </div>
     <div class="journal-content">
       <table mat-table matSort [dataSource]="dataSourceFiltered">
