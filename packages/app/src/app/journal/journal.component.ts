@@ -19,6 +19,7 @@ import { JournalEntry } from './journal.types';
 import { ApiService } from '../api/api.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
+import { SessionService } from '../session/session.service';
 
 @Component({
   selector: 'app-journal',
@@ -48,6 +49,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 export class JournalComponent {
   i18n = inject(I18NService);
   private apiService = inject(ApiService);
+  private sessionService = inject(SessionService);
 
   displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_created', 'creator'];
   dataSource: JournalEntry[] = [];
@@ -164,23 +166,39 @@ export class JournalComponent {
     if (event.submitter.name !== 'save') {
       this.journalForm.patchValue({ status: this.journalForm.value.status === 'awaiting_triage' ? 'awaiting_decision' : 'completed' });
     }
+    const operation = this.sessionService.getOperation();
+    const organization = this.sessionService.getOrganization();
 
-    if (this.selectedJournalEntry?.id) {
-      await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
-        data: this.journalForm.value,
-      });
-    } else {
-      await this.apiService.post('/api/journal-entries', { data: this.journalForm.value });
+    try {
+      if (this.selectedJournalEntry?.id) {
+        await this.apiService.put(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
+          data: {
+            ...this.journalForm.value,
+            operation: operation?.id,
+            organization: organization?.id,
+          },
+        });
+      } else {
+        await this.apiService.post('/api/journal-entries', {
+          data: {
+            ...this.journalForm.value,
+            operation: operation?.id,
+            organization: organization?.id,
+          },
+        });
+      }
+
+      await this.loadJournalEntries();
+
+      const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
+      if (currentEntry) {
+        await this.selectEntry(currentEntry);
+      }
+
+      this.editing = false;
+      this.selectedJournalEntry = null;
+    } catch (error) {
+      console.error('Error saving journal entry:', error);
     }
-
-    await this.loadJournalEntries();
-
-    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
-
-    if (currentEntry) {
-      await this.selectEntry(currentEntry);
-    }
-
-    this.editing = false;
   }
 }
