@@ -88,6 +88,7 @@ export class ZsMapStateService {
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<ZsMapElementToDraw | undefined>(undefined);
   private _selectedFeature = new BehaviorSubject<string | undefined>(undefined);
+  private _hideSelectedFeature = new BehaviorSubject<boolean>(false);
   private _recentlyUsedElement = new BehaviorSubject<ZsMapDrawElementState[]>([]);
 
   private _mergeMode = new BehaviorSubject<boolean>(false);
@@ -442,6 +443,10 @@ export class ZsMapStateService {
     this._selectedFeature.next(undefined);
   }
 
+  public setHideSelectedFeature(hide: boolean) {
+    this._hideSelectedFeature.next(hide);
+  }
+
   public setMapZoom(zoom: number) {
     this.updateDisplayState((draft) => {
       draft.mapZoom = zoom;
@@ -660,6 +665,10 @@ export class ZsMapStateService {
 
   public observeSelectedFeature$(): Observable<string | undefined> {
     return this._selectedFeature.asObservable();
+  }
+
+  public observeHideSelectedFeature$(): Observable<boolean> {
+    return this._hideSelectedFeature.asObservable().pipe(debounceTime(100));
   }
 
   public observeSelectedElement$(): Observable<ZsMapBaseDrawElement | undefined> {

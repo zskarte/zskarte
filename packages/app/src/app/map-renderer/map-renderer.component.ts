@@ -45,7 +45,7 @@ import {
 } from 'rxjs';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { areArraysEqual } from '../helper/array';
-import { formatArea, formatLength, indexOfPointInCoordinateGroup } from '../helper/coordinates';
+import { areCoordinatesEqual, formatArea, formatLength, indexOfPointInCoordinateGroup } from '../helper/coordinates';
 import { debounce } from '../helper/debounce';
 import { DrawElementHelper } from '../helper/draw-element-helper';
 import { projectionByIndex } from '../helper/projections';
@@ -320,6 +320,7 @@ export class MapRendererComponent implements AfterViewInit {
     this._select = new Select({
       hitTolerance: 10,
       style: (feature: FeatureLike, resolution: number) => {
+        console.log('stylee')
         return DrawStyle.styleFunctionSelect(feature, resolution, true);
       },
       layers: this._allLayers,
@@ -390,9 +391,12 @@ export class MapRendererComponent implements AfterViewInit {
     this._modify.on('modifystart', (event) => {
       this._currentSketch = this.getFeatureInsideCluster(event.features.getArray()[0]);
       this.toggleEditButtons(false);
+      this._state.setHideSelectedFeature(true);
     });
 
     this._modify.on('modifyend', (e) => {
+      this._state.setHideSelectedFeature(false);
+
       if (e.features.getLength() <= 0) {
         return;
       }
@@ -404,7 +408,11 @@ export class MapRendererComponent implements AfterViewInit {
       element.element.setCoordinates(feature.getGeometry()?.getCoordinates() ?? []);
       if (this._modify['vertexFeature_']) {
         this.selectedVertexPoint.next(this._modify['vertexFeature_'].getGeometry().getCoordinates());
-        this.toggleEditButtons(true);
+        const type = element.element.elementState?.type;
+        const symbolCoordinates = DrawStyle.getIconCoordinates(feature, this._view.getResolution() ?? 1)[0];
+        const modifyCoordinates = e.mapBrowserEvent.coordinate;
+        const toggleRotate = type === ZsMapDrawElementStateType.SYMBOL && areCoordinatesEqual(symbolCoordinates, modifyCoordinates);
+        this.toggleEditButtons(true, toggleRotate);
       }
     });
 
@@ -415,9 +423,12 @@ export class MapRendererComponent implements AfterViewInit {
 
     this._translate.on('translatestart', () => {
       this.toggleEditButtons(false);
+      this._state.setHideSelectedFeature(true);
     });
 
     this._translate.on('translateend', (e) => {
+      this._state.setHideSelectedFeature(false);
+
       if (e.features.getLength() <= 0) {
         return;
       }
