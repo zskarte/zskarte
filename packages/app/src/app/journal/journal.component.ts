@@ -22,6 +22,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { SessionService } from '../session/session.service';
 import Fuse from 'fuse.js';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-journal',
@@ -44,6 +46,8 @@ import Fuse from 'fuse.js';
     ReactiveFormsModule,
     FormsModule,
     MatSelectModule,
+    MatChipsModule,
+    MatButtonToggleModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -62,6 +66,7 @@ export class JournalComponent {
   triageFilter = false;
   keyMessageFilter = false;
   outgoingFilter = false;
+  decisionFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
     keys: ['message_subject', 'message_content', 'decision'],
@@ -117,12 +122,18 @@ export class JournalComponent {
   }
 
   toggleKeyMessageFilter(event: any) {
-    this.keyMessageFilter = event.source.checked;
+    console.log('toggleKeyMessageFilter', event);
+    this.keyMessageFilter = event.selected;
     this.filterEntries(this.searchControl.value, this.departmentControl.value);
   }
 
   toggleOutgoingFilter(event: any) {
     this.outgoingFilter = event.source.checked;
+    this.filterEntries(this.searchControl.value, this.departmentControl.value);
+  }
+
+  toggleDecisionFilter(event: any) {
+    this.decisionFilter = event.source.checked;
     this.filterEntries(this.searchControl.value, this.departmentControl.value);
   }
 
@@ -138,11 +149,15 @@ export class JournalComponent {
     }
 
     if (this.keyMessageFilter) {
-      filtered = filtered.filter((entry) => entry.is_key_message === true);
+      filtered = filtered.filter((entry) => entry.is_key_message);
     }
 
     if (this.outgoingFilter) {
       filtered = filtered.filter((entry) => entry.status === 'awaiting_completion');
+    }
+
+    if (this.decisionFilter) {
+      filtered = filtered.filter((entry) => entry.status === 'awaiting_decision');
     }
 
     if (searchTerm) {
@@ -153,8 +168,9 @@ export class JournalComponent {
           (item) =>
             (!department || item.department === department) &&
             (!this.triageFilter || item.status === 'awaiting_triage') &&
-            (!this.keyMessageFilter || item.is_key_message === true) &&
-            (!this.outgoingFilter || item.status === 'awaiting_completion'),
+            (!this.keyMessageFilter || item.is_key_message) &&
+            (!this.outgoingFilter || item.status === 'awaiting_completion') &&
+            (!this.decisionFilter || item.status === 'awaiting_decision'),
         );
     }
 

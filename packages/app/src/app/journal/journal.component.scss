@@ -91,7 +91,13 @@
   gap: 6px
 }
 
-.journal-entry-filter {
+.journal-filter {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.journal-filter-search,
+.journal-filter-department {
+  width: 20em;
 }
