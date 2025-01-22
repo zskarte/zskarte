@@ -11,10 +11,10 @@ export interface JournalEntry {
   createdBy?: string;
   creator: string;
   date_created: Date;
-  date_decision_delivered: Date;
-  date_decision: Date;
+  date_decision_delivered: Date | null;
+  date_decision: Date | null;
 
-  date_triage: Date;
+  date_triage: Date | null;
   decision: string;
   department: string;
   is_key_message: boolean;
@@ -29,11 +29,13 @@ export interface JournalEntry {
   publishedAt: Date;
   related_symbols: any;
   sender: string;
-  status: 'awaiting_triage' | 'awaiting_drawing' | 'awaiting_decision' | 'awaiting_completion' | 'completed' | null;
+  status: 'awaiting_triage' | 'awaiting_drawing' | 'awaiting_decision' | 'awaiting_completion' | 'completed';
   updatedAt: Date;
   updatedBy?: string;
   visum_decision_deliverer: string;
   visum_decision_receiver: string;
   visum_message: string;
   visum_triage: string;
+  visum_decider: string;
+  decision_receiver: string;
 }

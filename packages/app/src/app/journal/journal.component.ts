@@ -64,7 +64,7 @@ export class JournalComponent {
   outgoingFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
-    keys: ['message_subject', 'message_content', 'decision']
+    keys: ['message_subject', 'message_content', 'decision'],
   });
   selectedIndex: number = 0;
 
@@ -100,13 +100,13 @@ export class JournalComponent {
   }
 
   private initializeSearch() {
-    this.searchControl.valueChanges.subscribe(searchTerm => {
+    this.searchControl.valueChanges.subscribe((searchTerm) => {
       this.filterEntries(searchTerm, this.departmentControl.value);
     });
   }
 
   private initializeDepartmentFilter() {
-    this.departmentControl.valueChanges.subscribe(department => {
+    this.departmentControl.valueChanges.subscribe((department) => {
       this.filterEntries(this.searchControl.value, department);
     });
   }
@@ -130,29 +130,32 @@ export class JournalComponent {
     let filtered = this.dataSource;
 
     if (department) {
-      filtered = filtered.filter(entry => entry.department === department);
+      filtered = filtered.filter((entry) => entry.department === department);
     }
 
     if (this.triageFilter) {
-      filtered = filtered.filter(entry => entry.status === 'awaiting_triage');
+      filtered = filtered.filter((entry) => entry.status === 'awaiting_triage');
     }
 
     if (this.keyMessageFilter) {
-      filtered = filtered.filter(entry => entry.is_key_message === true);
+      filtered = filtered.filter((entry) => entry.is_key_message === true);
     }
 
     if (this.outgoingFilter) {
-      filtered = filtered.filter(entry => entry.status === 'awaiting_completion');
+      filtered = filtered.filter((entry) => entry.status === 'awaiting_completion');
     }
 
     if (searchTerm) {
       const results = this.fuse.search(searchTerm);
-      filtered = results.map(result => result.item).filter(item => 
-        (!department || item.department === department) &&
-        (!this.triageFilter || item.status === 'awaiting_triage') &&
-        (!this.keyMessageFilter || item.is_key_message === true) &&
-        (!this.outgoingFilter || item.status === 'awaiting_completion')
-      );
+      filtered = results
+        .map((result) => result.item)
+        .filter(
+          (item) =>
+            (!department || item.department === department) &&
+            (!this.triageFilter || item.status === 'awaiting_triage') &&
+            (!this.keyMessageFilter || item.is_key_message === true) &&
+            (!this.outgoingFilter || item.status === 'awaiting_completion'),
+        );
     }
 
     this.dataSourceFiltered = filtered;
@@ -194,7 +197,9 @@ export class JournalComponent {
   openJournalAddDialog() {
     this.editing = true;
 
-    this.selectedJournalEntry = {} as JournalEntry;
+    this.selectedJournalEntry = {
+      status: 'awaiting_triage',
+    } as JournalEntry;
 
     this.journalForm.patchValue({
       message_number: '',
@@ -240,7 +245,16 @@ export class JournalComponent {
 
   async save(event: any) {
     if (event.submitter.name !== 'save') {
-      this.journalForm.patchValue({ status: this.journalForm.value.status === 'awaiting_triage' ? 'awaiting_decision' : 'completed' });
+      let status = this.journalForm.value.status;
+      if (status === 'awaiting_triage') {
+        status = 'awaiting_decision';
+      } else if (status === 'awaiting_decision') {
+        status = 'awaiting_completion';
+      } else {
+        status = 'completed';
+      }
+
+      this.journalForm.patchValue({ status });
     }
     const operation = this.sessionService.getOperation();
     const organization = this.sessionService.getOrganization();
@@ -272,7 +286,6 @@ export class JournalComponent {
       }
 
       this.editing = false;
-      this.selectedJournalEntry = null;
     } catch (error) {
       console.error('Error saving journal entry:', error);
     }

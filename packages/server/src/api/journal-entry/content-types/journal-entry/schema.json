@@ -66,6 +66,7 @@
         "awaiting_triage",
         "awaiting_drawing",
         "awaiting_decision",
+        "awaiting_completion",
         "completed"
       ]
     },
@@ -84,6 +85,12 @@
     },
     "date_decision_delivered": {
       "type": "datetime"
+    },
+    "visum_decider": {
+      "type": "string"
+    },
+    "decision_receiver": {
+      "type": "string"
     }
   }
 }

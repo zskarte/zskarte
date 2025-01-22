@@ -22,11 +22,11 @@
           <div *ngIf="!editing">
             <div class="journal-entry-details">
               <p>
-                <strong>Absender:</strong> {{ selectedJournalEntry.sender }}<br />
-                <strong>Empfänger:</strong> {{ selectedJournalEntry.creator }}<br />
-                <strong>Datum:</strong> {{ selectedJournalEntry.date_message.toLocaleString() }}<br />
-                <strong>Kommunikationsmittel:</strong> {{ selectedJournalEntry.communication_type }}<br />
-                <strong>Nummer/Kanal:</strong> {{ selectedJournalEntry.communication_details }}<br /><br />
+                <strong>Absender: </strong>{{ selectedJournalEntry.sender }}<br />
+                <strong>Empfänger: </strong>{{ selectedJournalEntry.creator }}<br />
+                <strong>Datum: </strong>{{ selectedJournalEntry.date_message.toLocaleString() }}<br />
+                <strong>Kommunikationsmittel: </strong>{{ selectedJournalEntry.communication_type }}<br />
+                <strong>Nummer/Kanal: </strong>{{ selectedJournalEntry.communication_details }}<br /><br />
                 <strong>Meldungsinhalt:</strong><br />{{ selectedJournalEntry.message_content }}
               </p>
               <button mat-stroked-button type="button" (click)="toggleEditing()" style="align-self: start">
@@ -127,7 +127,8 @@
                 : ''
               }}<br />
               <strong>Bereich: </strong> {{ selectedJournalEntry.department }}<br />
-              <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
+              <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}<br />
+              <strong>Triagedatum: </strong> {{ selectedJournalEntry.date_triage?.toLocaleString() }}
             </p>
             <div *ngIf="selectedJournalEntry.status === 'awaiting_triage'">
               <mat-checkbox formControlName="is_key_message">Schlüsselnachricht</mat-checkbox>
@@ -172,8 +173,9 @@
           <div class="journal-entry-details">
             <p *ngIf="selectedJournalEntry.status !== 'awaiting_decision'">
               <strong>Entscheidung: </strong> {{ selectedJournalEntry.decision }}<br />
-              <strong>Mitteilen wem: </strong> {{ selectedJournalEntry.decision }}<br />
-              <strong>Visum: </strong> {{ selectedJournalEntry.visum_triage }}
+              <strong>Mitteilen wem: </strong> {{ selectedJournalEntry.decision_receiver }}<br />
+              <strong>Visum: </strong> {{ selectedJournalEntry.visum_decider }}<br />
+              <strong>Entscheidungszeit: </strong> {{ selectedJournalEntry.date_decision?.toLocaleString() }}
             </p>
             <div *ngIf="selectedJournalEntry.status === 'awaiting_decision'">
               <mat-form-field>
@@ -208,18 +210,17 @@
         <mat-tab
           label="Ausgang"
           [disabled]="
-            selectedJournalEntry.status === null ||
             selectedJournalEntry.status === 'awaiting_triage' ||
             selectedJournalEntry.status === 'awaiting_drawing' ||
             selectedJournalEntry.status === 'awaiting_decision'
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="selectedJournalEntry.visum_decision_deliverer">
+            <p *ngIf="selectedJournalEntry.status === 'completed'">
               <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.visum_decision_deliverer }}<br />
-              <strong>Übermittlungszeit: </strong> 21.1.2025, 07:00:00
+              <strong>Übermittlungszeit: </strong> {{ selectedJournalEntry.date_decision_delivered?.toLocaleString() }}
             </p>
-            <div *ngIf="!selectedJournalEntry.visum_decision_deliverer">
+            <div *ngIf="selectedJournalEntry.status !== 'completed'">
               <mat-form-field>
                 <mat-label>Mitgeteilt durch</mat-label>
                 <input matInput formControlName="visum_decision_deliverer" />
@@ -260,17 +261,11 @@
           <mat-option value="fb-infrastukturen">FB Infrastrukturen</mat-option>
         </mat-select>
       </mat-form-field>
-        <div class="checkbox-group">
-          <mat-checkbox [checked]="triageFilter" (change)="toggleTriageFilter($event)" >
-            Triage
-          </mat-checkbox>
-          <mat-checkbox [checked]="keyMessageFilter" (change)="toggleKeyMessageFilter($event)">
-            Schlüsselnachricht
-          </mat-checkbox>
-          <mat-checkbox [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
-            Ausgang
-          </mat-checkbox>
-        </div>
+      <div class="checkbox-group">
+        <mat-checkbox [checked]="triageFilter" (change)="toggleTriageFilter($event)"> Triage </mat-checkbox>
+        <mat-checkbox [checked]="keyMessageFilter" (change)="toggleKeyMessageFilter($event)"> Schlüsselnachricht </mat-checkbox>
+        <mat-checkbox [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)"> Ausgang </mat-checkbox>
+      </div>
     </div>
     <div class="journal-content">
       <table mat-table matSort [dataSource]="dataSourceFiltered">

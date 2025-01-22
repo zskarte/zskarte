@@ -333,6 +333,7 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     date_message: Attribute.DateTime;
     date_triage: Attribute.DateTime;
     decision: Attribute.Text;
+    decision_receiver: Attribute.String;
     department: Attribute.String;
     is_key_message: Attribute.Boolean;
     message_content: Attribute.Text;
@@ -343,9 +344,12 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     publishedAt: Attribute.DateTime;
     related_symbols: Attribute.JSON;
     sender: Attribute.String;
-    status: Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
+    status: Attribute.Enumeration<
+      ['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'awaiting_completion', 'completed']
+    >;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
+    visum_decider: Attribute.String;
     visum_message: Attribute.String;
     visum_triage: Attribute.String;
   };
