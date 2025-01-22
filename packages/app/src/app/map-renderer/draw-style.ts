@@ -501,7 +501,7 @@ export class DrawStyle {
               fill: new Fill({
                 color: '#fff',
               }),
-              text: signature.affectedPersons.toString(),
+              text: signature.affectedPersons > 99 ? '99+' : signature.affectedPersons.toString(),
             }),
             geometry(feature) {
               // Calculate the coordinates of the point on the circumference in the top-right quadrant

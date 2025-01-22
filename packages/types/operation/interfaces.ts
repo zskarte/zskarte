@@ -6,7 +6,7 @@ export interface IZSMapOperationMapLayers {
   layerConfigs: MapLayer[];
 }
 
-export type ZsOperationStatus = 'active' | 'archived';
+export type ZsOperationPhase = 'active' | 'archived' | 'deleted';
 
 export interface IZsMapOperation {
   id?: number;
@@ -15,7 +15,7 @@ export interface IZsMapOperation {
   updatedAt?: Date;
   mapState: ZsMapState;
   eventStates: number[];
-  status: ZsOperationStatus;
+  phase: ZsOperationPhase;
   mapLayers?: IZSMapOperationMapLayers;
 }
 

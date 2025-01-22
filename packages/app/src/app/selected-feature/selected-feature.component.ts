@@ -107,10 +107,12 @@ export class SelectedFeatureComponent implements OnDestroy {
     );
     this.selectedSignature = this.selectedDrawElement.pipe(
       map((element) => {
-        const sig = Signs.getSignById(element?.symbolId);
+        const drawElement = this._drawElementCache[element?.id ?? ''];
+        const sig = drawElement?.getOlFeature()?.get('sig');
         if (!sig) return undefined;
-        sig.createdBy = element?.createdBy;
-        return sig;
+        const signById = sig.id ? Signs.getSignById(sig.id) : { ...sig };
+        signById.createdBy = drawElement?.elementState?.createdBy;
+        return signById;
       }),
     );
 

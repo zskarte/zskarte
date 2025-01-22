@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SidebarContext } from './sidebar.interfaces';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
 import { ZsMapStateService } from '../state/state.service';
 
 @Injectable({
@@ -13,8 +13,11 @@ export class SidebarService {
   private _preventDeselect = false;
 
   constructor() {
-    this._state.observeSelectedFeature$().subscribe((element) => {
-      if (element) {
+    combineLatest([
+      this._state.observeSelectedFeature$(),
+      this._state.observeHideSelectedFeature$()  
+    ]).subscribe(([element, hide]) => {
+      if (element && !hide) {
         this.open(SidebarContext.SelectedFeature);
       } else {
         this._preventDeselect = true;

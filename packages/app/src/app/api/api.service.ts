@@ -82,6 +82,10 @@ export class ApiService {
     body?: any;
     options?: IApiRequestOptions;
   }): Promise<any> {
+
+    const bodyMethods = ['POST', 'PUT', 'DELETE']
+    if(bodyMethods.includes(method) && !body) body = {}
+    
     const headers = this._getDefaultHeaders(options);
 
     const call = async () => {

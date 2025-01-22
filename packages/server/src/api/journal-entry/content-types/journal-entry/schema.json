@@ -60,16 +60,6 @@
     "date_decision": {
       "type": "datetime"
     },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "awaiting_triage",
-        "awaiting_drawing",
-        "awaiting_decision",
-        "awaiting_completion",
-        "completed"
-      ]
-    },
     "operation": {
       "type": "relation",
       "relation": "oneToOne",
@@ -91,6 +81,16 @@
     },
     "decision_receiver": {
       "type": "string"
+    },
+    "entryStatus": {
+      "type": "enumeration",
+      "enum": [
+        "awaiting_triage",
+        "awaiting_drawing",
+        "awaiting_decision",
+        "awaiting_completion",
+        "completed"
+      ]
     }
   }
 }
