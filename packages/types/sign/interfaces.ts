@@ -45,6 +45,7 @@ export interface Sign {
   createdAt?: Date;
   reportNumber?: number;
   affectedPersons?: number;
+  deprecated?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
