@@ -74,7 +74,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
   async shadowDelete(ctx) {
     const { id } = ctx.params;
     await strapi.documents('api::operation.operation').update({
-      documentId: id.toString
+      documentId: id.toString,
       data: {
         phase: OperationPhases.DELETED,
       },
