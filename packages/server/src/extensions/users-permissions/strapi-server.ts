@@ -19,7 +19,7 @@ export default (plugin) => {
     const { operationId } = await jwt.getToken(ctx);
     if (operationId) {
       //if it's a share token login, populate corresponding organization
-      const organizations = (await strapi.entityService.findMany('api::organization.organization', {
+      const organizations = (await strapi.documents('api::organization.organization').findMany({
         filters: {
           operations: {
             id: { $eq: operationId },

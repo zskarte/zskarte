@@ -61,7 +61,9 @@ export default factories.createCoreController('api::operation.operation', ({ str
   },
   async archive(ctx) {
     const { id } = ctx.params;
-    await strapi.entityService.update('api::operation.operation', id, {
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
+
       data: {
         status: OperationStates.ARCHIVED,
       },
@@ -71,7 +73,9 @@ export default factories.createCoreController('api::operation.operation', ({ str
   },
   async unarchive(ctx) {
     const { id } = ctx.params;
-    await strapi.entityService.update('api::operation.operation', id, {
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
+
       data: {
         status: OperationStates.ACTIVE,
       },

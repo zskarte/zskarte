@@ -40,7 +40,7 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
 
     const { jwt } = strapi.plugins['users-permissions'].services;
 
-    const accesses = (await strapi.entityService.findMany('api::access.access', {
+    const accesses = (await strapi.documents('api::access.access').findMany({
       filters: { accessToken },
       populate: {
         operation: {
@@ -54,9 +54,10 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
     if (!access) return ctx.unauthorized('Invalid access token');
     if (!access.active) return ctx.unauthorized('Access is not active anymore');
     if (!access.operation) return ctx.unauthorized('Access has no operation assigned');
-    if (access.expiresOn && new Date(access.expiresOn).getTime() < Date.now()) return ctx.unauthorized('Access is not active anymore');
+    if (access.expiresOn && new Date(access.expiresOn).getTime() < Date.now())
+      return ctx.unauthorized('Access is not active anymore');
 
-    const accessUsers = (await strapi.entityService.findMany('plugin::users-permissions.user', {
+    const accessUsers = (await strapi.documents('plugin::users-permissions.user').findMany({
       filters: { username: `operation_${access.type}` },
       limit: 1,
     })) as User[];
@@ -68,7 +69,9 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
 
     //delete if it's a short time access token only
     if (accessToken.length < 32) {
-      await strapi.entityService.delete('api::access.access', access.id);
+      await strapi.documents('api::access.access').delete({
+        documentId: access.id,
+      });
     }
 
     ctx.send({
@@ -86,7 +89,7 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
       return ctx.badRequest('The "type" property has an invalid value. Allowed values are: [read, write, admin]');
 
     if (!operationId) return ctx.badRequest('You must define the "operationId" property');
-    const operations = (await strapi.entityService.findMany('api::operation.operation', {
+    const operations = (await strapi.documents('api::operation.operation').findMany({
       filters: {
         id: operationId,
         organization: {
@@ -96,15 +99,19 @@ export default factories.createCoreController('api::access.access', ({ strapi }:
       limit: 1,
     })) as Operation[];
     if (!operations.length)
-      return ctx.badRequest('The operation you provided does not exist or the operation does not match your account organization!');
+      return ctx.badRequest(
+        'The operation you provided does not exist or the operation does not match your account organization!',
+      );
     const operation = _.first(operations);
 
     const accessToken =
-      tokenType === AccessTokenTypes.LONG ? crypto.randomBytes(16).toString('hex') : crypto.randomInt(999999).toString().padStart(6, '0');
+      tokenType === AccessTokenTypes.LONG
+        ? crypto.randomBytes(16).toString('hex')
+        : crypto.randomInt(999999).toString().padStart(6, '0');
 
     const expiresOn = tokenType === AccessTokenTypes.LONG ? null : new Date(Date.now() + MINUTES_15);
 
-    await strapi.entityService.create('api::access.access', {
+    await strapi.documents('api::access.access').create({
       data: {
         active: true,
         name,
