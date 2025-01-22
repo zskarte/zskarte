@@ -228,7 +228,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       } else {
         const entry = (await strapi.entityService.findOne(contentType, entryId, {
           fields: ['id'],
-          populate: { operation: { fields: ['id', 'status'], populate: { organization: { fields: ['id'] } } } },
+          populate: { operation: { fields: ['id', 'phase'], populate: { organization: { fields: ['id'] } } } },
         })) as { id: number; operation: Operation };
         return entry;
       }

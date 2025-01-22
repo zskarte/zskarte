@@ -154,7 +154,7 @@ export class OperationService {
     }
     if (!this._session.isWorkLocal()) {
       const { error, result: savedOperations } = await this._api.get<IZsMapOperation[]>(
-        `/api/operations/overview?status=${status}`,
+        `/api/operations/overview?phase=${phase}`,
       );
       if (!error && savedOperations !== undefined) {
         operations = [...operations.filter((x) => x.id && x.id < 0), ...savedOperations];

@@ -50,7 +50,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return { success: true };
   },
   async overview(ctx) {
-    ctx.query.fields = ['name', 'description', 'status', 'eventStates', 'updatedAt'];
+    ctx.query.fields = ['name', 'description', 'phase', 'eventStates', 'updatedAt'];
     ctx.query.sort = 'updatedAt:DESC';
     if (ctx.query.pagination) {
       ctx.query.pagination.limit = -1;
