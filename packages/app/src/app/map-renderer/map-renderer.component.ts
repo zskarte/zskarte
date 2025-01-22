@@ -45,7 +45,7 @@ import {
 } from 'rxjs';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { areArraysEqual } from '../helper/array';
-import { formatArea, formatLength, indexOfPointInCoordinateGroup } from '../helper/coordinates';
+import { areCoordinatesEqual, formatArea, formatLength, indexOfPointInCoordinateGroup } from '../helper/coordinates';
 import { debounce } from '../helper/debounce';
 import { DrawElementHelper } from '../helper/draw-element-helper';
 import { projectionByIndex } from '../helper/projections';
@@ -130,6 +130,7 @@ export class MapRendererComponent implements AfterViewInit {
   private _mapLayerCache: Map<string, Layer> = new Map();
   private _modifyCache = new Collection<Feature>([]);
   private _currentSketch: FeatureLike | undefined;
+  private _modifying = false;
   private _rotating = false;
   private _initialRotation = 0;
   private _drawHole!: DrawHole;
@@ -390,6 +391,7 @@ export class MapRendererComponent implements AfterViewInit {
     this._modify.on('modifystart', (event) => {
       this._currentSketch = this.getFeatureInsideCluster(event.features.getArray()[0]);
       this.toggleEditButtons(false);
+      this._state.resetSelectedFeature();
     });
 
     this._modify.on('modifyend', (e) => {
@@ -400,11 +402,17 @@ export class MapRendererComponent implements AfterViewInit {
       this._currentSketch = undefined;
       // only first feature is relevant
       const feature = this.getFeatureInsideCluster(e.features.getArray()[0] as Feature<SimpleGeometry>);
+      this._state.setSelectedFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
+
       const element = this._drawElementCache[feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
       element.element.setCoordinates(feature.getGeometry()?.getCoordinates() ?? []);
       if (this._modify['vertexFeature_']) {
         this.selectedVertexPoint.next(this._modify['vertexFeature_'].getGeometry().getCoordinates());
-        this.toggleEditButtons(true);
+        const type = element.element.elementState?.type;
+        const symbolCoordinates = DrawStyle.getIconCoordinates(feature, this._view.getResolution() ?? 1)[0];
+        const modifyCoordinates = e.mapBrowserEvent.coordinate;
+        const toggleRotate = type === ZsMapDrawElementStateType.SYMBOL && areCoordinatesEqual(symbolCoordinates, modifyCoordinates);
+        this.toggleEditButtons(true, toggleRotate);
       }
     });
 
@@ -415,6 +423,7 @@ export class MapRendererComponent implements AfterViewInit {
 
     this._translate.on('translatestart', () => {
       this.toggleEditButtons(false);
+      this._state.resetSelectedFeature();
     });
 
     this._translate.on('translateend', (e) => {
@@ -425,6 +434,7 @@ export class MapRendererComponent implements AfterViewInit {
       const feature = this.getFeatureInsideCluster(e.features.getArray()[0]);
       const element = this._drawElementCache[feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID)];
       element.element.setCoordinates((feature.getGeometry() as SimpleGeometry).getCoordinates() as number[]);
+      this._state.setSelectedFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
 
       if (element.element.elementState?.type === ZsMapDrawElementStateType.SYMBOL) {
         // Hack to ensure, the buttons show up at the correct location immediately
