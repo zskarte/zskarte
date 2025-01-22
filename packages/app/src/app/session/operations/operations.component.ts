@@ -1,7 +1,7 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import { SessionService } from '../session.service';
-import { IZsMapOperation, ZsOperationStatus } from '@zskarte/types';
+import { IZsMapOperation, ZsOperationPhase } from '@zskarte/types';
 import { I18NService } from '../../state/i18n.service';
 import { OperationService } from './operation.service';
 import { ActivatedRoute } from '@angular/router';
@@ -47,18 +47,18 @@ export class OperationsComponent implements OnDestroy {
   private dialog = inject(MatDialog);
 
   private _ngUnsubscribe = new Subject<void>();
-  public showOpStatus: ZsOperationStatus = 'active';
+  public showOpPhase: ZsOperationPhase = 'active';
 
   constructor() {
     const route = this.route;
 
-    this.operationService.loadLocal(this.showOpStatus);
+    this.operationService.loadLocal(this.showOpPhase);
     this._session
       .observeOrganizationId()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe(async (organizationId) => {
         if (organizationId) {
-          await this.operationService.reload(this.showOpStatus);
+          await this.operationService.reload(this.showOpPhase);
         }
       });
     //select operationId if set as parameter and have access to
@@ -92,10 +92,10 @@ export class OperationsComponent implements OnDestroy {
 
   public deleteOperation(operation: IZsMapOperation) {
     const confirm = this.dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('deleteOperationConfirm'), 
+      data: this.i18n.get('deleteOperationConfirm'),
     });
     confirm.afterClosed().subscribe((r) => {
-      this.operationService.deleteOperation(operation)
+      this.operationService.deleteOperation(operation);
     });
   }
 
@@ -104,12 +104,12 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public async showActiveScenarios(): Promise<void> {
-    this.showOpStatus = 'active';
-    await this.operationService.reload(this.showOpStatus);
+    this.showOpPhase = 'active';
+    await this.operationService.reload(this.showOpPhase);
   }
 
   public async showArchivedScenarios(): Promise<void> {
-    this.showOpStatus = 'archived';
-    await this.operationService.reload(this.showOpStatus);
+    this.showOpPhase = 'archived';
+    await this.operationService.reload(this.showOpPhase);
   }
 }

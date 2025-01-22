@@ -655,13 +655,13 @@ export class SessionService {
   public observeIsArchived(): Observable<boolean> {
     return this._session.pipe(
       map((session) => {
-        return session?.operation?.status === 'archived';
+        return session?.operation?.phase === 'archived';
       }),
     );
   }
 
   public isArchived(): boolean {
-    return this._session.value?.operation?.status === 'archived';
+    return this._session.value?.operation?.phase === 'archived';
   }
 
   public getDefaultMapCenter(): number[] {

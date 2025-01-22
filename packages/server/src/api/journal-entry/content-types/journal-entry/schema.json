@@ -69,15 +69,6 @@
     "date_visum_decision_receiver": {
       "type": "datetime"
     },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "awaiting_triage",
-        "awaiting_drawing",
-        "awaiting_decision",
-        "completed"
-      ]
-    },
     "operation": {
       "type": "relation",
       "relation": "oneToOne",
@@ -90,6 +81,15 @@
     },
     "related_symbols": {
       "type": "json"
+    },
+    "entryStatus": {
+      "type": "enumeration",
+      "enum": [
+        "awaiting_triage",
+        "awaiting_drawing",
+        "awaiting_decision",
+        "completed"
+      ]
     }
   }
 }

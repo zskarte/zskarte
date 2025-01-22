@@ -3,9 +3,16 @@
  */
 
 import { Strapi, Common } from '@strapi/strapi';
-import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationStates } from '../definitions';
+import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationPhases } from '../definitions';
 import type { HasOperationType, HasOrganizationType, AccessCheckableType } from '../definitions/TypeGuards';
-import { isOperation, isOrganization, hasOperation, hasOrganization, isAccessCheckable, hasPublic } from '../definitions/TypeGuards';
+import {
+  isOperation,
+  isOrganization,
+  hasOperation,
+  hasOrganization,
+  isAccessCheckable,
+  hasPublic,
+} from '../definitions/TypeGuards';
 
 export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>, { strapi }: { strapi: Strapi }) => {
   const logAccessViolation = (ctx, message: string, userOrganisationId, jwtOperationId) => {
@@ -80,20 +87,20 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     return next();
   };
 
-  const addStatusFilter = (statusFilter, filterContext) => {
-    if (statusFilter === 'all') {
+  const addphaseFilter = (phaseFilter, filterContext) => {
+    if (phaseFilter === 'all') {
       //no filter needed
-    } else if (statusFilter === OperationStates.ARCHIVED) {
-      filterContext.status = { $eq: OperationStates.ARCHIVED };
+    } else if (phaseFilter === OperationPhases.ARCHIVED) {
+      filterContext.phase = { $eq: OperationPhases.ARCHIVED };
     } else {
       //active or not set
-      filterContext.status = { $eq: OperationStates.ACTIVE };
+      filterContext.phase = { $eq: OperationPhases.ACTIVE };
     }
   };
 
   const doListChecks = (ctx, next, userOrganisationId, jwtOperationId) => {
     //add filter to make sure only elements that are allowed are returned.
-    const statusFilter = ctx.query?.status;
+    const phaseFilter = ctx.query?.phase;
     const operationIdFilter = ctx.query?.operationId;
     if (hasOperation(config.type)) {
       if (jwtOperationId) {
@@ -104,7 +111,9 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
         }
       } else {
         if (hasPublic(config.type)) {
-          ctx.query.filters = { $or: [{ operation: { organization: { id: { $eq: userOrganisationId } } } }, { public: { $eq: true } }] };
+          ctx.query.filters = {
+            $or: [{ operation: { organization: { id: { $eq: userOrganisationId } } } }, { public: { $eq: true } }],
+          };
         } else {
           ctx.query.filters = { operation: { organization: { id: { $eq: userOrganisationId } } } };
         }
@@ -112,7 +121,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
           ctx.query.filters.operation.id = { $eq: operationIdFilter };
         }
       }
-      addStatusFilter(statusFilter, ctx.query.filters.operation);
+      addphaseFilter(phaseFilter, ctx.query.filters.operation);
       return next();
     } else if (hasOrganization(config.type)) {
       if (isOperation(config.type)) {
@@ -124,14 +133,16 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
             ctx.query.filters.id = { $eq: operationIdFilter };
           }
         }
-        addStatusFilter(statusFilter, ctx.query.filters);
+        addphaseFilter(phaseFilter, ctx.query.filters);
       } else {
         if (jwtOperationId) {
           return ctx.unauthorized('This action is unauthorized, unknown context.');
         } else {
           if (hasPublic(config.type)) {
             if (userOrganisationId) {
-              ctx.query.filters = { $or: [{ organization: { id: { $eq: userOrganisationId } } }, { public: { $eq: true } }] };
+              ctx.query.filters = {
+                $or: [{ organization: { id: { $eq: userOrganisationId } } }, { public: { $eq: true } }],
+              };
             } else {
               ctx.query.filters = { public: { $eq: true } };
             }
@@ -217,7 +228,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       } else {
         const entry = (await strapi.entityService.findOne(contentType, entryId, {
           fields: ['id'],
-          populate: { operation: { fields: ['id', 'status'], populate: { organization: { fields: ['id'] } } } },
+          populate: { operation: { fields: ['id', 'phase'], populate: { organization: { fields: ['id'] } } } },
         })) as { id: number; operation: Operation };
         return entry;
       }
@@ -234,9 +245,9 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
         return entry;
       } else if (isOperation(contentType)) {
         const entry = (await strapi.entityService.findOne(contentType, entryId, {
-          fields: ['id', 'status'],
+          fields: ['id', 'phase'],
           populate: { organization: { fields: ['id'] } },
-        })) as { id: number; status: string; organization: Organization };
+        })) as { id: number; phase: string; organization: Organization };
         return entry;
       } else {
         const entry = (await strapi.entityService.findOne(contentType, entryId, {
@@ -298,7 +309,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     //prevent update archived operations
     if (
       isOperation(config.type) &&
-      operation?.status !== OperationStates.ACTIVE &&
+      operation?.phase !== OperationPhases.ACTIVE &&
       !(handler.endsWith('.unarchive') || handler.endsWith('.shadowDelete')) &&
       !handler.endsWith('.findOne')
     ) {
@@ -382,7 +393,9 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       return doByIdChecks(ctx, next, userOrganisationId, jwtOperationId);
     } else {
       const handler: string = ctx.state?.route?.handler;
-      strapi.log.error(`[global::accessControl]: config.check value missing for handler: ${handler}, url: ${ctx.request.url}`);
+      strapi.log.error(
+        `[global::accessControl]: config.check value missing for handler: ${handler}, url: ${ctx.request.url}`,
+      );
       return ctx.forbidden('This action is forbidden, unknown mode.');
     }
   };

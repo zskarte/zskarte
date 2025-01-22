@@ -14,15 +14,29 @@
           </mat-form-field>
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Beschreibung</mat-label>
-            <input matInput type="text" placeholder="Beschreibung eingeben" [(ngModel)]="edit.description" name="description" />
+            <input
+              matInput
+              type="text"
+              placeholder="Beschreibung eingeben"
+              [(ngModel)]="edit.description"
+              name="description"
+            />
           </mat-form-field>
           <app-incident-select [(values)]="edit.eventStates"></app-incident-select>
         </form>
       </mat-card-content>
       <mat-divider></mat-divider>
       <mat-card-actions>
-        <button class="button" mat-flat-button (click)="operationService.operationToEdit.next(undefined)">{{ i18n.get('cancel') }}</button>
-        <button class="button" mat-flat-button color="primary" data-testid="operation-save" (click)="operationService.saveOperation(edit)">
+        <button class="button" mat-flat-button (click)="operationService.operationToEdit.next(undefined)">
+          {{ i18n.get('cancel') }}
+        </button>
+        <button
+          class="button"
+          mat-flat-button
+          color="primary"
+          data-testid="operation-save"
+          (click)="operationService.saveOperation(edit)"
+        >
           {{ i18n.get('save') }}
         </button>
       </mat-card-actions>
@@ -31,14 +45,26 @@
         <mat-card-title class="title">{{ i18n.get('docCreateOrLoadTitle') }}</mat-card-title>
         <mat-divider></mat-divider>
         <mat-card-actions class="operations-actions">
-          <button mat-flat-button color="primary" (click)="operationService.createOperation()">{{ i18n.get('newScenario') }}</button>
+          <button mat-flat-button color="primary" (click)="operationService.createOperation()">
+            {{ i18n.get('newScenario') }}
+          </button>
           <button mat-flat-button (click)="operationService.importOperation()">{{ i18n.get('importScenario') }}</button>
-          @if (showOpStatus == 'active') {
-            <button mat-icon-button (click)="showArchivedScenarios()" [attr.aria-label]="i18n.get('showArchivedScenarios')" [title]="i18n.get('showArchivedScenarios')">
+          @if (showOpPhase == 'active') {
+            <button
+              mat-icon-button
+              (click)="showArchivedScenarios()"
+              [attr.aria-label]="i18n.get('showArchivedScenarios')"
+              [title]="i18n.get('showArchivedScenarios')"
+            >
               <mat-icon>archive</mat-icon>
             </button>
           } @else {
-            <button mat-icon-button (click)="showActiveScenarios()" [attr.aria-label]="i18n.get('showActiveScenarios')" [title]="i18n.get('showActiveScenarios')">
+            <button
+              mat-icon-button
+              (click)="showActiveScenarios()"
+              [attr.aria-label]="i18n.get('showActiveScenarios')"
+              [title]="i18n.get('showActiveScenarios')"
+            >
               <mat-icon>unarchive</mat-icon>
             </button>
           }
@@ -49,7 +75,11 @@
         @for (o of operationService.operations | async; track o) {
           <mat-action-list>
             <div class="operation-list-item">
-              <mat-list-item role="button" [lines]="0 + (o.description ? 1 : 0) + (showOpStatus != 'active' ? 1 : 0)" (click)="selectOperation(o)">
+              <mat-list-item
+                role="button"
+                [lines]="0 + (o.description ? 1 : 0) + (showOpPhase != 'active' ? 1 : 0)"
+                (click)="selectOperation(o)"
+              >
                 <div matListItemMeta class="operation-list-item-meta">
                   @if ((o.id ?? 0) < 0) {
                     <mat-icon title="{{ i18n.get('localOperation') }}">cloud_done</mat-icon>
@@ -59,15 +89,15 @@
                 @if (o.description) {
                   <div matListItemLine>{{ o.description }}</div>
                 }
-                @if (showOpStatus != 'active') {
-                  <div matListItemLine>{{ i18n.get('lastModified') }} {{ o.updatedAt | date:'dd.MM.YYYY HH:mm' }}</div>
+                @if (showOpPhase != 'active') {
+                  <div matListItemLine>{{ i18n.get('lastModified') }} {{ o.updatedAt | date: 'dd.MM.YYYY HH:mm' }}</div>
                 }
               </mat-list-item>
               <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #menu="matMenu">
-                @if (o.status == 'active') {
+                @if (o.phase == 'active') {
                   <button mat-menu-item (click)="operationService.operationToEdit.next(o)">
                     <mat-icon aria-hidden="false">edit_note</mat-icon>
                     Ereignis umbenennen
@@ -77,14 +107,16 @@
                   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportOperation')">save</mat-icon>
                   {{ i18n.get('exportOperation') }}
                 </button>
-                @if (o.status == 'active') {
+                @if (o.phase == 'active') {
                   <button mat-menu-item (click)="operationService.archiveOperation(o)">
                     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('archiveOperation')">archive</mat-icon>
                     {{ i18n.get('archiveOperation') }}
                   </button>
                 } @else {
                   <button mat-menu-item (click)="operationService.unarchiveOperation(o)">
-                    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('unarchiveOperation')">unarchive</mat-icon>
+                    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('unarchiveOperation')"
+                      >unarchive</mat-icon
+                    >
                     {{ i18n.get('unarchiveOperation') }}
                   </button>
                   <button mat-menu-item (click)="deleteOperation(o)">
