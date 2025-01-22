@@ -61,6 +61,19 @@ export class OperationService {
     await this.reload('archived');
   }
 
+  public async deleteOperation(operation: IZsMapOperation): Promise<void> {
+    if(!operation || !operation?.id) {
+      return;
+    }
+
+    if (operation?.id < 0) {
+      await OperationService.deleteLocalOperation(operation);
+    } else {
+      await this._api.put(`/api/operations/${operation.id}/shadowdelete`, null);
+    }
+    await this.reload('archived');
+  }
+
   public async saveOperation(operation: IZsMapOperation): Promise<void> {
     if (operation.id) {
       await this.updateMeta(operation);
@@ -108,6 +121,11 @@ export class OperationService {
       if (error || !result) return null;
       return result;
     }
+  }
+
+  public static async deleteLocalOperation(operation: IZsMapOperation) {
+    if(!operation || !operation.id) return;
+    return await db.localOperation.where('id').equals(operation.id).delete();
   }
 
   public static async deleteNoneLocalOperations() {

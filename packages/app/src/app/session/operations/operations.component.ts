@@ -16,6 +16,8 @@ import { FormsModule } from '@angular/forms';
 import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-operations',
@@ -42,6 +44,7 @@ export class OperationsComponent implements OnDestroy {
   i18n = inject(I18NService);
   operationService = inject(OperationService);
   private route = inject(ActivatedRoute);
+  private dialog = inject(MatDialog);
 
   private _ngUnsubscribe = new Subject<void>();
   public showOpStatus: ZsOperationStatus = 'active';
@@ -85,6 +88,15 @@ export class OperationsComponent implements OnDestroy {
     if (operation.id) {
       this._session.setOperation(operation);
     }
+  }
+
+  public deleteOperation(operation: IZsMapOperation) {
+    const confirm = this.dialog.open(ConfirmationDialogComponent, {
+      data: this.i18n.get('deleteOperationConfirm'), 
+    });
+    confirm.afterClosed().subscribe((r) => {
+      this.operationService.deleteOperation(operation)
+    });
   }
 
   public async logout(): Promise<void> {

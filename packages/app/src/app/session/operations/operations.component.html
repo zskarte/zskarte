@@ -87,6 +87,10 @@
                     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('unarchiveOperation')">unarchive</mat-icon>
                     {{ i18n.get('unarchiveOperation') }}
                   </button>
+                  <button mat-menu-item (click)="deleteOperation(o)">
+                    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('deleteOperation')">delete</mat-icon>
+                    {{ i18n.get('deleteOperation') }}
+                  </button>
                 }
               </mat-menu>
             </div>
