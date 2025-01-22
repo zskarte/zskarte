@@ -334,6 +334,7 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     date_visum_triage: Attribute.DateTime;
     decision: Attribute.Text;
     department: Attribute.String;
+    entryStatus: Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
     is_key_message: Attribute.Boolean;
     message_content: Attribute.Text;
     message_number: Attribute.Integer;
@@ -343,7 +344,6 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     publishedAt: Attribute.DateTime;
     related_symbols: Attribute.JSON;
     sender: Attribute.String;
-    status: Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
     visum_decision_deliverer: Attribute.String;
@@ -423,6 +423,9 @@ export interface ApiOperationOperation extends Schema.CollectionType {
     mapState: Attribute.JSON;
     name: Attribute.String & Attribute.Required;
     organization: Attribute.Relation<'api::operation.operation', 'manyToOne', 'api::organization.organization'>;
+    phase: Attribute.Enumeration<['active', 'archived', 'deleted']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'active'>;
     status: Attribute.Enumeration<['active', 'archived', 'deleted']> &
       Attribute.Required &
       Attribute.DefaultTo<'active'>;

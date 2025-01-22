@@ -5,7 +5,7 @@ import {
   IZsMapOperation,
   ZsMapState,
   ZsMapLayerStateType,
-  ZsOperationStatus,
+  ZsOperationPhase,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
@@ -38,7 +38,7 @@ export class OperationService {
       return;
     }
 
-    operation.status = 'archived';
+    operation.phase = 'archived';
     if (operation?.id < 0) {
       await OperationService.persistLocalOpertaion(operation);
     } else {
@@ -52,7 +52,7 @@ export class OperationService {
       return;
     }
 
-    operation.status = 'active';
+    operation.phase = 'active';
     if (operation?.id < 0) {
       await OperationService.persistLocalOpertaion(operation);
     } else {
@@ -62,7 +62,7 @@ export class OperationService {
   }
 
   public async deleteOperation(operation: IZsMapOperation): Promise<void> {
-    if(!operation || !operation?.id) {
+    if (!operation || !operation?.id) {
       return;
     }
 
@@ -88,8 +88,8 @@ export class OperationService {
     if (!operation.mapState) {
       operation.mapState = this.createMapstate();
     }
-    if (!operation.status) {
-      operation.status = 'active';
+    if (!operation.phase) {
+      operation.phase = 'active';
     }
 
     if (this._session.isWorkLocal()) {
@@ -124,7 +124,7 @@ export class OperationService {
   }
 
   public static async deleteLocalOperation(operation: IZsMapOperation) {
-    if(!operation || !operation.id) return;
+    if (!operation || !operation.id) return;
     return await db.localOperation.where('id').equals(operation.id).delete();
   }
 
@@ -136,19 +136,19 @@ export class OperationService {
     await db.localOperation.put(operation);
   }
 
-  private static getLocalOperations(status: ZsOperationStatus) {
-    return db.localOperation.where('status').equals(status).toArray();
+  private static getLocalOperations(phase: ZsOperationPhase) {
+    return db.localOperation.where('phase').equals(phase).toArray();
   }
 
-  public async loadLocal(status: ZsOperationStatus): Promise<void> {
-    const localOperations = await OperationService.getLocalOperations(status);
+  public async loadLocal(phase: ZsOperationPhase): Promise<void> {
+    const localOperations = await OperationService.getLocalOperations(phase);
     if (!localOperations) return;
     this.operations.next(localOperations);
   }
 
-  public async reload(status: ZsOperationStatus): Promise<void> {
+  public async reload(phase: ZsOperationPhase): Promise<void> {
     let operations: IZsMapOperation[] = [];
-    const localOperations = await OperationService.getLocalOperations(status);
+    const localOperations = await OperationService.getLocalOperations(phase);
     if (localOperations) {
       operations = localOperations;
     }
@@ -195,7 +195,7 @@ export class OperationService {
         const operation: IZsMapOperation = {
           name: result.name,
           description: result.description,
-          status: 'active',
+          phase: 'active',
           eventStates: result.eventStates,
           mapState,
           mapLayers: result.mapLayers,
@@ -236,7 +236,7 @@ export class OperationService {
     this.operationToEdit.next({
       name: '',
       description: '',
-      status: 'active',
+      phase: 'active',
       eventStates: [],
       mapState: this.createMapstate(),
     });
