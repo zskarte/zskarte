@@ -130,7 +130,6 @@ export class MapRendererComponent implements AfterViewInit {
   private _mapLayerCache: Map<string, Layer> = new Map();
   private _modifyCache = new Collection<Feature>([]);
   private _currentSketch: FeatureLike | undefined;
-  private _modifying = false;
   private _rotating = false;
   private _initialRotation = 0;
   private _drawHole!: DrawHole;
@@ -321,6 +320,7 @@ export class MapRendererComponent implements AfterViewInit {
     this._select = new Select({
       hitTolerance: 10,
       style: (feature: FeatureLike, resolution: number) => {
+        console.log('stylee')
         return DrawStyle.styleFunctionSelect(feature, resolution, true);
       },
       layers: this._allLayers,
@@ -334,6 +334,7 @@ export class MapRendererComponent implements AfterViewInit {
         }
       });
     this._select.on('select', (event) => {
+      console.log('selected!!')
       this._modifyCache.clear();
       this.toggleEditButtons(false);
       for (const cluster of event.selected) {
