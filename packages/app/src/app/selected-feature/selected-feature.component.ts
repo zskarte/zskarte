@@ -35,6 +35,7 @@ import {
   ZsMapDrawElementStateType,
   FillStyle,
   signatureDefaultValues,
+  IconsOffset,
 } from '@zskarte/types';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -270,6 +271,20 @@ export class SelectedFeatureComponent implements OnDestroy {
     return { ...element.fillStyle, [field]: value } as FillStyle;
   }
 
+
+  updateIconsOffset<T extends keyof IconsOffset>(element: ZsMapDrawElementState, field: T, value: IconsOffset[T]) {
+    if (element.id) {
+      this.zsMapStateService.updateDrawElementState(
+        element.id,
+        'iconsOffset',
+        SelectedFeatureComponent.getUpdatedIconsOffset(element, field, value),
+      );
+    }
+  }
+  static getUpdatedIconsOffset<T extends keyof IconsOffset>(element: ZsMapDrawElementState, field: T, value: IconsOffset[T]): IconsOffset {
+    return { ...element.iconsOffset, [field]: value } as IconsOffset;
+  }
+
   chooseSymbol(drawElement: ZsMapDrawElementState) {
     const dialogRef = this.dialog.open(SelectSignDialog);
     dialogRef.afterClosed().subscribe((result: Sign) => {
@@ -380,8 +395,11 @@ export class SelectedFeatureComponent implements OnDestroy {
   resetSignature(element: ZsMapDrawElementState) {
     if (!element.id) return;
     this.zsMapStateService.updateDrawElementState(element.id, 'iconSize', signatureDefaultValues.iconSize);
-    this.zsMapStateService.updateDrawElementState(element.id, 'iconOffsetX', signatureDefaultValues.iconOffsetX);
-    this.zsMapStateService.updateDrawElementState(element.id, 'iconOffsetY', signatureDefaultValues.iconOffsetY);
+    this.updateIconsOffset(element, 'x', signatureDefaultValues.iconsOffset.x);
+    this.updateIconsOffset(element, 'y', signatureDefaultValues.iconsOffset.y);
+    this.updateIconsOffset(element, 'endHasDifferentOffset', signatureDefaultValues.iconsOffset.endHasDifferentOffset);
+    this.updateIconsOffset(element, 'endX', signatureDefaultValues.iconsOffset.endX);
+    this.updateIconsOffset(element, 'endY', signatureDefaultValues.iconsOffset.endY);
     this.zsMapStateService.updateDrawElementState(element.id, 'rotation', signatureDefaultValues.rotation);
     this.zsMapStateService.updateDrawElementState(element.id, 'flipIcon', signatureDefaultValues.flipIcon);
     this.zsMapStateService.updateDrawElementState(element.id, 'iconOpacity', signatureDefaultValues.iconOpacity);

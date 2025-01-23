@@ -241,22 +241,53 @@
                         <mat-slider [max]="3000" [min]="-3000" [step]="250">
                           <input
                             matSliderThumb
-                            [ngModel]="drawElement.iconOffsetX"
-                            (ngModelChange)="updateProperty(drawElement, 'iconOffsetX', $event)"
+                            [ngModel]="drawElement.iconsOffset?.x"
+                            (ngModelChange)="updateIconsOffset(drawElement, 'x', $event)"
                           />
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
-                      </div>                        <div>
+                      </div>             
+                      <div>
                         <mat-label>{{ i18n.get('symbolOffset') }} Y</mat-label>
                         <mat-slider [max]="3000" [min]="-3000" [step]="250">
                           <input
                             matSliderThumb
-                            [ngModel]="drawElement.iconOffsetY"
-                            (ngModelChange)="updateProperty(drawElement, 'iconOffsetY', $event)"
+                            [ngModel]="drawElement.iconsOffset?.y"
+                            (ngModelChange)="updateIconsOffset(drawElement, 'y', $event)"
                           />
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
                       </div>  
+                      <div>
+                        <mat-checkbox
+                        [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
+                        (ngModelChange)="updateIconsOffset(drawElement, 'endHasDifferentOffset', $event)"
+                        >{{ i18n.get('endHasDifferentOffset') }}</mat-checkbox>
+                      </div>
+                      @if (drawElement.iconsOffset?.endHasDifferentOffset) {
+                        <div>
+                          <mat-label>{{ i18n.get('symbolOffsetEnd') }} X</mat-label>
+                          <mat-slider [max]="3000" [min]="-3000" [step]="250">
+                            <input
+                              matSliderThumb
+                              [ngModel]="drawElement.iconsOffset?.endX"
+                              (ngModelChange)="updateIconsOffset(drawElement, 'endX', $event)"
+                            />
+                          </mat-slider>
+                          <input type="text" matInput hidden value="-" />
+                        </div>             
+                        <div>
+                          <mat-label>{{ i18n.get('symbolOffsetEnd') }} Y</mat-label>
+                          <mat-slider [max]="3000" [min]="-3000" [step]="250">
+                            <input
+                              matSliderThumb
+                              [ngModel]="drawElement.iconsOffset?.endY"
+                              (ngModelChange)="updateIconsOffset(drawElement, 'endY', $event)"
+                            />
+                          </mat-slider>
+                          <input type="text" matInput hidden value="-" />
+                        </div>  
+                      }
                     }
 
                     @if (drawElement.symbolId && !drawElement.hideIcon) {

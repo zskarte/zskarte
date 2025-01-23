@@ -644,6 +644,16 @@ export class I18NService {
       en: 'Offset',
       fr: 'Décalage',
     },
+    symbolOffsetEnd: {
+      de: 'Versatz Ende',
+      en: 'Offset End',
+      fr: 'Décalage fin',
+    },
+    endHasDifferentOffset: {
+      de: 'Ende hat einen anderen Versatz',
+      en: 'End has a different offset',
+      fr: 'La fin a un décalage différent',
+    },
     symbolSize: {
       de: 'Grösse',
       en: 'Size',

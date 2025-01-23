@@ -8,6 +8,14 @@ export interface FillStyle {
   spacing?: number;
 }
 
+export interface IconsOffset {
+  x: number;
+  y: number;
+  endHasDifferentOffset: boolean;
+  endX: number;
+  endY: number;
+}
+
 export interface Sign {
   id?: number;
   type: string;
@@ -30,8 +38,7 @@ export interface Sign {
   color?: string;
   strokeWidth?: number;
   hideIcon?: boolean;
-  iconOffsetX?: number;
-  iconOffsetY?: number;
+  iconsOffset?: IconsOffset;
   flipIcon?: boolean;
   topCoord?: number[];
   onlyForSessionId?: string;
@@ -122,11 +129,16 @@ export const signatureDefaultValues: SignatureDefaultValues = {
   fillStyle: {
     name: "filled",
   },
+  iconsOffset: {
+    x: 0.1,
+    y: 0.1,
+    endHasDifferentOffset: false,
+    endX: 0.1,
+    endY: 0.1,
+  },
   fillStyleAngle: 45,
   fillStyleSize: 5,
   fillStyleSpacing: 10,
-  iconOffsetX: 0.1,
-  iconOffsetY: 0.1,
   protected: false,
   labelShow: true,
   arrow: "none",
@@ -156,10 +168,6 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.fillStyle.size ?? signatureDefaultValues.fillStyleSize;
   signature.fillStyle.spacing =
     signature.fillStyle.spacing ?? signatureDefaultValues.fillStyleSpacing;
-    signature.iconOffsetX =
-      signature.iconOffsetX ?? signatureDefaultValues.iconOffsetX;
-    signature.iconOffsetY =
-      signature.iconOffsetY ?? signatureDefaultValues.iconOffsetY;
   signature.protected = signature.protected ?? signatureDefaultValues.protected;
   signature.labelShow = signature.labelShow ?? signatureDefaultValues.labelShow;
   signature.arrow = signature.arrow ?? signatureDefaultValues.arrow;
@@ -184,8 +192,7 @@ export interface SignatureDefaultValues {
   fillStyleAngle: number;
   fillStyleSize: number;
   fillStyleSpacing: number;
-  iconOffsetX: number;
-  iconOffsetY: number;
+  iconsOffset: IconsOffset;
   protected: boolean;
   labelShow: boolean;
   arrow: string;
