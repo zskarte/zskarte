@@ -16,7 +16,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const sanitizedQuery = await this.sanitizeQuery(ctx);
     const entity = await strapi.service('api::operation.operation').findOne(id, sanitizedQuery);
     const sanitizedEntity = (await this.sanitizeOutput(entity, ctx)) as Operation;
-    const operationCache = operationCaches[entity.id];
+    const operationCache = operationCaches[entity.documentId];
     if (operationCache) {
       sanitizedEntity.mapState = operationCache.mapState;
     }
