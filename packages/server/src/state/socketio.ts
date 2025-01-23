@@ -2,16 +2,26 @@ import { Socket } from 'socket.io/dist/socket';
 import _ from 'lodash';
 import { operationCaches } from './operation';
 import { OperationCache, PatchExtended, User, WebsocketEvent } from '../definitions';
-//import { sanitize } from '@strapi/utils';
+import { Server } from 'socket.io';
+import { Core } from '@strapi/strapi';
 
 const sanitizeUser = (user) => {
-  //return sanitize.contentAPI.output(user, strapi.getModel('plugin::users-permissions.user'), { auth }) as Promise<User>;
-  // there is no ctx.state.auth available in this context (in strapi.requestContext.get();)
-  // remove private fields by hand...
   delete user.password;
   delete user.resetPasswordToken;
   delete user.confirmationToken;
   return user;
+};
+
+let socketIo: Server;
+
+const connectSocketIo = (strapi: Core.Strapi) => {
+  socketIo = new Server(strapi.server.httpServer, {
+    transports: ['websocket'],
+    cors: {
+      origin: '*',
+    },
+  });
+  socketIo.on('connection', (socket) => socketConnection({ strapi }, socket));
 };
 
 /** Handles new socket connections, checks the token and the needed query parameters. */
@@ -106,4 +116,4 @@ const broadcastPatches = (operationCache: OperationCache, identifier: string, pa
   }
 };
 
-export { socketConnection, broadcastPatches, broadcastConnections };
+export { connectSocketIo, socketConnection, broadcastPatches, broadcastConnections };
