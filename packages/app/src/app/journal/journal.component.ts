@@ -217,12 +217,13 @@ export class JournalComponent {
   openJournalAddDialog() {
     this.editing = true;
     this.sidebarOpen = true;
-
     this.journalForm.reset();
   }
 
   toggleEditing() {
     this.editing = !this.editing;
+    this.sidebarOpen = false;
+    this.journalForm.reset();
   }
 
   async resetState() {
@@ -248,7 +249,7 @@ export class JournalComponent {
   }
 
   async save(event: any) {
-    let entry_status = this.journalForm.value.entry_status;
+    const entry_status = this.journalForm.value.entry_status;
     if (event.submitter.name !== 'save') {
       if (entry_status === 'awaiting_message') {
         this.journalForm.patchValue({ entry_status: 'awaiting_triage' });
