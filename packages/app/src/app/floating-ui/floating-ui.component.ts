@@ -25,6 +25,7 @@ import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-hist
 import { SidebarConnectionsComponent } from '../sidebar/sidebar-connections/sidebar-connections.component';
 import { SidebarMenuComponent } from '../sidebar/sidebar-menu/sidebar-menu.component';
 import { SidebarPrintComponent } from '../sidebar/sidebar-print/sidebar-print.component';
+import { SidebarJournalComponent } from '../sidebar/sidebar-journal/sidebar-journal.component';
 import { SelectedFeatureComponent } from '../selected-feature/selected-feature.component';
 import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
@@ -52,6 +53,7 @@ import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dia
     SidebarConnectionsComponent,
     SidebarMenuComponent,
     SidebarPrintComponent,
+    SidebarJournalComponent,
     SelectedFeatureComponent,
     GeocoderComponent,
     CoordinatesComponent,
@@ -135,6 +137,10 @@ export class FloatingUIComponent {
         case SidebarContext.SelectedFeature:
           this.showLogo = false;
           this.sidebarTitle = this.i18n.get('selectedFeature');
+          break;
+        case SidebarContext.Journal:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('journal');
           break;
         default:
           this.showLogo = true;

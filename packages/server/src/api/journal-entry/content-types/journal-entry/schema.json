@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -17,9 +17,6 @@
     },
     "creator": {
       "type": "string"
-    },
-    "date_created": {
-      "type": "datetime"
     },
     "message_number": {
       "type": "integer"
@@ -45,28 +42,19 @@
     "department": {
       "type": "string"
     },
-    "date_visum_message": {
+    "date_message": {
       "type": "datetime"
     },
     "visum_triage": {
       "type": "string"
     },
-    "date_visum_triage": {
+    "date_triage": {
       "type": "datetime"
     },
     "decision": {
       "type": "text"
     },
-    "visum_decision_deliverer": {
-      "type": "string"
-    },
-    "date_visum_decision_deliverer": {
-      "type": "datetime"
-    },
-    "visum_decision_receiver": {
-      "type": "string"
-    },
-    "date_visum_decision_receiver": {
+    "date_decision": {
       "type": "datetime"
     },
     "operation": {
@@ -79,17 +67,31 @@
       "relation": "oneToOne",
       "target": "api::organization.organization"
     },
-    "related_symbols": {
-      "type": "json"
+    "date_decision_delivered": {
+      "type": "datetime"
     },
-    "entryStatus": {
+    "visum_decider": {
+      "type": "string"
+    },
+    "decision_receiver": {
+      "type": "string"
+    },
+    "entry_status": {
       "type": "enumeration",
       "enum": [
+        "awaiting_message",
         "awaiting_triage",
         "awaiting_drawing",
         "awaiting_decision",
+        "awaiting_completion",
         "completed"
       ]
+    },
+    "decision_sender": {
+      "type": "string"
+    },
+    "is_drawn_on_map": {
+      "type": "boolean"
     }
   }
 }

@@ -319,7 +319,7 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     singularName: 'journal-entry';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     communication_details: Attribute.String;
@@ -327,27 +327,35 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
     creator: Attribute.String;
-    date_created: Attribute.DateTime;
-    date_visum_decision_deliverer: Attribute.DateTime;
-    date_visum_decision_receiver: Attribute.DateTime;
-    date_visum_message: Attribute.DateTime;
-    date_visum_triage: Attribute.DateTime;
+    date_decision: Attribute.DateTime;
+    date_decision_delivered: Attribute.DateTime;
+    date_message: Attribute.DateTime;
+    date_triage: Attribute.DateTime;
     decision: Attribute.Text;
+    decision_receiver: Attribute.String;
+    decision_sender: Attribute.String;
     department: Attribute.String;
-    entryStatus: Attribute.Enumeration<['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']>;
+    entry_status: Attribute.Enumeration<
+      [
+        'awaiting_message',
+        'awaiting_triage',
+        'awaiting_drawing',
+        'awaiting_decision',
+        'awaiting_completion',
+        'completed',
+      ]
+    >;
+    is_drawn_on_map: Attribute.Boolean;
     is_key_message: Attribute.Boolean;
     message_content: Attribute.Text;
     message_number: Attribute.Integer;
     message_subject: Attribute.String;
     operation: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::operation.operation'>;
     organization: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::organization.organization'>;
-    publishedAt: Attribute.DateTime;
-    related_symbols: Attribute.JSON;
     sender: Attribute.String;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
-    visum_decision_deliverer: Attribute.String;
-    visum_decision_receiver: Attribute.String;
+    visum_decider: Attribute.String;
     visum_message: Attribute.String;
     visum_triage: Attribute.String;
   };
