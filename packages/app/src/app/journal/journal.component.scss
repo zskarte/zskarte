@@ -46,8 +46,8 @@
   }
   &::-webkit-scrollbar-thumb {
     border-radius: 4px;
-    background-color: rgba(0, 0, 0, .5);
-    box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -87,7 +87,7 @@
 .journal-entry-save-buttons {
   display: flex;
   justify-content: end;
-  gap: 6px
+  gap: 6px;
 }
 
 .journal-filter {
@@ -96,6 +96,7 @@
   align-items: center;
   justify-content: start;
   gap: 10px;
+  padding: 0 10px;
 
   @media (max-width: 1200px) {
     flex-direction: column;
@@ -111,10 +112,31 @@
   flex-direction: row;
   gap: 10px;
   align-items: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 0;
+    align-items: start;
+    width: 100%;
+  }
 }
 
 .journal-filter-search,
 .journal-filter-department {
-  width: 20em;
+  width: 20rem;
   margin-top: 22px;
+
+  @media (max-width: 1200px) {
+    width: 18rem;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
+
+.journal-filter-buttons {
+  @media (max-width: 600px) {
+    gap: 22px;
+  }
 }
