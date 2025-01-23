@@ -40,7 +40,7 @@ export class OperationService {
 
     operation.phase = 'archived';
     if (operation?.id < 0) {
-      await OperationService.persistLocalOpertaion(operation);
+      await OperationService.persistLocalOperation(operation);
     } else {
       await this._api.put(`/api/operations/${operation.documentId}/archive`, null);
     }
@@ -54,7 +54,7 @@ export class OperationService {
 
     operation.phase = 'active';
     if (operation?.id < 0) {
-      await OperationService.persistLocalOpertaion(operation);
+      await OperationService.persistLocalOperation(operation);
     } else {
       await this._api.put(`/api/operations/${operation.documentId}/unarchive`, null);
     }
@@ -105,7 +105,7 @@ export class OperationService {
 
   public async updateMeta(operation: IZsMapOperation): Promise<void> {
     if (!operation.documentId) {
-      await OperationService.persistLocalOpertaion(operation);
+      await OperationService.persistLocalOperation(operation);
     } else {
       await this._api.put(`/api/operations/${operation.documentId}/meta`, {
         data: { name: operation.name, description: operation.description, eventStates: operation.eventStates },
@@ -134,7 +134,7 @@ export class OperationService {
     return await db.localOperation.where('id').aboveOrEqual(0).delete();
   }
 
-  public static async persistLocalOpertaion(operation: IZsMapOperation) {
+  public static async persistLocalOperation(operation: IZsMapOperation) {
     await db.localOperation.put(operation);
   }
 
@@ -172,7 +172,7 @@ export class OperationService {
       const operation = this._session.getOperation();
       if (operation) {
         operation.mapLayers = data;
-        await OperationService.persistLocalOpertaion(operation);
+        await OperationService.persistLocalOperation(operation);
       }
     } else {
       await this._api.put(`/api/operations/${operationId}/mapLayers`, { data });
@@ -183,7 +183,7 @@ export class OperationService {
     const operation = this._session.getOperation();
     if (operation) {
       operation.mapState = mapState;
-      await OperationService.persistLocalOpertaion(operation);
+      await OperationService.persistLocalOperation(operation);
     }
   }
 

@@ -381,7 +381,7 @@ export class SessionService {
         SessionService.isLoadedOperation(sessionOperation)
       ) {
         //backup operation in case offline / no server connection to allow continue work later
-        await OperationService.persistLocalOpertaion(sessionOperation);
+        await OperationService.persistLocalOperation(sessionOperation);
       }
       this._session.value.operation = operation;
     }
@@ -548,7 +548,7 @@ export class SessionService {
       //local backup operation if "logout" because of networkError
       const operation = this._session.value?.operation;
       if (operation) {
-        await OperationService.persistLocalOpertaion(operation);
+        await OperationService.persistLocalOperation(operation);
         return;
       }
     }
