@@ -24,6 +24,23 @@ export const areCoordinatesEqual = (
   return c1 === c2;
 };
 
+export const removeCoordinates = (
+  data: undefined | null | number[] | number[][] | Coordinate,
+  toRemove: undefined | null | number[] | number[][] | Coordinate,
+): number[] | number[][] | Coordinate => {
+  if (Array.isArray(data?.[0])) {
+    // If data is a 2D array, filter out the matching sub-array
+    return (data as number[][])
+      .map((subArray) => {
+        return removeCoordinates(subArray, toRemove) as number[];
+      })
+      .filter((subArray) => subArray.length > 0);
+  } else {
+    // If data is a 1D array, filter out the matching value array
+    return areCoordinatesEqual(data as number[], toRemove) ? [] : data || [];
+  }
+};
+
 export function formatLength(line: Geometry): string {
   const length = getLength(line);
   let output: string;
