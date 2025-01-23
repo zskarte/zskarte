@@ -72,7 +72,7 @@ export class JournalComponent {
     // these fields are used for the search
     keys: ['message_subject', 'message_content', 'decision'],
     ignoreLocation: true,
-    threshold: 0.75
+    threshold: 0.5
   });
   selectedIndex = 0;
 
