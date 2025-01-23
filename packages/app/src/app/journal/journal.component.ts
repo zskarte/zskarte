@@ -255,12 +255,11 @@ export class JournalComponent implements AfterViewInit {
 
     await this.journalResource.reload();
 
-    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
+    const entry = await this.apiService.get<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`);
 
-    if (currentEntry) {
-      await this.selectEntry(currentEntry);
-      this.selectedIndex = this.selectedIndex - 1;
-    }
+    await this.selectEntry(entry.result as JournalEntry);
+    this.selectedIndex = this.selectedIndex - 1;
+
   }
 
   async save(event: any) {
@@ -308,6 +307,8 @@ export class JournalComponent implements AfterViewInit {
       await this.selectEntry(entry.result as JournalEntry);
 
       this.editing = false;
+
+      this.selectedIndex = this.selectedIndex + 1;
     } catch (error) {
       console.error('Error saving journal entry:', error);
     }
