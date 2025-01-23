@@ -1,5 +1,7 @@
 
 <mat-accordion multi displayMode="flat">
+  <h2>{{ i18n.get('layers') }} & {{ i18n.get('currentMap') }}</h2>
+  <mat-divider></mat-divider>
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -7,6 +9,7 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
+      
       @if (mapState.getActiveLayer(); as layer) {
         <div class="selectedLayer">
           
@@ -74,6 +77,7 @@
       }
     </ng-template>
   </mat-expansion-panel>
+
   @if ((mapState.observeSelectedMapLayers$() | async)?.length ?? 0 > 0) {
     <mat-divider></mat-divider>
     <mat-expansion-panel class="mat-elevation-z0">
@@ -263,7 +267,7 @@
       </mat-action-list>
     </ng-template>
   </mat-expansion-panel>
-</mat-accordion>
+
 <mat-divider></mat-divider>
 @if (mapState.isExpertView()) {
   <div class="buttonContent">
@@ -275,3 +279,88 @@
     ></button>
   </div>
 }
+<h2>{{ i18n.get('filter') }}</h2>
+<mat-divider></mat-divider>
+<mat-expansion-panel class="mat-elevation-z0">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      {{ i18n.get('generalFilters') }}
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <ng-template matExpansionPanelContent>
+    <div class="filterAll">
+      <button mat-stroked-button (click)="filterAll(false)">
+        {{ i18n.get('showAllElements') }}
+      </button>
+      <button mat-stroked-button (click)="filterAll(true)">
+        {{ i18n.get('hideAllElements') }}
+      </button>
+      <mat-slide-toggle [checked]="enableClustering$ | async" (change)="toggleClustering()">
+        {{ i18n.get('featureClustering') }}
+      </mat-slide-toggle>
+    </div>
+  </ng-template>
+</mat-expansion-panel>
+<mat-divider></mat-divider>
+<mat-expansion-panel class="mat-elevation-z0">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      {{ i18n.get('filter') }}
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <ng-template matExpansionPanelContent>
+    @if (filterSymbols && filterSymbols.length > 0) {
+      <div class="filterButtons">
+        <mat-grid-list cols="5" gutterSize="4">
+          @for (symbol of filterSymbols; track symbol.id) {
+            <mat-grid-tile>
+              <button mat-button class="filterItem" (click)="toggleSymbolOrFeatureFilter(symbol)">
+                <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center">
+                  @if (symbol.src) {
+                    <img [class.opaque]="symbol.hidden" [src]="symbol.src" [title]="symbol.label" style="max-width: 100%; height: auto" />
+                  }
+                  @if (symbol.icon) {
+                    <mat-icon [class.opaque]="symbol.hidden" aria-hidden="false">{{ symbol.icon }}</mat-icon>
+                  }
+                  @if (symbol.hidden) {
+                    <mat-icon class="eyeOverlay">visibility_off</mat-icon>
+                  }
+                </div>
+              </button>
+            </mat-grid-tile>
+          }
+        </mat-grid-list>
+      </div>
+    }
+  </ng-template>
+</mat-expansion-panel>
+<mat-divider></mat-divider>
+<mat-expansion-panel class="mat-elevation-z0">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      {{ i18n.get('categories') }}
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <ng-template matExpansionPanelContent>
+    <mat-list>
+      @for (category of signCategories; track category) {
+        <mat-list-item>
+          <mat-checkbox labelPosition="before" class="categoryCheckbox"
+            [checked]="category.isVisible" [indeterminate]="category.isPartiallyVisible"
+            (change)="toggleCategoryFilter($event, category)">
+            <div class="listItemContent">
+              <div class="categoryLabel">
+                <div class="categoryDot" [style.background-color]="category.color"></div>
+                {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
+              </div>
+            </div>
+          </mat-checkbox>
+        </mat-list-item>
+      }
+    </mat-list>
+  </ng-template>
+</mat-expansion-panel>
+<mat-divider></mat-divider>
+</mat-accordion>

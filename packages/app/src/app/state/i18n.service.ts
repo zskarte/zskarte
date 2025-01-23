@@ -2020,6 +2020,16 @@ export class I18NService {
       en: 'Elements on the map in guest mode',
       fr: 'Éléments de la carte en mode invité'
     },
+    view: {
+      de: 'Darstellung',
+      en: 'Appearance',
+      fr: 'Apparence',
+    },
+    maps: {
+      de: 'Karten',
+      en: 'Maps',
+      fr: 'Cartes',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {
