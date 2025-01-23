@@ -197,6 +197,7 @@ export class JournalComponent {
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntryId = entry.id;
     this.sidebarOpen = true;
+    this.editing = false;
 
     this.journalForm.patchValue({
       ...entry,
