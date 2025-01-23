@@ -2074,6 +2074,11 @@ export class I18NService {
       de: 'Abgeschlossen',
       en: 'Completed',
       fr: 'Terminé'
+    },
+    journal: {
+      de: 'Journal',
+      en: 'Journal',
+      fr: 'Journal'
     }
   };
 

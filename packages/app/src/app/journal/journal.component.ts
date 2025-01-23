@@ -81,29 +81,29 @@ export class JournalComponent {
   sidebarOpen = false;
 
   journalForm = new FormGroup({
-    message_number: new FormControl<string | number>(''),
-    sender: new FormControl(''),
-    creator: new FormControl(''),
-    communication_type: new FormControl(''),
-    communication_details: new FormControl(''),
-    message_subject: new FormControl(''),
-    message_content: new FormControl(''),
-    visum_message: new FormControl(''),
-    visum_decision_receiver: new FormControl(''),
-    department: new FormControl(''),
-    date_created_date: new FormControl<Date>(new Date()),
-    date_created_time: new FormControl<Date>(new Date()),
-    is_key_message: new FormControl(false),
-    visum_triage: new FormControl(''),
+    message_number: new FormControl<string | number>('', {nonNullable: true}),
+    sender: new FormControl('', {nonNullable: true}),
+    creator: new FormControl('', {nonNullable: true}),
+    communication_type: new FormControl('', {nonNullable: true}),
+    communication_details: new FormControl('', {nonNullable: true}),
+    message_subject: new FormControl('', {nonNullable: true}),
+    message_content: new FormControl('', {nonNullable: true}),
+    visum_message: new FormControl('', {nonNullable: true}),
+    visum_decision_receiver: new FormControl('', {nonNullable: true}),
+    department: new FormControl('', {nonNullable: true}),
+    date_created_date: new FormControl<Date>(new Date(), {nonNullable: true}),
+    date_created_time: new FormControl<Date>(new Date(), {nonNullable: true}),
+    is_key_message: new FormControl(false, {nonNullable: true}),
+    visum_triage: new FormControl('', {nonNullable: true}),
     date_triage: new FormControl(),
     date_decision: new FormControl(),
-    visum_decider: new FormControl(''),
-    decision: new FormControl(''),
-    decision_receiver: new FormControl(''),
-    visum_decision_deliverer: new FormControl(''),
-    entry_status: new FormControl('awaiting_message'),
+    visum_decider: new FormControl('', {nonNullable: true}),
+    decision: new FormControl('', {nonNullable: true}),
+    decision_receiver: new FormControl('', {nonNullable: true}),
+    visum_decision_deliverer: new FormControl('', {nonNullable: true}),
+    entry_status: new FormControl('awaiting_message', {nonNullable: true}),
     date_decision_delivered: new FormControl(),
-    decision_sender: new FormControl(''),
+    decision_sender: new FormControl('', {nonNullable: true}),
   });
 
   editing = false;
@@ -217,12 +217,13 @@ export class JournalComponent {
   openJournalAddDialog() {
     this.editing = true;
     this.sidebarOpen = true;
-
     this.journalForm.reset();
   }
 
   toggleEditing() {
     this.editing = !this.editing;
+    this.sidebarOpen = false;
+    this.journalForm.reset();
   }
 
   async resetState() {
@@ -248,7 +249,7 @@ export class JournalComponent {
   }
 
   async save(event: any) {
-    let entry_status = this.journalForm.value.entry_status;
+    const entry_status = this.journalForm.value.entry_status;
     if (event.submitter.name !== 'save') {
       if (entry_status === 'awaiting_message') {
         this.journalForm.patchValue({ entry_status: 'awaiting_triage' });

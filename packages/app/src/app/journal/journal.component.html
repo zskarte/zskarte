@@ -101,16 +101,20 @@
                     <input matInput formControlName="visum_message" />
                   </mat-form-field>
                 </div>
+
                 <div class="journal-entry-save-buttons">
-                  <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntryId">
+                  <button mat-stroked-button type="button" (click)="toggleEditing()">
                     <mat-icon>close</mat-icon>
                     {{ i18n.get('cancel') }}
                   </button>
-                  <button mat-flat-button color="primary" name="save">
+                  <button mat-flat-button color="primary" name="save" *ngIf="selectedJournalEntryId">
                     <mat-icon>check</mat-icon>
                     {{ i18n.get('save') }}
                   </button>
-                </div>
+                  <button mat-flat-button color="primary" *ngIf="!selectedJournalEntryId">
+                    <mat-icon>check</mat-icon>
+                    {{ i18n.get('save') }}
+                  </button>
               </div>
             </div>
           </div>
