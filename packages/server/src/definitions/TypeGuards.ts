@@ -1,48 +1,52 @@
-import type { Shared, Schema as SchemaNamespace, Attribute, Common, Utils } from '@strapi/strapi';
+import { Schema as SchemaNamespace, UID, Utils } from '@strapi/strapi';
+import { CollectionType } from '@strapi/types/dist/core/core-api/controller';
+import { Attribute } from '@strapi/types/dist/schema';
 
 //Type analysing/Schema based on logic from Common.UID
-interface IsOperationTypeSchema extends SchemaNamespace.CollectionType {
+interface IsOperationTypeSchema extends CollectionType {
   collectionName: 'operations';
 }
-interface IsOrganizationTypeSchema extends SchemaNamespace.CollectionType {
+interface IsOrganizationTypeSchema extends CollectionType {
   collectionName: 'organizations';
 }
-interface HasOperationTypeSchema extends SchemaNamespace.CollectionType {
+interface HasOperationTypeSchema extends CollectionType {
   attributes: {
-    operation: Attribute.Relation<Common.UID.Schema, Attribute.RelationKind.Any, IsOperationType>;
+    operation: any;
+    // operation: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOperationType>; TODO-v5: Fix
   };
 }
-interface HasOrganizationTypeSchema extends SchemaNamespace.CollectionType {
+interface HasOrganizationTypeSchema extends CollectionType {
   attributes: {
-    organization: Attribute.Relation<Common.UID.Schema, Attribute.RelationKind.Any, IsOrganizationType>;
+    organization: any;
+    // organization: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOrganizationType>; TODO-v5: FIX
   };
 }
-interface HasPublicTypeSchema extends SchemaNamespace.CollectionType {
+interface HasPublicTypeSchema extends CollectionType {
   attributes: {
     public: Attribute.Boolean;
   };
 }
 
 export type IsOperationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<Shared.ContentTypes, IsOperationTypeSchema>, Common.UID.ContentType>,
-  Common.UID.ContentType
+  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, IsOperationTypeSchema>, UID.ContentType>,
+  UID.ContentType
 >;
 export type IsOrganizationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<Shared.ContentTypes, IsOrganizationTypeSchema>, Common.UID.ContentType>,
-  Common.UID.ContentType
+  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, IsOrganizationTypeSchema>, UID.ContentType>,
+  UID.ContentType
 >;
 export type HasOperationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<Shared.ContentTypes, HasOperationTypeSchema>, Common.UID.ContentType>,
-  Common.UID.ContentType
+  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, HasOperationTypeSchema>, UID.ContentType>,
+  UID.ContentType
 >;
 export type HasOrganizationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<Shared.ContentTypes, HasOrganizationTypeSchema>, Common.UID.ContentType>,
-  Common.UID.ContentType
+  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, HasOrganizationTypeSchema>, UID.ContentType>,
+  UID.ContentType
 >;
 export type AccessCheckableType = IsOperationType | IsOrganizationType | HasOperationType | HasOrganizationType;
 export type HasPublicType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<Shared.ContentTypes, HasPublicTypeSchema>, Common.UID.ContentType>,
-  Common.UID.ContentType
+  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, HasPublicTypeSchema>, UID.ContentType>,
+  UID.ContentType
 >;
 
 //unfortunately as types are striped away on runtime we have to define them here explizite. But the type definitions above help the intellisense show all possible/valid values.
@@ -50,7 +54,7 @@ const IsOperationTypes: IsOperationType[] = ['api::operation.operation'];
 const IsOrganizationTypes: IsOrganizationType[] = ['api::organization.organization'];
 const HasOperationTypes: HasOperationType[] = ['api::access.access', 'api::map-snapshot.map-snapshot','api::journal-entry.journal-entry'];
 const HasOrganizationTypes: HasOrganizationType[] = [
-  'plugin::users-permissions.user',
+  'plugin::users-permissions.user' as any, //TODO-v5: Remove ANY
   'api::operation.operation',
   'api::wms-source.wms-source',
   'api::map-layer.map-layer',

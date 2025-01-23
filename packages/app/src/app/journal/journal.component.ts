@@ -29,8 +29,6 @@ import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-
-
 @Component({
   selector: 'app-journal',
   imports: [
@@ -65,7 +63,14 @@ export class JournalComponent implements AfterViewInit {
   private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
 
-  displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_message', 'entry_status', 'is_key_message'];
+  displayedColumns: string[] = [
+    'message_number',
+    'message_subject',
+    'message_content',
+    'date_message',
+    'entry_status',
+    'is_key_message',
+  ];
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
   @ViewChild(MatSort) sort!: MatSort;
@@ -79,7 +84,7 @@ export class JournalComponent implements AfterViewInit {
     includeScore: true,
     keys: ['message_subject', 'message_content', 'decision'],
     ignoreLocation: true,
-    threshold: 0.5
+    threshold: 0.5,
   });
   selectedIndex = 0;
 
@@ -95,33 +100,33 @@ export class JournalComponent implements AfterViewInit {
       this.dataSourceFiltered.data = this.dataSource;
       this.fuse.setCollection(this.dataSource);
       return result;
-    }
+    },
   });
 
   journalForm = new FormGroup({
-    message_number: new FormControl<string | number>('', {nonNullable: true}),
-    sender: new FormControl('', {nonNullable: true}),
-    creator: new FormControl('', {nonNullable: true}),
-    communication_type: new FormControl('', {nonNullable: true}),
-    communication_details: new FormControl('', {nonNullable: true}),
-    message_subject: new FormControl('', {nonNullable: true}),
-    message_content: new FormControl('', {nonNullable: true}),
-    visum_message: new FormControl('', {nonNullable: true}),
-    visum_decision_receiver: new FormControl('', {nonNullable: true}),
-    department: new FormControl('', {nonNullable: true}),
-    date_created_date: new FormControl<Date>(new Date(), {nonNullable: true}),
-    date_created_time: new FormControl<Date>(new Date(), {nonNullable: true}),
-    is_key_message: new FormControl(false, {nonNullable: true}),
-    visum_triage: new FormControl('', {nonNullable: true}),
+    message_number: new FormControl<string | number>('', { nonNullable: true }),
+    sender: new FormControl('', { nonNullable: true }),
+    creator: new FormControl('', { nonNullable: true }),
+    communication_type: new FormControl('', { nonNullable: true }),
+    communication_details: new FormControl('', { nonNullable: true }),
+    message_subject: new FormControl('', { nonNullable: true }),
+    message_content: new FormControl('', { nonNullable: true }),
+    visum_message: new FormControl('', { nonNullable: true }),
+    visum_decision_receiver: new FormControl('', { nonNullable: true }),
+    department: new FormControl('', { nonNullable: true }),
+    date_created_date: new FormControl<Date>(new Date(), { nonNullable: true }),
+    date_created_time: new FormControl<Date>(new Date(), { nonNullable: true }),
+    is_key_message: new FormControl(false, { nonNullable: true }),
+    visum_triage: new FormControl('', { nonNullable: true }),
     date_triage: new FormControl(),
     date_decision: new FormControl(),
-    visum_decider: new FormControl('', {nonNullable: true}),
-    decision: new FormControl('', {nonNullable: true}),
-    decision_receiver: new FormControl('', {nonNullable: true}),
-    visum_decision_deliverer: new FormControl('', {nonNullable: true}),
-    entry_status: new FormControl('awaiting_message', {nonNullable: true}),
+    visum_decider: new FormControl('', { nonNullable: true }),
+    decision: new FormControl('', { nonNullable: true }),
+    decision_receiver: new FormControl('', { nonNullable: true }),
+    visum_decision_deliverer: new FormControl('', { nonNullable: true }),
+    entry_status: new FormControl('awaiting_message', { nonNullable: true }),
     date_decision_delivered: new FormControl(),
-    decision_sender: new FormControl('', {nonNullable: true}),
+    decision_sender: new FormControl('', { nonNullable: true }),
   });
 
   editing = false;
@@ -191,7 +196,7 @@ export class JournalComponent implements AfterViewInit {
     if (searchTerm) {
       const results = this.fuse.search(searchTerm);
       filtered = results
-        .filter(result => result.score && result.score <= 0.5)
+        .filter((result) => result.score && result.score <= 0.5)
         .map((result) => result.item)
         .filter(
           (item) =>
@@ -236,9 +241,7 @@ export class JournalComponent implements AfterViewInit {
   toggleEditing() {
     this.editing = !this.editing;
 
-    this.journalForm.patchValue({
-      
-    });
+    this.journalForm.patchValue({});
   }
 
   async resetState() {
@@ -246,20 +249,25 @@ export class JournalComponent implements AfterViewInit {
       entry_status: 'awaiting_triage',
     });
 
-    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
+    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.documentId}`, {
       data: {
         ...this.journalForm.value,
-        date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
+        date_message: new Date(
+          (this.journalForm.value.date_created_date as Date).setTime(
+            this.journalForm.value.date_created_time!.getTime(),
+          ),
+        ),
       },
     });
 
     await this.journalResource.reload();
 
-    const entry = await this.apiService.get<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`);
+    const entry = await this.apiService.get<JournalEntry>(
+      `/api/journal-entries/${this.selectedJournalEntry?.documentId}`,
+    );
 
     await this.selectEntry(entry.result as JournalEntry);
     this.selectedIndex = this.selectedIndex - 1;
-
   }
 
   async save(event: any) {
@@ -281,12 +289,16 @@ export class JournalComponent implements AfterViewInit {
 
     try {
       if (this.selectedJournalEntry?.id) {
-        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
+        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.documentId}`, {
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
             organization: organization?.id,
-            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
+            date_message: new Date(
+              (this.journalForm.value.date_created_date as Date).setTime(
+                this.journalForm.value.date_created_time!.getTime(),
+              ),
+            ),
           },
         });
       } else {
@@ -295,14 +307,20 @@ export class JournalComponent implements AfterViewInit {
             ...this.journalForm.value,
             operation: operation?.id,
             organization: organization?.id,
-            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
+            date_message: new Date(
+              (this.journalForm.value.date_created_date as Date).setTime(
+                this.journalForm.value.date_created_time!.getTime(),
+              ),
+            ),
           },
         });
       }
 
       await this.journalResource.reload();
 
-      const entry = await this.apiService.get<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`);
+      const entry = await this.apiService.get<JournalEntry>(
+        `/api/journal-entries/${this.selectedJournalEntry?.documentId}`,
+      );
 
       await this.selectEntry(entry.result as JournalEntry);
 

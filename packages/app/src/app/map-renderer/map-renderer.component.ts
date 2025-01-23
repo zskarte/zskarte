@@ -321,7 +321,6 @@ export class MapRendererComponent implements AfterViewInit {
     this._select = new Select({
       hitTolerance: 10,
       style: (feature: FeatureLike, resolution: number) => {
-        console.log('stylee')
         return DrawStyle.styleFunctionSelect(feature, resolution, true);
       },
       layers: this._allLayers,
@@ -412,7 +411,8 @@ export class MapRendererComponent implements AfterViewInit {
         const type = element.element.elementState?.type;
         const symbolCoordinates = DrawStyle.getIconCoordinates(feature, this._view.getResolution() ?? 1)[0];
         const modifyCoordinates = e.mapBrowserEvent.coordinate;
-        const toggleRotate = type === ZsMapDrawElementStateType.SYMBOL && areCoordinatesEqual(symbolCoordinates, modifyCoordinates);
+        const toggleRotate =
+          type === ZsMapDrawElementStateType.SYMBOL && areCoordinatesEqual(symbolCoordinates, modifyCoordinates);
         this.toggleEditButtons(true, toggleRotate);
       }
     });
@@ -682,56 +682,56 @@ export class MapRendererComponent implements AfterViewInit {
       });
     });
 
+    combineLatest([
+      this._state.observeDrawElements(),
+      this._state.observeHiddenSymbols(),
+      this._state.observeHiddenFeatureTypes(),
+    ])
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
+        // Filter out hidden elements
+        drawElements = drawElements.filter((element) => {
+          const feature = element.getOlFeature();
+          const filterType = element.elementState?.type as string;
+          const hidden = hiddenSymbols.includes(feature?.get('sig')?.id) || hiddenFeatureTypes.includes(filterType);
+          return !hidden;
+        });
 
-    combineLatest([this._state.observeDrawElements(), this._state.observeHiddenSymbols(), this._state.observeHiddenFeatureTypes()])
-    .pipe(takeUntil(this._ngUnsubscribe))
-    .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
-
-      // Filter out hidden elements
-      drawElements = drawElements.filter(element => {
-        const feature = element.getOlFeature();
-        const filterType = element.elementState?.type as string;
-        const hidden =
-          hiddenSymbols.includes(feature?.get('sig')?.id) ||
-          hiddenFeatureTypes.includes(filterType);
-        return !hidden
-      })
-
-      for (const element of drawElements) {
-        if (!this._drawElementCache[element.getId()]) {
+        for (const element of drawElements) {
+          if (!this._drawElementCache[element.getId()]) {
             this._drawElementCache[element.getId()] = {
               element,
               layer: undefined,
-          }
-          element
-            .observeLayer()
-            .pipe(takeUntil(element.observeUnsubscribe()))
-            .subscribe((layer) => {
-              const cache = this._drawElementCache[element.getId()];
-              const feature = element.getOlFeature();
-              if (cache.layer) {
-                const cachedLayer = this._state.getLayer(cache.layer);
-                if (cachedLayer) {
-                  cachedLayer.removeOlFeature(feature);
+            };
+            element
+              .observeLayer()
+              .pipe(takeUntil(element.observeUnsubscribe()))
+              .subscribe((layer) => {
+                const cache = this._drawElementCache[element.getId()];
+                const feature = element.getOlFeature();
+                if (cache.layer) {
+                  const cachedLayer = this._state.getLayer(cache.layer);
+                  if (cachedLayer) {
+                    cachedLayer.removeOlFeature(feature);
+                  }
                 }
-              }
-              cache.layer = layer;
-              const newLayer = this._state.getLayer(layer ?? '');
-              newLayer?.addOlFeature(feature);
-            });
+                cache.layer = layer;
+                const newLayer = this._state.getLayer(layer ?? '');
+                newLayer?.addOlFeature(feature);
+              });
+          }
         }
-      }
 
-      // Removed old elements
-      for (const element of Object.values(this._drawElementCache)) {
-        if (drawElements.every((e) => e.getId() !== element.element.getId())) {
-          // New elements do not contain element from cache
-          this._state.getLayer(element.layer ?? '').removeOlFeature(element.element.getOlFeature());
-          // skipcq: JS-0320
-          delete this._drawElementCache[element.element.getId()];
+        // Removed old elements
+        for (const element of Object.values(this._drawElementCache)) {
+          if (drawElements.every((e) => e.getId() !== element.element.getId())) {
+            // New elements do not contain element from cache
+            this._state.getLayer(element.layer ?? '').removeOlFeature(element.element.getOlFeature());
+            // skipcq: JS-0320
+            delete this._drawElementCache[element.element.getId()];
+          }
         }
-      }
-    });
+      });
 
     this._state
       .observeSelectedMapLayers$()

@@ -7,8 +7,7 @@ switzerchees: WILL BE DELETED/REFACTORED shortly
 import { cloneDeep } from 'lodash';
 import { Operation } from 'src/definitions';
 import { v4 as uuidv4 } from 'uuid';
-import { Strapi } from '@strapi/strapi';
-// import { Core } from '@strapi/strapi'; -> V5
+import { Core } from '@strapi/strapi';
 
 export const zsMapStateMigration = (mapState: any): any => {
   if (!mapState) {
@@ -53,9 +52,9 @@ export const zsMapStateMigration = (mapState: any): any => {
 const CURRENT_MIN_VERSION = 2;
 
 // switzerchees: Remove at the end of the week
-export const migrateOperationMapStates = async (strapi: Strapi) => {
+export const migrateOperationMapStates = async (strapi: Core.Strapi) => {
   try {
-    const operations = (await strapi.entityService.findMany('api::operation.operation', {
+    const operations = (await strapi.documents('api::operation.operation').findMany({
       limit: -1,
     })) as unknown as Operation[];
     strapi.log.info(`Found ${operations.length} operations to migrate`);
@@ -63,19 +62,20 @@ export const migrateOperationMapStates = async (strapi: Strapi) => {
     let currentOperation = 1;
     for (const operation of operations) {
       try {
-        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.id}`);
+        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.documentId}`);
         if (!operation.mapState) continue;
         if ((operation.mapState as any)?.version >= CURRENT_MIN_VERSION) {
-          strapi.log.info(`Operation ${operation.id} already migrated`);
+          strapi.log.info(`Operation ${operation.documentId} already migrated`);
           continue;
         }
         operation.mapState = zsMapStateMigration(operation.mapState as any);
-        await strapi.entityService.update('api::operation.operation', operation.id, {
+        await strapi.documents('api::operation.operation').update({
+          documentId: operation.documentId,
           data: {
             mapState: operation.mapState as any,
           },
         });
-        strapi.log.info(`Operation ${operation.id} migrated`);
+        strapi.log.info(`Operation ${operation.documentId} migrated`);
       } catch (error) {
         strapi.log.error(error);
       }

@@ -5,13 +5,12 @@ switzerchees: WILL BE DELETED/REFACTORED shortly
 
 */
 import { Operation, OperationPhase } from '../definitions';
-import { Strapi } from '@strapi/strapi';
-// import { Core } from '@strapi/strapi'; -> V5
+import { Core } from '@strapi/strapi';
 
 // switzerchees: Remove at the end of the week
-export const migrateOperationStatusesToPhases = async (strapi: Strapi) => {
+export const migrateOperationStatusesToPhases = async (strapi: Core.Strapi) => {
   try {
-    const operations = (await strapi.entityService.findMany('api::operation.operation', {
+    const operations = (await strapi.documents('api::operation.operation').findMany({
       limit: -1,
     })) as unknown as Operation[];
     strapi.log.info(`Found ${operations.length} operations to migrate status`);
@@ -19,17 +18,20 @@ export const migrateOperationStatusesToPhases = async (strapi: Strapi) => {
     let currentOperation = 1;
     for (const operation of operations) {
       try {
-        strapi.log.info(`Migrating operation status -> phase (${currentOperation}/${operationCount}) ${operation.id}`);
+        strapi.log.info(
+          `Migrating operation status -> phase (${currentOperation}/${operationCount}) ${operation.documentId}`,
+        );
         if (operation.phase) {
-          strapi.log.info(`Operation ${operation.id} already migrated`);
+          strapi.log.info(`Operation ${operation.documentId} already migrated`);
           continue;
         }
-        await strapi.entityService.update('api::operation.operation', operation.id, {
+        await strapi.documents('api::operation.operation').update({
+          documentId: operation.documentId,
           data: {
             phase: operation.status as OperationPhase,
           },
         });
-        strapi.log.info(`Operation ${operation.id} migrated`);
+        strapi.log.info(`Operation ${operation.documentId} migrated`);
       } catch (error) {
         strapi.log.error(error);
       }

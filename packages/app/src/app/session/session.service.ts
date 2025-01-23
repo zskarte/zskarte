@@ -74,9 +74,12 @@ export class SessionService {
       this._clearOperation.next();
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
-        if (session.operation?.id) {
+        if (session.operation?.documentId || session.operation?.id) {
           await this._state?.refreshMapState();
-          let displayState = await db.displayStates.get({ id: session.operation?.id });
+          let displayState = await db.displayStates.get({
+            id: session.operation?.documentId ?? session.operation?.id?.toString(),
+          });
+
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
             //ignore invalid/empty saved displayState
@@ -185,7 +188,10 @@ export class SessionService {
             .pipe(skip(1), takeUntil(this._clearOperation))
             .subscribe(async (displayState) => {
               if (this._session.value?.operation?.id) {
-                await db.displayStates.put({ ...displayState, id: this._session.value.operation?.id });
+                await db.displayStates.put({
+                  ...displayState,
+                  id: this._session.value.operation?.documentId ?? this._session.value.operation?.id?.toString(),
+                });
               }
             });
 
@@ -323,8 +329,8 @@ export class SessionService {
 
   public async saveOrganizationMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {
     const organization = this.getOrganization();
-    if (organization?.id) {
-      await this._api.put(`/api/organizations/${organization?.id}/layer-settings`, { data });
+    if (organization?.documentId) {
+      await this._api.put(`/api/organizations/${organization.documentId}/layer-settings`, { data });
 
       organization.wms_sources = data.wms_sources;
       organization.map_layer_favorites = data.map_layer_favorites;
@@ -378,7 +384,7 @@ export class SessionService {
         SessionService.isLoadedOperation(sessionOperation)
       ) {
         //backup operation in case offline / no server connection to allow continue work later
-        await OperationService.persistLocalOpertaion(sessionOperation);
+        await OperationService.persistLocalOperation(sessionOperation);
       }
       this._session.value.operation = operation;
     }
@@ -393,8 +399,8 @@ export class SessionService {
     return this._session?.value?.operation;
   }
 
-  public getOperationId(): number | undefined {
-    return this._session?.value?.operation?.id;
+  public getOperationId(): string | undefined {
+    return this._session?.value?.operation?.documentId;
   }
 
   public getOperationName(): string | undefined {
@@ -513,7 +519,7 @@ export class SessionService {
         //ignore invalid operationId param
       }
     }
-    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.id;
+    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.documentId;
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
@@ -545,7 +551,7 @@ export class SessionService {
       //local backup operation if "logout" because of networkError
       const operation = this._session.value?.operation;
       if (operation) {
-        await OperationService.persistLocalOpertaion(operation);
+        await OperationService.persistLocalOperation(operation);
         return;
       }
     }

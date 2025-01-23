@@ -1,5 +1,6 @@
 export interface JournalEntry {
   id: number;
+  documentId: string;
   message_number: number;
   message_content: string;
   message_subject: string;

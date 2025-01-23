@@ -2,5 +2,7 @@
   "name": "Authenticated",
   "description": "Default role given to authenticated user.",
   "type": "authenticated",
+  "documentId": "w0byu09joanar45e990zuh7j",
+  "locale": null,
   "permissions": []
 }

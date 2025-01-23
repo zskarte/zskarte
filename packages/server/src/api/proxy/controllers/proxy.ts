@@ -1,7 +1,7 @@
-import { Strapi } from '@strapi/strapi';
+import { Core } from '@strapi/strapi';
 import axios from 'axios';
 
-export default ({ strapi }: { strapi: Strapi }) => ({
+export default ({ strapi }: { strapi: Core.Strapi }) => ({
   proxy: async (ctx: any) => {
     try {
       const { url } = ctx.request.query;
