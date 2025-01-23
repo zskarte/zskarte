@@ -23,13 +23,13 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return this.transformResponse(sanitizedEntity);
   },
   async patch(ctx) {
-    const { identifier, operationid } = ctx.request.headers;
+    const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
     }
     const patches: PatchExtended[] = ctx.request.body;
-    await updateMapState(operationid as string, identifier as string, patches); //TODO: Remove as string
+    await updateMapState(operationid, identifier, patches);
     ctx.status = 200;
     return { success: true };
   },

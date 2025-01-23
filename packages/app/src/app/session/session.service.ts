@@ -74,9 +74,9 @@ export class SessionService {
       this._clearOperation.next();
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
-        if (session.operation?.id) {
+        if (session.operation?.documentId) {
           await this._state?.refreshMapState();
-          let displayState = await db.displayStates.get({ id: session.operation?.id });
+          let displayState = await db.displayStates.get({ id: session.operation?.documentId });
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
             //ignore invalid/empty saved displayState
@@ -184,8 +184,12 @@ export class SessionService {
             .observeDisplayState()
             .pipe(skip(1), takeUntil(this._clearOperation))
             .subscribe(async (displayState) => {
-              if (this._session.value?.operation?.id) {
-                await db.displayStates.put({ ...displayState, id: this._session.value.operation?.id });
+              if (this._session.value?.operation?.documentId) {
+                console.log('persisting displayState', displayState);
+                await db.displayStates.put({
+                  ...displayState,
+                  documentId: this._session.value.operation?.documentId,
+                });
               }
             });
 
@@ -513,7 +517,7 @@ export class SessionService {
         //ignore invalid operationId param
       }
     }
-    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.id;
+    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.documentId;
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {

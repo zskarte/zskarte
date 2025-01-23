@@ -193,7 +193,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
       );
       return ctx.forbidden('This action is forbidden.');
     }
-    if (hasOperation(config.type) && canNotUseBodyValue(ctx.request.body.data?.operation, operation?.id)) {
+    if (hasOperation(config.type) && canNotUseBodyValue(ctx.request.body.data?.operation, operation?.documentId)) {
       logAccessViolation(
         ctx,
         `update to other operation, ctx.request.body.operation:${JSON.stringify(ctx.request.body.data?.operation)}, entry:${JSON.stringify(entry)}, paramId:${paramId}, headerOperationId:${headerOperationId}`,
