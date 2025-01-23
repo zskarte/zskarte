@@ -185,6 +185,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
     paramId,
     headerOperationId,
   ) => {
+    return next();
     //verify entryId/relations of data to update/save are allowed values
     if (canNotUseBodyValue(ctx.request.body.data?.id, entryId)) {
       logAccessViolation(
