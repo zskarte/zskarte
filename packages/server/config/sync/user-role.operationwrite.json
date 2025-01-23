@@ -2,66 +2,113 @@
   "name": "OperationWrite",
   "description": "The role for the default operation_write user.",
   "type": "operationwrite",
+  "documentId": "ehki4xekm6intcglac5nvomv",
+  "locale": null,
   "permissions": [
     {
-      "action": "api::access.access.refresh"
+      "action": "api::access.access.refresh",
+      "documentId": "cn4ier4dfp7601idda1jik43",
+      "locale": null
     },
     {
-      "action": "api::journal-entry.journal-entry.create"
+      "action": "api::journal-entry.journal-entry.create",
+      "documentId": "lugicjly04s5n82c6bzzqk35",
+      "locale": null
     },
     {
-      "action": "api::journal-entry.journal-entry.find"
+      "action": "api::journal-entry.journal-entry.find",
+      "documentId": "ymx5jggypjl36fs0e216lgbt",
+      "locale": null
     },
     {
-      "action": "api::journal-entry.journal-entry.update"
+      "action": "api::journal-entry.journal-entry.findOne",
+      "documentId": "b98nxjrk7kps1j4zog9rj5g3",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.create"
+      "action": "api::journal-entry.journal-entry.update",
+      "documentId": "g5olzuxapp91tt2jrbk0b6e5",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.find"
+      "action": "api::map-layer.map-layer.create",
+      "documentId": "nyohmer9dtiyno8wmffoyora",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.findOne"
+      "action": "api::map-layer.map-layer.find",
+      "documentId": "eryjazvnmn3ny9mb21avficq",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.update"
+      "action": "api::map-layer.map-layer.findOne",
+      "documentId": "pdjvexcep8kyd6xlwklrvdc9",
+      "locale": null
     },
     {
-      "action": "api::map-snapshot.map-snapshot.find"
+      "action": "api::map-layer.map-layer.update",
+      "documentId": "whmhthyu5k4ocgfyo3eobf94",
+      "locale": null
     },
     {
-      "action": "api::map-snapshot.map-snapshot.findOne"
+      "action": "api::map-snapshot.map-snapshot.find",
+      "documentId": "hjklqqyfiymeh1lzx8co01gt",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.currentLocation"
+      "action": "api::map-snapshot.map-snapshot.findOne",
+      "documentId": "hou8m9gk07xtmvu6hdqkw9y1",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.findOne"
+      "action": "api::operation.operation.currentLocation",
+      "documentId": "l5srirc9xgstd3w70r4kf4sv",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.overview"
+      "action": "api::operation.operation.findOne",
+      "documentId": "eo2ig1r6b5p1rkqldreh2lue",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.patch"
+      "action": "api::operation.operation.overview",
+      "documentId": "oa0dv4ovf8d61vew2rt7knyx",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.updateMapLayers"
+      "action": "api::operation.operation.patch",
+      "documentId": "hl0v5gxf8aacjmjph4juqe7x",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.create"
+      "action": "api::operation.operation.updateMapLayers",
+      "documentId": "xfz45xicm5x0zk8co3vz4go5",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.find"
+      "action": "api::wms-source.wms-source.create",
+      "documentId": "soijby1t7f7dpk81xgx9q03k",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.findOne"
+      "action": "api::wms-source.wms-source.find",
+      "documentId": "xdyn1xrrp2m1qtk5szl3jfya",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.update"
+      "action": "api::wms-source.wms-source.findOne",
+      "documentId": "hun2n6bf1sqxhlu47kx07f74",
+      "locale": null
     },
     {
-      "action": "plugin::users-permissions.user.me"
+      "action": "api::wms-source.wms-source.update",
+      "documentId": "tzpverd3w3b8mpev1wfrruk0",
+      "locale": null
+    },
+    {
+      "action": "plugin::users-permissions.user.me",
+      "documentId": "kcfkrfcmjpo301yy7alg1xnc",
+      "locale": null
     }
   ]
 }

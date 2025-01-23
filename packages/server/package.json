@@ -12,7 +12,7 @@
     "start": "strapi start",
     "build": "strapi build",
     "regenerate": "strapi ts:generate-types",
-    "export": "config-sync export --yes --type user-role && config-sync export --yes --type admin-role",
+    "export": "config-sync export --yes --type user-role",
     "strapi": "strapi"
   },
   "dependencies": {
