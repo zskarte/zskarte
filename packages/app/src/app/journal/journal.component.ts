@@ -80,7 +80,7 @@ export class JournalComponent implements AfterViewInit {
   });
   selectedIndex = 0;
 
-  selectedJournalEntryId: number | null = null;
+  selectedJournalEntry: JournalEntry | null = null;
 
   sidebarOpen = false;
 
@@ -203,7 +203,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async selectEntry(entry: JournalEntry) {
-    this.selectedJournalEntryId = entry.id;
+    this.selectedJournalEntry = entry;
     this.sidebarOpen = true;
     this.editing = false;
     this.selectedIndex = 0;
@@ -216,7 +216,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   resetEntry() {
-    this.selectedJournalEntryId = null;
+    this.selectedJournalEntry = null;
     this.sidebarOpen = false;
     this.editing = false;
     this.selectedIndex = 0;
@@ -230,8 +230,10 @@ export class JournalComponent implements AfterViewInit {
 
   toggleEditing() {
     this.editing = !this.editing;
-    this.sidebarOpen = false;
-    this.journalForm.reset();
+
+    this.journalForm.patchValue({
+      
+    });
   }
 
   async resetState() {
@@ -239,7 +241,7 @@ export class JournalComponent implements AfterViewInit {
       entry_status: 'awaiting_triage',
     });
 
-    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntryId}`, {
+    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
       data: {
         ...this.journalForm.value,
         date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
@@ -248,7 +250,7 @@ export class JournalComponent implements AfterViewInit {
 
     await this.loadJournalEntries();
 
-    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntryId);
+    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
 
     if (currentEntry) {
       await this.selectEntry(currentEntry);
@@ -274,8 +276,8 @@ export class JournalComponent implements AfterViewInit {
     const organization = this.sessionService.getOrganization();
 
     try {
-      if (this.selectedJournalEntryId) {
-        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntryId}`, {
+      if (this.selectedJournalEntry) {
+        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
@@ -284,7 +286,7 @@ export class JournalComponent implements AfterViewInit {
           },
         });
       } else {
-        const resp = await this.apiService.post('/api/journal-entries', {
+        await this.apiService.post('/api/journal-entries', {
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
@@ -292,16 +294,13 @@ export class JournalComponent implements AfterViewInit {
             date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
           },
         });
-
-        this.selectedJournalEntryId = resp.result.id;
       }
 
       await this.loadJournalEntries();
 
-      const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntryId);
-      if (currentEntry) {
-        await this.selectEntry(currentEntry);
-      }
+      const entry = await this.apiService.get<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`);
+
+      await this.selectEntry(entry.result as JournalEntry);
 
       this.editing = false;
     } catch (error) {

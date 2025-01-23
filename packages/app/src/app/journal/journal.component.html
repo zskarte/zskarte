@@ -108,11 +108,11 @@
                     <mat-icon>close</mat-icon>
                     {{ i18n.get('cancel') }}
                   </button>
-                  <button mat-flat-button color="primary" name="save" *ngIf="selectedJournalEntryId">
+                  <button mat-flat-button color="primary" name="save" *ngIf="selectedJournalEntry">
                     <mat-icon>check</mat-icon>
                     {{ i18n.get('save') }}
                   </button>
-                  <button mat-flat-button color="primary" *ngIf="!selectedJournalEntryId">
+                  <button mat-flat-button color="primary" *ngIf="!selectedJournalEntry">
                     <mat-icon>check</mat-icon>
                     {{ i18n.get('save') }}
                   </button>
