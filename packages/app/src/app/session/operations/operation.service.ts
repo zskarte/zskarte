@@ -75,7 +75,7 @@ export class OperationService {
   }
 
   public async saveOperation(operation: IZsMapOperation): Promise<void> {
-    if (operation.id) {
+    if (operation.documentId) {
       await this.updateMeta(operation);
     } else {
       await this.insertOperation(operation);
@@ -104,7 +104,7 @@ export class OperationService {
   }
 
   public async updateMeta(operation: IZsMapOperation): Promise<void> {
-    if ((operation.id ?? 0) < 0) {
+    if (!operation.documentId) {
       await OperationService.persistLocalOpertaion(operation);
     } else {
       await this._api.put(`/api/operations/${operation.documentId}/meta`, {
@@ -113,9 +113,10 @@ export class OperationService {
     }
   }
 
-  public async getOperation(operationId: number, options?: IApiRequestOptions) {
-    if (operationId < 0) {
-      return db.localOperation.get(operationId);
+  public async getOperation(operationId: string, options?: IApiRequestOptions) {
+    //TODO: Check if works strapi v5
+    if (parseInt(operationId) < 0) {
+      return db.localOperation.get(parseInt(operationId));
     } else {
       const { error, result } = await this._api.get<IZsMapOperation>(`/api/operations/${operationId}`, options);
       if (error || !result) return null;
@@ -165,8 +166,8 @@ export class OperationService {
     }
   }
 
-  public async updateMapLayers(operationId: number, data: IZSMapOperationMapLayers) {
-    if (operationId < 0) {
+  public async updateMapLayers(operationId: string, data: IZSMapOperationMapLayers) {
+    if (parseInt(operationId) < 0) {
       const operation = this._session.getOperation();
       if (operation) {
         operation.mapLayers = data;
@@ -205,7 +206,7 @@ export class OperationService {
     });
   }
 
-  public async exportOperation(operationId: number | undefined): Promise<void> {
+  public async exportOperation(operationId: string | undefined): Promise<void> {
     if (!operationId) {
       return;
     }

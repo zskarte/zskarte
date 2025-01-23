@@ -393,8 +393,8 @@ export class SessionService {
     return this._session?.value?.operation;
   }
 
-  public getOperationId(): number | undefined {
-    return this._session?.value?.operation?.id;
+  public getOperationId(): string | undefined {
+    return this._session?.value?.operation?.documentId;
   }
 
   public getOperationName(): string | undefined {

@@ -48,26 +48,32 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
     })) as unknown as Operation) || operation;
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_CREATE) {
     const mapState = operation.mapState || {};
-    operationCaches[operation.id] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
+    operationCaches[operation.documentId] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
     if (!operation.organization) return;
-    operationCaches[operation.id].users.push(...(operation.organization.users || []));
+    operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_UPDATE) {
     if (operation.phase === OperationPhases.ARCHIVED) {
-      delete operationCaches[operation.id];
+      delete operationCaches[operation.documentId];
       return;
-    } else if (!(operation.id in operationCaches)) {
+    } else if (!(operation.documentId in operationCaches)) {
       //maybe an "unarchive" operation
       const mapState = operation.mapState || {};
-      operationCaches[operation.id] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
+      operationCaches[operation.documentId] = {
+        operation,
+        connections: [],
+        users: [],
+        mapState,
+        mapStateChanged: false,
+      };
       if (!operation.organization) return;
-      operationCaches[operation.id].users.push(...(operation.organization.users || []));
+      operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
     } else {
-      operationCaches[operation.id].operation = operation;
+      operationCaches[operation.documentId].operation = operation;
     }
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_DELETE) {
-    delete operationCaches[operation.id];
+    delete operationCaches[operation.documentId];
   }
 };
 
@@ -188,8 +194,10 @@ const deleteGuestOperations = async (strapi: Core.Strapi) => {
       strapi.log.info(`Deleting operation ${operation.name} of guest user`);
       await strapi.db
         .query('api::map-snapshot.map-snapshot')
-        .deleteMany({ filters: { operation: { id: operation.id } } });
-      await strapi.db.query('api::access.access').deleteMany({ filters: { operation: { id: operation.id } } });
+        .deleteMany({ filters: { operation: { documentId: operation.documentId } } });
+      await strapi.db
+        .query('api::access.access')
+        .deleteMany({ filters: { operation: { documentId: operation.documentId } } });
       await strapi.documents('api::operation.operation').delete({
         documentId: operation.documentId,
       });
@@ -206,14 +214,14 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
       limit: -1,
     })) as unknown as Operation[];
 
-    strapi.log.debug(`Found ${activeOperations.length} operation to create snapshots from`);
+    strapi.log.debug(`Found ${activeOperations.length} operations to create snapshots from`);
 
     for (const operation of activeOperations) {
       const fiveMins = MIN * 5;
       // If the operation has not been updated in the last 5mins don't create a snapshot
       if (new Date(operation.updatedAt).getTime() + fiveMins < new Date().getTime()) continue;
 
-      strapi.log.debug(`Creating snapshot for operation [${operation.id}]`);
+      strapi.log.debug(`Creating snapshot for operation [${operation.documentId}] ${operation.name}`);
 
       await strapi.documents('api::map-snapshot.map-snapshot').create({
         data: {

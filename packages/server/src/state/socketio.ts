@@ -19,16 +19,16 @@ const socketConnection = async ({ strapi }, socket: Socket) => {
   try {
     strapi.log.info(`Socket Connecting: ${socket.id}`);
     const { token } = socket.handshake.auth;
-    const operationId = parseInt(socket.handshake.query.operationId as string);
+    const operationId = socket.handshake.query.operationId as string;
     const identifier = socket.handshake.query.identifier as string;
     const label = socket.handshake.query.label as string;
-    if (isNaN(operationId) || !token || !identifier || !label) {
+    if (!operationId || !token || !identifier || !label) {
       strapi.log.warn(`Socket: ${socket.id} - Empty token, operationId, label or identifier in handshake`);
       socket.disconnect();
       return;
     }
     const { jwt, user: userService } = strapi.plugins['users-permissions'].services;
-    const { id: userId, operationId: tokenOperationId }: { id: number; operationId: number } = await jwt.verify(token);
+    const { id: userId, operationId: tokenOperationId }: { id: number; operationId: string } = await jwt.verify(token);
     // Check if the token operationId matches the query operationId
     if (tokenOperationId && operationId !== tokenOperationId) {
       strapi.log.warn(
@@ -58,7 +58,7 @@ const socketConnection = async ({ strapi }, socket: Socket) => {
     const sanitizedUser = sanitizeUser(user);
     operationCache.connections.push({ user: sanitizedUser, socket, identifier, label });
     strapi.log.info(`Socket Connected: ${socket.id}, ${user.email}, OperationId: ${operationId}`);
-    await broadcastConnections(operationCache);
+    broadcastConnections(operationCache);
     socket.on('disconnect', () => socketDisconnect(operationCache, socket));
   } catch (error) {
     socket.disconnect();

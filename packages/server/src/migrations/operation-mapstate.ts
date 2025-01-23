@@ -62,10 +62,10 @@ export const migrateOperationMapStates = async (strapi: Core.Strapi) => {
     let currentOperation = 1;
     for (const operation of operations) {
       try {
-        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.id}`);
+        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.documentId}`);
         if (!operation.mapState) continue;
         if ((operation.mapState as any)?.version >= CURRENT_MIN_VERSION) {
-          strapi.log.info(`Operation ${operation.id} already migrated`);
+          strapi.log.info(`Operation ${operation.documentId} already migrated`);
           continue;
         }
         operation.mapState = zsMapStateMigration(operation.mapState as any);
@@ -75,7 +75,7 @@ export const migrateOperationMapStates = async (strapi: Core.Strapi) => {
             mapState: operation.mapState as any,
           },
         });
-        strapi.log.info(`Operation ${operation.id} migrated`);
+        strapi.log.info(`Operation ${operation.documentId} migrated`);
       } catch (error) {
         strapi.log.error(error);
       }

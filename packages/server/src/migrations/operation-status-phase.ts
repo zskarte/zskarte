@@ -18,9 +18,11 @@ export const migrateOperationStatusesToPhases = async (strapi: Core.Strapi) => {
     let currentOperation = 1;
     for (const operation of operations) {
       try {
-        strapi.log.info(`Migrating operation status -> phase (${currentOperation}/${operationCount}) ${operation.id}`);
+        strapi.log.info(
+          `Migrating operation status -> phase (${currentOperation}/${operationCount}) ${operation.documentId}`,
+        );
         if (operation.phase) {
-          strapi.log.info(`Operation ${operation.id} already migrated`);
+          strapi.log.info(`Operation ${operation.documentId} already migrated`);
           continue;
         }
         await strapi.documents('api::operation.operation').update({
@@ -29,7 +31,7 @@ export const migrateOperationStatusesToPhases = async (strapi: Core.Strapi) => {
             phase: operation.status as OperationPhase,
           },
         });
-        strapi.log.info(`Operation ${operation.id} migrated`);
+        strapi.log.info(`Operation ${operation.documentId} migrated`);
       } catch (error) {
         strapi.log.error(error);
       }

@@ -85,7 +85,7 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public selectOperation(operation: IZsMapOperation) {
-    if (operation.id) {
+    if (operation.documentId) {
       this._session.setOperation(operation);
     }
   }

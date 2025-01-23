@@ -119,7 +119,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
           ctx.query.filters = { operation: { organization: { id: { $eq: userOrganisationId } } } };
         }
         if (operationIdFilter) {
-          ctx.query.filters.operation.id = { $eq: operationIdFilter };
+          ctx.query.filters.operation.documentId = { $eq: operationIdFilter };
         }
       }
       addphaseFilter(phaseFilter, ctx.query.filters.operation);
@@ -131,7 +131,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
         } else {
           ctx.query.filters = { organization: { id: { $eq: userOrganisationId } } };
           if (operationIdFilter) {
-            ctx.query.filters.id = { $eq: operationIdFilter };
+            ctx.query.filters.documentId = { $eq: operationIdFilter };
           }
         }
         addphaseFilter(phaseFilter, ctx.query.filters);
@@ -314,7 +314,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
     }
 
     //check if object access is allowed
-    if (jwtOperationId && operation && jwtOperationId === operation.id) {
+    if (jwtOperationId && operation && jwtOperationId === operation.documentId) {
       //share link login accessing valid operation
     } else if (userOrganisationId && organization && userOrganisationId === organization.id) {
       //loggedin user is in corresponding organization
