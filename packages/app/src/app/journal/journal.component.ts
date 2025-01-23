@@ -281,7 +281,7 @@ export class JournalComponent implements AfterViewInit {
     const organization = this.sessionService.getOrganization();
 
     try {
-      if (this.selectedJournalEntry) {
+      if (this.selectedJournalEntry?.id) {
         await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
           data: {
             ...this.journalForm.value,
