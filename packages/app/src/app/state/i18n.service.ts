@@ -2104,7 +2104,118 @@ export class I18NService {
       de: 'Als nicht gezeichnet markieren',
       en: 'Mark as not drawn',
       fr: 'Marquer comme non dessiné'
-    }
+    },
+    journalNumber: {
+      de: 'Meldungsnummer',
+      en: 'Report number',
+      fr: 'Numéro de rapport'
+    },
+    deliverer: {
+      de: 'Absender',
+      en: 'Deliverer',
+      fr: 'Livreur'
+    },
+    receiver: {
+      de: 'Empfänger',
+      en: 'Receiver',
+      fr: 'Destinataire'
+    },
+    communicationDevice: {
+      de: 'Kommunikationsmittel',
+      en: 'Communication device',
+      fr: 'Dispositif de communication'
+    },
+    phone: {
+      de: 'Telefon',
+      en: 'Phone',
+      fr: 'Téléphone'
+    },
+    radio: {
+      de: 'Funk',
+      en: 'Radio',
+      fr: 'Radio'
+    },
+    fax: {
+      de: 'Fax',
+      en: 'Fax',
+      fr: 'Fax'
+    },
+    email: {
+      de: 'E-Mail',
+      en: 'Email',
+      fr: 'Email'
+    },
+    sms: {
+      de: 'SMS',
+      en: 'SMS',
+      fr: 'SMS'
+    },
+    other: {
+      de: 'Andere',
+      en: 'Other',
+      fr: 'Autre'
+    },
+    messageContent: {
+      de: 'Meldungsinhalt',
+      en: 'Message content',
+      fr: 'Contenu du message'
+    },
+    messageTitle: {
+      de: 'Betreff',
+      en: 'Subject',
+      fr: 'Sujet'
+    },
+    messageDate: {
+      de: 'Meldungsdatum',
+      en: 'Report date',
+      fr: 'Date de rapport'
+    },
+    messageTime: {
+      de: 'Meldungszeit',
+      en: 'Report time',
+      fr: 'Heure de rapport'
+    },
+    detailsChanel: {
+      de: 'Nummer / Kanal',
+      en: 'Number / channel',
+      fr: 'Numéro / canal'
+    },
+    visa: {
+      de: 'Visum',
+      en: 'Visa',
+      fr: 'Visa'
+    },
+    keyMessage: {
+      de: 'Schlüsselmeldung',
+      en: 'Key message',
+      fr: 'Message clé'
+    },
+    departement: {
+      de: 'Fachbereich',
+      en: 'Departement',
+      fr: 'Département'
+    },
+    dateTriage: {
+      de: 'Triage Zeitpunkt',
+      en: 'Triage time',
+      fr: 'Heure de triage'
+    },
+    messageReceiver: {
+      de: 'Empfänger der Entscheidung',
+      en: 'Receiver of decision',
+      fr: 'Destinataire de la décision'
+    },
+    dateDecision: {
+      de: 'Entscheidungszeitpunkt',
+      en: 'Decision time',
+      fr: 'Heure de décision'
+    },
+    politicalAuthority: {
+      de: 'Politische Behörde',
+      en: 'Political authority',
+      fr: 'Autorité politique'
+    },
+
   };
 
   public getLabelForSign(sign: Sign): string {
