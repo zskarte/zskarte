@@ -248,15 +248,12 @@ export class MapRendererService {
 
     this._mapInteractions = [
       this._select.initialize({
-        layers: this._allLayers,
-        view: this._view,
         _state: this._state,
         _renderer: this,
         _modify: this._modify,
         _overlay: this._overlay,
       }),
       this._modify.initialize({
-        view: this._view,
         _state: this._state,
         _renderer: this,
         _select: this._select,
@@ -572,18 +569,13 @@ export class MapRendererService {
       });
 
     this._print.initialize({
-      view: this._view,
-      map: this._map,
-      layers: this._allLayers,
-      mapInteractions: this._mapInteractions,
-      scaleLine: this._scaleLine,
+      renderer: this,
     });
 
     this._initDrawHole();
 
     this._overlay.initialize({
-      map: this._map,
-      view: this._view,
+      _renderer: this,
       _select: this._select,
       buttons,
     });
@@ -630,5 +622,25 @@ export class MapRendererService {
 
   public observeCurrentSketchSize(): Observable<string | null> {
     return this._currentSketchSize.asObservable();
+  }
+
+  public getView(): OlView {
+    return this._view;
+  }
+
+  public getMap(): OlMap {
+    return this._map;
+  }
+
+  public getLayers(): VectorLayer<VectorSource>[] {
+    return this._allLayers;
+  }
+
+  public getMapInteractions(): Interaction[] {
+    return this._mapInteractions;
+  }
+
+  public getScaleLine(): ScaleLine {
+    return this._scaleLine;
   }
 }

@@ -1,7 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Collection, Feature } from 'ol';
 import { FeatureLike } from 'ol/Feature';
-import OlView from 'ol/View';
 import { SimpleGeometry } from 'ol/geom';
 import { Modify } from 'ol/interaction';
 import { ZsMapDrawElementStateType } from '../../../../types';
@@ -24,16 +23,13 @@ export class MapModifyService {
   private _overlay!: MapOverlayService;
   private _renderer!: MapRendererService;
   private _state!: ZsMapStateService;
-  private _view!: OlView;
 
   initialize({
-    view,
     _state,
     _overlay,
     _renderer,
     _select,
   }: {
-    view: OlView;
     _state: ZsMapStateService;
     _overlay: MapOverlayService;
     _renderer: MapRendererService;
@@ -43,7 +39,6 @@ export class MapModifyService {
     this._overlay = _overlay;
     this._select = _select;
     this._renderer = _renderer;
-    this._view = view;
     this._modify = new Modify({
       features: this._modifyCache,
       condition: () => {
@@ -81,7 +76,7 @@ export class MapModifyService {
       if (this._modify['vertexFeature_']) {
         this._select.updateVertexPoint(this._modify['vertexFeature_'].getGeometry().getCoordinates());
         const type = element.element.elementState?.type;
-        const symbolCoordinates = DrawStyle.getIconCoordinates(feature, this._view.getResolution() ?? 1)[0];
+        const symbolCoordinates = DrawStyle.getIconCoordinates(feature, _renderer.getView().getResolution() ?? 1)[0];
         const modifyCoordinates = e.mapBrowserEvent.coordinate;
         const toggleRotate =
           type === ZsMapDrawElementStateType.SYMBOL && areCoordinatesEqual(symbolCoordinates, modifyCoordinates);

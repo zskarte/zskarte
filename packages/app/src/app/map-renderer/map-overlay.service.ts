@@ -6,6 +6,7 @@ import OlView from 'ol/View';
 import { combineLatest, filter, map as rxjsMap, switchMap } from 'rxjs';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';
+import { MapRendererService } from './map-renderer.service';
 import { MapSelectService } from './map-select.service';
 
 @Injectable({
@@ -21,13 +22,11 @@ export class MapOverlayService {
   private _state = inject(ZsMapStateService);
 
   initialize({
-    map,
-    view,
+    _renderer,
     buttons,
     _select,
   }: {
-    map: OlMap;
-    view: OlView;
+    _renderer: MapRendererService;
     _select: MapSelectService;
     buttons: {
       delete: Signal<MatButton>;
@@ -65,11 +64,11 @@ export class MapOverlayService {
       offset: [30, -45],
     });
 
-    map.addOverlay(this._removeButton);
-    map.addOverlay(this._rotateButton);
-    map.addOverlay(this._copyButton);
-    map.addOverlay(this._drawButton);
-    map.addOverlay(this._closeButton);
+    _renderer.getMap().addOverlay(this._removeButton);
+    _renderer.getMap().addOverlay(this._rotateButton);
+    _renderer.getMap().addOverlay(this._copyButton);
+    _renderer.getMap().addOverlay(this._drawButton);
+    _renderer.getMap().addOverlay(this._closeButton);
 
     combineLatest([
       _select.observeVertexPoint(),
@@ -77,7 +76,7 @@ export class MapOverlayService {
         filter(Boolean),
         // get feature each time the coordinates change
         switchMap((element) => element.observeCoordinates().pipe(rxjsMap(() => element.getOlFeature()))),
-        rxjsMap((feature) => DrawStyle.getIconCoordinates(feature, view.getResolution() ?? 1)[1]),
+        rxjsMap((feature) => DrawStyle.getIconCoordinates(feature, _renderer.getView().getResolution() ?? 1)[1]),
       ),
     ]).subscribe(([vertexPoint, featurePoint]) => {
       // prioritize vertexPoint
