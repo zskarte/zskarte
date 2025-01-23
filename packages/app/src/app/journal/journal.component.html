@@ -7,11 +7,12 @@
           {{ journalForm.value.message_subject ?? '' }}
         </h1>
 
-        <button type="button" (click)="resetEntry()" mat-icon-button color="accent" [attr.aria-label]="i18n.get('close')">
+        <button type="button" (click)="resetEntry()" mat-icon-button [attr.aria-label]="i18n.get('close')">
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <mat-tab-group
+      <mat-tab-group 
+        class="journal-sidebar-content"
         animationDuration="0ms"
         [selectedIndex]="selectedIndex"
         (selectedIndexChange)="selectedIndex = $event"
@@ -115,10 +116,13 @@
                     <mat-icon>check</mat-icon>
                     {{ i18n.get('save') }}
                   </button>
+                </div>
               </div>
             </div>
           </div>
+          
         </mat-tab>
+        
         <mat-tab label="Triage" [disabled]="this.journalForm.value.entry_status === 'awaiting_message'">
           <div class="journal-entry-details">
             <p *ngIf="journalForm.value.entry_status !== 'awaiting_triage'">
