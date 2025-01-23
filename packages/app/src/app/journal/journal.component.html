@@ -37,29 +37,29 @@
           <div *ngIf="editing">
             <div class="journal-entry-details">
               <div style="width: 120px">
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Meldungsnr.</mat-label>
                   <input matInput formControlName="message_number" />
                 </mat-form-field>
               </div>
               <div style="display: flex; gap: 6px">
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Absender</mat-label>
                   <input matInput formControlName="sender" />
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Empfänger</mat-label>
                   <input matInput formControlName="creator" />
                 </mat-form-field>
               </div>
               <div style="display: flex; gap: 6px">
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Datum</mat-label>
                   <input matInput [matDatepicker]="picker" formControlName="date_created_date" />
                   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
                 </mat-form-field>
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Zeit</mat-label>
                   <input matInput [matTimepicker]="pickerTime" formControlName="date_created_time" />
                   <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
@@ -67,7 +67,7 @@
                 </mat-form-field>
               </div>
               <div style="display: flex; gap: 6px">
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Kommunikationsmittel</mat-label>
                   <select matNativeControl formControlName="communication_type">
                     <option value="telefon">Telefon</option>
@@ -80,36 +80,37 @@
                   </select>
                 </mat-form-field>
 
-                <mat-form-field>
+                <mat-form-field appearance="outline">
                   <mat-label>Nummer/Kanal</mat-label>
                   <input matInput formControlName="communication_details" />
                 </mat-form-field>
               </div>
 
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Betreff</mat-label>
                 <input matInput formControlName="message_subject" />
               </mat-form-field>
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Meldungsinhalt</mat-label>
                 <textarea matInput formControlName="message_content" rows="10"></textarea>
               </mat-form-field>
-              <div style="width: 100px">
-                <mat-form-field>
-                  <mat-label>Visum</mat-label>
-                  <input matInput formControlName="visum_message" />
-                </mat-form-field>
-              </div>
-
-              <div class="journal-entry-save-buttons">
-                <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntryId">
-                  <mat-icon>close</mat-icon>
-                  {{ i18n.get('cancel') }}
-                </button>
-                <button mat-flat-button color="primary" name="save">
-                  <mat-icon>check</mat-icon>
-                  {{ i18n.get('save') }}
-                </button>
+              <div class="end">
+                <div style="width: 100px">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Visum</mat-label>
+                    <input matInput formControlName="visum_message" />
+                  </mat-form-field>
+                </div>
+                <div class="journal-entry-save-buttons">
+                  <button mat-stroked-button type="button" (click)="toggleEditing()" *ngIf="selectedJournalEntryId">
+                    <mat-icon>close</mat-icon>
+                    {{ i18n.get('cancel') }}
+                  </button>
+                  <button mat-flat-button color="primary" name="save">
+                    <mat-icon>check</mat-icon>
+                    {{ i18n.get('save') }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -131,7 +132,7 @@
             </p>
             <div *ngIf="journalForm.value.entry_status === 'awaiting_triage'">
               <mat-checkbox formControlName="is_key_message">Schlüsselnachricht</mat-checkbox>
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Bereich</mat-label>
                 <select matNativeControl formControlName="department">
                   <option value="politische-behoerde">Politische Behörde</option>
@@ -147,7 +148,7 @@
                 </select>
               </mat-form-field>
 
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Visum</mat-label>
                 <input matInput formControlName="visum_triage" />
               </mat-form-field>
@@ -177,16 +178,16 @@
               <strong>Entscheidungszeit: </strong> {{ journalForm.value.date_decision?.toLocaleString() }}
             </p>
             <div *ngIf="journalForm.value.entry_status === 'awaiting_decision'">
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Entscheidung</mat-label>
                 <textarea matInput formControlName="decision" rows="10"></textarea>
               </mat-form-field>
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Visum</mat-label>
                 <input matInput formControlName="visum_decider" />
               </mat-form-field>
 
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Mitteilen an</mat-label>
                 <input matInput formControlName="decision_receiver" />
               </mat-form-field>
@@ -221,7 +222,7 @@
               <strong>Übermittlungszeit: </strong> {{ journalForm.value.date_decision_delivered?.toLocaleString() }}
             </p>
             <div *ngIf="journalForm.value.entry_status !== 'completed'">
-              <mat-form-field>
+              <mat-form-field appearance="outline">
                 <mat-label>Mitgeteilt durch</mat-label>
                 <input matInput formControlName="decision_sender" />
               </mat-form-field>
@@ -246,99 +247,93 @@
         </button>
       </div>
     </div>
-    <div class="journal-filter">
-      <div class="journal-filter-row">
-        <mat-form-field class="journal-filter-search" appearance="outline">
-          <mat-label>Suche</mat-label>
-          <input matInput type="text" [formControl]="searchControl" />
-        </mat-form-field>
-        <mat-form-field class="journal-filter-department" appearance="outline">
-          <mat-label>Bereich</mat-label>
-          <mat-select [formControl]="departmentControl">
-            <mat-option>Alle Bereiche</mat-option>
-            <mat-option value="politische-behoerde">Politische Behörde</mat-option>
-            <mat-option value="chef-fuehrungsorgan">Chef Führungsorgan</mat-option>
-            <mat-option value="stabschef">Stabschef</mat-option>
-            <mat-option value="fb-lage">FB Lage</mat-option>
-            <mat-option value="fb-information">FB Information</mat-option>
-            <mat-option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</mat-option>
-            <mat-option value="fb-schutz-rettung">FB Schutz + Rettung</mat-option>
-            <mat-option value="fb-gesundheit">FB Gesundheit</mat-option>
-            <mat-option value="fb-logistik">FB Logistik</mat-option>
-            <mat-option value="fb-infrastukturen">FB Infrastrukturen</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="journal-filter-row journal-filter-buttons">
-        <div class="journal-filter-buttons">
-          <mat-button-toggle-group hideSingleSelectionIndicator multiple>
-            <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
-              Triage
-            </mat-button-toggle>
-            <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
-              Entscheidung
-            </mat-button-toggle>
-            <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
-              Ausgang
-            </mat-button-toggle>
-          </mat-button-toggle-group>
+    <div class="journal-main">
+      <div class="journal-filter">
+        <div class="journal-filter-row">
+          <mat-form-field class="journal-filter-search" appearance="outline">
+            <mat-label>Suche</mat-label>
+            <input matInput type="text" [formControl]="searchControl" />
+          </mat-form-field>
+          <mat-form-field class="journal-filter-department" appearance="outline">
+            <mat-label>Bereich</mat-label>
+            <mat-select [formControl]="departmentControl">
+              <mat-option>Alle Bereiche</mat-option>
+              <mat-option value="politische-behoerde">Politische Behörde</mat-option>
+              <mat-option value="chef-fuehrungsorgan">Chef Führungsorgan</mat-option>
+              <mat-option value="stabschef">Stabschef</mat-option>
+              <mat-option value="fb-lage">FB Lage</mat-option>
+              <mat-option value="fb-information">FB Information</mat-option>
+              <mat-option value="fb-oeffentliche-sicherheit">FB öffentliche Sicherheit</mat-option>
+              <mat-option value="fb-schutz-rettung">FB Schutz + Rettung</mat-option>
+              <mat-option value="fb-gesundheit">FB Gesundheit</mat-option>
+              <mat-option value="fb-logistik">FB Logistik</mat-option>
+              <mat-option value="fb-infrastukturen">FB Infrastrukturen</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
-        <mat-chip-listbox>
-          <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
-            Schlüsselnachricht
-          </mat-chip-option>
-        </mat-chip-listbox>
+        <div class="journal-filter-row journal-filter-buttons">
+          <div class="journal-filter-buttons">
+            <mat-button-toggle-group hideSingleSelectionIndicator multiple>
+              <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+                Triage
+              </mat-button-toggle>
+              <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+                Entscheidung
+              </mat-button-toggle>
+              <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+                Ausgang
+              </mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+          <mat-chip-listbox>
+            <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
+              Schlüsselnachricht
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
       </div>
-    </div>
-    <div class="journal-content">
-      <table mat-table matSort [dataSource]="dataSourceFiltered">
-        <ng-container matColumnDef="message_number">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('message_number') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="message_subject">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_subject') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.message_subject }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="message_content">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_content') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="date_created">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('date_created') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="entry_status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let element">{{ i18n.get('journal_entry_' + element.entry_status) }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="is_key_message">
-          <th mat-header-cell *matHeaderCellDef>Schlüsselnachricht</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-icon *ngIf="element.is_key_message">key</mat-icon>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr
-          mat-row
-          [class.key-message]="row.is_key_message"
-          class="journal-table-row"
-          *matRowDef="let row; columns: displayedColumns"
-          (click)="selectEntry(row)"
-        ></tr>
-      </table>
-
-      <div class="fab-button">
-        <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
-          <mat-icon>add</mat-icon>
-        </button>
+      <div class="journal-content">
+        <table mat-table matSort [dataSource]="dataSourceFiltered">
+          <ng-container matColumnDef="message_number">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('message_number') }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>
+          </ng-container>
+          <ng-container matColumnDef="message_subject">
+            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_subject') }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.message_subject }}</td>
+          </ng-container>
+          <ng-container matColumnDef="message_content">
+            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_content') }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
+          </ng-container>
+          <ng-container matColumnDef="date_created">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('date_created') }}</th>
+            <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
+          </ng-container>
+          <ng-container matColumnDef="entry_status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">{{ i18n.get('journal_entry_' + element.entry_status) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="is_key_message">
+            <th mat-header-cell *matHeaderCellDef>Schlüsselnachricht</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-icon *ngIf="element.is_key_message">key</mat-icon>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-row
+            [class.key-message]="row.is_key_message"
+            class="journal-table-row"
+            *matRowDef="let row; columns: displayedColumns"
+            (click)="selectEntry(row)"
+          ></tr>
+        </table>
+        <div class="fab-button">
+          <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
   </mat-sidenav-content>

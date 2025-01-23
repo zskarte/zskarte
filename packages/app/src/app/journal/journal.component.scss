@@ -8,6 +8,10 @@
   height: 100%;
 }
 
+.journal-main {
+  padding: 1.25rem;
+}
+
 .journal-header {
   border-right-color: var(--mat-sidenav-container-divider-color, transparent);
   border-right-width: 1px;
@@ -23,7 +27,6 @@
 .journal-sidebar {
   width: 50rem;
   max-width: 75%;
-  padding: 1rem;
 }
 
 .fab-button {
@@ -33,8 +36,6 @@
 }
 
 .journal-content {
-  padding-left: 10px;
-  padding-right: 10px;
   padding-bottom: 100px;
   overflow-x: auto;
 
@@ -81,7 +82,6 @@
 .journal-entry-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   margin-top: 16px;
   margin-bottom: 16px;
 
@@ -101,13 +101,12 @@
   flex-direction: row;
   align-items: center;
   justify-content: start;
-  gap: 10px;
-  padding: 0 10px;
+  gap: .5rem;
 
   @media (max-width: 1200px) {
     flex-direction: column;
     gap: 0;
-    margin-bottom: 22px;
+    margin-bottom: 1.5rem;
     align-items: start;
     justify-content: center;
   }
@@ -116,7 +115,7 @@
 .journal-filter-row {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: 0.5rem;
   align-items: center;
 
   @media (max-width: 600px) {
@@ -159,4 +158,16 @@ tr.journal-table-row.key-message:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.end {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.end .journal-entry-save-buttons {
+  margin-bottom: 1rem;
+
 }
