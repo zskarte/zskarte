@@ -58,7 +58,7 @@ export class JournalComponent {
   private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
 
-  displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_created', 'creator'];
+  displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_created', 'entry_status', 'is_key_message'];
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: JournalEntry[] = [];
   searchControl = new FormControl('');
@@ -69,7 +69,10 @@ export class JournalComponent {
   decisionFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
+    // these fields are used for the search
     keys: ['message_subject', 'message_content', 'decision'],
+    ignoreLocation: true,
+    threshold: 0.75
   });
   selectedIndex = 0;
 
@@ -167,6 +170,7 @@ export class JournalComponent {
     if (searchTerm) {
       const results = this.fuse.search(searchTerm);
       filtered = results
+        .filter(result => result.score && result.score <= 0.5)
         .map((result) => result.item)
         .filter(
           (item) =>
@@ -183,6 +187,7 @@ export class JournalComponent {
   }
 
   async loadJournalEntries() {
+    console.log('loadJournalEntries');
     const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
     this.dataSource = result || [];
     this.dataSourceFiltered = this.dataSource;

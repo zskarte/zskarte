@@ -2045,6 +2045,36 @@ export class I18NService {
       en: 'Elements on the map in guest mode',
       fr: 'Éléments de la carte en mode invité'
     },
+    journal_entry_awaiting_message: {
+      de: 'Meldung',
+      en: 'Awaiting message',
+      fr: 'En attente de message'
+    },
+    journal_entry_awaiting_triage: {
+      de: 'Triage',
+      en: 'Awaiting triage', 
+      fr: 'En attente de triage'
+    },
+    journal_entry_awaiting_drawing: {
+      de: 'Zeichnen',
+      en: 'Awaiting drawing',
+      fr: 'En attente de dessin'
+    },
+    journal_entry_awaiting_decision: {
+      de: 'Entscheidung',
+      en: 'Awaiting decision',
+      fr: 'En attente de décision'
+    },
+    journal_entry_awaiting_completion: {
+      de: 'Abschluss',
+      en: 'Awaiting completion',
+      fr: 'En attente de finalisation'
+    },
+    journal_entry_completed: {
+      de: 'Abgeschlossen',
+      en: 'Completed',
+      fr: 'Terminé'
+    }
   };
 
   public getLabelForSign(sign: Sign): string {
