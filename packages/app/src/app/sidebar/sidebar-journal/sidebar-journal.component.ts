@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { I18NService } from '../../state/i18n.service';
 
-
 @Component({
   selector: 'app-sidebar-journal',
   standalone: true,
@@ -23,21 +22,21 @@ export class SidebarJournalComponent {
     request: () => ({}),
     loader: async () => {
       const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
-      return result as JournalEntry[] || [];
-    }
+      return (result as JournalEntry[]) || [];
+    },
   });
 
   get journalEntriesToDraw() {
-    return (this.journalResource.value() || []).filter(entry => !entry.is_drawn_on_map);
+    return (this.journalResource.value() || []).filter((entry) => !entry.is_drawn_on_map);
   }
 
   get journalEntriesDrawn() {
-    return (this.journalResource.value() || []).filter(entry => entry.is_drawn_on_map);
+    return (this.journalResource.value() || []).filter((entry) => entry.is_drawn_on_map);
   }
 
   async markAsDrawn(entry: JournalEntry) {
     try {
-      await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.id}`, {
+      await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
         data: {
           ...entry,
           is_drawn_on_map: true,
@@ -51,9 +50,9 @@ export class SidebarJournalComponent {
 
   async markAsNotDrawn(entry: JournalEntry) {
     try {
-      await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.id}`, {
+      await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
         data: {
-          ...entry, 
+          ...entry,
           is_drawn_on_map: false,
         },
       });

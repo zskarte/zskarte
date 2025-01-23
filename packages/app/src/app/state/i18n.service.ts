@@ -1048,7 +1048,7 @@ export class I18NService {
       de: 'Ausgewähltes Feature',
       en: 'Selected Feature',
       fr: 'Fonctionnalité sélectionnée',
-    },    
+    },
     generalFilters: {
       de: 'Globale Filter',
       en: 'Global filters',
@@ -1993,37 +1993,37 @@ export class I18NService {
     personRecoveryOverview: {
       de: 'Personenbergungsübersicht',
       en: 'Person recovery overview',
-      fr: 'Aperçu des personnes hébergées'
+      fr: 'Aperçu des personnes hébergées',
     },
     noMissingPersons: {
       de: 'Keine auswirkungen auf Personen gefunden',
       en: 'No impacts on persons found',
-      fr: 'Aucun effet sur les personnes'
+      fr: 'Aucun effet sur les personnes',
     },
     message_number: {
       de: 'Nummer',
       en: 'Number',
-      fr: 'Numéro'
+      fr: 'Numéro',
     },
     message_subject: {
       de: 'Betreff',
       en: 'Subject',
-      fr: 'Sujet'
+      fr: 'Sujet',
     },
     message_content: {
       de: 'Meldungsinhalt',
       en: 'Message content',
-      fr: 'Contenu du message'
+      fr: 'Contenu du message',
     },
     date_created: {
       de: 'Erstellungsdatum',
       en: 'Creation date',
-      fr: 'Date de création'
+      fr: 'Date de création',
     },
     creator: {
       de: 'Empfänger',
       en: 'Receiver',
-      fr: 'Destinataire'
+      fr: 'Destinataire',
     },
     coordinates: {
       de: 'Koordinaten',
@@ -2033,189 +2033,188 @@ export class I18NService {
     guestLimitReachedShort: {
       de: 'Gastmodus Limit erreicht',
       en: 'Guest limit reached',
-      fr: 'Limite d\'invités atteinte',
+      fr: "Limite d'invités atteinte",
     },
     guestLimitReached: {
       de: 'Die maximale Anzahl von Elementen für den Gastzugang ist erreicht. Wenn Sie Interesse an einem dauerhaften Zugang zur ZSKarte haben, wenden Sie sich bitte an info@zskarte.ch.',
-      en: 'The maximum number of elements for guest access has been reached. If yo\'re interested in having permanent access to the ZSKarte, please contact info@zskarte.ch.',
-      fr: 'Le nombre maximum d\'éléments pour l\'accès invité a été atteint. Si vous êtes intéressé par un accès permanent à la ZSKarte, veuillez contacter info@zskarte.ch.'
+      en: "The maximum number of elements for guest access has been reached. If yo're interested in having permanent access to the ZSKarte, please contact info@zskarte.ch.",
+      fr: "Le nombre maximum d'éléments pour l'accès invité a été atteint. Si vous êtes intéressé par un accès permanent à la ZSKarte, veuillez contacter info@zskarte.ch.",
     },
     guestLimitElements: {
       de: 'Elemente auf der Karte im Gastmodus',
       en: 'Elements on the map in guest mode',
-      fr: 'Éléments de la carte en mode invité'
+      fr: 'Éléments de la carte en mode invité',
     },
     journal_entry_awaiting_message: {
       de: 'Meldung',
       en: 'Awaiting message',
-      fr: 'En attente de message'
+      fr: 'En attente de message',
     },
     journal_entry_awaiting_triage: {
       de: 'Triage',
-      en: 'Awaiting triage', 
-      fr: 'En attente de triage'
+      en: 'Awaiting triage',
+      fr: 'En attente de triage',
     },
     journal_entry_awaiting_drawing: {
       de: 'Zeichnen',
       en: 'Awaiting drawing',
-      fr: 'En attente de dessin'
+      fr: 'En attente de dessin',
     },
     journal_entry_awaiting_decision: {
       de: 'Entscheidung',
       en: 'Awaiting decision',
-      fr: 'En attente de décision'
+      fr: 'En attente de décision',
     },
     journal_entry_awaiting_completion: {
       de: 'Abschluss',
       en: 'Awaiting completion',
-      fr: 'En attente de finalisation'
+      fr: 'En attente de finalisation',
     },
     journal_entry_completed: {
       de: 'Abgeschlossen',
       en: 'Completed',
-      fr: 'Terminé'
+      fr: 'Terminé',
     },
     journal: {
       de: 'Journal',
       en: 'Journal',
-      fr: 'Journal'
+      fr: 'Journal',
     },
     noMessagesToProcess: {
       de: 'Keine Meldungen zu verarbeiten',
       en: 'No messages to process',
-      fr: 'Aucun message à traiter'
+      fr: 'Aucun message à traiter',
     },
     messagesToDraw: {
       de: 'Zu zeichnende Meldungen',
       en: 'Messages to draw',
-      fr: 'Messages à dessiner'
+      fr: 'Messages à dessiner',
     },
     drawnMessages: {
       de: 'Gezeichnete Meldungen',
-      en: 'Drawn messages', 
-      fr: 'Messages dessinés'
+      en: 'Drawn messages',
+      fr: 'Messages dessinés',
     },
     markAsDrawn: {
       de: 'Als gezeichnet markieren',
       en: 'Mark as drawn',
-      fr: 'Marquer comme dessiné'
+      fr: 'Marquer comme dessiné',
     },
     markAsNotDrawn: {
       de: 'Als nicht gezeichnet markieren',
       en: 'Mark as not drawn',
-      fr: 'Marquer comme non dessiné'
+      fr: 'Marquer comme non dessiné',
     },
     journalNumber: {
       de: 'Meldungsnummer',
       en: 'Report number',
-      fr: 'Numéro de rapport'
+      fr: 'Numéro de rapport',
     },
     deliverer: {
       de: 'Absender',
       en: 'Deliverer',
-      fr: 'Livreur'
+      fr: 'Livreur',
     },
     receiver: {
       de: 'Empfänger',
       en: 'Receiver',
-      fr: 'Destinataire'
+      fr: 'Destinataire',
     },
     communicationDevice: {
       de: 'Kommunikationsmittel',
       en: 'Communication device',
-      fr: 'Dispositif de communication'
+      fr: 'Dispositif de communication',
     },
     phone: {
       de: 'Telefon',
       en: 'Phone',
-      fr: 'Téléphone'
+      fr: 'Téléphone',
     },
     radio: {
       de: 'Funk',
       en: 'Radio',
-      fr: 'Radio'
+      fr: 'Radio',
     },
     fax: {
       de: 'Fax',
       en: 'Fax',
-      fr: 'Fax'
+      fr: 'Fax',
     },
     email: {
       de: 'E-Mail',
       en: 'Email',
-      fr: 'Email'
+      fr: 'Email',
     },
     sms: {
       de: 'SMS',
       en: 'SMS',
-      fr: 'SMS'
+      fr: 'SMS',
     },
     other: {
       de: 'Andere',
       en: 'Other',
-      fr: 'Autre'
+      fr: 'Autre',
     },
     messageContent: {
       de: 'Meldungsinhalt',
       en: 'Message content',
-      fr: 'Contenu du message'
+      fr: 'Contenu du message',
     },
     messageTitle: {
       de: 'Betreff',
       en: 'Subject',
-      fr: 'Sujet'
+      fr: 'Sujet',
     },
     messageDate: {
       de: 'Meldungsdatum',
       en: 'Report date',
-      fr: 'Date de rapport'
+      fr: 'Date de rapport',
     },
     messageTime: {
       de: 'Meldungszeit',
       en: 'Report time',
-      fr: 'Heure de rapport'
+      fr: 'Heure de rapport',
     },
     detailsChanel: {
       de: 'Nummer / Kanal',
       en: 'Number / channel',
-      fr: 'Numéro / canal'
+      fr: 'Numéro / canal',
     },
     visa: {
       de: 'Visum',
       en: 'Visa',
-      fr: 'Visa'
+      fr: 'Visa',
     },
     keyMessage: {
       de: 'Schlüsselmeldung',
       en: 'Key message',
-      fr: 'Message clé'
+      fr: 'Message clé',
     },
     departement: {
       de: 'Fachbereich',
       en: 'Departement',
-      fr: 'Département'
+      fr: 'Département',
     },
     dateTriage: {
       de: 'Triage Zeitpunkt',
       en: 'Triage time',
-      fr: 'Heure de triage'
+      fr: 'Heure de triage',
     },
     messageReceiver: {
       de: 'Empfänger der Entscheidung',
       en: 'Receiver of decision',
-      fr: 'Destinataire de la décision'
+      fr: 'Destinataire de la décision',
     },
     dateDecision: {
       de: 'Entscheidungszeitpunkt',
       en: 'Decision time',
-      fr: 'Heure de décision'
+      fr: 'Heure de décision',
     },
     politicalAuthority: {
       de: 'Politische Behörde',
       en: 'Political authority',
-      fr: 'Autorité politique'
+      fr: 'Autorité politique',
     },
-
   };
 
   public getLabelForSign(sign: Sign): string {
@@ -2246,7 +2245,8 @@ export class I18NService {
         }
       }
     }
-    throw new Error(`Was not able to find an entry in translation table for key ${key}`);
+    console.error(`Was not able to find an entry in translation table for key ${key}`);
+    return key;
   }
   public has(key: string): boolean {
     const element = I18NService.TRANSLATIONS[key];
