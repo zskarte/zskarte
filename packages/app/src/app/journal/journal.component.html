@@ -300,48 +300,55 @@
           </mat-chip-listbox>
         </div>
       </div>
-      <div class="journal-content">
-        <table mat-table matSort [dataSource]="dataSourceFiltered">
-          <ng-container matColumnDef="message_number">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('message_number') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>
-          </ng-container>
-          <ng-container matColumnDef="message_subject">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_subject') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.message_subject }}</td>
-          </ng-container>
-          <ng-container matColumnDef="message_content">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_content') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
-          </ng-container>
-          <ng-container matColumnDef="date_created">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('date_created') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
-          </ng-container>
-          <ng-container matColumnDef="entry_status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let element">{{ i18n.get('journal_entry_' + element.entry_status) }}</td>
-          </ng-container>
-          <ng-container matColumnDef="is_key_message">
-            <th mat-header-cell *matHeaderCellDef>Schlüsselnachricht</th>
-            <td mat-cell *matCellDef="let element">
-              <mat-icon *ngIf="element.is_key_message">key</mat-icon>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr
-            mat-row
-            [class.key-message]="row.is_key_message"
-            class="journal-table-row"
-            *matRowDef="let row; columns: displayedColumns"
-            (click)="selectEntry(row)"
-          ></tr>
-        </table>
-        <div class="fab-button">
-          <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
+    </div>
+    <div class="journal-content">
+      <table mat-table matSort [dataSource]="dataSourceFiltered">
+        <ng-container matColumnDef="message_number">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('message_number') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="message_subject">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_subject') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.message_subject }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="message_content">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('message_content') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date_message">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('date_created') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="entry_status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">{{ i18n.get('journal_entry_' + element.entry_status) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="is_key_message">
+          <th mat-header-cell *matHeaderCellDef>Schlüsselnachricht</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-icon *ngIf="element.is_key_message">key</mat-icon>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          [class.key-message]="row.is_key_message"
+          class="journal-table-row"
+          *matRowDef="let row; columns: displayedColumns"
+          (click)="selectEntry(row)"
+        ></tr>
+      </table>
+
+      <div class="fab-button">
+        <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
     </div>
   </mat-sidenav-content>

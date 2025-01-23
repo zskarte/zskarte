@@ -6,7 +6,6 @@ import { NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { I18NService } from '../state/i18n.service';
-import { MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -24,6 +23,10 @@ import { SessionService } from '../session/session.service';
 import Fuse from 'fuse.js';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { ViewChild } from '@angular/core';
+import { AfterViewInit } from '@angular/core';
 
 @Component({
   selector: 'app-journal',
@@ -53,14 +56,15 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
   templateUrl: './journal.component.html',
   styleUrl: './journal.component.scss',
 })
-export class JournalComponent {
+export class JournalComponent implements AfterViewInit {
   i18n = inject(I18NService);
   private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
 
-  displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_created', 'entry_status', 'is_key_message'];
+  displayedColumns: string[] = ['message_number', 'message_subject', 'message_content', 'date_message', 'entry_status', 'is_key_message'];
   dataSource: JournalEntry[] = [];
-  dataSourceFiltered: JournalEntry[] = [];
+  dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
+  @ViewChild(MatSort) sort!: MatSort;
   searchControl = new FormControl('');
   departmentControl = new FormControl('');
   triageFilter = false;
@@ -112,6 +116,10 @@ export class JournalComponent {
     this.loadJournalEntries();
     this.initializeSearch();
     this.initializeDepartmentFilter();
+  }
+
+  ngAfterViewInit() {
+    this.dataSourceFiltered.sort = this.sort;
   }
 
   private initializeSearch() {
@@ -183,14 +191,14 @@ export class JournalComponent {
         );
     }
 
-    this.dataSourceFiltered = filtered;
+    this.dataSourceFiltered.data = filtered;
   }
 
   async loadJournalEntries() {
     console.log('loadJournalEntries');
     const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
     this.dataSource = result || [];
-    this.dataSourceFiltered = this.dataSource;
+    this.dataSourceFiltered.data = this.dataSource;
     this.fuse.setCollection(this.dataSource);
   }
 
