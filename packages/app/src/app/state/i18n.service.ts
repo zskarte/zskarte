@@ -2079,6 +2079,31 @@ export class I18NService {
       de: 'Journal',
       en: 'Journal',
       fr: 'Journal'
+    },
+    noMessagesToProcess: {
+      de: 'Keine Meldungen zu verarbeiten',
+      en: 'No messages to process',
+      fr: 'Aucun message à traiter'
+    },
+    messagesToDraw: {
+      de: 'Zu zeichnende Meldungen',
+      en: 'Messages to draw',
+      fr: 'Messages à dessiner'
+    },
+    drawnMessages: {
+      de: 'Gezeichnete Meldungen',
+      en: 'Drawn messages', 
+      fr: 'Messages dessinés'
+    },
+    markAsDrawn: {
+      de: 'Als gezeichnet markieren',
+      en: 'Mark as drawn',
+      fr: 'Marquer comme dessiné'
+    },
+    markAsNotDrawn: {
+      de: 'Als nicht gezeichnet markieren',
+      en: 'Mark as not drawn',
+      fr: 'Marquer comme non dessiné'
     }
   };
 

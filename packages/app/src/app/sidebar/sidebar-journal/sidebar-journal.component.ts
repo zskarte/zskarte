@@ -6,6 +6,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { I18NService } from '../../state/i18n.service';
 
 
 @Component({
@@ -17,7 +18,7 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class SidebarJournalComponent {
   private apiService = inject(ApiService);
-
+  i18n = inject(I18NService);
   journalResource = resource({
     request: () => ({}),
     loader: async () => {
