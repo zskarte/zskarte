@@ -312,7 +312,7 @@
           <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="date_created">
+        <ng-container matColumnDef="date_message">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('date_created') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
         </ng-container>
