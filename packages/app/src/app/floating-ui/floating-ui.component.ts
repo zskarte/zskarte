@@ -19,7 +19,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatBadge } from '@angular/material/badge';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { SidebarFiltersComponent } from '../sidebar/sidebar-filters/sidebar-filters.component';
 import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
 import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
 import { SidebarConnectionsComponent } from '../sidebar/sidebar-connections/sidebar-connections.component';
@@ -46,7 +45,6 @@ import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dia
     MatDivider,
     MatBadge,
     MatSidenavModule,
-    SidebarFiltersComponent,
     SidebarComponent,
     SidebarHistoryComponent,
     SidebarConnectionsComponent,
