@@ -76,7 +76,9 @@ export class SessionService {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
           await this._state?.refreshMapState();
-          let displayState = await db.displayStates.get({ id: session.operation?.documentId ?? session.operation?.id });
+          let displayState = await db.displayStates.get({
+            id: session.operation?.documentId ?? session.operation?.id?.toString(),
+          });
 
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
