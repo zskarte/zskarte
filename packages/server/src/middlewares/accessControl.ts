@@ -58,10 +58,12 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
         try {
           operation = await strapi.documents('api::operation.operation').findOne({
             documentId: ctx.request.body.data?.operation,
-            populate: ['organization.id'],
+            populate: {
+              organization: { fields: ['documentId' as any, 'id'] },
+            },
           });
-        } catch {
-          //e.g. if ctx.request.body.data?.operation is an object not an id
+        } catch (err) {
+          strapi.log.error(err);
         }
         if (!operation || operation.organization?.id !== userOrganisationId) {
           logAccessViolation(
