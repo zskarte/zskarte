@@ -182,6 +182,11 @@ button.filterItem .eyeOverlay {
   gap: 8px; /* Space between dot and text */
 }
 
+.selectedLayer .disabled {
+  color: #949494;
+  cursor: default;
+}
+
 mat-checkbox.categoryCheckbox {
   width: 100%;
   ::ng-deep .mdc-form-field {
@@ -191,3 +196,5 @@ mat-checkbox.categoryCheckbox {
     }
   }
 }
+
+

@@ -2,42 +2,73 @@
   "name": "OperationRead",
   "description": "The role for the default operation_read user.",
   "type": "operationread",
+  "documentId": "cuhzirl7f3xv2dvrcomyumdb",
+  "locale": null,
   "permissions": [
     {
-      "action": "api::access.access.refresh"
+      "action": "api::access.access.refresh",
+      "documentId": "b9jyj59vlk1ig14cg3dxt82k",
+      "locale": null
     },
     {
-      "action": "api::journal-entry.journal-entry.find"
+      "action": "api::journal-entry.journal-entry.find",
+      "documentId": "przpsm4myjz7xoa7t6k5stdq",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.find"
+      "action": "api::journal-entry.journal-entry.findOne",
+      "documentId": "dv9qvofqmiw6ez8cpuey3c2n",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.findOne"
+      "action": "api::map-layer.map-layer.find",
+      "documentId": "tbe1hoxjnct40hhcko4r62hw",
+      "locale": null
     },
     {
-      "action": "api::map-snapshot.map-snapshot.find"
+      "action": "api::map-layer.map-layer.findOne",
+      "documentId": "mq4ru8ydaeqf5ei4ors9yx1f",
+      "locale": null
     },
     {
-      "action": "api::map-snapshot.map-snapshot.findOne"
+      "action": "api::map-snapshot.map-snapshot.find",
+      "documentId": "dcus0drkgdxyrkprmyp7lvra",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.currentLocation"
+      "action": "api::map-snapshot.map-snapshot.findOne",
+      "documentId": "r9q4iiaqf2lgm3qw4fxwzhpp",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.findOne"
+      "action": "api::operation.operation.currentLocation",
+      "documentId": "kyej6c70y8gaj9n9ag19hx7y",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.overview"
+      "action": "api::operation.operation.findOne",
+      "documentId": "fv772r6j6ifiw3w8mnq00ycb",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.find"
+      "action": "api::operation.operation.overview",
+      "documentId": "wovmt44hzindisizdtl5au96",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.findOne"
+      "action": "api::wms-source.wms-source.find",
+      "documentId": "r1kuk1iq2925r1xyvuui5318",
+      "locale": null
     },
     {
-      "action": "plugin::users-permissions.user.me"
+      "action": "api::wms-source.wms-source.findOne",
+      "documentId": "gyun6tlygrhedq5yk42sfrox",
+      "locale": null
+    },
+    {
+      "action": "plugin::users-permissions.user.me",
+      "documentId": "o91xqiq2az87qldu8a0frw79",
+      "locale": null
     }
   ]
 }

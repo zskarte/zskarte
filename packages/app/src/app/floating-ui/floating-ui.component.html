@@ -6,7 +6,7 @@
           <img [src]="logo" />
         }
         @if (workLocal) {
-          <mat-icon>cloud_off</mat-icon>
+          <mat-icon>device_hub</mat-icon>
         }
         <h1>{{sidebarTitle}}</h1>
       </div>
@@ -33,6 +33,9 @@
       }
       @case (SidebarContext.Print) {
         <app-sidebar-print></app-sidebar-print>
+      }
+      @case (SidebarContext.Journal) {
+        <app-sidebar-journal></app-sidebar-journal>
       }
     }
   </mat-sidenav>
@@ -74,19 +77,19 @@
         >
           @if (workLocal) {
             @if (canWorkOffline | async) {
-              <mat-icon>cloud_done</mat-icon>
+              <mat-icon>offline_pin</mat-icon>
             } @else {
               @if (isOnline | async) {
-                <mat-icon>cloud_queue</mat-icon>
+                <mat-icon matBadgeColor="warn" matBadge="!">network_wifi</mat-icon>
               } @else {
-                <mat-icon>cloud_off</mat-icon>
+                <mat-icon matBadgeColor="warn" matBadge="!">signal_wifi_connected_no_internet_4</mat-icon>
               }
             }
           } @else {
             @if (isOnline | async) {
               <mat-icon [matBadge]="connectionCount | async" matBadgePosition="after">people</mat-icon>
             } @else {
-              <mat-icon [matBadge]="0" matBadgeColor="warn" matBadgePosition="after">cloud_off</mat-icon>
+              <mat-icon [matBadge]="0" matBadgeColor="warn" matBadgePosition="after">offline_bolt</mat-icon>
             }
           }
         </button>
@@ -111,6 +114,17 @@
             <mat-icon>history</mat-icon>
           </button>
         }
+
+        <button
+          class="sidebar-button mat-elevation-z3"
+          mat-icon-button
+          [color]="(sidebar.observeContext() | async) === SidebarContext.Journal ? 'primary' : 'basic'"
+          (click)="sidebar.toggle(SidebarContext.Journal)"
+          [attr.aria-label]="i18n.get('journal')"
+        >
+          <mat-icon>menu_book</mat-icon>
+        </button>
+
         <div class="button-toggle mat-elevation-z3">
           @if (!(isReadOnly | async)) {
             <button

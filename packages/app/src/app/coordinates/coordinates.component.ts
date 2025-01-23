@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { ZsMapStateService } from '../state/state.service';
 import { projectionByIndex } from '../helper/projections';
 import { ChangeType, ProjectionSelectionComponent } from '../projection-selection/projection-selection.component';
-import { first } from 'rxjs/operators';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-coordinates',
@@ -12,30 +12,30 @@ import { first } from 'rxjs/operators';
 })
 export class CoordinatesComponent {
   private _state = inject(ZsMapStateService);
+  private _destroyRef = inject(DestroyRef);
 
   showOptions = false;
-  projectionFormatIndexes: number[];
-  coordinates: string[] = [];
-  constructor() {
-    //TODO: load this from session/state?
-    this.projectionFormatIndexes = [0, 1];
-    this._state.getCoordinates().subscribe(this.updateCoordinates.bind(this));
-  }
+  //TODO: load this from session/state?
+  projectionFormatIndexes = signal<number[]>([0, 1]);
+  coordinates = toSignal(this._state.getCoordinates().pipe(takeUntilDestroyed(this._destroyRef)));
+  mappedCoordinates = computed(() => {
+    const coordinates = this.coordinates();
+    if (!coordinates) {
+      return [];
+    }
 
-  updateCoordinates(coordinates) {
-    this.coordinates = this.projectionFormatIndexes.map((i) => {
+    return this.projectionFormatIndexes().map(i => {
       const proj = projectionByIndex(i);
-      return proj.translate(proj.transformTo(coordinates));
-    });
-  }
+      return { type: i, coordinate: proj.translate(proj.transformTo(coordinates)) };
+    })
+  });
 
   updateProjection(value: ChangeType) {
     if (!value.projectionFormatIndexes || value.projectionFormatIndexes?.length === 0) {
-      this.projectionFormatIndexes = [0];
+      this.projectionFormatIndexes.set([0]);
     } else {
-      this.projectionFormatIndexes = value.projectionFormatIndexes;
+      this.projectionFormatIndexes.set([...value.projectionFormatIndexes]);
     }
-    this._state.getCoordinates().pipe(first()).subscribe(this.updateCoordinates.bind(this));
     //TODO: save this to session/state?
   }
 }

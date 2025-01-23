@@ -19,21 +19,21 @@
     <div class="buttons">
       @switch (dataBlobMeta?.blobState) {
         @case ('loading') {
-          <button mat-flat-button color="warn" class="button-cancel" (click)="cancelDownloadData()">{{ i18n.get('cancel') }}</button>
+          <button mat-stroked-button color="warn" class="button-cancel" (click)="cancelDownloadData()">{{ i18n.get('cancel') }}</button>
           <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="dataProgress" />
         }
         @case ('downloaded') {
-          <button mat-flat-button color="warn" class="button-remove" (click)="removeData()">
-            <mat-icon>file_download</mat-icon>
+          <button mat-stroked-button color="warn" class="button-remove" (click)="removeData()">
+            
             {{ i18n.get('removeSymbol') }}
           </button>
           <div class="source">{{ i18n.get('blobMetaBlobSource') }} {{ dataBlobMeta?.source }}</div>
         }
         @default {
-          <button mat-flat-button color="primary" class="button-download" (click)="downloadData()">
+          <button mat-stroked-button class="button-download" (click)="downloadData()">
             <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
           </button>
-          <button mat-flat-button color="primary" class="button-upload" (click)="dataUpload.click()">
+          <button mat-stroked-button class="button-upload" (click)="dataUpload.click()">
             <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
           </button>
           <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadData($event)" #dataUpload />
@@ -55,11 +55,11 @@
       <div class="buttons">
         @switch (styleBlobMeta?.blobState) {
           @case ('loading') {
-            <button mat-flat-button color="warn" class="button-cancel" (click)="cancelDownloadStyle()">{{ i18n.get('cancel') }}</button>
+            <button mat-stroked-button color="warn" class="button-cancel" (click)="cancelDownloadStyle()">{{ i18n.get('cancel') }}</button>
             <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="styleProgress" />
           }
           @case ('downloaded') {
-            <button mat-flat-button color="warn" class="button-remove" (click)="removeStyle()">
+            <button mat-stroked-button color="warn" class="button-remove" (click)="removeStyle()">
               <mat-icon>file_download</mat-icon>
               {{ i18n.get('removeSymbol') }}
             </button>
@@ -71,10 +71,10 @@
             <div class="source">{{ i18n.get('blobMetaBlobSource') }} {{ styleBlobMeta?.source }}</div>
           }
           @default {
-            <button mat-flat-button color="primary" class="button-download" (click)="downloadStyle()">
+            <button mat-stroked-button class="button-download" (click)="downloadStyle()">
               <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
             </button>
-            <button mat-flat-button color="primary" class="button-upload" (click)="styleUpload.click()">
+            <button mat-stroked-button class="button-upload" (click)="styleUpload.click()">
               <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
             </button>
             <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadStyle($event)" #styleUpload />
@@ -105,7 +105,7 @@
   </div>
 }
 <div mat-dialog-actions align="end">
-  <button mat-raised-button color="primary" (click)="ok()">
+  <button mat-flat-button color="primary" (click)="ok()">
     {{ i18n.get('ok') }}
   </button>
 </div>

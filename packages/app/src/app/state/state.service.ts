@@ -1214,8 +1214,6 @@ export class ZsMapStateService {
   }
 
   public drawElementCount(): Observable<number> {
-    return this.observeDrawElements().pipe(
-      map(res => res.length)
-    );
+    return this.observeDrawElements().pipe(map((res) => res.length));
   }
 }
