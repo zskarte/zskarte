@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, resource } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -27,6 +27,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+
 
 @Component({
   selector: 'app-journal',
@@ -51,6 +54,7 @@ import { AfterViewInit } from '@angular/core';
     MatSelectModule,
     MatChipsModule,
     MatButtonToggleModule,
+    MatProgressSpinnerModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -73,16 +77,26 @@ export class JournalComponent implements AfterViewInit {
   decisionFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
-    // these fields are used for the search
     keys: ['message_subject', 'message_content', 'decision'],
     ignoreLocation: true,
     threshold: 0.5
   });
   selectedIndex = 0;
 
-  selectedJournalEntryId: number | null = null;
+  selectedJournalEntry: JournalEntry | null = null;
 
   sidebarOpen = false;
+
+  journalResource = resource({
+    request: () => ({}),
+    loader: async () => {
+      const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
+      this.dataSource = result || [];
+      this.dataSourceFiltered.data = this.dataSource;
+      this.fuse.setCollection(this.dataSource);
+      return result;
+    }
+  });
 
   journalForm = new FormGroup({
     message_number: new FormControl<string | number>('', {nonNullable: true}),
@@ -113,7 +127,6 @@ export class JournalComponent implements AfterViewInit {
   editing = false;
 
   constructor() {
-    this.loadJournalEntries();
     this.initializeSearch();
     this.initializeDepartmentFilter();
   }
@@ -194,16 +207,8 @@ export class JournalComponent implements AfterViewInit {
     this.dataSourceFiltered.data = filtered;
   }
 
-  async loadJournalEntries() {
-    console.log('loadJournalEntries');
-    const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
-    this.dataSource = result || [];
-    this.dataSourceFiltered.data = this.dataSource;
-    this.fuse.setCollection(this.dataSource);
-  }
-
   async selectEntry(entry: JournalEntry) {
-    this.selectedJournalEntryId = entry.id;
+    this.selectedJournalEntry = entry;
     this.sidebarOpen = true;
     this.editing = false;
     this.selectedIndex = 0;
@@ -216,7 +221,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   resetEntry() {
-    this.selectedJournalEntryId = null;
+    this.selectedJournalEntry = null;
     this.sidebarOpen = false;
     this.editing = false;
     this.selectedIndex = 0;
@@ -230,8 +235,10 @@ export class JournalComponent implements AfterViewInit {
 
   toggleEditing() {
     this.editing = !this.editing;
-    this.sidebarOpen = false;
-    this.journalForm.reset();
+
+    this.journalForm.patchValue({
+      
+    });
   }
 
   async resetState() {
@@ -239,21 +246,20 @@ export class JournalComponent implements AfterViewInit {
       entry_status: 'awaiting_triage',
     });
 
-    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntryId}`, {
+    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
       data: {
         ...this.journalForm.value,
         date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
       },
     });
 
-    await this.loadJournalEntries();
+    await this.journalResource.reload();
 
-    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntryId);
+    const entry = await this.apiService.get<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`);
 
-    if (currentEntry) {
-      await this.selectEntry(currentEntry);
-      this.selectedIndex = this.selectedIndex - 1;
-    }
+    await this.selectEntry(entry.result as JournalEntry);
+    this.selectedIndex = this.selectedIndex - 1;
+
   }
 
   async save(event: any) {
@@ -274,8 +280,8 @@ export class JournalComponent implements AfterViewInit {
     const organization = this.sessionService.getOrganization();
 
     try {
-      if (this.selectedJournalEntryId) {
-        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntryId}`, {
+      if (this.selectedJournalEntry?.id) {
+        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
@@ -284,7 +290,7 @@ export class JournalComponent implements AfterViewInit {
           },
         });
       } else {
-        const resp = await this.apiService.post('/api/journal-entries', {
+        await this.apiService.post('/api/journal-entries', {
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
@@ -292,18 +298,17 @@ export class JournalComponent implements AfterViewInit {
             date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
           },
         });
-
-        this.selectedJournalEntryId = resp.result.id;
       }
 
-      await this.loadJournalEntries();
+      await this.journalResource.reload();
 
-      const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntryId);
-      if (currentEntry) {
-        await this.selectEntry(currentEntry);
-      }
+      const entry = await this.apiService.get<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`);
+
+      await this.selectEntry(entry.result as JournalEntry);
 
       this.editing = false;
+
+      this.selectedIndex = this.selectedIndex + 1;
     } catch (error) {
       console.error('Error saving journal entry:', error);
     }
