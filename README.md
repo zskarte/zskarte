@@ -1,4 +1,4 @@
-# 🗺️ Zivilschutz-Karte V5
+# 🗺️ Zivilschutz-Karte
 
 ![GitHub license](https://img.shields.io/github/license/zskarte/zskarte)
 ![GitHub release](https://img.shields.io/github/v/release/zskarte/zskarte)
