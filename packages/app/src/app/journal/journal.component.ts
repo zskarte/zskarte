@@ -83,18 +83,23 @@ export class JournalComponent {
     communication_details: new FormControl(),
     message_subject: new FormControl(),
     message_content: new FormControl(),
+    visum_message: new FormControl(),
     visum_decision_receiver: new FormControl(),
     department: new FormControl(),
     date_created_date: new FormControl(),
     date_created_time: new FormControl(),
     is_key_message: new FormControl(),
     visum_triage: new FormControl(),
+    date_triage: new FormControl(),
+    date_decision: new FormControl(),
     visum_decider: new FormControl(),
     decision: new FormControl(),
     status: new FormControl(),
-    receiver_decision: new FormControl(),
+    decision_receiver: new FormControl(),
     visum_decision_deliverer: new FormControl(),
     entry_status: new FormControl(),
+    date_decision_delivered: new FormControl(),
+    decision_sender: new FormControl(),
   });
 
   editing = false;
@@ -195,14 +200,17 @@ export class JournalComponent {
       communication_details: entry.communication_details,
       message_subject: entry.message_subject,
       message_content: entry.message_content,
+      visum_message: entry.visum_message,
       department: entry.department,
       visum_decision_receiver: entry.visum_decision_receiver,
-      date_created_date: entry.date_created,
-      date_created_time: entry.date_created,
+      date_created_date: entry.date_message,
+      date_created_time: entry.date_message,
       is_key_message: entry.is_key_message,
       visum_triage: entry.visum_triage,
       decision: entry.decision,
+      decision_receiver: entry.decision_receiver,
       entry_status: entry.entry_status,
+      decision_sender: entry.decision_sender,
     });
   }
 
@@ -239,12 +247,13 @@ export class JournalComponent {
 
   async resetState() {
     this.journalForm.patchValue({
-      status: 'awaiting_triage',
+      entry_status: 'awaiting_triage',
     });
 
     await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
       data: {
         ...this.journalForm.value,
+        date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time)),
       },
     });
 
@@ -259,20 +268,19 @@ export class JournalComponent {
   }
 
   async save(event: any) {
+    let entry_status = this.journalForm.value.entry_status;
     if (event.submitter.name !== 'save') {
-      let entry_status = this.journalForm.value.entry_status;
       if (entry_status === 'awaiting_message') {
-        entry_status = 'awaiting_triage';
+        this.journalForm.patchValue({ entry_status: 'awaiting_triage' });
       } else if (entry_status === 'awaiting_triage') {
-        entry_status = 'awaiting_decision';
+        this.journalForm.patchValue({ entry_status: 'awaiting_decision', date_triage: new Date() });
       } else if (entry_status === 'awaiting_decision') {
-        entry_status = 'awaiting_completion';
+        this.journalForm.patchValue({ entry_status: 'awaiting_completion', date_decision: new Date() });
       } else {
-        entry_status = 'completed';
+        this.journalForm.patchValue({ entry_status: 'completed', date_decision_delivered: new Date() });
       }
-
-      this.journalForm.patchValue({ entry_status });
     }
+
     const operation = this.sessionService.getOperation();
     const organization = this.sessionService.getOrganization();
 

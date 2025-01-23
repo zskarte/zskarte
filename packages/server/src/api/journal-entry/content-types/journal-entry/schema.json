@@ -18,9 +18,6 @@
     "creator": {
       "type": "string"
     },
-    "date_created": {
-      "type": "datetime"
-    },
     "message_number": {
       "type": "integer"
     },
@@ -92,6 +89,9 @@
         "awaiting_completion",
         "completed"
       ]
+    },
+    "decision_sender": {
+      "type": "string"
     }
   }
 }

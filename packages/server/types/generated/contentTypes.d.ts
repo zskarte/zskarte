@@ -327,13 +327,13 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
     createdAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;
     creator: Attribute.String;
-    date_created: Attribute.DateTime;
     date_decision: Attribute.DateTime;
     date_decision_delivered: Attribute.DateTime;
     date_message: Attribute.DateTime;
     date_triage: Attribute.DateTime;
     decision: Attribute.Text;
     decision_receiver: Attribute.String;
+    decision_sender: Attribute.String;
     department: Attribute.String;
     entry_status: Attribute.Enumeration<
       [
