@@ -511,15 +511,7 @@ export class SessionService {
 
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-    let queryOperationId;
-    if (queryParams['operationId']) {
-      try {
-        queryOperationId = parseInt(queryParams['operationId']);
-      } catch {
-        //ignore invalid operationId param
-      }
-    }
-    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.documentId;
+    const operationId = decoded.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
