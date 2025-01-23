@@ -9,7 +9,7 @@ export const deleteExpiredAccessTokens = async (strapi: Core.Strapi) => {
     })) as unknown as Access[];
     for (const expiredAccess of expiredAccesses) {
       await strapi.documents('api::access.access').delete({
-        documentId: expiredAccess.id,
+        documentId: expiredAccess.documentId,
       });
       strapi.log.info(`Expired Access token got deleted: ${expiredAccess.accessToken}`);
     }

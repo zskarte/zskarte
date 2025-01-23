@@ -74,7 +74,7 @@ export default factories.createCoreController('api::access.access', ({ strapi })
     //delete if it's a short time access token only
     if (accessToken.length < 32) {
       await strapi.documents('api::access.access').delete({
-        documentId: access.id,
+        documentId: access.documentId,
       });
     }
 

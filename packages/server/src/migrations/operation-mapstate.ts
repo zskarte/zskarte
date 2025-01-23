@@ -70,7 +70,7 @@ export const migrateOperationMapStates = async (strapi: Core.Strapi) => {
         }
         operation.mapState = zsMapStateMigration(operation.mapState as any);
         await strapi.documents('api::operation.operation').update({
-          documentId: operation.id,
+          documentId: operation.documentId,
           data: {
             mapState: operation.mapState as any,
           },
