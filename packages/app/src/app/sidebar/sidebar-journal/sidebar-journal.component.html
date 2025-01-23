@@ -3,13 +3,15 @@
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 } @else {
-  @if (journalEntries.length === 0) {
+  @if (journalEntriesToDraw.length === 0 && journalEntriesDrawn.length === 0) {
     <div class="loading-spinner">
       <p>No messages to draw</p>
     </div>
   } @else {
+    <h2 class="journal-header">Messages to Draw</h2>
+    <mat-divider></mat-divider>
     <mat-accordion multi displayMode="flat">
-      @for (entry of journalEntries; track entry; let index = $index) {
+      @for (entry of journalEntriesToDraw; track entry; let index = $index) {
       <mat-expansion-panel class="mat-elevation-z0">
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -24,6 +26,30 @@
           <div class="created-date">{{entry.createdAt | date}}</div>
           <p>{{entry.message_content}}</p>
           <button mat-flat-button color="primary" (click)="markAsDrawn(entry)">Mark as drawn</button>
+        </ng-template>
+      </mat-expansion-panel>
+      <mat-divider></mat-divider>
+      }
+    </mat-accordion>
+
+    <h2 class="journal-header">Drawn Messages</h2>
+    <mat-divider></mat-divider>
+    <mat-accordion multi displayMode="flat">
+      @for (entry of journalEntriesDrawn; track entry; let index = $index) {
+      <mat-expansion-panel class="mat-elevation-z0">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="journal-header-content">
+              <span class="message-id">#{{entry.message_number}}</span>
+              <span class="subject">{{entry.message_subject}}</span>
+            </div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-template matExpansionPanelContent>
+          <div class="created-date">{{entry.createdAt | date}}</div>
+          <p>{{entry.message_content}}</p>
+          <button mat-button (click)="markAsNotDrawn(entry)">Mark as not drawn</button>
         </ng-template>
       </mat-expansion-panel>
       <mat-divider></mat-divider>
