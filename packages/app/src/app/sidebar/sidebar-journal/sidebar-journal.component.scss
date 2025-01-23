@@ -1,0 +1,47 @@
+.journal-header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  
+  .message-id {
+    flex-shrink: 0;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .subject {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+  }
+}
+
+.created-date {
+  color: #888;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+:host ::ng-deep {
+  .mat-expansion-panel {
+    background: transparent;
+    
+    .mat-expansion-panel-header {
+      padding: 0 16px;
+    }
+    
+    .mat-expansion-panel-body {
+      padding: 0 16px 16px;
+    }
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
