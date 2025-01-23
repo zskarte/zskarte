@@ -326,8 +326,8 @@ export class SessionService {
 
   public async saveOrganizationMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {
     const organization = this.getOrganization();
-    if (organization?.id) {
-      await this._api.put(`/api/organizations/${organization?.id}/layer-settings`, { data });
+    if (organization?.documentId) {
+      await this._api.put(`/api/organizations/${organization.documentId}/layer-settings`, { data });
 
       organization.wms_sources = data.wms_sources;
       organization.map_layer_favorites = data.map_layer_favorites;

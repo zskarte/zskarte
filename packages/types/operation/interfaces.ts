@@ -27,6 +27,7 @@ export interface IZsMapOrganizationMapLayerSettings {
 
 export interface IZsMapOrganization extends IZsMapOrganizationMapLayerSettings {
   id: number;
+  documentId: string;
   name: string;
   mapLongitude: number;
   mapLatitude: number;
