@@ -1,4 +1,4 @@
-<mat-sidenav-container>
+<mat-sidenav-container hasBackdrop="false">
   <mat-sidenav
     *ngIf="selectedJournalEntry"
     class="journal-sidebar mat-elevation-z3"
@@ -35,7 +35,8 @@
                 <strong>Empfänger: </strong>{{ selectedJournalEntry.creator }}<br />
                 <strong>Datum: </strong>{{ selectedJournalEntry.date_message.toLocaleString() }}<br />
                 <strong>Kommunikationsmittel: </strong>{{ selectedJournalEntry.communication_type }}<br />
-                <strong>Nummer/Kanal: </strong>{{ selectedJournalEntry.communication_details }}<br /><br />
+                <strong>Nummer/Kanal: </strong>{{ selectedJournalEntry.communication_details }}<br />
+                <strong>Visum: </strong> {{ selectedJournalEntry.visum_message }}<br /><br />
                 <strong>Meldungsinhalt:</strong><br />{{ selectedJournalEntry.message_content }}
               </p>
               <button mat-stroked-button type="button" (click)="toggleEditing()" style="align-self: start">
@@ -46,7 +47,7 @@
           </div>
           <div *ngIf="editing">
             <div class="journal-entry-details">
-              <div style="width: 100px">
+              <div style="width: 120px">
                 <mat-form-field>
                   <mat-label>Meldungsnr.</mat-label>
                   <input matInput formControlName="message_number" />
@@ -107,7 +108,7 @@
               <div style="width: 100px">
                 <mat-form-field>
                   <mat-label>Visum</mat-label>
-                  <input matInput formControlName="visum_decision_receiver" />
+                  <input matInput formControlName="visum_message" />
                 </mat-form-field>
               </div>
 
@@ -124,7 +125,7 @@
             </div>
           </div>
         </mat-tab>
-        <mat-tab label="Triage" [disabled]="selectedJournalEntry.entry_status === 'awaiting_message'">
+        <mat-tab label="Triage" [disabled]="this.journalForm.value.entry_status === 'awaiting_message'">
           <div class="journal-entry-details">
             <p *ngIf="selectedJournalEntry.entry_status !== 'awaiting_triage'">
               <strong>Schlüsselnachricht: </strong>
@@ -174,8 +175,9 @@
         <mat-tab
           label="Entscheidung"
           [disabled]="
-            selectedJournalEntry.entry_status === 'awaiting_triage' ||
-            selectedJournalEntry.entry_status === 'awaiting_drawing'
+            this.journalForm.value.entry_status === 'awaiting_message' ||
+            this.journalForm.value.entry_status === 'awaiting_triage' ||
+            this.journalForm.value.entry_status === 'awaiting_drawing'
           "
         >
           <div class="journal-entry-details">
@@ -197,7 +199,7 @@
 
               <mat-form-field>
                 <mat-label>Mitteilen an</mat-label>
-                <input matInput formControlName="receiver_decision" />
+                <input matInput formControlName="decision_receiver" />
               </mat-form-field>
 
               <div class="journal-entry-save-buttons">
@@ -221,20 +223,21 @@
         <mat-tab
           label="Ausgang"
           [disabled]="
-            selectedJournalEntry.entry_status === 'awaiting_triage' ||
-            selectedJournalEntry.entry_status === 'awaiting_drawing' ||
-            selectedJournalEntry.entry_status === 'awaiting_decision'
+            this.journalForm.value.entry_status === 'awaiting_message' ||
+            this.journalForm.value.entry_status === 'awaiting_triage' ||
+            this.journalForm.value.entry_status === 'awaiting_drawing' ||
+            this.journalForm.value.entry_status === 'awaiting_decision'
           "
         >
           <div class="journal-entry-details">
             <p *ngIf="selectedJournalEntry.entry_status === 'completed'">
-              <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.visum_decision_deliverer }}<br />
+              <strong>Mitgeteilt durch: </strong> {{ selectedJournalEntry.decision_sender }}<br />
               <strong>Übermittlungszeit: </strong> {{ selectedJournalEntry.date_decision_delivered?.toLocaleString() }}
             </p>
             <div *ngIf="selectedJournalEntry.entry_status !== 'completed'">
               <mat-form-field>
                 <mat-label>Mitgeteilt durch</mat-label>
-                <input matInput formControlName="visum_decision_deliverer" />
+                <input matInput formControlName="decision_sender" />
               </mat-form-field>
 
               <button mat-flat-button color="primary">

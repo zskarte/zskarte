@@ -10,7 +10,6 @@ export interface JournalEntry {
   createdAt: Date;
   createdBy?: string;
   creator: string;
-  date_created: Date;
   date_decision_delivered: Date | null;
   date_decision: Date | null;
 
@@ -38,4 +37,5 @@ export interface JournalEntry {
   visum_triage: string;
   visum_decider: string;
   decision_receiver: string;
+  decision_sender: string;
 }
