@@ -6,7 +6,7 @@
           <img [src]="logo" />
         }
         @if (workLocal) {
-          <mat-icon>signal_wifi_connected_no_internet_4</mat-icon>
+          <mat-icon>device_hub</mat-icon>
         }
         <h1>{{sidebarTitle}}</h1>
       </div>
@@ -71,7 +71,7 @@
               <mat-icon>offline_pin</mat-icon>
             } @else {
               @if (isOnline | async) {
-                <mat-icon matBadgeColor="warn" matBadge="!">signal_wifi_connected_no_internet_4</mat-icon>
+                <mat-icon matBadgeColor="warn" matBadge="!">network_wifi</mat-icon>
               } @else {
                 <mat-icon matBadgeColor="warn" matBadge="!">signal_wifi_connected_no_internet_4</mat-icon>
               }
