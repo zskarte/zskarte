@@ -26,7 +26,6 @@ export interface JournalEntry {
     [key: string]: any;
   };
   publishedAt: Date;
-  related_symbols: any;
   sender: string;
   entry_status: 'awaiting_message' | 'awaiting_triage' | 'awaiting_decision' | 'awaiting_completion' | 'completed';
   updatedAt: Date;
@@ -38,4 +37,5 @@ export interface JournalEntry {
   visum_decider: string;
   decision_receiver: string;
   decision_sender: string;
+  is_drawn_on_map: boolean;
 }

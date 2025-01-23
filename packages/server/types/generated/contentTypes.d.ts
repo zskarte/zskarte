@@ -345,13 +345,13 @@ export interface ApiJournalEntryJournalEntry extends Schema.CollectionType {
         'completed',
       ]
     >;
+    is_drawn_on_map: Attribute.Boolean;
     is_key_message: Attribute.Boolean;
     message_content: Attribute.Text;
     message_number: Attribute.Integer;
     message_subject: Attribute.String;
     operation: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::operation.operation'>;
     organization: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'api::organization.organization'>;
-    related_symbols: Attribute.JSON;
     sender: Attribute.String;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<'api::journal-entry.journal-entry', 'oneToOne', 'admin::user'> & Attribute.Private;

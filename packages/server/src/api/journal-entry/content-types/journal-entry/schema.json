@@ -67,9 +67,6 @@
       "relation": "oneToOne",
       "target": "api::organization.organization"
     },
-    "related_symbols": {
-      "type": "json"
-    },
     "date_decision_delivered": {
       "type": "datetime"
     },
@@ -92,6 +89,9 @@
     },
     "decision_sender": {
       "type": "string"
+    },
+    "is_drawn_on_map": {
+      "type": "boolean"
     }
   }
 }
