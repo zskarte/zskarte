@@ -59,7 +59,6 @@ export default factories.createCoreController('api::access.access', ({ strapi })
       return ctx.unauthorized('Access is not active anymore');
 
     const accessUsers = (await strapi.documents('plugin::users-permissions.user' as any).findMany({
-      //TODO: Remove ANY
       filters: { username: `operation_${access.type}` },
       limit: 1,
     })) as unknown as User[];

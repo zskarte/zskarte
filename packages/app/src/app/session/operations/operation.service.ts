@@ -114,7 +114,8 @@ export class OperationService {
   }
 
   public async getOperation(operationId: string, options?: IApiRequestOptions) {
-    //TODO: Check if works strapi v5
+    console.log('getOperation', operationId);
+    //TODO-v5: Check if works strapi v5
     if (parseInt(operationId) < 0) {
       return db.localOperation.get(parseInt(operationId));
     } else {

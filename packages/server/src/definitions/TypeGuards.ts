@@ -12,13 +12,13 @@ interface IsOrganizationTypeSchema extends CollectionType {
 interface HasOperationTypeSchema extends CollectionType {
   attributes: {
     operation: any;
-    // operation: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOperationType>; TODO: Fix
+    // operation: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOperationType>; TODO-v5: Fix
   };
 }
 interface HasOrganizationTypeSchema extends CollectionType {
   attributes: {
     organization: any;
-    // organization: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOrganizationType>; TODO: FIX
+    // organization: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOrganizationType>; TODO-v5: FIX
   };
 }
 interface HasPublicTypeSchema extends CollectionType {
@@ -54,7 +54,7 @@ const IsOperationTypes: IsOperationType[] = ['api::operation.operation'];
 const IsOrganizationTypes: IsOrganizationType[] = ['api::organization.organization'];
 const HasOperationTypes: HasOperationType[] = ['api::access.access', 'api::map-snapshot.map-snapshot'];
 const HasOrganizationTypes: HasOrganizationType[] = [
-  'plugin::users-permissions.user' as any, //TODO: Remove ANY
+  'plugin::users-permissions.user' as any, //TODO-v5: Remove ANY
   'api::operation.operation',
   'api::wms-source.wms-source',
   'api::map-layer.map-layer',

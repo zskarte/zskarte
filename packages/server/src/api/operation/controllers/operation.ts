@@ -45,15 +45,15 @@ export default factories.createCoreController('api::operation.operation', ({ str
       ctx.status = 400;
       return { message: 'invalid coordinates' };
     }
-    await updateCurrentLocation(operationid, identifier, { long, lat }); //TODO: Remove as string
+    await updateCurrentLocation(operationid, identifier, { long, lat });
     ctx.status = 200;
     return { success: true };
   },
   async overview(ctx) {
     ctx.query.fields = ['name', 'description', 'phase', 'eventStates', 'updatedAt'];
     ctx.query.sort = 'updatedAt:DESC';
-    if (ctx.query.pagination) {
-      (ctx.query.pagination as any).limit = -1; //TODO: Remove ANY
+    if (ctx.query.pagination && _.isObject(ctx.query.pagination)) {
+      ctx.query.pagination = { ...ctx.query.pagination, limit: -1 };
     } else {
       ctx.query.pagination = { limit: -1 };
     }
