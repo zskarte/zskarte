@@ -54,8 +54,7 @@ export enum ZsMapDisplayMode {
 }
 
 export interface IZsMapDisplayState {
-  id?: number;
-  documentId?: string;
+  id?: string;
   version: number;
   displayMode: ZsMapDisplayMode;
   expertView: boolean;

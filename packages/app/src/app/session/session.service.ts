@@ -187,7 +187,7 @@ export class SessionService {
               if (this._session.value?.operation?.id) {
                 await db.displayStates.put({
                   ...displayState,
-                  id: this._session.value.operation?.id,
+                  id: this._session.value.operation?.documentId,
                 });
               }
             });
