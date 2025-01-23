@@ -198,6 +198,7 @@ export class JournalComponent {
     this.selectedJournalEntryId = entry.id;
     this.sidebarOpen = true;
     this.editing = false;
+    this.selectedIndex = 0;
 
     this.journalForm.patchValue({
       ...entry,
@@ -210,6 +211,7 @@ export class JournalComponent {
     this.selectedJournalEntryId = null;
     this.sidebarOpen = false;
     this.editing = false;
+    this.selectedIndex = 0;
   }
 
   openJournalAddDialog() {
