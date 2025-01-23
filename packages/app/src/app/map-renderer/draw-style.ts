@@ -295,7 +295,8 @@ export class DrawStyle {
         signatureSrc: signature.src,
         type: feature?.getGeometry()?.getType(),
         hideIcon: signature.hideIcon,
-        iconOffset: signature.iconOffset,
+        iconOffsetX: signature.iconOffsetX,
+        iconOffsetY: signature.iconOffsetY,
         iconSize: signature.iconSize,
         iconOpacity: signature.iconOpacity,
         zindex: this.getZIndex(feature),
@@ -346,11 +347,12 @@ export class DrawStyle {
     feature = DrawStyle.getSubFeature(feature);
     const signature = feature.get('sig');
     const symbolAnchorCoordinate = getFirstCoordinate(feature);
-    const offset = signature.iconOffset;
+    const offsetX = signature.iconOffsetX;
+    const offsetY = signature.iconOffsetY;
     const resolutionFactor = resolution / 10;
     const symbolCoordinate = [
-      signature.flipIcon ? symbolAnchorCoordinate[0] + offset * resolutionFactor : symbolAnchorCoordinate[0] - offset * resolutionFactor,
-      symbolAnchorCoordinate[1] + offset * resolutionFactor,
+      signature.flipIcon ? symbolAnchorCoordinate[0] + offsetX * resolutionFactor : symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
+      symbolAnchorCoordinate[1] + offsetY * resolutionFactor,
     ];
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
@@ -359,11 +361,12 @@ export class DrawStyle {
     feature = DrawStyle.getSubFeature(feature);
     const signature = feature.get('sig');
     const symbolAnchorCoordinate = getLastCoordinate(feature);
-    const offset = signature.iconOffset;
+    const offsetX = signature.iconOffsetX;
+    const offsetY = signature.iconOffsetY;
     const resolutionFactor = resolution / 10;
     const symbolCoordinate = [
-      signature.flipIcon ? symbolAnchorCoordinate[0] + offset * resolutionFactor : symbolAnchorCoordinate[0] - offset * resolutionFactor,
-      symbolAnchorCoordinate[1] + offset * resolutionFactor,
+      signature.flipIcon ? symbolAnchorCoordinate[0] + offsetX * resolutionFactor : symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
+      symbolAnchorCoordinate[1] + offsetY * resolutionFactor,
     ];
     return [symbolAnchorCoordinate, symbolCoordinate];
   }

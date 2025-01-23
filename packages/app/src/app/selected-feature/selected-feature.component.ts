@@ -380,7 +380,8 @@ export class SelectedFeatureComponent implements OnDestroy {
   resetSignature(element: ZsMapDrawElementState) {
     if (!element.id) return;
     this.zsMapStateService.updateDrawElementState(element.id, 'iconSize', signatureDefaultValues.iconSize);
-    this.zsMapStateService.updateDrawElementState(element.id, 'iconOffset', signatureDefaultValues.iconOffset);
+    this.zsMapStateService.updateDrawElementState(element.id, 'iconOffsetX', signatureDefaultValues.iconOffsetX);
+    this.zsMapStateService.updateDrawElementState(element.id, 'iconOffsetY', signatureDefaultValues.iconOffsetY);
     this.zsMapStateService.updateDrawElementState(element.id, 'rotation', signatureDefaultValues.rotation);
     this.zsMapStateService.updateDrawElementState(element.id, 'flipIcon', signatureDefaultValues.flipIcon);
     this.zsMapStateService.updateDrawElementState(element.id, 'iconOpacity', signatureDefaultValues.iconOpacity);

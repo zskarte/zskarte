@@ -30,7 +30,8 @@ export interface Sign {
   color?: string;
   strokeWidth?: number;
   hideIcon?: boolean;
-  iconOffset?: number;
+  iconOffsetX?: number;
+  iconOffsetY?: number;
   flipIcon?: boolean;
   topCoord?: number[];
   onlyForSessionId?: string;
@@ -124,7 +125,8 @@ export const signatureDefaultValues: SignatureDefaultValues = {
   fillStyleAngle: 45,
   fillStyleSize: 5,
   fillStyleSpacing: 10,
-  iconOffset: 0.1,
+  iconOffsetX: 0.1,
+  iconOffsetY: 0.1,
   protected: false,
   labelShow: true,
   arrow: "none",
@@ -154,8 +156,10 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.fillStyle.size ?? signatureDefaultValues.fillStyleSize;
   signature.fillStyle.spacing =
     signature.fillStyle.spacing ?? signatureDefaultValues.fillStyleSpacing;
-  signature.iconOffset =
-    signature.iconOffset ?? signatureDefaultValues.iconOffset;
+    signature.iconOffsetX =
+      signature.iconOffsetX ?? signatureDefaultValues.iconOffsetX;
+    signature.iconOffsetY =
+      signature.iconOffsetY ?? signatureDefaultValues.iconOffsetY;
   signature.protected = signature.protected ?? signatureDefaultValues.protected;
   signature.labelShow = signature.labelShow ?? signatureDefaultValues.labelShow;
   signature.arrow = signature.arrow ?? signatureDefaultValues.arrow;
@@ -180,7 +184,8 @@ export interface SignatureDefaultValues {
   fillStyleAngle: number;
   fillStyleSize: number;
   fillStyleSpacing: number;
-  iconOffset: number;
+  iconOffsetX: number;
+  iconOffsetY: number;
   protected: boolean;
   labelShow: boolean;
   arrow: string;
