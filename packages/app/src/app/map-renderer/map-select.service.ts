@@ -1,10 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import Feature, { FeatureLike } from 'ol/Feature';
-import OlView from 'ol/View';
 import { SimpleGeometry } from 'ol/geom';
 import { Select } from 'ol/interaction';
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs';
 import { ZsMapDrawElementStateType } from '../../../../types';
@@ -28,15 +25,11 @@ export class MapSelectService {
   public selectedFeature = new BehaviorSubject<Feature<SimpleGeometry> | undefined>(undefined);
 
   initialize({
-    layers,
-    view,
     _state,
     _modify,
     _overlay,
     _renderer,
   }: {
-    layers: VectorLayer<VectorSource>[];
-    view: OlView;
     _state: ZsMapStateService;
     _modify: MapModifyService;
     _overlay: MapOverlayService;
@@ -61,7 +54,7 @@ export class MapSelectService {
       style: (feature: FeatureLike, resolution: number) => {
         return DrawStyle.styleFunctionSelect(feature, resolution, true);
       },
-      layers,
+      layers: _renderer.getLayers(),
     });
 
     this._state.observeSelectedFeature$().subscribe((element) => {
@@ -92,7 +85,7 @@ export class MapSelectService {
           }
           this._state.setSelectedFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
           // reset selectedVertexPoint, since we selected a whole feature.
-          this._vertexPoint.next(DrawStyle.getIconCoordinates(feature, view.getResolution() ?? 1)[1]);
+          this._vertexPoint.next(DrawStyle.getIconCoordinates(feature, _renderer.getView().getResolution() ?? 1)[1]);
 
           // only show buttons on select for Symbols
           if (

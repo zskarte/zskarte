@@ -16,9 +16,7 @@ import { skip } from 'rxjs';
 import { IZsMapPrintState } from '../../../../types';
 import { DEFAULT_COORDINATES, DEFAULT_RESOLUTION, MM_PER_INCHES } from '../session/default-map-values';
 import { ZsMapStateService } from '../state/state.service';
-import { LAYER_Z_INDEX_PRINT_DIMENSIONS } from './map-renderer.service';
-
-
+import { LAYER_Z_INDEX_PRINT_DIMENSIONS, MapRendererService } from './map-renderer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,40 +24,25 @@ import { LAYER_Z_INDEX_PRINT_DIMENSIONS } from './map-renderer.service';
 export class MapPrintService {
   private _disabledForPrint = false;
   private _state = inject(ZsMapStateService);
-  private _view!: OlView;
-  private _map!: OlMap;
   private _printDimensionLayer!: VectorLayer<VectorSource>;
   private _printDimensionArea!: Feature<Polygon>;
-  private _mapInteractions!: Interaction[];
   private _printAreaInteraction: Draw | undefined;
   private _printAreaPositionInteraction: Translate | undefined;
-
-  private _scaleLine!: ScaleLine;
+  private _renderer!: MapRendererService;
 
   initialize({
-    view,
-    layers,
-    map,
-    mapInteractions,
-    scaleLine,
+    renderer,
   }: {
-    view: OlView;
-    layers: VectorLayer<VectorSource>[];
-    map: OlMap;
-    mapInteractions: Interaction[];
-    scaleLine: ScaleLine;
+    renderer: MapRendererService;
   }) {
-    this._view = view;
-    this._map = map;
-    this._mapInteractions = mapInteractions;
-    this._scaleLine = scaleLine;
+    this._renderer = renderer;
 
     this._printDimensionArea = new Feature({
       geometry: new Polygon([
         [
-          this._view.getCenter() || DEFAULT_COORDINATES,
-          this._view.getCenter() || DEFAULT_COORDINATES,
-          this._view.getCenter() || DEFAULT_COORDINATES,
+          renderer.getView().getCenter() || DEFAULT_COORDINATES,
+          renderer.getView().getCenter() || DEFAULT_COORDINATES,
+          renderer.getView().getCenter() || DEFAULT_COORDINATES,
         ],
       ]),
     });
@@ -73,7 +56,7 @@ export class MapPrintService {
       visible: false,
     });
     this._printDimensionLayer.setZIndex(LAYER_Z_INDEX_PRINT_DIMENSIONS);
-    this._map.addLayer(this._printDimensionLayer);
+    renderer.getMap().addLayer(this._printDimensionLayer);
 
     this._state
       .observePrintExtent()
@@ -87,11 +70,11 @@ export class MapPrintService {
       .pipe(skip(2))
       .subscribe((printState) => {
         if (printState.printView && printState.emptyMap) {
-          layers.forEach((l) => {
+          renderer.getLayers().forEach((l) => {
             l.setVisible(false);
           });
         } else {
-          layers.forEach((l) => {
+          renderer.getLayers().forEach((l) => {
             l.setVisible(true);
           });
         }
@@ -104,7 +87,7 @@ export class MapPrintService {
   private _updatePrintViewExtent(printExtent) {
     let printCenter = this._state.getPrintCenter();
     if (!printCenter) {
-      printCenter = this._view.getCenter();
+      printCenter = this._renderer.getView().getCenter();
       if (printCenter) {
         this._state.updatePrintState((draft: IZsMapPrintState) => {
           draft.printCenter = printCenter;
@@ -124,7 +107,12 @@ export class MapPrintService {
         const deltaY = (reversePointResolution * ((printExtent.dimensions[1] / MM_PER_INCHES) * dpi)) / 2;
         */
         const resolution = scale;
-        const pointResolution = getPointResolution(this._view.getState().projection, resolution, printCenter, 'm');
+        const pointResolution = getPointResolution(
+          this._renderer.getView().getState().projection,
+          resolution,
+          printCenter,
+          'm',
+        );
         const reversePointResolution = (resolution / pointResolution) * resolution;
         const deltaX = (reversePointResolution * printExtent.dimensions[0]) / 2;
         const deltaY = (reversePointResolution * printExtent.dimensions[1]) / 2;
@@ -145,12 +133,12 @@ export class MapPrintService {
   private _updatePrintViewInteractions(printState: IZsMapPrintState) {
     if (printState.printView) {
       //disable normal map manipulation interactions
-      this._mapInteractions.forEach((i) => {
+      this._renderer.getMapInteractions().forEach((i) => {
         i.setActive(false);
       });
       if (!printState.scale) {
         if (this._printAreaPositionInteraction) {
-          this._map.removeInteraction(this._printAreaPositionInteraction);
+          this._renderer.getMap().removeInteraction(this._printAreaPositionInteraction);
           this._printAreaPositionInteraction = undefined;
         }
         //allow to select area to print
@@ -172,9 +160,9 @@ export class MapPrintService {
                 const resolution = getPointResolution(this._view.getState().projection, extendResolution, draft.printCenter, 'm');
                 draft.autoScaleVal = (resolution * INCHES_PER_METER * draft.dpi) / 1000;
                 */
-                const extendResolution = this._view.getResolutionForExtent(extend, draft.dimensions);
+                const extendResolution = this._renderer.getView().getResolutionForExtent(extend, draft.dimensions);
                 const resolution = getPointResolution(
-                  this._view.getState().projection,
+                  this._renderer.getView().getState().projection,
                   extendResolution,
                   draft.printCenter,
                   'm',
@@ -185,11 +173,11 @@ export class MapPrintService {
             }
           });
           this._printAreaInteraction = draw;
-          this._map.addInteraction(this._printAreaInteraction);
+          this._renderer.getMap().addInteraction(this._printAreaInteraction);
         }
       } else {
         if (this._printAreaInteraction) {
-          this._map.removeInteraction(this._printAreaInteraction);
+          this._renderer.getMap().removeInteraction(this._printAreaInteraction);
           this._printAreaInteraction = undefined;
         }
         //allow to move area to print
@@ -209,20 +197,20 @@ export class MapPrintService {
             }
           });
           this._printAreaPositionInteraction = translate;
-          this._map.addInteraction(this._printAreaPositionInteraction);
+          this._renderer.getMap().addInteraction(this._printAreaPositionInteraction);
         }
       }
     } else {
       //reenable normal map manipulation interactions
-      this._mapInteractions.forEach((i) => {
+      this._renderer.getMapInteractions().forEach((i) => {
         i.setActive(true);
       });
       if (this._printAreaInteraction) {
-        this._map.removeInteraction(this._printAreaInteraction);
+        this._renderer.getMap().removeInteraction(this._printAreaInteraction);
         this._printAreaInteraction = undefined;
       }
       if (this._printAreaPositionInteraction) {
-        this._map.removeInteraction(this._printAreaPositionInteraction);
+        this._renderer.getMap().removeInteraction(this._printAreaPositionInteraction);
         this._printAreaPositionInteraction = undefined;
       }
     }
@@ -233,12 +221,12 @@ export class MapPrintService {
       document.body.style.cursor = 'progress';
       this._disabledForPrint = true;
       //prevent map changes while prepare image for pdf generation
-      this._map.getInteractions().forEach((i) => {
+      this._renderer.getMap().getInteractions().forEach((i) => {
         i.setActive(false);
       });
       //backup map size settings
       this._state.updatePrintState((draft: IZsMapPrintState) => {
-        draft.backupResolution = this._view.getResolution();
+        draft.backupResolution = this._renderer.getView().getResolution();
         draft.backupDpi = this._state.getDPI();
       });
 
@@ -246,9 +234,9 @@ export class MapPrintService {
       this._printDimensionLayer.setVisible(false);
 
       //add callback handlers
-      this._map.once('rendercomplete', printState.generateCallback);
+      this._renderer.getMap().once('rendercomplete', printState.generateCallback);
       if (printState.tileEventCallback) {
-        const tileSources = this._map
+        const tileSources = this._renderer.getMap()
           .getLayers()
           .getArray()
           .filter((l): l is Layer => Boolean(l))
@@ -257,7 +245,7 @@ export class MapPrintService {
         const tileEventCallback = printState.tileEventCallback;
         tileSources.forEach((s) => s.on(['tileloadstart', 'tileloadend', 'tileloaderror'], tileEventCallback));
         //auto remove tileEventCallback after render complete / generateCallback callen
-        this._map.once('rendercomplete', () => {
+        this._renderer.getMap().once('rendercomplete', () => {
           if (tileEventCallback) {
             tileSources.forEach((s) => s.un(['tileloadstart', 'tileloadend', 'tileloaderror'], tileEventCallback));
           }
@@ -266,8 +254,8 @@ export class MapPrintService {
       this._setPrintViewSize(printState);
     } else if (!printState.generateCallback && this._disabledForPrint) {
       this._disabledForPrint = false;
-      this._map.getInteractions().forEach((i) => {
-        if (!this._mapInteractions.includes(i)) {
+      this._renderer.getMap().getInteractions().forEach((i) => {
+        if (!this._renderer.getMapInteractions().includes(i)) {
           i.setActive(true);
         }
       });
@@ -282,14 +270,15 @@ export class MapPrintService {
     const width = Math.round((printState.dimensions[0] * printState.dpi) / MM_PER_INCHES);
     const height = Math.round((printState.dimensions[1] * printState.dpi) / MM_PER_INCHES);
     const scale = printState.scale ?? printState.autoScaleVal ?? 50;
-    const printCenter = printState.printCenter ?? this._view.getCenter() ?? DEFAULT_COORDINATES;
+    const printCenter = printState.printCenter ?? this._renderer.getView().getCenter() ?? DEFAULT_COORDINATES;
     const scaleResolution =
-      scale / getPointResolution(this._view.getProjection(), printState.dpi / MM_PER_INCHES, printCenter);
-    this._scaleLine.setDpi(printState.dpi);
-    this._map.getTargetElement().style.width = `${width}px`;
-    this._map.getTargetElement().style.height = `${height}px`;
-    this._map.updateSize();
-    this._map
+      scale / getPointResolution(this._renderer.getView().getProjection(), printState.dpi / MM_PER_INCHES, printCenter);
+    this._renderer.getScaleLine().setDpi(printState.dpi);
+    this._renderer.getMap().getTargetElement().style.width = `${width}px`;
+    this._renderer.getMap().getTargetElement().style.height = `${height}px`;
+    this._renderer.getMap().updateSize();
+    this._renderer
+      .getMap()
       .getLayers()
       .getArray()
       .filter((l): l is Layer => Boolean(l))
@@ -300,9 +289,9 @@ export class MapPrintService {
         let tileCount: number | undefined;
         if ('updateCacheSize' in s) {
           if ('getTileGridForProjection' in s) {
-            const tileGrid = s.getTileGridForProjection(this._view.getProjection());
-            const zoom = tileGrid.getZForResolution(this._view.getResolution() ?? DEFAULT_RESOLUTION);
-            const extent = this._view.calculateExtent(this._map.getSize());
+            const tileGrid = s.getTileGridForProjection(this._renderer.getView().getProjection());
+            const zoom = tileGrid.getZForResolution(this._renderer.getView().getResolution() ?? DEFAULT_RESOLUTION);
+            const extent = this._renderer.getView().calculateExtent(this._renderer.getMap().getSize());
             const tileRange = tileGrid.getTileRangeForExtentAndZ(extent, zoom);
             tileCount = (tileRange.maxX - tileRange.minX + 1) * (tileRange.maxY - tileRange.minY + 1);
             tileCount = Math.round(tileCount * 1.1);
@@ -310,7 +299,7 @@ export class MapPrintService {
           if (tileCount) {
             if (tileCount > 512) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (s.updateCacheSize as any)(tileCount, this._view.getProjection());
+              (s.updateCacheSize as any)(tileCount, this._renderer.getView().getProjection());
             }
             if (printState.tileEventCallback) {
               printState.tileEventCallback(
@@ -320,17 +309,19 @@ export class MapPrintService {
           }
         }
       });
-    this._view.setCenter(printCenter);
-    this._view.setResolution(scaleResolution);
+    this._renderer.getView().setCenter(printCenter);
+    this._renderer.getView().setResolution(scaleResolution);
   }
 
   private _resetPrintViewSize(printState) {
     //reset normal map size / settings
-    this._scaleLine.setDpi(printState.backupDpi);
-    this._map.getTargetElement().style.width = '';
-    this._map.getTargetElement().style.height = '';
-    this._map.updateSize();
-    this._view.setResolution(printState.backupResolution);
+    this._renderer
+      .getScaleLine()
+      .setDpi(printState.backupDpi);
+    this._renderer.getMap().getTargetElement().style.width = '';
+    this._renderer.getMap().getTargetElement().style.height = '';
+    this._renderer.getMap().updateSize();
+    this._renderer.getView().setResolution(printState.backupResolution);
     document.body.style.cursor = 'auto';
     this._state.updatePrintState((draft: IZsMapPrintState) => {
       draft.backupResolution = undefined;
