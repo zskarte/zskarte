@@ -74,9 +74,10 @@ export class SessionService {
       this._clearOperation.next();
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
-        if (session.operation?.documentId) {
+        if (session.operation?.documentId || session.operation?.id) {
           await this._state?.refreshMapState();
-          let displayState = await db.displayStates.get({ id: session.operation?.documentId });
+          let displayState = await db.displayStates.get({ id: session.operation?.documentId ?? session.operation?.id });
+
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
             //ignore invalid/empty saved displayState
@@ -187,7 +188,7 @@ export class SessionService {
               if (this._session.value?.operation?.id) {
                 await db.displayStates.put({
                   ...displayState,
-                  id: this._session.value.operation?.documentId,
+                  id: this._session.value.operation?.documentId ?? this._session.value.operation?.id?.toString(),
                 });
               }
             });
