@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, resource } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -27,6 +27,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+
 
 @Component({
   selector: 'app-journal',
@@ -51,6 +54,7 @@ import { AfterViewInit } from '@angular/core';
     MatSelectModule,
     MatChipsModule,
     MatButtonToggleModule,
+    MatProgressSpinnerModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -73,7 +77,6 @@ export class JournalComponent implements AfterViewInit {
   decisionFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
-    // these fields are used for the search
     keys: ['message_subject', 'message_content', 'decision'],
     ignoreLocation: true,
     threshold: 0.5
@@ -83,6 +86,17 @@ export class JournalComponent implements AfterViewInit {
   selectedJournalEntry: JournalEntry | null = null;
 
   sidebarOpen = false;
+
+  journalResource = resource({
+    request: () => ({}),
+    loader: async () => {
+      const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
+      this.dataSource = result || [];
+      this.dataSourceFiltered.data = this.dataSource;
+      this.fuse.setCollection(this.dataSource);
+      return result;
+    }
+  });
 
   journalForm = new FormGroup({
     message_number: new FormControl<string | number>('', {nonNullable: true}),
@@ -113,7 +127,6 @@ export class JournalComponent implements AfterViewInit {
   editing = false;
 
   constructor() {
-    this.loadJournalEntries();
     this.initializeSearch();
     this.initializeDepartmentFilter();
   }
@@ -194,14 +207,6 @@ export class JournalComponent implements AfterViewInit {
     this.dataSourceFiltered.data = filtered;
   }
 
-  async loadJournalEntries() {
-    console.log('loadJournalEntries');
-    const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
-    this.dataSource = result || [];
-    this.dataSourceFiltered.data = this.dataSource;
-    this.fuse.setCollection(this.dataSource);
-  }
-
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntry = entry;
     this.sidebarOpen = true;
@@ -248,7 +253,7 @@ export class JournalComponent implements AfterViewInit {
       },
     });
 
-    await this.loadJournalEntries();
+    await this.journalResource.reload();
 
     const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
 
@@ -296,7 +301,7 @@ export class JournalComponent implements AfterViewInit {
         });
       }
 
-      await this.loadJournalEntries();
+      await this.journalResource.reload();
 
       const entry = await this.apiService.get<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`);
 
