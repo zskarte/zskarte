@@ -448,7 +448,7 @@ export interface ApiMapSnapshotMapSnapshot extends Struct.CollectionTypeSchema {
     singularName: 'map-snapshot';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     createdAt: Schema.Attribute.DateTime;
