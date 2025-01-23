@@ -370,7 +370,7 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     singularName: 'journal-entry';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     communication_details: Schema.Attribute.String;
@@ -378,16 +378,25 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     creator: Schema.Attribute.String;
-    date_created: Schema.Attribute.DateTime;
-    date_visum_decision_deliverer: Schema.Attribute.DateTime;
-    date_visum_decision_receiver: Schema.Attribute.DateTime;
-    date_visum_message: Schema.Attribute.DateTime;
-    date_visum_triage: Schema.Attribute.DateTime;
+    date_decision: Schema.Attribute.DateTime;
+    date_decision_delivered: Schema.Attribute.DateTime;
+    date_message: Schema.Attribute.DateTime;
+    date_triage: Schema.Attribute.DateTime;
     decision: Schema.Attribute.Text;
+    decision_receiver: Schema.Attribute.String;
+    decision_sender: Schema.Attribute.String;
     department: Schema.Attribute.String;
-    entryStatus: Schema.Attribute.Enumeration<
-      ['awaiting_triage', 'awaiting_drawing', 'awaiting_decision', 'completed']
+    entry_status: Schema.Attribute.Enumeration<
+      [
+        'awaiting_message',
+        'awaiting_triage',
+        'awaiting_drawing',
+        'awaiting_decision',
+        'awaiting_completion',
+        'completed',
+      ]
     >;
+    is_drawn_on_map: Schema.Attribute.Boolean;
     is_key_message: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::journal-entry.journal-entry'> &
@@ -398,12 +407,10 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     operation: Schema.Attribute.Relation<'oneToOne', 'api::operation.operation'>;
     organization: Schema.Attribute.Relation<'oneToOne', 'api::organization.organization'>;
     publishedAt: Schema.Attribute.DateTime;
-    related_symbols: Schema.Attribute.JSON;
     sender: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    visum_decision_deliverer: Schema.Attribute.String;
-    visum_decision_receiver: Schema.Attribute.String;
+    visum_decider: Schema.Attribute.String;
     visum_message: Schema.Attribute.String;
     visum_triage: Schema.Attribute.String;
   };

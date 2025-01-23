@@ -2000,6 +2000,31 @@ export class I18NService {
       en: 'No impacts on persons found',
       fr: 'Aucun effet sur les personnes'
     },
+    message_number: {
+      de: 'Nummer',
+      en: 'Number',
+      fr: 'Numéro'
+    },
+    message_subject: {
+      de: 'Betreff',
+      en: 'Subject',
+      fr: 'Sujet'
+    },
+    message_content: {
+      de: 'Meldungsinhalt',
+      en: 'Message content',
+      fr: 'Contenu du message'
+    },
+    date_created: {
+      de: 'Erstellungsdatum',
+      en: 'Creation date',
+      fr: 'Date de création'
+    },
+    creator: {
+      de: 'Empfänger',
+      en: 'Receiver',
+      fr: 'Destinataire'
+    },
     coordinates: {
       de: 'Koordinaten',
       en: 'Coordinates',
@@ -2020,6 +2045,177 @@ export class I18NService {
       en: 'Elements on the map in guest mode',
       fr: 'Éléments de la carte en mode invité'
     },
+    journal_entry_awaiting_message: {
+      de: 'Meldung',
+      en: 'Awaiting message',
+      fr: 'En attente de message'
+    },
+    journal_entry_awaiting_triage: {
+      de: 'Triage',
+      en: 'Awaiting triage', 
+      fr: 'En attente de triage'
+    },
+    journal_entry_awaiting_drawing: {
+      de: 'Zeichnen',
+      en: 'Awaiting drawing',
+      fr: 'En attente de dessin'
+    },
+    journal_entry_awaiting_decision: {
+      de: 'Entscheidung',
+      en: 'Awaiting decision',
+      fr: 'En attente de décision'
+    },
+    journal_entry_awaiting_completion: {
+      de: 'Abschluss',
+      en: 'Awaiting completion',
+      fr: 'En attente de finalisation'
+    },
+    journal_entry_completed: {
+      de: 'Abgeschlossen',
+      en: 'Completed',
+      fr: 'Terminé'
+    },
+    journal: {
+      de: 'Journal',
+      en: 'Journal',
+      fr: 'Journal'
+    },
+    noMessagesToProcess: {
+      de: 'Keine Meldungen zu verarbeiten',
+      en: 'No messages to process',
+      fr: 'Aucun message à traiter'
+    },
+    messagesToDraw: {
+      de: 'Zu zeichnende Meldungen',
+      en: 'Messages to draw',
+      fr: 'Messages à dessiner'
+    },
+    drawnMessages: {
+      de: 'Gezeichnete Meldungen',
+      en: 'Drawn messages', 
+      fr: 'Messages dessinés'
+    },
+    markAsDrawn: {
+      de: 'Als gezeichnet markieren',
+      en: 'Mark as drawn',
+      fr: 'Marquer comme dessiné'
+    },
+    markAsNotDrawn: {
+      de: 'Als nicht gezeichnet markieren',
+      en: 'Mark as not drawn',
+      fr: 'Marquer comme non dessiné'
+    },
+    journalNumber: {
+      de: 'Meldungsnummer',
+      en: 'Report number',
+      fr: 'Numéro de rapport'
+    },
+    deliverer: {
+      de: 'Absender',
+      en: 'Deliverer',
+      fr: 'Livreur'
+    },
+    receiver: {
+      de: 'Empfänger',
+      en: 'Receiver',
+      fr: 'Destinataire'
+    },
+    communicationDevice: {
+      de: 'Kommunikationsmittel',
+      en: 'Communication device',
+      fr: 'Dispositif de communication'
+    },
+    phone: {
+      de: 'Telefon',
+      en: 'Phone',
+      fr: 'Téléphone'
+    },
+    radio: {
+      de: 'Funk',
+      en: 'Radio',
+      fr: 'Radio'
+    },
+    fax: {
+      de: 'Fax',
+      en: 'Fax',
+      fr: 'Fax'
+    },
+    email: {
+      de: 'E-Mail',
+      en: 'Email',
+      fr: 'Email'
+    },
+    sms: {
+      de: 'SMS',
+      en: 'SMS',
+      fr: 'SMS'
+    },
+    other: {
+      de: 'Andere',
+      en: 'Other',
+      fr: 'Autre'
+    },
+    messageContent: {
+      de: 'Meldungsinhalt',
+      en: 'Message content',
+      fr: 'Contenu du message'
+    },
+    messageTitle: {
+      de: 'Betreff',
+      en: 'Subject',
+      fr: 'Sujet'
+    },
+    messageDate: {
+      de: 'Meldungsdatum',
+      en: 'Report date',
+      fr: 'Date de rapport'
+    },
+    messageTime: {
+      de: 'Meldungszeit',
+      en: 'Report time',
+      fr: 'Heure de rapport'
+    },
+    detailsChanel: {
+      de: 'Nummer / Kanal',
+      en: 'Number / channel',
+      fr: 'Numéro / canal'
+    },
+    visa: {
+      de: 'Visum',
+      en: 'Visa',
+      fr: 'Visa'
+    },
+    keyMessage: {
+      de: 'Schlüsselmeldung',
+      en: 'Key message',
+      fr: 'Message clé'
+    },
+    departement: {
+      de: 'Fachbereich',
+      en: 'Departement',
+      fr: 'Département'
+    },
+    dateTriage: {
+      de: 'Triage Zeitpunkt',
+      en: 'Triage time',
+      fr: 'Heure de triage'
+    },
+    messageReceiver: {
+      de: 'Empfänger der Entscheidung',
+      en: 'Receiver of decision',
+      fr: 'Destinataire de la décision'
+    },
+    dateDecision: {
+      de: 'Entscheidungszeitpunkt',
+      en: 'Decision time',
+      fr: 'Heure de décision'
+    },
+    politicalAuthority: {
+      de: 'Politische Behörde',
+      en: 'Political authority',
+      fr: 'Autorité politique'
+    },
+
   };
 
   public getLabelForSign(sign: Sign): string {
