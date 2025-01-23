@@ -71,35 +71,36 @@ export class JournalComponent {
     includeScore: true,
     keys: ['message_subject', 'message_content', 'decision'],
   });
-  selectedIndex: number = 0;
+  selectedIndex = 0;
 
-  selectedJournalEntry: JournalEntry | null = null;
+  selectedJournalEntryId: number | null = null;
+
+  sidebarOpen = false;
 
   journalForm = new FormGroup({
-    message_number: new FormControl(),
-    sender: new FormControl(),
-    creator: new FormControl(),
-    communication_type: new FormControl(),
-    communication_details: new FormControl(),
-    message_subject: new FormControl(),
-    message_content: new FormControl(),
-    visum_message: new FormControl(),
-    visum_decision_receiver: new FormControl(),
-    department: new FormControl(),
-    date_created_date: new FormControl(),
-    date_created_time: new FormControl(),
-    is_key_message: new FormControl(),
-    visum_triage: new FormControl(),
+    message_number: new FormControl<string | number>(''),
+    sender: new FormControl(''),
+    creator: new FormControl(''),
+    communication_type: new FormControl(''),
+    communication_details: new FormControl(''),
+    message_subject: new FormControl(''),
+    message_content: new FormControl(''),
+    visum_message: new FormControl(''),
+    visum_decision_receiver: new FormControl(''),
+    department: new FormControl(''),
+    date_created_date: new FormControl<Date>(new Date()),
+    date_created_time: new FormControl<Date>(new Date()),
+    is_key_message: new FormControl(false),
+    visum_triage: new FormControl(''),
     date_triage: new FormControl(),
     date_decision: new FormControl(),
-    visum_decider: new FormControl(),
-    decision: new FormControl(),
-    status: new FormControl(),
-    decision_receiver: new FormControl(),
-    visum_decision_deliverer: new FormControl(),
-    entry_status: new FormControl(),
+    visum_decider: new FormControl(''),
+    decision: new FormControl(''),
+    decision_receiver: new FormControl(''),
+    visum_decision_deliverer: new FormControl(''),
+    entry_status: new FormControl('awaiting_message'),
     date_decision_delivered: new FormControl(),
-    decision_sender: new FormControl(),
+    decision_sender: new FormControl(''),
   });
 
   editing = false;
@@ -151,10 +152,11 @@ export class JournalComponent {
     }
 
     if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
-      filtered = filtered.filter((entry) => 
-        (this.triageFilter && entry.entry_status === 'awaiting_triage') ||
-        (this.outgoingFilter && entry.entry_status === 'awaiting_completion') ||
-        (this.decisionFilter && entry.entry_status === 'awaiting_decision')
+      filtered = filtered.filter(
+        (entry) =>
+          (this.triageFilter && entry.entry_status === 'awaiting_triage') ||
+          (this.outgoingFilter && entry.entry_status === 'awaiting_completion') ||
+          (this.decisionFilter && entry.entry_status === 'awaiting_decision'),
       );
     }
 
@@ -166,14 +168,14 @@ export class JournalComponent {
       const results = this.fuse.search(searchTerm);
       filtered = results
         .map((result) => result.item)
-        .filter((item) =>
-          (!department || item.department === department) &&
-          (!this.keyMessageFilter || item.is_key_message) &&
-          (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) || 
-            (this.triageFilter && item.entry_status === 'awaiting_triage') ||
-            (this.outgoingFilter && item.entry_status === 'awaiting_completion') ||
-            (this.decisionFilter && item.entry_status === 'awaiting_decision')
-          )
+        .filter(
+          (item) =>
+            (!department || item.department === department) &&
+            (!this.keyMessageFilter || item.is_key_message) &&
+            (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) ||
+              (this.triageFilter && item.entry_status === 'awaiting_triage') ||
+              (this.outgoingFilter && item.entry_status === 'awaiting_completion') ||
+              (this.decisionFilter && item.entry_status === 'awaiting_decision')),
         );
     }
 
@@ -188,54 +190,27 @@ export class JournalComponent {
   }
 
   async selectEntry(entry: JournalEntry) {
-    this.selectedJournalEntry = entry;
+    this.selectedJournalEntryId = entry.id;
+    this.sidebarOpen = true;
+
     this.journalForm.patchValue({
-      message_number: entry.message_number,
-      sender: entry.sender,
-      creator: entry.creator,
-      communication_type: entry.communication_type,
-      communication_details: entry.communication_details,
-      message_subject: entry.message_subject,
-      message_content: entry.message_content,
-      visum_message: entry.visum_message,
-      department: entry.department,
-      visum_decision_receiver: entry.visum_decision_receiver,
-      date_created_date: entry.date_message,
-      date_created_time: entry.date_message,
-      is_key_message: entry.is_key_message,
-      visum_triage: entry.visum_triage,
-      decision: entry.decision,
-      decision_receiver: entry.decision_receiver,
-      entry_status: entry.entry_status,
-      decision_sender: entry.decision_sender,
+      ...entry,
+      date_created_date: new Date(),
+      date_created_time: new Date(),
     });
   }
 
   resetEntry() {
-    this.selectedJournalEntry = null;
+    this.selectedJournalEntryId = null;
+    this.sidebarOpen = false;
     this.editing = false;
   }
 
   openJournalAddDialog() {
     this.editing = true;
+    this.sidebarOpen = true;
 
-    this.selectedJournalEntry = {} as JournalEntry;
-
-    this.journalForm.patchValue({
-      message_number: '',
-      sender: '',
-      creator: '',
-      communication_type: '',
-      communication_details: '',
-      message_subject: '',
-      message_content: '',
-      visum_decision_receiver: '',
-      date_created_date: new Date(),
-      date_created_time: new Date(),
-      is_key_message: false,
-      decision: '',
-      entry_status: 'awaiting_message',
-    });
+    this.journalForm.reset();
   }
 
   toggleEditing() {
@@ -247,16 +222,16 @@ export class JournalComponent {
       entry_status: 'awaiting_triage',
     });
 
-    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.id}`, {
+    await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntryId}`, {
       data: {
         ...this.journalForm.value,
-        date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time)),
+        date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
       },
     });
 
     await this.loadJournalEntries();
 
-    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
+    const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntryId);
 
     if (currentEntry) {
       await this.selectEntry(currentEntry);
@@ -282,29 +257,31 @@ export class JournalComponent {
     const organization = this.sessionService.getOrganization();
 
     try {
-      if (this.selectedJournalEntry?.id) {
-        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.id}`, {
+      if (this.selectedJournalEntryId) {
+        await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntryId}`, {
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
             organization: organization?.id,
-            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time)),
+            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
           },
         });
       } else {
-        await this.apiService.post('/api/journal-entries', {
+        const resp = await this.apiService.post('/api/journal-entries', {
           data: {
             ...this.journalForm.value,
             operation: operation?.id,
             organization: organization?.id,
-            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time)),
+            date_message: new Date((this.journalForm.value.date_created_date as Date).setTime(this.journalForm.value.date_created_time!.getTime())),
           },
         });
+
+        this.selectedJournalEntryId = resp.result.id;
       }
 
       await this.loadJournalEntries();
 
-      const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntry?.id);
+      const currentEntry = this.dataSource.find((d) => d.id === this.selectedJournalEntryId);
       if (currentEntry) {
         await this.selectEntry(currentEntry);
       }
