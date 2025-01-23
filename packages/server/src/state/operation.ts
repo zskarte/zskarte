@@ -181,8 +181,7 @@ const archiveOperations = async (strapi: Core.Strapi) => {
 const deleteGuestOperations = async (strapi: Core.Strapi) => {
   try {
     const guestUsers = (await strapi.documents('plugin::users-permissions.user' as any).findMany({
-      //TODO: Remove ANY
-      fields: ['id', 'username', 'email'],
+      fields: ['documentId', 'username', 'email'],
       filters: { username: 'zso_guest' },
       populate: ['organization.operations'],
       limit: 1,

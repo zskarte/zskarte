@@ -46,9 +46,7 @@ export default factories.createCoreController('api::access.access', ({ strapi })
     const accesses = (await strapi.documents('api::access.access').findMany({
       filters: { accessToken },
       populate: {
-        operation: {
-          fields: ['id'],
-        },
+        operation: true,
       },
       limit: 1,
     })) as unknown as Access[];
@@ -84,7 +82,7 @@ export default factories.createCoreController('api::access.access', ({ strapi })
     });
   },
   async generate(ctx) {
-    const { id: organizationId } = ctx.state?.user?.organization || {};
+    const { documentId: organizationId } = ctx.state?.user?.organization || {};
     if (!organizationId) return ctx.forbidden('This action is forbidden, invalid context.');
     const { name, type, operationId, tokenType } = ctx.request.body;
 
@@ -95,9 +93,9 @@ export default factories.createCoreController('api::access.access', ({ strapi })
     if (!operationId) return ctx.badRequest('You must define the "operationId" property');
     const operations = (await strapi.documents('api::operation.operation').findMany({
       filters: {
-        id: operationId,
+        documentId: operationId,
         organization: {
-          id: { $eq: organizationId },
+          documentId: { $eq: organizationId },
         },
       },
       limit: 1,

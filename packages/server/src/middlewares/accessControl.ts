@@ -229,8 +229,10 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
       } else {
         const entry = (await strapi.documents(contentType as any).findOne({
           documentId: entryId,
-          fields: ['id'],
-          populate: { operation: { fields: ['id', 'phase'], populate: { organization: { fields: ['id'] } } } },
+          fields: ['documentId'],
+          populate: {
+            operation: { fields: ['documentId', 'phase'], populate: { organization: { fields: ['documentId'] } } },
+          },
         })) as { id: number; operation: Operation };
         return entry;
       }
@@ -242,22 +244,22 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
       if (hasPublic(contentType)) {
         const entry = (await strapi.documents(contentType as any).findOne({
           documentId: entryId,
-          fields: ['id', 'public'],
-          populate: { organization: { fields: ['id'] } },
+          fields: ['documentId', 'public'],
+          populate: { organization: { fields: ['documentId'] } },
         })) as unknown as { id: number; public: boolean; organization: Organization };
         return entry;
       } else if (isOperation(contentType)) {
         const entry = (await strapi.documents(contentType).findOne({
           documentId: entryId,
-          fields: ['id', 'phase'],
-          populate: { organization: { fields: ['id'] } as any },
+          fields: ['documentId', 'phase'],
+          populate: { organization: { fields: ['documentId'] } as any },
         })) as { id: number; phase: string; organization: Organization };
         return entry;
       } else {
         const entry = (await strapi.documents(contentType as any).findOne({
           documentId: entryId,
-          fields: ['id'],
-          populate: { organization: { fields: ['id'] } },
+          fields: ['documentId'],
+          populate: { organization: { fields: ['documentId'] } },
         })) as { id: number; organization: Organization };
         return entry;
       }

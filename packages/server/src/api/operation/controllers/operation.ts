@@ -34,7 +34,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return { success: true };
   },
   async currentLocation(ctx) {
-    const { identifier, operationid } = ctx.request.headers;
+    const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
@@ -45,7 +45,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
       ctx.status = 400;
       return { message: 'invalid coordinates' };
     }
-    await updateCurrentLocation(operationid as string, identifier as string, { long, lat }); //TODO: Remove as string
+    await updateCurrentLocation(operationid, identifier, { long, lat }); //TODO: Remove as string
     ctx.status = 200;
     return { success: true };
   },

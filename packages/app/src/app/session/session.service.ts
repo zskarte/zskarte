@@ -184,11 +184,10 @@ export class SessionService {
             .observeDisplayState()
             .pipe(skip(1), takeUntil(this._clearOperation))
             .subscribe(async (displayState) => {
-              if (this._session.value?.operation?.documentId) {
-                console.log('persisting displayState', displayState);
+              if (this._session.value?.operation?.id) {
                 await db.displayStates.put({
                   ...displayState,
-                  documentId: this._session.value.operation?.documentId,
+                  id: this._session.value.operation?.id,
                 });
               }
             });

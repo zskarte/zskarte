@@ -9,8 +9,8 @@ export default (plugin) => {
       organization: {
         populate: {
           logo: {},
-          wms_sources: { fields: ['id'] },
-          map_layer_favorites: { fields: ['id'] },
+          wms_sources: { fields: ['documentId'] },
+          map_layer_favorites: { fields: ['documentId'] },
         },
       },
     };
@@ -27,8 +27,8 @@ export default (plugin) => {
         },
         populate: {
           logo: {},
-          wms_sources: { fields: ['id'] },
-          map_layer_favorites: { fields: ['id'] },
+          wms_sources: true,
+          map_layer_favorites: true,
         },
         limit: 1,
       })) as unknown as Organization[];
