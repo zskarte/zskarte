@@ -11,14 +11,12 @@ interface IsOrganizationTypeSchema extends CollectionType {
 }
 interface HasOperationTypeSchema extends CollectionType {
   attributes: {
-    operation: any;
-    // operation: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOperationType>; TODO-v5: Fix
+    operation: Attribute.Relation<'manyToOne'>;
   };
 }
 interface HasOrganizationTypeSchema extends CollectionType {
   attributes: {
-    organization: any;
-    // organization: Attribute.Relation<UID.Schema, Attribute.RelationKind.Any, IsOrganizationType>; TODO-v5: FIX
+    organization: Attribute.Relation<'manyToOne'>;
   };
 }
 interface HasPublicTypeSchema extends CollectionType {
@@ -52,14 +50,17 @@ export type HasPublicType = Utils.Guard.Never<
 //unfortunately as types are striped away on runtime we have to define them here explizite. But the type definitions above help the intellisense show all possible/valid values.
 const IsOperationTypes: IsOperationType[] = ['api::operation.operation'];
 const IsOrganizationTypes: IsOrganizationType[] = ['api::organization.organization'];
-const HasOperationTypes: HasOperationType[] = ['api::access.access', 'api::map-snapshot.map-snapshot','api::journal-entry.journal-entry'];
+const HasOperationTypes: HasOperationType[] = [
+  'api::access.access',
+  'api::map-snapshot.map-snapshot',
+  'api::journal-entry.journal-entry',
+];
 const HasOrganizationTypes: HasOrganizationType[] = [
-  'plugin::users-permissions.user' as any, //TODO-v5: Remove ANY
+  'plugin::users-permissions.user' as any,
   'api::operation.operation',
   'api::wms-source.wms-source',
   'api::map-layer.map-layer',
   'api::journal-entry.journal-entry',
-  
 ];
 const AccessCheckableTypes: AccessCheckableType[] = [
   ...IsOperationTypes,
