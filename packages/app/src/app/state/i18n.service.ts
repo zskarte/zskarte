@@ -2215,6 +2215,11 @@ export class I18NService {
       en: 'Political authority',
       fr: 'Autorité politique',
     },
+    pressEnter: {
+      de: 'Drücken Sie Enter, um die Meldenummer hinzuzufügen',
+      en: 'Press enter to add the report number',
+      fr: 'Appuyez sur Entrée pour ajouter le numéro du rapport'
+    }
   };
 
   public getLabelForSign(sign: Sign): string {
