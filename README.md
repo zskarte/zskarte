@@ -1,4 +1,4 @@
-# Zivilschutz-Karte V5
+# 🗺️ Zivilschutz-Karte V5
 
 ![GitHub license](https://img.shields.io/github/license/zskarte/zskarte)
 ![GitHub release](https://img.shields.io/github/v/release/zskarte/zskarte)
@@ -17,19 +17,32 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![ZSKarte.ch](https://img.shields.io/website?url=https%3A%2F%2Fwww.zskarte.ch)](https://www.zskarte.ch)
 
-Zivilschutz-Karte is a javascript application (based on Angular) which allows to draw situation maps for disaster management. It has been developed for Swiss civil defense organisations. The drawing application can be used either with standard computers or with interactive whiteboards.
+## ℹ️ About
+
+Zivilschutz-Karte is a powerful JavaScript application (based on Angular) designed for creating detailed situation maps for disaster management. Developed specifically for Swiss civil defense organisations, it works seamlessly on both standard computers and interactive whiteboards. 🖥️ 📱
+
+## 🔍 Key Features
+
+- 🎨 Intuitive drawing interface
+- 🌍 Multiple map provider integration
+- 💾 Local storage support
+- 🔄 Real-time collaboration
+- 📱 Responsive design
+- 🔒 Secure authentication
 
 ## 👀 Demo
 
 You can run Zivilschutz-Karte without installation from [https://zskarte.ch](https://zskarte.ch). This is the production application. Please request access from your civil defence organisation or use the guest mode to try out.
 
-## 🚀 Quick Start Guide
+## 🚀 Getting Started
 
-### ⚙️ Pre-requisites
+### 🛠️ Prerequisites
 
-- Node.js 20.x
-- npm 10.x
-- docker 27.x or higher
+- 📦 Node.js 20.x
+- 🔧 npm 10.x
+- 🐳 docker 27.x or higher
+
+### 📋 Installation Steps
 
 ### 1. Install packages
 ```bash
@@ -55,17 +68,20 @@ Zivilschutz-Karte is optimized and tested for use with Google Chrome - neverthel
   1. http://localhost:4300
   2. Login with credentials: User -> zso_development, Password -> Supersecret123
 
-## Help or Feedback
+## 💡 Help & Feedback
 
-Create an issue here on github or send feedback to [feedback@zskarte.ch](mailto:feedback@zskarte.ch). We will use your feedback in the next iteration of the project.
+Need assistance or want to share your thoughts? We'd love to hear from you! 
+- 🐛 Create an issue on GitHub
+- 📧 Send feedback to [feedback@zskarte.ch](mailto:feedback@zskarte.ch)
+- 💬 Join our community discussions
 
-## 🪪 Terms of use
+## ⚖️ Terms of Use
 
 Please note, that this application integrates several different map provider services. Since the terms of use of the different services usually restrict the extent of use (limited quotas, restricted access to data layers), it's the liability of the user to make sure that the corresponding limitations and/or preconditions are fulfilled.
 
-## Supporting Tools for Development
+## 🛠️ Development Tools
 
-### Docker-Compose
+### 🐳 Docker-Compose
 
 This will startup a local postgresDB with a RDMS system (pgadmin).
 
@@ -111,9 +127,9 @@ mkdir -p data/pgadmin
 chown -R 5050:5050 data/pgadmin
 ```
 
-## Azure
+## ☁️ Azure Setup
 
-### Kubernetes Connect
+### 🔗 Kubernetes Connect
 
 Connect to the AKS cluster with the following commands
 
@@ -208,3 +224,19 @@ helm upgrade --install cert-manager bitnami/cert-manager --create-namespace -n c
 kubectl apply -f .azure/aks/cert-manager/letsencrpyt-staging.yml
 kubectl apply -f .azure/aks/cert-manager/letsencrpyt-prod.yml
 ```
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+- 🐛 Report bugs
+- 💡 Suggest new features
+- 🔧 Submit pull requests
+- 📚 Improve documentation
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🌟 Star Us!
+
+If you find this project useful, please consider giving it a star on GitHub! ⭐
