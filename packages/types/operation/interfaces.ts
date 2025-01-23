@@ -10,6 +10,7 @@ export type ZsOperationPhase = 'active' | 'archived' | 'deleted';
 
 export interface IZsMapOperation {
   id?: number;
+  documentId?: string;
   name: string;
   description: string;
   updatedAt?: Date;

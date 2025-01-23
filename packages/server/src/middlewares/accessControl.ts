@@ -228,7 +228,6 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
         */
       } else {
         const entry = (await strapi.documents(contentType as any).findOne({
-          //TODO: Remove ANY
           documentId: entryId,
           fields: ['id'],
           populate: { operation: { fields: ['id', 'phase'], populate: { organization: { fields: ['id'] } } } },
@@ -242,7 +241,6 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
     if (entryId) {
       if (hasPublic(contentType)) {
         const entry = (await strapi.documents(contentType as any).findOne({
-          //TODO: Remove ANY
           documentId: entryId,
           fields: ['id', 'public'],
           populate: { organization: { fields: ['id'] } },
@@ -257,7 +255,6 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
         return entry;
       } else {
         const entry = (await strapi.documents(contentType as any).findOne({
-          //TODO: Remove ANY
           documentId: entryId,
           fields: ['id'],
           populate: { organization: { fields: ['id'] } },
@@ -291,14 +288,6 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
     return { entry, operation, organization };
   };
 
-  const getIdIfValid = (value) => {
-    if (value && /^\d+$/.test(value)) {
-      return parseInt(value);
-    }
-    //prevent requests with invalid id's (not numbers)
-    return null;
-  };
-
   const doByIdChecks = async (ctx, next, userOrganisationId, jwtOperationId) => {
     //load desired object and check if loggedin user has right to use it, before call real controller function.
     const handler: string = ctx.state?.route?.handler;
@@ -306,8 +295,8 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
       strapi.log.error(`[global::accessControl] unknown context, handler: ${handler}, url: ${ctx.request.url}`);
       return ctx.forbidden('This action is forbidden, unknown context.');
     }
-    const paramId = getIdIfValid(ctx.params?.id);
-    const headerOperationId = getIdIfValid(ctx.request.headers?.operationid);
+    const paramId = ctx.params?.id;
+    const headerOperationId = ctx.request.headers?.operationid;
     const entryId = isOperation(config.type) ? (paramId ?? headerOperationId) : paramId;
     if (!entryId) {
       return ctx.forbidden('This action is forbidden.');

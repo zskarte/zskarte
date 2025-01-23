@@ -42,7 +42,7 @@ export class OperationService {
     if (operation?.id < 0) {
       await OperationService.persistLocalOpertaion(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/archive`, null);
+      await this._api.put(`/api/operations/${operation.documentId}/archive`, null);
     }
     await this.reload('active');
   }
@@ -56,7 +56,7 @@ export class OperationService {
     if (operation?.id < 0) {
       await OperationService.persistLocalOpertaion(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/unarchive`, null);
+      await this._api.put(`/api/operations/${operation.documentId}/unarchive`, null);
     }
     await this.reload('archived');
   }
@@ -69,7 +69,7 @@ export class OperationService {
     if (operation?.id < 0) {
       await OperationService.deleteLocalOperation(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/shadowdelete`, null);
+      await this._api.put(`/api/operations/${operation.documentId}/shadowdelete`, null);
     }
     await this.reload('archived');
   }
@@ -107,7 +107,7 @@ export class OperationService {
     if ((operation.id ?? 0) < 0) {
       await OperationService.persistLocalOpertaion(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/meta`, {
+      await this._api.put(`/api/operations/${operation.documentId}/meta`, {
         data: { name: operation.name, description: operation.description, eventStates: operation.eventStates },
       });
     }
