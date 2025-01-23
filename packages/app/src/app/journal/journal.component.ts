@@ -150,33 +150,30 @@ export class JournalComponent {
       filtered = filtered.filter((entry) => entry.department === department);
     }
 
-    if (this.triageFilter) {
-      filtered = filtered.filter((entry) => entry.entry_status === 'awaiting_triage');
+    if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
+      filtered = filtered.filter((entry) => 
+        (this.triageFilter && entry.entry_status === 'awaiting_triage') ||
+        (this.outgoingFilter && entry.entry_status === 'awaiting_completion') ||
+        (this.decisionFilter && entry.entry_status === 'awaiting_decision')
+      );
     }
 
     if (this.keyMessageFilter) {
       filtered = filtered.filter((entry) => entry.is_key_message);
     }
 
-    if (this.outgoingFilter) {
-      filtered = filtered.filter((entry) => entry.entry_status === 'awaiting_completion');
-    }
-
-    if (this.decisionFilter) {
-      filtered = filtered.filter((entry) => entry.entry_status === 'awaiting_decision');
-    }
-
     if (searchTerm) {
       const results = this.fuse.search(searchTerm);
       filtered = results
         .map((result) => result.item)
-        .filter(
-          (item) =>
-            (!department || item.department === department) &&
-            (!this.triageFilter || item.entry_status === 'awaiting_triage') &&
-            (!this.keyMessageFilter || item.is_key_message) &&
-            (!this.outgoingFilter || item.entry_status === 'awaiting_completion') &&
-            (!this.decisionFilter || item.entry_status === 'awaiting_decision'),
+        .filter((item) =>
+          (!department || item.department === department) &&
+          (!this.keyMessageFilter || item.is_key_message) &&
+          (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) || 
+            (this.triageFilter && item.entry_status === 'awaiting_triage') ||
+            (this.outgoingFilter && item.entry_status === 'awaiting_completion') ||
+            (this.decisionFilter && item.entry_status === 'awaiting_decision')
+          )
         );
     }
 
