@@ -9,7 +9,12 @@
     <form [formGroup]="journalForm" (ngSubmit)="save($event)">
       <div class="sidebar-header">
         <h1>
-          {{ journalForm.value.message_number !== undefined ? journalForm.value.message_number.toString().padStart(3, '0') : '' }} |
+          {{
+            journalForm.value.message_number !== undefined ?
+              journalForm.value.message_number.toString().padStart(3, '0')
+            : ''
+          }}
+          |
           {{ journalForm.value.message_subject ?? '' }}
         </h1>
 
@@ -17,7 +22,11 @@
           <mat-icon>close</mat-icon>
         </button>
       </div>
-      <mat-tab-group animationDuration="0ms" [selectedIndex]="selectedIndex" (selectedIndexChange)="selectedIndex = $event">
+      <mat-tab-group
+        animationDuration="0ms"
+        [selectedIndex]="selectedIndex"
+        (selectedIndexChange)="selectedIndex = $event"
+      >
         <mat-tab label="Eingang">
           <div *ngIf="!editing">
             <div class="journal-entry-details">
@@ -164,7 +173,10 @@
         </mat-tab>
         <mat-tab
           label="Entscheidung"
-          [disabled]="selectedJournalEntry.entry_status === 'awaiting_triage' || selectedJournalEntry.entry_status === 'awaiting_drawing'"
+          [disabled]="
+            selectedJournalEntry.entry_status === 'awaiting_triage' ||
+            selectedJournalEntry.entry_status === 'awaiting_drawing'
+          "
         >
           <div class="journal-entry-details">
             <p *ngIf="selectedJournalEntry.entry_status !== 'awaiting_decision'">
@@ -196,7 +208,10 @@
               </div>
             </div>
 
-            <div *ngIf="selectedJournalEntry.entry_status === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
+            <div
+              *ngIf="selectedJournalEntry.entry_status === 'awaiting_decision'"
+              style="border: 1px solid lightgray; padding: 14px"
+            >
               <h3>Falscher Fachbereich?</h3>
               <p>Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.</p>
               <button mat-button type="button" (click)="resetState()">Zurück an Triage senden</button>
@@ -235,7 +250,12 @@
 
   <mat-sidenav-content>
     <div class="journal-header mat-elevation-z3">
-      <h1>Journal</h1>
+      <div class="journal-header-content">
+        <h1>Journal</h1>
+        <button mat-icon-button (click)="loadJournalEntries()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
     </div>
     <div class="journal-filter">
       <div class="journal-filter-row">
@@ -264,9 +284,15 @@
       <div class="journal-filter-row journal-filter-buttons">
         <div class="journal-filter-buttons">
           <mat-button-toggle-group hideSingleSelectionIndicator multiple>
-            <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)"> Triage </mat-button-toggle>
-            <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)"> Entscheidung </mat-button-toggle>
-            <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)"> Ausgang </mat-button-toggle>
+            <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+              Triage
+            </mat-button-toggle>
+            <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+              Entscheidung
+            </mat-button-toggle>
+            <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+              Ausgang
+            </mat-button-toggle>
           </mat-button-toggle-group>
         </div>
         <mat-chip-listbox>
@@ -298,13 +324,26 @@
           <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="creator">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('creator') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.creator }}</td>
+        <ng-container matColumnDef="entry_status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">{{ i18n.get('journal_entry_' + element.entry_status) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="is_key_message">
+          <th mat-header-cell *matHeaderCellDef>Schlüsselnachricht</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-icon *ngIf="element.is_key_message">key</mat-icon>
+          </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row class="journal-table-row" *matRowDef="let row; columns: displayedColumns" (click)="selectEntry(row)"></tr>
+        <tr
+          mat-row
+          [class.key-message]="row.is_key_message"
+          class="journal-table-row"
+          *matRowDef="let row; columns: displayedColumns"
+          (click)="selectEntry(row)"
+        ></tr>
       </table>
 
       <div class="fab-button">
