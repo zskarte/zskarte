@@ -391,8 +391,8 @@ export class SessionService {
     this._session.next(this._session.value);
   }
 
-  public observeOperationId(): Observable<number | undefined> {
-    return this._session.pipe(map((session) => session?.operation?.id));
+  public observeOperationId(): Observable<string | number | undefined> {
+    return this._session.pipe(map((session) => session?.operation?.documentId ?? session?.operation?.id));
   }
 
   public getOperation(): IZsMapOperation | undefined {
