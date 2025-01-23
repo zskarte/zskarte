@@ -110,7 +110,7 @@
                   <mat-icon>check</mat-icon>
                   {{ i18n.get('save') }}
                 </button>
-                <button mat-flat-button color="primary">
+                <button mat-flat-button color="primary" *ngIf="!selectedJournalEntryId">
                   <mat-icon>check</mat-icon>
                   {{ i18n.get('save') }}
                 </button>
