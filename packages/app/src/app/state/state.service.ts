@@ -929,7 +929,7 @@ export class ZsMapStateService {
     return this._map.value.drawElements?.[id];
   }
 
-  public getDrawElemente(id: string) {
+  public getDrawElement(id: string) {
     return this._drawElementCache[id];
   }
 
@@ -1116,6 +1116,10 @@ export class ZsMapStateService {
     return this._mergeMode.asObservable();
   }
 
+  public isMergeMode(): boolean {
+    return this._mergeMode.value;
+  }
+
   public setDrawHoleMode(drawHoleMode: boolean) {
     this._drawHoleMode.next(drawHoleMode);
   }
@@ -1172,12 +1176,16 @@ export class ZsMapStateService {
       this._session.observeIsArchived(),
     ).pipe(
       map(() => {
-        const isHistoryMode = this.isHistoryMode();
-        const hasWritePermission = this._session.hasWritePermission();
-        const isArchived = this._session.isArchived();
-        return !hasWritePermission || isArchived || isHistoryMode;
+        return this.isReadOnly();
       }),
     );
+  }
+
+  isReadOnly(): boolean {
+    const isHistoryMode = this.isHistoryMode();
+    const hasWritePermission = this._session.hasWritePermission();
+    const isArchived = this._session.isArchived();
+    return !hasWritePermission || isArchived || isHistoryMode;
   }
 
   public addSearch(
