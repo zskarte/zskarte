@@ -31,13 +31,13 @@
                 <span class="mapSourceAvailable" (click)="showLocalInfoMap(mapSource.key, index)">
                   @if (isDownloadableMap(mapSource.key)) {
                     @if (mapSource.offlineAvailable) {
-                      <i class="material-icons">cloud_done</i>
+                      <i class="material-icons">file_download_done</i>
                     }
                     @if (!mapSource.offlineAvailable) {
-                      <i class="material-icons">cloud</i>
+                      <i class="material-icons">file_download</i>
                     }
                   } @else {
-                    <i class="material-icons">cloud_off</i>
+                    <i class="material-icons">file_download_off</i>
                   }
                 </span>
               }
@@ -95,23 +95,27 @@
               <div>
                 <div class="titleRow">
                   <div class="title">{{ item.label }}</div>
+                  @if (!first) {
+                    <i (click)="mapState.sortMapLayerUp(index)" class="material-icons">arrow_upward</i>
+                  }
+                  @if (!last) {
+                    <i (click)="mapState.sortMapLayerDown(index)" class="material-icons">arrow_downward</i>
+                  }
                   @if (workLocal) {
                     <div (click)="showLocalInfo(item, index)">
                       @if (item.type === 'geojson' || item.type === 'csv') {
                         @if (item.offlineAvailable) {
-                          <i class="material-icons">cloud_done</i>
+                          <i class="material-icons">file_download_done</i>
                         }
                         @if (!item.offlineAvailable) {
-                          <i class="material-icons">cloud</i>
+                          <i class="material-icons">file_download</i>
                         }
                       } @else {
-                        <i class="material-icons">cloud_off</i>
+                        <i class="material-icons disabled">file_download_off</i>
                       }
                     </div>
                   }
-                  @if (item.type !== 'geojson' && item.type !== 'csv') {
-                    <i (click)="showLegend(item)" class="material-icons">info</i>
-                  }
+                  
                   @if (mapState.isExpertView() && item.source && (item.type === 'wms' || item.type === 'wms_custom')) {
                     <i (click)="showWmsLayerOptions(item, index)" class="material-icons">settings</i>
                   }
@@ -123,13 +127,11 @@
                   } @else {
                     <i (click)="mapState.toggleMapLayer(item, index)" class="material-icons">visibility_on</i>
                   }
+                  @if (item.type !== 'geojson' && item.type !== 'csv') {
+                    <i (click)="showLegend(item)" class="material-icons">info_outline</i>
+                  }
                   <i (click)="mapState.removeMapLayer(index)" class="material-icons">remove_circle_outline</i>
-                  @if (!first) {
-                    <i (click)="mapState.sortMapLayerUp(index)" class="material-icons">arrow_upward</i>
-                  }
-                  @if (!last) {
-                    <i (click)="mapState.sortMapLayerDown(index)" class="material-icons">arrow_downward</i>
-                  }
+                  
                 </div>
                 <div>
                   <mat-slider [max]="1" [min]="0" [step]="0.1" [disabled]="item.hidden">

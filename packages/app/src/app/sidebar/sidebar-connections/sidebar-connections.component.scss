@@ -41,7 +41,7 @@
 }
 
 .local-container {
-  padding: 0 1rem;
+  padding: 1rem 1rem 0 1rem;
 }
 
 .offline-container > .mat-icon {
@@ -66,16 +66,13 @@ mat-form-field {
 }
 
 .flex-label {
-  padding-top: 5px;
+  padding: 0 1rem !important;
   display: flex;
-  gap: 15px;
+  gap: 1rem;
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 58px;
-  margin-left: 20px;
-  margin-right: 20px;
 }
 
 hr {

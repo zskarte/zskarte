@@ -104,3 +104,8 @@ mat-slider {
   vertical-align: bottom;
   margin-right: 5px;
 }
+
+.selectedLayer .disabled {
+  color: #949494;
+  cursor: default;
+}
