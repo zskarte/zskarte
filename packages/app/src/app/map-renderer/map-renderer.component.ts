@@ -14,7 +14,7 @@ import { MatIcon } from '@angular/material/icon';
 import { Sign, ZsMapDrawElementStateType } from '@zskarte/types';
 import { firstValueFrom } from 'rxjs';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
-import { removeCoordinates } from '../helper/coordinates';
+import { areCoordinatesEqual, removeCoordinates } from '../helper/coordinates';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
@@ -134,7 +134,6 @@ export class MapRendererComponent implements AfterViewInit {
   async removeFeature() {
     const state = this._state.getDrawElementState(this._select.getFeature()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
     const coordinates = this._select.getVertexPoint();
-
     if (state?.id && coordinates) {
       const newCoordinates = removeCoordinates(state.coordinates, coordinates);
 
@@ -142,19 +141,25 @@ export class MapRendererComponent implements AfterViewInit {
       switch (state.type) {
         case ZsMapDrawElementStateType.POLYGON:
         case ZsMapDrawElementStateType.SYMBOL:
-          if (newCoordinates.length < 1) {
+          // if there is no change in the coordinates, the "sign" which has a small offset was selected, therefore remove the whole element
+          if (areCoordinatesEqual(newCoordinates, state.coordinates)) {
             remove = true;
           } else {
-            let maxSub = 0;
-            for (const subCoordinates of newCoordinates as number[][]) {
-              if (maxSub <= subCoordinates.length) {
-                maxSub = subCoordinates.length;
+            if (newCoordinates.length < 1) {
+              remove = true;
+            } else {
+              let maxSub = 0;
+              for (const subCoordinates of newCoordinates as number[][]) {
+                if (maxSub <= subCoordinates.length) {
+                  maxSub = subCoordinates.length;
+                }
+              }
+              if (maxSub < 4) {
+                remove = true;
               }
             }
-            if (maxSub < 4) {
-              remove = true;
-            }
           }
+
           break;
         case ZsMapDrawElementStateType.LINE:
           if (newCoordinates.length < 3) {
