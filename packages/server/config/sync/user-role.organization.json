@@ -2,114 +2,198 @@
   "name": "Organization",
   "description": "Main Organization Users",
   "type": "organization",
+  "documentId": "zogneucdi1agyukp7xpxmvrc",
+  "locale": null,
   "permissions": [
     {
-      "action": "api::access.access.create"
+      "action": "api::access.access.create",
+      "documentId": "h91eufwkl5ns2d3wepqox8g3",
+      "locale": null
     },
     {
-      "action": "api::access.access.delete"
+      "action": "api::access.access.delete",
+      "documentId": "bedisevxmkrwjyp02vwtn100",
+      "locale": null
     },
     {
-      "action": "api::access.access.find"
+      "action": "api::access.access.find",
+      "documentId": "nrgj6esnvrgf9zf5da5zrzgz",
+      "locale": null
     },
     {
-      "action": "api::access.access.findOne"
+      "action": "api::access.access.findOne",
+      "documentId": "b6anilp9xu2zervpp9wtjylf",
+      "locale": null
     },
     {
-      "action": "api::access.access.generate"
+      "action": "api::access.access.generate",
+      "documentId": "oalu3xvh06gyhk5wqpzl3kp0",
+      "locale": null
     },
     {
-      "action": "api::access.access.refresh"
+      "action": "api::access.access.refresh",
+      "documentId": "fq2tinjsttzcc4yx652eefd3",
+      "locale": null
     },
     {
-      "action": "api::access.access.token"
+      "action": "api::access.access.token",
+      "documentId": "wdg7drd575mg6b19pcthyqd9",
+      "locale": null
     },
     {
-      "action": "api::access.access.update"
+      "action": "api::access.access.update",
+      "documentId": "r2doofaqz9dpkm4d4c2s6hqx",
+      "locale": null
     },
     {
-      "action": "api::journal-entry.journal-entry.create"
+      "action": "api::journal-entry.journal-entry.create",
+      "documentId": "novv2oa6e6p12tkfde3ecypl",
+      "locale": null
     },
     {
-      "action": "api::journal-entry.journal-entry.find"
+      "action": "api::journal-entry.journal-entry.find",
+      "documentId": "uotg4s5cg2nvp142jitsw92q",
+      "locale": null
     },
     {
-      "action": "api::journal-entry.journal-entry.update"
+      "action": "api::journal-entry.journal-entry.findOne",
+      "documentId": "vlbbrx6uhqa5fco51bc5zk9u",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.create"
+      "action": "api::journal-entry.journal-entry.update",
+      "documentId": "toswdp9qxvoh3utl1tnvbsda",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.delete"
+      "action": "api::map-layer.map-layer.create",
+      "documentId": "s2a7hna8etrt4ivqjpeee771",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.find"
+      "action": "api::map-layer.map-layer.delete",
+      "documentId": "h79z2ri4y77l0ddshfgmfh55",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.findOne"
+      "action": "api::map-layer.map-layer.find",
+      "documentId": "o1obn96jod3k2pndkip9y7bk",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.update"
+      "action": "api::map-layer.map-layer.findOne",
+      "documentId": "wybcybmos4ggoqxezt7pund8",
+      "locale": null
     },
     {
-      "action": "api::map-snapshot.map-snapshot.find"
+      "action": "api::map-layer.map-layer.update",
+      "documentId": "a0b5uo503tjuqsgx71iqkz0q",
+      "locale": null
     },
     {
-      "action": "api::map-snapshot.map-snapshot.findOne"
+      "action": "api::map-snapshot.map-snapshot.find",
+      "documentId": "uf9swluy25i78ij33vksebgc",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.archive"
+      "action": "api::map-snapshot.map-snapshot.findOne",
+      "documentId": "p7hfj91a507g35im11snpdaf",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.create"
+      "action": "api::operation.operation.archive",
+      "documentId": "sj3bf6buq9vj33s8yk4snzoe",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.currentLocation"
+      "action": "api::operation.operation.create",
+      "documentId": "zjzcroggsfvbe7az1y9p43fs",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.find"
+      "action": "api::operation.operation.currentLocation",
+      "documentId": "ohfrw679c76euw5pwn2q54es",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.findOne"
+      "action": "api::operation.operation.find",
+      "documentId": "aby0uqcxs179os2yy9rkqj29",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.overview"
+      "action": "api::operation.operation.findOne",
+      "documentId": "hf7dsn68snhu9b3pqels2mkf",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.patch"
+      "action": "api::operation.operation.overview",
+      "documentId": "wfqlikadykw0v0kx0pt14er3",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.unarchive"
+      "action": "api::operation.operation.patch",
+      "documentId": "gc0my12ntnz2dku9se0af5kl",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.updateMapLayers"
+      "action": "api::operation.operation.shadowDelete",
+      "documentId": "kblyn8fpr6v9s9ix6yadp0iv",
+      "locale": null
     },
     {
-      "action": "api::operation.operation.updateMeta"
+      "action": "api::operation.operation.unarchive",
+      "documentId": "ke0s4wmzr9279hwv7krre79v",
+      "locale": null
     },
     {
-      "action": "api::organization.organization.find"
+      "action": "api::operation.operation.updateMapLayers",
+      "documentId": "hcpwagjxfs5gpfuulc5675a4",
+      "locale": null
     },
     {
-      "action": "api::organization.organization.updateLayerSettings"
+      "action": "api::operation.operation.updateMeta",
+      "documentId": "mbdwgwsy6wm43uipu6gkmjdf",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.create"
+      "action": "api::organization.organization.find",
+      "documentId": "fpdsz20nvavm7azft39pb1a1",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.delete"
+      "action": "api::organization.organization.updateLayerSettings",
+      "documentId": "j7movnhslrz4vuurscvivr01",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.find"
+      "action": "api::wms-source.wms-source.create",
+      "documentId": "aygbzsq5oyjllfql9ltx6lg2",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.findOne"
+      "action": "api::wms-source.wms-source.delete",
+      "documentId": "hdyq67pctdqxku5igaformis",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.update"
+      "action": "api::wms-source.wms-source.find",
+      "documentId": "v6xzdezhcwpd405aotvyj22p",
+      "locale": null
     },
     {
-      "action": "plugin::users-permissions.user.me"
+      "action": "api::wms-source.wms-source.findOne",
+      "documentId": "k7ic45e2pxj1d7x0463vvqbg",
+      "locale": null
+    },
+    {
+      "action": "api::wms-source.wms-source.update",
+      "documentId": "prn7ezquur4mxb3p5bieg7bu",
+      "locale": null
+    },
+    {
+      "action": "plugin::users-permissions.user.me",
+      "documentId": "q4s7zzcq0466f93xuiuw1tk7",
+      "locale": null
     }
   ]
 }

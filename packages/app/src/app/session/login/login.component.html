@@ -58,14 +58,14 @@
           </mat-form-field>
         }
         <stack [spacing]="5">
-          <button class="login-button" mat-raised-button color="primary" (click)="login()">Login</button>
+          <button class="login-button" mat-flat-button color="primary" (click)="login()">Login</button>
           @if (isLoginWithCodeEnabled) {
-            <button class="login-button" mat-raised-button color="secondary" (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
+            <button class="login-button" mat-stroked-button color="secondary" (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
               {{ i18n.get('back') }}
             </button>
           }
           @if (!isLoginWithCodeEnabled) {
-            <button class="alternative-login-button" mat-raised-button (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
+            <button class="alternative-login-button" mat-stroked-button (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
               @if (!isLoginWithCodeEnabled) {
                 <span>{{ i18n.get('codeLogin') }}</span>
               }
@@ -78,22 +78,20 @@
             <text-divider>{{ i18n.get('or') }}</text-divider>
           }
           @if (!isLoginWithCodeEnabled && hasGuestUser) {
-            <button class="alternative-login-button" mat-raised-button (click)="guestLogin()">
+            <button class="alternative-login-button" mat-stroked-button (click)="guestLogin()">
               {{ i18n.get('guestLogin') }}
             </button>
           }
-          @if (!isLoginWithCodeEnabled) {
+          @if (!isLoginWithCodeEnabled && allowOfflineAccess) {
             <text-divider>{{ i18n.get('or') }}</text-divider>
-          }
-          @if (!isLoginWithCodeEnabled) {
-            <button class="alternative-login-button" mat-raised-button (click)="workLocal()">
+            <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
               {{ i18n.get('workLocal') }}
             </button>
           }
         </stack>
       </mat-card-content>
-    } @else {
-      <button class="alternative-login-button" mat-raised-button (click)="workLocal()">
+    } @else if (allowOfflineAccess) {
+      <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
         {{ i18n.get('workLocal') }}
       </button>
     }

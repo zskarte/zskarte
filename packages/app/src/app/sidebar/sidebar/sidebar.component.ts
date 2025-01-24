@@ -1,9 +1,9 @@
-import { Component, TemplateRef, ChangeDetectorRef, inject, viewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ChangeDetectorRef, inject, viewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapLegendDisplayComponent } from '../map-legend-display/map-legend-display.component';
 import { ZsMapStateService } from '../../state/state.service';
 import { GeoadminService } from '../../map-layer/geoadmin/geoadmin.service';
-import { combineLatest, firstValueFrom, map, mergeMap, Observable, of, share, startWith, catchError, tap } from 'rxjs';
+import { combineLatest, Subject, firstValueFrom, map, mergeMap, Observable, of, share, startWith, catchError, tap } from 'rxjs';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { I18NService } from '../../state/i18n.service';
 import { db, LocalBlobMeta, LocalBlobState, LocalMapInfo } from '../../db/db';
@@ -31,6 +31,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { SidebarFiltersComponent } from '../sidebar-filters/sidebar-filters.component';
 import {
   ZsMapStateSource,
   MapLayer,
@@ -40,6 +41,7 @@ import {
   GeoJSONMapLayer,
   zsMapStateSourceToDownloadUrl,
 } from '@zskarte/types';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-sidebar',
@@ -63,9 +65,12 @@ import {
     ReactiveFormsModule,
     MatButtonModule,
     MatListModule,
+    SidebarFiltersComponent
   ],
 })
+
 export class SidebarComponent {
+
   mapState = inject(ZsMapStateService);
   wmsService = inject(WmsService);
   private operationService = inject(OperationService);
@@ -75,6 +80,7 @@ export class SidebarComponent {
   private _blobService = inject(BlobService);
   private cdRef = inject(ChangeDetectorRef);
   private _mapLayerService = inject(MapLayerService);
+  private _snackBar = inject(MatSnackBar);
 
   readonly newLayerTypeTemplate = viewChild.required<TemplateRef<HTMLElement>>('newLayerTypeTemplate');
   newLayerType?: string;
@@ -388,7 +394,11 @@ export class SidebarComponent {
       if (operation) {
         operation.mapLayers = mapLayers;
       }
-      this.operationService.updateMapLayers(operationId, mapLayers);
+      await this.operationService.updateMapLayers(operationId, mapLayers);
+
+      this._snackBar.open(this.i18n.get('toastPersistLayers'), 'OK', {
+        duration: 2000,
+      });
     }
   }
 

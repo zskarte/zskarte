@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import { AccessControlConfig, AccessControlTypes } from '../definitions';
-import { Common } from '@strapi/strapi';
-import type { CoreApi } from '@strapi/types';
-export const CreateAccessControlMiddlewareConfig = <T extends Common.UID.ContentType>(config: AccessControlConfig<T>) => {
+import { UID } from '@strapi/types';
+import type { Core } from '@strapi/types';
+export const CreateAccessControlMiddlewareConfig = <T extends UID.ContentType>(config: AccessControlConfig<T>) => {
   return { name: 'global::accessControl', config };
 };
 
-export const AccessControlMiddlewareRoutesConfig = <T extends Common.UID.ContentType>(
+export const AccessControlMiddlewareRoutesConfig = <T extends UID.ContentType>(
   config: AccessControlConfig<T>,
-  otherConf: CoreApi.Router.RouterConfig<T> = {},
+  otherConf: Core.CoreAPI.Router.RouterConfig<T> = {},
 ) => {
   return _.merge(
     {

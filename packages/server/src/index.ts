@@ -1,4 +1,6 @@
-import { loadOperations, migrateOperations, persistMapStates } from './state/operation';
+import { migrateOperationMapStates, migrateOperationStatusesToPhases } from './migrations';
+import { loadOperations, persistMapStates } from './state/operation';
+import { connectSocketIo } from './state/socketio';
 
 export default {
   /**
@@ -7,7 +9,9 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) {},
+  register({ strapi }) {
+    connectSocketIo(strapi);
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -17,7 +21,8 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
-    await migrateOperations(strapi);
+    await migrateOperationMapStates(strapi);
+    await migrateOperationStatusesToPhases(strapi);
     await loadOperations(strapi);
   },
 

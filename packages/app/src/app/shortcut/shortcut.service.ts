@@ -1,16 +1,23 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
+import { cloneDeep } from 'lodash';
+import { Coordinate } from 'ol/coordinate';
+import { Observable, firstValueFrom } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
+import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
+import { SessionService } from '../session/session.service';
 import { ZsMapStateService } from '../state/state.service';
 import { IShortcut } from './shortcut.interfaces';
-import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ShortcutService {
+  private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
+  private _dialog = inject(MatDialog);
 
   private _selectedElement: ZsMapBaseDrawElement | undefined = undefined;
   private _selectedFeatureId: string | undefined = undefined;
@@ -42,38 +49,73 @@ export class ShortcutService {
       }
     });
 
-    this._listen({ shortcut: 'mod+1', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.TEXT);
-    });
+    this._listen({ shortcut: 'mod+1', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.TEXT));
+    this._listen({ shortcut: 'mod+2', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.POLYGON));
+    this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.LINE));
+    this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.FREEHAND));
+    this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.SYMBOL));
 
-    this._listen({ shortcut: 'mod+2', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.POLYGON);
-    });
-
-    this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.LINE);
-    });
-
-    this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.FREEHAND);
-    });
-
-    this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(() => {
-      const layer = this._state.getActiveLayer();
-      layer?.draw(ZsMapDrawElementStateType.SYMBOL);
-    });
-
-    this._listen({ shortcut: 'mod+c' }).subscribe(() => {
+    this._listen({ shortcut: 'mod+c' }).subscribe(async () => {
+      if (this._session.isGuest()) {
+        if (await firstValueFrom(this._session.observeIsGuestElementLimitReached())) {
+          return;
+        }
+      }
       this._copyElement = this._selectedElement;
     });
 
-    this._listen({ shortcut: 'mod+v', drawModeOnly: true }).subscribe(() => {
+    this._listen({ shortcut: 'mod+v', drawModeOnly: true }).subscribe(async () => {
+      if (this._session.isGuest()) {
+        if (await firstValueFrom(this._session.observeIsGuestElementLimitReached())) {
+          return;
+        }
+      }
       if (this._copyElement?.elementState) {
-        this._state.addDrawElement(this._copyElement.elementState);
+        const currentCoordinates = await firstValueFrom(this._state.getCoordinates());
+        const newState = cloneDeep(this._copyElement.elementState);
+
+        // translate coordinates
+        const getFirstCoordinate = (
+          coordinates: undefined | number[] | number[][] | Coordinate,
+        ): number[] | undefined => {
+          if (!coordinates) {
+            return;
+          }
+          if (typeof coordinates[0] === 'number') {
+            return coordinates as number[];
+          }
+          if (Array.isArray(coordinates)) {
+            return getFirstCoordinate(coordinates[0]);
+          }
+          return;
+        };
+
+        const firstCoordinates = getFirstCoordinate(newState.coordinates);
+        const offset = [
+          currentCoordinates[0] - (firstCoordinates?.[0] || 0),
+          currentCoordinates[1] - (firstCoordinates?.[1] || 0),
+        ];
+
+        const offsetCoordinates = (coordinates: undefined | number[] | number[][] | Coordinate, offset: number[]) => {
+          if (!coordinates) {
+            return;
+          }
+
+          if (typeof coordinates[0] === 'number') {
+            (coordinates as number[])[0] += offset[0];
+            (coordinates as number[])[1] += offset[1];
+          } else {
+            if (Array.isArray(coordinates)) {
+              for (const o of coordinates) {
+                offsetCoordinates(o as number[], offset);
+              }
+            }
+          }
+        };
+
+        offsetCoordinates(newState.coordinates, offset);
+
+        this._state.addDrawElement(newState);
       }
     });
 
@@ -88,6 +130,16 @@ export class ShortcutService {
     this._listen({ shortcut: 'escape', drawModeOnly: true }).subscribe(() => {
       this._state.cancelDrawing();
     });
+  }
+
+  private _draw(type: ZsMapDrawElementStateType) {
+    return () => {
+      const layer = this._state.getActiveLayer();
+      const success = layer?.draw(type);
+      if (!success) {
+        this._dialog.open(GuestLimitDialogComponent);
+      }
+    };
   }
 
   private _listen({ shortcut, preventDefault = true, drawModeOnly = false }: IShortcut): Observable<KeyboardEvent> {

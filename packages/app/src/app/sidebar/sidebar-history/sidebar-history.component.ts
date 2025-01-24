@@ -1,23 +1,16 @@
 import { AsyncPipe, DatePipe } from '@angular/common';
-import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { Observable, startWith, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, filter, startWith, switchMap, tap } from 'rxjs';
 import { ApiService } from 'src/app/api/api.service';
-import { StrapiApiResponseList } from 'src/app/helper/strapi-utils';
 import { SessionService } from 'src/app/session/session.service';
 import { I18NService } from 'src/app/state/i18n.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
-
-type Snapshot = {
-  id: number;
-  attributes: {
-    createdAt: Date;
-  };
-};
-type Snapshots = StrapiApiResponseList<Snapshot[]>;
+import { IZsMapSnapshot, IZsMapSnapshots } from '@zskarte/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-history',
@@ -31,38 +24,48 @@ export class SidebarHistoryComponent implements AfterViewInit {
   private sessionService = inject(SessionService);
   private stateService = inject(ZsMapStateService);
   private snackBarService = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   readonly paginator = viewChild.required(MatPaginator);
 
-  snapshots$?: Observable<Snapshots>;
+  snapshots$? = new BehaviorSubject<IZsMapSnapshots | undefined>(undefined);
   resultSize?: number;
   apiPath = '/api/map-snapshots';
 
-  ngAfterViewInit() {
-    this.snapshots$ = this.paginator().page.pipe(
-      startWith({ pageIndex: 0 }),
-      switchMap((p) => this.loadData(p.pageIndex + 1)),
-      tap((r) => {
-        this.resultSize = r.meta.pagination.total;
-      }),
-    );
+  async ngAfterViewInit() {
+    this.paginator()
+      .page.pipe(
+        startWith({ pageIndex: 0 }),
+        switchMap(async (p) => {
+          const page = p.pageIndex + 1;
+          const operationId = this.sessionService.getOperationId();
+          const response = await this.apiService.get<IZsMapSnapshots>(
+            `${this.apiPath}?fields[0]=createdAt&operationId=${operationId}&sort[0]=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=20`,
+            { keepMeta: true },
+          );
+          return response.result;
+        }),
+        tap((r) => {
+          this.resultSize = r?.meta.pagination.total;
+        }),
+        filter((r) => !!r),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((result) => this.snapshots$!.next(result));
   }
 
-  loadData(page: number) {
-    const operationId = this.sessionService.getOperationId();
-    return this.apiService.get$<Snapshots>(
-      `${this.apiPath}?fields[0]=createdAt&operationId=${operationId}&sort[0]=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=20`,
-    );
-  }
-
-  async setHistory(snapshot: Snapshot) {
-    const { result } = await this.apiService.get(`${this.apiPath}/${snapshot.id}`);
+  async setHistory(snapshot: IZsMapSnapshot) {
+    const { result } = await this.apiService.get(`${this.apiPath}/${snapshot.documentId}`);
 
     this.stateService.setMapState(result.mapState);
 
-    this.snackBarService.open(`${this.i18n.get('toastSnapshotApplied')}: ${snapshot.attributes.createdAt.toLocaleString()}`, 'OK', {
-      duration: 2000,
-    });
+    this.snackBarService.open(
+      `${this.i18n.get('toastSnapshotApplied')}: ${snapshot.createdAt.toLocaleString()}`,
+      'OK',
+      {
+        duration: 2000,
+      },
+    );
   }
 
   setCurrent() {

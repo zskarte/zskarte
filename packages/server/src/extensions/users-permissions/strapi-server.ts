@@ -9,8 +9,8 @@ export default (plugin) => {
       organization: {
         populate: {
           logo: {},
-          wms_sources: { fields: ['id'] },
-          map_layer_favorites: { fields: ['id'] },
+          wms_sources: { fields: ['documentId'] },
+          map_layer_favorites: { fields: ['documentId'] },
         },
       },
     };
@@ -19,19 +19,19 @@ export default (plugin) => {
     const { operationId } = await jwt.getToken(ctx);
     if (operationId) {
       //if it's a share token login, populate corresponding organization
-      const organizations = (await strapi.entityService.findMany('api::organization.organization', {
+      const organizations = (await strapi.documents('api::organization.organization').findMany({
         filters: {
           operations: {
-            id: { $eq: operationId },
+            documentId: { $eq: operationId },
           },
         },
         populate: {
           logo: {},
-          wms_sources: { fields: ['id'] },
-          map_layer_favorites: { fields: ['id'] },
+          wms_sources: true,
+          map_layer_favorites: true,
         },
         limit: 1,
-      })) as Organization[];
+      })) as unknown as Organization[];
       const organization = _.first(organizations);
       ctx.body.organization = organization;
       //want to return wms-source/map-layer id's only, strapi cannot do that (v14.7) therefore the population with fields, and here map the results to an id array

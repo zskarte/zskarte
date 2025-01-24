@@ -1,10 +1,15 @@
 {
   "name": "@zskarte/workspace",
-  "workspaces": ["./packages/*"],
+  "workspaces": [
+    "./packages/*"
+  ],
   "scripts": {
-    "start": "run-s start:*",
+    "start": "npm run docker-run && run-p start:*",
     "start:app": "cd packages/app && npm start",
-    "start:server": "cd packages/server && npm start",
+    "start:server": "cd packages/server && npm run dev",
+    "start:server:prod": "cd packages/server && npm start",
+    "docker-run": "tsx scripts/run-docker.ts",
+    "docker-stop": "docker-compose down",
     "lint": "run-p lint:*",
     "lint:app": "biome lint ./packages/app/src",
     "lint:server": "biome lint ./packages/server/src",
@@ -30,6 +35,11 @@
     "tsx": "^4.19.2"
   },
   "dependencies": {
-    "ol": "^10.3.1"
+    "fix-esm": "^1.0.1",
+    "fuse.js": "^7.0.0",
+    "inquirer": "^12.3.2",
+    "ol": "^10.3.1",
+    "superjson": "^2.2.2",
+    "wait-on": "^8.0.2"
   }
 }

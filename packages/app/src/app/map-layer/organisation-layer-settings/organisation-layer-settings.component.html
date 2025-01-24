@@ -1,88 +1,138 @@
-<div mat-dialog-title>{{ i18n.get('organisationLayerSettings') }}</div>
-<div mat-dialog-content>
-  <div class="sectionTitle">{{ i18n.get('preSelectedWmsSources') }}</div>
-  <fieldset class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('layerSource') }}</legend>
-    <mat-selection-list class="availableSources">
-      @for (source of data.wmsSources; track source) {
-        <mat-list-option (click)="toggleSource(source)" [selected]="wms_sources.includes(source.id ?? 0)">
-          <div>{{ source.label }}</div>
-          <div>{{ source.url }}</div>
-        </mat-list-option>
-      }
-    </mat-selection-list>
-    <div class="buttons">
-      <button class="buttonMargin" mat-raised-button (click)="selectCurrentSource()" [innerText]="i18n.get('useCurrentSources')"></button>
-    </div>
-  </fieldset>
-  <div class="sectionTitle">{{ i18n.get('favoriteLayersSettings') }}</div>
-  <fieldset class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('favoriteLayers') }}</legend>
-    <mat-selection-list class="favoriteLayers">
-      @for (layer of layer_favorites; track layer) {
-        <mat-list-option (click)="removeLayer(layer)" [selected]="true">
-          <div matLine="1">{{ layer.label }}{{ this.changedOptions(layer) ? ' *modified*' : '' }}</div>
-          <div matLine="2">{{ layer.source?.label ?? layer.source?.url }}</div>
-        </mat-list-option>
-      }
-    </mat-selection-list>
-  </fieldset>
-  <fieldset class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('addFromActive') }}</legend>
-    <div class="buttons">
-      <button class="buttonMargin" mat-raised-button (click)="addCurrentLayers()" [innerText]="i18n.get('addAllActiveOnes')"></button>
-    </div>
-    <mat-action-list class="selectedLayers">
-      @for (item of data.selectedLayers; track item) {
-        <button
-          mat-list-item
-          (click)="selectLayer(item)"
-          title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
-            item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
-          }})"
-        >
-          {{ item.label }}{{ this.changedOptions(item) ? ' *modified*' : '' }}
-        </button>
-      }
-    </mat-action-list>
-  </fieldset>
-  <fieldset class="like-mat-form-field-outline">
-    <legend>{{ i18n.get('addFromList') }}</legend>
-    <div class="sourceControl">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>{{ i18n.get('layerSource') }}</mat-label>
-        <mat-select [formControl]="sourceFilter">
-          <mat-option value="ALL">{{ i18n.get('allSources') }}</mat-option>
-          <mat-option value="_GeoAdmin_">GeoAdmin</mat-option>
-          <mat-option value="_GlobalMapLayers_">{{ i18n.get('globalMapLayers') }}</mat-option>
-          @for (item of data.selectedSources; track item) {
-            <mat-option [value]="item.url">{{ item.label }}</mat-option>
+<h1 mat-dialog-title>{{ i18n.get('organisationLayerSettings') }}</h1>
+
+<mat-dialog-content class="content-container">
+
+  <mat-expansion-panel class="mat-elevation-z0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>{{ i18n.get('preSelectedWmsSources') }}</mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      @if (data.wmsSources.length > 0) {
+        <mat-selection-list class="availableSources">
+          @for (source of data.wmsSources; track source) {
+            <mat-list-option
+              (click)="toggleSource(source)"
+              [selected]="wms_sources.includes(source.id ?? 0)"
+            >
+              <div>{{ source.label }}</div>
+              <div>{{ source.url }}</div>
+            </mat-list-option>
           }
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <mat-form-field appearance="outline">
-      <mat-label> {{ i18n.get('filter') }}</mat-label>
-      <input type="text" matInput [formControl]="layerFilter"
-    /></mat-form-field>
-    <mat-action-list class="availableLayers">
-      @for (item of filteredAvailableLayers$ | async; track item) {
+        </mat-selection-list>
         <button
-          mat-list-item
-          (click)="selectLayer(item)"
-          title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
-            item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
-          }})"
-        >
-          {{ item.label }}
-        </button>
+          class="buttonMargin"
+          mat-stroked-button
+          (click)="selectCurrentSource()"
+          [innerText]="i18n.get('useCurrentSources')"
+        ></button>
+      } @else {
+        <p>{{ i18n.get('noWmsSourcesAvailable') }}</p>
       }
-    </mat-action-list>
-  </fieldset>
-</div>
-<div mat-dialog-actions align="end">
-  <button mat-raised-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
-  <button mat-raised-button color="primary" (click)="ok()">
-    {{ i18n.get('ok') }}
-  </button>
-</div>
+    </ng-template>
+  </mat-expansion-panel>
+  
+  <section>
+    <h2 class="sectionTitle">{{ i18n.get('favoriteLayers') }} ({{ layer_favorites.length }})</h2>
+    @if (layer_favorites.length > 0) {
+      <mat-selection-list class="favoriteLayers">
+        @for (layer of layer_favorites; track layer) {
+          <mat-list-option (click)="removeLayer(layer)" [selected]="true">
+            <div matLine="1">
+              {{ layer.label }}{{ changedOptions(layer) ? ' *modified*' : '' }}
+            </div>
+            <div matLine="2">{{ layer.source?.label ?? layer.source?.url }}</div>
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    }
+  </section>
+
+  <mat-expansion-panel class="mat-elevation-z0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>{{ i18n.get('addFromActive') }}</mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      @if (data.selectedLayers.length > 0) {
+        <div class="buttons">
+          <button
+            class="buttonMargin"
+            mat-stroked-button
+            (click)="addCurrentLayers()"
+            [innerText]="i18n.get('addAllActiveOnes')"
+          ></button>
+        </div>
+        <mat-action-list class="selectedLayers">
+          @for (item of data.selectedLayers; track item) {
+            <button
+              mat-list-item
+              (click)="selectLayer(item)"
+              [title]="
+                item.label + 
+                ' (' + 
+                  (item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin') + 
+                  (item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : '') + 
+                ')'
+              "
+            >
+              {{ item.label }}{{ changedOptions(item) ? ' *modified*' : '' }}
+            </button>
+          }
+        </mat-action-list>
+      } @else {
+        <p>{{ i18n.get('noActiveLayers') }}</p>
+      }
+    </ng-template>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel class="mat-elevation-z0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>{{ i18n.get('addFromList') }}</mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <div class="sourceControl">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18n.get('layerSource') }}</mat-label>
+          <mat-select [formControl]="sourceFilter">
+            <mat-option value="ALL">{{ i18n.get('allSources') }}</mat-option>
+            <mat-option value="_GeoAdmin_">GeoAdmin</mat-option>
+            <mat-option value="_GlobalMapLayers_">{{ i18n.get('globalMapLayers') }}</mat-option>
+            @for (item of data.selectedSources; track item) {
+              <mat-option [value]="item.url">{{ item.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18n.get('filter') }}</mat-label>
+        <input type="text" matInput [formControl]="layerFilter" />
+      </mat-form-field>
+      <mat-action-list class="availableLayers">
+        @if ((filteredAvailableLayers$ | async)?.length) {
+          @for (item of filteredAvailableLayers$ | async; track item) {
+            <button
+              mat-list-item
+              (click)="selectLayer(item)"
+              [title]="
+                item.label + 
+                ' (' + 
+                  (item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin') + 
+                  (item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : '') + 
+                ')'
+              "
+            >
+              {{ item.label }}
+            </button>
+          }
+        } @else {
+          <p class="no-layers">{{ i18n.get('noLayersAvailable') }}</p>
+        }
+      </mat-action-list>
+    </ng-template>
+  </mat-expansion-panel>
+
+</mat-dialog-content>
+
+<mat-dialog-actions class="footer" align="end">
+  <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
+  <button mat-flat-button color="primary" (click)="ok()">{{ i18n.get('ok') }}</button>
+</mat-dialog-actions>

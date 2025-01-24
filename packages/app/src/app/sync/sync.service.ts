@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Patch } from 'immer';
 import { debounce } from '../helper/debounce';
 import { ZsMapStateService } from '../state/state.service';
-import { BehaviorSubject, debounceTime, merge } from 'rxjs';
+import { BehaviorSubject, debounceTime, filter, merge, switchMap } from 'rxjs';
 import { db } from '../db/db';
 
 interface PatchExtended extends Patch {
@@ -42,7 +42,15 @@ export class SyncService {
   private _connections = new BehaviorSubject<Connection[]>([]);
 
   constructor() {
-    merge(this._session.observeOperationId(), this._session.observeIsOnline(), this._session.observeLabel())
+    // Reload the map every 60s if nothing changed
+    const noChanges$ = this.observeConnections()
+      .pipe(
+        filter(con => con.length > 0),
+        switchMap(() => this._state.observeMapState()),
+        debounceTime(60_000)
+      )
+
+    merge(this._session.observeOperationId(), this._session.observeIsOnline(), this._session.observeLabel(), noChanges$)
       .pipe(debounceTime(250))
       .subscribe(async () => {
         const operationId = this._session.getOperationId();

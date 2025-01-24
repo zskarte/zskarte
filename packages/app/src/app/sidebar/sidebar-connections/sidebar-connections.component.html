@@ -54,9 +54,7 @@
 }
 @if (isWorkLocal) {
   <div class="local-container">
-    <div>{{ i18n.get('localAvailabilityStepsIntro') }}</div>
-    <fieldset class="like-mat-form-field-outline">
-      <legend>{{ i18n.get('localAvailabilitySteps') }}</legend>
+    <p>{{ i18n.get('localAvailabilityStepsIntro') }}</p>
       <mat-checkbox [checked]="useLocalBaseMap" [disabled]="useLocalBaseMap" (click)="changeToLocalMap()">{{
         i18n.get('useLocalBaseMap')
       }}</mat-checkbox>
@@ -72,6 +70,5 @@
       <mat-checkbox [checked]="haveSearchCapability" [disabled]="haveSearchCapability" (click)="showSearchInfo($event)">{{
         i18n.get('haveSearchCapability')
       }}</mat-checkbox>
-    </fieldset>
   </div>
 }

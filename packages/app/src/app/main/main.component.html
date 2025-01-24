@@ -1,0 +1,6 @@
+<!-- use visibility here to make sure the map stays loaded all the time since the map state should not be reinitialized -->
+<app-map class="full" [class.hiddenmap]="id() !== 'map'"></app-map>
+
+@if (id() === 'journal') {
+  <app-journal class="full"></app-journal>
+}

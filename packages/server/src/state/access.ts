@@ -1,14 +1,16 @@
-import { Strapi } from '@strapi/strapi';
+import { Core } from '@strapi/strapi';
 import { Access } from '../definitions';
 
-export const deleteExpiredAccessTokens = async (strapi: Strapi) => {
+export const deleteExpiredAccessTokens = async (strapi: Core.Strapi) => {
   try {
-    const expiredAccesses = (await strapi.entityService.findMany('api::access.access', {
+    const expiredAccesses = (await strapi.documents('api::access.access').findMany({
       filters: { expiresOn: { $lt: Date.now() } },
       limit: -1,
-    })) as Access[];
+    })) as unknown as Access[];
     for (const expiredAccess of expiredAccesses) {
-      await strapi.entityService.delete('api::access.access', expiredAccess.id);
+      await strapi.documents('api::access.access').delete({
+        documentId: expiredAccess.documentId,
+      });
       strapi.log.info(`Expired Access token got deleted: ${expiredAccess.accessToken}`);
     }
   } catch (error) {

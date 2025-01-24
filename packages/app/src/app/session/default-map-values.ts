@@ -17,3 +17,5 @@ export const DEFAULT_RESOLUTION = INCHES_PER_METER * DEFAULT_DPI;
 export const LOCAL_MAP_STYLE_PATH = '/assets/map-style.json';
 
 export const LOCAL_MAP_STYLE_SOURCE = 'protomaps';
+
+export const MAX_DRAW_ELEMENTS_GUEST = 10;

@@ -1,24 +1,27 @@
 <mat-sidenav-container>
-  <mat-sidenav class="mat-elevation-z3 noprint" position="end" mode="side" #sidenav [opened]="sidebar.observeIsOpen() | async">
+  <mat-sidenav
+    class="mat-elevation-z3 noprint"
+    position="end"
+    mode="side"
+    #sidenav
+    [opened]="sidebar.observeIsOpen() | async"
+  >
     <div class="sidebar-header">
       <div class="credits">
         @if (showLogo && logo) {
           <img [src]="logo" />
         }
         @if (workLocal) {
-          <mat-icon>cloud_off</mat-icon>
+          <mat-icon>device_hub</mat-icon>
         }
-        <h1>{{sidebarTitle}}</h1>
+        <h1>{{ sidebarTitle }}</h1>
       </div>
-      <button mat-icon-button (click)="sidebar.close()" color="accent" [attr.aria-label]="i18n.get('close')">
+      <button mat-icon-button (click)="sidebar.close()" [attr.aria-label]="i18n.get('close')">
         <mat-icon>close</mat-icon>
       </button>
     </div>
 
     @switch (sidebar.observeContext() | async) {
-      @case (SidebarContext.Filters) {
-        <app-sidebar-filters></app-sidebar-filters>
-      }
       @case (SidebarContext.Layers) {
         <app-sidebar></app-sidebar>
       }
@@ -37,13 +40,26 @@
       @case (SidebarContext.Print) {
         <app-sidebar-print></app-sidebar-print>
       }
+      @case (SidebarContext.Journal) {
+        <app-sidebar-journal></app-sidebar-journal>
+      }
     }
   </mat-sidenav>
   <mat-sidenav-content>
     <div class="main noprint">
-      <div class="horizontal-stack">
-        <app-geocoder [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
-        <span></span>
+      <div class="search" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
+        <app-geocoder />
+        @if (session.isGuest()) {
+          @let limitReached = session.observeIsGuestElementLimitReached() | async;
+          <button class="limit" [attr.data-limit-reached]="limitReached" (click)="openLimitDialog(limitReached)">
+            @if (limitReached) {
+              <span>{{ i18n.get('guestLimitReachedShort') }}</span>
+            } @else {
+              {{ state.observeDrawElementCount() | async }} / {{ MAX_DRAW_ELEMENTS_GUEST }}
+              <span>{{ i18n.get('guestLimitElements') }}</span>
+            }
+          </button>
+        }
       </div>
       <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
     </div>
@@ -68,19 +84,19 @@
         >
           @if (workLocal) {
             @if (canWorkOffline | async) {
-              <mat-icon>cloud_done</mat-icon>
+              <mat-icon>offline_pin</mat-icon>
             } @else {
               @if (isOnline | async) {
-                <mat-icon>cloud_queue</mat-icon>
+                <mat-icon matBadgeColor="warn" matBadge="!">network_wifi</mat-icon>
               } @else {
-                <mat-icon>cloud_off</mat-icon>
+                <mat-icon matBadgeColor="warn" matBadge="!">signal_wifi_connected_no_internet_4</mat-icon>
               }
             }
           } @else {
             @if (isOnline | async) {
               <mat-icon [matBadge]="connectionCount | async" matBadgePosition="after">people</mat-icon>
             } @else {
-              <mat-icon [matBadge]="0" matBadgeColor="warn" matBadgePosition="after">cloud_off</mat-icon>
+              <mat-icon [matBadge]="0" matBadgeColor="warn" matBadgePosition="after">offline_bolt</mat-icon>
             }
           }
         </button>
@@ -91,16 +107,7 @@
           (click)="sidebar.toggle(SidebarContext.Layers)"
           [attr.aria-label]="i18n.get('layers')"
         >
-          <mat-icon>layers</mat-icon>
-        </button>
-        <button
-          class="sidebar-button mat-elevation-z3"
-          mat-icon-button
-          [color]="(sidebar.observeContext() | async) === SidebarContext.Filters ? 'primary' : 'basic'"
-          (click)="sidebar.toggle(SidebarContext.Filters)"
-          [attr.aria-label]="i18n.get('filters')"
-        >
-          <mat-icon>filter_alt</mat-icon>
+          <mat-icon>map</mat-icon>
         </button>
 
         @if (isReadOnly | async) {
@@ -114,6 +121,17 @@
             <mat-icon>history</mat-icon>
           </button>
         }
+
+        <button
+          class="sidebar-button mat-elevation-z3"
+          mat-icon-button
+          [color]="(sidebar.observeContext() | async) === SidebarContext.Journal ? 'primary' : 'basic'"
+          (click)="sidebar.toggle(SidebarContext.Journal)"
+          [attr.aria-label]="i18n.get('journal')"
+        >
+          <mat-icon>menu_book</mat-icon>
+        </button>
+
         <div class="button-toggle mat-elevation-z3">
           @if (!(isReadOnly | async)) {
             <button
@@ -143,9 +161,14 @@
           <button mat-icon-button class="toggle-button" (click)="zoomIn()" [attr.aria-label]="i18n.get('zoomIn')">
             <mat-icon>zoom_in</mat-icon>
           </button>
-          @if (!printView) {
+          @if (mapState.isExpertView() && !printView) {
             <mat-divider class="divider"></mat-divider>
-            <button mat-icon-button class="toggle-button" (click)="zoomToScale()" [attr.aria-label]="i18n.get('zoomToScale')">
+            <button
+              mat-icon-button
+              class="toggle-button"
+              (click)="zoomToScale()"
+              [attr.aria-label]="i18n.get('zoomToScale')"
+            >
               <mat-icon>linear_scale</mat-icon>
             </button>
           }
@@ -157,7 +180,13 @@
       </div>
       <div class="fab-button">
         @if (!(isReadOnly | async)) {
-          <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()">
+          <button
+            mat-fab
+            color="primary"
+            aria-label="Add"
+            (click)="openDrawDialog()"
+            [disabled]="session.isGuest() && (session.observeIsGuestElementLimitReached() | async)"
+          >
             <mat-icon>add</mat-icon>
           </button>
         }

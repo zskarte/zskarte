@@ -1,5 +1,3 @@
-import { socketConnection } from '../src/state/socketio';
-
 const uploadProviders = (env) => {
   const providers = {
     local: {
@@ -29,25 +27,5 @@ const uploadProviders = (env) => {
 };
 
 export default ({ env }) => ({
-  io: {
-    enabled: true,
-    config: {
-      contentTypes: [],
-      socket: {
-        serverOptions: {
-          transports: ['websocket'],
-          cors: {
-            origin: '*',
-          },
-        },
-      },
-      events: [
-        {
-          name: 'connection',
-          handler: socketConnection,
-        },
-      ],
-    },
-  },
   upload: uploadProviders(env),
 });

@@ -1,45 +1,51 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Params, Router } from '@angular/router';
+import {
+  AccessTokenType,
+  DEFAULT_LOCALE,
+  IAuthResult,
+  IZsMapDisplayState,
+  IZsMapOperation,
+  IZsMapOrganization,
+  IZsMapOrganizationMapLayerSettings,
+  IZsMapSession,
+  Locale,
+  PermissionType,
+} from '@zskarte/types';
+import { transform } from 'ol/proj';
 import {
   BehaviorSubject,
+  Observable,
+  Subject,
   concatMap,
   distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
-  Observable,
   of,
   retry,
   skip,
-  Subject,
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { db } from '../db/db';
-import { Params, Router } from '@angular/router';
 import { ApiService } from '../api/api.service';
-import { ZsMapStateService } from '../state/state.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { transform } from 'ol/proj';
-import { coordinatesProjection, mercatorProjection } from '../helper/projections';
-import { DEFAULT_COORDINATES, DEFAULT_ZOOM, LOG2_ZOOM_0_RESOLUTION } from './default-map-values';
-import { decodeJWT } from '../helper/jwt';
-import { WmsService } from '../map-layer/wms/wms.service';
-import { MapLayerService } from '../map-layer/map-layer.service';
-import { OperationService } from './operations/operation.service';
-import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
+import { db } from '../db/db';
 import { debounceLeading } from '../helper/debounce';
+import { decodeJWT } from '../helper/jwt';
+import { coordinatesProjection, mercatorProjection } from '../helper/projections';
+import { MapLayerService } from '../map-layer/map-layer.service';
+import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
+import { WmsService } from '../map-layer/wms/wms.service';
+import { ZsMapStateService } from '../state/state.service';
 import {
-  IZsMapSession,
-  IZsMapDisplayState,
-  IZsMapOrganizationMapLayerSettings,
-  IZsMapOperation,
-  IAuthResult,
-  IZsMapOrganization,
-  DEFAULT_LOCALE,
-  PermissionType,
-  Locale,
-  AccessTokenType,
-} from '@zskarte/types';
+  DEFAULT_COORDINATES,
+  DEFAULT_ZOOM,
+  LOG2_ZOOM_0_RESOLUTION,
+  MAX_DRAW_ELEMENTS_GUEST,
+} from './default-map-values';
+import { OperationService } from './operations/operation.service';
+import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_ORG } from './userLogic';
 
 export type LogoutReason = 'logout' | 'networkError' | 'expired' | 'noToken';
 
@@ -73,9 +79,12 @@ export class SessionService {
       this._clearOperation.next();
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
-        if (session.operation?.id) {
+        if (session.operation?.documentId || session.operation?.id) {
           await this._state?.refreshMapState();
-          let displayState = await db.displayStates.get({ id: session.operation?.id });
+          let displayState = await db.displayStates.get({
+            id: session.operation?.documentId ?? session.operation?.id?.toString(),
+          });
+
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
             //ignore invalid/empty saved displayState
@@ -83,7 +92,9 @@ export class SessionService {
           }
           this._state.setDisplayState(displayState);
           if (queryParams) {
-            this._state.updateDisplayState((draft) => SessionService.overrideDisplayStateFromQueryParams(draft, queryParams));
+            this._state.updateDisplayState((draft) =>
+              SessionService.overrideDisplayStateFromQueryParams(draft, queryParams),
+            );
           }
 
           const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.id ?? 0);
@@ -100,7 +111,10 @@ export class SessionService {
           } else {
             this._state.setGlobalWmsSources(globalWmsSources);
           }
-          const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(globalWmsSources, session.organization?.id ?? 0);
+          const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(
+            globalWmsSources,
+            session.organization?.id ?? 0,
+          );
           if (session?.workLocal) {
             const localMapLayers = await MapLayerService.getLocalMapLayers();
             if (globalMapLayers.length > 0) {
@@ -130,13 +144,17 @@ export class SessionService {
           if (!displayState) {
             if (session.organization?.wms_sources && session.organization?.wms_sources.length > 0) {
               //if no session state, fill default wms sources from organisation settings
-              const selectedSources = globalWmsSources.filter((s) => s.id && session.organization?.wms_sources.includes(s.id));
+              const selectedSources = globalWmsSources.filter(
+                (s) => s.id && session.organization?.wms_sources.includes(s.id),
+              );
               this._state.setWmsSources(selectedSources);
             } else {
               //if no session state, fill default wms sources from local settings
               const localMapLayerSettings = await MapLayerService.loadLocalMapLayerSettings();
               if (localMapLayerSettings?.wms_sources && localMapLayerSettings?.wms_sources.length > 0) {
-                const selectedSources = globalWmsSources.filter((s) => s.id && localMapLayerSettings?.wms_sources.includes(s.id));
+                const selectedSources = globalWmsSources.filter(
+                  (s) => s.id && localMapLayerSettings?.wms_sources.includes(s.id),
+                );
                 this._state.setWmsSources(selectedSources);
               }
             }
@@ -175,11 +193,14 @@ export class SessionService {
             .pipe(skip(1), takeUntil(this._clearOperation))
             .subscribe(async (displayState) => {
               if (this._session.value?.operation?.id) {
-                await db.displayStates.put({ ...displayState, id: this._session.value.operation?.id });
+                await db.displayStates.put({
+                  ...displayState,
+                  id: this._session.value.operation?.documentId ?? this._session.value.operation?.id?.toString(),
+                });
               }
             });
 
-          await this._router.navigate(['map'], {
+          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
             queryParams: {
               center: null, //handled in overrideDisplayStateFromQueryParams
               size: null, //handled in overrideDisplayStateFromQueryParams
@@ -286,6 +307,14 @@ export class SessionService {
     return this._session.value?.organization;
   }
 
+  public isGuest() {
+    return this.getOrganization()?.name === GUEST_USER_ORG;
+  }
+
+  public observeIsGuestElementLimitReached(): Observable<boolean> {
+    return this._state.observeDrawElementCount().pipe(map((count) => count >= MAX_DRAW_ELEMENTS_GUEST));
+  }
+
   public getOrganizationId(): number | undefined {
     return this._session.value?.organization?.id;
   }
@@ -309,8 +338,8 @@ export class SessionService {
 
   public async saveOrganizationMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {
     const organization = this.getOrganization();
-    if (organization?.id) {
-      await this._api.put(`/api/organizations/${organization?.id}/layer-settings`, { data });
+    if (organization?.documentId) {
+      await this._api.put(`/api/organizations/${organization.documentId}/layer-settings`, { data });
 
       organization.wms_sources = data.wms_sources;
       organization.map_layer_favorites = data.map_layer_favorites;
@@ -358,25 +387,29 @@ export class SessionService {
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
     if (this._session?.value) {
       const sessionOperation = this._session.value.operation;
-      if (operation === undefined && sessionOperation !== undefined && SessionService.isLoadedOperation(sessionOperation)) {
+      if (
+        operation === undefined &&
+        sessionOperation !== undefined &&
+        SessionService.isLoadedOperation(sessionOperation)
+      ) {
         //backup operation in case offline / no server connection to allow continue work later
-        await OperationService.persistLocalOpertaion(sessionOperation);
+        await OperationService.persistLocalOperation(sessionOperation);
       }
       this._session.value.operation = operation;
     }
     this._session.next(this._session.value);
   }
 
-  public observeOperationId(): Observable<number | undefined> {
-    return this._session.pipe(map((session) => session?.operation?.id));
+  public observeOperationId(): Observable<string | number | undefined> {
+    return this._session.pipe(map((session) => session?.operation?.documentId ?? session?.operation?.id));
   }
 
   public getOperation(): IZsMapOperation | undefined {
     return this._session?.value?.operation;
   }
 
-  public getOperationId(): number | undefined {
-    return this._session?.value?.operation?.id;
+  public getOperationId(): string | undefined {
+    return this._session?.value?.operation?.documentId;
   }
 
   public getOperationName(): string | undefined {
@@ -426,6 +459,11 @@ export class SessionService {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
+
+    if (params.identifier !== GUEST_USER_IDENTIFIER) {
+      localStorage.setItem(ALLOW_OFFLINE_ACCESS_KEY, '1');
+    }
+
     await this.updateJWT(result.jwt);
   }
 
@@ -438,20 +476,24 @@ export class SessionService {
 
     const currentSession = await this.getSavedSession();
 
-    const { error, result: meResult } = await this._api.get<{ organization: IZsMapOrganization }>('/api/users/me', { token: jwt });
+    const { error, result: meResult } = await this._api.get<{ organization: IZsMapOrganization }>('/api/users/me', {
+      token: jwt,
+    });
 
     if (error || !meResult) {
       if (
         currentSession &&
         !currentSession.workLocal &&
         currentSession.jwt === jwt &&
-        ((error?.status ?? 0) >= 500 || !this._isOnline.value)
+        ((error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') || !this._isOnline.value)
       ) {
         //session is not expired but there seams to be a network problem, keep current session
         this._session.next(currentSession);
         return;
       }
-      await this.logout((error?.status ?? 0) >= 500 ? 'networkError' : 'noToken');
+      await this.logout(
+        (error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') ? 'networkError' : 'noToken',
+      );
       return;
     }
 
@@ -480,15 +522,7 @@ export class SessionService {
 
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-    let queryOperationId;
-    if (queryParams['operationId']) {
-      try {
-        queryOperationId = parseInt(queryParams['operationId']);
-      } catch {
-        //ignore invalid operationId param
-      }
-    }
-    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.id;
+    const operationId = decoded.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
@@ -520,7 +554,7 @@ export class SessionService {
       //local backup operation if "logout" because of networkError
       const operation = this._session.value?.operation;
       if (operation) {
-        await OperationService.persistLocalOpertaion(operation);
+        await OperationService.persistLocalOperation(operation);
         return;
       }
     }
@@ -546,7 +580,11 @@ export class SessionService {
     if (authError || !result?.jwt) {
       if (decodeJWT(currentToken).expired) {
         await this.logout('expired');
-      } else if ((authError?.status ?? 0) >= 500 || !this._isOnline.value) {
+      } else if (
+        (authError?.status ?? 0) >= 500 ||
+        authError?.message?.startsWith('NetworkError') ||
+        !this._isOnline.value
+      ) {
         //await this.logout('networkError');
         //session is not expired but there seams to be a network problem, keep current session without refresh
       } else {
@@ -630,13 +668,13 @@ export class SessionService {
   public observeIsArchived(): Observable<boolean> {
     return this._session.pipe(
       map((session) => {
-        return session?.operation?.status === 'archived';
+        return session?.operation?.phase === 'archived';
       }),
     );
   }
 
   public isArchived(): boolean {
-    return this._session.value?.operation?.status === 'archived';
+    return this._session.value?.operation?.phase === 'archived';
   }
 
   public getDefaultMapCenter(): number[] {
@@ -647,7 +685,10 @@ export class SessionService {
           coordinatesProjection,
           mercatorProjection,
         );
-      } else if (this._session.value?.operation?.mapState?.center[0] && this._session.value?.operation?.mapState?.center[1]) {
+      } else if (
+        this._session.value?.operation?.mapState?.center[0] &&
+        this._session.value?.operation?.mapState?.center[1]
+      ) {
         return transform(this._session.value.operation.mapState.center, coordinatesProjection, mercatorProjection);
       }
     }

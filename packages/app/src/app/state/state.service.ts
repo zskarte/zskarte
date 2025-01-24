@@ -51,6 +51,7 @@ import {
   DEFAULT_ZOOM,
   INCHES_PER_METER,
   LOG2_ZOOM_0_RESOLUTION,
+  MAX_DRAW_ELEMENTS_GUEST,
 } from '../session/default-map-values';
 import { OperationService } from '../session/operations/operation.service';
 import { SessionService } from '../session/session.service';
@@ -87,6 +88,7 @@ export class ZsMapStateService {
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<ZsMapElementToDraw | undefined>(undefined);
   private _selectedFeature = new BehaviorSubject<string | undefined>(undefined);
+  private _hideSelectedFeature = new BehaviorSubject<boolean>(false);
   private _recentlyUsedElement = new BehaviorSubject<ZsMapDrawElementState[]>([]);
 
   private _mergeMode = new BehaviorSubject<boolean>(false);
@@ -103,7 +105,7 @@ export class ZsMapStateService {
     const _changeOperationId = new Subject<void>();
     _session.observeOperationId().subscribe((operationId) => {
       _changeOperationId.next();
-      if (operationId && operationId < 0) {
+      if (typeof operationId === 'number' && operationId < 0) {
         this.observeMapState()
           .pipe(debounceTime(250), takeUntil(_changeOperationId))
           .subscribe((mapState) => {
@@ -441,6 +443,10 @@ export class ZsMapStateService {
     this._selectedFeature.next(undefined);
   }
 
+  public setHideSelectedFeature(hide: boolean) {
+    this._hideSelectedFeature.next(hide);
+  }
+
   public setMapZoom(zoom: number) {
     this.updateDisplayState((draft) => {
       draft.mapZoom = zoom;
@@ -661,6 +667,10 @@ export class ZsMapStateService {
     return this._selectedFeature.asObservable();
   }
 
+  public observeHideSelectedFeature$(): Observable<boolean> {
+    return this._hideSelectedFeature.asObservable().pipe(debounceTime(100));
+  }
+
   public observeSelectedElement$(): Observable<ZsMapBaseDrawElement | undefined> {
     return combineLatest([this.observeSelectedFeature$(), this.observeDrawElements()]).pipe(
       map(([featureId, elements]) => elements.find((e) => e.getId() === featureId)),
@@ -842,8 +852,7 @@ export class ZsMapStateService {
         iconSize: sign.iconSize,
         hideIcon: sign.hideIcon,
         createdBy: sign.createdBy,
-        iconOffset: sign.iconOffset,
-        flipIcon: sign.flipIcon,
+        iconsOffset: sign.iconsOffset,
         rotation: sign.rotation,
         iconOpacity: sign.iconOpacity,
         style: sign.style,
@@ -919,7 +928,7 @@ export class ZsMapStateService {
     return this._map.value.drawElements?.[id];
   }
 
-  public getDrawElemente(id: string) {
+  public getDrawElement(id: string) {
     return this._drawElementCache[id];
   }
 
@@ -1106,6 +1115,10 @@ export class ZsMapStateService {
     return this._mergeMode.asObservable();
   }
 
+  public isMergeMode(): boolean {
+    return this._mergeMode.value;
+  }
+
   public setDrawHoleMode(drawHoleMode: boolean) {
     this._drawHoleMode.next(drawHoleMode);
   }
@@ -1162,12 +1175,16 @@ export class ZsMapStateService {
       this._session.observeIsArchived(),
     ).pipe(
       map(() => {
-        const isHistoryMode = this.isHistoryMode();
-        const hasWritePermission = this._session.hasWritePermission();
-        const isArchived = this._session.isArchived();
-        return !hasWritePermission || isArchived || isHistoryMode;
+        return this.isReadOnly();
       }),
     );
+  }
+
+  isReadOnly(): boolean {
+    const isHistoryMode = this.isHistoryMode();
+    const hasWritePermission = this._session.hasWritePermission();
+    const isArchived = this._session.isArchived();
+    return !hasWritePermission || isArchived || isHistoryMode;
   }
 
   public addSearch(
@@ -1195,5 +1212,15 @@ export class ZsMapStateService {
 
   public getSearchConfigs(): IZsMapSearchConfig[] {
     return this._searchConfigs.value;
+  }
+
+  public canAddElements(): boolean {
+    const elementCount = Object.keys(this._drawElementCache).length;
+
+    return !this._session.isGuest() || elementCount < MAX_DRAW_ELEMENTS_GUEST;
+  }
+
+  public observeDrawElementCount(): Observable<number> {
+    return this.observeDrawElements().pipe(map((res) => res.length));
   }
 }

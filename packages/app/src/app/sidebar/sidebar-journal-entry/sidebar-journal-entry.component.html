@@ -1,0 +1,20 @@
+<div class="created-date">{{entry().createdAt | date}}</div>
+<p>{{entry().messageContent}}</p>
+
+@if (entryElements().length > 0) {
+  <h3>{{ i18n.get('drawnSymbols') }}</h3>
+  <mat-action-list>
+    @for (element of entryElements(); track element.elementState?.id) {
+      <button mat-list-item (click)="navigateTo(element.coordinates)" [disabled]="!element.coordinates">
+        <div class="symbol">
+          @if (element.imageUrl) {
+            <img [src]="element.imageUrl" />
+          } @else {
+            <mat-icon aria-hidden="true">widgets</mat-icon>
+          }
+          <span>{{ element.coordinatesStr }}</span>
+        </div>
+      </button>
+    }
+  </mat-action-list>
+}

@@ -12,8 +12,8 @@
       </mat-select>
     </mat-form-field>
     <div class="buttons">
-      <button class="buttonMargin" mat-raised-button color="primary" (click)="addSource()" [innerText]="i18n.get('addSource')"></button>
-      <button class="buttonMargin" mat-raised-button (click)="selectGlobalSourceMode = false" [innerText]="i18n.get('cancel')"></button>
+      <button class="buttonMargin" mat-flat-button color="primary" (click)="addSource()" [innerText]="i18n.get('addSource')"></button>
+      <button class="buttonMargin" mat-stroked-button (click)="selectGlobalSourceMode = false" [innerText]="i18n.get('cancel')"></button>
     </div>
   </div>
 } @else {
@@ -48,6 +48,13 @@
             >{{ i18n.get('publicSourceInfo') }}</mat-checkbox
           >
         </fieldset>
+        <fieldset class="like-mat-form-field-outline">
+          <legend>{{ i18n.get('mapLayerType') }}</legend>
+          <mat-radio-group [(ngModel)]="selectedSource.type" (change)="updateFullUrl($event)" [disabled]="!selectedSource.owner">
+            <mat-radio-button value="wms">WMS</mat-radio-button>
+            <mat-radio-button value="wmts">WMTS</mat-radio-button>
+          </mat-radio-group>
+        </fieldset>
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>
           <input
@@ -60,13 +67,6 @@
         </mat-form-field>
         <div class="fullUrl">{{ fullUrl }}</div>
         <fieldset class="like-mat-form-field-outline">
-          <legend>{{ i18n.get('mapLayerType') }}</legend>
-          <mat-radio-group [(ngModel)]="selectedSource.type" (change)="updateFullUrl($event)" [disabled]="!selectedSource.owner">
-            <mat-radio-button value="wms">WMS</mat-radio-button>
-            <mat-radio-button value="wmts">WMTS</mat-radio-button>
-          </mat-radio-group>
-        </fieldset>
-        <fieldset class="like-mat-form-field-outline">
           <legend>{{ i18n.get('sourceAttribution') }}</legend>
           @if (selectedSource.attribution) {
             <div class="attributionTitle">
@@ -77,7 +77,11 @@
               <div class="attribution">
                 <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]" [disabled]="!selectedSource.owner" />
                 <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]" [disabled]="!selectedSource.owner" />
-                <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
+                @if (selectedSource.owner) {
+                  <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
+                } @else {
+                  <span class="attr-placeholder"></span>
+                }
               </div>
             }
           }
@@ -88,7 +92,7 @@
         <div class="buttons">
           <button
             class="buttonMargin"
-            mat-raised-button
+            mat-stroked-button
             color="warn"
             (click)="removeSource()"
             [innerText]="i18n.get('removeSource')"
@@ -100,8 +104,8 @@
 }
 @if (!selectGlobalSourceMode) {
   <div mat-dialog-actions align="end">
-    <button mat-raised-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
-    <button mat-raised-button color="primary" [mat-dialog-close]="sources">
+    <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
+    <button mat-flat-button color="primary" [mat-dialog-close]="sources">
       {{ i18n.get('ok') }}
     </button>
   </div>

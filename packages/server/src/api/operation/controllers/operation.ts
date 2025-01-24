@@ -3,7 +3,7 @@
  */
 
 import { factories } from '@strapi/strapi';
-import { Operation, PatchExtended, OperationStates } from '../../../definitions';
+import { Operation, PatchExtended, OperationPhases } from '../../../definitions';
 import { operationCaches, updateCurrentLocation, updateMapState } from '../../../state/operation';
 import _ from 'lodash';
 
@@ -16,14 +16,14 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const sanitizedQuery = await this.sanitizeQuery(ctx);
     const entity = await strapi.service('api::operation.operation').findOne(id, sanitizedQuery);
     const sanitizedEntity = (await this.sanitizeOutput(entity, ctx)) as Operation;
-    const operationCache = operationCaches[entity.id];
+    const operationCache = operationCaches[entity.documentId];
     if (operationCache) {
       sanitizedEntity.mapState = operationCache.mapState;
     }
     return this.transformResponse(sanitizedEntity);
   },
   async patch(ctx) {
-    const { identifier, operationid } = ctx.request.headers;
+    const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
@@ -34,7 +34,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return { success: true };
   },
   async currentLocation(ctx) {
-    const { identifier, operationid } = ctx.request.headers;
+    const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
@@ -50,15 +50,33 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return { success: true };
   },
   async overview(ctx) {
-    ctx.query.fields = ['name', 'description', 'status', 'eventStates', 'updatedAt'];
+    ctx.query.fields = ['name', 'description', 'phase', 'eventStates', 'updatedAt'];
     ctx.query.sort = 'updatedAt:DESC';
+    if (ctx.query.pagination && _.isObject(ctx.query.pagination)) {
+      ctx.query.pagination = { ...ctx.query.pagination, limit: -1 };
+    } else {
+      ctx.query.pagination = { limit: -1 };
+    }
     return await this.find(ctx, undefined);
   },
   async archive(ctx) {
     const { id } = ctx.params;
-    await strapi.entityService.update('api::operation.operation', id, {
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
+
       data: {
-        status: OperationStates.ARCHIVED,
+        phase: OperationPhases.ARCHIVED,
+      },
+    });
+    ctx.status = 200;
+    return { success: true };
+  },
+  async shadowDelete(ctx) {
+    const { id } = ctx.params;
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
+      data: {
+        phase: OperationPhases.DELETED,
       },
     });
     ctx.status = 200;
@@ -66,9 +84,11 @@ export default factories.createCoreController('api::operation.operation', ({ str
   },
   async unarchive(ctx) {
     const { id } = ctx.params;
-    await strapi.entityService.update('api::operation.operation', id, {
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
+
       data: {
-        status: OperationStates.ACTIVE,
+        phase: OperationPhases.ACTIVE,
       },
     });
     ctx.status = 200;

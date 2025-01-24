@@ -1,0 +1,57 @@
+@if (journalResource.isLoading()) {
+  <div class="loading-spinner">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else {
+  @if (journalEntriesToDraw.length === 0 && journalEntriesDrawn.length === 0) {
+    <div class="loading-spinner">
+      <p>{{i18n.get('noMessagesToProcess')}}</p>
+    </div>
+  } @else {
+    <h2 class="journal-header">{{i18n.get('messagesToDraw')}}</h2>
+    <mat-divider></mat-divider>
+    <mat-accordion multi displayMode="flat">
+      @for (entry of journalEntriesToDraw; track entry; let index = $index) {
+      <mat-expansion-panel class="mat-elevation-z0">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="journal-header-content">
+              <span class="message-id">#{{entry.messageNumber}}</span>
+              <span class="subject">{{entry.messageSubject}}</span>
+            </div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-template matExpansionPanelContent>
+          <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
+          <button mat-flat-button color="primary" (click)="markAsDrawn(entry)">{{i18n.get('markAsDrawn')}}</button>
+        </ng-template>
+      </mat-expansion-panel>
+      <mat-divider></mat-divider>
+      }
+    </mat-accordion>
+
+    <h2 class="journal-header">{{i18n.get('drawnMessages')}}</h2>
+    <mat-divider></mat-divider>
+    <mat-accordion multi displayMode="flat">
+      @for (entry of journalEntriesDrawn; track entry; let index = $index) {
+      <mat-expansion-panel class="mat-elevation-z0">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="journal-header-content">
+              <span class="message-id">#{{entry.messageNumber}}</span>
+              <span class="subject">{{entry.messageSubject}}</span>
+            </div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-template matExpansionPanelContent>
+          <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
+          <button mat-button (click)="markAsNotDrawn(entry)">{{i18n.get('markAsNotDrawn')}}</button>
+        </ng-template>
+      </mat-expansion-panel>
+      <mat-divider></mat-divider>
+      }
+    </mat-accordion>
+  }
+}

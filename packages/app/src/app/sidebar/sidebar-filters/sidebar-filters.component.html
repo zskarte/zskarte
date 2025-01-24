@@ -8,10 +8,10 @@
 
     <ng-template matExpansionPanelContent>
       <div class="filterAll">
-        <button mat-raised-button (click)="filterAll(false)">
+        <button mat-stroked-button (click)="filterAll(false)">
           {{ i18n.get('showAllElements') }}
         </button>
-        <button mat-raised-button (click)="filterAll(true)">
+        <button mat-stroked-button (click)="filterAll(true)">
           {{ i18n.get('hideAllElements') }}
         </button>
         <mat-slide-toggle [checked]="enableClustering$ | async" (change)="toggleClustering()">
@@ -80,4 +80,5 @@
       </mat-list>
     </ng-template>
   </mat-expansion-panel>
+  <mat-divider></mat-divider>
 </mat-accordion>

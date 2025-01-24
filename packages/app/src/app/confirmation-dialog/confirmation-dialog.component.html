@@ -1,8 +1,8 @@
 <div mat-dialog-content>{{ data }}</div>
 <div mat-dialog-actions align="end">
-  <button mat-raised-button [mat-dialog-close]="true" (click)="cancel()" [innerText]="i18n.get('cancel')"></button>
+  <button mat-stroked-button [mat-dialog-close]="true" (click)="cancel()" [innerText]="i18n.get('cancel')"></button>
   <button
-    mat-raised-button
+    mat-flat-button
     color="primary"
     [mat-dialog-close]="true"
     cdkFocusInitial

@@ -1,0 +1,496 @@
+<mat-sidenav-container hasBackdrop="false" autoFocus="false">
+  <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen">
+    <form [formGroup]="journalForm" (ngSubmit)="save()">
+      <div class="sidebar-header">
+        <h1>
+          <span class="message-number">#{{ journalForm.value.messageNumber }}</span>
+          {{ journalForm.value.messageSubject ?? '' }}
+        </h1>
+
+        <button type="button" (click)="resetEntry()" mat-icon-button [attr.aria-label]="i18n.get('close')">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div style="padding: 14px">
+        <table class="details-table">
+          <tr>
+            <td>
+              <strong>{{ i18n.get('deliverer') }}:</strong>
+            </td>
+            <td>{{ journalForm.value.sender }}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>{{ i18n.get('receiver') }}:</strong>
+            </td>
+            <td>{{ journalForm.value.creator }}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>{{ i18n.get('date') }}:</strong>
+            </td>
+            <td>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>{{ i18n.get('communicationDevice') }}:</strong>
+            </td>
+            <td>{{ journalForm.value.communicationType }}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>{{ i18n.get('detailsChanel') }}:</strong>
+            </td>
+            <td>{{ journalForm.value.communicationDetails }}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>{{ i18n.get('visa') }}:</strong>
+            </td>
+            <td>{{ journalForm.value.visumMessage }}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>{{ i18n.get('messageContent') }}:</strong>
+            </td>
+            <td>{{ journalForm.value.messageContent }}</td>
+          </tr>
+        </table>
+      </div>
+      <mat-tab-group
+        class="journal-sidebar-content"
+        animationDuration="0ms"
+        [(selectedIndex)]="selectedIndex"
+        (selectedTabChange)="selectedIndex = $event.index"
+      >
+        <mat-tab label="{{ i18n.get('input') }}">
+          <div class="journal-entry-details">
+            <table *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE" class="details-table">
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('deliverer') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.sender }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('receiver') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.creator }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('date') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('communicationDevice') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.communicationType }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('detailsChanel') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.communicationDetails }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('visa') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.visumMessage }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('messageContent') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.messageContent }}</td>
+              </tr>
+            </table>
+
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE">
+              <div class="journal-entry-details">
+                <div style="width: 134px">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('journalNumber') }}</mat-label>
+                    <input matInput type="number" formControlName="messageNumber" />
+                  </mat-form-field>
+                </div>
+                <div style="display: flex; gap: 6px">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('deliverer') }}</mat-label>
+                    <input matInput formControlName="sender" />
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('receiver') }}</mat-label>
+                    <input matInput formControlName="creator" />
+                  </mat-form-field>
+                </div>
+                <div style="display: flex; gap: 6px">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('date') }}</mat-label>
+                    <input matInput [matDatepicker]="picker" formControlName="dateCreatedDate" />
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('time') }}</mat-label>
+                    <input matInput [matTimepicker]="pickerTime" formControlName="dateCreatedTime" />
+                    <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
+                    <mat-timepicker #pickerTime />
+                  </mat-form-field>
+                </div>
+                <div style="display: flex; gap: 6px">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('communicationDevice') }}</mat-label>
+                    <mat-select matNativeControl formControlName="communicationType">
+                      <mat-option>{{ i18n.get('noInfo') }}</mat-option>
+                      <mat-option value="telefon">{{ i18n.get('phone') }}</mat-option>
+                      <mat-option value="funk">{{ i18n.get('radio') }}</mat-option>
+                      <mat-option value="email">{{ i18n.get('mail') }}</mat-option>
+                      <mat-option value="fax">{{ i18n.get('fax') }}</mat-option>
+                      <mat-option value="sms">{{ i18n.get('sms') }}</mat-option>
+                      <mat-option value="kurier">{{ i18n.get('courier') }}</mat-option>
+                      <mat-option value="andere">{{ i18n.get('other') }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('detailsChanel') }}</mat-label>
+                    <input matInput formControlName="communicationDetails" />
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
+                  <input matInput formControlName="messageSubject" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ i18n.get('messageContent') }}</mat-label>
+                  <textarea matInput formControlName="messageContent" rows="10"></textarea>
+                </mat-form-field>
+                <div class="end">
+                  <div style="width: 100px">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ i18n.get('visa') }}</mat-label>
+                      <input matInput formControlName="visumMessage" />
+                    </mat-form-field>
+                  </div>
+
+                  <div class="journal-entry-save-buttons">
+                    <button mat-flat-button color="primary">
+                      <mat-icon>check</mat-icon>
+                      {{ i18n.get('save') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab
+          label="{{ i18n.get('triage') }}"
+          [disabled]="this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE"
+        >
+          <div class="journal-entry-details">
+            <table *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_TRIAGE" class="details-table">
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('keyMessage') }}:</strong>
+                </td>
+                <td>
+                  {{
+                    journalForm.value.isKeyMessage !== undefined ?
+                      journalForm.value.isKeyMessage ?
+                      i18n.get('yes')
+                      : i18n.get('no')
+                    : ''
+                  }}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('department') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.department ? i18n.get(journalForm.value.department) : '' }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('visa') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.visumTriage }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('dateTriage') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.dateTriage?.toLocaleString() }}</td>
+              </tr>
+            </table>
+
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE">
+              <mat-checkbox class="journal-entry-checkbox" formControlName="isKeyMessage">{{
+                i18n.get('keyMessage')
+              }}</mat-checkbox>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('department') }}</mat-label>
+                <mat-select formControlName="department">
+                  <mat-option>{{ i18n.get('noDepartment') }}</mat-option>
+                  <mat-option value="politische-behoerde">{{ i18n.get('politische-behoerde') }}</mat-option>
+                  <mat-option value="chef-fuehrungsorgan">{{ i18n.get('chef-fuehrungsorgan') }}</mat-option>
+                  <mat-option value="stabschef">{{ i18n.get('stabschef') }}</mat-option>
+                  <mat-option value="fb-lage">{{ i18n.get('fb-lage') }}</mat-option>
+                  <mat-option value="fb-information">{{ i18n.get('fb-information') }}</mat-option>
+                  <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('fb-oeffentliche-sicherheit') }}</mat-option>
+                  <mat-option value="fb-schutz-rettung">{{ i18n.get('fb-schutz-rettung') }}</mat-option>
+                  <mat-option value="fb-gesundheit">{{ i18n.get('fb-gesundheit') }}</mat-option>
+                  <mat-option value="fb-logistik">{{ i18n.get('fb-logistik') }}</mat-option>
+                  <mat-option value="fb-infrastrukturen">{{ i18n.get('fb-infrastrukturen') }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('visa') }}</mat-label>
+                <input matInput formControlName="visumTriage" />
+              </mat-form-field>
+
+              <div class="journal-entry-save-buttons">
+                <button mat-flat-button color="primary">
+                  <mat-icon>check</mat-icon>
+                  {{ i18n.get('save') }}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE" class="info-send-back">
+            <h3>{{ i18n.get('wrongContent') }}</h3>
+            <p>{{ i18n.get('wrongContentMessage') }}</p>
+            <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
+          </div>
+        </mat-tab>
+        <mat-tab
+          label="{{ i18n.get('decision') }}"
+          [disabled]="
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE
+          "
+        >
+          <div class="journal-entry-details">
+            <table *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_DECISION" class="details-table">
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('decision') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.decision }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('messageReceiver') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.decisionReceiver }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('visa') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.visumDecider }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('dateDecision') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.dateDecision?.toLocaleString() }}</td>
+              </tr>
+            </table>
+
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('decision') }}</mat-label>
+                <textarea matInput formControlName="decision" rows="10"></textarea>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('visa') }}</mat-label>
+                <input matInput formControlName="visumDecider" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('messageReceiver') }}</mat-label>
+                <input matInput formControlName="decisionReceiver" />
+              </mat-form-field>
+
+              <div class="journal-entry-save-buttons">
+                <button mat-flat-button color="primary">
+                  <mat-icon>check</mat-icon>
+                  {{ i18n.get('save') }}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION" class="info-send-back">
+            <h3>{{ i18n.get('wrongDepartment') }}</h3>
+            <p>{{ i18n.get('wrongTriage') }}</p>
+            <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
+          </div>
+        </mat-tab>
+        <mat-tab
+          label="{{ i18n.get('output') }}"
+          [disabled]="
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION
+          "
+        >
+          <div class="journal-entry-details">
+            <table *ngIf="journalForm.value.entryStatus === JournalEntryStatus.COMPLETED" class="details-table">
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('deliveredFrom') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.decisionSender }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>{{ i18n.get('deliveryTime') }}:</strong>
+                </td>
+                <td>{{ journalForm.value.dateDecisionDelivered?.toLocaleString() }}</td>
+              </tr>
+            </table>
+
+            <div *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.COMPLETED">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('deliveredFrom') }}</mat-label>
+                <input matInput formControlName="decisionSender" />
+              </mat-form-field>
+
+              <button mat-flat-button color="primary">
+                <mat-icon>check</mat-icon>
+                {{ i18n.get('save') }}
+              </button>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </form>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="journal-header mat-elevation-z3">
+      <div class="journal-header-content">
+        <h1>{{ i18n.get('journal') }}</h1>
+        <button mat-icon-button (click)="journalResource.reload()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="journal-main">
+      <div class="journal-filter">
+        <div class="journal-filter-row">
+          <mat-form-field class="journal-filter-search" appearance="outline">
+            <mat-label>{{ i18n.get('searchText') }}</mat-label>
+            <input matInput type="text" [formControl]="searchControl" />
+          </mat-form-field>
+          <mat-form-field class="journal-filter-department" appearance="outline">
+            <mat-label>{{ i18n.get('department') }}</mat-label>
+            <mat-select [formControl]="departmentControl">
+              <mat-option>{{ i18n.get('allDepartments') }}</mat-option>
+              <mat-option value="politische-behoerde">{{ i18n.get('politische-behoerde') }}</mat-option>
+              <mat-option value="chef-fuehrungsorgan">{{ i18n.get('chef-fuehrungsorgan') }}</mat-option>
+              <mat-option value="stabschef">{{ i18n.get('stabschef') }}</mat-option>
+              <mat-option value="fb-lage">{{ i18n.get('fb-lage') }}</mat-option>
+              <mat-option value="fb-information">{{ i18n.get('fb-information') }}</mat-option>
+              <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('fb-oeffentliche-sicherheit') }}</mat-option>
+              <mat-option value="fb-schutz-rettung">{{ i18n.get('fb-schutz-rettung') }}</mat-option>
+              <mat-option value="fb-gesundheit">{{ i18n.get('fb-gesundheit') }}</mat-option>
+              <mat-option value="fb-logistik">{{ i18n.get('fb-logistik') }}</mat-option>
+              <mat-option value="fb-infrastukturen">{{ i18n.get('fb-infrastrukturen') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="journal-filter-row journal-filter-buttons">
+          <div class="journal-filter-buttons">
+            <mat-button-toggle-group hideSingleSelectionIndicator multiple>
+              <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+                {{ i18n.get('triage') }}
+              </mat-button-toggle>
+              <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+                {{ i18n.get('decision') }}
+              </mat-button-toggle>
+              <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+                {{ i18n.get('output') }}
+              </mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+          <mat-chip-listbox>
+            <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
+              {{ i18n.get('keyMessage') }}
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </div>
+
+      <div class="journal-content">
+        @if (journalResource.isLoading()) {
+          <div class="loading-spinner">
+            <mat-spinner></mat-spinner>
+          </div>
+        } @else {
+          <table mat-table matSort [dataSource]="dataSourceFiltered" (matSortChange)="sortData($event)">
+            <ng-container matColumnDef="messageNumber">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="messageNumber">{{ i18n.get('messageNumber') }}</th>
+              <td mat-cell *matCellDef="let element">{{ element.messageNumber }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="messageSubject">
+              <th mat-header-cell *matHeaderCellDef>{{ i18n.get('messageSubject') }}</th>
+              <td mat-cell *matCellDef="let element">{{ element.messageSubject }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="messageContent">
+              <th mat-header-cell *matHeaderCellDef>{{ i18n.get('messageContent') }}</th>
+              <td mat-cell *matCellDef="let element">
+                <div class="journal-table-message-cell">
+                  {{ element.messageContent }}
+                </div>
+              </td></ng-container
+            >
+
+            <ng-container matColumnDef="dateMessage">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="dateMessage">{{ i18n.get('dateCreated') }}</th>
+              <td mat-cell *matCellDef="let element">{{ element.dateMessage.toLocaleString('de-CH') }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="entryStatus">
+              <th mat-header-cell *matHeaderCellDef>{{ i18n.get('status') }}</th>
+              <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="isKeyMessage">
+              <th mat-header-cell *matHeaderCellDef>{{ i18n.get('keyMessage') }}</th>
+              <td mat-cell *matCellDef="let element">
+                <mat-icon *ngIf="element.isKeyMessage">key</mat-icon>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr
+              mat-row
+              [class.key-message]="row.isKeyMessage"
+              class="journal-table-row"
+              *matRowDef="let row; columns: displayedColumns"
+              (click)="selectEntry(row)"
+            ></tr>
+          </table>
+        }
+
+        <div class="fab-button">
+          <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

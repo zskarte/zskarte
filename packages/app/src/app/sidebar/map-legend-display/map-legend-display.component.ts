@@ -5,12 +5,13 @@ import { I18NService } from '../../state/i18n.service';
 import { WmsService } from '../../map-layer/wms/wms.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MapLayer, WMSMapLayer } from '@zskarte/types';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-map-legend-display',
   templateUrl: './map-legend-display.component.html',
   styleUrls: ['./map-legend-display.component.scss'],
-  imports: [MatProgressSpinnerModule, MatDialogModule],
+  imports: [MatProgressSpinnerModule, MatDialogModule, MatButtonModule],
 })
 export class MapLegendDisplayComponent {
   data = inject<MapLayer>(MAT_DIALOG_DATA);

@@ -2,12 +2,19 @@
  * `accessControl` middleware
  */
 
-import { Strapi, Common } from '@strapi/strapi';
-import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationStates } from '../definitions';
+import { Core, UID } from '@strapi/strapi';
+import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationPhases } from '../definitions';
 import type { HasOperationType, HasOrganizationType, AccessCheckableType } from '../definitions/TypeGuards';
-import { isOperation, isOrganization, hasOperation, hasOrganization, isAccessCheckable, hasPublic } from '../definitions/TypeGuards';
+import {
+  isOperation,
+  isOrganization,
+  hasOperation,
+  hasOrganization,
+  isAccessCheckable,
+  hasPublic,
+} from '../definitions/TypeGuards';
 
-export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>, { strapi }: { strapi: Strapi }) => {
+export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { strapi }: { strapi: Core.Strapi }) => {
   const logAccessViolation = (ctx, message: string, userOrganisationId, jwtOperationId) => {
     strapi.log.warn(
       `[global::accessControl]: ${message}, url:${ctx.request.url}, userOrganisationId:${userOrganisationId}, jwtOperationId:${jwtOperationId}, ip:${ctx.request.ip}, user-agent:${ctx.request.headers['user-agent']}`,
@@ -20,6 +27,16 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       logAccessViolation(
         ctx,
         `create with forcing entry id, ctx.request.body.data?.id:${JSON.stringify(ctx.request.body.data?.id)}`,
+        userOrganisationId,
+        jwtOperationId,
+      );
+      return ctx.forbidden('This action is forbidden.');
+    }
+    if (ctx.request.body.data?.documentId !== undefined) {
+      //submitting / forcing entry documentId not allowed
+      logAccessViolation(
+        ctx,
+        `create with forcing entry documentId, ctx.request.body.data?.documentId:${JSON.stringify(ctx.request.body.data?.documentId)}`,
         userOrganisationId,
         jwtOperationId,
       );
@@ -49,13 +66,16 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       } else {
         let operation = null;
         try {
-          operation = await strapi.entityService.findOne('api::operation.operation', ctx.request.body.data?.operation, {
-            populate: ['organization.id'],
+          operation = await strapi.documents('api::operation.operation').findOne({
+            documentId: ctx.request.body.data?.operation,
+            populate: {
+              organization: { fields: ['documentId' as any, 'id'] },
+            },
           });
-        } catch {
-          //e.g. if ctx.request.body.data?.operation is an object not an id
+        } catch (err) {
+          strapi.log.error(err);
         }
-        if (!operation || operation.organization?.id !== userOrganisationId) {
+        if (!operation || operation.organization?.documentId !== userOrganisationId) {
           logAccessViolation(
             ctx,
             `create with other operation, ctx.request.body.data?.operation:${JSON.stringify(ctx.request.body.data?.operation)}`,
@@ -80,58 +100,62 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     return next();
   };
 
-  const addStatusFilter = (statusFilter, filterContext) => {
-    if (statusFilter === 'all') {
+  const addphaseFilter = (phaseFilter, filterContext) => {
+    if (phaseFilter === 'all') {
       //no filter needed
-    } else if (statusFilter === OperationStates.ARCHIVED) {
-      filterContext.status = { $eq: OperationStates.ARCHIVED };
+    } else if (phaseFilter === OperationPhases.ARCHIVED) {
+      filterContext.phase = { $eq: OperationPhases.ARCHIVED };
     } else {
       //active or not set
-      filterContext.status = { $eq: OperationStates.ACTIVE };
+      filterContext.phase = { $eq: OperationPhases.ACTIVE };
     }
   };
 
   const doListChecks = (ctx, next, userOrganisationId, jwtOperationId) => {
     //add filter to make sure only elements that are allowed are returned.
-    const statusFilter = ctx.query?.status;
+    const phaseFilter = ctx.query?.phase;
     const operationIdFilter = ctx.query?.operationId;
     if (hasOperation(config.type)) {
       if (jwtOperationId) {
         if (hasPublic(config.type)) {
-          ctx.query.filters = { $or: [{ operation: { id: { $eq: jwtOperationId } } }, { public: { $eq: true } }] };
+          ctx.query.filters = { $or: [{ operation: { documentId: { $eq: jwtOperationId } } }, { public: { $eq: true } }] };
         } else {
-          ctx.query.filters = { operation: { id: { $eq: jwtOperationId } } };
+          ctx.query.filters = { operation: { documentId: { $eq: jwtOperationId } } };
         }
       } else {
         if (hasPublic(config.type)) {
-          ctx.query.filters = { $or: [{ operation: { organization: { id: { $eq: userOrganisationId } } } }, { public: { $eq: true } }] };
+          ctx.query.filters = {
+            $or: [{ operation: { organization: { documentId: { $eq: userOrganisationId } } } }, { public: { $eq: true } }],
+          };
         } else {
-          ctx.query.filters = { operation: { organization: { id: { $eq: userOrganisationId } } } };
+          ctx.query.filters = { operation: { organization: { documentId: { $eq: userOrganisationId } } } };
         }
         if (operationIdFilter) {
-          ctx.query.filters.operation.id = { $eq: operationIdFilter };
+          ctx.query.filters.operation.documentId = { $eq: operationIdFilter };
         }
       }
-      addStatusFilter(statusFilter, ctx.query.filters.operation);
+      addphaseFilter(phaseFilter, ctx.query.filters.operation);
       return next();
     } else if (hasOrganization(config.type)) {
       if (isOperation(config.type)) {
         if (jwtOperationId) {
-          ctx.query.filters = { id: { $eq: jwtOperationId } };
+          ctx.query.filters = { documentId: { $eq: jwtOperationId } };
         } else {
-          ctx.query.filters = { organization: { id: { $eq: userOrganisationId } } };
+          ctx.query.filters = { organization: { documentId: { $eq: userOrganisationId } } };
           if (operationIdFilter) {
-            ctx.query.filters.id = { $eq: operationIdFilter };
+            ctx.query.filters.documentId = { $eq: operationIdFilter };
           }
         }
-        addStatusFilter(statusFilter, ctx.query.filters);
+        addphaseFilter(phaseFilter, ctx.query.filters);
       } else {
         if (jwtOperationId) {
           return ctx.unauthorized('This action is unauthorized, unknown context.');
         } else {
           if (hasPublic(config.type)) {
             if (userOrganisationId) {
-              ctx.query.filters = { $or: [{ organization: { id: { $eq: userOrganisationId } } }, { public: { $eq: true } }] };
+              ctx.query.filters = {
+                $or: [{ organization: { documentId: { $eq: userOrganisationId } } }, { public: { $eq: true } }],
+              };
             } else {
               ctx.query.filters = { public: { $eq: true } };
             }
@@ -143,9 +167,9 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       return next();
     } else if (isOrganization(config.type)) {
       if (jwtOperationId) {
-        ctx.query.filters = { operations: { id: { $eq: jwtOperationId } } };
+        ctx.query.filters = { operations: { documentId: { $eq: jwtOperationId } } };
       } else {
-        ctx.query.filters = { id: { $eq: userOrganisationId } };
+        ctx.query.filters = { documentId: { $eq: userOrganisationId } };
       }
       return next();
     } else {
@@ -172,16 +196,16 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     headerOperationId,
   ) => {
     //verify entryId/relations of data to update/save are allowed values
-    if (canNotUseBodyValue(ctx.request.body.data?.id, entryId)) {
+    if (canNotUseBodyValue(ctx.request.body.data?.documentId, entryId)) {
       logAccessViolation(
         ctx,
-        `update to other id, ctx.request.body.id:${JSON.stringify(ctx.request.body.data?.id)}, entry:${JSON.stringify(entry)}, paramId:${paramId}, headerOperationId:${headerOperationId}`,
+        `update to other id, ctx.request.body.documentId:${JSON.stringify(ctx.request.body.data?.documentId)}, entry:${JSON.stringify(entry)}, paramId:${paramId}, headerOperationId:${headerOperationId}`,
         userOrganisationId,
         jwtOperationId,
       );
       return ctx.forbidden('This action is forbidden.');
     }
-    if (hasOperation(config.type) && canNotUseBodyValue(ctx.request.body.data?.operation, operation?.id)) {
+    if (hasOperation(config.type) && canNotUseBodyValue(ctx.request.body.data?.operation, operation?.documentId)) {
       logAccessViolation(
         ctx,
         `update to other operation, ctx.request.body.operation:${JSON.stringify(ctx.request.body.data?.operation)}, entry:${JSON.stringify(entry)}, paramId:${paramId}, headerOperationId:${headerOperationId}`,
@@ -190,7 +214,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       );
       return ctx.forbidden('This action is forbidden.');
     }
-    if (hasOrganization(config.type) && canNotUseBodyValue(ctx.request.body.data?.organization, organization?.id)) {
+    if (hasOrganization(config.type) && canNotUseBodyValue(ctx.request.body.data?.organization, organization?.documentId)) {
       logAccessViolation(
         ctx,
         `update to other organization, ctx.request.body.organization:${JSON.stringify(ctx.request.body.data?.organization)}, entry:${JSON.stringify(entry)}, paramId:${paramId}, headerOperationId:${headerOperationId}`,
@@ -215,9 +239,12 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
         return entry;
         */
       } else {
-        const entry = (await strapi.entityService.findOne(contentType, entryId, {
-          fields: ['id'],
-          populate: { operation: { fields: ['id', 'status'], populate: { organization: { fields: ['id'] } } } },
+        const entry = (await strapi.documents(contentType as any).findOne({
+          documentId: entryId,
+          fields: ['documentId'],
+          populate: {
+            operation: { fields: ['documentId', 'phase'], populate: { organization: { fields: ['documentId'] } } },
+          },
         })) as { id: number; operation: Operation };
         return entry;
       }
@@ -227,21 +254,24 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
   const getOrganization = async (contentType: HasOrganizationType, entryId) => {
     if (entryId) {
       if (hasPublic(contentType)) {
-        const entry = (await strapi.entityService.findOne(contentType, entryId, {
-          fields: ['id', 'public'],
-          populate: { organization: { fields: ['id'] } },
-        })) as { id: number; public: boolean; organization: Organization };
+        const entry = (await strapi.documents(contentType as any).findOne({
+          documentId: entryId,
+          fields: ['documentId', 'public'],
+          populate: { organization: { fields: ['documentId'] } },
+        })) as unknown as { id: number; public: boolean; organization: Organization };
         return entry;
       } else if (isOperation(contentType)) {
-        const entry = (await strapi.entityService.findOne(contentType, entryId, {
-          fields: ['id', 'status'],
-          populate: { organization: { fields: ['id'] } },
-        })) as { id: number; status: string; organization: Organization };
+        const entry = (await strapi.documents(contentType).findOne({
+          documentId: entryId,
+          fields: ['documentId', 'phase'],
+          populate: { organization: { fields: ['documentId'] } as any },
+        })) as { id: number; phase: string; organization: Organization };
         return entry;
       } else {
-        const entry = (await strapi.entityService.findOne(contentType, entryId, {
-          fields: ['id'],
-          populate: { organization: { fields: ['id'] } },
+        const entry = (await strapi.documents(contentType as any).findOne({
+          documentId: entryId,
+          fields: ['documentId'],
+          populate: { organization: { fields: ['documentId'] } },
         })) as { id: number; organization: Organization };
         return entry;
       }
@@ -255,29 +285,24 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     let organization: Organization = null;
     if (hasOperation(contentType)) {
       entry = await getOperation(contentType, entryId);
-      operation = entry.operation;
+      operation = entry?.operation;
     } else if (hasOrganization(contentType)) {
       entry = await getOrganization(contentType, entryId);
       if (isOperation(config.type)) {
         operation = entry as Operation;
       } else {
-        organization = entry.organization;
+        organization = entry?.organization;
       }
     } else if (isOrganization(config.type)) {
-      entry = organization = { id: entryId } as Organization;
+      entry = organization = (await strapi.documents(contentType as any).findOne({
+        documentId: entryId,
+        fields: ['documentId'],
+      })) as Organization;
     }
     if (operation) {
       organization = operation.organization;
     }
     return { entry, operation, organization };
-  };
-
-  const getIdIfValid = (value) => {
-    if (value && /^\d+$/.test(value)) {
-      return parseInt(value);
-    }
-    //prevent requests with invalid id's (not numbers)
-    return null;
   };
 
   const doByIdChecks = async (ctx, next, userOrganisationId, jwtOperationId) => {
@@ -287,8 +312,8 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       strapi.log.error(`[global::accessControl] unknown context, handler: ${handler}, url: ${ctx.request.url}`);
       return ctx.forbidden('This action is forbidden, unknown context.');
     }
-    const paramId = getIdIfValid(ctx.params?.id);
-    const headerOperationId = getIdIfValid(ctx.request.headers?.operationid);
+    const paramId = ctx.params?.id;
+    const headerOperationId = ctx.request.headers?.operationid;
     const entryId = isOperation(config.type) ? (paramId ?? headerOperationId) : paramId;
     if (!entryId) {
       return ctx.forbidden('This action is forbidden.');
@@ -298,17 +323,17 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
     //prevent update archived operations
     if (
       isOperation(config.type) &&
-      operation?.status !== OperationStates.ACTIVE &&
-      !handler.endsWith('.unarchive') &&
+      operation?.phase !== OperationPhases.ACTIVE &&
+      !(handler.endsWith('.unarchive') || handler.endsWith('.shadowDelete')) &&
       !handler.endsWith('.findOne')
     ) {
       return ctx.forbidden('The operation is archived, no update allowed.');
     }
 
     //check if object access is allowed
-    if (jwtOperationId && operation && jwtOperationId === operation.id) {
+    if (jwtOperationId && operation && jwtOperationId === operation.documentId) {
       //share link login accessing valid operation
-    } else if (userOrganisationId && organization && userOrganisationId === organization.id) {
+    } else if (userOrganisationId && organization && userOrganisationId === organization.documentId) {
       //loggedin user is in corresponding organization
     } else if (config.check === AccessControlTypes.BY_ID && hasPublic(config.type) && entry.public === true) {
       //it's a public object, read is allowed
@@ -352,7 +377,7 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       return next();
     }
 
-    const { id: userOrganisationId } = ctx.state?.user?.organization ?? {};
+    const { documentId: userOrganisationId } = ctx.state?.user?.organization ?? {};
     const { jwt } = strapi.plugins['users-permissions'].services;
     const { operationId: jwtOperationId } = (await jwt.getToken(ctx)) ?? {};
     if (!userOrganisationId && !jwtOperationId) {
@@ -382,7 +407,9 @@ export default <T extends Common.UID.ContentType>(config: AccessControlConfig<T>
       return doByIdChecks(ctx, next, userOrganisationId, jwtOperationId);
     } else {
       const handler: string = ctx.state?.route?.handler;
-      strapi.log.error(`[global::accessControl]: config.check value missing for handler: ${handler}, url: ${ctx.request.url}`);
+      strapi.log.error(
+        `[global::accessControl]: config.check value missing for handler: ${handler}, url: ${ctx.request.url}`,
+      );
       return ctx.forbidden('This action is forbidden, unknown mode.');
     }
   };

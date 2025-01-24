@@ -1,7 +1,7 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 import { SessionService } from '../session.service';
-import { IZsMapOperation, ZsOperationStatus } from '@zskarte/types';
+import { IZsMapOperation, ZsOperationPhase } from '@zskarte/types';
 import { I18NService } from '../../state/i18n.service';
 import { OperationService } from './operation.service';
 import { ActivatedRoute } from '@angular/router';
@@ -16,6 +16,8 @@ import { FormsModule } from '@angular/forms';
 import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-operations',
@@ -42,29 +44,31 @@ export class OperationsComponent implements OnDestroy {
   i18n = inject(I18NService);
   operationService = inject(OperationService);
   private route = inject(ActivatedRoute);
+  private dialog = inject(MatDialog);
 
   private _ngUnsubscribe = new Subject<void>();
-  public showOpStatus: ZsOperationStatus = 'active';
+  public showOpPhase: ZsOperationPhase = 'active';
 
   constructor() {
     const route = this.route;
 
-    this.operationService.loadLocal(this.showOpStatus);
+    this.operationService.loadLocal(this.showOpPhase);
     this._session
       .observeOrganizationId()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe(async (organizationId) => {
         if (organizationId) {
-          await this.operationService.reload(this.showOpStatus);
+          await this.operationService.reload(this.showOpPhase);
         }
       });
     //select operationId if set as parameter and have access to
     firstValueFrom(route.queryParams).then((queryParams) => {
       if (queryParams['operationId']) {
         try {
-          const operationId = parseInt(queryParams['operationId']);
+          const operationId = queryParams['operationId'];
+          const operationIdInt = parseInt(operationId);
           this.operationService.operations.pipe(takeUntil(this._ngUnsubscribe)).subscribe((operations) => {
-            const operation = operations.find((o) => o.id === operationId);
+            const operation = operations.find((o) => o.documentId === operationId || o.id === operationIdInt);
             if (operation) {
               this.selectOperation(operation);
             }
@@ -82,9 +86,18 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public selectOperation(operation: IZsMapOperation) {
-    if (operation.id) {
+    if (operation.documentId || operation.id) {
       this._session.setOperation(operation);
     }
+  }
+
+  public deleteOperation(operation: IZsMapOperation) {
+    const confirm = this.dialog.open(ConfirmationDialogComponent, {
+      data: this.i18n.get('deleteOperationConfirm'),
+    });
+    confirm.afterClosed().subscribe((r) => {
+      this.operationService.deleteOperation(operation);
+    });
   }
 
   public async logout(): Promise<void> {
@@ -92,12 +105,12 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public async showActiveScenarios(): Promise<void> {
-    this.showOpStatus = 'active';
-    await this.operationService.reload(this.showOpStatus);
+    this.showOpPhase = 'active';
+    await this.operationService.reload(this.showOpPhase);
   }
 
   public async showArchivedScenarios(): Promise<void> {
-    this.showOpStatus = 'archived';
-    await this.operationService.reload(this.showOpStatus);
+    this.showOpPhase = 'archived';
+    await this.operationService.reload(this.showOpPhase);
   }
 }
