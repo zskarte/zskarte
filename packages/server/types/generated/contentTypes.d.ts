@@ -373,46 +373,52 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     draftAndPublish: false;
   };
   attributes: {
-    communication_details: Schema.Attribute.String;
-    communication_type: Schema.Attribute.String;
+    communicationDetails: Schema.Attribute.String;
+    communicationType: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     creator: Schema.Attribute.String;
-    date_decision: Schema.Attribute.DateTime;
-    date_decision_delivered: Schema.Attribute.DateTime;
-    date_message: Schema.Attribute.DateTime;
-    date_triage: Schema.Attribute.DateTime;
+    dateDecision: Schema.Attribute.DateTime;
+    dateDecisionDelivered: Schema.Attribute.DateTime;
+    dateMessage: Schema.Attribute.DateTime;
+    dateTriage: Schema.Attribute.DateTime;
     decision: Schema.Attribute.Text;
-    decision_receiver: Schema.Attribute.String;
-    decision_sender: Schema.Attribute.String;
-    department: Schema.Attribute.String;
-    entry_status: Schema.Attribute.Enumeration<
+    decisionReceiver: Schema.Attribute.String;
+    decisionSender: Schema.Attribute.String;
+    department: Schema.Attribute.Enumeration<
       [
-        'awaiting_message',
-        'awaiting_triage',
-        'awaiting_drawing',
-        'awaiting_decision',
-        'awaiting_completion',
-        'completed',
+        'politische-behoerde',
+        'chef-fuehrungsorgan',
+        'stabschef',
+        'fb-lage',
+        'fb-information',
+        'fb-oeffentliche-sicherheit',
+        'fb-schutz-rettung',
+        'fb-gesundheit',
+        'fb-logistik',
+        'fb-infrastukturen',
       ]
     >;
-    is_drawn_on_map: Schema.Attribute.Boolean;
-    is_key_message: Schema.Attribute.Boolean;
+    entryStatus: Schema.Attribute.Enumeration<
+      ['awaiting_message', 'awaiting_triage', 'awaiting_decision', 'awaiting_completion', 'completed']
+    >;
+    isDrawnOnMap: Schema.Attribute.Boolean;
+    isKeyMessage: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::journal-entry.journal-entry'> &
       Schema.Attribute.Private;
-    message_content: Schema.Attribute.Text;
-    message_number: Schema.Attribute.Integer;
-    message_subject: Schema.Attribute.String;
+    messageContent: Schema.Attribute.Text;
+    messageNumber: Schema.Attribute.Integer;
+    messageSubject: Schema.Attribute.String;
     operation: Schema.Attribute.Relation<'oneToOne', 'api::operation.operation'>;
     organization: Schema.Attribute.Relation<'oneToOne', 'api::organization.organization'>;
     publishedAt: Schema.Attribute.DateTime;
     sender: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    visum_decider: Schema.Attribute.String;
-    visum_message: Schema.Attribute.String;
-    visum_triage: Schema.Attribute.String;
+    visumDecider: Schema.Attribute.String;
+    visumMessage: Schema.Attribute.String;
+    visumTriage: Schema.Attribute.String;
   };
 }
 
