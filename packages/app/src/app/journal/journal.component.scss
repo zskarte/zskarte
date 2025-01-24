@@ -29,7 +29,7 @@
   max-width: 75%;
 }
 
-.journal-sidebar-content{
+.journal-sidebar-content {
   padding: 1rem;
 }
 
@@ -107,7 +107,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: start;
-  gap: .5rem;
+  gap: 0.5rem;
 
   @media (max-width: 1200px) {
     flex-direction: column;
@@ -175,7 +175,6 @@ tr.journal-table-row.key-message:hover {
 
 .end .journal-entry-save-buttons {
   margin-bottom: 1rem;
-
 }
 
 .message-number {
@@ -183,19 +182,34 @@ tr.journal-table-row.key-message:hover {
   font-size: 1rem;
 }
 
-.journal-entry-details {
-  .details-table {
-    width: 100%;
-    border-collapse: collapse;
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
 
-    td {
-      padding: 0.5rem;
-      vertical-align: top;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  td {
+    padding: 0.5rem;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 
-      &:first-child {
-        width: 150px;
-      }
+    &:first-child {
+      width: 150px;
     }
   }
+}
+
+.journal-table-message-cell {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.info-send-back {
+  border: 1px solid lightgray;
+  padding: 14px;
+  border-radius: 4px;
+}
+
+.journal-entry-checkbox {
+  margin-bottom: 1rem;
 }
