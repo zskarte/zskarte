@@ -12,7 +12,8 @@ import { MatButton, MatButtonModule, MatMiniFabButton } from '@angular/material/
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Sign, ZsMapDrawElementStateType } from '@zskarte/types';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { areCoordinatesEqual, removeCoordinates } from '../helper/coordinates';
 import { I18NService } from '../state/i18n.service';
@@ -172,7 +173,13 @@ export class MapRendererComponent implements AfterViewInit {
       }
 
       if (remove) {
-        this._state.removeDrawElement(state.id);
+        const confirmation = this._dialog.open(ConfirmationDialogComponent, {
+          data: this.i18n.get('deletionNotification'),
+        });
+        const result = await lastValueFrom(confirmation.afterClosed());
+        if (result) {
+          this._state.removeDrawElement(state.id);
+        }
       } else {
         this._state.updateDrawElementState(state.id, 'coordinates', newCoordinates as any);
       }
