@@ -1,4 +1,8 @@
-<app-incident-select [values]="(incidents | async) || []" (valuesChange)="updateIncidents($event)" [disabled]="!hasWritePermission || isArchived"></app-incident-select>
+<app-incident-select
+  [values]="(incidents | async) || []"
+  (valuesChange)="updateIncidents($event)"
+  [disabled]="!hasWritePermission || isArchived"
+></app-incident-select>
 
 @if (isArchived) {
   <p class="archived">{{ i18n.get('viewArchivedOperation') }}</p>
@@ -35,6 +39,21 @@
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon>
   {{ i18n.get('help') }}
 </button>
+<mat-divider></mat-divider>
+<div class="mat-menu-item-with-info">
+  <button mat-menu-item (click)="zsMapStateService.toggleExpertView()">
+    @if (!(zsMapStateService.observeIsExpertView() | async)) {
+      <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">manage_accounts</mat-icon>
+    }
+    @if (zsMapStateService.observeIsExpertView() | async) {
+      <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('defaultView')">person</mat-icon>
+    }
+    {{ (zsMapStateService.observeIsExpertView() | async) ? i18n.get('defaultView') : i18n.get('expertView') }}
+  </button>
+  <button mat-icon-button (click)="showExpertViewHelp()">
+    <mat-icon>info</mat-icon>
+  </button>
+</div>
 <mat-divider></mat-divider>
 @if (session.observeHasWritePermission() | async) {
   <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="shareOptions">

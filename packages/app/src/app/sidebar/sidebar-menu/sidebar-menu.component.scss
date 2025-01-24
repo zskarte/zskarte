@@ -7,3 +7,11 @@
 app-incident-select {
   padding: 1rem;
 }
+
+.mat-menu-item-with-info {
+  display: flex;
+}
+
+.mat-menu-item-with-info .mat-mdc-menu-item {
+  max-width: calc(100% - 48px);
+}

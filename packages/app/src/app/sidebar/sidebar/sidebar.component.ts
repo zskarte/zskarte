@@ -41,7 +41,6 @@ import {
   GeoJSONMapLayer,
   zsMapStateSourceToDownloadUrl,
 } from '@zskarte/types';
-import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expert-view-help.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -248,10 +247,6 @@ export class SidebarComponent {
     this.dialog.open(MapLegendDisplayComponent, {
       data: item,
     });
-  }
-
-  showExpertViewHelp(){
-    this.dialog.open(ExpertViewHelpComponent);
   }
 
   selectLayer(layer: MapLayer) {

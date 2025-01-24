@@ -269,41 +269,6 @@
       </mat-action-list>
     </ng-template>
   </mat-expansion-panel>
-
-<mat-divider></mat-divider>
-
-<div class="buttonContent">
-  <button mat-stroked-button (click)="mapState.toggleExpertView()">
-    @if (!(mapState.observeIsExpertView() | async)) {
-      <mat-icon matListIcon aria-hidden="false" [attr.aria-label]="i18n.get('expertView')">manage_accounts</mat-icon>
-    }
-    @if (mapState.observeIsExpertView() | async) {
-      <mat-icon matListIcon aria-hidden="false" [attr.aria-label]="i18n.get('defaultView')">person</mat-icon>
-    }
-    {{ (mapState.observeIsExpertView() | async) ? i18n.get('defaultView') : i18n.get('expertView') }}
-  </button>
-  <button mat-icon-button class="expertInfo" (click)="showExpertViewHelp()">
-    <mat-icon>info</mat-icon>
-  </button>
-</div>
-
-<mat-divider></mat-divider>
-
-<div class="buttonContent">
-  <button mat-stroked-button (click)="mapState.toggleExpertView()">
-    @if (!(mapState.observeIsExpertView() | async)) {
-      <mat-icon matListIcon aria-hidden="false" [attr.aria-label]="i18n.get('expertView')">manage_accounts</mat-icon>
-    }
-    @if (mapState.observeIsExpertView() | async) {
-      <mat-icon matListIcon aria-hidden="false" [attr.aria-label]="i18n.get('defaultView')">person</mat-icon>
-    }
-    {{ (mapState.observeIsExpertView() | async) ? i18n.get('defaultView') : i18n.get('expertView') }}
-  </button>
-  <button mat-icon-button class="expertInfo" (click)="showExpertViewHelp()">
-    <mat-icon>info</mat-icon>
-  </button>
-</div>
-
 <mat-divider></mat-divider>
 @if (mapState.isExpertView()) {
 <div class="buttonContent">
