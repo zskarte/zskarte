@@ -25,17 +25,18 @@ export class RevokeShareDialogComponent {
 
   async ngOnInit() {
     const { error, result } = await this._api.get<IZsAccess[]>(
-      `/api/accesses?pagination[limit]=-1&sort[0]=type&operationId=${this.session.getOperationId()}`,
+      `/api/accesses?sort[0]=type&operationId=${this.session.getOperationId()}`,
     );
     if (error || !result) return;
     this.shareLinks = result;
   }
 
-  async revokeShareLink(id: string) {
-    const { error, result } = await this._api.delete<IZsAccess>(`/api/accesses/${id}`);
-    if (error || !result) {
+  async revokeShareLink(documentId: string) {
+    const { error } = await this._api.delete<IZsAccess>(`/api/accesses/${documentId}`);
+    if (error) {
       this._snackBar.open(this.i18n.get('rewokeShareLinkFailedMessage'), this.i18n.get('ok'), { duration: 2000 });
     }
-    this.shareLinks = this.shareLinks.filter((l) => l.id !== id);
+
+    this.shareLinks = this.shareLinks.filter((l) => l.documentId !== documentId);
   }
 }

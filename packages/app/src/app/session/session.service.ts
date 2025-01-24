@@ -195,7 +195,7 @@ export class SessionService {
               }
             });
 
-          await this._router.navigate(['map'], {
+          await this._router.navigate([this._router.url === '/journal' ? 'journal' : 'map'], {
             queryParams: {
               center: null, //handled in overrideDisplayStateFromQueryParams
               size: null, //handled in overrideDisplayStateFromQueryParams
@@ -391,8 +391,8 @@ export class SessionService {
     this._session.next(this._session.value);
   }
 
-  public observeOperationId(): Observable<number | undefined> {
-    return this._session.pipe(map((session) => session?.operation?.id));
+  public observeOperationId(): Observable<string | number | undefined> {
+    return this._session.pipe(map((session) => session?.operation?.documentId ?? session?.operation?.id));
   }
 
   public getOperation(): IZsMapOperation | undefined {
@@ -476,13 +476,13 @@ export class SessionService {
         currentSession &&
         !currentSession.workLocal &&
         currentSession.jwt === jwt &&
-        ((error?.status ?? 0) >= 500 || !this._isOnline.value)
+        ((error?.status ?? 0) >= 500 || error?.message?.startsWith("NetworkError") || !this._isOnline.value)
       ) {
         //session is not expired but there seams to be a network problem, keep current session
         this._session.next(currentSession);
         return;
       }
-      await this.logout((error?.status ?? 0) >= 500 ? 'networkError' : 'noToken');
+      await this.logout(((error?.status ?? 0) >= 500 || error?.message?.startsWith("NetworkError")) ? 'networkError' : 'noToken');
       return;
     }
 
@@ -511,15 +511,7 @@ export class SessionService {
 
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-    let queryOperationId;
-    if (queryParams['operationId']) {
-      try {
-        queryOperationId = parseInt(queryParams['operationId']);
-      } catch {
-        //ignore invalid operationId param
-      }
-    }
-    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.documentId;
+    const operationId = decoded.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
@@ -577,7 +569,7 @@ export class SessionService {
     if (authError || !result?.jwt) {
       if (decodeJWT(currentToken).expired) {
         await this.logout('expired');
-      } else if ((authError?.status ?? 0) >= 500 || !this._isOnline.value) {
+      } else if ((authError?.status ?? 0) >= 500 || authError?.message?.startsWith("NetworkError") || !this._isOnline.value) {
         //await this.logout('networkError');
         //session is not expired but there seams to be a network problem, keep current session without refresh
       } else {
