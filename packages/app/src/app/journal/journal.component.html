@@ -129,7 +129,7 @@
                   : 'Nein'
                 : ''
               }}<br />
-              <strong>{{ i18n.get('department') }}: </strong> {{ i18n.get(journalForm.value.department ?? '') }}<br />
+              <strong>{{ i18n.get('department') }}: </strong> {{ journalForm.value.department ? i18n.get(journalForm.value.department) : '' }}<br />
               <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumTriage }}<br />
               <strong>{{ i18n.get('dateTriage') }}: </strong> {{ journalForm.value.dateTriage?.toLocaleString() }}
             </p>
