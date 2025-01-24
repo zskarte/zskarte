@@ -1,3 +1,4 @@
+import { StrapiApiResponseList } from 'src/app/helper/strapi-utils';
 import { MapLayer } from '../map-layer/interfaces';
 import { ZsMapState, ZsMapStateSource } from '../state/interfaces';
 
@@ -19,6 +20,13 @@ export interface IZsMapOperation {
   phase: ZsOperationPhase;
   mapLayers?: IZSMapOperationMapLayers;
 }
+
+export interface IZsMapSnapshot {
+  id: number;
+  documentId: string;
+  createdAt: Date;
+}
+export type IZsMapSnapshots = StrapiApiResponseList<IZsMapSnapshot[]>;
 
 export interface IZsMapOrganizationMapLayerSettings {
   wms_sources: number[];
