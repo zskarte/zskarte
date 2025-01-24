@@ -6,12 +6,13 @@ import { I18NService } from '../state/i18n.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-text-dialog',
   templateUrl: './text-dialog.component.html',
   styleUrls: ['./text-dialog.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatDialogModule, FormsModule],
+  imports: [MatFormFieldModule, MatInputModule, MatDialogModule, FormsModule, MatButtonModule],
 })
 export class TextDialogComponent {
   dialogRef = inject<MatDialogRef<SelectSignDialog>>(MatDialogRef);
