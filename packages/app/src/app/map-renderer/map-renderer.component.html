@@ -1,23 +1,36 @@
 <div #mapElement id="map" class="map"></div>
-@if (mousePosition | async; as mousePosition) {
-  @if (currentSketchSize | async; as sketchSize) {
-    <div class="tooltip noprint" [style.left.px]="mousePosition[0]" [style.top.px]="mousePosition[1]" [innerHTML]="sketchSize"></div>
+@if (renderer.observeMousePosition() | async; as mousePosition) {
+  @if (renderer.observeCurrentSketchSize() | async; as sketchSize) {
+    <div
+      class="tooltip noprint"
+      [style.left.px]="mousePosition[0]"
+      [style.top.px]="mousePosition[1]"
+      [innerHTML]="sketchSize"
+    ></div>
   }
 }
 
-<button mat-mini-fab class="edit-button" color="warn" #delete>
+<button mat-mini-fab class="edit-button" color="warn" #delete (click)="removeFeature()">
   <i class="material-icons">delete_forever</i>
 </button>
-<button mat-mini-fab class="edit-button rotate-button" color="primary" #rotate>
+<button
+  mat-mini-fab
+  class="edit-button rotate-button"
+  color="primary"
+  #rotate
+  (mousedown)="startRotating()"
+  (touchstart)="startRotating()"
+>
+  <!-- todo maybe add click" -->
   <i class="material-icons">rotate_left</i>
 </button>
-<button mat-mini-fab class="edit-button" color="primary" #copy>
+<button mat-mini-fab class="edit-button" color="primary" #copy (click)="copySign()">
   <i class="material-icons">content_copy</i>
 </button>
 
-<button mat-mini-fab class="edit-button" color="primary" #draw>
+<button mat-mini-fab class="edit-button" color="primary" #draw (click)="toggleDrawingDialog()">
   <mat-icon>stars</mat-icon>
 </button>
-<button mat-mini-fab class="edit-button" #close>
+<button mat-mini-fab class="edit-button" #close (click)="hidePositionFlag()">
   <mat-icon>close</mat-icon>
 </button>
