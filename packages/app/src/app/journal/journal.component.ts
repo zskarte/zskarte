@@ -64,12 +64,12 @@ export class JournalComponent implements AfterViewInit {
   private sessionService = inject(SessionService);
 
   displayedColumns: string[] = [
-    'message_number',
-    'message_subject',
-    'message_content',
-    'date_message',
-    'entry_status',
-    'is_key_message',
+    'messageNumber',
+    'messageSubject',
+    'messageContent',
+    'dateMessage',
+    'entryStatus',
+    'isKeyMessage',
   ];
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
@@ -82,7 +82,7 @@ export class JournalComponent implements AfterViewInit {
   decisionFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
-    keys: ['message_subject', 'message_content', 'decision'],
+    keys: ['messageSubject', 'messageContent', 'decision'],
     ignoreLocation: true,
     threshold: 0.5,
   });
@@ -104,27 +104,27 @@ export class JournalComponent implements AfterViewInit {
   });
 
   journalForm = new FormGroup({
-    message_number: new FormControl<string | number>('', { nonNullable: true }),
+    messageNumber: new FormControl<string | number>('', { nonNullable: true }),
     sender: new FormControl('', { nonNullable: true }),
     creator: new FormControl('', { nonNullable: true }),
-    communication_type: new FormControl('', { nonNullable: true }),
-    communication_details: new FormControl('', { nonNullable: true }),
-    message_subject: new FormControl('', { nonNullable: true }),
-    message_content: new FormControl('', { nonNullable: true }),
-    visum_message: new FormControl('', { nonNullable: true }),
+    communicationType: new FormControl('', { nonNullable: true }),
+    communicationDetails: new FormControl('', { nonNullable: true }),
+    messageSubject: new FormControl('', { nonNullable: true }),
+    messageContent: new FormControl('', { nonNullable: true }),
+    visumMessage: new FormControl('', { nonNullable: true }),
     department: new FormControl('', { nonNullable: true }),
-    date_created_date: new FormControl<Date>(new Date(), { nonNullable: true }),
-    date_created_time: new FormControl<Date>(new Date(), { nonNullable: true }),
-    is_key_message: new FormControl(false, { nonNullable: true }),
-    visum_triage: new FormControl('', { nonNullable: true }),
-    date_triage: new FormControl(),
-    date_decision: new FormControl(),
-    visum_decider: new FormControl('', { nonNullable: true }),
+    dateCreatedDate: new FormControl<Date>(new Date(), { nonNullable: true }),
+    dateCreatedTime: new FormControl<Date>(new Date(), { nonNullable: true }),
+    isKeyMessage: new FormControl(false, { nonNullable: true }),
+    visumTriage: new FormControl('', { nonNullable: true }),
+    dateTriage: new FormControl(),
+    dateDecision: new FormControl(),
+    visumDecider: new FormControl('', { nonNullable: true }),
     decision: new FormControl('', { nonNullable: true }),
-    decision_receiver: new FormControl('', { nonNullable: true }),
-    entry_status: new FormControl('awaiting_message', { nonNullable: true }),
-    date_decision_delivered: new FormControl(),
-    decision_sender: new FormControl('', { nonNullable: true }),
+    decisionReceiver: new FormControl('', { nonNullable: true }),
+    entryStatus: new FormControl('awaiting_message', { nonNullable: true }),
+    dateDecisionDelivered: new FormControl(),
+    decisionSender: new FormControl('', { nonNullable: true }),
   });
 
   editing = false;
@@ -181,14 +181,14 @@ export class JournalComponent implements AfterViewInit {
     if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
       filtered = filtered.filter(
         (entry) =>
-          (this.triageFilter && entry.entry_status === 'awaiting_triage') ||
-          (this.outgoingFilter && entry.entry_status === 'awaiting_completion') ||
-          (this.decisionFilter && entry.entry_status === 'awaiting_decision'),
+          (this.triageFilter && entry.entryStatus === 'awaiting_triage') ||
+          (this.outgoingFilter && entry.entryStatus === 'awaiting_completion') ||
+          (this.decisionFilter && entry.entryStatus === 'awaiting_decision'),
       );
     }
 
     if (this.keyMessageFilter) {
-      filtered = filtered.filter((entry) => entry.is_key_message);
+      filtered = filtered.filter((entry) => entry.isKeyMessage);
     }
 
     if (searchTerm) {
@@ -199,11 +199,11 @@ export class JournalComponent implements AfterViewInit {
         .filter(
           (item) =>
             (!department || item.department === department) &&
-            (!this.keyMessageFilter || item.is_key_message) &&
+            (!this.keyMessageFilter || item.isKeyMessage) &&
             (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) ||
-              (this.triageFilter && item.entry_status === 'awaiting_triage') ||
-              (this.outgoingFilter && item.entry_status === 'awaiting_completion') ||
-              (this.decisionFilter && item.entry_status === 'awaiting_decision')),
+              (this.triageFilter && item.entryStatus === 'awaiting_triage') ||
+              (this.outgoingFilter && item.entryStatus === 'awaiting_completion') ||
+              (this.decisionFilter && item.entryStatus === 'awaiting_decision')),
         );
     }
 
@@ -218,8 +218,8 @@ export class JournalComponent implements AfterViewInit {
 
     this.journalForm.patchValue({
       ...entry,
-      date_created_date: new Date(),
-      date_created_time: new Date(),
+      dateCreatedDate: new Date(),
+      dateCreatedTime: new Date(),
     });
   }
 
@@ -244,17 +244,17 @@ export class JournalComponent implements AfterViewInit {
 
   async resetState() {
     this.journalForm.patchValue({
-      entry_status: 'awaiting_triage',
+      entryStatus: 'awaiting_triage',
     });
 
-    const { date_created_time, date_created_date, ...rest } = this.journalForm.value;
+    const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
 
     await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.documentId}`, {
       data: {
         ...rest,
-        date_message: new Date(
-          (this.journalForm.value.date_created_date as Date).setTime(
-            this.journalForm.value.date_created_time!.getTime(),
+        dateMessage: new Date(
+          (this.journalForm.value.dateCreatedDate as Date).setTime(
+            this.journalForm.value.dateCreatedTime!.getTime(),
           ),
         ),
       },
@@ -271,16 +271,16 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async save(event: any) {
-    const entry_status = this.journalForm.value.entry_status;
+    const entryStatus = this.journalForm.value.entryStatus;
     if (event.submitter.name !== 'save') {
-      if (entry_status === 'awaiting_message') {
-        this.journalForm.patchValue({ entry_status: 'awaiting_triage' });
-      } else if (entry_status === 'awaiting_triage') {
-        this.journalForm.patchValue({ entry_status: 'awaiting_decision', date_triage: new Date() });
-      } else if (entry_status === 'awaiting_decision') {
-        this.journalForm.patchValue({ entry_status: 'awaiting_completion', date_decision: new Date() });
+      if (entryStatus === 'awaiting_message') {
+        this.journalForm.patchValue({ entryStatus: 'awaiting_triage' });
+      } else if (entryStatus === 'awaiting_triage') {
+        this.journalForm.patchValue({ entryStatus: 'awaiting_decision', dateTriage: new Date() });
+      } else if (entryStatus === 'awaiting_decision') {
+        this.journalForm.patchValue({ entryStatus: 'awaiting_completion', dateDecision: new Date() });
       } else {
-        this.journalForm.patchValue({ entry_status: 'completed', date_decision_delivered: new Date() });
+        this.journalForm.patchValue({ entryStatus: 'completed', dateDecisionDelivered: new Date() });
       }
     }
 
@@ -288,7 +288,7 @@ export class JournalComponent implements AfterViewInit {
     const organization = this.sessionService.getOrganization();
 
     try {
-      const { date_created_time, date_created_date, ...rest } = this.journalForm.value;
+      const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
 
       if (this.selectedJournalEntry?.documentId) {
         await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.documentId}`, {
@@ -297,8 +297,8 @@ export class JournalComponent implements AfterViewInit {
             operation: operation?.documentId,
             organization: organization?.documentId,
             date_message: new Date(
-              (this.journalForm.value.date_created_date as Date).setTime(
-                this.journalForm.value.date_created_time!.getTime(),
+              (this.journalForm.value.dateCreatedDate as Date).setTime(
+                this.journalForm.value.dateCreatedTime!.getTime(),
               ),
             ),
           },
@@ -310,8 +310,8 @@ export class JournalComponent implements AfterViewInit {
             operation: operation?.documentId,
             organization: organization?.documentId,
             date_message: new Date(
-              (this.journalForm.value.date_created_date as Date).setTime(
-                this.journalForm.value.date_created_time!.getTime(),
+              (this.journalForm.value.dateCreatedDate as Date).setTime(
+                this.journalForm.value.dateCreatedTime!.getTime(),
               ),
             ),
           },
