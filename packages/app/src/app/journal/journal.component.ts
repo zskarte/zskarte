@@ -290,10 +290,6 @@ export class JournalComponent implements AfterViewInit {
     this.journalForm.reset();
   }
 
-  toggleEditing() {
-    this.journalForm.patchValue({});
-  }
-
   async resetState() {
     if(this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
       this.journalForm.patchValue({

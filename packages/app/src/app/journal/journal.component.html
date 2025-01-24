@@ -180,15 +180,7 @@
                   </div>
 
                   <div class="journal-entry-save-buttons">
-                    <button mat-stroked-button type="button" (click)="toggleEditing()">
-                      <mat-icon>close</mat-icon>
-                      {{ i18n.get('cancel') }}
-                    </button>
-                    <button mat-flat-button color="primary" *ngIf="selectedJournalEntry">
-                      <mat-icon>check</mat-icon>
-                      {{ i18n.get('save') }}
-                    </button>
-                    <button mat-flat-button color="primary" *ngIf="!selectedJournalEntry">
+                    <button mat-flat-button color="primary">
                       <mat-icon>check</mat-icon>
                       {{ i18n.get('save') }}
                     </button>
