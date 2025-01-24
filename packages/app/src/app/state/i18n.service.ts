@@ -411,23 +411,23 @@ export class I18NService {
     },
     expertView: {
       de: 'Experten Ansicht',
-      fr: 'Expert view',
-      en: "Point de vue d'expert",
+      en: 'Expert view',
+      fr: "Point de vue d'expert",
     },
     defaultView: {
       de: 'Standard Ansicht',
-      fr: 'Default view',
-      en: 'Vue générale',
+      en: 'Default view',
+      fr: 'Vue générale',
     },
     toastExpertView: {
       de: 'Experten Ansicht aktiviert',
-      fr: 'Expert view activated',
-      en: "Point de vue d'expert activée",
+      en: 'Expert view activated',
+      fr: "Point de vue d'expert activée",
     },
     toastDefaultView: {
       de: 'Standard Ansicht aktiviert',
-      fr: 'Default view activated',
-      en: 'Vue générale activée',
+      en: 'Default view activated',
+      fr: 'Vue générale activée',
     },
     color: {
       de: 'Farbe',
@@ -1419,8 +1419,32 @@ export class I18NService {
             <li>Aktive Ebenen auf Operation persistieren</li>
             <li>Default Ebenen Favoriten für die Organisation zu setzen</li>
           </ul>`,
-      fr: 'TODO fr Translation: Carte de base, Couches cartographiques, Favoris et prédéfinies Couches cartographiques disponibles',
-      en: 'TODO en translation: Base map, Layers, Favorites and predefined Available layers',
+      fr: `La vue par défaut est celle qui est normalement utilisée.<br>
+          Dans cette vue, il est possible de travailler avec des cartes de base, des couches, des favoris et des couches prédéfinies disponibles.<br>
+          <br>
+          La vue expert est destinée à ceux qui souhaitent ajouter des couches cartographiques spéciales.<br>
+          Cette vue spéciale permet de :
+          <ul>
+            <li>définir des sources WMS / WMTS externes</li>
+            <li>configurer des couches WMS/WMTS</li>
+            <li>ajouter des couches GeoJSON externes</li>
+            <li>ajouter des couches CSV externes</li>
+            <li>persister les couches actives sur l'opération</li>
+            <li>définir des couches favorites par défaut pour l'organisation</li>
+          </ul>`,
+      en: `The default view is the one normally used.<br>
+          In this view, all things are possible to work with base maps, layers, favorites and the predefined available layers.<br>
+          <br>
+          The expert view is intended for those who want to add special map layers.<br>
+          This special view allows:
+          <ul>
+            <li>defining external WMS / WMTS sources</li>
+            <li>configuring WMS/WMTS layers</li>
+            <li>adding external GeoJSON layers</li>
+            <li>adding external CSV layers</li>
+            <li>persisting active layers on operation</li>
+            <li>setting default layer favorites for the organization</li>
+          </ul>`,
     },
     docExpertWmsSourceTitle: {
       de: 'WMS / WMTS Quellen',
@@ -1429,14 +1453,16 @@ export class I18NService {
     },
     docExpertWmsSourceButton: {
       de: `Wenn die Experten Ansicht aktiv ist, wird unter "Verfügbare Ebenen" neben dem "Ebenen Quelle" dropdown ein editier Symbol / Button angezeigt(1)`,
-      fr: 'TODO fr Translation "Couches cartographiques disponibles", "Source du couche"',
-      en: 'TODO en translation "Available layers", "Layer Source"',
+      fr: `Lorsque la vue expert est active, un symbole/bouton d'édition s'affiche à côté du menu déroulant "Source de couche" sous "Couches disponibles" (1)`,
+      en: `When the expert view is active, an edit symbol/button is displayed next to the "Layer Source" dropdown under "Available Layers" (1)`,
     },
     docExpertWmsSource: {
       de: `Durch den klick darauf erhält man die Möglichkeit über "Quelle auswählen"(1) eine bestehende, als Öffentlich markierte (oder eine eigene Gespeicherte), Quelle zur aktuellen Ansicht hinzuzufügen.<br>
           Alternativ kann man über "Neue Quelle Hinzufügen"(2) die Informationen eines WMS / WMTS Anbieters hinterlegen.`,
-      fr: 'TODO fr Translation "sélectionner la source"(1), "Ajouter une nouvelle source"(2)',
-      en: 'TODO en translation "select source"(1), "Add new source"(2)',
+      fr: `En cliquant dessus, on a la possibilité d'ajouter une source existante, marquée comme publique (ou une source personnelle sauvegardée) à la vue actuelle via "Sélectionner la source" (1).<br>
+          Alternativement, on peut saisir les informations d'un fournisseur WMS / WMTS via "Ajouter une nouvelle source" (2).`,
+      en: `By clicking on it, you have the option to add an existing source, marked as public (or a saved personal source) to the current view via "Select source" (1).<br>
+          Alternatively, you can enter the information of a WMS / WMTS provider via "Add new source" (2).`,
     },
     docExpertWmsSourceDetails: {
       de: `Nachdem man eine vorhandene Quelle oder eine Neue hinzugefüght hat, ist diese im Dropdown(1) ausgewählt und die Details der Quelle werden angezeigt.<br>
@@ -1455,26 +1481,62 @@ export class I18NService {
           Wenn die Copyright Bedingungen des Anbieters eine generelle Nutzung oder eine welche mit ZS Karte kompatibel ist zulassen, kann "Öffentliche Quelle"(6) aktiviert werden damit andere ZSO auch auf diese Quelle zugreiffen können.<br>
           <br>
           Wurde versehentlich eine neue Quelle angelegt, oder wird eine ausgewählte nicht mehr gebraucht kann sie über [entfernen](7) wieder aus den aktiven Quellen gelöscht werden.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Après avoir ajouté une source existante ou une nouvelle, celle-ci est sélectionnée dans le menu déroulant (1) et les détails de la source sont affichés.<br>
+          On peut ajouter d'autres sources via le menu déroulant ou en sélectionner une pour voir ses détails.<br>
+          En cliquant sur [OK] (2), les sources ajoutées / modifiées sont mises à jour dans "Source de couche" sous "Couches disponibles".<br>
+          <br>
+          Si on a créé une nouvelle source, les champs doivent être remplis en conséquence.<br>
+          Il faut veiller à sélectionner le bon "Type de couche" (3), car le traitement des capacités et les couches cartographiques disponibles qui en résultent sont différents pour les types.<br>
+          Si seul le domaine/URL principal sans la partie Capabilities est spécifié dans "URL source", le système complète automatiquement la partie Capabilities.<br>
+          L'URL effectivement utilisée est affichée/mise à jour (4) lorsqu'on quitte le champ. Si celle-ci ne correspond pas aux informations du fournisseur, l'URL complète des Capabilities doit être spécifiée.<br>
+          <br>
+          Tous les fournisseurs WMS / WMTS ont des conditions de copyright correspondantes, qui indiquent dans quelles conditions les services peuvent être utilisés.<br>
+          De nombreux fournisseurs cantonaux sont gratuits et donc utilisables ici, mais ils exigent la mention de l'"Attribution de la source" correspondante (5).<br>
+          Les textes requis avec les liens correspondants selon le fournisseur peuvent être saisis ici.<br>
+          <br>
+          Si les conditions de copyright du fournisseur permettent une utilisation générale ou une utilisation compatible avec ZS Karte, "Source publique" (6) peut être activé pour que d'autres ZSO puissent également accéder à cette source.<br>
+          <br>
+          Si une nouvelle source a été créée par erreur ou si une source sélectionnée n'est plus nécessaire, elle peut être supprimée des sources actives via [supprimer] (7).`,
+      en: `After adding an existing source or a new one, it is selected in the dropdown (1) and the details of the source are displayed.<br>
+          You can add more sources via the dropdown or select one to see its details.<br>
+          Clicking on [OK] (2) updates the added / modified sources in "Layer Source" under "Available Layers".<br>
+          <br>
+          If you have created a new source, the fields must be filled in accordingly.<br>
+          Care must be taken to select the correct "Layer type" (3), as the processing of capabilities and the resulting available map layers are different for the types.<br>
+          If only the main domain/URL without the Capabilities part is specified in "Source URL", the system automatically completes the Capabilities part.<br>
+          The effectively used URL is displayed/updated (4) when leaving the field. If this does not correspond to the provider's information, the full URL to the Capabilities must be specified.<br>
+          <br>
+          All WMS / WMTS providers have corresponding copyright conditions, which state under what conditions the services may be used.<br>
+          Many cantonal providers are free and therefore usable here, but they require the mention of the corresponding "Source attribution" (5).<br>
+          The required texts with corresponding links according to the provider can be entered here.<br>
+          <br>
+          If the provider's copyright conditions allow general use or one that is compatible with ZS Karte, "Public source" (6) can be activated so that other ZSOs can also access this source.<br>
+          <br>
+          If a new source was created by mistake, or if a selected one is no longer needed, it can be deleted from the active sources via [remove] (7).`,
     },
     docExpertWmsLayersTitle: {
       de: 'WMS/WMTS Ebenen konfigurieren',
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: 'Configurer les couches WMS/WMTS',
+      en: 'Configure WMS/WMTS layers',
     },
     docExpertAvailableLayers: {
       de: `Wenn spezielle Ebenen Quellen hinzugefügt wurden, werden dessen Ebenen aus den Capabilities ausgelesen und unter "Verfügbare Ebenen"(1) entspechend aufgelistet(2).<br>
           Über "Ebenen Quelle"(3) kann die Anzeige der Ebenen entsprechend auf spezifische Quellen und über das "Filter"(4) Feld weiter eingeschränkt / durchsucht werden.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Lorsque des sources de couches spéciales ont été ajoutées, leurs couches sont lues à partir des capacités et listées en conséquence sous "Couches disponibles" (1) (2).<br>
+          L'affichage des couches peut être limité à des sources spécifiques via "Source de couche" (3) et peut être davantage restreint / recherché via le champ "Filtre" (4).`,
+      en: `When special layer sources have been added, their layers are read from the capabilities and listed accordingly under "Available Layers" (1) (2).<br>
+          The display of layers can be limited to specific sources via "Layer Source" (3) and can be further restricted / searched via the "Filter" (4) field.`,
     },
     docExpertSelectedLayers: {
       de: `Ausgewählte/angeklickte Ebenen werden automatisch unter "Ebenen"(1) hinzugefügt.<br>
           In der Experten Ansicht wird bei den Ebenen ein zusätzliches Zahnrad(2) Symbol angezeigt, welches die Konfigurations Ansicht der WMS Ebene öffnen Läst.<br>
           Bei WMTS Ebenen (oder standard Ebenen der GeoAdmin Quelle) gibt es kein Zahnrad, da WMTS Ebenen per Definition nicht Konfigurierbar sind, da es sich um fixe vorgerenderte Bilder/Tiles handelt.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Les couches sélectionnées/cliquées sont automatiquement ajoutées sous "Couches" (1).<br>
+          Dans la vue expert, un symbole d'engrenage supplémentaire (2) est affiché pour les couches, qui ouvre la vue de configuration de la couche WMS.<br>
+          Pour les couches WMTS (ou les couches standard de la source GeoAdmin), il n'y a pas d'engrenage, car les couches WMTS ne sont par définition pas configurables, s'agissant d'images/tuiles pré-rendues fixes.`,
+      en: `Selected/clicked layers are automatically added under "Layers" (1).<br>
+          In the expert view, an additional gear (2) symbol is displayed for the layers, which opens the configuration view of the WMS layer.<br>
+          For WMTS layers (or standard layers of the GeoAdmin source), there is no gear, as WMTS layers are by definition not configurable, being fixed pre-rendered images/tiles.`,
     },
     docExpertWmsLayers: {
       de: `In der Konfigurations Ansicht der WMS Ebene, werden die Informationen angezeigt welche aus den Capabilities extrahiert wurden.<br>
@@ -1487,8 +1549,26 @@ export class I18NService {
           Über "Inhaltstyp"(6) könnte das Format png/jpg/... der Generierung überschrieben werden.<br>
           Die Felder "Max / Min Skalennenner"(7/8) Steuern bei welchen Zoomstufen (aber über Angabe der Skala) ein Layer angezeigt (oder oft auch verfügbar) ist/werden soll<br>
           Zu guter letzt können auf den einzelnen Ebenen die Quellenagaben(9), aus der WMS Quelle, überschrieben werden, falls dafür spezielle Angaben nötig sind.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Dans la vue de configuration de la couche WMS, les informations extraites des capacités sont affichées.<br>
+          Toutes les couches ont un "Nom de couche" (1), qui détermine la source de données de ce qui doit être affiché sur les images/tuiles individuelles.<br>
+          <br>
+          Si une configuration de couche a été créée qui représente une valeur ajoutée effective par rapport à la couche standard et que l'on voit un potentiel pour que d'autres ZSO puissent/veulent également l'utiliser, elle peut être marquée comme "Source publique" (2), afin que d'autres ZSO la voient comme "couches partagées".<br>
+          Lorsque la configuration d'une couche est modifiée (et surtout si elle est publique), l'étiquette doit être ajustée en conséquence pour la distinguer de la couche standard (3).<br>
+          Sous "Génération de couche" (4), on peut spécifier si les images du WMS doivent être "tuilées" et donc générées de manière réutilisable ou "Image complète" qui régénère l'ensemble de la vue/écran de la carte à chaque zoom/défilement. (Du point de vue des performances, la 2ème option n'a de sens que si la version tuilée présente des artefacts/défauts d'affichage aux transitions des tuiles.)<br>
+          "Taille des tuiles" (5) remplace la taille d'une tuile lors de la génération tuilée (4), des nombres plus élevés signifient que moins de tuiles sont nécessaires, mais que chaque tuile prend plus de temps à générer. Sans spécification, le standard des capacités est utilisé. (Le nombre devrait être donné comme une puissance de 2 (128,256,512...), car de nombreux systèmes sont optimisés pour cela.)<br>
+          Le "Type de contenu" (6) pourrait remplacer le format png/jpg/... de la génération.<br>
+          Les champs "Dénominateur d'échelle max / min" (7/8) contrôlent à quels niveaux de zoom (mais en spécifiant l'échelle) une couche est/doit être affichée (ou souvent aussi disponible)<br>
+          Enfin, les attributions de source (9) de la source WMS peuvent être remplacées sur les couches individuelles si des spécifications spéciales sont nécessaires.`,
+      en: `In the configuration view of the WMS layer, the information extracted from the capabilities is displayed.<br>
+          All layers have a "Layer name" (1), which determines the data source of what should be displayed on the individual images/tiles.<br>
+          <br>
+          If a layer configuration has been created that represents an effective added value compared to the standard layer and one sees potential for other ZSOs to also be able to/want to use it, it can be marked as a "Public source" (2), so that other ZSOs see it as "shared layers".<br>
+          When the configuration of a layer is changed (and especially if it's public), the label should be adjusted accordingly to distinguish it from the standard layer (3).<br>
+          Under "Layer generation" (4), it can be specified whether the images from the WMS should be "tiled" and thus generated reusably or "Full image" which regenerates the entire map view/screen with each zoom/scroll. (From a performance point of view, the 2nd option only makes sense if the tiled version has artifacts/display errors at the tile transitions.)<br>
+          "Tile size" (5) overrides how large a tile should be in the tiled (4) generation, higher numbers mean that fewer tiles are needed, but each individual tile takes longer to generate. Without specification, the standard from the capabilities is used. (The number should be given as a power of 2 (128,256,512...), as many systems are optimized for this.)<br>
+          The "Content type" (6) could override the png/jpg/... format of the generation.<br>
+          The fields "Max / Min scale denominator" (7/8) control at which zoom levels (but by specifying the scale) a layer is/should be displayed (or often also available)<br>
+          Finally, the source attributions (9) from the WMS source can be overridden on the individual layers if special specifications are necessary.`,
     },
     docExpertWmsLayersGroup: {
       de: `Viele WMS Anbieter haben auch vordefinierte Gruppen, welche aus eine Liste von Unterebenen(10) besteht aber der einfachheitshalber über den Gruppennamen als "Ebenennamen"(1) referenziet werden können.<br>
@@ -1498,19 +1578,33 @@ export class I18NService {
           <br>
           Bei WMS Gruppen gibt es die Option "Ebenen-Zeichenmodus"(11), hier macht der default Wert "zusammengeführte Ebenen" am meisten sinn, ändert man dies auf "aufgetrennte Ebenen" behandelt das System jede Unterebene als währe sie in der Ebenen Liste separat aufgenommen und fordert für jede ein eigenes Bild an. (Bei Gruppen mit viel Unterebenen belastet dies das WMS system und die Performance stark. Sinnvoll ist dies nur unter Umständen wenn viele unterschiedliche Kombinationen aus diesen gleichen WMS Ebenen regelmässig verwendet werden, da dann jede Ebene separat gecached werden kann.)<br>
           Bei Ebenen Gruppen kommt es vor das die Unterebenen intern mit eigenen min/max Skalennennern ausgestatet werden, welche jedoch nicht sichtbar sind / angezeigt werden. Werden bei solchen Gruppen einzelne Unterebenen ausgeblendet funktioniert diese filterung nicht mehr, da dann nicht die Gruppe sondern die einzelnen noch sichtbaren Ebenen referenziert/übergeben werden.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `De nombreux fournisseurs WMS ont également des groupes prédéfinis, qui consistent en une liste de sous-couches (10) mais peuvent être référencés simplement par le nom du groupe comme "Nom de couche" (1).<br>
+          Il est également possible de spécifier des couches normalement séparées via une liste séparée par des virgules des couches correspondantes (7), qui sont ensuite rendues comme une seule tuile.<br>
+          (Pour utiliser cette fonction/pouvoir remplacer les noms de couche, le type de couche doit être changé en "WMS (personnalisé)")<br>
+          Si l'on veut utiliser un groupe mais "masquer certaines sous-couches" (10), cela peut être configuré via l'option correspondante. (Ici, la logique prend en charge en interne la liste de toutes les sous-couches à afficher sous forme de liste séparée par des virgules.)<br>
+          <br>
+          Pour les groupes WMS, il existe l'option "Mode de dessin des couches" (11), ici la valeur par défaut "couches fusionnées" a le plus de sens, si on change cela en "couches séparées", le système traite chaque sous-couche comme si elle était incluse séparément dans la liste des couches et demande une image séparée pour chacune. (Pour les groupes avec beaucoup de sous-couches, cela charge fortement le système WMS et les performances. Cela n'a de sens que dans des circonstances où de nombreuses combinaisons différentes de ces mêmes couches WMS sont régulièrement utilisées, car alors chaque couche peut être mise en cache séparément.)<br>
+          Dans les groupes de couches, il arrive que les sous-couches soient équipées en interne de leurs propres dénominateurs d'échelle min/max, qui ne sont cependant pas visibles / affichés. Si des sous-couches individuelles sont masquées dans de tels groupes, ce filtrage ne fonctionne plus, car ce n'est plus le groupe qui est référencé/transmis mais les couches individuelles encore visibles.`,
+      en: `Many WMS providers also have predefined groups, which consist of a list of sublayers (10) but can be referenced simply by the group name as "Layer name" (1).<br>
+          It is also possible to specify normally separate layers via a comma-separated list of the corresponding layers (7), which are then rendered as one tile.<br>
+          (To use this function/be able to override layer names, the layer type must be changed to "WMS (custom)")<br>
+          If you want to use a group but "hide some sublayers" (10), this can be set via the corresponding option. (Here, the logic internally takes over listing all sublayers to be displayed as a comma-separated list.)<br>
+          <br>
+          For WMS groups, there is the option "Layer drawing mode" (11), here the default value "merged layers" makes the most sense, if you change this to "separated layers", the system treats each sublayer as if it were included separately in the layer list and requests a separate image for each. (For groups with many sublayers, this heavily loads the WMS system and performance. This only makes sense under circumstances where many different combinations of these same WMS layers are regularly used, as then each layer can be cached separately.)<br>
+          In layer groups, it happens that the sublayers are internally equipped with their own min/max scale denominators, which are not visible / displayed, however. If individual sublayers are hidden in such groups, this filtering no longer works, as then not the group but the individual still visible layers are referenced/passed.`,
     },
     docExpertGeoJsonLayersTitle: {
       de: 'GeoJSON Ebene',
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: 'Couche GeoJSON',
+      en: 'GeoJSON Layer',
     },
     docExpertNewLayer: {
       de: `In der Experten Ansicht hat es am Ende des Ebenen Blocks ein Button [Neue Ebene erstellen](1), über diesen können neue Ebenen unabhängig von WMS Quellen erstellt werden.<br>
           Nach klick auf den Button muss nun ausgewählt werden ob eine WMS Ebene mit freien Feldeingabe, ein GeoJSON Layer oder ein CSV Layer erstellt werden soll.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Dans la vue expert, il y a un bouton [Créer une nouvelle couche] (1) à la fin du bloc de couches, qui permet de créer de nouvelles couches indépendamment des sources WMS.<br>
+          Après avoir cliqué sur le bouton, il faut maintenant choisir si une couche WMS avec saisie libre de champs, une couche GeoJSON ou une couche CSV doit être créée.`,
+      en: `In the expert view, there is a button [Create new layer] (1) at the end of the layer block, through which new layers can be created independently of WMS sources.<br>
+          After clicking the button, you now have to select whether a WMS layer with free field input, a GeoJSON layer or a CSV layer should be created.`,
     },
     docExpertGeoJsonLayers: {
       de: `Bei Angabe der Quell-URL(1) muss entsprechend eine URL zu einer geojson Datei angeben werden, entsprechende Dateien müssen über einen Webserver / online Storage gehostet und ohne Login aufgerufen werden können.<br>
@@ -1520,13 +1614,25 @@ export class I18NService {
           <br>
           Für Beschreibungen zu "Ist die Ebene durchsuchbar?"(5) siehe "Ebenen durchsuchbar machen" weiter unten.
           Die restlichen Felder sind die gleichen wie bereits unter "WMS/WMTS Ebenen konfigurieren" beschrieben.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Lors de la spécification de l'URL source (1), une URL vers un fichier geojson doit être fournie en conséquence, les fichiers correspondants doivent être hébergés sur un serveur web / stockage en ligne et pouvoir être appelés sans connexion.<br>
+          Pour que les données GeoJSON puissent être affichées sur une carte, il faut configurer comment les 'features' individuelles doivent être dessinées, les formats "MapBox GL Style" et "OpenLayers Flat" sont pris en charge comme "Format de style" (2). Les spécifications sur la façon dont un tel fichier de style doit être structuré sont liées en conséquence.<br>
+          Avec MapBox, plusieurs styles peuvent être définis dans une spécification, donc le "Nom de la source de style" (3) à utiliser doit être spécifié.<br>
+          Ensuite, sous "Type de source de style" (4), on peut spécifier si les informations de style doivent également être référencées via une URL ou si elles doivent être stockées directement dans la définition de la couche sous forme de texte.<br>
+          <br>
+          Pour les descriptions de "La couche est-elle consultable ?" (5), voir "Rendre les couches consultables" ci-dessous.
+          Les autres champs sont les mêmes que ceux déjà décrits sous "Configurer les couches WMS/WMTS".`,
+      en: `When specifying the Source URL (1), a URL to a geojson file must be provided accordingly, corresponding files must be hosted on a web server / online storage and be callable without login.<br>
+          For GeoJSON data to be displayed on a map, it must be configured how the individual 'features' should be drawn, the formats "MapBox GL Style" and "OpenLayers Flat" are supported as "Style Format" (2). The specifications on how such a style file must be structured are linked accordingly.<br>
+          With MapBox, multiple styles can be defined in one specification, so the "Style source name" (3) to be used must be specified.<br>
+          Subsequently, under "Style source type" (4), it can be specified whether the style information should also be referenced via a URL or whether it should be stored directly in the layer definition as text.<br>
+          <br>
+          For descriptions of "Is the layer searchable?" (5), see "Making layers searchable" below.
+          The remaining fields are the same as already described under "Configuring WMS/WMTS layers".`,
     },
     docExpertCsvLayersTitle: {
       de: 'CSV Ebene',
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: 'Couche CSV',
+      en: 'CSV Layer',
     },
     docExpertCsvLayers: {
       de: `Wenn bei der Erstellung einer neuen Ebene der Ebenentyp CSV ausgewählt wird, sind die gleichen Felder verfügbar wie bei GeoJSON, aber zusätzlich noch ein paar CSV spezifische.<br>
@@ -1536,12 +1642,23 @@ export class I18NService {
           Bei "Feldname der X-Koordinate"(2) bzw "Feldname der Y-Koordinate"(3) muss der Feldname/Titel der entsprechenden Spalte angegeben werden in welcher die Zahl steht.<br>
           Die Koordinaten können auf verschiedene Arten kodiert sein, daher muss angegebn werden welchr "Konfigurationscode für die Datenprojektion"(4) diese kodierung beschreibt.<br>
           Die in ZS Karte verwendeten standard Codes mit ihrem Verwendungskontext sind aufgeführt, weitere können auf <a href="https://epsg.io/">https://epsg.io/</a> gesucht werden, bzw. sind bei der Datenquelle zu prüfen/erfragen.<br>`,
-          fr: 'TODO fr Translation',
-          en: 'TODO en translation',
-        },
+      fr: `Lorsque le type de couche CSV est sélectionné lors de la création d'une nouvelle couche, les mêmes champs sont disponibles que pour GeoJSON, mais avec quelques champs spécifiques au CSV en plus.<br>
+          Les couches CSV sont en fait aussi des couches GeoJSON, car elles sont converties en GeoJSON lors du chargement du fichier selon la configuration. Chaque ligne devient alors une entité GeoJSON et les colonnes deviennent un champ/propriété de celle-ci.<br>
+          <br>
+          Pour que la conversion fonctionne, il faut spécifier dans "Délimiteur" (1) le caractère qui sépare les différents champs dans le CSV, généralement la virgule "," ou le point-virgule ";".<br>
+          Pour "Nom du champ de la coordonnée X" (2) et "Nom du champ de la coordonnée Y" (3), il faut indiquer le nom/titre du champ de la colonne correspondante où se trouve le nombre.<br>
+          Les coordonnées peuvent être codées de différentes manières, il faut donc spécifier quel "Code de configuration pour la projection des données" (4) décrit ce codage.<br>
+          Les codes standard utilisés dans ZS Karte avec leur contexte d'utilisation sont listés, d'autres peuvent être recherchés sur <a href="https://epsg.io/">https://epsg.io/</a>, ou doivent être vérifiés/demandés auprès de la source de données.<br>`,
+      en: `When creating a new layer and the layer type CSV is selected, the same fields are available as for GeoJSON, but with a few additional CSV-specific ones.<br>
+          CSV layers are actually also GeoJSON layers, as they are converted to GeoJSON when loading the file according to the configuration. Each row becomes a GeoJSON feature and the columns become a field/property of it.<br>
+          <br>
+          For the conversion to work, the "Delimiter" (1) must be specified with which character the individual fields in the CSV are separated, usually the comma "," or semicolon ";".<br>
+          For "Field name of the X coordinate" (2) and "Field name of the Y coordinate" (3), the field name/title of the corresponding column in which the number is located must be specified.<br>
+          The coordinates can be encoded in different ways, so it must be specified which "Data projection configuration code" (4) describes this encoding.<br>
+          The standard codes used in ZS Karte with their usage context are listed, others can be searched for on <a href="https://epsg.io/">https://epsg.io/</a>, or need to be checked/inquired with the data source.<br>`,
+    },
     docExpertCsvLayersFilter: {
-      de: `
-          Optimalerweise sind die CSV Dateien aufbereitet und unpassende/ungewollte Zeilen wurden entfernt.<br>
+      de: `Optimalerweise sind die CSV Dateien aufbereitet und unpassende/ungewollte Zeilen wurden entfernt.<br>
           Wurde dies nicht gemacht können unter "RegEx Muster für Daten Filter"(5) Felder und RegEx Pattern definiert werden um die Daten zu filtern.<br>
           Wenn für ein Feld nur 1 Wert zugelassen werden soll, kann einfach der Wert ins RegEx Feld geschrieben werden.<br>
           Sollen mehrer bestimmte Werte zugelassen werden, müssen diese in ein Klammern paar eingehüllt und mit einem Pipe "|" getrennt angegeben werden, z.B. "(wert1|wert2|wert3)"<br>
@@ -1554,13 +1671,37 @@ export class I18NService {
           Zusätzlich können über "Gültiger Bereich"(6) min/max X und Y Koordinaten angegeben werden für welche Features/Zeilen zugelassen werden. Diese Werte müssen mit dem gleichen System kodiert sein wie die X/Y Felder der Zeilen selbst.<br>
           Wird keine Einschränkung definiert, filtert das System automatisch alles raus, welcher ausserhalb eines Quadrates über der Schweiz hinausgehen. Dies hat hauptsächlich den Grund fehlerhafte Daten (z.B. mit Koordinaten 0/0) auszuschliessen da dies zu Problemen führen können.<br>
           Die restlichen Felder sind die gleichen wie bereits unter "GeoJSON Ebene" bzw. "WMS/WMTS Ebenen konfigurieren" beschrieben.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Idéalement, les fichiers CSV sont préparés et les lignes inappropriées/non désirées ont été supprimées.<br>
+          Si cela n'a pas été fait, des champs et des modèles RegEx peuvent être définis sous "Modèle RegEx pour les filtres de données" (5) pour filtrer les données.<br>
+          Si une seule valeur doit être autorisée pour un champ, la valeur peut simplement être écrite dans le champ RegEx.<br>
+          Si plusieurs valeurs spécifiques doivent être autorisées, elles doivent être enveloppées dans une paire de parenthèses et séparées par un pipe "|", par exemple "(valeur1|valeur2|valeur3)"<br>
+          Si toutes les valeurs commençant par "test_" doivent être autorisées, cette partie peut être complétée par un all match ".*", par exemple "test_.*<br>
+          Si toutes les valeurs se terminant par "test_" doivent être autorisées, un all match ".*" peut être préfixé à cette partie, par exemple ".*_test<br>
+          Si toutes les valeurs se terminant par "_test" doivent être autorisées, cela peut être défini par ".*_test"<br>
+          Une liste de valeurs fixes et des préfixes/suffixes autorisés peuvent également être combinés, par exemple "(valeur1|valeur2|valeur3|test_.*|.*_test)"<br>
+          Si tout doit être autorisé sauf certaines valeurs, cela peut être spécifié par un all match ".*" (ou un préfixe/suffixe/liste de valeurs comme précédemment) suivi d'un lookbehind négatif (uniquement des valeurs fixes, pas de logiques de préfixe/suffixe) pour chaque valeur à exclure, par exemple ".*(?<!valeur1)(?<!valeur2)" ou "test_.*(?<!test_temp)(?<!test_petit)"<br>
+          <br>
+          De plus, des coordonnées X et Y min/max peuvent être spécifiées via "Étendue de zone valide" (6) pour lesquelles les entités/lignes sont autorisées. Ces valeurs doivent être codées avec le même système que les champs X/Y des lignes elles-mêmes.<br>
+          Si aucune restriction n'est définie, le système filtre automatiquement tout ce qui sort d'un carré au-dessus de la Suisse. Cela a principalement pour but d'exclure les données erronées (par exemple avec des coordonnées 0/0) car cela peut conduire à des problèmes.<br>
+          Les autres champs sont les mêmes que ceux déjà décrits sous "Couche GeoJSON" ou "Configurer les couches WMS/WMTS".`,
+      en: `Ideally, the CSV files are prepared and inappropriate/unwanted rows have been removed.<br>
+          If this has not been done, fields and RegEx patterns can be defined under "RegEx pattern for data filters" (5) to filter the data.<br>
+          If only 1 value should be allowed for a field, the value can simply be written into the RegEx field.<br>
+          If several specific values should be allowed, these must be wrapped in a pair of parentheses and specified separated by a pipe "|", e.g. "(value1|value2|value3)"<br>
+          If all values starting with "test_" should be allowed, this part can be supplemented with an all match ".*", e.g. "test_.*<br>
+          If all values ending with "test_" should be allowed, an all match ".*" can be prefixed to this part, e.g. ".*_test<br>
+          If all values ending with "_test" should be allowed, this can be defined via ".*_test"<br>
+          A fixed value list and allowed prefixes/suffixes can also be combined, e.g. "(value1|value2|value3|test_.*|.*_test)"<br>
+          If everything should be allowed except certain values, this can be specified via an all match ".*" (or a prefix/suffix/value list as before) followed by a negative lookbehind (only fixed values no prefix/suffix logics) for each value to be excluded, e.g. ".*(?<!value1)(?<!value2)" or "test_.*(?<!test_temp)(?<!test_small)"<br>
+          <br>
+          Additionally, min/max X and Y coordinates can be specified via "Valid area extent" (6) for which features/rows are allowed. These values must be encoded with the same system as the X/Y fields of the rows themselves.<br>
+          If no restriction is defined, the system automatically filters out everything that goes outside a square over Switzerland. This is mainly to exclude erroneous data (e.g. with coordinates 0/0) as this can lead to problems.<br>
+          The remaining fields are the same as already described under "GeoJSON Layer" or "Configuring WMS/WMTS layers".`,
     },
     docExpertSucheTitle: {
       de: 'Ebenen durchsuchbar machen',
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: 'Rendre les couches consultables',
+      en: 'Making layers searchable',
     },
     docExpertSuche: {
       de: `Bei GeoJSON und CSV Ebenen kann die Option "Ist die Ebene durchsuchbar?"(1) aktiviert werden das man in diesen Ebenen suchen kann.
@@ -1591,7 +1732,7 @@ export class I18NService {
         Bei Suchergebnissen kann analog der standard Logik das Ergebnis angeklickt werden um zu diesem zu springen.<br>
         Zusätzlich wird während dem Suchen bei allen gefundenen Features das Feld "<code>ZsMapSearchResult</code>" auf den boolean Wert true gesetzt, dies kann in den Style definitionen entsprechend beachtet und die Features dadurch entsprechend hervorgehoben werden.<br>
         In einem MapBox Style z.B. roter statt schwarzer Text wenn Teil des Suchergebnisses über:<br>
-        <code>
+        <pre><code>
         {
           ...
           "layers": [
@@ -1605,32 +1746,119 @@ export class I18NService {
             }
           ]
         }
-        </code>
-        `,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+        </code></pre>`,
+      fr: `Pour les couches GeoJSON et CSV, l'option "La couche est-elle consultable ?" (1) peut être activée pour permettre la recherche dans ces couches.
+        Cela nécessite des informations supplémentaires qui configurent la recherche.<br>
+        Dans le "Masque d'étiquette de résultat de recherche" (2), on spécifie ce qui doit être affiché lorsqu'un résultat est trouvé. Pour cela, les noms de champs des propriétés d'une entité dans le GeoJSON/colonnes dans le CSV peuvent être spécifiés en utilisant la notation <code>\${NomDuChamp}</code>.<br>
+        Dans "Modèle RegEx pour la recherche" (3), des modèles de recherche doivent être définis pour lesquels la recherche doit être effectuée dans la couche GeoJSON/CSV. Comme une entité/ligne dans un GeoJSON/CSV a différents champs, il faut coder dans le masque de recherche quelle partie du masque doit apparaître dans quel champ GeoJSON/CSV.<br>
+        Cela se fait via des groupes nommés dans le RegEx qui ont la forme "<code>(?<NomDuChamp>masque de recherche regex)</code>". Plus d'informations et d'aide pour créer des modèles RegEx peuvent être trouvées par exemple sur https://regex101.com, les bases pertinentes sont expliquées ici, y compris des modèles à adopter.<br>
+        <ul>
+          <li>Si les caractères autorisés pour le masque de recherche sont tous les caractères qui peuvent apparaître dans les mots (dans toutes les langues), "<code>\\p{L}</code>" peut être utilisé pour un seul caractère.</li>
+          <li>Pour rechercher un chiffre, cela se fait via "<code>\\d</code>".</li>
+          <li>Si tous les caractères (caractères de mot, chiffres, caractères spéciaux) doivent être possibles, cela est indiqué par "<code>.</code>".</li>
+          <li>S'il ne s'agit pas d'un seul caractère, mais de 1-plusieurs, cela peut être indiqué par "<code>+</code>", 0-plusieurs avec "<code>*</code>", 0-1 avec "<code>?</code>" après le masque (appelés quantificateurs).</li>
+          <li>Si un groupe d'un masque Regex doit pouvoir être répété plusieurs fois/être optionnel, il doit être placé dans un groupe non capturant avec "<code>(?:masque)</code>" et marqué en conséquence avec un quantificateur <code>+/*/?</code>.</li>
+        </ul>
+        Cela donne maintenant par exemple les notations réutilisables suivantes
+        <ul>
+          <li>"<code>(?<NomDuChamp>.+)</code>" recherche l'ensemble de l'entrée du masque de recherche dans NomDuChamp.</li>
+          <li>"<code>(?<NomDuChamp1>\\p{L}+)</code>" si exactement 1 mot avec 1 à l'infini caractères est entré dans le masque de recherche, il est recherché dans NomDuChamp1</li>
+          <li>"<code>(?<NomDuChamp2>\\d+)</code>" si exactement un nombre avec 1 à l'infini chiffres est entré dans le masque de recherche, il est recherché dans NomDuChamp2</li>
+          <li>"<code>(?<NomDuChamp3>\\p{L}+(?: \\p{L}+)*)</code>" si au moins 1 mot jusqu'à l'infini mots, tous séparés par un espace, sont entrés dans le masque de recherche, ils sont recherchés dans NomDuChamp3</li>
+          <li>"<code>(?<numeroEntree>\\d+ ?\\p{L}?)</code>" si un nombre avec 1 à l'infini chiffres, avec un espace optionnel et/ou un seul caractère de mot optionnel est entré dans le masque de recherche, il est recherché dans numeroEntree</li>
+          <li>"<code>(?<NomDuChamp4>\\p{L}+(?: \\p{L}+)*), (?<NomDuChamp5>\\p{L}+(?: \\p{L}+)*)</code>" si 1 - x mots, suivis d'une virgule et d'un espace, et à nouveau 1 - x mots sont spécifiés, le texte est recherché en conséquence dans NomDuChamp4 et NomDuChamp5.<br>
+              Il est important ici de séparer les champs par autre chose qu'un espace, sinon tout sauf le dernier mot est recherché dans NomDuChamp4 et seul le dernier/unique mot obligatoire (car 1 - x) dans NomDuChamp5</li>
+        </ul>
+        Dans un fichier GeoJSON/CSV, il peut y avoir des milliers d'objets/entités/lignes séparés et donc potentiellement beaucoup qui correspondent à l'entrée de recherche. Afin qu'un résultat plus différencié puisse être produit lorsque de nombreuses entités similaires sont trouvées, des noms de champs peuvent être spécifiés selon lesquels les résultats doivent être groupés s'il y en a trop.<br>
+        De plus, le "Nombre maximum de résultats de recherche" (4) à afficher peut être défini.<br>
+        <br>
+        Pour les résultats de recherche, comme dans la logique standard, le résultat peut être cliqué pour y sauter.<br>
+        De plus, pendant la recherche, le champ "<code>ZsMapSearchResult</code>" est défini sur la valeur booléenne true pour toutes les entités trouvées, cela peut être pris en compte dans les définitions de style et les entités peuvent ainsi être mises en évidence en conséquence.<br>
+        Dans un style MapBox, par exemple, du texte rouge au lieu de noir lorsqu'il fait partie du résultat de recherche via :<br>
+        <pre><code>
+        {
+          ...
+          "layers": [
+            ...
+            {
+              ...
+              "paint": {
+                "text-color": ["case", ["get", "ZsMapSearchResult"], "#ff0000", "#000000"],
+                ...
+              }
+            }
+          ]
+        }
+        </code></pre>`,
+      en: `For GeoJSON and CSV layers, the option "Is the layer searchable?" (1) can be activated to allow searching in these layers.
+          This requires additional information that configures the search.<br>
+          In the "Search result label mask" (2), you specify what should be displayed when a match is found. For this, the field names of the properties of a feature in the GeoJSON/columns in the CSV can be specified using the notation <code>\${FieldName}</code>.<br>
+          In "RegEx pattern for search" (3), search patterns must be defined for which the search should look in the GeoJSON/CSV layer. Since a feature/row in a GeoJSON/CSV has different fields, it must be coded in the search mask which part of the mask must occur in which GeoJSON/CSV field.<br>
+          This is done via so-called named groups in the RegEx which have the form "<code>(?<FieldName>regex search mask)</code>". More information and help on creating RegEx patterns can be found e.g. on https://regex101.com, the relevant basics are explained here, including patterns to adopt.<br>
+          <ul>
+            <li>If allowed characters for the search mask are all characters that can occur in words (in all languages), "<code>\\p{L}</code>" can be used for a single character.</li>
+            <li>To search for a digit, this is done via "<code>\\d</code>".</li>
+            <li>If all characters (word characters, numbers, special characters) should be possible, this is indicated by "<code>.</code>".</li>
+            <li>If not a single character, but 1-several, this can be indicated by "<code>+</code>", 0-several with "<code>*</code>", 0-1 with "<code>?</code>" after the mask (so-called quantifiers).</li>
+            <li>If a group of a Regex mask should be able to be repeated multiple times/be optional, this must be put in a so-called non-capturing group with "<code>(?:mask)</code>" and marked accordingly with a quantifier <code>+/*/?</code>.</li>
+          </ul>
+          This now results in, for example, the following reusable notations
+          <ul>
+            <li>"<code>(?<FieldName>.+)</code>" searches for the entire search mask input in FieldName.</li>
+            <li>"<code>(?<FieldName1>\\p{L}+)</code>" if exactly 1 word with 1 to infinity characters is entered in the search mask, it is searched for in FieldName1</li>
+            <li>"<code>(?<FieldName2>\\d+)</code>" if exactly one number with 1 to infinity digits is entered in the search mask, it is searched for in FieldName2</li>
+            <li>"<code>(?<FieldName3>\\p{L}+(?: \\p{L}+)*)</code>" if at least 1 word up to infinity words, all separated by a space, are entered in the search mask, they are searched for in FieldName3</li>
+            <li>"<code>(?<entranceNumber>\\d+ ?\\p{L}?)</code>" if a number with 1 to infinity digits, with an optional space and/or a single optional word character is entered in the search mask, it is searched for in entranceNumber</li>
+            <li>"<code>(?<FieldName4>\\p{L}+(?: \\p{L}+)*), (?<FieldName5>\\p{L}+(?: \\p{L}+)*)</code>" if 1 - x words, followed by a comma and space, and again 1 - x words are specified, the text is searched for accordingly in FieldName4 and FieldName5.<br>
+                It is important here to separate the fields with something other than a space, otherwise everything except the last word is searched for in FieldName4 and only the last/single mandatory word (since 1 - x) in FieldName5</li>
+          </ul>
+          In a GeoJSON/CSV file, there can be thousands of separate objects/features/rows and thus potentially many that match the search input. In order to output a more differentiated result when many similar features are found, field names can be specified according to which the results should be grouped if there are too many.<br>
+          Furthermore, the "Max number of search results" (4) to be displayed can be defined.<br>
+          <br>
+          For search results, as in the standard logic, the result can be clicked to jump to it.<br>
+          Additionally, during the search, the field "<code>ZsMapSearchResult</code>" is set to the boolean value true for all found features, this can be taken into account in the style definitions and the features can thus be highlighted accordingly.<br>
+          In a MapBox style, for example, red instead of black text when part of the search result via:<br>
+          <pre><code>
+          {
+            ...
+            "layers": [
+              ...
+              {
+                ...
+                "paint": {
+                  "text-color": ["case", ["get", "ZsMapSearchResult"], "#ff0000", "#000000"],
+                  ...
+                }
+              }
+            ]
+          }
+          </code></pre>`,
     },
     docExpertPersistLayersTitle: {
       de: 'Aktive Ebenen auf Ereignis persistieren',
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: "Persister les couches actives sur l'événement",
+      en: 'Persist active layers to event',
     },
     docExpertPersistLayers: {
       de: `In der Experten Ansicht hat es am Ende des Ebenen Blocks ein Button [Ebenen auf Ereignis speichern](1).<br>
           Wird dieser gedrückt werden die aktuell verwendeten Ebenen inkl. all deren Einstellungen, der Reihenfolge, Transparent und sichtbarkeit auf dem Ereignis persistiert.<br>
           Wenn anschliessend jemand (/oder man selbst) sich an einem anderen Gerät neu anmeldet und somit noch keine eigene Ebnene Konfiguration hat wird diese aus dem Ereignis geladen.`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Dans la vue expert, il y a un bouton [Enregistrer les couches dans l'événement] (1) à la fin du bloc de couches.<br>
+          Lorsqu'on appuie dessus, les couches actuellement utilisées, y compris tous leurs paramètres, leur ordre, leur transparence et leur visibilité, sont persistées sur l'événement.<br>
+          Si par la suite quelqu'un (/ou soi-même) se connecte sur un autre appareil et n'a donc pas encore sa propre configuration de couches, celle-ci sera chargée à partir de l'événement.`,
+      en: `In the expert view, there is a button [Save layers to event] (1) at the end of the layer block.<br>
+          When this is pressed, the currently used layers including all their settings, order, transparency and visibility are persisted to the event.<br>
+          If subsequently someone (/or oneself) logs in on another device and thus does not yet have their own layer configuration, this will be loaded from the event.`,
     },
     docExpertOrganisationDefaultsTitle: {
       de: 'Default Ebenen Favoriten für Organisation',
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: "Favoris de couches par défaut pour l'organisation",
+      en: 'Default layer favorites for organization',
     },
     docExpertOrganisationDefaultsButton: {
       de: 'In der Experten Ansicht hat es ganz unten in der Ebenen Sidebar den Button [Organisationseinstellungen](1), dieser öffnet eine Ansicht um WMS/WMTS Quellen sowie die Favoriten Ebenen für die eigene Organisation Ereignis und Session übergreifend zu definieren.',
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: "Dans la vue expert, tout en bas de la barre latérale des couches, il y a le bouton [Paramètres de l'organisation] (1), qui ouvre une vue pour définir les sources WMS/WMTS ainsi que les couches favorites pour sa propre organisation, de manière transversale aux événements et aux sessions.",
+      en: 'In the expert view, at the very bottom of the layer sidebar, there is the button [Organization settings] (1), which opens a view to define WMS/WMTS sources as well as the favorite layers for your own organization across events and sessions.',
     },
     docExpertOrganisationDefaults: {
       de: `Bei "Vorab ausgewählte WMS-Quellen"(1) werden alle Quellen angezeigt welche selbst erstellt wurden oder öffentlich sind. Hier ausgewählte Quellen sind nach dem Login auf ZS Karte automatisch geladen und werden auch in der Standard Ansicht unter den "Verfügbare Ebenen" angezeigt.<br>
@@ -1643,8 +1871,26 @@ export class I18NService {
           Bei den aktiven Ebenen/Favoriten wird über *modified* angezeigt das es keine standard Ebene (bzw. zuvor gespeicherte) ist, sondern eine bei der die Einstellungen angepasst wurden.<br>
           Wenn eine solche Ebene als öffentlich definiert wurde, wird diese erst dann effektiv in der Datenbank gespeichert und ist öffentlich verwendbar wenn diese mindestens einmalig als Favorit gespeichert wurde.<br>
           Bei bereits zuvor mal gespeicherte Ebenen welche nochmals angepasst wurden, kann beim klick auf [OK](5) definiert werden ob die bestehende Einstellung angepasst oder es als neue Ebene gespeichert werden soll`,
-      fr: 'TODO fr Translation',
-      en: 'TODO en translation',
+      fr: `Sous "Sources WMS présélectionnées" (1), toutes les sources qui ont été créées par soi-même ou qui sont publiques sont affichées. Les sources sélectionnées ici sont automatiquement chargées après la connexion à ZS Karte et sont également affichées dans la vue standard sous "Couches disponibles".<br>
+          <br>
+          Sous "Favoris" (2), les favoris actifs sont affichés.<br>
+          Si l'on définit ses propres favoris, ceux-ci seront affichés à l'avenir à la place des favoris standard de ZS Karte.<br>
+          On peut sélectionner les favoris correspondants en cliquant sur une couche dans "Ajouter depuis actif" (3) ou "Ajouter à partir de la liste" (4), ou les supprimer des favoris en cliquant sur l'un des favoris.<br>
+          Dans la liste des favoris, la source (4) d'où provient la couche est également indiquée sous l'étiquette de la couche.<br>              
+          <br>
+          Pour les couches/favoris actifs, *modified* indique qu'il ne s'agit pas d'une couche standard (ou précédemment enregistrée), mais d'une couche dont les paramètres ont été ajustés.<br>
+          Si une telle couche a été définie comme publique, elle ne sera effectivement enregistrée dans la base de données et utilisable publiquement que lorsqu'elle aura été enregistrée au moins une fois comme favori.<br>
+          Pour les couches déjà enregistrées précédemment qui ont été à nouveau ajustées, on peut définir en cliquant sur [OK] (5) si le paramètre existant doit être ajusté ou s'il doit être enregistré comme nouvelle couche`,
+      en: `Under "Pre-selected WMS sources" (1), all sources that have been self-created or are public are displayed. Sources selected here are automatically loaded after logging into ZS Karte and are also displayed in the standard view under "Available Layers".<br>
+          <br>
+          Under "Favorites" (2), the active favorites are displayed.<br>
+          If you define your own favorites, these will be displayed in the future instead of the standard favorites from ZS Karte.<br>
+          You can select corresponding favorites by clicking on a layer from "Add from active" (3) or "Add from list" (4), or remove them from favorites by clicking on one of the favorites.<br>
+          In the list of favorites, the source (4) from which the layer originates is also indicated under the layer label.<br>              
+          <br>
+          For active layers/favorites, *modified* indicates that it is not a standard layer (or previously saved), but one where the settings have been adjusted.<br>
+          If such a layer has been defined as public, it will only be effectively saved in the database and publicly usable when it has been saved at least once as a favorite.<br>
+          For previously saved layers that have been adjusted again, it can be defined when clicking on [OK] (5) whether the existing setting should be adjusted or it should be saved as a new layer`,
     },
     openStreetMap: {
       de: 'OpenStreetMap',
