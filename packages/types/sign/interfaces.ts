@@ -168,11 +168,10 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.fillStyle.size ?? signatureDefaultValues.fillStyleSize;
   signature.fillStyle.spacing =
     signature.fillStyle.spacing ?? signatureDefaultValues.fillStyleSpacing;
-  signature.iconsOffset = signatureDefaultValues.iconsOffset;
-  const iconsOffset = signature.iconsOffset ?? signatureDefaultValues.iconsOffset;
+  const iconsOffset = { ...signatureDefaultValues.iconsOffset };
   iconsOffset.x = signature.iconsOffset?.x ?? signatureDefaultValues.iconsOffset.x;
   iconsOffset.y = signature.iconsOffset?.y ?? signatureDefaultValues.iconsOffset.y;
-  iconsOffset.endHasDifferentOffset = iconsOffset.endHasDifferentOffset ?? signatureDefaultValues.iconsOffset.endHasDifferentOffset;
+  iconsOffset.endHasDifferentOffset = signature.iconsOffset?.endHasDifferentOffset ?? signatureDefaultValues.iconsOffset.endHasDifferentOffset;
   iconsOffset.endX = signature.iconsOffset?.endX ?? signatureDefaultValues.iconsOffset.endX;
   iconsOffset.endY = signature.iconsOffset?.endY ?? signatureDefaultValues.iconsOffset.endY;
   signature.iconsOffset = iconsOffset;
