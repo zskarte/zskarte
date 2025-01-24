@@ -16,15 +16,15 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <div class="journal-header-content">
-              <span class="message-id">#{{entry.message_number}}</span>
-              <span class="subject">{{entry.message_subject}}</span>
+              <span class="message-id">#{{entry.messageNumber}}</span>
+              <span class="subject">{{entry.messageSubject}}</span>
             </div>
           </mat-panel-title>
         </mat-expansion-panel-header>
 
         <ng-template matExpansionPanelContent>
           <div class="created-date">{{entry.createdAt | date}}</div>
-          <p>{{entry.message_content}}</p>
+          <p>{{entry.messageContent}}</p>
           <button mat-flat-button color="primary" (click)="markAsDrawn(entry)">{{i18n.get('markAsDrawn')}}</button>
         </ng-template>
       </mat-expansion-panel>
@@ -40,15 +40,15 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <div class="journal-header-content">
-              <span class="message-id">#{{entry.message_number}}</span>
-              <span class="subject">{{entry.message_subject}}</span>
+              <span class="message-id">#{{entry.messageNumber}}</span>
+              <span class="subject">{{entry.messageSubject}}</span>
             </div>
           </mat-panel-title>
         </mat-expansion-panel-header>
 
         <ng-template matExpansionPanelContent>
           <div class="created-date">{{entry.createdAt | date}}</div>
-          <p>{{entry.message_content}}</p>
+          <p>{{entry.messageContent}}</p>
           <button mat-button (click)="markAsNotDrawn(entry)">{{i18n.get('markAsNotDrawn')}}</button>
         </ng-template>
       </mat-expansion-panel>

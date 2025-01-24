@@ -3,8 +3,8 @@
     <form [formGroup]="journalForm" (ngSubmit)="save($event)">
       <div class="sidebar-header">
         <h1>
-          {{ (journalForm.value.message_number! || '').toString().padStart(3, '0') }} |
-          {{ journalForm.value.message_subject ?? '' }}
+          {{ (journalForm.value.messageNumber! || '').toString().padStart(3, '0') }} |
+          {{ journalForm.value.messageSubject ?? '' }}
         </h1>
 
         <button type="button" (click)="resetEntry()" mat-icon-button [attr.aria-label]="i18n.get('close')">
@@ -23,11 +23,11 @@
               <p>
                 <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
                 <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
-                <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.date_created_date?.toLocaleString() }}<br />
-                <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communication_type }}<br />
-                <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communication_details }}<br />
-                <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visum_message }}<br /><br />
-                <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.message_content }}
+                <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
+                <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
+                <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
+                <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
+                <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
               </p>
               <button mat-stroked-button type="button" (click)="toggleEditing()" style="align-self: start">
                 <mat-icon>edit</mat-icon>
@@ -40,7 +40,7 @@
               <div style="width: 120px">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('journalNumber') }}</mat-label>
-                  <input matInput formControlName="message_number" />
+                  <input matInput formControlName="messageNumber" />
                 </mat-form-field>
               </div>
               <div style="display: flex; gap: 6px">
@@ -56,13 +56,13 @@
               <div style="display: flex; gap: 6px">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('date') }}</mat-label>
-                  <input matInput [matDatepicker]="picker" formControlName="date_created_date" />
+                  <input matInput [matDatepicker]="picker" formControlName="dateCreatedDate" />
                   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('time') }}</mat-label>
-                  <input matInput [matTimepicker]="pickerTime" formControlName="date_created_time" />
+                  <input matInput [matTimepicker]="pickerTime" formControlName="dateCreatedTime" />
                   <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
                   <mat-timepicker #pickerTime />
                 </mat-form-field>
@@ -70,7 +70,7 @@
               <div style="display: flex; gap: 6px">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('communicationDevice') }}</mat-label>
-                  <select matNativeControl formControlName="communication_type">
+                  <select matNativeControl formControlName="communicationType">
                     <option value="telefon">{{ i18n.get('phone') }}</option>
                     <option value="funk">{{ i18n.get('radio') }}</option>
                     <option value="email">{{ i18n.get('mail') }}</option>
@@ -83,23 +83,23 @@
 
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('detailsChanel') }}</mat-label>
-                  <input matInput formControlName="communication_details" />
+                  <input matInput formControlName="communicationDetails" />
                 </mat-form-field>
               </div>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
-                <input matInput formControlName="message_subject" />
+                <input matInput formControlName="messageSubject" />
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('messageContent') }}</mat-label>
-                <textarea matInput formControlName="message_content" rows="10"></textarea>
+                <textarea matInput formControlName="messageContent" rows="10"></textarea>
               </mat-form-field>
               <div class="end">
                 <div style="width: 100px">
                   <mat-form-field appearance="outline">
                     <mat-label>{{ i18n.get('visa') }}</mat-label>
-                    <input matInput formControlName="visum_message" />
+                    <input matInput formControlName="visumMessage" />
                   </mat-form-field>
                 </div>
 
@@ -123,23 +123,23 @@
           
         </mat-tab>
         
-        <mat-tab label="Triage" [disabled]="this.journalForm.value.entry_status === 'awaiting_message'">
+        <mat-tab label="Triage" [disabled]="this.journalForm.value.entryStatus === 'awaiting_message'">
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entry_status !== 'awaiting_triage'">
+            <p *ngIf="journalForm.value.entryStatus !== 'awaiting_triage'">
               <strong>{{ i18n.get('keyMessage') }}:</strong>
               {{
-                journalForm.value.is_key_message !== undefined ?
-                  journalForm.value.is_key_message ?
+                journalForm.value.isKeyMessage !== undefined ?
+                  journalForm.value.isKeyMessage ?
                     'Ja'
                   : 'Nein'
                 : ''
               }}<br />
               <strong>{{ i18n.get('departement') }}: </strong> {{ journalForm.value.department }}<br />
-              <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visum_triage }}<br />
-              <strong>{{ i18n.get('dateTriage') }}: </strong> {{ journalForm.value.date_triage?.toLocaleString() }}
+              <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumTriage }}<br />
+              <strong>{{ i18n.get('dateTriage') }}: </strong> {{ journalForm.value.dateTriage?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entry_status === 'awaiting_triage'">
-              <mat-checkbox formControlName="is_key_message">{{ i18n.get('keyMessage') }}</mat-checkbox>
+            <div *ngIf="journalForm.value.entryStatus === 'awaiting_triage'">
+              <mat-checkbox formControlName="isKeyMessage">{{ i18n.get('keyMessage') }}</mat-checkbox>
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('departement') }}</mat-label>
                 <select matNativeControl formControlName="department">
@@ -158,7 +158,7 @@
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('visa') }}</mat-label>
-                <input matInput formControlName="visum_triage" />
+                <input matInput formControlName="visumTriage" />
               </mat-form-field>
 
               <div class="journal-entry-save-buttons">
@@ -173,31 +173,31 @@
         <mat-tab
           label="Entscheidung"
           [disabled]="
-            this.journalForm.value.entry_status === 'awaiting_message' ||
-            this.journalForm.value.entry_status === 'awaiting_triage' ||
-            this.journalForm.value.entry_status === 'awaiting_drawing'
+            this.journalForm.value.entryStatus === 'awaiting_message' ||
+            this.journalForm.value.entryStatus === 'awaiting_triage' ||
+            this.journalForm.value.entryStatus === 'awaiting_drawing'
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entry_status !== 'awaiting_decision'">
+            <p *ngIf="journalForm.value.entryStatus !== 'awaiting_decision'">
               <strong>{{ i18n.get('decision') }}: </strong> {{ journalForm.value.decision }}<br />
-              <strong>{{ i18n.get('messageReceiver') }}: </strong> {{ journalForm.value.decision_receiver }}<br />
-              <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visum_decider }}<br />
-              <strong>{{ i18n.get('dateDecision') }}: </strong> {{ journalForm.value.date_decision?.toLocaleString() }}
+              <strong>{{ i18n.get('messageReceiver') }}: </strong> {{ journalForm.value.decisionReceiver }}<br />
+              <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumDecider }}<br />
+              <strong>{{ i18n.get('dateDecision') }}: </strong> {{ journalForm.value.dateDecision?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entry_status === 'awaiting_decision'">
+            <div *ngIf="journalForm.value.entryStatus === 'awaiting_decision'">
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('decision') }}</mat-label>
                 <textarea matInput formControlName="decision" rows="10"></textarea>
               </mat-form-field>
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('visa') }}</mat-label>
-                <input matInput formControlName="visum_decider" />
+                <input matInput formControlName="visumDecider" />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('messageReceiver') }}</mat-label>
-                <input matInput formControlName="decision_receiver" />
+                <input matInput formControlName="decisionReceiver" />
               </mat-form-field>
 
               <div class="journal-entry-save-buttons">
@@ -208,7 +208,7 @@
               </div>
             </div>
 
-            <div *ngIf="journalForm.value.entry_status === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
+            <div *ngIf="journalForm.value.entryStatus === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
               <h3>Falscher Fachbereich?</h3>
               <p>Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.</p>
               <button mat-button type="button" (click)="resetState()">Zurück an Triage senden</button>
@@ -218,21 +218,21 @@
         <mat-tab
           label="Ausgang"
           [disabled]="
-            this.journalForm.value.entry_status === 'awaiting_message' ||
-            this.journalForm.value.entry_status === 'awaiting_triage' ||
-            this.journalForm.value.entry_status === 'awaiting_drawing' ||
-            this.journalForm.value.entry_status === 'awaiting_decision'
+            this.journalForm.value.entryStatus === 'awaiting_message' ||
+            this.journalForm.value.entryStatus === 'awaiting_triage' ||
+            this.journalForm.value.entryStatus === 'awaiting_drawing' ||
+            this.journalForm.value.entryStatus === 'awaiting_decision'
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entry_status === 'completed'">
-              <strong>Mitgeteilt durch:</strong> {{ journalForm.value.decision_sender }}<br />
-              <strong>Übermittlungszeit:</strong> {{ journalForm.value.date_decision_delivered?.toLocaleString() }}
+            <p *ngIf="journalForm.value.entryStatus === 'completed'">
+              <strong>Mitgeteilt durch:</strong> {{ journalForm.value.decisionSender }}<br />
+              <strong>Übermittlungszeit:</strong> {{ journalForm.value.dateDecisionDelivered?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entry_status !== 'completed'">
+            <div *ngIf="journalForm.value.entryStatus !== 'completed'">
               <mat-form-field appearance="outline">
                 <mat-label>Mitgeteilt durch</mat-label>
-                <input matInput formControlName="decision_sender" />
+                <input matInput formControlName="decisionSender" />
               </mat-form-field>
 
               <button mat-flat-button color="primary">
@@ -308,42 +308,42 @@
         </div>
       } @else {
         <table mat-table matSort [dataSource]="dataSourceFiltered">
-          <ng-container matColumnDef="message_number">
+          <ng-container matColumnDef="messageNumber">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('messageNumber') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.message_number }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.messageNumber }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="message_subject">
+          <ng-container matColumnDef="messageSubject">
             <th mat-header-cell *matHeaderCellDef>{{ i18n.get('messageSubject') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.message_subject }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.messageSubject }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="message_content">
+          <ng-container matColumnDef="messageContent">
             <th mat-header-cell *matHeaderCellDef>{{ i18n.get('messageContent') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.message_content }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.messageContent }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="date_message">
+          <ng-container matColumnDef="dateMessage">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ i18n.get('dateCreated') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.date_message.toLocaleString('de-CH') }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.dateMessage.toLocaleString('de-CH') }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="entry_status">
+          <ng-container matColumnDef="entryStatus">
             <th mat-header-cell *matHeaderCellDef>{{ i18n.get('status') }}</th>
-            <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entry_status) }}</td>
+            <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="is_key_message">
+          <ng-container matColumnDef="isKeyMessage">
             <th mat-header-cell *matHeaderCellDef>Schlüsselnachricht</th>
             <td mat-cell *matCellDef="let element">
-              <mat-icon *ngIf="element.is_key_message">key</mat-icon>
+              <mat-icon *ngIf="element.isKeyMessage">key</mat-icon>
             </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr
             mat-row
-            [class.key-message]="row.is_key_message"
+            [class.key-message]="row.isKeyMessage"
             class="journal-table-row"
             *matRowDef="let row; columns: displayedColumns"
             (click)="selectEntry(row)"
