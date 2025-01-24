@@ -290,13 +290,13 @@ export class JournalComponent implements AfterViewInit {
     try {
       const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
 
-      if (this.selectedJournalEntry?.id) {
+      if (this.selectedJournalEntry?.documentId) {
         await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.documentId}`, {
           data: {
             ...rest,
-            operation: operation?.id,
-            organization: organization?.id,
-            dateMessage: new Date(
+            operation: operation?.documentId,
+            organization: organization?.documentId,
+            date_message: new Date(
               (this.journalForm.value.dateCreatedDate as Date).setTime(
                 this.journalForm.value.dateCreatedTime!.getTime(),
               ),
@@ -307,9 +307,9 @@ export class JournalComponent implements AfterViewInit {
         await this.apiService.post('/api/journal-entries', {
           data: {
             ...rest,
-            operation: operation?.id,
-            organization: organization?.id,
-            dateMessage: new Date(
+            operation: operation?.documentId,
+            organization: organization?.documentId,
+            date_message: new Date(
               (this.journalForm.value.dateCreatedDate as Date).setTime(
                 this.journalForm.value.dateCreatedTime!.getTime(),
               ),

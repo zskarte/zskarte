@@ -201,6 +201,7 @@ export class OperationService {
           mapLayers: result.mapLayers,
         };
         await this.insertOperation(operation);
+        await this.reload('active');
       }
     });
   }
