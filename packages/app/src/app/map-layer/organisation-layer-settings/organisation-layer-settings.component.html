@@ -2,22 +2,6 @@
 
 <mat-dialog-content class="content-container">
 
-  <section>
-    <h2 class="sectionTitle">{{ i18n.get('favoriteLayers') }} ({{ layer_favorites.length }})</h2>
-    @if (layer_favorites.length > 0) {
-      <mat-selection-list class="favoriteLayers">
-        @for (layer of layer_favorites; track layer) {
-          <mat-list-option (click)="removeLayer(layer)" [selected]="true">
-            <div matLine="1">
-              {{ layer.label }}{{ changedOptions(layer) ? ' *modified*' : '' }}
-            </div>
-            <div matLine="2">{{ layer.source?.label ?? layer.source?.url }}</div>
-          </mat-list-option>
-        }
-      </mat-selection-list>
-    }
-  </section>
-
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>{{ i18n.get('preSelectedWmsSources') }}</mat-panel-title>
@@ -46,6 +30,22 @@
       }
     </ng-template>
   </mat-expansion-panel>
+  
+  <section>
+    <h2 class="sectionTitle">{{ i18n.get('favoriteLayers') }} ({{ layer_favorites.length }})</h2>
+    @if (layer_favorites.length > 0) {
+      <mat-selection-list class="favoriteLayers">
+        @for (layer of layer_favorites; track layer) {
+          <mat-list-option (click)="removeLayer(layer)" [selected]="true">
+            <div matLine="1">
+              {{ layer.label }}{{ changedOptions(layer) ? ' *modified*' : '' }}
+            </div>
+            <div matLine="2">{{ layer.source?.label ?? layer.source?.url }}</div>
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    }
+  </section>
 
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>

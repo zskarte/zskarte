@@ -1,5 +1,5 @@
 .mat-mdc-dialog-content {
-  padding-top: 0.5rem;
+  padding-top: 0.5rem !important;
   min-width: 400px;
   max-width: 500px;
 }
@@ -27,6 +27,10 @@ mat-form-field {
   }
   .attr-remove {
     cursor: pointer;
+  }
+  .attr-placeholder {
+    display: inline-block;
+    width: 24px;
   }
 }
 .attr-add {

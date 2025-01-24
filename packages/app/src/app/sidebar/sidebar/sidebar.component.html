@@ -269,17 +269,11 @@
       </mat-action-list>
     </ng-template>
   </mat-expansion-panel>
-
 <mat-divider></mat-divider>
 @if (mapState.isExpertView()) {
-  <div class="buttonContent">
-    <button
-      mat-stroked-button
-      class="organisationSettings"
-      (click)="editLayerSettings()"
-      [innerText]="i18n.get('organisationSettings')"
-    ></button>
-  </div>
+<div class="buttonContent">
+  <button mat-stroked-button (click)="editLayerSettings()" [innerText]="i18n.get('organisationSettings')"></button>
+</div>
 }
 <h2>{{ i18n.get('filter') }}</h2>
 <mat-divider></mat-divider>

@@ -36,7 +36,7 @@
           <button mat-stroked-button class="button-upload" (click)="dataUpload.click()">
             <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
           </button>
-          <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadData($event)" #dataUpload />
+          <input type="file" class="mapfile-input" [accept]="mapUploadType" (change)="uploadData($event)" #dataUpload />
         }
       }
     </div>
@@ -77,7 +77,7 @@
             <button mat-stroked-button class="button-upload" (click)="styleUpload.click()">
               <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
             </button>
-            <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadStyle($event)" #styleUpload />
+            <input type="file" class="mapfile-input" accept=".json" (change)="uploadStyle($event)" #styleUpload />
           }
         }
       </div>
