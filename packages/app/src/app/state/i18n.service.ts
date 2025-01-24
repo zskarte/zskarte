@@ -2195,9 +2195,9 @@ export class I18NService {
       en: 'Key message',
       fr: 'Message clé',
     },
-    departement: {
+    department: {
       de: 'Fachbereich',
-      en: 'Departement',
+      en: 'Department',
       fr: 'Département',
     },
     dateTriage: {
@@ -2215,57 +2215,72 @@ export class I18NService {
       en: 'Decision time',
       fr: 'Heure de décision',
     },
-    politicalAuthority: {
+    "politische-behoerde": {
       de: 'Politische Behörde',
       en: 'Political authority',
       fr: 'Autorité politique',
     },
-    executiveBody: {
+    "chef-fuehrungsorgan": {
       de: 'Chef Führungsorgan',
       en: 'Chief executive body',
       fr: 'Organe directeur',
     },
-    chiefStaff: {
+    "stabschef": {
       de: 'Stabschef',
       en: 'Chief staff',
       fr: 'Chef du personnel',
     },
-    departementLocation: {
+    "fb-lage": {
       de: 'FB Lage',
       en: 'DP Location',
       fr: 'DP localisation',
     },
-    departementInfo: {
+    "fb-information": {
       de: 'FB Information',
       en: 'DP Information',
       fr: 'DP Information',
     },
-    departementSafety: {
+    "fb-oeffentliche-sicherheit": {
       de: 'FB Sicherheit',
       en: 'DP Safety',
       fr: 'DP Sécurité',
     },
-    departementRescue: {
+    "fb-schutz-rettung": {
       de: 'FB Schutz und Rettung',
       en: 'DP Safety and Rescue',
       fr: 'DP Sécurité et sauvetage',
     },
-    departementHealth: {
+    "fb-gesundheit": {
       de: 'FB Gesundheit',
       en: 'DP Health',
       fr: 'DP Santé',
     },
-    departementLogistics: {
+    "fb-logistik": {
       de: 'FB Logistik',
       en: 'DP Logistics',
       fr: 'DP Logistique',
     },
-    departementInfrastructure: {
+    "fb-infrastrukturen": {
       de: 'FB Infrastruktur',
       en: 'DP Infrastructure',
       fr: 'DP Infrastructure',
     },
-    wrongDepartement: {
+    wrongContent: {
+      de: 'Falscher Inhalt',
+      en: 'Wrong content',
+      fr: 'Mauvais contenu',
+    },
+    wrongContentMessage: {
+      de: 'Falls dieser Journaleintrag nicht korrekt ist, gib ihn zurück an den Eingang.',
+      en: 'If this journal entry is not correct, return it to the input.',
+      fr: 'Si cette entrée de journal n\'est pas correcte, renvoyez-la à l\'entrée.',
+    },
+    backToInput: {
+      de: 'Zurück an Eingang senden',
+      en: 'Return to input',
+      fr: 'Renvoyer à l\'entrée',
+    },
+    wrongDepartment: {
       de: 'Falscher Fachbereich',
       en: 'Wrong department',
       fr: 'Mauvais département',
@@ -2281,11 +2296,11 @@ export class I18NService {
       fr: 'Si cette entrée de journal ne vous appartient pas, renvoyez-la au triage.',
     },
     backToTriage: {
-      de: 'Zurück zum Triage',
+      de: 'Zurück zur Triage',
       en: 'Back to triage',
       fr: 'Retour au triage',
     },
-    allDepartements: {
+    allDepartments: {
       de: 'Alle Fachbereiche',
       en: 'All departments',
       fr: 'Tous les départements',
@@ -2315,7 +2330,7 @@ export class I18NService {
       en: 'Search',
       fr: 'Recherche',
     },
-    noDepartement:{
+    noDepartment:{
       de: 'Kein Fachbereich',
       en: 'No department',
       fr: 'Pas de département',

@@ -19,7 +19,7 @@
     <ng-component matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element">
-        <button mat-raised-button (click)="revokeShareLink(element.documentId)">{{ i18n.get('delete') }}</button>
+        <button mat-stroked-button (click)="revokeShareLink(element.documentId)">{{ i18n.get('delete') }}</button>
       </td>
     </ng-component>
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

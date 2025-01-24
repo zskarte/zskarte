@@ -213,8 +213,8 @@
                   {{
                     journalForm.value.isKeyMessage !== undefined ?
                       journalForm.value.isKeyMessage ?
-                        'Ja'
-                      : 'Nein'
+                      i18n.get('yes')
+                      : i18n.get('no')
                     : ''
                   }}
                 </td>
@@ -223,7 +223,7 @@
                 <td>
                   <strong>{{ i18n.get('departement') }}:</strong>
                 </td>
-                <td>{{ journalForm.value.department }}</td>
+                <td>{{ journalForm.value.department ? i18n.get(journalForm.value.department) : '' }}</td>
               </tr>
               <tr>
                 <td>
@@ -244,19 +244,19 @@
                 i18n.get('keyMessage')
               }}</mat-checkbox>
               <mat-form-field appearance="outline">
-                <mat-label>{{ i18n.get('departement') }}</mat-label>
+                <mat-label>{{ i18n.get('department') }}</mat-label>
                 <mat-select formControlName="department">
-                  <mat-option>{{ i18n.get('noDepartement') }}</mat-option>
-                  <mat-option value="politische-behoerde">{{ i18n.get('politicalAuthority') }}</mat-option>
-                  <mat-option value="chef-fuehrungsorgan">{{ i18n.get('executiveBody') }}</mat-option>
-                  <mat-option value="stabschef">{{ i18n.get('chiefStaff') }}</mat-option>
-                  <mat-option value="fb-lage">{{ i18n.get('departementLocation') }}</mat-option>
-                  <mat-option value="fb-information">{{ i18n.get('departementInfo') }}</mat-option>
-                  <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('departementSafety') }}</mat-option>
-                  <mat-option value="fb-schutz-rettung">{{ i18n.get('departementRescue') }}</mat-option>
-                  <mat-option value="fb-gesundheit">{{ i18n.get('departementHealth') }}</mat-option>
-                  <mat-option value="fb-logistik">{{ i18n.get('departementLogistics') }}</mat-option>
-                  <mat-option value="fb-infrastrukturen">{{ i18n.get('departementInfrastructure') }}</mat-option>
+                  <mat-option>{{ i18n.get('noDepartment') }}</mat-option>
+                  <mat-option value="politische-behoerde">{{ i18n.get('politische-behoerde') }}</mat-option>
+                  <mat-option value="chef-fuehrungsorgan">{{ i18n.get('chef-fuehrungsorgan') }}</mat-option>
+                  <mat-option value="stabschef">{{ i18n.get('stabschef') }}</mat-option>
+                  <mat-option value="fb-lage">{{ i18n.get('fb-lage') }}</mat-option>
+                  <mat-option value="fb-information">{{ i18n.get('fb-information') }}</mat-option>
+                  <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('fb-oeffentliche-sicherheit') }}</mat-option>
+                  <mat-option value="fb-schutz-rettung">{{ i18n.get('fb-schutz-rettung') }}</mat-option>
+                  <mat-option value="fb-gesundheit">{{ i18n.get('fb-gesundheit') }}</mat-option>
+                  <mat-option value="fb-logistik">{{ i18n.get('fb-logistik') }}</mat-option>
+                  <mat-option value="fb-infrastrukturen">{{ i18n.get('fb-infrastrukturen') }}</mat-option>
                 </mat-select>
               </mat-form-field>
 
@@ -274,9 +274,9 @@
             </div>
           </div>
           <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE" class="info-send-back">
-            <h3>Inhalt nicht korrekt?</h3>
-            <p>Falls dieser Journaleintrag nicht korrekt ist, gib ihn zurück an den Eingang.</p>
-            <button mat-button type="button" (click)="resetState()">Zurück an Eingang senden</button>
+            <h3>{{ i18n.get('wrongContent') }}</h3>
+            <p>{{ i18n.get('wrongContentMessage') }}</p>
+            <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
           </div>
         </mat-tab>
         <mat-tab
@@ -338,7 +338,7 @@
             </div>
           </div>
           <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION" class="info-send-back">
-            <h3>{{ i18n.get('wrongDepartement') }}</h3>
+            <h3>{{ i18n.get('wrongDepartment') }}</h3>
             <p>{{ i18n.get('wrongTriage') }}</p>
             <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
           </div>
@@ -401,25 +401,19 @@
             <input matInput type="text" [formControl]="searchControl" />
           </mat-form-field>
           <mat-form-field class="journal-filter-department" appearance="outline">
-            <mat-label>{{ i18n.get('departement') }}</mat-label>
+            <mat-label>{{ i18n.get('department') }}</mat-label>
             <mat-select [formControl]="departmentControl">
-              <mat-option>{{ i18n.get('allDepartements') }}</mat-option>
-              <mat-option value="{{ i18n.get('politicalAuthority') }}">{{ i18n.get('politicalAuthority') }}</mat-option>
-              <mat-option value="{{ i18n.get('executiveBody') }}">{{ i18n.get('executiveBody') }}</mat-option>
-              <mat-option value="{{ i18n.get('chiefStaff') }}">{{ i18n.get('chiefStaff') }}</mat-option>
-              <mat-option value="{{ i18n.get('departementLocation') }}">{{
-                i18n.get('departementLocation')
-              }}</mat-option>
-              <mat-option value="{{ i18n.get('departementInfo') }}">{{ i18n.get('departementInfo') }}</mat-option>
-              <mat-option value="{{ i18n.get('departementSafety') }}">{{ i18n.get('departementSafety') }}</mat-option>
-              <mat-option value="{{ i18n.get('departementRescue') }}">{{ i18n.get('departementRescue') }}</mat-option>
-              <mat-option value="{{ i18n.get('departementHealth') }}">{{ i18n.get('departementHealth') }}</mat-option>
-              <mat-option value="{{ i18n.get('departementLogistics') }}">{{
-                i18n.get('departementLogistics')
-              }}</mat-option>
-              <mat-option value="{{ i18n.get('departementInfrastructure') }}">{{
-                i18n.get('departementInfrastructure')
-              }}</mat-option>
+              <mat-option>{{ i18n.get('allDepartments') }}</mat-option>
+              <mat-option value="politische-behoerde">{{ i18n.get('politische-behoerde') }}</mat-option>
+              <mat-option value="chef-fuehrungsorgan">{{ i18n.get('chef-fuehrungsorgan') }}</mat-option>
+              <mat-option value="stabschef">{{ i18n.get('stabschef') }}</mat-option>
+              <mat-option value="fb-lage">{{ i18n.get('fb-lage') }}</mat-option>
+              <mat-option value="fb-information">{{ i18n.get('fb-information') }}</mat-option>
+              <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('fb-oeffentliche-sicherheit') }}</mat-option>
+              <mat-option value="fb-schutz-rettung">{{ i18n.get('fb-schutz-rettung') }}</mat-option>
+              <mat-option value="fb-gesundheit">{{ i18n.get('fb-gesundheit') }}</mat-option>
+              <mat-option value="fb-logistik">{{ i18n.get('fb-logistik') }}</mat-option>
+              <mat-option value="fb-infrastukturen">{{ i18n.get('fb-infrastrukturen') }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
