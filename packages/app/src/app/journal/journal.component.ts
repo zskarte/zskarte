@@ -112,7 +112,19 @@ export class JournalComponent implements AfterViewInit {
     messageSubject: new FormControl('', { nonNullable: true }),
     messageContent: new FormControl('', { nonNullable: true }),
     visumMessage: new FormControl('', { nonNullable: true }),
-    department: new FormControl('', { nonNullable: true }),
+    department: new FormControl<
+      | 'politische-behoerde'
+      | 'chef-fuehrungsorgan'
+      | 'stabschef'
+      | 'fb-lage'
+      | 'fb-information'
+      | 'fb-oeffentliche-sicherheit'
+      | 'fb-schutz-rettung'
+      | 'fb-gesundheit'
+      | 'fb-logistik'
+      | 'fb-infrastukturen'
+      | null
+    >(null),
     dateCreatedDate: new FormControl<Date>(new Date(), { nonNullable: true }),
     dateCreatedTime: new FormControl<Date>(new Date(), { nonNullable: true }),
     isKeyMessage: new FormControl(false, { nonNullable: true }),
@@ -253,9 +265,7 @@ export class JournalComponent implements AfterViewInit {
       data: {
         ...rest,
         dateMessage: new Date(
-          (this.journalForm.value.dateCreatedDate as Date).setTime(
-            this.journalForm.value.dateCreatedTime!.getTime(),
-          ),
+          (this.journalForm.value.dateCreatedDate as Date).setTime(this.journalForm.value.dateCreatedTime!.getTime()),
         ),
       },
     });
@@ -296,7 +306,7 @@ export class JournalComponent implements AfterViewInit {
             ...rest,
             operation: operation?.documentId,
             organization: organization?.documentId,
-            date_message: new Date(
+            dateMessage: new Date(
               (this.journalForm.value.dateCreatedDate as Date).setTime(
                 this.journalForm.value.dateCreatedTime!.getTime(),
               ),
@@ -304,12 +314,12 @@ export class JournalComponent implements AfterViewInit {
           },
         });
       } else {
-        await this.apiService.post('/api/journal-entries', {
+        const result = await this.apiService.post('/api/journal-entries', {
           data: {
             ...rest,
             operation: operation?.documentId,
             organization: organization?.documentId,
-            date_message: new Date(
+            dateMessage: new Date(
               (this.journalForm.value.dateCreatedDate as Date).setTime(
                 this.journalForm.value.dateCreatedTime!.getTime(),
               ),
