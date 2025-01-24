@@ -130,7 +130,7 @@ export class JournalComponent implements AfterViewInit {
     | 'fb-infrastukturen'
     | null
   >(null, { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
-    isKeyMessage: new FormControl(false, { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
+    isKeyMessage: new FormControl(false, { nonNullable: true }),
     visumTriage: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
     dateTriage: new FormControl<Date | null>(null, { validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
     dateDecision: new FormControl<Date | null>(null, { validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)] }),
@@ -303,19 +303,30 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async save(event: any) {
-    Object.values(this.journalForm.controls).forEach(c => c.updateValueAndValidity());
-    if (!this.journalForm.valid) return;
+    const entryStatus = this.journalForm.controls.entryStatus.value;
 
-    const entryStatus = this.journalForm.value.entryStatus;
+    if (entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
+      this.journalForm.patchValue({ dateTriage: new Date() });
+    } else if (entryStatus === JournalEntryStatus.AWAITING_DECISION) {
+      this.journalForm.patchValue({ dateDecision: new Date() });
+    } else {
+      this.journalForm.patchValue({ dateDecisionDelivered: new Date() });
+    }
+
+    Object.values(this.journalForm.controls).forEach(c => c.updateValueAndValidity());
+    if (!this.journalForm.valid) {
+      return;
+    }
+   
     if (event.submitter.name !== 'save') {
       if (entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
         this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_TRIAGE });
       } else if (entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
-        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_DECISION, dateTriage: new Date() });
+        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_DECISION });
       } else if (entryStatus === JournalEntryStatus.AWAITING_DECISION) {
-        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_COMPLETION, dateDecision: new Date() });
+        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_COMPLETION });
       } else {
-        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.COMPLETED, dateDecisionDelivered: new Date() });
+        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.COMPLETED });
       }
     }
 
