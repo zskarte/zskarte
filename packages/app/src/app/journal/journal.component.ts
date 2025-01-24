@@ -96,9 +96,15 @@ export class JournalComponent implements AfterViewInit {
   sidebarOpen = false;
 
   journalResource = resource({
-    request: () => ({}),
-    loader: async () => {
-      const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
+    request: () => ({
+      operation: this.sessionService.getOperation()?.documentId,
+    }),
+    loader: async (params) => {
+      // log request url
+      console.log(`/api/journal-entries?filters[operation][$eq]=${params.request.operation}`);
+      const { result } = await this.apiService.get<JournalEntry[]>(
+        `/api/journal-entries?operationId=${params.request.operation}`,
+      );
       this.dataSource = result || [];
       this.dataSourceFiltered.data = this.dataSource;
       this.fuse.setCollection(this.dataSource);
@@ -107,39 +113,90 @@ export class JournalComponent implements AfterViewInit {
   });
 
   journalForm = new FormGroup({
-    messageNumber: new FormControl<string | number>('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    sender: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    creator: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    communicationType: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    communicationDetails: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    messageSubject: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    messageContent: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    visumMessage: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    dateCreatedDate: new FormControl<Date>(new Date(), { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    dateCreatedTime: new FormControl<Date>(new Date(), { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
+    messageNumber: new FormControl<string | number>('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    sender: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    creator: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    communicationType: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    communicationDetails: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    messageSubject: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    messageContent: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    visumMessage: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    dateCreatedDate: new FormControl<Date>(new Date(), {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
+    dateCreatedTime: new FormControl<Date>(new Date(), {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)],
+    }),
     department: new FormControl<
-    | 'politische-behoerde'
-    | 'chef-fuehrungsorgan'
-    | 'stabschef'
-    | 'fb-lage'
-    | 'fb-information'
-    | 'fb-oeffentliche-sicherheit'
-    | 'fb-schutz-rettung'
-    | 'fb-gesundheit'
-    | 'fb-logistik'
-    | 'fb-infrastukturen'
-    | null
-  >(null, { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
+      | 'politische-behoerde'
+      | 'chef-fuehrungsorgan'
+      | 'stabschef'
+      | 'fb-lage'
+      | 'fb-information'
+      | 'fb-oeffentliche-sicherheit'
+      | 'fb-schutz-rettung'
+      | 'fb-gesundheit'
+      | 'fb-logistik'
+      | 'fb-infrastukturen'
+      | null
+    >(null, { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
     isKeyMessage: new FormControl(false, { nonNullable: true }),
-    visumTriage: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
-    dateTriage: new FormControl<Date | null>(null, { validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
-    dateDecision: new FormControl<Date | null>(null, { validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)] }),
-    visumDecider: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)] }),
-    decision: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)] }),
-    decisionReceiver: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)] }),
+    visumTriage: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)],
+    }),
+    dateTriage: new FormControl<Date | null>(null, {
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)],
+    }),
+    dateDecision: new FormControl<Date | null>(null, {
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)],
+    }),
+    visumDecider: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)],
+    }),
+    decision: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)],
+    }),
+    decisionReceiver: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_DECISION)],
+    }),
     entryStatus: new FormControl<JournalEntryStatus>(JournalEntryStatus.AWAITING_MESSAGE, { nonNullable: true }),
-    dateDecisionDelivered: new FormControl<Date | null>(null, { validators: [this.requiredStep(JournalEntryStatus.AWAITING_COMPLETION)] }),
-    decisionSender: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_COMPLETION)] }),
+    dateDecisionDelivered: new FormControl<Date | null>(null, {
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_COMPLETION)],
+    }),
+    decisionSender: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredStep(JournalEntryStatus.AWAITING_COMPLETION)],
+    }),
   });
 
   private combineDateAndTime(dateObj: Date, timeObj: Date) {
@@ -164,12 +221,15 @@ export class JournalComponent implements AfterViewInit {
     return (control: AbstractControl) => {
       if (this.journalForm === undefined) return null;
 
-      if (Object.values(JournalEntryStatus).indexOf(status) <= Object.values(JournalEntryStatus).indexOf(this.journalForm.controls.entryStatus.value)) {
-            return control.value ? null : { requiredStep: true };
+      if (
+        Object.values(JournalEntryStatus).indexOf(status) <=
+        Object.values(JournalEntryStatus).indexOf(this.journalForm.controls.entryStatus.value)
+      ) {
+        return control.value ? null : { requiredStep: true };
       }
-      
+
       return null;
-    }
+    };
   }
 
   private initializeSearch() {
@@ -266,7 +326,11 @@ export class JournalComponent implements AfterViewInit {
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntry = entry;
     this.sidebarOpen = true;
-    this.selectedIndex = entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ? 0 : entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE ? 1 : entry.entryStatus === JournalEntryStatus.AWAITING_DECISION ? 2 : 3;
+    this.selectedIndex =
+      entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ? 0
+      : entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE ? 1
+      : entry.entryStatus === JournalEntryStatus.AWAITING_DECISION ? 2
+      : 3;
 
     this.journalForm.patchValue({
       ...entry,
@@ -274,7 +338,7 @@ export class JournalComponent implements AfterViewInit {
       dateCreatedTime: entry.dateMessage,
     });
 
-    for(const control of Object.values(this.journalForm.controls)) {
+    for (const control of Object.values(this.journalForm.controls)) {
       control.setErrors(null);
     }
   }
@@ -291,7 +355,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async resetState() {
-    if(this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
+    if (this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
       this.journalForm.patchValue({
         entryStatus: JournalEntryStatus.AWAITING_MESSAGE,
       });
@@ -330,11 +394,11 @@ export class JournalComponent implements AfterViewInit {
       this.journalForm.patchValue({ dateDecisionDelivered: new Date() });
     }
 
-    Object.values(this.journalForm.controls).forEach(c => c.updateValueAndValidity());
+    Object.values(this.journalForm.controls).forEach((c) => c.updateValueAndValidity());
     if (!this.journalForm.valid) {
       return;
     }
-   
+
     if (entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
       this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_TRIAGE });
     } else if (entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
@@ -361,7 +425,7 @@ export class JournalComponent implements AfterViewInit {
           },
         });
       } else {
-        const {result} = await this.apiService.post('/api/journal-entries', {
+        const { result } = await this.apiService.post('/api/journal-entries', {
           data: {
             ...rest,
             operation: operation?.documentId,
@@ -370,17 +434,16 @@ export class JournalComponent implements AfterViewInit {
           },
         });
 
-        this.selectedJournalEntry = {documentId: result.documentId} as JournalEntry;
+        this.selectedJournalEntry = { documentId: result.documentId } as JournalEntry;
       }
 
       await this.journalResource.reload();
 
       const entry = await this.apiService.get<JournalEntry>(
-        `/api/journal-entries/${this.selectedJournalEntry?.documentId}`,
+        `/api/journal-entries/${this.selectedJournalEntry?.documentId}?filters[documentId][$eq]=${this.selectedJournalEntry?.documentId}`,
       );
 
       await this.selectEntry(entry.result as JournalEntry);
-
     } catch (error) {
       console.error('Error saving journal entry:', error);
     }
