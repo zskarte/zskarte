@@ -329,7 +329,7 @@
           </ng-container>
 
           <ng-container matColumnDef="entryStatus">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('status') }}</th>
             <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
           </ng-container>
 

@@ -2035,32 +2035,32 @@ export class I18NService {
       en: 'Elements on the map in guest mode',
       fr: 'Éléments de la carte en mode invité',
     },
-    journal_entry_awaiting_message: {
+    journalEntry_awaiting_message: {
       de: 'Meldung',
       en: 'Awaiting message',
       fr: 'En attente de message',
     },
-    journal_entry_awaiting_triage: {
+    journalEntry_awaiting_triage: {
       de: 'Triage',
       en: 'Awaiting triage',
       fr: 'En attente de triage',
     },
-    journal_entry_awaiting_drawing: {
+    journalEntry_awaiting_drawing: {
       de: 'Zeichnen',
       en: 'Awaiting drawing',
       fr: 'En attente de dessin',
     },
-    journal_entry_awaiting_decision: {
+    journalEntry_awaiting_decision: {
       de: 'Entscheidung',
       en: 'Awaiting decision',
       fr: 'En attente de décision',
     },
-    journal_entry_awaiting_completion: {
+    journalEntry_awaiting_completion: {
       de: 'Abschluss',
       en: 'Awaiting completion',
       fr: 'En attente de finalisation',
     },
-    journal_entry_completed: {
+    journalEntry_completed: {
       de: 'Abgeschlossen',
       en: 'Completed',
       fr: 'Terminé',
@@ -2125,6 +2125,11 @@ export class I18NService {
       en: 'Radio',
       fr: 'Radio',
     },
+    mail: {
+      de: 'E-Mail',
+      en: 'eMail',
+      fr: 'eMail',
+    },
     fax: {
       de: 'Fax',
       en: 'Fax',
@@ -2165,6 +2170,11 @@ export class I18NService {
       en: 'Report time',
       fr: 'Heure de rapport',
     },
+    messageNumber: {
+      de: 'Meldungsnummer',
+      en: 'Report number',
+      fr: 'Numéro de rapport',
+    },
     detailsChanel: {
       de: 'Nummer / Kanal',
       en: 'Number / channel',
@@ -2204,6 +2214,36 @@ export class I18NService {
       de: 'Politische Behörde',
       en: 'Political authority',
       fr: 'Autorité politique',
+    },
+    status: {
+      de: 'Status',
+      en: 'Status',
+      fr: 'Statut',
+    },
+    decision: {
+      de: 'Entscheidung',
+      en: 'Decision',
+      fr: 'Décision',
+    },
+    messageSubject: {
+      de: 'Betreff',
+      en: 'Subject',
+      fr: 'Sujet',
+    },
+    dateCreated: {
+      de: 'Erstellungsdatum',
+      en: 'Creation date',
+      fr: 'Date de création',
+    },
+    time: {
+      de: 'Zeit',
+      en: 'Time',
+      fr: 'Heure',
+    },
+    courier: {
+      de: 'Übermittler',
+      en: 'Messager',
+      fr: 'Messager',
     },
     pressEnter: {
       de: 'Drücken Sie Enter, um die Meldenummer hinzuzufügen',
