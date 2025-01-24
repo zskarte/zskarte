@@ -16,7 +16,18 @@ export interface JournalEntry {
 
   dateTriage: Date | null;
   decision: string;
-  department: 'politische-behoerde' | 'chef-fuehrungsorgan' | 'stabschef' | 'fb-lage' | 'fb-information' | 'fb-oeffentliche-sicherheit' | 'fb-schutz-rettung' | 'fb-gesundheit' | 'fb-logistik' | 'fb-infrastukturen';
+  department:
+    | null
+    | 'politische-behoerde'
+    | 'chef-fuehrungsorgan'
+    | 'stabschef'
+    | 'fb-lage'
+    | 'fb-information'
+    | 'fb-oeffentliche-sicherheit'
+    | 'fb-schutz-rettung'
+    | 'fb-gesundheit'
+    | 'fb-logistik'
+    | 'fb-infrastukturen';
   isKeyMessage: boolean;
   operation?: {
     id: number;
