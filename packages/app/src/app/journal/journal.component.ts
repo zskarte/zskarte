@@ -112,7 +112,6 @@ export class JournalComponent implements AfterViewInit {
     message_subject: new FormControl('', { nonNullable: true }),
     message_content: new FormControl('', { nonNullable: true }),
     visum_message: new FormControl('', { nonNullable: true }),
-    visum_decision_receiver: new FormControl('', { nonNullable: true }),
     department: new FormControl('', { nonNullable: true }),
     date_created_date: new FormControl<Date>(new Date(), { nonNullable: true }),
     date_created_time: new FormControl<Date>(new Date(), { nonNullable: true }),
@@ -123,7 +122,6 @@ export class JournalComponent implements AfterViewInit {
     visum_decider: new FormControl('', { nonNullable: true }),
     decision: new FormControl('', { nonNullable: true }),
     decision_receiver: new FormControl('', { nonNullable: true }),
-    visum_decision_deliverer: new FormControl('', { nonNullable: true }),
     entry_status: new FormControl('awaiting_message', { nonNullable: true }),
     date_decision_delivered: new FormControl(),
     decision_sender: new FormControl('', { nonNullable: true }),
@@ -249,9 +247,11 @@ export class JournalComponent implements AfterViewInit {
       entry_status: 'awaiting_triage',
     });
 
+    const { date_created_time, date_created_date, ...rest } = this.journalForm.value;
+
     await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.documentId}`, {
       data: {
-        ...this.journalForm.value,
+        ...rest,
         date_message: new Date(
           (this.journalForm.value.date_created_date as Date).setTime(
             this.journalForm.value.date_created_time!.getTime(),
@@ -288,10 +288,12 @@ export class JournalComponent implements AfterViewInit {
     const organization = this.sessionService.getOrganization();
 
     try {
+      const { date_created_time, date_created_date, ...rest } = this.journalForm.value;
+
       if (this.selectedJournalEntry?.id) {
         await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry.documentId}`, {
           data: {
-            ...this.journalForm.value,
+            ...rest,
             operation: operation?.id,
             organization: organization?.id,
             date_message: new Date(
@@ -304,7 +306,7 @@ export class JournalComponent implements AfterViewInit {
       } else {
         await this.apiService.post('/api/journal-entries', {
           data: {
-            ...this.journalForm.value,
+            ...rest,
             operation: operation?.id,
             organization: organization?.id,
             date_message: new Date(

@@ -11,7 +11,7 @@ export const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'operations', component: OperationsComponent, canActivate: [SessionGuard] },
   { path: 'map', component: MapComponent, canActivate: [SessionGuard, OperationGuard] },
-  { path: 'journal', component: JournalComponent},
+  { path: 'journal', component: JournalComponent, canActivate: [SessionGuard, OperationGuard] },
   { path: 'share/:accessToken', component: ShareComponent },
   { path: '**', redirectTo: 'map' },
 ];

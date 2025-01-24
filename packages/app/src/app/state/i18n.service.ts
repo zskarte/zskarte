@@ -1114,6 +1114,11 @@ export class I18NService {
       en: 'Size',
       fr: 'Dimension',
     },
+    csvReportNumber: {
+      de: 'Meldenummer',
+      en: 'Report number',
+      fr: 'Numéro de rapport',
+    },
     csvLabel: {
       de: 'Bezeichnung',
       en: 'Label',
@@ -1148,21 +1153,6 @@ export class I18NService {
       de: 'Datum',
       en: 'Date',
       fr: 'Date',
-    },
-    groupLabel: {
-      de: 'Gruppe',
-      en: 'Group',
-      fr: 'Groupe',
-    },
-    sign: {
-      de: 'Zeichen',
-      en: 'Sign',
-      fr: 'Signe',
-    },
-    location: {
-      de: 'Ort',
-      en: 'Location',
-      fr: 'Emplacement',
     },
     label: {
       de: 'Beschriftung',
@@ -2255,6 +2245,11 @@ export class I18NService {
       en: 'Messager',
       fr: 'Messager',
     },
+    pressEnter: {
+      de: 'Drücken Sie Enter, um die Meldenummer hinzuzufügen',
+      en: 'Press enter to add the report number',
+      fr: 'Appuyez sur Entrée pour ajouter le numéro du rapport'
+    }
   };
 
   public getLabelForSign(sign: Sign): string {
