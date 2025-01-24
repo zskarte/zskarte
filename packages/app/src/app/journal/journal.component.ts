@@ -303,12 +303,8 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async save(event: any) {
-    console.log(this.journalForm.valid);
-    console.log(this.journalForm.errors);
-    this.journalForm.updateValueAndValidity();
+    Object.values(this.journalForm.controls).forEach(c => c.updateValueAndValidity());
     if (!this.journalForm.valid) return;
-
-    console.log(this.journalForm.valid);
 
     const entryStatus = this.journalForm.value.entryStatus;
     if (event.submitter.name !== 'save') {
