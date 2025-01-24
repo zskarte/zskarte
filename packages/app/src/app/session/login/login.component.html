@@ -84,7 +84,7 @@
           }
           @if (!isLoginWithCodeEnabled && allowOfflineAccess) {
             <text-divider>{{ i18n.get('or') }}</text-divider>
-            <button class="alternative-login-button" mat-raised-button (click)="workLocal()">
+            <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
               {{ i18n.get('workLocal') }}
             </button>
           }

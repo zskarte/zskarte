@@ -94,8 +94,8 @@
     ></app-projection-selection>
   </div>
   <div mat-dialog-actions align="end">
-    <button mat-raised-button [mat-dialog-close]="null">{{ i18n.get('cancel') }}</button>
-    <button mat-raised-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>{{ i18n.get('ok') }}</button>
+    <button mat-stroked-button [mat-dialog-close]="null">{{ i18n.get('cancel') }}</button>
+    <button mat-flat-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>{{ i18n.get('ok') }}</button>
   </div>
 </ng-template>
 
