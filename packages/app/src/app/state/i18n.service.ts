@@ -2265,6 +2265,21 @@ export class I18NService {
       en: 'DP Infrastructure',
       fr: 'DP Infrastructure',
     },
+    wrongContent: {
+      de: 'Falscher Inhalt',
+      en: 'Wrong content',
+      fr: 'Mauvais contenu',
+    },
+    wrongContentMessage: {
+      de: 'Falls dieser Journaleintrag nicht korrekt ist, gib ihn zurück an den Eingang.',
+      en: 'If this journal entry is not correct, return it to the input.',
+      fr: 'Si cette entrée de journal n\'est pas correcte, renvoyez-la à l\'entrée.',
+    },
+    backToInput: {
+      de: 'Zurück an Eingang senden',
+      en: 'Return to input',
+      fr: 'Renvoyer à l\'entrée',
+    },
     wrongDepartment: {
       de: 'Falscher Fachbereich',
       en: 'Wrong department',
