@@ -100,8 +100,6 @@ export class JournalComponent implements AfterViewInit {
       operation: this.sessionService.getOperation()?.documentId,
     }),
     loader: async (params) => {
-      // log request url
-      console.log(`/api/journal-entries?filters[operation][$eq]=${params.request.operation}`);
       const { result } = await this.apiService.get<JournalEntry[]>(
         `/api/journal-entries?operationId=${params.request.operation}`,
       );
