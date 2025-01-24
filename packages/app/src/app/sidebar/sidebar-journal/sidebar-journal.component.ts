@@ -7,11 +7,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { I18NService } from '../../state/i18n.service';
+import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
 
 @Component({
   selector: 'app-sidebar-journal',
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, MatProgressSpinnerModule, MatButtonModule, MatDividerModule],
+  imports: [CommonModule, MatExpansionModule, MatProgressSpinnerModule, MatButtonModule, MatDividerModule, SidebarJournalEntryComponent],
   templateUrl: './sidebar-journal.component.html',
   styleUrl: './sidebar-journal.component.scss',
 })
