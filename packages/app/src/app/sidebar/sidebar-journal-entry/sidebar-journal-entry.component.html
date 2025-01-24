@@ -1,0 +1,13 @@
+<div class="created-date">{{entry().createdAt | date}}</div>
+<p>{{entry().messageContent}}</p>
+
+<mat-action-list>
+  @for (element of entryElements(); track element.elementState?.id) {
+    <button mat-list-item>
+      <div class="symbol">
+        <img [src]="element.imageUrl" />
+        <span>{{ element.coordinatesStr }}</span>
+      </div>
+    </button>
+  }
+</mat-action-list>

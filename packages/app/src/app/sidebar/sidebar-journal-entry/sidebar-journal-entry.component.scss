@@ -1,0 +1,19 @@
+.created-date {
+  color: #888;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.symbol {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  img {
+    width: 30px;
+  }
+
+  span {
+    flex: 1;
+  }
+}
