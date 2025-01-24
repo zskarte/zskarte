@@ -105,7 +105,7 @@ export class ZsMapStateService {
     const _changeOperationId = new Subject<void>();
     _session.observeOperationId().subscribe((operationId) => {
       _changeOperationId.next();
-      if (operationId && operationId < 0) {
+      if (typeof operationId === 'number' && operationId < 0) {
         this.observeMapState()
           .pipe(debounceTime(250), takeUntil(_changeOperationId))
           .subscribe((mapState) => {
