@@ -104,7 +104,7 @@ testApp
 coverage
 
 ############################
-# Tests
+# caches / data
 ############################
 
 **/.strapi
@@ -113,3 +113,20 @@ coverage
 .strapi-updater.json
 **/data
 .env
+
+############################
+# offlineData
+############################
+
+scripts/offlineData/madd
+
+scripts/offlineData/entrances/entrances_*.geojson
+scripts/offlineData/entrances/canton_layer_mapping.env
+
+scripts/offlineData/swissNAMES3D/output
+scripts/offlineData/swissNAMES3D/swissnames3d_*.zip
+scripts/offlineData/swissNAMES3D/swissNAMES3D_*.csv
+scripts/offlineData/swissNAMES3D/swissboundaries3d_*.zip
+scripts/offlineData/swissNAMES3D/swissBOUNDARIES3D_*
+scripts/offlineData/swissNAMES3D/swissNAMES3D_PLY*.csv
+scripts/offlineData/swissNAMES3D/canton_layer_mapping.env

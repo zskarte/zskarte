@@ -1,0 +1,332 @@
+{
+  "version": 8,
+  "name": "swissNAMES3D",
+  "sources": {
+    "swissNAMES3D": {
+      "type": "geojson",
+      "data": "./swissNAMES3D.geojson"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "rgba(0,0,0,0)"
+      }
+    },
+    {
+      "id": "subPlaces",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        ["!=", "Ort", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          13,
+          5,
+          24,
+          14
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#000000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    },
+    {
+      "id": "smallestPlaces",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        ["any",
+          ["==", "< 20", ["get", "EINWOHNERKATEGORIE"]],
+          ["==", "20 bis 49", ["get", "EINWOHNERKATEGORIE"]],
+          ["==", "50 bis 99", ["get", "EINWOHNERKATEGORIE"]]
+        ],
+        ["==", "Ort", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          [
+            "match",
+            ["get", "EINWOHNERKATEGORIE"],
+            "< 20", 2,
+            "20 bis 49", 3,
+            "50 bis 99", 4,
+            3
+          ],
+          24,
+          [
+            "match",
+            ["get", "EINWOHNERKATEGORIE"],
+            "< 20", 12,
+            "20 bis 49", 14,
+            "50 bis 99", 16,
+            14
+          ]
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#000000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    },
+    {
+      "id": "smallPlaces",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "minzoom": 10,
+      "filter": [
+        "all",
+        ["==", "100 bis 999", ["get", "EINWOHNERKATEGORIE"]],
+        ["==", "Ort", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          5,
+          24,
+          18
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#000000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    },
+    {
+      "id": "places",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "minzoom": 10,
+      "filter": [
+        "all",
+        ["any",
+          ["==", "1'000 bis 1'999", ["get", "EINWOHNERKATEGORIE"]],
+          ["==", "2'000 bis 9'999", ["get", "EINWOHNERKATEGORIE"]]
+        ],
+        ["==", "Ort", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          [
+            "match",
+            ["get", "EINWOHNERKATEGORIE"],
+            "1'000 bis 1'999", 6,
+            "2'000 bis 9'999", 7,
+            6
+          ],
+          24,
+          [
+            "match",
+            ["get", "EINWOHNERKATEGORIE"],
+            "1'000 bis 1'999", 20,
+            "2'000 bis 9'999", 22,
+            20
+          ]
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#000000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    },
+    {
+      "id": "bigPlaces",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "minzoom": 9,
+      "filter": [
+        "all",
+        ["==", "10'000 bis 49'999", ["get", "EINWOHNERKATEGORIE"]],
+        ["==", "Ort", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          9,
+          6,
+          24,
+          24
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#000000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    },
+    {
+      "id": "bigerPlaces",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "minzoom": 7,
+      "filter": [
+        "all",
+        ["==", "50'000 bis 100'000", ["get", "EINWOHNERKATEGORIE"]],
+        ["==", "Ort", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          5,
+          3,
+          24,
+          26
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#000000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    },
+    {
+      "id": "bigestPlaces",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "filter": [
+        "all",
+        ["==", "> 100'000", ["get", "EINWOHNERKATEGORIE"]],
+        ["==", "Ort", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          5,
+          4,
+          24,
+          28
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#000000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    },
+    {
+      "id": "searchResult",
+      "type": "symbol",
+      "source": "swissNAMES3D",
+      "filter": ["get", "ZsMapSearchResult"],
+      "layout": {
+        "text-field": "{NAME}\n({OBJEKTART})",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          5,
+          4,
+          24,
+          20
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": "#ff0000",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    }
+  ]
+}

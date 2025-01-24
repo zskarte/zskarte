@@ -1,0 +1,23 @@
+[
+  {
+    "style": {
+      "text-value": ["get", "entranceNumber"],
+      "text-font": ["concat", [
+        "interpolate",
+        ["linear"],
+        ["-", 17.25619978506917, ["/", ["*", 1000, ["-", ["^", ["resolution"], 0.001], 1]], 0.6931471805599453]],
+        16, 6,
+        24, 30
+      ], "px sans-serif"],
+      "text-fill-color": ["match", ["get", "ZsMapSearchResult"], true, "red", "black"],
+      "text-stroke-color": ["match", ["get", "ZsMapSearchResult"], true, "black", "white"],
+      "text-stroke-width": [
+        "interpolate",
+        ["linear"],
+        ["-", 17.25619978506917, ["/", ["*", 1000, ["-", ["^", ["resolution"], 0.001], 1]], 0.6931471805599453]],
+        16, 0.75,
+        24, 3
+      ]
+    }
+  }
+]

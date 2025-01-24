@@ -1,0 +1,47 @@
+{
+  "version": 8,
+  "name": "entrances",
+  "sources": {
+    "entrances": {
+      "type": "geojson",
+      "data": "./entrances.geojson"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "rgba(0,0,0,0)"
+      }
+    },
+    {
+      "id": "entrances",
+      "type": "symbol",
+      "source": "entrances",
+      "minzoom": 16,
+      "layout": {
+        "text-field": "{entranceNumber}",
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 6,
+          24, 30
+        ],
+        "text-font": ["Arial Normal", "sans-serif Normal"]
+      },
+      "paint": {
+        "text-color": ["case", ["get", "ZsMapSearchResult"], "#ff0000", "#000000"],
+        "text-halo-color": "#ffffff",
+        "text-halo-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          16, 0.75,
+          24, 3
+        ]
+      }
+    }
+  ]
+}
