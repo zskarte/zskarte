@@ -105,7 +105,7 @@ export class ZsMapStateService {
     const _changeOperationId = new Subject<void>();
     _session.observeOperationId().subscribe((operationId) => {
       _changeOperationId.next();
-      if (operationId && operationId < 0) {
+      if (typeof operationId === 'number' && operationId < 0) {
         this.observeMapState()
           .pipe(debounceTime(250), takeUntil(_changeOperationId))
           .subscribe((mapState) => {
@@ -852,8 +852,7 @@ export class ZsMapStateService {
         iconSize: sign.iconSize,
         hideIcon: sign.hideIcon,
         createdBy: sign.createdBy,
-        iconOffset: sign.iconOffset,
-        flipIcon: sign.flipIcon,
+        iconsOffset: sign.iconsOffset,
         rotation: sign.rotation,
         iconOpacity: sign.iconOpacity,
         style: sign.style,
@@ -929,7 +928,7 @@ export class ZsMapStateService {
     return this._map.value.drawElements?.[id];
   }
 
-  public getDrawElemente(id: string) {
+  public getDrawElement(id: string) {
     return this._drawElementCache[id];
   }
 
@@ -1116,6 +1115,10 @@ export class ZsMapStateService {
     return this._mergeMode.asObservable();
   }
 
+  public isMergeMode(): boolean {
+    return this._mergeMode.value;
+  }
+
   public setDrawHoleMode(drawHoleMode: boolean) {
     this._drawHoleMode.next(drawHoleMode);
   }
@@ -1172,12 +1175,16 @@ export class ZsMapStateService {
       this._session.observeIsArchived(),
     ).pipe(
       map(() => {
-        const isHistoryMode = this.isHistoryMode();
-        const hasWritePermission = this._session.hasWritePermission();
-        const isArchived = this._session.isArchived();
-        return !hasWritePermission || isArchived || isHistoryMode;
+        return this.isReadOnly();
       }),
     );
+  }
+
+  isReadOnly(): boolean {
+    const isHistoryMode = this.isHistoryMode();
+    const hasWritePermission = this._session.hasWritePermission();
+    const isArchived = this._session.isArchived();
+    return !hasWritePermission || isArchived || isHistoryMode;
   }
 
   public addSearch(

@@ -23,11 +23,12 @@ export class AppComponent implements OnInit {
 
   navLinks = [
     {
+
       label: 'map',
-      link: '/map',
+      link: '/main/map',
     }, {
       label: 'journal',
-      link: '/journal'
+      link: '/main/journal'
     }
   ];
 

@@ -1,45 +1,45 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { Params, Router } from '@angular/router';
+import {
+  AccessTokenType,
+  DEFAULT_LOCALE,
+  IAuthResult,
+  IZsMapDisplayState,
+  IZsMapOperation,
+  IZsMapOrganization,
+  IZsMapOrganizationMapLayerSettings,
+  IZsMapSession,
+  Locale,
+  PermissionType,
+} from '@zskarte/types';
+import { transform } from 'ol/proj';
 import {
   BehaviorSubject,
+  Observable,
+  Subject,
   concatMap,
   distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
-  Observable,
   of,
   retry,
   skip,
-  Subject,
   switchMap,
   takeUntil,
 } from 'rxjs';
-import { db } from '../db/db';
-import { Params, Router } from '@angular/router';
 import { ApiService } from '../api/api.service';
-import { ZsMapStateService } from '../state/state.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { transform } from 'ol/proj';
-import { coordinatesProjection, mercatorProjection } from '../helper/projections';
-import { DEFAULT_COORDINATES, DEFAULT_ZOOM, LOG2_ZOOM_0_RESOLUTION } from './default-map-values';
-import { decodeJWT } from '../helper/jwt';
-import { WmsService } from '../map-layer/wms/wms.service';
-import { MapLayerService } from '../map-layer/map-layer.service';
-import { OperationService } from './operations/operation.service';
-import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
+import { db } from '../db/db';
 import { debounceLeading } from '../helper/debounce';
-import {
-  IZsMapSession,
-  IZsMapDisplayState,
-  IZsMapOrganizationMapLayerSettings,
-  IZsMapOperation,
-  IAuthResult,
-  IZsMapOrganization,
-  DEFAULT_LOCALE,
-  PermissionType,
-  Locale,
-  AccessTokenType,
-} from '@zskarte/types';
+import { decodeJWT } from '../helper/jwt';
+import { coordinatesProjection, mercatorProjection } from '../helper/projections';
+import { MapLayerService } from '../map-layer/map-layer.service';
+import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
+import { WmsService } from '../map-layer/wms/wms.service';
+import { ZsMapStateService } from '../state/state.service';
+import { DEFAULT_COORDINATES, DEFAULT_ZOOM, LOG2_ZOOM_0_RESOLUTION } from './default-map-values';
+import { OperationService } from './operations/operation.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_ORG } from './userLogic';
 
 export type LogoutReason = 'logout' | 'networkError' | 'expired' | 'noToken';
@@ -195,7 +195,7 @@ export class SessionService {
               }
             });
 
-          await this._router.navigate([this._router.url === '/journal' ? 'journal' : 'map'], {
+          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
             queryParams: {
               center: null, //handled in overrideDisplayStateFromQueryParams
               size: null, //handled in overrideDisplayStateFromQueryParams
@@ -391,8 +391,8 @@ export class SessionService {
     this._session.next(this._session.value);
   }
 
-  public observeOperationId(): Observable<number | undefined> {
-    return this._session.pipe(map((session) => session?.operation?.id));
+  public observeOperationId(): Observable<string | number | undefined> {
+    return this._session.pipe(map((session) => session?.operation?.documentId ?? session?.operation?.id));
   }
 
   public getOperation(): IZsMapOperation | undefined {
@@ -476,13 +476,15 @@ export class SessionService {
         currentSession &&
         !currentSession.workLocal &&
         currentSession.jwt === jwt &&
-        ((error?.status ?? 0) >= 500 || error?.message?.startsWith("NetworkError") || !this._isOnline.value)
+        ((error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') || !this._isOnline.value)
       ) {
         //session is not expired but there seams to be a network problem, keep current session
         this._session.next(currentSession);
         return;
       }
-      await this.logout(((error?.status ?? 0) >= 500 || error?.message?.startsWith("NetworkError")) ? 'networkError' : 'noToken');
+      await this.logout(
+        (error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') ? 'networkError' : 'noToken',
+      );
       return;
     }
 
@@ -511,15 +513,7 @@ export class SessionService {
 
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-    let queryOperationId;
-    if (queryParams['operationId']) {
-      try {
-        queryOperationId = parseInt(queryParams['operationId']);
-      } catch {
-        //ignore invalid operationId param
-      }
-    }
-    const operationId = decoded.operationId || queryOperationId || currentSession?.operation?.documentId;
+    const operationId = decoded.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
@@ -577,7 +571,11 @@ export class SessionService {
     if (authError || !result?.jwt) {
       if (decodeJWT(currentToken).expired) {
         await this.logout('expired');
-      } else if ((authError?.status ?? 0) >= 500 || authError?.message?.startsWith("NetworkError") || !this._isOnline.value) {
+      } else if (
+        (authError?.status ?? 0) >= 500 ||
+        authError?.message?.startsWith('NetworkError') ||
+        !this._isOnline.value
+      ) {
         //await this.logout('networkError');
         //session is not expired but there seams to be a network problem, keep current session without refresh
       } else {

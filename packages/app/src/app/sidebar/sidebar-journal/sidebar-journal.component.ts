@@ -27,19 +27,18 @@ export class SidebarJournalComponent {
   });
 
   get journalEntriesToDraw() {
-    return (this.journalResource.value() || []).filter((entry) => !entry.is_drawn_on_map);
+    return (this.journalResource.value() || []).filter((entry) => !entry.isDrawnOnMap);
   }
 
   get journalEntriesDrawn() {
-    return (this.journalResource.value() || []).filter((entry) => entry.is_drawn_on_map);
+    return (this.journalResource.value() || []).filter((entry) => entry.isDrawnOnMap);
   }
 
   async markAsDrawn(entry: JournalEntry) {
     try {
       await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
         data: {
-          ...entry,
-          is_drawn_on_map: true,
+          isDrawnOnMap: true,
         },
       });
       await this.journalResource.reload();
@@ -52,8 +51,7 @@ export class SidebarJournalComponent {
     try {
       await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
         data: {
-          ...entry,
-          is_drawn_on_map: false,
+          isDrawnOnMap: false,
         },
       });
       await this.journalResource.reload();

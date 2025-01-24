@@ -18,43 +18,40 @@
     "creator": {
       "type": "string"
     },
-    "message_number": {
+    "messageNumber": {
       "type": "integer"
     },
-    "communication_type": {
+    "communicationType": {
       "type": "string"
     },
-    "communication_details": {
+    "communicationDetails": {
       "type": "string"
     },
-    "message_subject": {
+    "messageSubject": {
       "type": "string"
     },
-    "message_content": {
+    "messageContent": {
       "type": "text"
     },
-    "visum_message": {
+    "visumMessage": {
       "type": "string"
     },
-    "is_key_message": {
+    "isKeyMessage": {
       "type": "boolean"
     },
-    "department": {
-      "type": "string"
-    },
-    "date_message": {
+    "dateMessage": {
       "type": "datetime"
     },
-    "visum_triage": {
+    "visumTriage": {
       "type": "string"
     },
-    "date_triage": {
+    "dateTriage": {
       "type": "datetime"
     },
     "decision": {
       "type": "text"
     },
-    "date_decision": {
+    "dateDecision": {
       "type": "datetime"
     },
     "operation": {
@@ -67,31 +64,45 @@
       "relation": "oneToOne",
       "target": "api::organization.organization"
     },
-    "date_decision_delivered": {
+    "dateDecisionDelivered": {
       "type": "datetime"
     },
-    "visum_decider": {
+    "visumDecider": {
       "type": "string"
     },
-    "decision_receiver": {
+    "decisionReceiver": {
       "type": "string"
     },
-    "entry_status": {
+    "entryStatus": {
       "type": "enumeration",
       "enum": [
         "awaiting_message",
         "awaiting_triage",
-        "awaiting_drawing",
         "awaiting_decision",
         "awaiting_completion",
         "completed"
       ]
     },
-    "decision_sender": {
+    "decisionSender": {
       "type": "string"
     },
-    "is_drawn_on_map": {
+    "isDrawnOnMap": {
       "type": "boolean"
+    },
+    "department": {
+      "type": "enumeration",
+      "enum": [
+        "politische-behoerde",
+        "chef-fuehrungsorgan",
+        "stabschef",
+        "fb-lage",
+        "fb-information",
+        "fb-oeffentliche-sicherheit",
+        "fb-schutz-rettung",
+        "fb-gesundheit",
+        "fb-logistik",
+        "fb-infrastukturen"
+      ]
     }
   }
 }
