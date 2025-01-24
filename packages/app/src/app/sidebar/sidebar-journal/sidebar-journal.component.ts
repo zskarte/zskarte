@@ -8,21 +8,34 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { I18NService } from '../../state/i18n.service';
 import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
+import { SessionService } from '../../session/session.service';
 
 @Component({
   selector: 'app-sidebar-journal',
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, MatProgressSpinnerModule, MatButtonModule, MatDividerModule, SidebarJournalEntryComponent],
+  imports: [
+    CommonModule,
+    MatExpansionModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatDividerModule,
+    SidebarJournalEntryComponent,
+  ],
   templateUrl: './sidebar-journal.component.html',
   styleUrl: './sidebar-journal.component.scss',
 })
 export class SidebarJournalComponent {
   private apiService = inject(ApiService);
+  private sessionService = inject(SessionService);
   i18n = inject(I18NService);
   journalResource = resource({
-    request: () => ({}),
-    loader: async () => {
-      const { result } = await this.apiService.get<JournalEntry[]>('/api/journal-entries');
+    request: () => ({
+      operation: this.sessionService.getOperation()?.documentId,
+    }),
+    loader: async (params) => {
+      const { result } = await this.apiService.get<JournalEntry[]>(
+        `/api/journal-entries?operationId=${params.request.operation}`,
+      );
       return (result as JournalEntry[]) || [];
     },
   });
