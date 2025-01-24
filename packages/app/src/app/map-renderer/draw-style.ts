@@ -374,7 +374,7 @@ export class DrawStyle {
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
 
-  private static createLineToIcon(feature: FeatureLike, resolution: number, isEndIcon: boolean = false): LineString {
+  private static createLineToIcon(feature: FeatureLike, resolution: number, isEndIcon = false): LineString {
     feature = DrawStyle.getSubFeature(feature);
     const iconCoordinates = isEndIcon ? DrawStyle.getEndIconCoordinates(feature, resolution) :
      DrawStyle.getIconCoordinates(feature, resolution);
