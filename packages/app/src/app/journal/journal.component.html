@@ -1,6 +1,6 @@
 <mat-sidenav-container hasBackdrop="false" autoFocus="false">
   <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen">
-    <form [formGroup]="journalForm" (ngSubmit)="save($event)">
+    <form [formGroup]="journalForm" (ngSubmit)="save()">
       <div class="sidebar-header">
         <h1>
           <span class="message-number">#{{ journalForm.value.messageNumber }}</span>
@@ -11,11 +11,22 @@
           <mat-icon>close</mat-icon>
         </button>
       </div>
+      <div style="padding: 14px">
+        <p>
+          <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
+                <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
+                <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
+                <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
+                <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
+                <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
+                <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
+        </p>
+      </div>
       <mat-tab-group 
         class="journal-sidebar-content"
         animationDuration="0ms"
-        [selectedIndex]="selectedIndex"
-        (selectedIndexChange)="selectedIndex = $event"
+        [(selectedIndex)]="selectedIndex"
+        (selectedTabChange)="selectedIndex = $event.index"
       >
         <mat-tab label="{{ i18n.get('input') }}">
           <div class="journal-entry-details">

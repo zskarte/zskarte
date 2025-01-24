@@ -1,4 +1,4 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -266,13 +266,17 @@ export class JournalComponent implements AfterViewInit {
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntry = entry;
     this.sidebarOpen = true;
-    this.selectedIndex = 0;
+    this.selectedIndex = entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ? 0 : entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE ? 1 : entry.entryStatus === JournalEntryStatus.AWAITING_DECISION ? 2 : 3;
 
     this.journalForm.patchValue({
       ...entry,
       dateCreatedDate: entry.dateMessage,
       dateCreatedTime: entry.dateMessage,
     });
+
+    for(const control of Object.values(this.journalForm.controls)) {
+      control.setErrors(null);
+    }
   }
 
   resetEntry() {
@@ -317,10 +321,9 @@ export class JournalComponent implements AfterViewInit {
     );
 
     await this.selectEntry(entry.result as JournalEntry);
-    this.selectedIndex = this.selectedIndex - 1;
   }
 
-  async save(event: any) {
+  async save() {
     const entryStatus = this.journalForm.controls.entryStatus.value;
 
     if (entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
@@ -382,11 +385,6 @@ export class JournalComponent implements AfterViewInit {
 
       await this.selectEntry(entry.result as JournalEntry);
 
-      this.selectedIndex = this.selectedIndex + 1;
-
-      for(const control of Object.values(this.journalForm.controls)) {
-        control.setErrors(null);
-      }
     } catch (error) {
       console.error('Error saving journal entry:', error);
     }
