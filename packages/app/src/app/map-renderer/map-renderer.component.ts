@@ -12,7 +12,8 @@ import { MatButton, MatButtonModule, MatMiniFabButton } from '@angular/material/
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Sign, ZsMapDrawElementStateType } from '@zskarte/types';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { areCoordinatesEqual, removeCoordinates } from '../helper/coordinates';
 import { I18NService } from '../state/i18n.service';
@@ -134,42 +135,51 @@ export class MapRendererComponent implements AfterViewInit {
   async removeFeature() {
     const state = this._state.getDrawElementState(this._select.getFeature()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
     const coordinates = this._select.getVertexPoint();
+
     if (state?.id && coordinates) {
-      const newCoordinates = removeCoordinates(state.coordinates, coordinates);
+      const element = this._state.getDrawElement(state.id);
+
+      let newCoordinates = removeCoordinates(state.coordinates, coordinates);
 
       let remove = false;
-      switch (state.type) {
-        case ZsMapDrawElementStateType.POLYGON:
-        case ZsMapDrawElementStateType.SYMBOL:
+      switch (element.getOlFeature?.()?.getGeometry?.()?.getType?.()) {
+        case 'Polygon':
           // if there is no change in the coordinates, the "sign" which has a small offset was selected, therefore remove the whole element
           if (areCoordinatesEqual(newCoordinates, state.coordinates)) {
             remove = true;
           } else {
-            if (newCoordinates.length < 1) {
+            newCoordinates = (newCoordinates as number[][]).filter((subCoordinates) => subCoordinates.length > 3);
+            let maxSub = 0;
+            for (const subCoordinates of newCoordinates as number[][]) {
+              if (subCoordinates.length > maxSub) {
+                maxSub = subCoordinates.length;
+              }
+            }
+            if (maxSub <= 3) {
               remove = true;
-            } else {
-              let maxSub = 0;
-              for (const subCoordinates of newCoordinates as number[][]) {
-                if (maxSub <= subCoordinates.length) {
-                  maxSub = subCoordinates.length;
-                }
-              }
-              if (maxSub < 4) {
-                remove = true;
-              }
             }
           }
 
           break;
-        case ZsMapDrawElementStateType.LINE:
-          if (newCoordinates.length < 3) {
+        case 'LineString':
+          if (newCoordinates.length < 2) {
             remove = true;
           }
+          break;
+
+        case 'Point':
+          remove = true;
           break;
       }
 
       if (remove) {
-        this._state.removeDrawElement(state.id);
+        const confirmation = this._dialog.open(ConfirmationDialogComponent, {
+          data: this.i18n.get('deletionNotification'),
+        });
+        const result = await lastValueFrom(confirmation.afterClosed());
+        if (result) {
+          this._state.removeDrawElement(state.id);
+        }
       } else {
         this._state.updateDrawElementState(state.id, 'coordinates', newCoordinates as any);
       }
