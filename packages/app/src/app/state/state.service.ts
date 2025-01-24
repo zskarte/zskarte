@@ -852,8 +852,7 @@ export class ZsMapStateService {
         iconSize: sign.iconSize,
         hideIcon: sign.hideIcon,
         createdBy: sign.createdBy,
-        iconOffset: sign.iconOffset,
-        flipIcon: sign.flipIcon,
+        iconsOffset: sign.iconsOffset,
         rotation: sign.rotation,
         iconOpacity: sign.iconOpacity,
         style: sign.style,
@@ -1221,7 +1220,7 @@ export class ZsMapStateService {
     return !this._session.isGuest() || elementCount < MAX_DRAW_ELEMENTS_GUEST;
   }
 
-  public drawElementCount(): Observable<number> {
+  public observeDrawElementCount(): Observable<number> {
     return this.observeDrawElements().pipe(map((res) => res.length));
   }
 }

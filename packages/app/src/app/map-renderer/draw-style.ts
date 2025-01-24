@@ -295,7 +295,7 @@ export class DrawStyle {
         signatureSrc: signature.src,
         type: feature?.getGeometry()?.getType(),
         hideIcon: signature.hideIcon,
-        iconOffset: signature.iconOffset,
+        iconsOffset: signature.iconsOffset,
         iconSize: signature.iconSize,
         iconOpacity: signature.iconOpacity,
         zindex: this.getZIndex(feature),
@@ -346,11 +346,12 @@ export class DrawStyle {
     feature = DrawStyle.getSubFeature(feature);
     const signature = feature.get('sig');
     const symbolAnchorCoordinate = getFirstCoordinate(feature);
-    const offset = signature.iconOffset;
+    const offsetX = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.x : 0.1;
+    const offsetY = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.y : 0.1;
     const resolutionFactor = resolution / 10;
     const symbolCoordinate = [
-      signature.flipIcon ? symbolAnchorCoordinate[0] + offset * resolutionFactor : symbolAnchorCoordinate[0] - offset * resolutionFactor,
-      symbolAnchorCoordinate[1] + offset * resolutionFactor,
+      symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
+      symbolAnchorCoordinate[1] - offsetY * resolutionFactor,
     ];
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
@@ -359,18 +360,24 @@ export class DrawStyle {
     feature = DrawStyle.getSubFeature(feature);
     const signature = feature.get('sig');
     const symbolAnchorCoordinate = getLastCoordinate(feature);
-    const offset = signature.iconOffset;
+    const offsetX = signature.iconsOffset ? 
+      (signature.iconsOffset.endHasDifferentOffset && signature.iconsOffset.endX !== undefined ?
+      signature.iconsOffset.endX : signature.iconsOffset.x) : 0.1;
+    const offsetY = signature.iconsOffset ? 
+      (signature.iconsOffset.endHasDifferentOffset && signature.iconsOffset.endY !== undefined ?
+      signature.iconsOffset.endY : signature.iconsOffset.y) : 0.1;
     const resolutionFactor = resolution / 10;
     const symbolCoordinate = [
-      signature.flipIcon ? symbolAnchorCoordinate[0] + offset * resolutionFactor : symbolAnchorCoordinate[0] - offset * resolutionFactor,
-      symbolAnchorCoordinate[1] + offset * resolutionFactor,
+      symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
+      symbolAnchorCoordinate[1] - offsetY * resolutionFactor,
     ];
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
 
-  private static createLineToIcon(feature: FeatureLike, resolution: number): LineString {
+  private static createLineToIcon(feature: FeatureLike, resolution: number, isEndIcon = false): LineString {
     feature = DrawStyle.getSubFeature(feature);
-    const iconCoordinates = DrawStyle.getIconCoordinates(feature, resolution);
+    const iconCoordinates = isEndIcon ? DrawStyle.getEndIconCoordinates(feature, resolution) :
+     DrawStyle.getIconCoordinates(feature, resolution);
     const symbolAnchorCoordinate = iconCoordinates[0];
     const symbolCoordinate = iconCoordinates[1];
     return new LineString([
@@ -449,7 +456,6 @@ export class DrawStyle {
             zIndex,
           }),
         );
-
         if (signature.type === 'LineString') {
           iconStyles.push(
             new Style({
@@ -458,6 +464,15 @@ export class DrawStyle {
               zIndex,
             }),
           );
+          iconStyles.push(
+            new Style({
+              stroke: highlightStroke ?? undefined,
+              geometry(feature) {
+                return DrawStyle.createLineToIcon(feature, resolution, true);
+              },
+              zIndex,
+            }),
+          )
         }
       }
 
@@ -590,7 +605,16 @@ export class DrawStyle {
               zIndex,
             }),
           );
-
+          iconStyles.push(
+            new Style({
+              stroke: dashedStroke,
+              opacity: signature.iconOpacity ?? 1,
+              geometry(feature: FeatureLike) {
+                return DrawStyle.createLineToIcon(feature, resolution, true);
+              },
+              zIndex,
+            } as any),
+          );
           iconStyles.push(
             new Style({
               image: icon,

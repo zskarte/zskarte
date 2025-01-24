@@ -190,7 +190,6 @@ export class JournalComponent implements AfterViewInit {
   }
 
   toggleKeyMessageFilter(event: any) {
-    console.log('toggleKeyMessageFilter', event);
     this.keyMessageFilter = event.selected;
     this.filterEntries(this.searchControl.value, this.departmentControl.value);
   }

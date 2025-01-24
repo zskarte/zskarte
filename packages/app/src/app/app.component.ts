@@ -5,6 +5,7 @@ import { MatTabsModule } from "@angular/material/tabs";
 import {NgFor} from "@angular/common";
 import { SessionService } from './session/session.service';
 import { AsyncPipe } from '@angular/common';
+import { I18NService } from './state/i18n.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ import { AsyncPipe } from '@angular/common';
   imports: [RouterOutlet, RouterModule, MatTabsModule, NgFor, AsyncPipe],
 })
 export class AppComponent implements OnInit {
+  i18n = inject(I18NService);
   private _shortcut = inject(ShortcutService);
   private _session = inject(SessionService);
 
@@ -21,10 +23,11 @@ export class AppComponent implements OnInit {
 
   navLinks = [
     {
-      label: 'Karte',
+
+      label: 'map',
       link: '/main/map',
     }, {
-      label: 'Journal',
+      label: 'journal',
       link: '/main/journal'
     }
   ];

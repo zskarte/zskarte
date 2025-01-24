@@ -19,7 +19,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatBadge } from '@angular/material/badge';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { SidebarFiltersComponent } from '../sidebar/sidebar-filters/sidebar-filters.component';
 import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
 import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
 import { SidebarConnectionsComponent } from '../sidebar/sidebar-connections/sidebar-connections.component';
@@ -47,7 +46,6 @@ import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dia
     MatDivider,
     MatBadge,
     MatSidenavModule,
-    SidebarFiltersComponent,
     SidebarComponent,
     SidebarHistoryComponent,
     SidebarConnectionsComponent,
@@ -61,14 +59,16 @@ import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dia
   ],
 })
 export class FloatingUIComponent {
+  MAX_DRAW_ELEMENTS_GUEST = MAX_DRAW_ELEMENTS_GUEST;
   i18n = inject(I18NService);
-  _state = inject(ZsMapStateService);
+  state = inject(ZsMapStateService);
   private _sync = inject(SyncService);
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
   snackbar = inject(MatSnackBar);
+  mapState = inject(ZsMapStateService);
 
   static ONBOARDING_VERSION = '1.0';
 
@@ -78,7 +78,6 @@ export class FloatingUIComponent {
   public connectionCount = new BehaviorSubject<number>(0);
   public isOnline = new BehaviorSubject<boolean>(true);
   public isReadOnly = new BehaviorSubject<boolean>(false);
-  activeLayer$: Observable<ZsMapBaseLayer | undefined>;
   public canUndo = new BehaviorSubject<boolean>(false);
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;
@@ -88,39 +87,21 @@ export class FloatingUIComponent {
   public logo = '';
   public workLocal = false;
 
-  public isGuest = signal(false);
-  public elementCount$ = this._state.drawElementCount();
-  public limitReached$ = this.elementCount$.pipe(
-    map(count => count >= MAX_DRAW_ELEMENTS_GUEST)
-  );
-  public maxElements = MAX_DRAW_ELEMENTS_GUEST;
-
   constructor() {
-    const _state = this._state;
-
     if (this.isInitialLaunch()) {
       this._dialog.open(HelpComponent, {
         data: true,
       });
     }
-
-    const session = this.session;
-    this.logo = session.getLogo() ?? '';
-    this.workLocal = session.isWorkLocal();
-    this.isGuest.set(session.isGuest());
-    this._state.observeIsReadOnly().pipe(takeUntil(this._ngUnsubscribe)).subscribe(this.isReadOnly);
-
+    this.logo = this.session.getLogo() ?? '';
+    this.workLocal = this.session.isWorkLocal();
     this.sidebar.observeContext()
     .pipe(takeUntil(this._ngUnsubscribe))
     .subscribe(sidebarContext => {
       switch (sidebarContext) {
-        case SidebarContext.Filters:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('filters');
-          break;
         case SidebarContext.Layers:
           this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('layers');
+          this.sidebarTitle = this.i18n.get('view');
           break;
         case SidebarContext.History:
           this.showLogo = false;
@@ -149,7 +130,7 @@ export class FloatingUIComponent {
       }
     });
 
-    this._state
+    this.state
       .observeHistory()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe(({ canUndo, canRedo }) => {
@@ -172,7 +153,7 @@ export class FloatingUIComponent {
       });
 
     if (this.workLocal) {
-      this._state
+      this.state
         .observeDisplayState()
         .pipe(takeUntil(this._ngUnsubscribe))
         .subscribe(async (displayState) => {
@@ -203,9 +184,7 @@ export class FloatingUIComponent {
         });
     }
 
-    this.activeLayer$ = _state.observeActiveLayer();
-
-    this._state
+    this.state
       .observePrintState()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((printState) => {
@@ -224,7 +203,7 @@ export class FloatingUIComponent {
   }
 
   zoomIn() {
-    this._state.updateMapZoom(1);
+    this.state.updateMapZoom(1);
   }
 
   zoomToScale() {
@@ -232,30 +211,30 @@ export class FloatingUIComponent {
       width: '500px',
       data: {
         scale: undefined,
-        dpi: this._state.getDPI(),
+        dpi: this.state.getDPI(),
       },
     });
     projectionDialog.afterClosed().subscribe((result) => {
       if (result) {
-        this._state.setMapZoomScale(result.scale, result.dpi);
+        this.state.setMapZoomScale(result.scale, result.dpi);
       }
     });
   }
 
   zoomOut() {
-    this._state.updateMapZoom(-1);
+    this.state.updateMapZoom(-1);
   }
 
   undo() {
-    this._state.undoMapStateChange();
+    this.state.undoMapStateChange();
   }
 
   redo() {
-    this._state.redoMapStateChange();
+    this.state.redoMapStateChange();
   }
 
   public async openDrawDialog(): Promise<void> {
-    const layer = await firstValueFrom(this._state.observeActiveLayer());
+    const layer = await firstValueFrom(this.state.observeActiveLayer());
     const ref = this._dialog.open(DrawDialogComponent);
     ref.componentRef?.instance.setLayer(layer);
   }

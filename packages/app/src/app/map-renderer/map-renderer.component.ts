@@ -12,9 +12,11 @@ import { MatButton, MatButtonModule, MatMiniFabButton } from '@angular/material/
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { Sign, ZsMapDrawElementStateType } from '@zskarte/types';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { areCoordinatesEqual, removeCoordinates } from '../helper/coordinates';
+import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
@@ -32,17 +34,18 @@ import { MapSelectService } from './map-select.service';
 export class MapRendererComponent implements AfterViewInit {
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
+  private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
   private _select = inject(MapSelectService);
   private _overlay = inject(MapOverlayService);
   public renderer = inject(MapRendererService);
 
   readonly mapElement = viewChild.required<ElementRef>('mapElement');
-  readonly deleteElement = viewChild.required<MatButton>('delete');
-  readonly rotateElement = viewChild.required<MatButton>('rotate');
-  readonly copyElement = viewChild.required<MatButton>('copy');
-  readonly drawElement = viewChild.required<MatButton>('draw');
-  readonly closeElement = viewChild.required<MatButton>('close');
+  readonly deleteElement = viewChild.required<MatButton>('deleteButton');
+  readonly rotateElement = viewChild.required<MatButton>('rotateButton');
+  readonly copyElement = viewChild.required<MatButton>('copyButton');
+  readonly drawElement = viewChild.required<MatButton>('drawButton');
+  readonly closeElement = viewChild.required<MatButton>('closeButton');
 
   public isDevicePositionFlagVisible = false;
 
@@ -131,45 +134,54 @@ export class MapRendererComponent implements AfterViewInit {
     });
   }
 
-  async removeFeature() {
+  async remove() {
     const state = this._state.getDrawElementState(this._select.getFeature()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
     const coordinates = this._select.getVertexPoint();
+
     if (state?.id && coordinates) {
-      const newCoordinates = removeCoordinates(state.coordinates, coordinates);
+      const element = this._state.getDrawElement(state.id);
+
+      let newCoordinates = removeCoordinates(state.coordinates, coordinates);
 
       let remove = false;
-      switch (state.type) {
-        case ZsMapDrawElementStateType.POLYGON:
-        case ZsMapDrawElementStateType.SYMBOL:
+      switch (element.getOlFeature?.()?.getGeometry?.()?.getType?.()) {
+        case 'Polygon':
           // if there is no change in the coordinates, the "sign" which has a small offset was selected, therefore remove the whole element
           if (areCoordinatesEqual(newCoordinates, state.coordinates)) {
             remove = true;
           } else {
-            if (newCoordinates.length < 1) {
+            newCoordinates = (newCoordinates as number[][]).filter((subCoordinates) => subCoordinates.length > 3);
+            let maxSub = 0;
+            for (const subCoordinates of newCoordinates as number[][]) {
+              if (subCoordinates.length > maxSub) {
+                maxSub = subCoordinates.length;
+              }
+            }
+            if (maxSub <= 3) {
               remove = true;
-            } else {
-              let maxSub = 0;
-              for (const subCoordinates of newCoordinates as number[][]) {
-                if (maxSub <= subCoordinates.length) {
-                  maxSub = subCoordinates.length;
-                }
-              }
-              if (maxSub < 4) {
-                remove = true;
-              }
             }
           }
 
           break;
-        case ZsMapDrawElementStateType.LINE:
-          if (newCoordinates.length < 3) {
+        case 'LineString':
+          if (newCoordinates.length < 2) {
             remove = true;
           }
+          break;
+
+        case 'Point':
+          remove = true;
           break;
       }
 
       if (remove) {
-        this._state.removeDrawElement(state.id);
+        const confirmation = this._dialog.open(ConfirmationDialogComponent, {
+          data: this.i18n.get('deletionNotification'),
+        });
+        const result = await lastValueFrom(confirmation.afterClosed());
+        if (result) {
+          this._state.removeDrawElement(state.id);
+        }
       } else {
         this._state.updateDrawElementState(state.id, 'coordinates', newCoordinates as any);
       }
@@ -178,7 +190,13 @@ export class MapRendererComponent implements AfterViewInit {
     this._overlay.toggleEditButtons(false);
   }
 
-  async copySign() {
+  async copy() {
+    if (this._session.isGuest()) {
+      if (await firstValueFrom(this._session.observeIsGuestElementLimitReached())) {
+        return;
+      }
+    }
+
     const feature = this._select.getFeature();
     if (!feature) {
       return;
