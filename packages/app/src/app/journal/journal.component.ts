@@ -117,7 +117,19 @@ export class JournalComponent implements AfterViewInit {
     visumMessage: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
     dateCreatedDate: new FormControl<Date>(new Date(), { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
     dateCreatedTime: new FormControl<Date>(new Date(), { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_MESSAGE)] }),
-    department: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
+    department: new FormControl<
+    | 'politische-behoerde'
+    | 'chef-fuehrungsorgan'
+    | 'stabschef'
+    | 'fb-lage'
+    | 'fb-information'
+    | 'fb-oeffentliche-sicherheit'
+    | 'fb-schutz-rettung'
+    | 'fb-gesundheit'
+    | 'fb-logistik'
+    | 'fb-infrastukturen'
+    | null
+  >(null, { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
     isKeyMessage: new FormControl(false, { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
     visumTriage: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
     dateTriage: new FormControl<Date | null>(null, { validators: [this.requiredStep(JournalEntryStatus.AWAITING_TRIAGE)] }),
@@ -132,6 +144,15 @@ export class JournalComponent implements AfterViewInit {
 
   editing = false;
 
+  private combineDateAndTime(dateObj: Date, timeObj: Date) {
+    const newDate = new Date(dateObj);
+    newDate.setHours(timeObj.getHours());
+    newDate.setMinutes(timeObj.getMinutes());
+    newDate.setSeconds(timeObj.getSeconds());
+    newDate.setMilliseconds(timeObj.getMilliseconds());
+    return newDate;
+  }
+
   constructor() {
     this.initializeSearch();
     this.initializeDepartmentFilter();
@@ -144,14 +165,12 @@ export class JournalComponent implements AfterViewInit {
   private requiredStep(status: JournalEntryStatus): ValidatorFn {
     return (control: AbstractControl) => {
       if (this.journalForm === undefined) return null;
-      
-      // Return null if current status is further along than the required status
-      if (Object.values(JournalEntryStatus).indexOf(this.journalForm.controls.entryStatus.value) > 
-          Object.values(JournalEntryStatus).indexOf(status)) {
-        return null;
+
+      if (Object.values(JournalEntryStatus).indexOf(status) <= Object.values(JournalEntryStatus).indexOf(this.journalForm.controls.entryStatus.value)) {
+            return control.value ? null : { requiredStep: true };
       }
       
-      return control.value ? null : { requiredStep: true };
+      return null;
     }
   }
 
@@ -269,11 +288,7 @@ export class JournalComponent implements AfterViewInit {
     await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.documentId}`, {
       data: {
         ...rest,
-        dateMessage: new Date(
-          (this.journalForm.value.dateCreatedDate as Date).setTime(
-            this.journalForm.value.dateCreatedTime!.getTime(),
-          ),
-        ),
+        dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
       },
     });
 
@@ -289,7 +304,11 @@ export class JournalComponent implements AfterViewInit {
 
   async save(event: any) {
     console.log(this.journalForm.valid);
+    console.log(this.journalForm.errors);
+    this.journalForm.updateValueAndValidity();
     if (!this.journalForm.valid) return;
+
+    console.log(this.journalForm.valid);
 
     const entryStatus = this.journalForm.value.entryStatus;
     if (event.submitter.name !== 'save') {
@@ -316,26 +335,20 @@ export class JournalComponent implements AfterViewInit {
             ...rest,
             operation: operation?.documentId,
             organization: organization?.documentId,
-            date_message: new Date(
-              (this.journalForm.value.dateCreatedDate as Date).setTime(
-                this.journalForm.value.dateCreatedTime!.getTime(),
-              ),
-            ),
+            dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
           },
         });
       } else {
-        await this.apiService.post('/api/journal-entries', {
+        const {result} = await this.apiService.post('/api/journal-entries', {
           data: {
             ...rest,
             operation: operation?.documentId,
             organization: organization?.documentId,
-            date_message: new Date(
-              (this.journalForm.value.dateCreatedDate as Date).setTime(
-                this.journalForm.value.dateCreatedTime!.getTime(),
-              ),
-            ),
+            dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
           },
         });
+
+        this.selectedJournalEntry = {documentId: result.documentId} as JournalEntry;
       }
 
       await this.journalResource.reload();

@@ -41,9 +41,6 @@
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('journalNumber') }}</mat-label>
                   <input matInput formControlName="messageNumber" />
-                  <mat-error *ngIf="journalForm.controls.messageNumber.hasError('requiredStep')">
-                    {{ i18n.get('requiredStep') }}
-                  </mat-error>
                 </mat-form-field>
               </div>
               <div style="display: flex; gap: 6px">
@@ -330,7 +327,7 @@
           </ng-container>
 
           <ng-container matColumnDef="entryStatus">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('status') }}</th>
             <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
           </ng-container>
 

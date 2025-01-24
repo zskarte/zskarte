@@ -38,7 +38,6 @@ export class SidebarJournalComponent {
     try {
       await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
         data: {
-          ...entry,
           isDrawnOnMap: true,
         },
       });
@@ -52,7 +51,6 @@ export class SidebarJournalComponent {
     try {
       await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
         data: {
-          ...entry,
           isDrawnOnMap: false,
         },
       });
