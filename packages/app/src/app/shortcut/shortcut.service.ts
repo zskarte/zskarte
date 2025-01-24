@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
+import { cloneDeep } from 'lodash';
+import { Coordinate } from 'ol/coordinate';
 import { Observable, firstValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
@@ -62,9 +64,58 @@ export class ShortcutService {
       this._copyElement = this._selectedElement;
     });
 
-    this._listen({ shortcut: 'mod+v', drawModeOnly: true }).subscribe(() => {
+    this._listen({ shortcut: 'mod+v', drawModeOnly: true }).subscribe(async () => {
+      if (this._session.isGuest()) {
+        if (await firstValueFrom(this._session.observeIsGuestElementLimitReached())) {
+          return;
+        }
+      }
       if (this._copyElement?.elementState) {
-        this._state.addDrawElement(this._copyElement.elementState);
+        const currentCoordinates = await firstValueFrom(this._state.getCoordinates());
+        const newState = cloneDeep(this._copyElement.elementState);
+
+        // translate coordinates
+        const getFirstCoordinate = (
+          coordinates: undefined | number[] | number[][] | Coordinate,
+        ): number[] | undefined => {
+          if (!coordinates) {
+            return;
+          }
+          if (typeof coordinates[0] === 'number') {
+            return coordinates as number[];
+          }
+          if (Array.isArray(coordinates)) {
+            return getFirstCoordinate(coordinates[0]);
+          }
+          return;
+        };
+
+        const firstCoordinates = getFirstCoordinate(newState.coordinates);
+        const offset = [
+          currentCoordinates[0] - (firstCoordinates?.[0] || 0),
+          currentCoordinates[1] - (firstCoordinates?.[1] || 0),
+        ];
+
+        const offsetCoordinates = (coordinates: undefined | number[] | number[][] | Coordinate, offset: number[]) => {
+          if (!coordinates) {
+            return;
+          }
+
+          if (typeof coordinates[0] === 'number') {
+            (coordinates as number[])[0] += offset[0];
+            (coordinates as number[])[1] += offset[1];
+          } else {
+            if (Array.isArray(coordinates)) {
+              for (const o of coordinates) {
+                offsetCoordinates(o as number[], offset);
+              }
+            }
+          }
+        };
+
+        offsetCoordinates(newState.coordinates, offset);
+
+        this._state.addDrawElement(newState);
       }
     });
 
