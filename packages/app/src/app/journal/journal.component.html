@@ -136,8 +136,8 @@
               {{
                 journalForm.value.isKeyMessage !== undefined ?
                   journalForm.value.isKeyMessage ?
-                    'Ja'
-                  : 'Nein'
+                    i18n.get('yes')
+                  : i18n.get('no')
                 : ''
               }}<br />
               <strong>{{ i18n.get('department') }}: </strong> {{ journalForm.value.department ? i18n.get(journalForm.value.department) : '' }}<br />
