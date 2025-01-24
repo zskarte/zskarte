@@ -2,36 +2,58 @@
   "name": "Public",
   "description": "Default role given to unauthenticated user.",
   "type": "public",
+  "documentId": "bb8bq664cr38rvmr3s1w85v9",
+  "locale": null,
   "permissions": [
     {
-      "action": "api::access.access.token"
+      "action": "api::access.access.token",
+      "documentId": "ons3f0jh0gufoy7y0yiqe2md",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.find"
+      "action": "api::map-layer.map-layer.find",
+      "documentId": "pew4xatp1b84z613ruas67y7",
+      "locale": null
     },
     {
-      "action": "api::map-layer.map-layer.findOne"
+      "action": "api::map-layer.map-layer.findOne",
+      "documentId": "iwb9vsnrv1jz80axk197bt6t",
+      "locale": null
     },
     {
-      "action": "api::organization.organization.find"
+      "action": "api::organization.organization.find",
+      "documentId": "mdvv8zm6277zbxd04x7gpyiy",
+      "locale": null
     },
     {
-      "action": "api::organization.organization.forLogin"
+      "action": "api::organization.organization.forLogin",
+      "documentId": "q355js3rnwm383r8kop0925u",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.find"
+      "action": "api::wms-source.wms-source.find",
+      "documentId": "kzd11n4fnnykj0lo36g0oq9w",
+      "locale": null
     },
     {
-      "action": "api::wms-source.wms-source.findOne"
+      "action": "api::wms-source.wms-source.findOne",
+      "documentId": "ewxckjmxmbluzmnrphy7ud5r",
+      "locale": null
     },
     {
-      "action": "plugin::users-permissions.auth.callback"
+      "action": "plugin::users-permissions.auth.callback",
+      "documentId": "nnfew0uw6w4yh36g1w3falo0",
+      "locale": null
     },
     {
-      "action": "plugin::users-permissions.auth.connect"
+      "action": "plugin::users-permissions.auth.connect",
+      "documentId": "fgdguywxgldathn07io4kotw",
+      "locale": null
     },
     {
-      "action": "plugin::users-permissions.user.find"
+      "action": "plugin::users-permissions.user.find",
+      "documentId": "zoxb1tbdwu8c07pezpswhw3x",
+      "locale": null
     }
   ]
 }

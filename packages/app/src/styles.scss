@@ -135,6 +135,12 @@ fieldset.like-mat-form-field-outline > legend {
 .ol-scale-bar.scale-print .ol-scale-bar-inner {
   position: relative;
 }
+#map .ol-scale-bar {
+  top: 50%;
+  transform: translateY(-50%) translateX(-50%) rotate(90deg);
+  left: 1.25rem;
+  bottom: auto;
+}
 
 #map .ol-attribution {
   left: 50%;

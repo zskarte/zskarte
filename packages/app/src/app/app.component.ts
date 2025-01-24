@@ -1,16 +1,34 @@
 import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { MatTabsModule } from "@angular/material/tabs";
+import {NgFor} from "@angular/common";
+import { SessionService } from './session/session.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterModule, MatTabsModule, NgFor, AsyncPipe],
 })
 export class AppComponent implements OnInit {
   private _shortcut = inject(ShortcutService);
+  private _session = inject(SessionService);
+
+  operationId = this._session.observeOperationId();
+
+  navLinks = [
+    {
+      label: 'Karte',
+      link: '/main/map',
+    }, {
+      label: 'Journal',
+      link: '/main/journal'
+    }
+  ];
+
 
   height = window.innerHeight;
   width = window.innerWidth;

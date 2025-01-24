@@ -108,9 +108,8 @@ coverage
 ############################
 
 **/.strapi
-.strapi-updater.json
 **/.angular
 **/dist/
-
+.strapi-updater.json
 **/data
 .env

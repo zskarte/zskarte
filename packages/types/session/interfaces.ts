@@ -1,18 +1,19 @@
-import { Locale } from "../i18n/interfaces";
-import { IZsMapOperation, IZsMapOrganization } from "../operation/interfaces";
+import { Locale } from '../i18n/interfaces';
+import { IZsMapOperation, IZsMapOrganization } from '../operation/interfaces';
 
 export enum PermissionType {
-  READ = "read",
-  WRITE = "write",
-  ALL = "all",
+  READ = 'read',
+  WRITE = 'write',
+  ALL = 'all',
 }
 
 export enum AccessTokenType {
-  LONG = "long",
-  SHORT = "short",
+  LONG = 'long',
+  SHORT = 'short',
 }
 export interface IZsAccess {
   id: string;
+  documentId: string;
   accessToken: string;
   type: PermissionType;
 }

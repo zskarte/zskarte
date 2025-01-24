@@ -2,16 +2,26 @@ import { Socket } from 'socket.io/dist/socket';
 import _ from 'lodash';
 import { operationCaches } from './operation';
 import { OperationCache, PatchExtended, User, WebsocketEvent } from '../definitions';
-//import { sanitize } from '@strapi/utils';
+import { Server } from 'socket.io';
+import { Core } from '@strapi/strapi';
 
 const sanitizeUser = (user) => {
-  //return sanitize.contentAPI.output(user, strapi.getModel('plugin::users-permissions.user'), { auth }) as Promise<User>;
-  // there is no ctx.state.auth available in this context (in strapi.requestContext.get();)
-  // remove private fields by hand...
   delete user.password;
   delete user.resetPasswordToken;
   delete user.confirmationToken;
   return user;
+};
+
+let socketIo: Server;
+
+const connectSocketIo = (strapi: Core.Strapi) => {
+  socketIo = new Server(strapi.server.httpServer, {
+    transports: ['websocket'],
+    cors: {
+      origin: '*',
+    },
+  });
+  socketIo.on('connection', (socket) => socketConnection({ strapi }, socket));
 };
 
 /** Handles new socket connections, checks the token and the needed query parameters. */
@@ -19,16 +29,16 @@ const socketConnection = async ({ strapi }, socket: Socket) => {
   try {
     strapi.log.info(`Socket Connecting: ${socket.id}`);
     const { token } = socket.handshake.auth;
-    const operationId = parseInt(socket.handshake.query.operationId as string);
+    const operationId = socket.handshake.query.operationId as string;
     const identifier = socket.handshake.query.identifier as string;
     const label = socket.handshake.query.label as string;
-    if (isNaN(operationId) || !token || !identifier || !label) {
+    if (!operationId || !token || !identifier || !label) {
       strapi.log.warn(`Socket: ${socket.id} - Empty token, operationId, label or identifier in handshake`);
       socket.disconnect();
       return;
     }
     const { jwt, user: userService } = strapi.plugins['users-permissions'].services;
-    const { id: userId, operationId: tokenOperationId }: { id: number; operationId: number } = await jwt.verify(token);
+    const { id: userId, operationId: tokenOperationId }: { id: number; operationId: string } = await jwt.verify(token);
     // Check if the token operationId matches the query operationId
     if (tokenOperationId && operationId !== tokenOperationId) {
       strapi.log.warn(
@@ -58,7 +68,7 @@ const socketConnection = async ({ strapi }, socket: Socket) => {
     const sanitizedUser = sanitizeUser(user);
     operationCache.connections.push({ user: sanitizedUser, socket, identifier, label });
     strapi.log.info(`Socket Connected: ${socket.id}, ${user.email}, OperationId: ${operationId}`);
-    await broadcastConnections(operationCache);
+    broadcastConnections(operationCache);
     socket.on('disconnect', () => socketDisconnect(operationCache, socket));
   } catch (error) {
     socket.disconnect();
@@ -106,4 +116,4 @@ const broadcastPatches = (operationCache: OperationCache, identifier: string, pa
   }
 };
 
-export { socketConnection, broadcastPatches, broadcastConnections };
+export { connectSocketIo, socketConnection, broadcastPatches, broadcastConnections };

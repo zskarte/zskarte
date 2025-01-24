@@ -33,9 +33,9 @@ export const debounceLeading = (callback: (...args: any[]) => Promise<boolean>, 
       }
       return;
     }
+    lastArgs = args;
     if (timeoutId) {
       //as there is already a timeout: update args and let it do the work, cancel this call
-      lastArgs = args;
       return;
     }
     // Calculate remaining wait time

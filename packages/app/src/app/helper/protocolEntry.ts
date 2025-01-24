@@ -25,6 +25,7 @@ export function mapProtocolEntry(
     const location = JSON.stringify(convertTo(geometry.getCoordinates() || [], projectionFormatIndex, numerical));
     const extent = geometry?.getExtent();
     const centroid = convertTo(extent ? getCenter(extent) : [], projectionFormatIndex, numerical);
+    const reportNumber = (Array.isArray(element.elementState?.reportNumber) ? element.elementState?.reportNumber : [element.elementState?.reportNumber]).join(", ");
     return {
       id: element.getId(),
       date: datePipe.transform(element.elementState?.createdAt, 'dd.MM.yyyy HH:mm'),
@@ -34,6 +35,7 @@ export function mapProtocolEntry(
         : currentLocale === 'en' ? sig.en
         : sig.de,
       location,
+      reportNumber,
       centroid,
       size: sig.size,
 
@@ -54,6 +56,7 @@ export interface ProtocolEntry {
   location: string;
   centroid: string;
   size: string;
+  reportNumber: string;
   label: string;
   description: string;
 }
@@ -62,12 +65,13 @@ export function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n: I18N
   const workbook = new Workbook();
   const sheet = workbook.addWorksheet('Protocol Entries');
   sheet.columns = [
-    { header: i18n.get('date'), key: 'date', width: 15 },
-    { header: i18n.get('groupLabel'), key: 'group', width: 15 },
-    { header: i18n.get('sign'), key: 'sign', width: 15 },
-    { header: i18n.get('location'), key: 'location', width: 30 },
-    { header: i18n.get('label'), key: 'label', width: 15 },
-    { header: i18n.get('description'), key: 'description', width: 30 },
+    { header: i18n.get('csvDate'), key: 'date', width: 15 },
+    { header: i18n.get('csvGroup'), key: 'group', width: 15 },
+    { header: i18n.get('csvSignatur'), key: 'sign', width: 15 },
+    { header: i18n.get('csvLocation'), key: 'location', width: 30 },
+    { header: i18n.get('csvReportNumber'), key: 'reportNumber', width: 15 },
+    { header: i18n.get('csvLabel'), key: 'label', width: 15 },
+    { header: i18n.get('csvDescription'), key: 'description', width: 30 },
   ];
   sheet.addRows(protocolEntries);
   return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {

@@ -1,24 +1,33 @@
-import fs from 'fs';
 export default ({ env }) => {
-  const dbConfig = {
-    connection: {
-      client: 'postgres',
+  const client = env('DATABASE_CLIENT', 'postgres');
+
+  const connections = {
+    postgres: {
       connection: {
         host: env('DATABASE_HOST', 'localhost'),
         port: env.int('DATABASE_PORT', 55432),
         database: env('DATABASE_NAME', 'zskarte'),
         user: env('DATABASE_USERNAME', 'postgres'),
         password: env('DATABASE_PASSWORD', 'supersecret123'),
-        ssl: env.bool('DATABASE_SSL', false),
+        ssl: env.bool('DATABASE_SSL', false) && {
+          key: env('DATABASE_SSL_KEY', undefined),
+          cert: env('DATABASE_SSL_CERT', undefined),
+          ca: env('DATABASE_SSL_CA', undefined),
+          capath: env('DATABASE_SSL_CAPATH', undefined),
+          cipher: env('DATABASE_SSL_CIPHER', undefined),
+          rejectUnauthorized: env.bool('DATABASE_SSL_REJECT_UNAUTHORIZED', true),
+        },
+        schema: env('DATABASE_SCHEMA', 'public'),
       },
+      pool: { min: env.int('DATABASE_POOL_MIN', 2), max: env.int('DATABASE_POOL_MAX', 10) },
     },
   };
-  if (env('DATABASE_CA_CERT', null)) {
-    dbConfig.connection.connection.ssl = {
-      //need to be false for allow self signed root ca not matching DATABASE_HOST
-      rejectUnauthorized: env.bool('DATABASE_SSL_REJECT_SELF', false),
-      ca: fs.readFileSync(env('DATABASE_CA_CERT', null)),
-    };
-  }
-  return dbConfig;
+
+  return {
+    connection: {
+      client,
+      ...connections[client],
+      acquireConnectionTimeout: env.int('DATABASE_CONNECTION_TIMEOUT', 60000),
+    },
+  };
 };

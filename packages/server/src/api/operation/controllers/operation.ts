@@ -16,14 +16,14 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const sanitizedQuery = await this.sanitizeQuery(ctx);
     const entity = await strapi.service('api::operation.operation').findOne(id, sanitizedQuery);
     const sanitizedEntity = (await this.sanitizeOutput(entity, ctx)) as Operation;
-    const operationCache = operationCaches[entity.id];
+    const operationCache = operationCaches[entity.documentId];
     if (operationCache) {
       sanitizedEntity.mapState = operationCache.mapState;
     }
     return this.transformResponse(sanitizedEntity);
   },
   async patch(ctx) {
-    const { identifier, operationid } = ctx.request.headers;
+    const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
@@ -34,7 +34,7 @@ export default factories.createCoreController('api::operation.operation', ({ str
     return { success: true };
   },
   async currentLocation(ctx) {
-    const { identifier, operationid } = ctx.request.headers;
+    const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
@@ -52,8 +52,8 @@ export default factories.createCoreController('api::operation.operation', ({ str
   async overview(ctx) {
     ctx.query.fields = ['name', 'description', 'phase', 'eventStates', 'updatedAt'];
     ctx.query.sort = 'updatedAt:DESC';
-    if (ctx.query.pagination) {
-      ctx.query.pagination.limit = -1;
+    if (ctx.query.pagination && _.isObject(ctx.query.pagination)) {
+      ctx.query.pagination = { ...ctx.query.pagination, limit: -1 };
     } else {
       ctx.query.pagination = { limit: -1 };
     }
@@ -61,7 +61,9 @@ export default factories.createCoreController('api::operation.operation', ({ str
   },
   async archive(ctx) {
     const { id } = ctx.params;
-    await strapi.entityService.update('api::operation.operation', id, {
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
+
       data: {
         phase: OperationPhases.ARCHIVED,
       },
@@ -71,7 +73,8 @@ export default factories.createCoreController('api::operation.operation', ({ str
   },
   async shadowDelete(ctx) {
     const { id } = ctx.params;
-    await strapi.entityService.update('api::operation.operation', id, {
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
       data: {
         phase: OperationPhases.DELETED,
       },
@@ -81,7 +84,9 @@ export default factories.createCoreController('api::operation.operation', ({ str
   },
   async unarchive(ctx) {
     const { id } = ctx.params;
-    await strapi.entityService.update('api::operation.operation', id, {
+    await strapi.documents('api::operation.operation').update({
+      documentId: id,
+
       data: {
         phase: OperationPhases.ACTIVE,
       },

@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
@@ -18,55 +18,40 @@
     "creator": {
       "type": "string"
     },
-    "date_created": {
-      "type": "datetime"
-    },
-    "message_number": {
+    "messageNumber": {
       "type": "integer"
     },
-    "communication_type": {
+    "communicationType": {
       "type": "string"
     },
-    "communication_details": {
+    "communicationDetails": {
       "type": "string"
     },
-    "message_subject": {
+    "messageSubject": {
       "type": "string"
     },
-    "message_content": {
+    "messageContent": {
       "type": "text"
     },
-    "visum_message": {
+    "visumMessage": {
       "type": "string"
     },
-    "is_key_message": {
+    "isKeyMessage": {
       "type": "boolean"
     },
-    "department": {
-      "type": "string"
-    },
-    "date_visum_message": {
+    "dateMessage": {
       "type": "datetime"
     },
-    "visum_triage": {
+    "visumTriage": {
       "type": "string"
     },
-    "date_visum_triage": {
+    "dateTriage": {
       "type": "datetime"
     },
     "decision": {
       "type": "text"
     },
-    "visum_decision_deliverer": {
-      "type": "string"
-    },
-    "date_visum_decision_deliverer": {
-      "type": "datetime"
-    },
-    "visum_decision_receiver": {
-      "type": "string"
-    },
-    "date_visum_decision_receiver": {
+    "dateDecision": {
       "type": "datetime"
     },
     "operation": {
@@ -79,16 +64,44 @@
       "relation": "oneToOne",
       "target": "api::organization.organization"
     },
-    "related_symbols": {
-      "type": "json"
+    "dateDecisionDelivered": {
+      "type": "datetime"
+    },
+    "visumDecider": {
+      "type": "string"
+    },
+    "decisionReceiver": {
+      "type": "string"
     },
     "entryStatus": {
       "type": "enumeration",
       "enum": [
+        "awaiting_message",
         "awaiting_triage",
-        "awaiting_drawing",
         "awaiting_decision",
+        "awaiting_completion",
         "completed"
+      ]
+    },
+    "decisionSender": {
+      "type": "string"
+    },
+    "isDrawnOnMap": {
+      "type": "boolean"
+    },
+    "department": {
+      "type": "enumeration",
+      "enum": [
+        "politische-behoerde",
+        "chef-fuehrungsorgan",
+        "stabschef",
+        "fb-lage",
+        "fb-information",
+        "fb-oeffentliche-sicherheit",
+        "fb-schutz-rettung",
+        "fb-gesundheit",
+        "fb-logistik",
+        "fb-infrastukturen"
       ]
     }
   }

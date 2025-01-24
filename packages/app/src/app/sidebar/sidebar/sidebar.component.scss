@@ -1,3 +1,13 @@
+h2 {
+  padding: 0 1rem;
+  margin-top: 2rem;
+  :first-child{
+    margin-top: 0;
+  }
+}
+
+h2:fi
+
 .selectedLayer {
   display: flex;
   flex-direction: column;
@@ -109,7 +119,86 @@ mat-slider {
   margin-right: 5px;
 }
 
+.filterAll {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filterItem {
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+}
+
+.opaque {
+  opacity: 0.4;
+}
+
+button.filterItem .eyeOverlay {
+  position: absolute;
+  top: calc(50% - 12px);
+  left: calc(50% - 12px);
+}
+
+.category-list-item {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.category-color {
+  min-height: 32px;
+  min-width: 15px;
+  max-width: 25px;
+  margin: 2px 8px 2px 0px;
+}
+
+.categoryDot {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.mat-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.listItemContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.categoryLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer; /* Show pointer to indicate it's clickable */
+  gap: 8px; /* Space between dot and text */
+}
+
 .selectedLayer .disabled {
   color: #949494;
   cursor: default;
 }
+
+mat-checkbox.categoryCheckbox {
+  width: 100%;
+  ::ng-deep .mdc-form-field {
+    width: 100%;
+    label {
+      width: 100%;
+    }
+  }
+}
+
+

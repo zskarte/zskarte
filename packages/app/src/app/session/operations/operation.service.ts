@@ -40,9 +40,9 @@ export class OperationService {
 
     operation.phase = 'archived';
     if (operation?.id < 0) {
-      await OperationService.persistLocalOpertaion(operation);
+      await OperationService.persistLocalOperation(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/archive`, null);
+      await this._api.put(`/api/operations/${operation.documentId}/archive`, null);
     }
     await this.reload('active');
   }
@@ -54,9 +54,9 @@ export class OperationService {
 
     operation.phase = 'active';
     if (operation?.id < 0) {
-      await OperationService.persistLocalOpertaion(operation);
+      await OperationService.persistLocalOperation(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/unarchive`, null);
+      await this._api.put(`/api/operations/${operation.documentId}/unarchive`, null);
     }
     await this.reload('archived');
   }
@@ -69,13 +69,13 @@ export class OperationService {
     if (operation?.id < 0) {
       await OperationService.deleteLocalOperation(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/shadowdelete`, null);
+      await this._api.put(`/api/operations/${operation.documentId}/shadowdelete`, null);
     }
     await this.reload('archived');
   }
 
   public async saveOperation(operation: IZsMapOperation): Promise<void> {
-    if (operation.id) {
+    if (operation.documentId) {
       await this.updateMeta(operation);
     } else {
       await this.insertOperation(operation);
@@ -104,18 +104,18 @@ export class OperationService {
   }
 
   public async updateMeta(operation: IZsMapOperation): Promise<void> {
-    if ((operation.id ?? 0) < 0) {
-      await OperationService.persistLocalOpertaion(operation);
+    if (!operation.documentId) {
+      await OperationService.persistLocalOperation(operation);
     } else {
-      await this._api.put(`/api/operations/${operation.id}/meta`, {
+      await this._api.put(`/api/operations/${operation.documentId}/meta`, {
         data: { name: operation.name, description: operation.description, eventStates: operation.eventStates },
       });
     }
   }
 
-  public async getOperation(operationId: number, options?: IApiRequestOptions) {
-    if (operationId < 0) {
-      return db.localOperation.get(operationId);
+  public async getOperation(operationId: string, options?: IApiRequestOptions) {
+    if (parseInt(operationId) < 0) {
+      return db.localOperation.get(parseInt(operationId));
     } else {
       const { error, result } = await this._api.get<IZsMapOperation>(`/api/operations/${operationId}`, options);
       if (error || !result) return null;
@@ -132,7 +132,7 @@ export class OperationService {
     return await db.localOperation.where('id').aboveOrEqual(0).delete();
   }
 
-  public static async persistLocalOpertaion(operation: IZsMapOperation) {
+  public static async persistLocalOperation(operation: IZsMapOperation) {
     await db.localOperation.put(operation);
   }
 
@@ -165,12 +165,12 @@ export class OperationService {
     }
   }
 
-  public async updateMapLayers(operationId: number, data: IZSMapOperationMapLayers) {
-    if (operationId < 0) {
+  public async updateMapLayers(operationId: string, data: IZSMapOperationMapLayers) {
+    if (parseInt(operationId) < 0) {
       const operation = this._session.getOperation();
       if (operation) {
         operation.mapLayers = data;
-        await OperationService.persistLocalOpertaion(operation);
+        await OperationService.persistLocalOperation(operation);
       }
     } else {
       await this._api.put(`/api/operations/${operationId}/mapLayers`, { data });
@@ -181,7 +181,7 @@ export class OperationService {
     const operation = this._session.getOperation();
     if (operation) {
       operation.mapState = mapState;
-      await OperationService.persistLocalOpertaion(operation);
+      await OperationService.persistLocalOperation(operation);
     }
   }
 
@@ -201,11 +201,12 @@ export class OperationService {
           mapLayers: result.mapLayers,
         };
         await this.insertOperation(operation);
+        await this.reload('active');
       }
     });
   }
 
-  public async exportOperation(operationId: number | undefined): Promise<void> {
+  public async exportOperation(operationId: string | undefined): Promise<void> {
     if (!operationId) {
       return;
     }

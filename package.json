@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "fix-esm": "^1.0.1",
+    "fuse.js": "^7.0.0",
     "inquirer": "^12.3.2",
     "ol": "^10.3.1",
     "superjson": "^2.2.2",

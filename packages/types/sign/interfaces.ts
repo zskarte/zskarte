@@ -8,6 +8,14 @@ export interface FillStyle {
   spacing?: number;
 }
 
+export interface IconsOffset {
+  x: number;
+  y: number;
+  endHasDifferentOffset: boolean;
+  endX: number;
+  endY: number;
+}
+
 export interface Sign {
   id?: number;
   type: string;
@@ -30,8 +38,7 @@ export interface Sign {
   color?: string;
   strokeWidth?: number;
   hideIcon?: boolean;
-  iconOffset?: number;
-  flipIcon?: boolean;
+  iconsOffset?: IconsOffset;
   topCoord?: number[];
   onlyForSessionId?: string;
   description?: string;
@@ -121,10 +128,16 @@ export const signatureDefaultValues: SignatureDefaultValues = {
   fillStyle: {
     name: "filled",
   },
+  iconsOffset: {
+    x: 0.1,
+    y: 0.1,
+    endHasDifferentOffset: false,
+    endX: 0.1,
+    endY: 0.1,
+  },
   fillStyleAngle: 45,
   fillStyleSize: 5,
   fillStyleSpacing: 10,
-  iconOffset: 0.1,
   protected: false,
   labelShow: true,
   arrow: "none",
@@ -132,7 +145,6 @@ export const signatureDefaultValues: SignatureDefaultValues = {
   iconOpacity: 0.5,
   rotation: 1,
   images: [],
-  flipIcon: false,
   hideIcon: false,
   affectedPersons: undefined,
 };
@@ -154,8 +166,13 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.fillStyle.size ?? signatureDefaultValues.fillStyleSize;
   signature.fillStyle.spacing =
     signature.fillStyle.spacing ?? signatureDefaultValues.fillStyleSpacing;
-  signature.iconOffset =
-    signature.iconOffset ?? signatureDefaultValues.iconOffset;
+  const iconsOffset = { ...signatureDefaultValues.iconsOffset };
+  iconsOffset.x = signature.iconsOffset?.x ?? signatureDefaultValues.iconsOffset.x;
+  iconsOffset.y = signature.iconsOffset?.y ?? signatureDefaultValues.iconsOffset.y;
+  iconsOffset.endHasDifferentOffset = signature.iconsOffset?.endHasDifferentOffset ?? signatureDefaultValues.iconsOffset.endHasDifferentOffset;
+  iconsOffset.endX = signature.iconsOffset?.endX ?? signatureDefaultValues.iconsOffset.endX;
+  iconsOffset.endY = signature.iconsOffset?.endY ?? signatureDefaultValues.iconsOffset.endY;
+  signature.iconsOffset = iconsOffset;
   signature.protected = signature.protected ?? signatureDefaultValues.protected;
   signature.labelShow = signature.labelShow ?? signatureDefaultValues.labelShow;
   signature.arrow = signature.arrow ?? signatureDefaultValues.arrow;
@@ -164,7 +181,6 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.iconOpacity ?? signatureDefaultValues.iconOpacity;
   signature.rotation = signature.rotation ?? signatureDefaultValues.rotation;
   signature.images = signature.images ?? signatureDefaultValues.images;
-  signature.flipIcon = signature.flipIcon ?? signatureDefaultValues.flipIcon;
   signature.affectedPersons =
     signature.affectedPersons ?? signatureDefaultValues.affectedPersons;
 }
@@ -180,7 +196,7 @@ export interface SignatureDefaultValues {
   fillStyleAngle: number;
   fillStyleSize: number;
   fillStyleSpacing: number;
-  iconOffset: number;
+  iconsOffset: IconsOffset;
   protected: boolean;
   labelShow: boolean;
   arrow: string;
@@ -188,7 +204,6 @@ export interface SignatureDefaultValues {
   iconOpacity: number;
   rotation: number;
   images: string[];
-  flipIcon: boolean;
   hideIcon: boolean;
   affectedPersons: number | undefined;
 }

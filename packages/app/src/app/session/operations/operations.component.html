@@ -14,13 +14,7 @@
           </mat-form-field>
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Beschreibung</mat-label>
-            <input
-              matInput
-              type="text"
-              placeholder="Beschreibung eingeben"
-              [(ngModel)]="edit.description"
-              name="description"
-            />
+            <input matInput type="text" placeholder="Beschreibung eingeben" [(ngModel)]="edit.description" name="description" />
           </mat-form-field>
           <app-incident-select [(values)]="edit.eventStates"></app-incident-select>
         </form>
@@ -30,13 +24,7 @@
         <button class="button" mat-flat-button (click)="operationService.operationToEdit.next(undefined)">
           {{ i18n.get('cancel') }}
         </button>
-        <button
-          class="button"
-          mat-flat-button
-          color="primary"
-          data-testid="operation-save"
-          (click)="operationService.saveOperation(edit)"
-        >
+        <button class="button" mat-flat-button color="primary" data-testid="operation-save" (click)="operationService.saveOperation(edit)">
           {{ i18n.get('save') }}
         </button>
       </mat-card-actions>
@@ -103,7 +91,7 @@
                     Ereignis umbenennen
                   </button>
                 }
-                <button mat-menu-item (click)="operationService.exportOperation(o.id)">
+                <button mat-menu-item (click)="operationService.exportOperation(o.documentId)">
                   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportOperation')">save</mat-icon>
                   {{ i18n.get('exportOperation') }}
                 </button>
@@ -114,9 +102,7 @@
                   </button>
                 } @else {
                   <button mat-menu-item (click)="operationService.unarchiveOperation(o)">
-                    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('unarchiveOperation')"
-                      >unarchive</mat-icon
-                    >
+                    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('unarchiveOperation')">unarchive</mat-icon>
                     {{ i18n.get('unarchiveOperation') }}
                   </button>
                   <button mat-menu-item (click)="deleteOperation(o)">

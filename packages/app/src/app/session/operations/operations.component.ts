@@ -65,9 +65,10 @@ export class OperationsComponent implements OnDestroy {
     firstValueFrom(route.queryParams).then((queryParams) => {
       if (queryParams['operationId']) {
         try {
-          const operationId = parseInt(queryParams['operationId']);
+          const operationId = queryParams['operationId'];
+          const operationIdInt = parseInt(operationId);
           this.operationService.operations.pipe(takeUntil(this._ngUnsubscribe)).subscribe((operations) => {
-            const operation = operations.find((o) => o.id === operationId);
+            const operation = operations.find((o) => o.documentId === operationId || o.id === operationIdInt);
             if (operation) {
               this.selectOperation(operation);
             }
@@ -85,7 +86,7 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public selectOperation(operation: IZsMapOperation) {
-    if (operation.id) {
+    if (operation.documentId || operation.id) {
       this._session.setOperation(operation);
     }
   }

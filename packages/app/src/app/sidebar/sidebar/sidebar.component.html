@@ -1,5 +1,7 @@
 
 <mat-accordion multi displayMode="flat">
+  <h2>{{ i18n.get('layers') }} & {{ i18n.get('currentMap') }}</h2>
+  <mat-divider></mat-divider>
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -7,6 +9,7 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
+      
       @if (mapState.getActiveLayer(); as layer) {
         <div class="selectedLayer">
           
@@ -74,6 +77,7 @@
       }
     </ng-template>
   </mat-expansion-panel>
+
   @if ((mapState.observeSelectedMapLayers$() | async)?.length ?? 0 > 0) {
     <mat-divider></mat-divider>
     <mat-expansion-panel class="mat-elevation-z0">
@@ -265,7 +269,24 @@
       </mat-action-list>
     </ng-template>
   </mat-expansion-panel>
-</mat-accordion>
+
+<mat-divider></mat-divider>
+
+<div class="buttonContent">
+  <button mat-stroked-button (click)="mapState.toggleExpertView()">
+    @if (!(mapState.observeIsExpertView() | async)) {
+      <mat-icon matListIcon aria-hidden="false" [attr.aria-label]="i18n.get('expertView')">manage_accounts</mat-icon>
+    }
+    @if (mapState.observeIsExpertView() | async) {
+      <mat-icon matListIcon aria-hidden="false" [attr.aria-label]="i18n.get('defaultView')">person</mat-icon>
+    }
+    {{ (mapState.observeIsExpertView() | async) ? i18n.get('defaultView') : i18n.get('expertView') }}
+  </button>
+  <button mat-icon-button class="expertInfo" (click)="showExpertViewHelp()">
+    <mat-icon>info</mat-icon>
+  </button>
+</div>
+
 <mat-divider></mat-divider>
 
 <div class="buttonContent">
@@ -289,3 +310,7 @@
   <button mat-stroked-button (click)="editLayerSettings()" [innerText]="i18n.get('organisationSettings')"></button>
 </div>
 }
+<h2>{{ i18n.get('filter') }}</h2>
+<mat-divider></mat-divider>
+<app-sidebar-filters></app-sidebar-filters>
+</mat-accordion>

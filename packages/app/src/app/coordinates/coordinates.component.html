@@ -15,6 +15,10 @@
         </span>
       }
     </div>
-    <span class="menu" (click)="showOptions = !showOptions">{{ showOptions ? '&cross;' : '&#x2637;' }}</span>
+    
+   <button class="switch" mat-icon-button (click)="toggleOptions()"> 
+    <mat-icon>{{ showOptions ? 'save' : 'settings' }}</mat-icon>
+  </button>
+    
   </div>
 </div>

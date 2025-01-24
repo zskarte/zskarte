@@ -48,6 +48,10 @@
       <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by label">{{ i18n.get('csvLabel') }}</th>
       <td mat-cell *matCellDef="let element">{{ element.label }}</td>
     </ng-container>
+    <ng-container matColumnDef="reportNumber">
+      <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by label">{{ i18n.get('csvReportNumber') }}</th>
+      <td mat-cell *matCellDef="let element">{{ element.reportNumber }}</td>
+    </ng-container>
     <ng-container matColumnDef="description">
       <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by description">
         {{ i18n.get('csvDescription') }}
