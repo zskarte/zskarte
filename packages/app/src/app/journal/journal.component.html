@@ -1,4 +1,4 @@
-<mat-sidenav-container hasBackdrop="false">
+<mat-sidenav-container hasBackdrop="false" autoFocus="false">
   <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen">
     <form [formGroup]="journalForm" (ngSubmit)="save($event)">
       <div class="sidebar-header">
@@ -18,26 +18,20 @@
         (selectedIndexChange)="selectedIndex = $event"
       >
         <mat-tab label="{{ i18n.get('input') }}">
-          <div *ngIf="!editing">
-            <div class="journal-entry-details">
-              <p>
-                <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
-                <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
-                <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
-                <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
-                <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
-                <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
-                <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
-              </p>
-              <button mat-stroked-button type="button" (click)="toggleEditing()" style="align-self: start">
-                <mat-icon>edit</mat-icon>
-                {{ i18n.get('edit') }}
-              </button>
-            </div>
+          <div class="journal-entry-details">
+            <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE">
+              <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
+              <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
+              <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
+              <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
+              <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
+              <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
+              <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
+            </p>
           </div>
-          <div *ngIf="editing">
+          <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE">
             <div class="journal-entry-details">
-              <div style="width: 120px">
+              <div style="width: 134px">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('journalNumber') }}</mat-label>
                   <input matInput formControlName="messageNumber" />
@@ -109,7 +103,7 @@
                     <mat-icon>close</mat-icon>
                     {{ i18n.get('cancel') }}
                   </button>
-                  <button mat-flat-button color="primary" name="save" *ngIf="selectedJournalEntry">
+                  <button mat-flat-button color="primary" *ngIf="selectedJournalEntry">
                     <mat-icon>check</mat-icon>
                     {{ i18n.get('save') }}
                   </button>
@@ -124,10 +118,9 @@
           
         </mat-tab>
         
-        <mat-tab label="{{ i18n.get('triage') }}" [disabled]="this.journalForm.value.entryStatus === 'awaiting_message'">
-
+        <mat-tab label="{{ i18n.get('triage') }}" [disabled]="this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE">
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entryStatus !== 'awaiting_triage'">
+            <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_TRIAGE">
               <strong>{{ i18n.get('keyMessage') }}:</strong>
               {{
                 journalForm.value.isKeyMessage !== undefined ?
@@ -140,7 +133,7 @@
               <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumTriage }}<br />
               <strong>{{ i18n.get('dateTriage') }}: </strong> {{ journalForm.value.dateTriage?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entryStatus === 'awaiting_triage'">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE">
               <mat-checkbox formControlName="isKeyMessage">{{ i18n.get('keyMessage') }}</mat-checkbox>
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('department') }}</mat-label>
@@ -171,24 +164,29 @@
                 </button>
               </div>
             </div>
+
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE" style="border: 1px solid lightgray; padding: 14px">
+              <h3>Inhalt nicht korrekt?</h3>
+              <p>Falls dieser Journaleintrag nicht korrekt ist, gib ihn zurück an den Eingang.</p>
+              <button mat-button type="button" (click)="resetState()">Zurück an Eingang senden</button>
+            </div>
           </div>
         </mat-tab>
         <mat-tab
           label="{{ i18n.get('decision') }}"
           [disabled]="
-            this.journalForm.value.entryStatus === 'awaiting_message' ||
-            this.journalForm.value.entryStatus === 'awaiting_triage' ||
-            this.journalForm.value.entryStatus === 'awaiting_drawing'
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entryStatus !== 'awaiting_decision'">
+            <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_DECISION">
               <strong>{{ i18n.get('decision') }}: </strong> {{ journalForm.value.decision }}<br />
               <strong>{{ i18n.get('messageReceiver') }}: </strong> {{ journalForm.value.decisionReceiver }}<br />
               <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumDecider }}<br />
               <strong>{{ i18n.get('dateDecision') }}: </strong> {{ journalForm.value.dateDecision?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entryStatus === 'awaiting_decision'">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION">
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('decision') }}</mat-label>
                 <textarea matInput formControlName="decision" rows="10"></textarea>
@@ -211,7 +209,7 @@
               </div>
             </div>
 
-            <div *ngIf="journalForm.value.entryStatus === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION" style="border: 1px solid lightgray; padding: 14px">
               <h3>{{ i18n.get('wrongDepartment') }}</h3>
               <p>{{ i18n.get('wrongTriage') }}</p>
               <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
@@ -222,18 +220,17 @@
         <mat-tab
           label="{{ i18n.get('output') }}"
           [disabled]="
-            this.journalForm.value.entryStatus === 'awaiting_message' ||
-            this.journalForm.value.entryStatus === 'awaiting_triage' ||
-            this.journalForm.value.entryStatus === 'awaiting_drawing' ||
-            this.journalForm.value.entryStatus === 'awaiting_decision'
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entryStatus === 'completed'">
+            <p *ngIf="journalForm.value.entryStatus === JournalEntryStatus.COMPLETED">
               <strong>{{ i18n.get('deliveredFrom') }}:</strong> {{ journalForm.value.decisionSender }}<br />
               <strong>{{ i18n.get('deliveryTime') }}:</strong> {{ journalForm.value.dateDecisionDelivered?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entryStatus !== 'completed'">
+            <div *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.COMPLETED">
               <mat-form-field appearance="outline">
 
                 <mat-label>{{ i18n.get('deliveredFrom') }}</mat-label>

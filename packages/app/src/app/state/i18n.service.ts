@@ -2374,6 +2374,11 @@ export class I18NService {
       de: 'Drücken Sie Enter, um die Meldenummer hinzuzufügen',
       en: 'Press enter to add the report number',
       fr: 'Appuyez sur Entrée pour ajouter le numéro du rapport'
+    },
+    drawnSymbols: {
+      de: 'Gezeichnete Signaturen',
+      en: 'Drawn symbols',
+      fr: 'Symboles dessinés'
     }
   };
 

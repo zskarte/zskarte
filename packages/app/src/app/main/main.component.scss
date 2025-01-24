@@ -10,3 +10,8 @@
   right: 0;
   bottom: 0;
 }
+
+.hiddenmap {
+  z-index: 0;
+  visibility: hidden;
+}

@@ -23,8 +23,7 @@
         </mat-expansion-panel-header>
 
         <ng-template matExpansionPanelContent>
-          <div class="created-date">{{entry.createdAt | date}}</div>
-          <p>{{entry.messageContent}}</p>
+          <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
           <button mat-flat-button color="primary" (click)="markAsDrawn(entry)">{{i18n.get('markAsDrawn')}}</button>
         </ng-template>
       </mat-expansion-panel>
@@ -47,8 +46,7 @@
         </mat-expansion-panel-header>
 
         <ng-template matExpansionPanelContent>
-          <div class="created-date">{{entry.createdAt | date}}</div>
-          <p>{{entry.messageContent}}</p>
+          <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
           <button mat-button (click)="markAsNotDrawn(entry)">{{i18n.get('markAsNotDrawn')}}</button>
         </ng-template>
       </mat-expansion-panel>

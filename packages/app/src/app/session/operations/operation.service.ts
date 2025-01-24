@@ -98,7 +98,7 @@ export class OperationService {
       await db.localOperation.add(operation);
     } else {
       await this._api.post('/api/operations', {
-        data: { ...operation, organization: this._session.getOrganizationId() },
+        data: { ...operation, organization: this._session.getOrganization()?.documentId },
       });
     }
   }

@@ -1,3 +1,11 @@
+export enum JournalEntryStatus {
+  AWAITING_MESSAGE = 'awaiting_message',
+  AWAITING_TRIAGE = 'awaiting_triage',
+  AWAITING_DECISION = 'awaiting_decision',
+  AWAITING_COMPLETION = 'awaiting_completion',
+  COMPLETED = 'completed',
+}
+
 export interface JournalEntry {
   id: number;
   documentId: string;
@@ -39,7 +47,7 @@ export interface JournalEntry {
   };
   publishedAt: Date;
   sender: string;
-  entryStatus: 'awaiting_message' | 'awaiting_triage' | 'awaiting_decision' | 'awaiting_completion' | 'completed';
+  entryStatus: JournalEntryStatus;
   updatedAt: Date;
   updatedBy?: string;
   visumDecider: string;
