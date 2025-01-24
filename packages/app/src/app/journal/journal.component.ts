@@ -24,7 +24,7 @@ import Fuse from 'fuse.js';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -177,7 +177,6 @@ export class JournalComponent implements AfterViewInit {
   }
 
   toggleKeyMessageFilter(event: any) {
-    console.log('toggleKeyMessageFilter', event);
     this.keyMessageFilter = event.selected;
     this.filterEntries(this.searchControl.value, this.departmentControl.value);
   }
@@ -229,6 +228,26 @@ export class JournalComponent implements AfterViewInit {
     }
 
     this.dataSourceFiltered.data = filtered;
+  }
+
+  sortData(sort: Sort) {
+    const data = this.dataSourceFiltered.data.slice();
+    if (!sort.active || sort.direction === '') {
+      this.dataSourceFiltered.data = data;
+      return;
+    }
+
+    this.dataSourceFiltered.data = data.sort((a, b) => {
+      const isAsc = sort.direction === 'asc';
+      switch (sort.active) {
+        case 'messageNumber':
+          return compare(a.messageNumber, b.messageNumber, isAsc);
+        case 'dateMessage':
+          return compare(a.dateMessage, b.dateMessage, isAsc);
+        default:
+          return 0;
+      }
+    });
   }
 
   async selectEntry(entry: JournalEntry) {
@@ -342,4 +361,8 @@ export class JournalComponent implements AfterViewInit {
       console.error('Error saving journal entry:', error);
     }
   }
+}
+
+function compare(a: any, b: any, isAsc: boolean) {
+  return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
 }
