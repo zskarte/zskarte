@@ -13,7 +13,7 @@
 
   @if (affectedPersons?.length) {
     <div class="actions">
-      <button mat-raised-button color="primary" (click)="print(affectedPersons ?? [])">
+      <button mat-flat-button color="primary" (click)="print(affectedPersons ?? [])">
         {{i18n.get('print')}}
       </button>
     </div>

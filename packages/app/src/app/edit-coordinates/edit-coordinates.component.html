@@ -14,9 +14,9 @@
   </mat-form-field>
 </div>
 <div mat-dialog-actions align="end">
-  <button mat-raised-button (click)="cancel()">{{ i18n.get('cancel') }}</button>
+  <button mat-stroked-button (click)="cancel()">{{ i18n.get('cancel') }}</button>
   <button
-    mat-raised-button
+    mat-flat-button
     color="primary"
     (click)="ok()"
     [disabled]="formatedCoordinatesControl.invalid || formatedCoordinatesControl.pending"
