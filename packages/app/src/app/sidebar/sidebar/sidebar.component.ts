@@ -48,6 +48,7 @@ import {
   GeoJSONMapLayer,
   zsMapStateSourceToDownloadUrl,
 } from '@zskarte/types';
+import { SidebarFiltersComponent } from '../sidebar-filters/sidebar-filters.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -73,7 +74,8 @@ import {
     MatListModule,
     MatSlideToggleModule,
     MatGridListModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    SidebarFiltersComponent,
   ],
 })
 
