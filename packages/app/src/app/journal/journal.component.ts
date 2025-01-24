@@ -142,8 +142,6 @@ export class JournalComponent implements AfterViewInit {
     decisionSender: new FormControl('', { nonNullable: true, validators: [this.requiredStep(JournalEntryStatus.AWAITING_COMPLETION)] }),
   });
 
-  editing = false;
-
   private combineDateAndTime(dateObj: Date, timeObj: Date) {
     const newDate = new Date(dateObj);
     newDate.setHours(timeObj.getHours());
@@ -249,7 +247,6 @@ export class JournalComponent implements AfterViewInit {
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntry = entry;
     this.sidebarOpen = true;
-    this.editing = false;
     this.selectedIndex = 0;
 
     this.journalForm.patchValue({
@@ -262,26 +259,28 @@ export class JournalComponent implements AfterViewInit {
   resetEntry() {
     this.selectedJournalEntry = null;
     this.sidebarOpen = false;
-    this.editing = false;
     this.selectedIndex = 0;
   }
 
   openJournalAddDialog() {
-    this.editing = true;
     this.sidebarOpen = true;
     this.journalForm.reset();
   }
 
   toggleEditing() {
-    this.editing = !this.editing;
-
     this.journalForm.patchValue({});
   }
 
   async resetState() {
-    this.journalForm.patchValue({
-      entryStatus: JournalEntryStatus.AWAITING_TRIAGE,
-    });
+    if(this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
+      this.journalForm.patchValue({
+        entryStatus: JournalEntryStatus.AWAITING_MESSAGE,
+      });
+    } else {
+      this.journalForm.patchValue({
+        entryStatus: JournalEntryStatus.AWAITING_TRIAGE,
+      });
+    }
 
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
 
@@ -318,16 +317,14 @@ export class JournalComponent implements AfterViewInit {
       return;
     }
    
-    if (event.submitter.name !== 'save') {
-      if (entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
-        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_TRIAGE });
-      } else if (entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
-        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_DECISION });
-      } else if (entryStatus === JournalEntryStatus.AWAITING_DECISION) {
-        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_COMPLETION });
-      } else {
-        this.journalForm.patchValue({ entryStatus: JournalEntryStatus.COMPLETED });
-      }
+    if (entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
+      this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_TRIAGE });
+    } else if (entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
+      this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_DECISION });
+    } else if (entryStatus === JournalEntryStatus.AWAITING_DECISION) {
+      this.journalForm.patchValue({ entryStatus: JournalEntryStatus.AWAITING_COMPLETION });
+    } else {
+      this.journalForm.patchValue({ entryStatus: JournalEntryStatus.COMPLETED });
     }
 
     const operation = this.sessionService.getOperation();
@@ -365,8 +362,6 @@ export class JournalComponent implements AfterViewInit {
       );
 
       await this.selectEntry(entry.result as JournalEntry);
-
-      this.editing = false;
 
       this.selectedIndex = this.selectedIndex + 1;
 

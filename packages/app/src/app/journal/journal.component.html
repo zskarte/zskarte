@@ -18,26 +18,18 @@
         (selectedIndexChange)="selectedIndex = $event"
       >
         <mat-tab label="Eingang">
-          <div *ngIf="!editing">
+          <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE">
+            <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
+            <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
+            <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
+            <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
+            <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
+            <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
+            <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
+          </p>
+          <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE">
             <div class="journal-entry-details">
-              <p>
-                <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
-                <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
-                <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
-                <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
-                <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
-                <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
-                <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
-              </p>
-              <button mat-stroked-button type="button" (click)="toggleEditing()" style="align-self: start">
-                <mat-icon>edit</mat-icon>
-                {{ i18n.get('edit') }}
-              </button>
-            </div>
-          </div>
-          <div *ngIf="editing">
-            <div class="journal-entry-details">
-              <div style="width: 120px">
+              <div style="width: 134px">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('journalNumber') }}</mat-label>
                   <input matInput formControlName="messageNumber" />
@@ -108,7 +100,7 @@
                     <mat-icon>close</mat-icon>
                     {{ i18n.get('cancel') }}
                   </button>
-                  <button mat-flat-button color="primary" name="save" *ngIf="selectedJournalEntry">
+                  <button mat-flat-button color="primary" *ngIf="selectedJournalEntry">
                     <mat-icon>check</mat-icon>
                     {{ i18n.get('save') }}
                   </button>
@@ -167,6 +159,12 @@
                   {{ i18n.get('save') }}
                 </button>
               </div>
+            </div>
+
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE" style="border: 1px solid lightgray; padding: 14px">
+              <h3>Inhalt nicht korrekt?</h3>
+              <p>Falls dieser Journaleintrag nicht korrekt ist, gib ihn zurück an den Eingang.</p>
+              <button mat-button type="button" (click)="resetState()">Zurück an Eingang senden</button>
             </div>
           </div>
         </mat-tab>
