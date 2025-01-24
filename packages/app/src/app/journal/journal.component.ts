@@ -141,6 +141,15 @@ export class JournalComponent implements AfterViewInit {
 
   editing = false;
 
+  private combineDateAndTime(dateObj: Date, timeObj: Date) {
+    const newDate = new Date(dateObj);
+    newDate.setHours(timeObj.getHours());
+    newDate.setMinutes(timeObj.getMinutes());
+    newDate.setSeconds(timeObj.getSeconds());
+    newDate.setMilliseconds(timeObj.getMilliseconds());
+    return newDate;
+  }
+
   constructor() {
     this.initializeSearch();
     this.initializeDepartmentFilter();
@@ -264,9 +273,7 @@ export class JournalComponent implements AfterViewInit {
     await this.apiService.put<JournalEntry>(`/api/journal-entries/${this.selectedJournalEntry?.documentId}`, {
       data: {
         ...rest,
-        dateMessage: new Date(
-          (this.journalForm.value.dateCreatedDate as Date).setTime(this.journalForm.value.dateCreatedTime!.getTime()),
-        ),
+        dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
       },
     });
 
@@ -306,11 +313,7 @@ export class JournalComponent implements AfterViewInit {
             ...rest,
             operation: operation?.documentId,
             organization: organization?.documentId,
-            dateMessage: new Date(
-              (this.journalForm.value.dateCreatedDate as Date).setTime(
-                this.journalForm.value.dateCreatedTime!.getTime(),
-              ),
-            ),
+            dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
           },
         });
       } else {
@@ -319,11 +322,7 @@ export class JournalComponent implements AfterViewInit {
             ...rest,
             operation: operation?.documentId,
             organization: organization?.documentId,
-            dateMessage: new Date(
-              (this.journalForm.value.dateCreatedDate as Date).setTime(
-                this.journalForm.value.dateCreatedTime!.getTime(),
-              ),
-            ),
+            dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
           },
         });
       }
