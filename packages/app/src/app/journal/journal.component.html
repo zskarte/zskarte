@@ -177,9 +177,9 @@
             </div>
 
             <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE" style="border: 1px solid lightgray; padding: 14px">
-              <h3>Inhalt nicht korrekt?</h3>
-              <p>Falls dieser Journaleintrag nicht korrekt ist, gib ihn zurück an den Eingang.</p>
-              <button mat-button type="button" (click)="resetState()">Zurück an Eingang senden</button>
+              <h3>{{ i18n.get('wrongContent') }}</h3>
+              <p>{{ i18n.get('wrongContentMessage') }}</p>
+              <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
             </div>
           </div>
         </mat-tab>
