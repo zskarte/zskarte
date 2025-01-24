@@ -273,6 +273,10 @@ export class JournalComponent implements AfterViewInit {
       dateCreatedDate: entry.dateMessage,
       dateCreatedTime: entry.dateMessage,
     });
+
+    for(const control of Object.values(this.journalForm.controls)) {
+      control.setErrors(null);
+    }
   }
 
   resetEntry() {
@@ -381,9 +385,6 @@ export class JournalComponent implements AfterViewInit {
 
       await this.selectEntry(entry.result as JournalEntry);
 
-      for(const control of Object.values(this.journalForm.controls)) {
-        control.setErrors(null);
-      }
     } catch (error) {
       console.error('Error saving journal entry:', error);
     }
