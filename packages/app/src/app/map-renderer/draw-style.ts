@@ -374,9 +374,10 @@ export class DrawStyle {
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
 
-  private static createLineToIcon(feature: FeatureLike, resolution: number): LineString {
+  private static createLineToIcon(feature: FeatureLike, resolution: number, isEndIcon: boolean = false): LineString {
     feature = DrawStyle.getSubFeature(feature);
-    const iconCoordinates = DrawStyle.getIconCoordinates(feature, resolution);
+    const iconCoordinates = isEndIcon ? DrawStyle.getEndIconCoordinates(feature, resolution) :
+     DrawStyle.getIconCoordinates(feature, resolution);
     const symbolAnchorCoordinate = iconCoordinates[0];
     const symbolCoordinate = iconCoordinates[1];
     return new LineString([
@@ -455,7 +456,6 @@ export class DrawStyle {
             zIndex,
           }),
         );
-
         if (signature.type === 'LineString') {
           iconStyles.push(
             new Style({
@@ -464,6 +464,15 @@ export class DrawStyle {
               zIndex,
             }),
           );
+          iconStyles.push(
+            new Style({
+              stroke: highlightStroke ?? undefined,
+              geometry(feature) {
+                return DrawStyle.createLineToIcon(feature, resolution, true);
+              },
+              zIndex,
+            }),
+          )
         }
       }
 
@@ -596,7 +605,16 @@ export class DrawStyle {
               zIndex,
             }),
           );
-
+          iconStyles.push(
+            new Style({
+              stroke: dashedStroke,
+              opacity: signature.iconOpacity ?? 1,
+              geometry(feature: FeatureLike) {
+                return DrawStyle.createLineToIcon(feature, resolution, true);
+              },
+              zIndex,
+            } as any),
+          );
           iconStyles.push(
             new Style({
               image: icon,
