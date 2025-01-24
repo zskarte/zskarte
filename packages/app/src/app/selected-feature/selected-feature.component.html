@@ -211,17 +211,6 @@
                     
                     @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
-                        <mat-checkbox
-                          [ngModel]="drawElement.flipIcon"
-                          (ngModelChange)="updateProperty(drawElement, 'flipIcon', $event)"
-                          class="filter"
-                          >{{ i18n.get('symbolAlignRight') }}
-                        </mat-checkbox>
-                      </div>  
-                    }
-                    
-                    @if (drawElement.symbolId && !drawElement.hideIcon) {
-                      <div>
                         <mat-label>{{ i18n.get('symbolSize') }}</mat-label>
             
                         <mat-slider [max]="2" [min]="0.1" [step]="0.1">

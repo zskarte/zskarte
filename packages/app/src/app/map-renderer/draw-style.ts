@@ -350,8 +350,8 @@ export class DrawStyle {
     const offsetY = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.y : 0.1;
     const resolutionFactor = resolution / 10;
     const symbolCoordinate = [
-      signature.flipIcon ? symbolAnchorCoordinate[0] + offsetX * resolutionFactor : symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
-      symbolAnchorCoordinate[1] + offsetY * resolutionFactor,
+      symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
+      symbolAnchorCoordinate[1] - offsetY * resolutionFactor,
     ];
     return [symbolAnchorCoordinate, symbolCoordinate];
   }
@@ -368,8 +368,8 @@ export class DrawStyle {
       signature.iconsOffset.endY : signature.iconsOffset.y) : 0.1;
     const resolutionFactor = resolution / 10;
     const symbolCoordinate = [
-      signature.flipIcon ? symbolAnchorCoordinate[0] + offsetX * resolutionFactor : symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
-      symbolAnchorCoordinate[1] + offsetY * resolutionFactor,
+      symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
+      symbolAnchorCoordinate[1] - offsetY * resolutionFactor,
     ];
     return [symbolAnchorCoordinate, symbolCoordinate];
   }

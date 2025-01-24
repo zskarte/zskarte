@@ -170,7 +170,6 @@ export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
   symbolId?: number;
   hideIcon?: boolean;
   iconsOffset?: IconsOffset;
-  flipIcon?: boolean;
   style?: string;
   arrow?: string;
   strokeWidth?: number;

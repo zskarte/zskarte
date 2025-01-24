@@ -659,11 +659,6 @@ export class I18NService {
       en: 'Size',
       fr: 'Taille',
     },
-    symbolAlignRight: {
-      de: 'Rechts ausrichten',
-      en: 'Align right',
-      fr: 'Aligner à droite',
-    },
     addSymbol: {
       de: 'Hinzufügen',
       en: 'Add',

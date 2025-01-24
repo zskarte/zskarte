@@ -853,7 +853,6 @@ export class ZsMapStateService {
         hideIcon: sign.hideIcon,
         createdBy: sign.createdBy,
         iconsOffset: sign.iconsOffset,
-        flipIcon: sign.flipIcon,
         rotation: sign.rotation,
         iconOpacity: sign.iconOpacity,
         style: sign.style,

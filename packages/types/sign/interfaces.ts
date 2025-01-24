@@ -39,7 +39,6 @@ export interface Sign {
   strokeWidth?: number;
   hideIcon?: boolean;
   iconsOffset?: IconsOffset;
-  flipIcon?: boolean;
   topCoord?: number[];
   onlyForSessionId?: string;
   description?: string;
@@ -146,7 +145,6 @@ export const signatureDefaultValues: SignatureDefaultValues = {
   iconOpacity: 0.5,
   rotation: 1,
   images: [],
-  flipIcon: false,
   hideIcon: false,
   affectedPersons: undefined,
 };
@@ -183,7 +181,6 @@ export function defineDefaultValuesForSignature(signature: Sign) {
     signature.iconOpacity ?? signatureDefaultValues.iconOpacity;
   signature.rotation = signature.rotation ?? signatureDefaultValues.rotation;
   signature.images = signature.images ?? signatureDefaultValues.images;
-  signature.flipIcon = signature.flipIcon ?? signatureDefaultValues.flipIcon;
   signature.affectedPersons =
     signature.affectedPersons ?? signatureDefaultValues.affectedPersons;
 }
@@ -207,7 +204,6 @@ export interface SignatureDefaultValues {
   iconOpacity: number;
   rotation: number;
   images: string[];
-  flipIcon: boolean;
   hideIcon: boolean;
   affectedPersons: number | undefined;
 }

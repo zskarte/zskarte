@@ -59,7 +59,6 @@ export abstract class ZsMapBaseDrawElement<
       iconSize: state.iconSize,
       hideIcon: state.hideIcon,
       iconsOffset: state.iconsOffset,
-      flipIcon: state.flipIcon,
       rotation: state.rotation,
       iconOpacity: state.iconOpacity,
       style: state.style,
