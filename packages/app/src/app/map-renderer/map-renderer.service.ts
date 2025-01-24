@@ -322,14 +322,16 @@ export class MapRendererService {
       this._mousePosition.next(event.pixel);
       this._state.setCoordinates(event.coordinate);
       let sketchSize: string | null = null;
-      if (this._currentSketch) {
-        const geom = this._currentSketch.getGeometry();
-        if (geom instanceof Polygon) {
-          sketchSize = formatArea(geom);
-        } else if (geom instanceof LineString) {
-          sketchSize = formatLength(geom);
+      this._map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
+        if (feature) {
+          const geom = feature.getGeometry();
+          if (geom instanceof Polygon) {
+            sketchSize = formatArea(geom);
+          } else if (geom instanceof LineString) {
+            sketchSize = formatLength(geom);
+          }
         }
-      }
+      });
       this._currentSketchSize.next(sketchSize);
     });
 
