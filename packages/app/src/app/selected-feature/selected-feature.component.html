@@ -211,17 +211,6 @@
                     
                     @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
-                        <mat-checkbox
-                          [ngModel]="drawElement.flipIcon"
-                          (ngModelChange)="updateProperty(drawElement, 'flipIcon', $event)"
-                          class="filter"
-                          >{{ i18n.get('symbolAlignRight') }}
-                        </mat-checkbox>
-                      </div>  
-                    }
-                    
-                    @if (drawElement.symbolId && !drawElement.hideIcon) {
-                      <div>
                         <mat-label>{{ i18n.get('symbolSize') }}</mat-label>
             
                         <mat-slider [max]="2" [min]="0.1" [step]="0.1">
@@ -237,16 +226,57 @@
 
                     @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
-                        <mat-label>{{ i18n.get('symbolOffset') }}</mat-label>
-                        <mat-slider [max]="5000" [min]="250" [step]="250">
+                        <mat-label>{{ i18n.get('symbolOffset') }} X</mat-label>
+                        <mat-slider [max]="3000" [min]="-3000" [step]="250">
                           <input
                             matSliderThumb
-                            [ngModel]="drawElement.iconOffset"
-                            (ngModelChange)="updateProperty(drawElement, 'iconOffset', $event)"
+                            [ngModel]="drawElement.iconsOffset?.x"
+                            (ngModelChange)="updateIconsOffset(drawElement, 'x', $event)"
+                          />
+                        </mat-slider>
+                        <input type="text" matInput hidden value="-" />
+                      </div>             
+                      <div>
+                        <mat-label>{{ i18n.get('symbolOffset') }} Y</mat-label>
+                        <mat-slider [max]="3000" [min]="-3000" [step]="250">
+                          <input
+                            matSliderThumb
+                            [ngModel]="drawElement.iconsOffset?.y"
+                            (ngModelChange)="updateIconsOffset(drawElement, 'y', $event)"
                           />
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
                       </div>  
+                      <div>
+                        <mat-checkbox
+                        [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
+                        (ngModelChange)="updateIconsOffset(drawElement, 'endHasDifferentOffset', $event)"
+                        >{{ i18n.get('endHasDifferentOffset') }}</mat-checkbox>
+                      </div>
+                      @if (drawElement.iconsOffset?.endHasDifferentOffset) {
+                        <div>
+                          <mat-label>{{ i18n.get('symbolOffsetEnd') }} X</mat-label>
+                          <mat-slider [max]="3000" [min]="-3000" [step]="250">
+                            <input
+                              matSliderThumb
+                              [ngModel]="drawElement.iconsOffset?.endX"
+                              (ngModelChange)="updateIconsOffset(drawElement, 'endX', $event)"
+                            />
+                          </mat-slider>
+                          <input type="text" matInput hidden value="-" />
+                        </div>             
+                        <div>
+                          <mat-label>{{ i18n.get('symbolOffsetEnd') }} Y</mat-label>
+                          <mat-slider [max]="3000" [min]="-3000" [step]="250">
+                            <input
+                              matSliderThumb
+                              [ngModel]="drawElement.iconsOffset?.endY"
+                              (ngModelChange)="updateIconsOffset(drawElement, 'endY', $event)"
+                            />
+                          </mat-slider>
+                          <input type="text" matInput hidden value="-" />
+                        </div>  
+                      }
                     }
 
                     @if (drawElement.symbolId && !drawElement.hideIcon) {

@@ -1,8 +1,8 @@
-import { Coordinate } from 'ol/coordinate';
-import { MapLayer, WmsSource } from '../map-layer/interfaces';
-import { FillStyle } from '../sign/interfaces';
-import { Feature } from 'ol';
-import { PermissionType } from '../session/interfaces';
+import { Coordinate } from "ol/coordinate";
+import { MapLayer, WmsSource } from "../map-layer/interfaces";
+import { FillStyle, IconsOffset } from "../sign/interfaces";
+import { Feature } from "ol";
+import { PermissionType } from "../session/interfaces";
 
 export enum ZsMapStateSource {
   OPEN_STREET_MAP = 'openStreetMap',
@@ -169,8 +169,7 @@ export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
   rotation?: number;
   symbolId?: number;
   hideIcon?: boolean;
-  iconOffset?: number;
-  flipIcon?: boolean;
+  iconsOffset?: IconsOffset;
   style?: string;
   arrow?: string;
   strokeWidth?: number;
