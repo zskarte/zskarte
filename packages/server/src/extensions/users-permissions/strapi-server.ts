@@ -22,7 +22,7 @@ export default (plugin) => {
       const organizations = (await strapi.documents('api::organization.organization').findMany({
         filters: {
           operations: {
-            id: { $eq: operationId },
+            documentId: { $eq: operationId },
           },
         },
         populate: {
