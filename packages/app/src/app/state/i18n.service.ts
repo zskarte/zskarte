@@ -2220,6 +2220,116 @@ export class I18NService {
       en: 'Political authority',
       fr: 'Autorité politique',
     },
+    executiveBody: {
+      de: 'Chef Führungsorgan',
+      en: 'Chief executive body',
+      fr: 'Organe directeur',
+    },
+    chiefStaff: {
+      de: 'Stabschef',
+      en: 'Chief staff',
+      fr: 'Chef du personnel',
+    },
+    departementLocation: {
+      de: 'FB Lage',
+      en: 'DP Location',
+      fr: 'DP localisation',
+    },
+    departementInfo: {
+      de: 'FB Information',
+      en: 'DP Information',
+      fr: 'DP Information',
+    },
+    departementSafety: {
+      de: 'FB Sicherheit',
+      en: 'DP Safety',
+      fr: 'DP Sécurité',
+    },
+    departementRescue: {
+      de: 'FB Schutz und Rettung',
+      en: 'DP Safety and Rescue',
+      fr: 'DP Sécurité et sauvetage',
+    },
+    departementHealth: {
+      de: 'FB Gesundheit',
+      en: 'DP Health',
+      fr: 'DP Santé',
+    },
+    departementLogistics: {
+      de: 'FB Logistik',
+      en: 'DP Logistics',
+      fr: 'DP Logistique',
+    },
+    departementInfrastructure: {
+      de: 'FB Infrastruktur',
+      en: 'DP Infrastructure',
+      fr: 'DP Infrastructure',
+    },
+    wrongDepartement: {
+      de: 'Falscher Fachbereich',
+      en: 'Wrong department',
+      fr: 'Mauvais département',
+    },
+    triage: {
+      de: 'Triage',
+      en: 'Triage',
+      fr: 'Triage',
+    },
+    wrongTriage: {
+      de: 'Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.',
+      en: 'If this journal entry does not belong to your department, return it to the triage.',
+      fr: 'Si cette entrée de journal ne vous appartient pas, renvoyez-la au triage.',
+    },
+    backToTriage: {
+      de: 'Zurück zum Triage',
+      en: 'Back to triage',
+      fr: 'Retour au triage',
+    },
+    allDepartements: {
+      de: 'Alle Fachbereiche',
+      en: 'All departments',
+      fr: 'Tous les départements',
+    },
+    deliveryTime: {
+      de: 'Übermittlungszeit',
+      en: 'Delivery time',
+      fr: 'Heure de livraison',
+    },
+    deliveredFrom: {
+      de: 'Übermittelt durch',
+      en: 'Delivered from',
+      fr: 'Livré par',
+    },
+    input: {
+      de: 'Eingang',
+      en: 'Input',
+      fr: 'Entrée',
+    },
+    output: {
+      de: 'Ausgang',
+      en: 'Output',
+      fr: 'Sortie',
+    },
+    searchText:{
+      de: 'Suche',
+      en: 'Search',
+      fr: 'Recherche',
+    },
+    noDepartement:{
+      de: 'Kein Fachbereich',
+      en: 'No department',
+      fr: 'Pas de département',
+    },
+    select: {
+      de: 'Auswählen',
+      en: 'Select',
+      fr: 'Sélectionner',
+    },
+    noInfo: {
+      de: 'Keine Angabe',
+      en: 'No information',
+      fr: 'Pas d\'information',
+    },
     view: {
       de: 'Darstellung',
       en: 'Appearance',
