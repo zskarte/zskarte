@@ -38,7 +38,12 @@ import { MapLayerService } from '../map-layer/map-layer.service';
 import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
 import { WmsService } from '../map-layer/wms/wms.service';
 import { ZsMapStateService } from '../state/state.service';
-import { DEFAULT_COORDINATES, DEFAULT_ZOOM, LOG2_ZOOM_0_RESOLUTION } from './default-map-values';
+import {
+  DEFAULT_COORDINATES,
+  DEFAULT_ZOOM,
+  LOG2_ZOOM_0_RESOLUTION,
+  MAX_DRAW_ELEMENTS_GUEST,
+} from './default-map-values';
 import { OperationService } from './operations/operation.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_ORG } from './userLogic';
 
@@ -304,6 +309,10 @@ export class SessionService {
 
   public isGuest() {
     return this.getOrganization()?.name === GUEST_USER_ORG;
+  }
+
+  public observeIsGuestElementLimitReached(): Observable<boolean> {
+    return this._state.observeDrawElementCount().pipe(map((count) => count >= MAX_DRAW_ELEMENTS_GUEST));
   }
 
   public getOrganizationId(): number | undefined {

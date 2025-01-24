@@ -1,5 +1,11 @@
 <mat-sidenav-container>
-  <mat-sidenav class="mat-elevation-z3 noprint" position="end" mode="side" #sidenav [opened]="sidebar.observeIsOpen() | async">
+  <mat-sidenav
+    class="mat-elevation-z3 noprint"
+    position="end"
+    mode="side"
+    #sidenav
+    [opened]="sidebar.observeIsOpen() | async"
+  >
     <div class="sidebar-header">
       <div class="credits">
         @if (showLogo && logo) {
@@ -8,7 +14,7 @@
         @if (workLocal) {
           <mat-icon>device_hub</mat-icon>
         }
-        <h1>{{sidebarTitle}}</h1>
+        <h1>{{ sidebarTitle }}</h1>
       </div>
       <button mat-icon-button (click)="sidebar.close()" [attr.aria-label]="i18n.get('close')">
         <mat-icon>close</mat-icon>
@@ -43,13 +49,14 @@
     <div class="main noprint">
       <div class="search" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
         <app-geocoder />
-        @if (this.isGuest()) {
-          @let limitReached = limitReached$ | async;
+        @if (session.isGuest()) {
+          @let limitReached = session.observeIsGuestElementLimitReached() | async;
           <button class="limit" [attr.data-limit-reached]="limitReached" (click)="openLimitDialog(limitReached)">
             @if (limitReached) {
-              <span>{{i18n.get('guestLimitReachedShort')}}</span>
+              <span>{{ i18n.get('guestLimitReachedShort') }}</span>
             } @else {
-              {{ elementCount$ | async }} / {{ maxElements }} <span>{{i18n.get('guestLimitElements')}}</span>
+              {{ state.observeDrawElementCount() | async }} / {{ MAX_DRAW_ELEMENTS_GUEST }}
+              <span>{{ i18n.get('guestLimitElements') }}</span>
             }
           </button>
         }
@@ -154,9 +161,14 @@
           <button mat-icon-button class="toggle-button" (click)="zoomIn()" [attr.aria-label]="i18n.get('zoomIn')">
             <mat-icon>zoom_in</mat-icon>
           </button>
-          @if (mapState.isExpertView() && (!printView) ) {
+          @if (mapState.isExpertView() && !printView) {
             <mat-divider class="divider"></mat-divider>
-            <button mat-icon-button class="toggle-button" (click)="zoomToScale()" [attr.aria-label]="i18n.get('zoomToScale')">
+            <button
+              mat-icon-button
+              class="toggle-button"
+              (click)="zoomToScale()"
+              [attr.aria-label]="i18n.get('zoomToScale')"
+            >
               <mat-icon>linear_scale</mat-icon>
             </button>
           }
@@ -168,7 +180,13 @@
       </div>
       <div class="fab-button">
         @if (!(isReadOnly | async)) {
-          <button mat-fab color="primary" aria-label="Add" (click)="openDrawDialog()" [disabled]="(limitReached$ | async) && isGuest()">
+          <button
+            mat-fab
+            color="primary"
+            aria-label="Add"
+            (click)="openDrawDialog()"
+            [disabled]="session.isGuest() && (session.observeIsGuestElementLimitReached() | async)"
+          >
             <mat-icon>add</mat-icon>
           </button>
         }

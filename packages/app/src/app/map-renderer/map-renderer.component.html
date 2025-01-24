@@ -10,27 +10,27 @@
   }
 }
 
-<button mat-mini-fab class="edit-button" color="warn" #delete (click)="removeFeature()">
+<button mat-mini-fab class="edit-button" color="warn" #deleteButton (click)="remove()">
   <i class="material-icons">delete_forever</i>
 </button>
 <button
   mat-mini-fab
   class="edit-button rotate-button"
   color="primary"
-  #rotate
+  #rotateButton
   (mousedown)="startRotating()"
   (touchstart)="startRotating()"
 >
   <!-- todo maybe add click" -->
   <i class="material-icons">rotate_left</i>
 </button>
-<button mat-mini-fab class="edit-button" color="primary" #copy (click)="copySign()">
+<button mat-mini-fab class="edit-button" color="primary" #copyButton (click)="copy()">
   <i class="material-icons">content_copy</i>
 </button>
 
-<button mat-mini-fab class="edit-button" color="primary" #draw (click)="toggleDrawingDialog()">
+<button mat-mini-fab class="edit-button" color="primary" #drawButton (click)="toggleDrawingDialog()">
   <mat-icon>stars</mat-icon>
 </button>
-<button mat-mini-fab class="edit-button" #close (click)="hidePositionFlag()">
+<button mat-mini-fab class="edit-button" #closeButton (click)="hidePositionFlag()">
   <mat-icon>close</mat-icon>
 </button>

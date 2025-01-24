@@ -1220,7 +1220,7 @@ export class ZsMapStateService {
     return !this._session.isGuest() || elementCount < MAX_DRAW_ELEMENTS_GUEST;
   }
 
-  public drawElementCount(): Observable<number> {
+  public observeDrawElementCount(): Observable<number> {
     return this.observeDrawElements().pipe(map((res) => res.length));
   }
 }

@@ -16,6 +16,7 @@ import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { areCoordinatesEqual, removeCoordinates } from '../helper/coordinates';
+import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
@@ -33,17 +34,18 @@ import { MapSelectService } from './map-select.service';
 export class MapRendererComponent implements AfterViewInit {
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
+  private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
   private _select = inject(MapSelectService);
   private _overlay = inject(MapOverlayService);
   public renderer = inject(MapRendererService);
 
   readonly mapElement = viewChild.required<ElementRef>('mapElement');
-  readonly deleteElement = viewChild.required<MatButton>('delete');
-  readonly rotateElement = viewChild.required<MatButton>('rotate');
-  readonly copyElement = viewChild.required<MatButton>('copy');
-  readonly drawElement = viewChild.required<MatButton>('draw');
-  readonly closeElement = viewChild.required<MatButton>('close');
+  readonly deleteElement = viewChild.required<MatButton>('deleteButton');
+  readonly rotateElement = viewChild.required<MatButton>('rotateButton');
+  readonly copyElement = viewChild.required<MatButton>('copyButton');
+  readonly drawElement = viewChild.required<MatButton>('drawButton');
+  readonly closeElement = viewChild.required<MatButton>('closeButton');
 
   public isDevicePositionFlagVisible = false;
 
@@ -132,7 +134,7 @@ export class MapRendererComponent implements AfterViewInit {
     });
   }
 
-  async removeFeature() {
+  async remove() {
     const state = this._state.getDrawElementState(this._select.getFeature()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
     const coordinates = this._select.getVertexPoint();
 
@@ -188,7 +190,13 @@ export class MapRendererComponent implements AfterViewInit {
     this._overlay.toggleEditButtons(false);
   }
 
-  async copySign() {
+  async copy() {
+    if (this._session.isGuest()) {
+      if (await firstValueFrom(this._session.observeIsGuestElementLimitReached())) {
+        return;
+      }
+    }
+
     const feature = this._select.getFeature();
     if (!feature) {
       return;
