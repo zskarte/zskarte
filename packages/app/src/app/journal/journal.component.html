@@ -1,4 +1,4 @@
-<mat-sidenav-container hasBackdrop="false">
+<mat-sidenav-container hasBackdrop="false" autoFocus="false">
   <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen">
     <form [formGroup]="journalForm" (ngSubmit)="save($event)">
       <div class="sidebar-header">
@@ -41,6 +41,9 @@
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('journalNumber') }}</mat-label>
                   <input matInput formControlName="messageNumber" />
+                  <mat-error *ngIf="journalForm.controls.messageNumber.hasError('requiredStep')">
+                    {{ i18n.get('requiredStep') }}
+                  </mat-error>
                 </mat-form-field>
               </div>
               <div style="display: flex; gap: 6px">
@@ -123,9 +126,9 @@
           
         </mat-tab>
         
-        <mat-tab label="Triage" [disabled]="this.journalForm.value.entryStatus === 'awaiting_message'">
+        <mat-tab label="Triage" [disabled]="this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE">
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entryStatus !== 'awaiting_triage'">
+            <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_TRIAGE">
               <strong>{{ i18n.get('keyMessage') }}:</strong>
               {{
                 journalForm.value.isKeyMessage !== undefined ?
@@ -138,7 +141,7 @@
               <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumTriage }}<br />
               <strong>{{ i18n.get('dateTriage') }}: </strong> {{ journalForm.value.dateTriage?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entryStatus === 'awaiting_triage'">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE">
               <mat-checkbox formControlName="isKeyMessage">{{ i18n.get('keyMessage') }}</mat-checkbox>
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('departement') }}</mat-label>
@@ -173,19 +176,18 @@
         <mat-tab
           label="Entscheidung"
           [disabled]="
-            this.journalForm.value.entryStatus === 'awaiting_message' ||
-            this.journalForm.value.entryStatus === 'awaiting_triage' ||
-            this.journalForm.value.entryStatus === 'awaiting_drawing'
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entryStatus !== 'awaiting_decision'">
+            <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_DECISION">
               <strong>{{ i18n.get('decision') }}: </strong> {{ journalForm.value.decision }}<br />
               <strong>{{ i18n.get('messageReceiver') }}: </strong> {{ journalForm.value.decisionReceiver }}<br />
               <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumDecider }}<br />
               <strong>{{ i18n.get('dateDecision') }}: </strong> {{ journalForm.value.dateDecision?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entryStatus === 'awaiting_decision'">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION">
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('decision') }}</mat-label>
                 <textarea matInput formControlName="decision" rows="10"></textarea>
@@ -208,7 +210,7 @@
               </div>
             </div>
 
-            <div *ngIf="journalForm.value.entryStatus === 'awaiting_decision'" style="border: 1px solid lightgray; padding: 14px">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION" style="border: 1px solid lightgray; padding: 14px">
               <h3>Falscher Fachbereich?</h3>
               <p>Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.</p>
               <button mat-button type="button" (click)="resetState()">Zurück an Triage senden</button>
@@ -218,18 +220,17 @@
         <mat-tab
           label="Ausgang"
           [disabled]="
-            this.journalForm.value.entryStatus === 'awaiting_message' ||
-            this.journalForm.value.entryStatus === 'awaiting_triage' ||
-            this.journalForm.value.entryStatus === 'awaiting_drawing' ||
-            this.journalForm.value.entryStatus === 'awaiting_decision'
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE ||
+            this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION
           "
         >
           <div class="journal-entry-details">
-            <p *ngIf="journalForm.value.entryStatus === 'completed'">
+            <p *ngIf="journalForm.value.entryStatus === JournalEntryStatus.COMPLETED">
               <strong>Mitgeteilt durch:</strong> {{ journalForm.value.decisionSender }}<br />
               <strong>Übermittlungszeit:</strong> {{ journalForm.value.dateDecisionDelivered?.toLocaleString() }}
             </p>
-            <div *ngIf="journalForm.value.entryStatus !== 'completed'">
+            <div *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.COMPLETED">
               <mat-form-field appearance="outline">
                 <mat-label>Mitgeteilt durch</mat-label>
                 <input matInput formControlName="decisionSender" />
