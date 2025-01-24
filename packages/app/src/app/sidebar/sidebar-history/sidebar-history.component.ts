@@ -4,12 +4,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { BehaviorSubject, Observable, filter, startWith, switchMap, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, filter, startWith, switchMap, tap } from 'rxjs';
 import { ApiService } from 'src/app/api/api.service';
 import { SessionService } from 'src/app/session/session.service';
 import { I18NService } from 'src/app/state/i18n.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { IZsMapSnapshot, IZsMapSnapshots } from '@zskarte/types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-history',
@@ -32,10 +33,6 @@ export class SidebarHistoryComponent implements AfterViewInit {
   apiPath = '/api/map-snapshots';
 
   async ngAfterViewInit() {
-    const destroy$ = new Observable<void>((observer) => {
-      this.destroyRef.onDestroy(() => observer.next());
-    });
-
     this.paginator()
       .page.pipe(
         startWith({ pageIndex: 0 }),
@@ -52,7 +49,7 @@ export class SidebarHistoryComponent implements AfterViewInit {
           this.resultSize = r?.meta.pagination.total;
         }),
         filter((r) => !!r),
-        takeUntil(destroy$),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((result) => this.snapshots$!.next(result));
   }
