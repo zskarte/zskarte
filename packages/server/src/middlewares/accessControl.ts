@@ -160,7 +160,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
               ctx.query.filters = { public: { $eq: true } };
             }
           } else {
-            ctx.query.filters = { organization: { id: { $eq: userOrganisationId } } };
+            ctx.query.filters = { organization: { documentId: { $eq: userOrganisationId } } };
           }
         }
       }
