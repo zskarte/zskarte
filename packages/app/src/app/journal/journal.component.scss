@@ -177,3 +177,25 @@ tr.journal-table-row.key-message:hover {
   margin-bottom: 1rem;
 
 }
+
+.message-number {
+  color: #666;
+  font-size: 1rem;
+}
+
+.journal-entry-details {
+  .details-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    td {
+      padding: 0.5rem;
+      vertical-align: top;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+      &:first-child {
+        width: 150px;
+      }
+    }
+  }
+}
