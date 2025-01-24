@@ -346,7 +346,6 @@ export class DrawStyle {
     feature = DrawStyle.getSubFeature(feature);
     const signature = feature.get('sig');
     const symbolAnchorCoordinate = getFirstCoordinate(feature);
-    console.log(signature.iconsOffset);
     const offsetX = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.x : 0.1;
     const offsetY = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.y : 0.1;
     const resolutionFactor = resolution / 10;
