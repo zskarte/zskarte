@@ -72,13 +72,13 @@
                   <mat-label>{{ i18n.get('communicationDevice') }}</mat-label>
                   <mat-select matNativeControl formControlName="communicationType">
                     <mat-option>{{ i18n.get('noInfo') }}</mat-option>
-                    <mat-option value="{{ i18n.get('phone') }}">{{ i18n.get('phone') }}</mat-option>
-                    <mat-option value="{{ i18n.get('radio') }}">{{ i18n.get('radio') }}</mat-option>
-                    <mat-option value="{{ i18n.get('mail') }}">{{ i18n.get('mail') }}</mat-option>
-                    <mat-option value="{{ i18n.get('fax') }}">{{ i18n.get('fax') }}</mat-option>
-                    <mat-option value="{{ i18n.get('sms') }}">{{ i18n.get('sms') }}</mat-option>
-                    <mat-option value="{{ i18n.get('courier') }}">{{ i18n.get('courier') }}</mat-option>
-                    <mat-option value="{{ i18n.get('other') }}">{{ i18n.get('other') }}</mat-option>
+                    <mat-option value="telefon">{{ i18n.get('phone') }}</mat-option>
+                    <mat-option value="funk">{{ i18n.get('radio') }}</mat-option>
+                    <mat-option value="email">{{ i18n.get('mail') }}</mat-option>
+                    <mat-option value="fax">{{ i18n.get('fax') }}</mat-option>
+                    <mat-option value="sms">{{ i18n.get('sms') }}</mat-option>
+                    <mat-option value="kurier">{{ i18n.get('courier') }}</mat-option>
+                    <mat-option value="andere">{{ i18n.get('other') }}</mat-option>
                   </mat-select>
                 </mat-form-field>
 
@@ -146,16 +146,16 @@
                 <mat-label>{{ i18n.get('departement') }}</mat-label>
                 <mat-select formControlName="department">
                   <mat-option>{{ i18n.get('noDepartement') }}</mat-option>
-                  <mat-option value="{{ i18n.get('politicalAuthority') }}">{{ i18n.get('politicalAuthority') }}</mat-option>
-                  <mat-option value="{{ i18n.get('executiveBody') }}">{{ i18n.get('executiveBody') }}</mat-option>
-                  <mat-option value="{{ i18n.get('chiefStaff') }}">{{ i18n.get('chiefStaff') }}</mat-option>
-                  <mat-option value="{{ i18n.get('departementLocation') }}">{{ i18n.get('departementLocation') }}</mat-option>
-                  <mat-option value="{{ i18n.get('departementInfo') }}">{{ i18n.get('departementInfo') }}</mat-option>
-                  <mat-option value="{{ i18n.get('departementSafety') }}">{{ i18n.get('departementSafety') }}</mat-option>
-                  <mat-option value="{{ i18n.get('departementRescue') }}">{{ i18n.get('departementRescue') }}</mat-option>
-                  <mat-option value="{{ i18n.get('departementHealth') }}">{{ i18n.get('departementHealth') }}</mat-option>
-                  <mat-option value="{{ i18n.get('departementLogistics') }}">{{ i18n.get('departementLogistics') }}</mat-option>
-                  <mat-option value="{{ i18n.get('departementInfrastructure') }}">{{ i18n.get('departementInfrastructure') }}</mat-option>
+                  <mat-option value="politische-behoerde">{{ i18n.get('politicalAuthority') }}</mat-option>
+                  <mat-option value="chef-fuehrungsorgan">{{ i18n.get('executiveBody') }}</mat-option>
+                  <mat-option value="stabschef">{{ i18n.get('chiefStaff') }}</mat-option>
+                  <mat-option value="fb-lage">{{ i18n.get('departementLocation') }}</mat-option>
+                  <mat-option value="fb-information">{{ i18n.get('departementInfo') }}</mat-option>
+                  <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('departementSafety') }}</mat-option>
+                  <mat-option value="fb-schutz-rettung">{{ i18n.get('departementRescue') }}</mat-option>
+                  <mat-option value="fb-gesundheit">{{ i18n.get('departementHealth') }}</mat-option>
+                  <mat-option value="fb-logistik">{{ i18n.get('departementLogistics') }}</mat-option>
+                  <mat-option value="fb-infrastrukturen">{{ i18n.get('departementInfrastructure') }}</mat-option>
                 </mat-select>
               </mat-form-field>
 
