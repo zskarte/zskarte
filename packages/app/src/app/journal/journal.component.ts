@@ -254,8 +254,8 @@ export class JournalComponent implements AfterViewInit {
 
     this.journalForm.patchValue({
       ...entry,
-      dateCreatedDate: new Date(),
-      dateCreatedTime: new Date(),
+      dateCreatedDate: entry.dateMessage,
+      dateCreatedTime: entry.dateMessage,
     });
   }
 
