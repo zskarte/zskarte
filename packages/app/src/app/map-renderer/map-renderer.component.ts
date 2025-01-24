@@ -134,37 +134,40 @@ export class MapRendererComponent implements AfterViewInit {
   async removeFeature() {
     const state = this._state.getDrawElementState(this._select.getFeature()?.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
     const coordinates = this._select.getVertexPoint();
+
     if (state?.id && coordinates) {
-      const newCoordinates = removeCoordinates(state.coordinates, coordinates);
+      const element = this._state.getDrawElement(state.id);
+
+      let newCoordinates = removeCoordinates(state.coordinates, coordinates);
 
       let remove = false;
-      switch (state.type) {
-        case ZsMapDrawElementStateType.POLYGON:
-        case ZsMapDrawElementStateType.SYMBOL:
+      switch (element.getOlFeature?.()?.getGeometry?.()?.getType?.()) {
+        case 'Polygon':
           // if there is no change in the coordinates, the "sign" which has a small offset was selected, therefore remove the whole element
           if (areCoordinatesEqual(newCoordinates, state.coordinates)) {
             remove = true;
           } else {
-            if (newCoordinates.length < 1) {
+            newCoordinates = (newCoordinates as number[][]).filter((subCoordinates) => subCoordinates.length > 3);
+            let maxSub = 0;
+            for (const subCoordinates of newCoordinates as number[][]) {
+              if (subCoordinates.length > maxSub) {
+                maxSub = subCoordinates.length;
+              }
+            }
+            if (maxSub <= 3) {
               remove = true;
-            } else {
-              let maxSub = 0;
-              for (const subCoordinates of newCoordinates as number[][]) {
-                if (maxSub <= subCoordinates.length) {
-                  maxSub = subCoordinates.length;
-                }
-              }
-              if (maxSub < 4) {
-                remove = true;
-              }
             }
           }
 
           break;
-        case ZsMapDrawElementStateType.LINE:
-          if (newCoordinates.length < 3) {
+        case 'LineString':
+          if (newCoordinates.length < 2) {
             remove = true;
           }
+          break;
+
+        case 'Point':
+          remove = true;
           break;
       }
 
