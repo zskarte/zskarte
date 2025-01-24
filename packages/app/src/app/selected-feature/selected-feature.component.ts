@@ -27,6 +27,7 @@ import { StackComponent } from '../stack/stack.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import {MatChipInputEvent, MatChipsModule} from '@angular/material/chips';
 import {
   Sign,
   ZsMapDrawElementState,
@@ -56,6 +57,7 @@ import { MatDividerModule } from '@angular/material/divider';
     MatButtonModule,
     MatCheckboxModule,
     MatDividerModule,
+    MatChipsModule,
   ],
 })
 export class SelectedFeatureComponent implements OnDestroy {
@@ -96,6 +98,14 @@ export class SelectedFeatureComponent implements OnDestroy {
     },
   ];
 
+  mapReportNumber(element?: ZsMapDrawElementState) {
+    if (!element?.reportNumber) {
+      return [];
+    }
+
+    return Array.isArray(element.reportNumber) ? element.reportNumber : [element.reportNumber];
+  }
+
   constructor() {
     this.selectedFeature = this.zsMapStateService.observeSelectedElement$().pipe(
       takeUntil(this._ngUnsubscribe),
@@ -104,6 +114,7 @@ export class SelectedFeatureComponent implements OnDestroy {
     this.selectedDrawElement = this.zsMapStateService.observeSelectedElement$().pipe(
       takeUntil(this._ngUnsubscribe),
       switchMap((element) => element?.observeElement() ?? EMPTY),
+      map(element => ({ ...element!, reportNumber: this.mapReportNumber(element) }))
     );
     this.selectedSignature = this.selectedDrawElement.pipe(
       map((element) => {
@@ -239,6 +250,20 @@ export class SelectedFeatureComponent implements OnDestroy {
         SelectedFeatureComponent.getUpdatedFillStyle(element, field, value),
       );
     }
+  }
+
+  removeReportNumber(toRemove: number, element: ZsMapDrawElementState) {
+    this.updateProperty(element, 'reportNumber', (element.reportNumber as number[]).filter(n => n !== toRemove));
+  }
+
+  addReportNumber(event: MatChipInputEvent, element: ZsMapDrawElementState) {
+    const value = (event.value || '').trim();
+    if (!value) {
+      return;
+    }
+
+    this.updateProperty(element, 'reportNumber', [...element.reportNumber as number[], +value]);
+    event.chipInput!.clear();
   }
 
   static getUpdatedFillStyle<T extends keyof FillStyle>(element: ZsMapDrawElementState, field: T, value: FillStyle[T]): FillStyle {

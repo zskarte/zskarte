@@ -67,12 +67,23 @@
               @if (editMode | async) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
+                  <mat-chip-grid  #reportNumberChips [ngModel]="drawElement['reportNumber']">
+                    @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
+                      <mat-chip-row (removed)="removeReportNumber(reportNumber, drawElement)">
+                        {{reportNumber}}
+                        <button matChipRemove>
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip-row>
+                    }
+                  </mat-chip-grid>
                   <input
                     matInput
                     type="number"
                     min="1"
-                    [ngModel]="drawElement['reportNumber']"
-                    (ngModelChange)="updateProperty(drawElement, 'reportNumber', $event)"
+                    [placeholder]="i18n.get('pressEnter')"
+                    [matChipInputFor]="reportNumberChips"
+                    (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
                   />
                 </mat-form-field>
               }
