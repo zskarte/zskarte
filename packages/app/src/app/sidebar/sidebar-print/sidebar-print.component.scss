@@ -1,8 +1,11 @@
 .printingOptions {
+  padding: 0 1rem 0 1rem;
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
 }
+
 .printingOptions > * {
   flex-grow: 1;
 }
