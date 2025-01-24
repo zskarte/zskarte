@@ -16,9 +16,6 @@
     </div>
 
     @switch (sidebar.observeContext() | async) {
-      @case (SidebarContext.Filters) {
-        <app-sidebar-filters></app-sidebar-filters>
-      }
       @case (SidebarContext.Layers) {
         <app-sidebar></app-sidebar>
       }
@@ -103,16 +100,7 @@
           (click)="sidebar.toggle(SidebarContext.Layers)"
           [attr.aria-label]="i18n.get('layers')"
         >
-          <mat-icon>layers</mat-icon>
-        </button>
-        <button
-          class="sidebar-button mat-elevation-z3"
-          mat-icon-button
-          [color]="(sidebar.observeContext() | async) === SidebarContext.Filters ? 'primary' : 'basic'"
-          (click)="sidebar.toggle(SidebarContext.Filters)"
-          [attr.aria-label]="i18n.get('filters')"
-        >
-          <mat-icon>filter_alt</mat-icon>
+          <mat-icon>map</mat-icon>
         </button>
 
         @if (isReadOnly | async) {
@@ -166,7 +154,7 @@
           <button mat-icon-button class="toggle-button" (click)="zoomIn()" [attr.aria-label]="i18n.get('zoomIn')">
             <mat-icon>zoom_in</mat-icon>
           </button>
-          @if (!printView) {
+          @if (mapState.isExpertView() && (!printView) ) {
             <mat-divider class="divider"></mat-divider>
             <button mat-icon-button class="toggle-button" (click)="zoomToScale()" [attr.aria-label]="i18n.get('zoomToScale')">
               <mat-icon>linear_scale</mat-icon>

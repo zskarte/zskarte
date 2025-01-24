@@ -2215,6 +2215,16 @@ export class I18NService {
       en: 'Political authority',
       fr: 'Autorité politique',
     },
+    view: {
+      de: 'Darstellung',
+      en: 'Appearance',
+      fr: 'Apparence',
+    },
+    maps: {
+      de: 'Karten',
+      en: 'Maps',
+      fr: 'Cartes',
+    },
     status: {
       de: 'Status',
       en: 'Status',
