@@ -18,15 +18,17 @@
         (selectedIndexChange)="selectedIndex = $event"
       >
         <mat-tab label="Eingang">
-          <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE">
-            <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
-            <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
-            <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
-            <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
-            <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
-            <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
-            <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
-          </p>
+          <div class="journal-entry-details">
+            <p *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE">
+              <strong>{{ i18n.get('deliverer') }}: </strong>{{ journalForm.value.sender }}<br />
+              <strong>{{ i18n.get('receiver') }}: </strong>{{ journalForm.value.creator }}<br />
+              <strong>{{ i18n.get('date') }}: </strong>{{ journalForm.value.dateCreatedDate?.toLocaleString() }}<br />
+              <strong>{{ i18n.get('communicationDevice') }}: </strong>{{ journalForm.value.communicationType }}<br />
+              <strong>{{ i18n.get('detailsChanel') }}: </strong>{{ journalForm.value.communicationDetails }}<br />
+              <strong>{{ i18n.get('visa') }}: </strong> {{ journalForm.value.visumMessage }}<br /><br />
+              <strong>{{ i18n.get('messageContent') }}:</strong><br />{{ journalForm.value.messageContent }}
+            </p>
+          </div>
           <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE">
             <div class="journal-entry-details">
               <div style="width: 134px">
