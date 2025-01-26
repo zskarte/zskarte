@@ -3,7 +3,7 @@
  */
 
 import { Core, UID } from '@strapi/strapi';
-import { Operation, Organization, AccessControlConfig, AccessControlTypes, OperationPhases } from '../definitions';
+import { AccessControlConfig, AccessControlTypes, OperationPhases } from '../definitions';
 import type { HasOperationType, HasOrganizationType, AccessCheckableType } from '../definitions/TypeGuards';
 import {
   isOperation,
@@ -69,7 +69,7 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
           operation = await strapi.documents('api::operation.operation').findOne({
             documentId: ctx.request.body.data?.operation,
             populate: {
-              organization: { fields: ['documentId' as any, 'id'] },
+              organization: { fields: ['documentId', 'id'] },
             },
           });
         } catch (err) {
@@ -118,14 +118,19 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
     if (hasOperation(config.type)) {
       if (jwtOperationId) {
         if (hasPublic(config.type)) {
-          ctx.query.filters = { $or: [{ operation: { documentId: { $eq: jwtOperationId } } }, { public: { $eq: true } }] };
+          ctx.query.filters = {
+            $or: [{ operation: { documentId: { $eq: jwtOperationId } } }, { public: { $eq: true } }],
+          };
         } else {
           ctx.query.filters = { operation: { documentId: { $eq: jwtOperationId } } };
         }
       } else {
         if (hasPublic(config.type)) {
           ctx.query.filters = {
-            $or: [{ operation: { organization: { documentId: { $eq: userOrganisationId } } } }, { public: { $eq: true } }],
+            $or: [
+              { operation: { organization: { documentId: { $eq: userOrganisationId } } } },
+              { public: { $eq: true } },
+            ],
           };
         } else {
           ctx.query.filters = { operation: { organization: { documentId: { $eq: userOrganisationId } } } };
@@ -214,7 +219,10 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
       );
       return ctx.forbidden('This action is forbidden.');
     }
-    if (hasOrganization(config.type) && canNotUseBodyValue(ctx.request.body.data?.organization, organization?.documentId)) {
+    if (
+      hasOrganization(config.type) &&
+      canNotUseBodyValue(ctx.request.body.data?.organization, organization?.documentId)
+    ) {
       logAccessViolation(
         ctx,
         `update to other organization, ctx.request.body.organization:${JSON.stringify(ctx.request.body.data?.organization)}, entry:${JSON.stringify(entry)}, paramId:${paramId}, headerOperationId:${headerOperationId}`,
@@ -231,21 +239,23 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
       if (hasPublic(contentType)) {
         /*
         //there is currently no HasOperationType that is also HasPublicType so compilation would fail
-        const entry = await strapi.entityService.findOne(
-          contentType,
-          entryId,
-          { fields:['id', 'public'], populate: {'operation': {'fields':['id'], 'populate': {'organization': {'fields':['id']}}}} }
-        ) as {id: number, public: boolean, operation: Operation};
+        const entry = (await strapi.documents(contentType).findOne({
+          documentId: entryId,
+          fields: ['documentId', 'public'],
+          populate: {
+            operation: { fields: ['documentId'], populate: { organization: { fields: ['documentId'] } } },
+          },
+        })) as { documentId: string; public: boolean; operation: { documentId: string; phase: string } };
         return entry;
         */
       } else {
-        const entry = (await strapi.documents(contentType as any).findOne({
+        const entry = (await strapi.documents(contentType).findOne({
           documentId: entryId,
           fields: ['documentId'],
           populate: {
             operation: { fields: ['documentId', 'phase'], populate: { organization: { fields: ['documentId'] } } },
           },
-        })) as { id: number; operation: Operation };
+        })) as { documentId: string; operation: { documentId: string; phase: string } };
         return entry;
       }
     }
@@ -254,25 +264,25 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
   const getOrganization = async (contentType: HasOrganizationType, entryId) => {
     if (entryId) {
       if (hasPublic(contentType)) {
-        const entry = (await strapi.documents(contentType as any).findOne({
+        const entry = (await strapi.documents(contentType).findOne({
           documentId: entryId,
           fields: ['documentId', 'public'],
           populate: { organization: { fields: ['documentId'] } },
-        })) as unknown as { id: number; public: boolean; organization: Organization };
+        })) as { documentId: string; public: boolean; organization: { documentId: string } };
         return entry;
       } else if (isOperation(contentType)) {
         const entry = (await strapi.documents(contentType).findOne({
           documentId: entryId,
           fields: ['documentId', 'phase'],
-          populate: { organization: { fields: ['documentId'] } as any },
-        })) as { id: number; phase: string; organization: Organization };
+          populate: { organization: { fields: ['documentId'] } },
+        })) as { documentId: string; phase: string; organization: { documentId: string } };
         return entry;
       } else {
-        const entry = (await strapi.documents(contentType as any).findOne({
+        const entry = (await strapi.documents(contentType).findOne({
           documentId: entryId,
           fields: ['documentId'],
           populate: { organization: { fields: ['documentId'] } },
-        })) as { id: number; organization: Organization };
+        })) as { documentId: string; organization: { documentId: string } };
         return entry;
       }
     }
@@ -281,23 +291,23 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
 
   const getEntry = async (contentType: AccessCheckableType, entryId) => {
     let entry = null;
-    let operation: Operation = null;
-    let organization: Organization = null;
+    let operation: { documentId: string; phase: string; organization: { documentId: string } } = null;
+    let organization: { documentId: string } = null;
     if (hasOperation(contentType)) {
       entry = await getOperation(contentType, entryId);
       operation = entry?.operation;
     } else if (hasOrganization(contentType)) {
       entry = await getOrganization(contentType, entryId);
       if (isOperation(config.type)) {
-        operation = entry as Operation;
+        operation = entry;
       } else {
         organization = entry?.organization;
       }
     } else if (isOrganization(config.type)) {
-      entry = organization = (await strapi.documents(contentType as any).findOne({
+      entry = organization = (await strapi.documents(contentType).findOne({
         documentId: entryId,
         fields: ['documentId'],
-      })) as Organization;
+      })) as { documentId: string };
     }
     if (operation) {
       organization = operation.organization;
