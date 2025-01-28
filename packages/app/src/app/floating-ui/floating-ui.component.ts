@@ -77,7 +77,7 @@ export class FloatingUIComponent {
   private _ngUnsubscribe = new Subject<void>();
   public connectionCount = new BehaviorSubject<number>(0);
   public isOnline = new BehaviorSubject<boolean>(true);
-  public isReadOnly = new BehaviorSubject<boolean>(false);
+  public isReadOnly = this.state.observeIsReadOnly();
   public canUndo = new BehaviorSubject<boolean>(false);
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;
