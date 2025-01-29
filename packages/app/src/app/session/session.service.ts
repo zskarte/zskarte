@@ -113,7 +113,7 @@ export class SessionService {
           }
           const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(
             globalWmsSources,
-            session.organization?.id ?? 0,
+            session.organization?.documentId ?? '',
           );
           if (session?.workLocal) {
             const localMapLayers = await MapLayerService.getLocalMapLayers();

@@ -120,6 +120,6 @@ export interface MapLayerSourceApi {
 
 export interface MapLayerApi extends Partial<PresistedSettings>, MapLayerGeneralSettings, MapLayerSourceApi {
   options: MapLayerOptionsApi;
-  organization?: { id: number };
+  organization?: { documentId: string };
   public: boolean;
 }
