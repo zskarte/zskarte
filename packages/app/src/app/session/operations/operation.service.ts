@@ -95,6 +95,7 @@ export class OperationService {
     if (this._session.isWorkLocal()) {
       const minId = Math.min(0, ...(await db.localOperation.toArray()).map((o) => o.id ?? 0));
       operation.id = minId - 1;
+      operation.documentId = 'local-' + operation.id;
       await db.localOperation.add(operation);
     } else {
       await this._api.post('/api/operations', {
@@ -104,7 +105,10 @@ export class OperationService {
   }
 
   public async updateMeta(operation: IZsMapOperation): Promise<void> {
-    if (!operation.documentId) {
+    if (!operation.documentId || operation.documentId?.startsWith('local-')) {
+      if (!operation.documentId) {
+        operation.documentId = 'local-' + operation.id;
+      }
       await OperationService.persistLocalOperation(operation);
     } else {
       await this._api.put(`/api/operations/${operation.documentId}/meta`, {
@@ -114,8 +118,8 @@ export class OperationService {
   }
 
   public async getOperation(operationId: string, options?: IApiRequestOptions) {
-    if (parseInt(operationId) < 0) {
-      return db.localOperation.get(parseInt(operationId));
+    if (operationId.startsWith('local-')) {
+      return db.localOperation.get(parseInt(operationId.substring(6)));
     } else {
       const { error, result } = await this._api.get<IZsMapOperation>(`/api/operations/${operationId}`, options);
       if (error || !result) return null;

@@ -9,6 +9,7 @@
 }
 <mat-divider></mat-divider>
 
+@if (!workLocal) {
 <button mat-menu-item (click)="toggleHistory()">
   @if (!(zsMapStateService.observeIsHistoryMode() | async)) {
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('history')">history</mat-icon>
@@ -18,7 +19,7 @@
   {{ (zsMapStateService.observeIsHistoryMode() | async) ? i18n.get('drawMode') : i18n.get('history') }}
 </button>
 <mat-divider></mat-divider>
-
+}
 <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="languageOptions">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('language')">language</mat-icon>
   {{ i18n.get('language') }}
