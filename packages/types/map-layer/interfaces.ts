@@ -2,6 +2,7 @@ import { Extent } from 'ol/extent';
 
 interface PresistedSettings {
   id?: number;
+  documentId?: string;
   owner: boolean;
   public: boolean;
 }
@@ -19,7 +20,7 @@ export interface MapSource extends Partial<WmsSource> {
 }
 
 export interface WmsSourceApi extends WmsSource {
-  organization?: { id: number };
+  organization?: { documentId: string };
   createdAt?: Date;
   updatedAt?: Date;
 }
