@@ -352,6 +352,7 @@ export interface ApiAccessAccess extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::access.access'> & Schema.Attribute.Private;
     name: Schema.Attribute.String;
     operation: Schema.Attribute.Relation<'oneToOne', 'api::operation.operation'>;
+    organization: Schema.Attribute.Relation<'oneToOne', 'api::organization.organization'>;
     publishedAt: Schema.Attribute.DateTime;
     type: Schema.Attribute.Enumeration<['read', 'write', 'all']> &
       Schema.Attribute.Required &

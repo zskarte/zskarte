@@ -56,6 +56,11 @@
       "locale": null
     },
     {
+      "action": "api::organization.organization.find",
+      "documentId": "hv08vb4n40ifn8ripbntnky4",
+      "locale": null
+    },
+    {
       "action": "api::wms-source.wms-source.find",
       "documentId": "r1kuk1iq2925r1xyvuui5318",
       "locale": null
