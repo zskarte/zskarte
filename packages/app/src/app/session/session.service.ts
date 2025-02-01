@@ -80,12 +80,20 @@ export class SessionService {
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
+          const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
+          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
+            queryParams: {
+              center: null, //handled in overrideDisplayStateFromQueryParams
+              size: null, //handled in overrideDisplayStateFromQueryParams
+              operationId: null, //handled in updateJWT / OperationsComponent
+            },
+            queryParamsHandling: 'merge',
+          });
           await this._state?.refreshMapState();
           let displayState = await db.displayStates.get({
             id: session.operation?.documentId ?? session.operation?.id?.toString(),
           });
 
-          const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
             //ignore invalid/empty saved displayState
             displayState = undefined;
@@ -199,15 +207,6 @@ export class SessionService {
                 });
               }
             });
-
-          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
-            queryParams: {
-              center: null, //handled in overrideDisplayStateFromQueryParams
-              size: null, //handled in overrideDisplayStateFromQueryParams
-              operationId: null, //handled in updateJWT / OperationsComponent
-            },
-            queryParamsHandling: 'merge',
-          });
         } else {
           await this._router.navigate(['operations'], { queryParamsHandling: 'preserve' });
           this._state.setMapState(undefined);
