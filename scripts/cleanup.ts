@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import { glob } from 'glob';
 import inquirer from 'inquirer';
+import os from 'os';
 const exec = promisify(cbExec);
 
 (async () => {
@@ -39,6 +40,21 @@ const exec = promisify(cbExec);
   );
 
   console.log('cleanup successful');
+
+  if (response.resetDb) {
+    if (os.platform() === 'linux') {
+      await fs.mkdir('data');
+      await fs.mkdir('data/postgresql');
+      //await fs.chown('data/postgresql', 1001, 1001);
+      await exec('sudo chown 1001:1001 data/postgresql');
+      await fs.mkdir('data/pgadmin')
+      //await fs.chown('data/pgadmin', 5050, 5050);
+      await exec('sudo chown 5050:5050 data/pgadmin');
+
+      console.log('linux/wsl prequisites done');
+    }
+  }
+
   console.log('reinstalling dependencies...');
 
   spawn('npm', ['i'], {

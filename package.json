@@ -25,6 +25,9 @@
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
     "build:app": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
+    "server:export": "cd packages/server && npm run export",
+    "server:import": "cd packages/server && npm run import",
+    "server:update-init": "scripts/update-init.sh",
     "cleanup": "tsx scripts/cleanup.ts"
   },
   "devDependencies": {
