@@ -37,7 +37,7 @@ npm run docker-run
 echo "${logPrefix}import the config"
 npm run server:import
 echo "${logPrefix}create new DB dump"
-docker exec --env PGPASSWORD="supersecret123" pgadmin-zskarte /usr/local/pgsql-16/pg_dump --host "postgresql-zskarte" --port "5432" --username "postgres" --format=p "zskarte" | sed 's/\r$//' > packages/server/init/init.sql
+$(dirname $0)/dump-sort-db.sh
 
 echo "${logPrefix}stop DB"
 npm run docker-stop

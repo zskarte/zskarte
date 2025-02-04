@@ -81,7 +81,7 @@ Now reinitialize a clean db, update / import the newest right configs and do an 
 ```
 npm run docker-run
 npm run server:import
-docker exec -it --env PGPASSWORD="supersecret123" pgadmin-zskarte /usr/local/pgsql-16/pg_dump --host "postgresql-zskarte" --port "5432" --username "postgres" --format=p "zskarte" | sed 's/\r$//' > packages/server/init/init.sql
+./scripts/dump-sort-db.sh
 ```
 
 To go back to your DB/data do:
