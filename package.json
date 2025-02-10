@@ -25,6 +25,7 @@
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
     "build:app": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
+    "strapi": "cd packages/server && npm run strapi",
     "cleanup": "tsx scripts/cleanup.ts"
   },
   "devDependencies": {
