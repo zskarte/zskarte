@@ -1,0 +1,21 @@
+diff --git a/node_modules/@strapi/content-manager/dist/server/index.js b/node_modules/@strapi/content-manager/dist/server/index.js
+index 059fb9a..f1b4e3a 100644
+--- a/node_modules/@strapi/content-manager/dist/server/index.js
++++ b/node_modules/@strapi/content-manager/dist/server/index.js
+@@ -9,6 +9,7 @@ const _ = require("lodash");
+ const qs = require("qs");
+ const slugify = require("@sindresorhus/slugify");
+ const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
++const _interopDefault2 = (e) => e && typeof e === 'object' && 'default' in e ? e : { default: e };
+ function _interopNamespace(e) {
+   if (e && e.__esModule) return e;
+   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+@@ -26,7 +27,7 @@ function _interopNamespace(e) {
+   n.default = e;
+   return Object.freeze(n);
+ }
+-const strapiUtils__default = /* @__PURE__ */ _interopDefault(strapiUtils);
++const strapiUtils__default = /* @__PURE__ */ _interopDefault2(strapiUtils);
+ const yup__namespace = /* @__PURE__ */ _interopNamespace(yup);
+ const isNil__default = /* @__PURE__ */ _interopDefault(isNil);
+ const ___default = /* @__PURE__ */ _interopDefault(_);

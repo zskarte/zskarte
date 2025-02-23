@@ -1,0 +1,32 @@
+diff --git a/node_modules/better-sqlite3/lib/database.js b/node_modules/better-sqlite3/lib/database.js
+index 14e0573..94dc98c 100644
+--- a/node_modules/better-sqlite3/lib/database.js
++++ b/node_modules/better-sqlite3/lib/database.js
+@@ -44,7 +44,26 @@ function Database(filenameGiven, options) {
+ 
+ 	// Load the native addon
+ 	let addon;
+-	if (nativeBinding == null) {
++	if (typeof __webpack_require__ === 'function') {
++		const req = require.context("sqlite3_node_dir", false, /\/.*sqlite3.*\.node$/);
++		process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'sqlite3_node_dir'", req.id, req.keys());
++		if (req.keys().length === 0){
++			console.error('sqlite3 node file not found in webpack context. export DEBUG_PRINT_WEBPACK_CONTEXT=1 for debuging')
++		} else if (req.keys().length === 1){
++			addon = req(req.keys()[0]);
++		} else {
++			if (nativeBinding) {
++				const nativeName = './' + path.posix.basename(nativeBinding);
++				if (req.keys().includes(nativeName)) {
++					addon = req(nativeName);
++				} else {
++					console.error(`sqlite3 found multiple node files, defined nativeBinding: '${nativeBinding}' (resulting in '${nativeName}') did not help to choose the right one:`, req.keys());
++				}
++			} else {
++				console.error('sqlite3 found multiple node files, define nativeBinding to choose the right one:', req.keys());
++			}
++		}
++	} else if (nativeBinding == null) {
+ 		addon = DEFAULT_ADDON || (DEFAULT_ADDON = require('bindings')('better_sqlite3.node'));
+ 	} else if (typeof nativeBinding === 'string') {
+ 		// See <https://webpack.js.org/api/module-variables/#__non_webpack_require__-webpack-specific>

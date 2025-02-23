@@ -1,0 +1,48 @@
+diff --git a/node_modules/formidable/src/Formidable.js b/node_modules/formidable/src/Formidable.js
+index 0542700..797101d 100644
+--- a/node_modules/formidable/src/Formidable.js
++++ b/node_modules/formidable/src/Formidable.js
+@@ -6,13 +6,15 @@
+ const os = require('os');
+ const path = require('path');
+ const hexoid = require('hexoid');
++const _interopDefault3 = (e) => e && typeof e === 'object' && 'default' in e ? e.default : e ;
++const hexoid_default = _interopDefault3(hexoid);
+ const once = require('once');
+ const dezalgo = require('dezalgo');
+ const { EventEmitter } = require('events');
+ const { StringDecoder } = require('string_decoder');
+ const qs = require('qs');
+ 
+-const toHexoId = hexoid(25);
++const toHexoId = hexoid_default(25);
+ const DEFAULT_OPTIONS = {
+   maxFields: 1000,
+   maxFieldsSize: 20 * 1024 * 1024,
+@@ -87,12 +89,20 @@ class IncomingForm extends EventEmitter {
+         errors.missingPlugin,
+       );
+     }
+-
+-    this.options.enabledPlugins.forEach((pluginName) => {
+-      const plgName = pluginName.toLowerCase();
+-      // eslint-disable-next-line import/no-dynamic-require, global-require
+-      this.use(require(path.join(__dirname, 'plugins', `${plgName}.js`)));
+-    });
++    if (typeof __webpack_require__ === "function") {
++      const req = require.context("./plugins", false, /.*\.js$/);
++      process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context './plugins'", req.id, req.keys());
++      this.options.enabledPlugins.forEach((pluginName) => {
++        const plgName = pluginName.toLowerCase();
++        this.use(req(`./${plgName}.js`));
++      });
++    } else {
++      this.options.enabledPlugins.forEach((pluginName) => {
++        const plgName = pluginName.toLowerCase();
++        // eslint-disable-next-line import/no-dynamic-require, global-require
++        this.use(require(path.join(__dirname, 'plugins', `${plgName}.js`)));
++      });
++    }
+ 
+     this._setUpMaxFields();
+   }

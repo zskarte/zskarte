@@ -11,16 +11,26 @@
     "dev": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
+    "prebuild:webpack": "cd ../.. && npm run prepare-bundle",
+    "build:webpack": "npx webpack --config bundle_files/webpack.config.js",
+    "prebuild:sea": "cd ../.. && npm run prepare-bundle exec zskarte-server",
+    "build:sea": "node --experimental-sea-config bundle_files/sea-config.json && cd ../.. && npm run inject-sea packages/server/exec/zskarte-server packages/server/strapi-app.blob",
+    "build:all": "npm run build && npm run build:webpack && npm run build:sea",
+    "start:webpack": "cd bundled/ && ./startWebpack.sh",
+    "start:sea": "cd exec/ && ./startServer.sh",
+    "setup:sea": "cd exec/ && ./startServer.sh --setup",
     "regenerate": "strapi ts:generate-types",
     "export": "config-sync export --yes --type user-role",
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-users-permissions": "^5.8.0",
-    "@strapi/strapi": "^5.8.0",
+    "@strapi/admin": ">=5.8.0 <5.9.0",
+    "@strapi/plugin-users-permissions": "5.8.1",
+    "@strapi/strapi": "5.8.1",
+    "@strapi/utils": ">=5.8.0 <5.9.0",
+    "express": ">=4.17.1 <5.0.0",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
-    "pg": "^8.13.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
@@ -30,7 +40,24 @@
     "styled-components": "^6.0.0",
     "uuid": "^11.0.5"
   },
+  "resolutions": {
+    "@strapi/admin": "5.8.1",
+    "@strapi/utils": "5.8.1"
+  },
   "devDependencies": {
-    "@types/lodash": "^4.17.14"
+    "@types/lodash": "^4.17.14",
+    "node-loader": "^2.1.0",
+    "null-loader": "^4.0.1",
+    "redis": "^4.7.0",
+    "sequelize": "^6.37.5",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "optionalDependencies": {
+    "@babel/preset-typescript": "^7.26.0",
+    "better-sqlite3": "^11.8.1",
+    "pg": "^8.13.0",
+    "pg-hstore": "^2.3.4",
+    "pg-query-stream": "^4.7.3"
   }
 }

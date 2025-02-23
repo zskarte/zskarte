@@ -1,0 +1,143 @@
+diff --git a/node_modules/@strapi/admin/dist/server/index.js b/node_modules/@strapi/admin/dist/server/index.js
+index 1d126f8..64eea6a 100644
+--- a/node_modules/@strapi/admin/dist/server/index.js
++++ b/node_modules/@strapi/admin/dist/server/index.js
+@@ -27,6 +27,7 @@ const punycode = require("punycode/");
+ const yup = require("yup");
+ const nodeSchedule = require("node-schedule");
+ const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
++const _interopDefault2 = (e) => e && typeof e === 'object' && 'default' in e ? e : { default: e };
+ function _interopNamespace(e) {
+   if (e && e.__esModule) return e;
+   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+@@ -45,7 +46,7 @@ function _interopNamespace(e) {
+   return Object.freeze(n);
+ }
+ const ___namespace = /* @__PURE__ */ _interopNamespace(_);
+-const utils__default = /* @__PURE__ */ _interopDefault(utils$2);
++const utils__default = /* @__PURE__ */ _interopDefault2(utils$2);
+ const path__default = /* @__PURE__ */ _interopDefault(path);
+ const fse__default = /* @__PURE__ */ _interopDefault(fse);
+ const koaStatic__default = /* @__PURE__ */ _interopDefault(koaStatic);
+@@ -53,11 +54,11 @@ const bcrypt__default = /* @__PURE__ */ _interopDefault(bcrypt);
+ const passport__default = /* @__PURE__ */ _interopDefault(passport$2);
+ const crypto__default = /* @__PURE__ */ _interopDefault(crypto);
+ const jwt__default = /* @__PURE__ */ _interopDefault(jwt);
+-const permissions__default = /* @__PURE__ */ _interopDefault(permissions$1);
++const permissions__default = /* @__PURE__ */ _interopDefault2(permissions$1);
+ const pmap__default = /* @__PURE__ */ _interopDefault(pmap);
+ const assert__default = /* @__PURE__ */ _interopDefault(assert);
+ const fs__default = /* @__PURE__ */ _interopDefault(fs);
+-const tsUtils__default = /* @__PURE__ */ _interopDefault(tsUtils);
++const tsUtils__default = /* @__PURE__ */ _interopDefault2(tsUtils);
+ const compose__default = /* @__PURE__ */ _interopDefault(compose);
+ const isLocalhostIp__default = /* @__PURE__ */ _interopDefault(isLocalhostIp);
+ const punycode__default = /* @__PURE__ */ _interopDefault(punycode);
+@@ -390,42 +391,74 @@ const bootstrap$1 = async ({ strapi: strapi2 }) => {
+   tokenService.checkSecretIsDefined();
+ };
+ const registerAdminPanelRoute = ({ strapi: strapi2 }) => {
+-  let buildDir = path.resolve(strapi2.dirs.dist.root, "build");
+-  if (!fse__default.default.pathExistsSync(buildDir)) {
+-    buildDir = path.resolve(__dirname, "../../build");
+-  }
+-  const serveAdminMiddleware = async (ctx, next) => {
+-    await next();
+-    if (ctx.method !== "HEAD" && ctx.method !== "GET") {
+-      return;
+-    }
+-    if (ctx.body != null || ctx.status !== 404) {
+-      return;
+-    }
+-    ctx.type = "html";
+-    ctx.body = fse__default.default.createReadStream(path.join(buildDir, "index.html"));
+-  };
+-  strapi2.server.routes([
+-    {
+-      method: "GET",
+-      path: `${strapi2.config.admin.path}/:path*`,
+-      handler: [
+-        serveAdminMiddleware,
+-        serveStatic(buildDir, {
+-          maxage: 31536e3,
+-          defer: false,
+-          index: "index.html",
+-          setHeaders(res, path$1) {
+-            const ext = path.extname(path$1);
+-            if (ext !== ".html") {
+-              res.setHeader("cache-control", "public, max-age=31536000, immutable");
++  if (typeof __webpack_require__ === "function") {
++    const req = require.context("admin_web", true, /\.(html|css|js)$/);
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'admin_web'", req.id, req.keys());
++    strapi2.server.routes([
++      {
++        method: "GET",
++        path: `${strapi2.config.admin.path}/:path*`,
++        handler: [
++          async (ctx, next) => {
++            await next();
++            if (ctx.method !== "HEAD" && ctx.method !== "GET") {
++              return;
++            }
++            if (ctx.body != null || ctx.status !== 404) {
++              return;
++            }
++            const fileName = "./" + path.basename(ctx.path);
++            if (req.keys().includes(fileName)) {
++              ctx.body = req(fileName);
++              ctx.type = fileName.split('.').pop();
++              ctx.res.setHeader("cache-control", "public, max-age=31536000, immutable");
++            } else {
++              ctx.body = req("./index.html");
++              ctx.type = "html";
+             }
+           }
+-        })
+-      ],
+-      config: { auth: false }
++        ],
++        config: { auth: false }
++      }
++    ]);
++  } else {
++    let buildDir = path.resolve(strapi2.dirs.dist.root, "build");
++    if (!fse__default.default.pathExistsSync(buildDir)) {
++      buildDir = path.resolve(__dirname, "../../build");
+     }
+-  ]);
++    const serveAdminMiddleware = async (ctx, next) => {
++      await next();
++      if (ctx.method !== "HEAD" && ctx.method !== "GET") {
++        return;
++      }
++      if (ctx.body != null || ctx.status !== 404) {
++        return;
++      }
++      ctx.type = "html";
++      ctx.body = fse__default.default.createReadStream(path.join(buildDir, "index.html"));
++    };
++    strapi2.server.routes([
++      {
++        method: "GET",
++        path: `${strapi2.config.admin.path}/:path*`,
++        handler: [
++          serveAdminMiddleware,
++          serveStatic(buildDir, {
++            maxage: 31536e3,
++            defer: false,
++            index: "index.html",
++            setHeaders(res, path$1) {
++              const ext = path.extname(path$1);
++              if (ext !== ".html") {
++                res.setHeader("cache-control", "public, max-age=31536000, immutable");
++              }
++            }
++          })
++        ],
++        config: { auth: false }
++      }
++    ]);
++  }
+ };
+ const serveStatic = (filesDir, koaStaticOptions = {}) => {
+   const serve = koaStatic__default.default(filesDir, koaStaticOptions);

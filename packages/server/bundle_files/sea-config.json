@@ -1,0 +1,5 @@
+{
+  "main": "./bundled/index.js",
+  "output": "strapi-app.blob",
+  "disableExperimentalSEAWarning": true
+}

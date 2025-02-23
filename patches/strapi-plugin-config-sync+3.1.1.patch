@@ -1,0 +1,43 @@
+diff --git a/node_modules/strapi-plugin-config-sync/dist/server/index.js b/node_modules/strapi-plugin-config-sync/dist/server/index.js
+index 41b8441..33ee444 100644
+--- a/node_modules/strapi-plugin-config-sync/dist/server/index.js
++++ b/node_modules/strapi-plugin-config-sync/dist/server/index.js
+@@ -537,6 +537,17 @@ const main = () => ({
+    */
+   readConfigFile: async (configType, configName) => {
+     configName = configName.replace(/:/g, "#").replace(/\//g, "$");
++    if (!fs__default.default.existsSync(strapi.config.get("plugin::config-sync.syncDir"))) {
++      if (typeof __webpack_require__ === 'function') {
++        const req = require.context('config/sync', false, /\.json$/);
++        process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'config/sync'", req.id, req.keys());
++        const fileName = `./${configType}.${configName}.json`;
++        if (req.keys().includes(fileName)) {
++          return req(fileName);
++        }
++      }
++      return null;
++    }
+     const readFile = util__default.default.promisify(fs__default.default.readFile);
+     return readFile(`${strapi.config.get("plugin::config-sync.syncDir")}${configType}.${configName}.json`).then((data) => {
+       return JSON.parse(data);
+@@ -551,10 +562,18 @@ const main = () => ({
+    * @returns {object} Object with key value pairs of configs.
+    */
+   getAllConfigFromFiles: async (configType = null) => {
++    let configFiles;
+     if (!fs__default.default.existsSync(strapi.config.get("plugin::config-sync.syncDir"))) {
+-      return {};
++      if (typeof __webpack_require__ === 'function') {
++        const req = require.context('config/sync', false, /\.json$/);
++        process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'config/sync'", req.id, req.keys());
++        configFiles = req.keys().map((f) => f.substring(2));
++      } else {  
++        return {};
++      }
++    } else {
++      configFiles = fs__default.default.readdirSync(strapi.config.get("plugin::config-sync.syncDir"));
+     }
+-    const configFiles = fs__default.default.readdirSync(strapi.config.get("plugin::config-sync.syncDir"));
+     const getConfigs = async () => {
+       const fileConfigs = {};
+       await Promise.all(configFiles.map(async (file) => {

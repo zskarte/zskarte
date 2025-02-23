@@ -1,0 +1,50 @@
+diff --git a/node_modules/@strapi/utils/dist/index.js b/node_modules/@strapi/utils/dist/index.js
+index 983413e..b6283f3 100644
+--- a/node_modules/@strapi/utils/dist/index.js
++++ b/node_modules/@strapi/utils/dist/index.js
+@@ -672,9 +672,17 @@ const createVisitorUtils = ({ data }) => ({
+   }
+ });
+ const traverseEntity$1 = fp.curry(traverseEntity);
+-function importDefault(modName) {
+-  const mod = require(modName);
+-  return mod && mod.__esModule ? mod.default : mod;
++function importDefault(modName, req) {
++  if (typeof __webpack_require__ === 'function') {
++    if (!modName.startsWith("./")){
++      modName = "./" + modName;
++    }
++    const mod = req(modName);
++    return mod && typeof mod === 'object' && 'default' in mod ? mod.default : mod;
++  } else {
++    const mod = require(modName);
++    return mod && mod.__esModule ? mod.default : mod;
++  }
+ }
+ const machineId = () => {
+   try {
+diff --git a/node_modules/@strapi/utils/dist/index.mjs b/node_modules/@strapi/utils/dist/index.mjs
+index f9d072c..5eb33cf 100644
+--- a/node_modules/@strapi/utils/dist/index.mjs
++++ b/node_modules/@strapi/utils/dist/index.mjs
+@@ -646,9 +646,17 @@ const createVisitorUtils = ({ data }) => ({
+   }
+ });
+ const traverseEntity$1 = curry(traverseEntity);
+-function importDefault(modName) {
+-  const mod = require(modName);
+-  return mod && mod.__esModule ? mod.default : mod;
++function importDefault(modName, req) {
++  if (typeof __webpack_require__ === 'function') {
++    if (!modName.startsWith("./")){
++      modName = "./" + modName;
++    }
++    const mod = req(modName);
++    return mod && typeof mod === 'object' && 'default' in mod  ? mod.default : mod;
++  } else {
++    const mod = require(modName);
++    return mod && mod.__esModule ? mod.default : mod;
++  }
+ }
+ const machineId = () => {
+   try {

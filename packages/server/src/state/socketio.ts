@@ -1,8 +1,7 @@
-import { Socket } from 'socket.io/dist/socket';
+import { Socket, Server } from 'socket.io';
 import _ from 'lodash';
 import { operationCaches } from './operation';
 import { OperationCache, PatchExtended, User, WebsocketEvent } from '../definitions';
-import { Server } from 'socket.io';
 import { Core } from '@strapi/strapi';
 
 const sanitizeUser = (user) => {

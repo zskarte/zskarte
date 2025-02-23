@@ -1,0 +1,23 @@
+diff --git a/node_modules/koa-favicon/index.js b/node_modules/koa-favicon/index.js
+index 2aad542..b23055d 100644
+--- a/node_modules/koa-favicon/index.js
++++ b/node_modules/koa-favicon/index.js
+@@ -47,7 +47,17 @@ module.exports = function (path, options){
+       ctx.set('Allow', 'GET, HEAD, OPTIONS');
+     } else {
+       // lazily read the icon
+-      if (!icon) icon = fs.readFileSync(path);
++      if (!icon) {
++        if (typeof __webpack_require__ === "function") {
++          const req = require.context("favicon.ico", false, /favicon\.ico$/);
++          process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'favicon.ico'", req.id, req.keys());
++          const dataURL = req("." + ctx.path);
++          const base64 = dataURL.split(',')[1];
++          icon = Buffer.from(base64, 'base64');
++        } else {
++          icon = fs.readFileSync(path);
++        }
++      }
+       ctx.set('Cache-Control', cacheControl);
+       ctx.type = mime;
+       ctx.body = icon;

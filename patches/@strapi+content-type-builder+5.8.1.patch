@@ -1,0 +1,21 @@
+diff --git a/node_modules/@strapi/content-type-builder/dist/server/index.js b/node_modules/@strapi/content-type-builder/dist/server/index.js
+index 6d5b41d..21d5e22 100644
+--- a/node_modules/@strapi/content-type-builder/dist/server/index.js
++++ b/node_modules/@strapi/content-type-builder/dist/server/index.js
+@@ -6,6 +6,7 @@ const path = require("path");
+ const fse = require("fs-extra");
+ const pluralize = require("pluralize");
+ const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
++const _interopDefault2 = (e) => e && typeof e === 'object' && 'default' in e ? e : { default: e };
+ function _interopNamespace(e) {
+   if (e && e.__esModule) return e;
+   const n = Object.create(null, { [Symbol.toStringTag]: { value: "Module" } });
+@@ -24,7 +25,7 @@ function _interopNamespace(e) {
+   return Object.freeze(n);
+ }
+ const ___default = /* @__PURE__ */ _interopDefault(_);
+-const utils__default = /* @__PURE__ */ _interopDefault(utils);
++const utils__default = /* @__PURE__ */ _interopDefault2(utils);
+ const path__namespace = /* @__PURE__ */ _interopNamespace(path);
+ const fse__namespace = /* @__PURE__ */ _interopNamespace(fse);
+ const pluralize__default = /* @__PURE__ */ _interopDefault(pluralize);

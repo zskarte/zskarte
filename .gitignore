@@ -70,6 +70,7 @@ $RECYCLE.BIN/
 *.sql
 *.sqlite
 *.sqlite3
+**/data
 !packages/server/init/init.sql
 
 
@@ -104,12 +105,18 @@ testApp
 coverage
 
 ############################
-# Tests
+# caches
 ############################
 
 **/.strapi
 **/.angular
-**/dist/
 .strapi-updater.json
-**/data
 .env
+
+############################
+# builds
+############################
+**/dist/
+**/bundled
+**/exec
+*.blob
