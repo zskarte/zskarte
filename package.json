@@ -28,6 +28,7 @@
     "cleanup": "tsx scripts/cleanup.ts",
     "prepare-bundle": "tsx scripts/prepare-bundle-files.ts",
     "inject-sea": "tsx scripts/inject-sea.ts",
+    "zip-release": "tsx scripts/zip-release.ts",
     "postinstall": "npx patch-package"
   },
   "resolutions": {

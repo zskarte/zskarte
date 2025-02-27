@@ -15,6 +15,7 @@
     "build:webpack": "npx webpack --config bundle_files/webpack.config.js",
     "prebuild:sea": "cd ../.. && npm run prepare-bundle exec zskarte-server",
     "build:sea": "node --experimental-sea-config bundle_files/sea-config.json && cd ../.. && npm run inject-sea packages/server/exec/zskarte-server packages/server/strapi-app.blob",
+    "postbuild:sea": "cd ../.. && npm run zip-release",
     "build:all": "npm run build && npm run build:webpack && npm run build:sea",
     "start:webpack": "cd bundled/ && ./startWebpack.sh",
     "start:sea": "cd exec/ && ./startServer.sh",

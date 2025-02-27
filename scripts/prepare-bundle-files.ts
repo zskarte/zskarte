@@ -3,13 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import { glob } from 'glob';
 import { execSync } from 'child_process';
+import { downloadAndExtractNode, Arch, Lib, Platform } from './get_node_binary';
 
 const destSubFolder = process.argv.length > 2 ? process.argv[2] : 'bundled';
 let exec_name = process.argv.length > 3 ? process.argv[3] : 'strapi-app';
 
-const platform = os.platform();
-const arch = os.arch();
-const lib = process.env.MUSL ? 'musl' : '';
+const platform: Platform = (process.env.SEA_PLATFORM as Platform) ?? os.platform();
+const arch: Arch = (process.env.SEA_ARCH as Arch) ?? os.arch();
+const lib: Lib = ((process.env.SEA_LIB as Lib) ?? process.env.MUSL) ? 'musl' : '';
 const platformArch = `${platform}${lib}-${arch}`;
 
 const serverDir = path.join('packages', 'server');
@@ -61,26 +62,7 @@ try {
 }
 
 if (destSubFolder !== 'bundled') {
-  // Copy clean node executable
-  function getNodePath(): string {
-    const platform = os.platform();
-    try {
-      if (platform === 'win32') {
-        // Windows
-        return execSync('where node', { encoding: 'utf8' }).split('\r\n')[0];
-      } else {
-        // macOS and Linux
-        return execSync('which node', { encoding: 'utf8' }).trim();
-      }
-      //return process.execPath;
-    } catch (error) {
-      console.error('Error finding Node.js executable:', error);
-      return '';
-    }
-  }
-
   function removeSignature(executablePath: string): void {
-    const platform = os.platform();
     try {
       if (platform === 'darwin') {
         // macOS
@@ -101,12 +83,13 @@ if (destSubFolder !== 'bundled') {
     exec_name = exec_name + '.exe';
   }
   const targetPath = path.join(destDir, exec_name);
-  try {
-    fs.copyFileSync(getNodePath(), targetPath);
-  } catch (error) {
-    console.error('Error copying node executable:', error);
-  }
-  removeSignature(targetPath);
+  downloadAndExtractNode({
+    version: process.versions.node,
+    arch,
+    lib: lib,
+    platform,
+    destFile: targetPath,
+  }).then(() => removeSignature(targetPath));
 
   console.log('copy bundled .node files');
   glob('packages/server/bundled/*.node')

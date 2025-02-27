@@ -1,0 +1,99 @@
+name: Build and Release executables on release tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      #fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [x64, arm64]
+        node_version: ['20.x']
+        container: [null, 'node:20-alpine']
+        exclude:
+          - os: ubuntu-latest
+            arch: arm64
+            container: 'node:20-alpine'
+          - os: windows-latest
+            container: 'node:20-alpine'
+          - os: macos-latest
+            container: 'node:20-alpine'
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node_version }}
+      if: ${{ !matrix.container }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node_version }}
+        #the different archs are not supported, need to do cross building
+        #architecture: ${{ matrix.arch }}
+
+    - name: Cache npm dependencies
+      if: ${{ !matrix.container }}
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          npm ci --cpu=${{ matrix.arch }} --os=win32
+          npm i --cpu=x64 --os=win32 @swc/core
+        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          npm ci --cpu=${{ matrix.arch }} --os=darwin
+          npm i --cpu=arm64 --os=darwin @swc/core
+        else
+          npm ci --cpu=${{ matrix.arch }} --os=linux
+          npm i --cpu=x64 --os=linux @swc/core
+        fi
+      shell: sh
+
+    - name: Build server executable
+      env:
+        NODE_ENV: production
+        SEA_PLATFORM: ${{ matrix.os == 'windows-latest' && 'win32' || matrix.os == 'macos-latest' && 'darwin' || 'linux' }}
+        SEA_ARCH: ${{ matrix.arch }}
+        SEA_LIB: ${{ matrix.container && 'musl' || '' }}
+      run: |
+        cd packages/server
+        npm run build:all
+
+    - name: Upload executable artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sea-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.container && '-musl' || '' }}
+        path: zskarte-server*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        name: Release ${{ github.ref_name }}
+        generate_release_notes: true
+        draft: true
+        prerelease: false
+        files: artifacts/**/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
