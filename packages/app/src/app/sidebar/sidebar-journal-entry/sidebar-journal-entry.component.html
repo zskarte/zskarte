@@ -1,5 +1,5 @@
-<div class="created-date">{{entry().createdAt | date}}</div>
-<p>{{entry().messageContent}}</p>
+<div class="created-date">{{ entry().createdAt | date: 'dd.MM.yyyy, HH:mm' }}</div>
+<p class="preserve-linebreak">{{ entry().messageContent }}</p>
 
 @if (entryElements().length > 0) {
   <h3>{{ i18n.get('drawnSymbols') }}</h3>
@@ -13,6 +13,9 @@
             <mat-icon aria-hidden="true">widgets</mat-icon>
           }
           <span>{{ element.coordinatesStr }}</span>
+          @if (element.elementState?.name) {
+            <span>{{ element.elementState?.name }}</span>
+          }
         </div>
       </button>
     }
