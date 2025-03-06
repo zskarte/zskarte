@@ -23,3 +23,12 @@ export const toggleInArray = <T>(array: T[], value: T) => {
     array.push(value);
   }
 };
+
+export const addOrRemoveInArray = <T>(array: T[], value: T, add: boolean) => {
+  const index = array.indexOf(value);
+  if (index > -1 && !add) {
+    array.splice(index, 1);
+  } else if (index === -1 && add) {
+    array.push(value);
+  }
+};

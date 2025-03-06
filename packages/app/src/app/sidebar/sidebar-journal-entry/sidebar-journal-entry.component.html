@@ -2,10 +2,32 @@
 <p class="preserve-linebreak">{{ entry().messageContent }}</p>
 
 @if (entryElements().length > 0) {
-  <h3>{{ i18n.get('drawnSymbols') }}</h3>
+  <h3>
+    <span>{{ i18n.get('drawnSymbols') }}</span>
+    <span class="buttons">
+      <button mat-icon-button (click)="zoomToAll()" [title]="i18n.get('zoomToAll')">
+        <mat-icon>zoom_in_map</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="toggleHighlightAll()"
+        class="highlightAll"
+        [title]="i18n.get('highlightAll')"
+        [class]="{ selected: allHighlighted }"
+      >
+        <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
+      </button>
+    </span>
+  </h3>
   <mat-action-list>
     @for (element of entryElements(); track element.elementState?.id) {
-      <button mat-list-item (click)="navigateTo(element.coordinates)" [disabled]="!element.coordinates">
+      <button
+        mat-list-item
+        (click)="navigateTo(element)"
+        [disabled]="!element.coordinates"
+        (mouseenter)="highlightElement(element, true)"
+        (mouseleave)="highlightElement(element, false)"
+      >
         <div class="symbol">
           @if (element.imageUrl) {
             <img [src]="element.imageUrl" />

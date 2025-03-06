@@ -2911,7 +2911,17 @@ export class I18NService {
       de: 'Gezeichnete Signaturen',
       en: 'Drawn symbols',
       fr: 'Symboles dessinés'
-    }
+    },
+    zoomToAll: {
+      de: 'Auf alle gezeichnete Signaturen zoomen',
+      en: 'Zoom to all drawn signatures',
+      fr: 'Zoomez sur toutes les signatures dessinées',
+    },
+    highlightAll: {
+      de: 'Alle gezeichnete Signaturen hervorheben',
+      en: 'Highlight all drawn symbols',
+      fr: 'Surlignez tous les symboles dessinés',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

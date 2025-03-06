@@ -75,6 +75,7 @@ export interface IZsMapDisplayState {
   positionFlag: IPositionFlag;
   hiddenSymbols: number[];
   hiddenFeatureTypes: string[];
+  highlightedFeature: string[];
   enableClustering: boolean;
 }
 
