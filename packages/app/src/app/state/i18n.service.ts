@@ -2547,11 +2547,6 @@ export class I18NService {
       en: 'Awaiting triage',
       fr: 'En attente de triage',
     },
-    journalEntry_awaiting_drawing: {
-      de: 'Zeichnen',
-      en: 'Awaiting drawing',
-      fr: 'En attente de dessin',
-    },
     journalEntry_awaiting_decision: {
       de: 'Entscheidung',
       en: 'Awaiting decision',
@@ -2566,6 +2561,21 @@ export class I18NService {
       de: 'Abgeschlossen',
       en: 'Completed',
       fr: 'Terminé',
+    },
+    journalEntryResponsibility_awaiting_triage: {
+      de: 'Triage',
+      en: 'Triage',
+      fr: 'Triage',
+    },
+    journalEntryResponsibility_awaiting_completion: {
+      de: 'Ausgang',
+      en: 'Output',
+      fr: 'Sortie',
+    },
+    journalEntryResponsibility_completed: {
+      de: '-',
+      en: '-',
+      fr: '-',
     },
     journal: {
       de: 'Journal',
@@ -2596,11 +2606,6 @@ export class I18NService {
       de: 'Als nicht gezeichnet markieren',
       en: 'Mark as not drawn',
       fr: 'Marquer comme non dessiné',
-    },
-    journalNumber: {
-      de: 'Meldungsnummer',
-      en: 'Report number',
-      fr: 'Numéro de rapport',
     },
     deliverer: {
       de: 'Absender',
@@ -2676,6 +2681,11 @@ export class I18NService {
       de: 'Meldungsnummer',
       en: 'Report number',
       fr: 'Numéro de rapport',
+    },
+    messageNumberShort: {
+      de: 'Nummer',
+      en: 'Number',
+      fr: 'Numéro',
     },
     detailsChanel: {
       de: 'Nummer / Kanal',
@@ -2851,6 +2861,11 @@ export class I18NService {
       de: 'Karten',
       en: 'Maps',
       fr: 'Cartes',
+    },
+    responsibility: {
+      de: 'Zuständigkeit',
+      en: 'Responsibility',
+      fr: 'Responsabilité',
     },
     status: {
       de: 'Status',

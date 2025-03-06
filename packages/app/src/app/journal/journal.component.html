@@ -114,7 +114,7 @@
               <div class="journal-entry-details">
                 <div style="width: 134px">
                   <mat-form-field appearance="outline">
-                    <mat-label>{{ i18n.get('journalNumber') }}</mat-label>
+                    <mat-label>{{ i18n.get('messageNumber') }}</mat-label>
                     <input matInput type="number" formControlName="messageNumber" />
                   </mat-form-field>
                 </div>
@@ -205,7 +205,7 @@
                   {{
                     journalForm.value.isKeyMessage !== undefined ?
                       journalForm.value.isKeyMessage ?
-                      i18n.get('yes')
+                        i18n.get('yes')
                       : i18n.get('no')
                     : ''
                   }}
@@ -244,7 +244,9 @@
                   <mat-option value="stabschef">{{ i18n.get('stabschef') }}</mat-option>
                   <mat-option value="fb-lage">{{ i18n.get('fb-lage') }}</mat-option>
                   <mat-option value="fb-information">{{ i18n.get('fb-information') }}</mat-option>
-                  <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('fb-oeffentliche-sicherheit') }}</mat-option>
+                  <mat-option value="fb-oeffentliche-sicherheit">{{
+                    i18n.get('fb-oeffentliche-sicherheit')
+                  }}</mat-option>
                   <mat-option value="fb-schutz-rettung">{{ i18n.get('fb-schutz-rettung') }}</mat-option>
                   <mat-option value="fb-gesundheit">{{ i18n.get('fb-gesundheit') }}</mat-option>
                   <mat-option value="fb-logistik">{{ i18n.get('fb-logistik') }}</mat-option>
@@ -439,7 +441,9 @@
         } @else {
           <table mat-table matSort [dataSource]="dataSourceFiltered" (matSortChange)="sortData($event)">
             <ng-container matColumnDef="messageNumber">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header="messageNumber">{{ i18n.get('messageNumber') }}</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="messageNumber">
+                {{ i18n.get('messageNumberShort') }}
+              </th>
               <td mat-cell *matCellDef="let element">{{ element.messageNumber }}</td>
             </ng-container>
 
@@ -454,12 +458,19 @@
                 <div class="journal-table-message-cell">
                   {{ element.messageContent }}
                 </div>
-              </td></ng-container
-            >
+              </td>
+            </ng-container>
 
             <ng-container matColumnDef="dateMessage">
               <th mat-header-cell *matHeaderCellDef mat-sort-header="dateMessage">{{ i18n.get('dateCreated') }}</th>
               <td mat-cell *matCellDef="let element">{{ element.dateMessage.toLocaleString('de-CH') }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="entryResponsibility">
+              <th mat-header-cell *matHeaderCellDef>{{ i18n.get('responsibility') }}</th>
+              <td mat-cell *matCellDef="let element">
+                {{ getResponsibility(element) }}
+              </td>
             </ng-container>
 
             <ng-container matColumnDef="entryStatus">

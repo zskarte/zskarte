@@ -71,6 +71,7 @@ export class JournalComponent implements AfterViewInit {
     'messageSubject',
     'messageContent',
     'dateMessage',
+    'entryResponsibility',
     'entryStatus',
     'isKeyMessage',
   ];
@@ -273,7 +274,9 @@ export class JournalComponent implements AfterViewInit {
       filtered = filtered.filter(
         (entry) =>
           (this.triageFilter && entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
-          (this.outgoingFilter && entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION) ||
+          (this.outgoingFilter &&
+            (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
+              entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
           (this.decisionFilter && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION),
       );
     }
@@ -293,12 +296,25 @@ export class JournalComponent implements AfterViewInit {
             (!this.keyMessageFilter || item.isKeyMessage) &&
             (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) ||
               (this.triageFilter && item.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
-              (this.outgoingFilter && item.entryStatus === JournalEntryStatus.AWAITING_COMPLETION) ||
+              (this.outgoingFilter &&
+                (item.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
+                  item.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
               (this.decisionFilter && item.entryStatus === JournalEntryStatus.AWAITING_DECISION)),
         );
     }
 
     this.dataSourceFiltered.data = filtered;
+  }
+
+  getResponsibility(entry: JournalEntry) {
+    switch (entry.entryStatus) {
+      case JournalEntryStatus.AWAITING_MESSAGE:
+        return entry.visumMessage;
+      case JournalEntryStatus.AWAITING_DECISION:
+        return this.i18n.get(entry.department ?? 'allDepartments');
+      default:
+        return this.i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
+    }
   }
 
   sortData(sort: Sort) {
@@ -324,6 +340,7 @@ export class JournalComponent implements AfterViewInit {
   async selectEntry(entry: JournalEntry) {
     this.selectedJournalEntry = entry;
     this.sidebarOpen = true;
+    // biome-ignore format: next-line
     this.selectedIndex =
       entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE ? 0
       : entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE ? 1
