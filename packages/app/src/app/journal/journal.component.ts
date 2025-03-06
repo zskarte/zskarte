@@ -29,6 +29,7 @@ import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AbstractControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-journal',
@@ -63,6 +64,7 @@ export class JournalComponent implements AfterViewInit {
   i18n = inject(I18NService);
   private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
+  private router = inject(Router);
 
   JournalEntryStatus = JournalEntryStatus;
 
@@ -74,6 +76,7 @@ export class JournalComponent implements AfterViewInit {
     'entryResponsibility',
     'entryStatus',
     'isKeyMessage',
+    'map',
   ];
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
@@ -315,6 +318,11 @@ export class JournalComponent implements AfterViewInit {
       default:
         return this.i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
     }
+  }
+
+  openMapClick(event: Event, entry: JournalEntry) {
+    event.stopPropagation();
+    this.router.navigate(['/main/map'], { fragment: `message=${entry.messageNumber}` });
   }
 
   sortData(sort: Sort) {

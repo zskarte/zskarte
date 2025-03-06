@@ -485,6 +485,15 @@
               </td>
             </ng-container>
 
+            <ng-container matColumnDef="map">
+              <th mat-header-cell *matHeaderCellDef>{{ i18n.get('map') }}</th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-icon-button [attr.aria-label]="i18n.get('showOnMap')" [attr.title]="i18n.get('showOnMap')" (click)="openMapClick($event, element)">
+                  <mat-icon>map</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr
               mat-row

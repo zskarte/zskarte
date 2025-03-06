@@ -12,7 +12,7 @@
     <mat-divider></mat-divider>
     <mat-accordion multi displayMode="flat">
       @for (entry of journalEntriesToDraw; track entry; let index = $index) {
-      <mat-expansion-panel class="mat-elevation-z0">
+      <mat-expansion-panel class="mat-elevation-z0" [expanded]="entry.messageNumber === currentMessageNumber">
         <mat-expansion-panel-header>
           <mat-panel-title>
             <div class="journal-header-content">
@@ -35,7 +35,7 @@
     <mat-divider></mat-divider>
     <mat-accordion multi displayMode="flat">
       @for (entry of journalEntriesDrawn; track entry; let index = $index) {
-      <mat-expansion-panel class="mat-elevation-z0">
+      <mat-expansion-panel class="mat-elevation-z0" [expanded]="entry.messageNumber === currentMessageNumber">
         <mat-expansion-panel-header>
           <mat-panel-title>
             <div class="journal-header-content">

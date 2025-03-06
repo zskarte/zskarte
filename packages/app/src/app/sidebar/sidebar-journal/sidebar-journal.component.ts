@@ -1,4 +1,4 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, OnInit, inject, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../api/api.service';
 import { JournalEntry } from '../../journal/journal.types';
@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { I18NService } from '../../state/i18n.service';
 import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
 import { SessionService } from '../../session/session.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -24,9 +25,10 @@ import { SessionService } from '../../session/session.service';
   templateUrl: './sidebar-journal.component.html',
   styleUrl: './sidebar-journal.component.scss',
 })
-export class SidebarJournalComponent {
+export class SidebarJournalComponent implements OnInit {
   private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
+  private route = inject(ActivatedRoute);
   i18n = inject(I18NService);
   journalResource = resource({
     request: () => ({
@@ -39,6 +41,16 @@ export class SidebarJournalComponent {
       return (result as JournalEntry[]) || [];
     },
   });
+  currentMessageNumber: number | undefined;
+
+  ngOnInit() {
+    this.route.fragment.subscribe(fragment => {
+      if (fragment?.startsWith('message=')) {
+        const messageId = fragment.split('=')[1];
+        this.currentMessageNumber = parseInt(messageId);
+      }
+    });
+  }
 
   get journalEntriesToDraw() {
     return (this.journalResource.value() || []).filter((entry) => !entry.isDrawnOnMap);

@@ -2577,6 +2577,11 @@ export class I18NService {
       en: '-',
       fr: '-',
     },
+    showOnMap: {
+      de: 'Auf Karte anzeigen',
+      en: 'Show on map',
+      fr: 'Afficher sur la carte',
+    },
     journal: {
       de: 'Journal',
       en: 'Journal',
