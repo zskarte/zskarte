@@ -2797,6 +2797,11 @@ export class I18NService {
       en: 'If this journal entry is not correct, return it to the input.',
       fr: 'Si cette entrée de journal n\'est pas correcte, renvoyez-la à l\'entrée.',
     },
+    wrongContentInfo:  {
+      de: 'Beschreibe was falsch ist / korrigiert werden muss.',
+      en: 'Describe what is wrong / needs to be corrected.',
+      fr: 'Décrivez ce qui ne va pas/doit être corrigé.',
+    },
     backToInput: {
       de: 'Zurück an Eingang senden',
       en: 'Return to input',
@@ -2816,6 +2821,11 @@ export class I18NService {
       de: 'Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.',
       en: 'If this journal entry does not belong to your department, return it to the triage.',
       fr: 'Si cette entrée de journal ne vous appartient pas, renvoyez-la au triage.',
+    },
+    wrongTriageInfo: {
+      de: 'Warum gehört er nicht in deinen Fachbereich?',
+      en: "Why doesn't it belong to your department?",
+      fr: "Pourquoi n'est-il pas à toi?",
     },
     backToTriage: {
       de: 'Zurück zur Triage',

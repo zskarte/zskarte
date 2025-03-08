@@ -420,6 +420,8 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     visumDecider: Schema.Attribute.String;
     visumMessage: Schema.Attribute.String;
     visumTriage: Schema.Attribute.String;
+    wrongContentInfo: Schema.Attribute.String;
+    wrongTriageInfo: Schema.Attribute.String;
   };
 }
 

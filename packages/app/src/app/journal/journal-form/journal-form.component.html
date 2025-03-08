@@ -111,6 +111,10 @@
         } @else {
           <div>
             <div class="journal-entry-details">
+              @if (journalForm.value.wrongContentInfo) {
+                <div class="wrongInfoTitle">{{ i18n.get('wrongContentInfo') }}</div>
+                <div class="wrongInfo">{{ journalForm.value.wrongContentInfo }}</div>
+              }
               <div style="width: 134px">
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('messageNumber') }}</mat-label>
@@ -226,6 +230,10 @@
           </table>
         } @else {
           <div>
+            @if (journalForm.value.wrongTriageInfo) {
+              <div class="wrongInfoTitle">{{ i18n.get('wrongTriageInfo') }}</div>
+              <div class="wrongInfo">{{ journalForm.value.wrongTriageInfo }}</div>
+            }
             <mat-checkbox class="journal-entry-checkbox" formControlName="isKeyMessage">{{
               i18n.get('keyMessage')
             }}</mat-checkbox>
@@ -257,6 +265,12 @@
         <div class="info-send-back">
           <h3>{{ i18n.get('wrongContent') }}</h3>
           <p>{{ i18n.get('wrongContentMessage') }}</p>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ i18n.get('wrongContentInfo') }}</mat-label>
+            <input matInput formControlName="wrongContentInfo" />
+          </mat-form-field>
+
           <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
         </div>
       }
@@ -320,6 +334,12 @@
         <div class="info-send-back">
           <h3>{{ i18n.get('wrongDepartment') }}</h3>
           <p>{{ i18n.get('wrongTriage') }}</p>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ i18n.get('wrongTriageInfo') }}</mat-label>
+            <input matInput formControlName="wrongTriageInfo" />
+          </mat-form-field>
+
           <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
         </div>
       }

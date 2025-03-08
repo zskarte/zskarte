@@ -106,6 +106,12 @@
     },
     "isDrawingOnMap": {
       "type": "boolean"
+    },
+    "wrongContentInfo": {
+      "type": "string"
+    },
+    "wrongTriageInfo": {
+      "type": "string"
     }
   }
 }

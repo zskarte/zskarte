@@ -108,6 +108,10 @@ export class JournalFormComponent {
       nonNullable: true,
       validators: [this.requiredField('dateMessage')],
     }),
+    wrongContentInfo: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [this.requiredField('wrongContentInfo')],
+    }),
     department: new FormControl<Department>(null, {
       nonNullable: true,
       validators: [this.requiredField('department')],
@@ -119,6 +123,10 @@ export class JournalFormComponent {
     }),
     dateTriage: new FormControl<Date | null>(null, {
       validators: [this.requiredField('dateTriage')],
+    }),
+    wrongTriageInfo: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [this.requiredField('wrongTriageInfo')],
     }),
     dateDecision: new FormControl<Date | null>(null, {
       validators: [this.requiredField('dateDecision')],
@@ -197,14 +205,25 @@ export class JournalFormComponent {
   }
 
   async resetState() {
-    const entryStatus = JournalEntryStatusReset[this.journalForm.controls.entryStatus.value];
-    if (!entryStatus) {
+    const reset = JournalEntryStatusReset[this.journalForm.controls.entryStatus.value];
+    if (!reset) {
+      return;
+    }
+    const { entryStatus, required } = reset;
+    const requiredField = this.journalForm.get(required);
+    if (!requiredField) {
+      return;
+    }
+    if (!requiredField.value) {
+      requiredField.setErrors({ required: true });
+      requiredField.markAsTouched();
       return;
     }
 
     const { error, result } = await this.journal.update(
       {
         entryStatus,
+        [required]: requiredField.value,
       },
       this.entry()?.documentId,
     );
@@ -239,16 +258,24 @@ export class JournalFormComponent {
       return;
     }
 
+    let allowedFields = JournalEntryStatusFields[entryStatus];
+    const newEntryStatus = JournalEntryStatusNext[entryStatus];
+    const reset = JournalEntryStatusReset[newEntryStatus];
+
     //prepare object with only allowed/changed fields to save
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
     const values: Partial<JournalEntry> = {
       ...(rest as JournalEntry),
       dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
     };
+    if (reset && values[reset.required]) {
+      values[reset.required] = null as any;
+      allowedFields = [...allowedFields, reset.required];
+    }
 
     const { result, error } = await this.journal.save({
-      ...this.filterObject(values, JournalEntryStatusFields[entryStatus]),
-      entryStatus: JournalEntryStatusNext[entryStatus],
+      ...this.filterObject(values, allowedFields),
+      entryStatus: newEntryStatus,
       documentId: this.entry()?.documentId,
     } as JournalEntry);
 

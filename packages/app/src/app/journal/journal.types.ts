@@ -14,10 +14,13 @@ export const JournalEntryStatusNext: Record<JournalEntryStatus, JournalEntryStat
   [JournalEntryStatus.COMPLETED]: JournalEntryStatus.COMPLETED,
 };
 
-export const JournalEntryStatusReset: Record<JournalEntryStatus, JournalEntryStatus | null> = {
+export const JournalEntryStatusReset: Record<
+  JournalEntryStatus,
+  { entryStatus: JournalEntryStatus; required: keyof JournalEntry } | null
+> = {
   [JournalEntryStatus.AWAITING_MESSAGE]: null,
-  [JournalEntryStatus.AWAITING_TRIAGE]: JournalEntryStatus.AWAITING_MESSAGE,
-  [JournalEntryStatus.AWAITING_DECISION]: JournalEntryStatus.AWAITING_TRIAGE,
+  [JournalEntryStatus.AWAITING_TRIAGE]: { entryStatus: JournalEntryStatus.AWAITING_MESSAGE, required: 'wrongContentInfo' },
+  [JournalEntryStatus.AWAITING_DECISION]: { entryStatus: JournalEntryStatus.AWAITING_TRIAGE, required: 'wrongTriageInfo' },
   [JournalEntryStatus.AWAITING_COMPLETION]: null,
   [JournalEntryStatus.COMPLETED]: null,
 };
@@ -102,11 +105,13 @@ export interface JournalEntry {
   creator: string;
   sender: string;
   visumMessage: string;
+  wrongContentInfo?: string;
 
   isKeyMessage: boolean;
   department: Department;
   visumTriage: string;
   dateTriage: Date | null;
+  wrongTriageInfo?: string;
 
   decision: string;
   decisionReceiver: string;
