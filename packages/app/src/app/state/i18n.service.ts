@@ -2602,6 +2602,16 @@ export class I18NService {
       en: 'Drawn messages',
       fr: 'Messages dessinés',
     },
+    startDrawing: {
+      de: 'Mit Zeichnen beginnen',
+      en: 'Start Drawing',
+      fr: 'Commencer à dessiner',
+    },
+    someoneIsDrawing: {
+      de: 'Jemand hat mit Zeichnen begonnen',
+      en: 'Someone started drawing',
+      fr: "Quelqu'un a commencé à dessiner",
+    },
     markAsDrawn: {
       de: 'Als gezeichnet markieren',
       en: 'Mark as drawn',

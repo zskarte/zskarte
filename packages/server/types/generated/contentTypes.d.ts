@@ -402,6 +402,7 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     entryStatus: Schema.Attribute.Enumeration<
       ['awaiting_message', 'awaiting_triage', 'awaiting_decision', 'awaiting_completion', 'completed']
     >;
+    isDrawingOnMap: Schema.Attribute.Boolean;
     isDrawnOnMap: Schema.Attribute.Boolean;
     isKeyMessage: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;

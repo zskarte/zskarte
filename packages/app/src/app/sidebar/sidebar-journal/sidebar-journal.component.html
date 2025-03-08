@@ -1,4 +1,4 @@
-@if (journalResource.isLoading()) {
+@if (journal.loading()) {
   <div class="loading-spinner">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
@@ -24,7 +24,11 @@
 
         <ng-template matExpansionPanelContent>
           <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-          <button mat-flat-button color="primary" (click)="markAsDrawn(entry)">{{i18n.get('markAsDrawn')}}</button>
+          @if (entry.isDrawingOnMap) {
+            <span class="drawing">{{ i18n.get('someoneIsDrawing') }}</span>
+          }
+          <button mat-flat-button color="primary" (click)="startDrawing(entry)">{{ i18n.get('startDrawing') }}</button>
+          <button mat-flat-button (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
         </ng-template>
       </mat-expansion-panel>
       <mat-divider></mat-divider>
@@ -47,7 +51,7 @@
 
         <ng-template matExpansionPanelContent>
           <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-          <button mat-button (click)="markAsNotDrawn(entry)">{{i18n.get('markAsNotDrawn')}}</button>
+          <button mat-button (click)="journal.markAsDrawn(entry, false)">{{ i18n.get('markAsNotDrawn') }}</button>
         </ng-template>
       </mat-expansion-panel>
       <mat-divider></mat-divider>

@@ -1,11 +1,10 @@
-import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, map, Observable, Subject, takeUntil } from 'rxjs';
+import { Component, HostListener, inject } from '@angular/core';
+import { BehaviorSubject, firstValueFrom, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import { SyncService } from '../sync/sync.service';
 import { SessionService } from '../session/session.service';
-import { ZsMapBaseLayer } from '../map-renderer/layers/base-layer';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpComponent } from '../help/help.component';
@@ -29,11 +28,10 @@ import { SelectedFeatureComponent } from '../selected-feature/selected-feature.c
 import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
 import { ZsMapStateSource } from '@zskarte/types';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAX_DRAW_ELEMENTS_GUEST } from '../session/default-map-values';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
+import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
 
 @Component({
   selector: 'app-floating-ui',
@@ -55,6 +53,7 @@ import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dia
     SelectedFeatureComponent,
     GeocoderComponent,
     CoordinatesComponent,
+    JournalDrawOverlayComponent,
     CommonModule,
   ],
 })

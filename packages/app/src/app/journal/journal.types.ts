@@ -56,4 +56,5 @@ export interface JournalEntry {
   decisionReceiver: string;
   decisionSender: string;
   isDrawnOnMap: boolean;
+  isDrawingOnMap: boolean;
 }

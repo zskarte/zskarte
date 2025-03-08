@@ -59,6 +59,7 @@ import { SyncService } from '../sync/sync.service';
 import { TextDialogComponent } from '../text-dialog/text-dialog.component';
 import { I18NService } from './i18n.service';
 import { zsMapStateMigration } from '@zskarte/common';
+import { JournalService } from '../journal/journal.service';
 
 @Injectable({
   providedIn: 'root',
@@ -70,6 +71,7 @@ export class ZsMapStateService {
   private _session = inject(SessionService);
   private _snackBar = inject(MatSnackBar);
   private _operationService = inject(OperationService);
+  private _journal = inject(JournalService);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
@@ -867,6 +869,12 @@ export class ZsMapStateService {
         nameShow: true,
         createdAt: Date.now(),
       };
+
+      const currentMessage = this._journal.drawingEntry;
+      if (currentMessage) {
+        //on insert or past an element while drawing message all old/copied numbers should be overridden
+        drawElement.reportNumber = [currentMessage.messageNumber];
+      }
 
       this.updateMapState((draft) => {
         if (!draft.drawElements) {

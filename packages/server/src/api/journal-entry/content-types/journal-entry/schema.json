@@ -103,6 +103,9 @@
         "fb-logistik",
         "fb-infrastukturen"
       ]
+    },
+    "isDrawingOnMap": {
+      "type": "boolean"
     }
   }
 }
