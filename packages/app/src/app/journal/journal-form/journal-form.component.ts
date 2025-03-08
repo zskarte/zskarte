@@ -197,6 +197,10 @@ export class JournalFormComponent {
     this.selectedIndex = 0;
     this.formDirective.resetForm();
     this.journalForm.reset();
+    this.journalForm.patchValue({
+      dateCreatedDate: new Date(),
+      dateCreatedTime: new Date(),
+    });
   }
 
   isTabDisabled(tabStatus: JournalEntryStatus): boolean {
