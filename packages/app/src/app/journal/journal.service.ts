@@ -28,6 +28,7 @@ export class JournalService {
   readonly data = this.journalResource.value;
   readonly loading = this.journalResource.isLoading;
   readonly error = this.journalResource.error;
+  readonly reload = () => this.journalResource.reload();
 
   private drawingEntrySignal = signal<JournalEntry | null>(null);
   get drawingEntry() {
@@ -58,16 +59,51 @@ export class JournalService {
     });
   }
 
+  public async get(documentId: string) {
+    const { error, result } = await this._api.get<JournalEntry>(`/api/journal-entries/${documentId}`);
+    if (error || !result) {
+      console.error(`could not get journalEntry ${documentId}`, error);
+      return null;
+    }
+    return result;
+  }
+
+  public async insert(entry: JournalEntry) {
+    const operation = this._session.getOperation();
+    const organization = this._session.getOrganization();
+    return this._api.post<JournalEntry>('/api/journal-entries', {
+      data: {
+        ...entry,
+        operation: operation?.documentId,
+        organization: organization?.documentId,
+      },
+    });
+  }
+
+  public async update(entry: Partial<JournalEntry>, documentId?: string) {
+    const { documentId: documentIdEntry, ...data } = entry;
+    return this._api.put<JournalEntry>(`/api/journal-entries/${documentId ?? documentIdEntry}`, { data });
+  }
+
+  public async save(entry: JournalEntry) {
+    if (entry.documentId) {
+      return this.update(entry);
+    } else {
+      return this.insert(entry);
+    }
+  }
+
   public startDrawing(entry: JournalEntry, value: boolean) {
     this.drawingEntry = value ? entry : null;
   }
 
   private async updateDrawingState(entry: JournalEntry, value: boolean) {
-    const { error, result } = await this._api.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
-      data: {
+    const { error, result } = await this.update(
+      {
         isDrawingOnMap: value,
       },
-    });
+      entry.documentId,
+    );
     if (error || !result) {
       console.error('Error updating journal entry:', error);
     } else {
@@ -76,8 +112,8 @@ export class JournalService {
   }
 
   public async markAsDrawn(entry: JournalEntry, value: boolean) {
-    const { error, result } = await this._api.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
-      data: value
+    const { error, result } = await this.update(
+      value
         ? {
             isDrawnOnMap: value,
             isDrawingOnMap: false,
@@ -85,7 +121,9 @@ export class JournalService {
         : {
             isDrawnOnMap: value,
           },
-    });
+      entry.documentId,
+    );
+
     if (error || !result) {
       console.error('Error updating journal entry:', error);
     } else {

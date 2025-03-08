@@ -396,7 +396,7 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
         'fb-schutz-rettung',
         'fb-gesundheit',
         'fb-logistik',
-        'fb-infrastukturen',
+        'fb-infrastrukturen',
       ]
     >;
     entryStatus: Schema.Attribute.Enumeration<
