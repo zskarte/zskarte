@@ -200,14 +200,17 @@ export class SessionService {
               }
             });
 
-          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
-            queryParams: {
-              center: null, //handled in overrideDisplayStateFromQueryParams
-              size: null, //handled in overrideDisplayStateFromQueryParams
-              operationId: null, //handled in updateJWT / OperationsComponent
+          await this._router.navigate(
+            [this._router.url.split('?')[0] === '/main/journal' ? '/main/journal' : '/main/map'],
+            {
+              queryParams: {
+                center: null, //handled in overrideDisplayStateFromQueryParams
+                size: null, //handled in overrideDisplayStateFromQueryParams
+                operationId: null, //handled in updateJWT / OperationsComponent
+              },
+              queryParamsHandling: 'merge',
             },
-            queryParamsHandling: 'merge',
-          });
+          );
         } else {
           await this._router.navigate(['operations'], { queryParamsHandling: 'preserve' });
           this._state.setMapState(undefined);

@@ -19,9 +19,10 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-journal',
@@ -50,8 +51,10 @@ export class JournalComponent implements AfterViewInit {
   i18n = inject(I18NService);
   journal = inject(JournalService);
   private _router = inject(Router);
+  private _route = inject(ActivatedRoute);
 
   DepartmentValues = DepartmentValues;
+  JournalEntryStatus = JournalEntryStatus;
 
   displayedColumns: string[] = [
     'messageNumber',
@@ -62,6 +65,7 @@ export class JournalComponent implements AfterViewInit {
     'entryStatus',
     'isKeyMessage',
     'map',
+    'print',
   ];
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
@@ -91,6 +95,22 @@ export class JournalComponent implements AfterViewInit {
       this.dataSource = this.journal.data() || [];
       this.dataSourceFiltered.data = this.dataSource;
       this.fuse.setCollection(this.dataSource);
+    });
+
+    //open journal entry by url messageNumber param
+    firstValueFrom(this._route.queryParams).then(async (queryParams) => {
+      if (queryParams['messageNumber']) {
+        try {
+          const messageNumber = queryParams['messageNumber'];
+          const messageNumberInt = parseInt(messageNumber);
+          const entry = await this.journal.getByNumber(messageNumberInt);
+          if (entry) {
+            this.selectEntry(entry);
+          }
+        } catch {
+          //ignore invalid operationId param
+        }
+      }
     });
   }
 
@@ -187,6 +207,20 @@ export class JournalComponent implements AfterViewInit {
   openMapClick(event: Event, entry: JournalEntry) {
     event.stopPropagation();
     this._router.navigate(['/main/map'], { fragment: `message=${entry.messageNumber}` });
+  }
+
+  async print(event: Event, entry: JournalEntry) {
+    event.stopPropagation();
+    const button = (event.target as HTMLElement).closest('button');
+    if (button) {
+      button.disabled = true;
+    }
+    await this.journal.print(entry);
+    setTimeout(() => {
+      if (button) {
+        button.disabled = false;
+      }
+    }, 1000);
   }
 
   sortData(sort: Sort) {

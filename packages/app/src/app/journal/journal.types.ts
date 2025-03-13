@@ -51,6 +51,8 @@ export const JournalEntryStatusFields: Record<JournalEntryStatus, (keyof Journal
   [JournalEntryStatus.COMPLETED]: [],
 };
 
+export const JournalDateFields: (keyof JournalEntry)[] = ['dateMessage', 'dateTriage', 'dateDecision', 'dateDecisionDelivered'];
+
 export const DepartmentValues = [
   'politische-behoerde',
   'chef-fuehrungsorgan',

@@ -2512,11 +2512,6 @@ export class I18NService {
       en: 'Creation date',
       fr: 'Date de création',
     },
-    creator: {
-      de: 'Empfänger',
-      en: 'Receiver',
-      fr: 'Destinataire',
-    },
     coordinates: {
       de: 'Koordinaten',
       en: 'Coordinates',
@@ -2692,6 +2687,11 @@ export class I18NService {
       en: 'Report time',
       fr: 'Heure de rapport',
     },
+    dateMessage: {
+      de: 'Meldung Zeitpunkt',
+      en: 'Report time',
+      fr: 'Heure de rapport',
+    },
     messageNumber: {
       de: 'Meldungsnummer',
       en: 'Report number',
@@ -2702,6 +2702,11 @@ export class I18NService {
       en: 'Number',
       fr: 'Numéro',
     },
+    messageNumberShort2: {
+      de: 'Nr.',
+      en: 'No.',
+      fr: 'n°',
+    },
     detailsChanel: {
       de: 'Nummer / Kanal',
       en: 'Number / channel',
@@ -2711,6 +2716,11 @@ export class I18NService {
       de: 'Visum',
       en: 'Visa',
       fr: 'Visa',
+    },
+    author: {
+      de: 'Verfasser',
+      en: 'Author',
+      fr: 'Auteur',
     },
     keyMessage: {
       de: 'Schlüsselmeldung',
@@ -2727,6 +2737,11 @@ export class I18NService {
       en: 'Triage time',
       fr: 'Heure de triage',
     },
+    visumTriage: {
+      de: 'Visum Triage',
+      en: 'Visa triage',
+      fr: 'Visa de triage',
+    },
     messageReceiver: {
       de: 'Empfänger der Entscheidung',
       en: 'Receiver of decision',
@@ -2736,6 +2751,11 @@ export class I18NService {
       de: 'Entscheidungszeitpunkt',
       en: 'Decision time',
       fr: 'Heure de décision',
+    },
+    visumDecider: {
+      de: 'Visum Triage',
+      en: 'Visa decision',
+      fr: 'Visa de décision',
     },
     "politische-behoerde": {
       de: 'Politische Behörde',

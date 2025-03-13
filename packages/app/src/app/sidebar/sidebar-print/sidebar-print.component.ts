@@ -51,7 +51,7 @@ export class SidebarPrintComponent {
   qrCode = true;
   shareLink = false;
   sharePermission: PermissionType = PermissionType.READ;
-  dimensions: [number, number] = PaperDimensions['A4'];
+  dimensions: [number, number] = [...PaperDimensions['A4']];
   generating = false;
   generateError?: string;
   generatingProgress = '0';
