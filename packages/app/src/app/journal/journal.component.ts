@@ -23,6 +23,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
 import { firstValueFrom } from 'rxjs';
+import { PdfDesignerComponent } from '../pdf/pdf-designer/pdf-designer.component';
+import { SessionService } from '../session/session.service';
+import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-journal',
@@ -41,6 +45,7 @@ import { firstValueFrom } from 'rxjs';
     MatProgressSpinnerModule,
     CommonModule,
     JournalFormComponent,
+    PdfDesignerComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -50,8 +55,10 @@ export class JournalComponent implements AfterViewInit {
   @ViewChild(JournalFormComponent) journalFormComponent!: JournalFormComponent;
   i18n = inject(I18NService);
   journal = inject(JournalService);
+  private _session = inject(SessionService);
   private _router = inject(Router);
   private _route = inject(ActivatedRoute);
+  private _dialog = inject(MatDialog);
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;
@@ -85,6 +92,10 @@ export class JournalComponent implements AfterViewInit {
 
   sidebarOpen = false;
   selectedJournalEntry = signal<JournalEntry | null>(null);
+
+  designerActive = false;
+  messagePdfTemplate: object | null = null;
+  messagePdfDefaultTemplate: object | null = null;
 
   constructor() {
     this.initializeSearch();
@@ -252,6 +263,33 @@ export class JournalComponent implements AfterViewInit {
     this.selectedJournalEntry.set(null);
     this.journalFormComponent.addNew();
     this.sidebarOpen = true;
+  }
+
+  async loadPrintDesinger() {
+    this.messagePdfTemplate = this.journal.getTemplate();
+    this.messagePdfDefaultTemplate = await this.journal.getDefaultTemplate();
+    this.designerActive = true;
+  }
+
+  async updateMessagePdfTemplate(newTemplate: object | null) {
+    if (newTemplate) {
+      this.messagePdfTemplate = newTemplate;
+      let saved:boolean;
+      const defaultTemplate = await this.journal.getDefaultTemplate();
+      if (JSON.stringify(defaultTemplate) === JSON.stringify(newTemplate)){
+        //reset to default / empty the on saved
+        saved = await this._session.saveJournalEntryTemplate(null);
+      } else {
+        saved = await this._session.saveJournalEntryTemplate(newTemplate);
+      }
+      if (saved) {
+        this.designerActive = false;
+      } else {
+        InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('errorSaving'));
+      }
+    } else {
+      this.designerActive = false;
+    }
   }
 }
 

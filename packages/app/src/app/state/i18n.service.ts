@@ -2962,6 +2962,89 @@ export class I18NService {
       en: 'Highlight all drawn symbols',
       fr: 'Surlignez tous les symboles dessinés',
     },
+    reset: {
+      de: 'Zurücksetzen',
+      en: 'Reset',
+      fr: 'Réinitialiser',
+    },
+    journalEntryTemplate: {
+      de: 'Meldungs Vorlage',
+      en: 'Message template',
+      fr: 'Modèle de message',
+    },
+    errorSaving: {
+      de: 'Fehler beim Speichern',
+      en: 'Error saving',
+      fr: "Erreur lors de l'enregistrement",
+    },
+    pdfDesignerHelp:{
+      de:`
+        Im Designer links können Sie Elemente grafisch hinzufügen oder bearbeiten, die Änderungen werden rechts in der technischen Ansicht live aktualisiert.<br>
+        In der technischen Ansicht habe Sie die Möglichkeit z.B. positionen einfacher einheitlich anzupassen, welche auch im Designer mit leichter Verzögerung akualisiert werden.<br>
+        Mit dem Slider/Splitter in der Mitte können Sie die Aufteilung der Bereiche verändern.<br>
+        <br>
+        Platzhalter welche mit den Daten gefüllt werden soll, müssen entsprechende Infos im "name" Attribut haben. Mögliche Werte sind alle Werte des Ausgabeobjekts "entry" z.b. "entry.messageNumber" sowie folgende Werte:
+        <ul>
+          <li>organization.documentId</li>
+          <li>organization.name</li>
+          <li>organization.url</li>
+          <li>organization.logo_url</li>
+          <li>operation.documentId</li>
+          <li>operation.name</li>
+          <li>url_entry</li>
+        </ul>
+        Texte welche fix sind, können einfach direkt im Designer definert werden (technisch im "content" Attribut) wobei das Feld auf NICHT editierbar (readOnly: true) gesetzt werden muss.<br>
+        Wenn Sie einen sprachabhängigen Text wollen, können Sie als name "i18n:&lt;text key&gt;" verwenden oder dies als Textinhalt ("content") angeben, da der Wert dann dynamisch ist, muss das Feld editierbar sein (readOnly: false).<br>
+        Möchten Sie den sprachabhängigen Text gefolgt von einem Doppelpunkt haben, verwenden sie stattdessen  "i18n_colon:&lt;text key&gt;".<br>
+        Wenn Sie die Daten z.B. "entry.department" nicht mit seinem technischen Wert sondern als sprachabhängigen Text ausgeben, können Sie "i18n_val:" voranstellen also z.B. "name" auf "i18n_val:entry.department" setzen.<br>
+        <br>
+        Wenn Sie die Daten/Infos eines Wertes mit fixer Werteliste nicht als Text sondern mehreren checkboxen ausgeben möchten, kann die Bedingung mit welchem Wert die Checkbox aktiv ist im "name" Attribut über die Notation "equals:&lt;name&gt;=&lt;Wert&gt;" also z.B. "equals:entry.communicationType=telefon" definiert werden.<br>
+        `,
+      en: `
+        In the Designer on the left, you can graphically add or edit elements, and the changes are updated live in the technical view on the right.<br>
+        In the technical view, you have the option to adjust positions more easily and uniformly, which are also updated in the Designer with a slight delay.<br>
+        With the slider/splitter in the middle, you can change the division of the areas.<br>
+        <br>
+        Placeholders that should be filled with data must have corresponding information in the "name" attribute. Possible values are all values of the output object "entry", e.g., "entry.messageNumber", as well as the following values:
+        <ul>
+          <li>organization.documentId</li>
+          <li>organization.name</li>
+          <li>organization.url</li>
+          <li>organization.logo_url</li>
+          <li>operation.documentId</li>
+          <li>operation.name</li>
+          <li>url_entry</li>
+        </ul>
+        Texts that are fixed can be defined directly in the Designer (technically in the "content" attribute), and the field must be set to NOT editable (readOnly: true).<br>
+        If you want a language-dependent text, you can use "i18n:&lt;text key&gt;" as the name or specify it as text content ("content"). Since the value is then dynamic, the field must be editable (readOnly: false).<br>
+        If you want the language-dependent text followed by a colon, use "i18n_colon:&lt;text key&gt;" instead.<br>
+        If you want to output the data, e.g., "entry.department", not with it's technical value but as a language-dependent text, you can prefix it with "i18n_val:", so set "name" to "i18n_val:entry.department".<br>
+        <br>
+        If you want to output the data/information of a value with a fixed value list not as text but as multiple checkboxes, the condition for which value activates the checkbox can be defined in the "name" attribute using the notation "equals:&lt;name&gt;=&lt;value&gt;", e.g., "equals:entry.communicationType=telefon".
+        `,
+      fr: `
+        Dans le Designer à gauche, vous pouvez ajouter ou modifier graphiquement des éléments, les changements sont mis à jour en direct dans la vue technique à droite.<br>
+        Dans la vue technique, vous avez la possibilité d'ajuster plus facilement et uniformément les positions, qui sont également mises à jour dans le Designer avec un léger délai.<br>
+        Avec le curseur/diviseur au milieu, vous pouvez modifier la répartition des zones.<br>
+        <br>
+        Les espaces réservés qui doivent être remplis avec des données doivent avoir des informations correspondantes dans l'attribut "name". Les valeurs possibles sont toutes les valeurs de l'objet de sortie "entry", par exemple "entry.messageNumber", ainsi que les valeurs suivantes:
+        <ul>
+          <li>organization.documentId</li>
+          <li>organization.name</li>
+          <li>organization.url</li>
+          <li>organization.logo_url</li>
+          <li>operation.documentId</li>
+          <li>operation.name</li>
+          <li>url_entry</li>
+        </ul>
+        Les textes qui sont fixes peuvent être définis directement dans le Designer (techniquement dans l'attribut "content") et le champ doit être défini comme NON modifiable (readOnly: true).<br>
+        Si vous voulez un texte dépendant de la langue, vous pouvez utiliser "i18n:&lt;clé du texte&gt;" comme nom ou le spécifier comme contenu du texte ("content"). Comme la valeur est alors dynamique, le champ doit être modifiable (readOnly: false).<br>
+        Si vous voulez le texte dépendant de la langue suivi d'un deux-points, utilisez plutôt "i18n_colon:&lt;clé du texte&gt;".<br>
+        Si vous voulez afficher les données, par exemple "entry.department", non pas avec sa valeur technique mais comme un texte dépendant de la langue, vous pouvez le préfixer avec "i18n_val:", donc définir "name" sur "i18n_val:entry.department".<br>
+        <br>
+        Si vous souhaitez afficher les données/informations d'une valeur avec une liste de valeurs fixes non pas sous forme de texte mais sous forme de plusieurs cases à cocher, la condition pour laquelle la valeur active la case à cocher peut être définie dans l'attribut "name" en utilisant la notation "equals:&lt;nom&gt;=&lt;valeur&gt;", par exemple "equals:entry.communicationType=telefon".<br>
+      `,
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

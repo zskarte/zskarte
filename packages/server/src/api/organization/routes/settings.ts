@@ -13,5 +13,15 @@ export default {
         ],
       },
     },
+    {
+      method: 'PUT',
+      path: '/organizations/:id/journal-entry-template',
+      handler: 'organization.updateJournalEntryTemplate',
+      config: {
+        middlewares: [
+          CreateAccessControlMiddlewareConfig({ type: 'api::organization.organization', check: AccessControlTypes.UPDATE_BY_ID }),
+        ],
+      },
+    },
   ],
 };

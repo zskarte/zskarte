@@ -63,6 +63,18 @@ export class JournalService {
     });
   }
 
+  public async getDefaultTemplate(){
+    return await (await fetch('/assets/pdf/journal_entry_template.json')).json();
+  }
+
+  public getTemplate(){
+    const template = this._session.getOrganization()?.journalEntryTemplate;
+    if (!template) {
+      return null;
+    }
+    return template;
+  }
+
   public async get(documentId: string) {
     const { error, result } = await this._api.get<JournalEntry>(`/api/journal-entries/${documentId}`);
     if (error || !result) {
@@ -209,7 +221,12 @@ export class JournalService {
   }
 
   public async print(entry: JournalEntry) {
-    const template = await (await fetch('/assets/pdf/journal_entry_template.json')).json();
+    let templateDefinition = this.getTemplate();
+    if (!templateDefinition) {
+      templateDefinition = await this.getDefaultTemplate();
+    }
+    //clone the template so don't change the original
+    const template = JSON.parse(JSON.stringify(templateDefinition));
 
     //adjust template if needed based on data to print
     this.checkTextBlockSizeAndAdjust(template, 'entry.messageContent', entry.messageContent, 'line_messageContent_');

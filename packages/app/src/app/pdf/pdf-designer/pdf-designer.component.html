@@ -1,0 +1,64 @@
+<as-split direction="horizontal">
+  <as-split-area [size]="60">
+    <div #designer class="designer"></div>
+  </as-split-area>
+  <as-split-area [size]="40" class="details">
+    <div class="header">
+      <div class="title">{{ templateName() }}</div>
+      <div class="buttons">
+        <button
+          mat-icon-button
+          (click)="help()"
+          [attr.aria-label]="i18n.get('help')"
+          [title]="i18n.get('help')"
+        >
+          <mat-icon>help</mat-icon>
+        </button>
+        <button mat-icon-button (click)="reset()" [attr.aria-label]="i18n.get('reset')" [title]="i18n.get('reset')">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="resetToDefault()"
+          [attr.aria-label]="i18n.get('defaultValues')"
+          [title]="i18n.get('defaultValues')"
+        >
+          <mat-icon>restore</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="basic"
+          (click)="download()"
+          [attr.aria-label]="i18n.get('download')"
+          [title]="i18n.get('download')"
+        >
+          <mat-icon>file_download</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="basic"
+          (click)="saveTemplate()"
+          [attr.aria-label]="i18n.get('save')"
+          [title]="i18n.get('save')"
+        >
+          <mat-icon>save</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="closeDesigner()"
+          [attr.aria-label]="i18n.get('cancel')"
+          [title]="i18n.get('cancel')"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+    <textarea #template class="template" [ngClass]="{ invalid: error() !== null }"></textarea>
+    <div class="status">
+      <div class="position">Zeile: {{ currentRow() }}, Spalte: {{ currentCol() }}</div>
+      @if (error()) {
+        <div class="error">{{ error() }}</div>
+      }
+    </div>
+  </as-split-area>
+</as-split>

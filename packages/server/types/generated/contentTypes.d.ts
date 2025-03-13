@@ -528,6 +528,7 @@ export interface ApiOrganizationOrganization extends Struct.CollectionTypeSchema
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     defaultLocale: Schema.Attribute.Enumeration<['de-CH', 'fr-CH', 'it-CH', 'en-US']> &
       Schema.Attribute.DefaultTo<'de-CH'>;
+    journalEntryTemplate: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::organization.organization'> & Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;

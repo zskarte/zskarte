@@ -12,7 +12,8 @@ const fontConfigs = {
   },
   fallback: 'Roboto',
 };
-const plugins = {
+
+export const plugins = {
   text,
   image,
   dateTime,
@@ -115,7 +116,7 @@ export class PdfService {
     }, {});
   }
 
-  private async getFonts() {
+  public async getFonts() {
     if (!this.fonts) {
       const fonts = {};
 
@@ -213,5 +214,4 @@ export class PdfService {
     link.click();
     URL.revokeObjectURL(url);
   }
-
 }

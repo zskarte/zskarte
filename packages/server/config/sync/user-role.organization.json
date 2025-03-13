@@ -166,6 +166,11 @@
       "locale": null
     },
     {
+      "action": "api::organization.organization.updateJournalEntryTemplate",
+      "documentId": "dd7hzj26ruff4aiqg37zvx02",
+      "locale": null
+    },
+    {
       "action": "api::organization.organization.updateLayerSettings",
       "documentId": "j7movnhslrz4vuurscvivr01",
       "locale": null

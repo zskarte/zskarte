@@ -358,6 +358,25 @@ export class SessionService {
     }
   }
 
+  public async saveJournalEntryTemplate(data: object | null) {
+    const organization = this.getOrganization();
+    if (organization?.documentId) {
+      const { error, result } = await this._api.put(
+        `/api/organizations/${organization.documentId}/journal-entry-template`,
+        { data },
+      );
+      if (error || !result) {
+        console.error('error on update JournalEntryTemplate', error);
+        return false;
+      }
+
+      //update object in session 
+      organization.journalEntryTemplate = data;
+      return true;
+    }
+    return false;
+  }
+
   public getLabel(): string | undefined {
     return this._session.value?.label;
   }
