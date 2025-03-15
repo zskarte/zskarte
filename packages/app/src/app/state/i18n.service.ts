@@ -2753,7 +2753,7 @@ export class I18NService {
       fr: 'Heure de décision',
     },
     visumDecider: {
-      de: 'Visum Triage',
+      de: 'Visum Entscheidung',
       en: 'Visa decision',
       fr: 'Visa de décision',
     },
@@ -3044,6 +3044,21 @@ export class I18NService {
         <br>
         Si vous souhaitez afficher les données/informations d'une valeur avec une liste de valeurs fixes non pas sous forme de texte mais sous forme de plusieurs cases à cocher, la condition pour laquelle la valeur active la case à cocher peut être définie dans l'attribut "name" en utilisant la notation "equals:&lt;nom&gt;=&lt;valeur&gt;", par exemple "equals:entry.communicationType=telefon".<br>
       `,
+    },
+    fillAllFields: {
+      de: 'Bitte füllen Sie alle benötigten Felder.',
+      en: 'Please fill in all required fields.',
+      fr: "Veuillez remplir tous les champs obligatoires.",
+    },
+    closeNotSaved: {
+      de: 'Sie haben noch nicht gespeicherte Änderungen, möchten Sie diese verwerfen?',
+      en: 'You have unsaved changes, do you want to discard them?',
+      fr: "Vous avez des modifications non enregistrées, souhaitez-vous les ignorer?",
+    },
+    errorLoadingJournalEntries: {
+      de: 'Fehler beim laden der Journal Einträge.',
+      en: 'Error loading journal entries.',
+      fr: 'Erreur lors du chargement des entrées de journal.',
     },
   };
 

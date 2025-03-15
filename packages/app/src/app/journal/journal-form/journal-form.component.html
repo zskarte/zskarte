@@ -5,7 +5,7 @@
       {{ journalForm.value.messageSubject ?? '' }}
     </h1>
 
-    <button type="button" (click)="close.emit()" mat-icon-button [attr.aria-label]="i18n.get('close')">
+    <button type="button" (click)="closeForm()" mat-icon-button [attr.aria-label]="i18n.get('close')">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -179,6 +179,16 @@
                 </div>
 
                 <div class="journal-entry-save-buttons">
+                  @if (showPrint) {
+                    <button
+                      mat-icon-button
+                      [attr.aria-label]="i18n.get('print')"
+                      [attr.title]="i18n.get('print')"
+                      (click)="print($event)"
+                    >
+                      <mat-icon>print</mat-icon>
+                    </button>
+                  }
                   <button mat-flat-button color="primary">
                     <mat-icon>check</mat-icon>
                     {{ i18n.get('save') }}
@@ -253,6 +263,16 @@
             </mat-form-field>
 
             <div class="journal-entry-save-buttons">
+              @if (showPrint) {
+                <button
+                  mat-icon-button
+                  [attr.aria-label]="i18n.get('print')"
+                  [attr.title]="i18n.get('print')"
+                  (click)="print($event)"
+                >
+                  <mat-icon>print</mat-icon>
+                </button>
+              }
               <button mat-flat-button color="primary">
                 <mat-icon>check</mat-icon>
                 {{ i18n.get('save') }}
@@ -322,6 +342,16 @@
             </mat-form-field>
 
             <div class="journal-entry-save-buttons">
+              @if (showPrint) {
+                <button
+                  mat-icon-button
+                  [attr.aria-label]="i18n.get('print')"
+                  [attr.title]="i18n.get('print')"
+                  (click)="print($event)"
+                >
+                  <mat-icon>print</mat-icon>
+                </button>
+              }
               <button mat-flat-button color="primary">
                 <mat-icon>check</mat-icon>
                 {{ i18n.get('save') }}
@@ -368,10 +398,22 @@
               <input matInput formControlName="decisionSender" />
             </mat-form-field>
 
-            <button mat-flat-button color="primary">
-              <mat-icon>check</mat-icon>
-              {{ i18n.get('save') }}
-            </button>
+            <div class="journal-entry-save-buttons">
+              @if (showPrint) {
+                <button
+                  mat-icon-button
+                  [attr.aria-label]="i18n.get('print')"
+                  [attr.title]="i18n.get('print')"
+                  (click)="print($event)"
+                >
+                  <mat-icon>print</mat-icon>
+                </button>
+              }
+              <button mat-flat-button color="primary">
+                <mat-icon>check</mat-icon>
+                {{ i18n.get('save') }}
+              </button>
+            </div>
           </div>
         }
       </div>

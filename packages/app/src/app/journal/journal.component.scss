@@ -124,3 +124,13 @@ tr.journal-table-row.key-message:hover {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+.disabled-row {
+  cursor: not-allowed !important;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.error {
+  color: red;
+}

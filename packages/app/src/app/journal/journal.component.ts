@@ -94,6 +94,7 @@ export class JournalComponent implements AfterViewInit {
   });
 
   sidebarOpen = false;
+  openDisabled = false;
   selectedJournalEntry = signal<JournalEntry | null>(null);
 
   designerActive = signal(false);
@@ -299,14 +300,18 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async selectEntry(entry: JournalEntry) {
-    this.selectedJournalEntry.set(entry);
-    this.sidebarOpen = true;
+    if (!this.sidebarOpen || !this.openDisabled) {
+      this.selectedJournalEntry.set(entry);
+      this.sidebarOpen = true;
+    }
   }
 
   openJournalAddDialog() {
-    this.selectedJournalEntry.set(null);
-    this.journalFormComponent.addNew();
-    this.sidebarOpen = true;
+    if (!this.sidebarOpen || !this.openDisabled) {
+      this.selectedJournalEntry.set(null);
+      this.journalFormComponent.addNew();
+      this.sidebarOpen = true;
+    }
   }
 
   async loadPdfDesignerComponent() {

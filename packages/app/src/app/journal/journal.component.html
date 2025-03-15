@@ -1,6 +1,10 @@
 <mat-sidenav-container hasBackdrop="false" autoFocus="false">
   <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen">
-    <app-journal-form [entry]="selectedJournalEntry()" (close)="sidebarOpen = false"></app-journal-form>
+    <app-journal-form
+      [entry]="selectedJournalEntry()"
+      (close)="sidebarOpen = false"
+      (dirty)="openDisabled = $event"
+    ></app-journal-form>
   </mat-sidenav>
 
   <mat-sidenav-content>
@@ -60,12 +64,17 @@
         <div class="loading-spinner" [hidden]="!journal.loading()">
           <mat-spinner></mat-spinner>
         </div>
+        @if (journal.error()) {
+          <div class="error">
+            {{ i18n.get('errorLoadingJournalEntries') }}
+          </div>
+        }
         <table
           mat-table
           matSort
           [dataSource]="dataSourceFiltered"
           (matSortChange)="sortData($event)"
-          [hidden]="journal.loading()"
+          [hidden]="journal.loading() || journal.error()"
         >
           <ng-container matColumnDef="messageNumber">
             <th mat-header-cell *matHeaderCellDef mat-sort-header="messageNumber">
@@ -149,8 +158,9 @@
             mat-row
             [class.key-message]="row.isKeyMessage"
             class="journal-table-row"
+            [class.disabled-row]="openDisabled"
             *matRowDef="let row; columns: displayedColumns"
-            (click)="selectEntry(row)"
+            (click)="!openDisabled && selectEntry(row)"
           ></tr>
         </table>
 

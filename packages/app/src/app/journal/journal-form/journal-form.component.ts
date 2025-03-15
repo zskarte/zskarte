@@ -27,6 +27,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ViewChild } from '@angular/core';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { JournalService } from '../journal.service';
+import { MatDialog } from '@angular/material/dialog';
+import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
+import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-journal-form',
@@ -49,6 +52,7 @@ import { JournalService } from '../journal.service';
   styleUrl: './journal-form.component.scss',
 })
 export class JournalFormComponent {
+  private _dialog = inject(MatDialog);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
@@ -58,12 +62,17 @@ export class JournalFormComponent {
   CommunicationTypeValues = CommunicationTypeValues;
 
   entry = input.required<JournalEntry | null>();
+  dirty = output<boolean>();
   close = output();
   selectedIndex = 0;
+  showPrint = false;
 
   constructor() {
     effect(() => {
       this.selectEntry(this.entry());
+    });
+    this.journalForm.valueChanges.subscribe(() => {
+      this.dirty.emit(this.journalForm.dirty);
     });
   }
 
@@ -168,7 +177,7 @@ export class JournalFormComponent {
 
       const entryStatus = this.journalForm.controls.entryStatus.value;
       if (JournalEntryStatusFields[entryStatus].includes(fieldName)) {
-        return control.value ? null : { requiredStep: true };
+        return control.value ? null : { requiredField: true };
       }
       return null;
     };
@@ -219,8 +228,12 @@ export class JournalFormComponent {
       return;
     }
     if (!requiredField.value) {
+      Object.values(this.journalForm.controls).forEach((control) => {
+        control.setErrors(null);
+      });
       requiredField.setErrors({ required: true });
       requiredField.markAsTouched();
+      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('fillAllFields'));
       return;
     }
 
@@ -233,11 +246,13 @@ export class JournalFormComponent {
     );
     if (error || !result) {
       console.error(`could not update state of journalEntry ${this.entry()?.documentId}`, error);
+      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('errorSaving'));
       return;
     }
 
     this.journal.reload();
-    await this.selectEntry(await this.journal.get(result.documentId!));
+    this.dirty.emit(false);
+    this.close.emit();
   }
 
   filterObject<T>(obj: Partial<T>, allowedKeys: (keyof T)[]): Partial<T> {
@@ -257,14 +272,27 @@ export class JournalFormComponent {
       this.journalForm.patchValue({ [dateField]: new Date() });
     }
 
-    if (this.journalForm.invalid || this.journalForm.pending) {
-      this.journalForm.markAllAsTouched();
-      return;
+    //active verify all required fileds
+    let allowedFields = JournalEntryStatusFields[entryStatus];
+    Object.entries(this.journalForm.controls).forEach(([fieldName, control]) => {
+      if (allowedFields.includes(fieldName as keyof JournalEntry)) {
+        control.updateValueAndValidity();
+      }
+    });
+    //unrequire reset field
+    const currentReset = JournalEntryStatusReset[entryStatus];
+    if (currentReset) {
+      this.journalForm.controls[currentReset.required].markAsUntouched();
+      this.journalForm.controls[currentReset.required].setErrors(null);
     }
 
-    let allowedFields = JournalEntryStatusFields[entryStatus];
+    if (this.journalForm.invalid || this.journalForm.pending) {
+      this.journalForm.markAllAsTouched();
+      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('fillAllFields'));
+      return;
+    }
     const newEntryStatus = JournalEntryStatusNext[entryStatus];
-    const reset = JournalEntryStatusReset[newEntryStatus];
+    const nextReset = JournalEntryStatusReset[newEntryStatus];
 
     //prepare object with only allowed/changed fields to save
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
@@ -272,9 +300,10 @@ export class JournalFormComponent {
       ...(rest as JournalEntry),
       dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
     };
-    if (reset && values[reset.required]) {
-      values[reset.required] = null as any;
-      allowedFields = [...allowedFields, reset.required];
+    if (nextReset && values[nextReset.required]) {
+      //clear reset field of next step, so it's not longer filled
+      values[nextReset.required] = null as any;
+      allowedFields = [...allowedFields, nextReset.required];
     }
 
     const { result, error } = await this.journal.save({
@@ -285,11 +314,13 @@ export class JournalFormComponent {
 
     if (error || !result) {
       console.error('Error saving journal entry', error);
+      this.showPrint = true;
+      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('errorSaving'));
       return;
     }
     this.journal.reload();
 
-    if (this.entry() === null){
+    if (this.entry() === null) {
       //if in message creating "mode" directly start to add new one, and keep obvious values
       this.addNew();
       this.journalForm.patchValue({
@@ -301,8 +332,50 @@ export class JournalFormComponent {
           communicationDetails: rest.communicationDetails,
         });
       }
-    } else  {
+      this.dirty.emit(false);
+      this.showPrint = false;
+    } else {
+      this.dirty.emit(false);
       this.close.emit();
     }
+  }
+
+  closeForm() {
+    if (this.journalForm.dirty) {
+      const confirm = this._dialog.open(ConfirmationDialogComponent, {
+        data: this.i18n.get('closeNotSaved'),
+      });
+      confirm.afterClosed().subscribe((response) => {
+        if (response) {
+          this.dirty.emit(false);
+          this.close.emit();
+        }
+      });
+    } else {
+      this.close.emit();
+    }
+  }
+
+  async print(event: Event) {
+    event.stopPropagation();
+    const button = (event.target as HTMLElement).closest('button');
+    if (button) {
+      button.disabled = true;
+    }
+    //prepare object
+    const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
+    const entry: JournalEntry = {
+      ...(rest as JournalEntry),
+      dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
+      documentId: this.entry()?.documentId,
+    };
+
+    await this.journal.print(entry);
+
+    setTimeout(() => {
+      if (button) {
+        button.disabled = false;
+      }
+    }, 1000);
   }
 }

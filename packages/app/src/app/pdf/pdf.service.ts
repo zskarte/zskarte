@@ -37,13 +37,18 @@ export class PdfService implements IPdfService {
   constructor(private _i18n: I18NService) {}
 
   async fetchImageAsBase64(url: string) {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise<string | ArrayBuffer | null>((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise<string | ArrayBuffer | null>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      return null;
+    }
   }
 
   async processInputsWithSchema(inputs: any[], template: { schemas: any[][] }) {

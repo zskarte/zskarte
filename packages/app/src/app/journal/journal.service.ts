@@ -23,9 +23,12 @@ export class JournalService {
       if (!params.request.operationId) {
         return [];
       }
-      const { result } = await this._api.get<JournalEntry[]>(
+      const { error, result } = await this._api.get<JournalEntry[]>(
         `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
       );
+      if (error || !result) {
+        throw "error on fetch yournal entries";
+      }
       return (result as JournalEntry[]) || [];
     },
   });
@@ -63,11 +66,11 @@ export class JournalService {
     });
   }
 
-  public async getDefaultTemplate(){
+  public async getDefaultTemplate() {
     return await (await fetch('/assets/pdf/journal_entry_template.json')).json();
   }
 
-  public getTemplate(){
+  public getTemplate() {
     const template = this._session.getOrganization()?.journalEntryTemplate;
     if (!template) {
       return null;
@@ -163,7 +166,13 @@ export class JournalService {
     }
   }
 
-  private checkTextBlockSizeAndAdjust(pdfService: IPdfService, template: any, fieldName: string, text: string, linePrefix: string) {
+  private checkTextBlockSizeAndAdjust(
+    pdfService: IPdfService,
+    template: any,
+    fieldName: string,
+    text: string,
+    linePrefix: string,
+  ) {
     //if decision is to long / does not fit remove optical lines and write the text more condenced.
     if (text && !pdfService.checkTextFitInField(template, fieldName, text)) {
       const filteredSchemas: any[][] = [];
@@ -191,7 +200,6 @@ export class JournalService {
     //force none empty value for all not filled fields
     const filteredSchemas: any[][] = [];
     for (const schema of template.schemas) {
-      const filteredSchema: any[] = [];
       for (const element of schema) {
         let elementName: string = element.name;
         if (elementName.indexOf(':') > 0) {
@@ -210,14 +218,22 @@ export class JournalService {
               element.readOnly = true;
             }
           }
-          filteredSchema.push(element);
-        } else {
-          filteredSchema.push(element);
         }
       }
-      filteredSchemas.push(filteredSchema);
     }
-    template.schemas = filteredSchemas;
+  }
+
+  private deactivateQRCode(template: any) {
+    for (const schema of template.schemas) {
+      for (const element of schema) {
+        if (element.name === 'url_entry') {
+          element.type = 'text';
+          element.content = ' ';
+          element.readOnly = true;
+          return;
+        }
+      }
+    }
   }
 
   public async print(entry: JournalEntry) {
@@ -230,7 +246,13 @@ export class JournalService {
     const template = JSON.parse(JSON.stringify(templateDefinition));
 
     //adjust template if needed based on data to print
-    this.checkTextBlockSizeAndAdjust(pdfService, template, 'entry.messageContent', entry.messageContent, 'line_messageContent_');
+    this.checkTextBlockSizeAndAdjust(
+      pdfService,
+      template,
+      'entry.messageContent',
+      entry.messageContent,
+      'line_messageContent_',
+    );
     this.checkTextBlockSizeAndAdjust(pdfService, template, 'entry.decision', entry.decision, 'line_decision_');
     this.forceEmptyTextValueToDummyText(template, entry);
 
@@ -250,7 +272,12 @@ export class JournalService {
     if (organizationFull?.logo?.provider === 'local') {
       organization.logo_url = `${environment.apiUrl}${organization.logo_url}`;
     }
-    const entryUrl = `${window.location.origin}/main/journal?operationId=${operation.documentId}&messageNumber=${entry.messageNumber}`;
+    let entryUrl;
+    if (entry.messageNumber && entry.createdAt) {
+      entryUrl = `${window.location.origin}/main/journal?operationId=${operation.documentId}&messageNumber=${entry.messageNumber}`;
+    } else {
+      this.deactivateQRCode(template);
+    }
 
     const data = [
       {
