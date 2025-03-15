@@ -75,18 +75,20 @@ export interface IZsMapDisplayState {
   positionFlag: IPositionFlag;
   hiddenSymbols: number[];
   hiddenFeatureTypes: string[];
+  highlightedFeature: string[];
   enableClustering: boolean;
 }
 
 //DIN paper dimension in mm, landscape
-export const PaperDimensions: Record<string, [number, number]> = {
+export const PaperDimensions = {
   A0: [1189, 841],
   A1: [841, 594],
   A2: [594, 420],
   A3: [420, 297],
   A4: [297, 210],
   A5: [210, 148],
-};
+} as const;
+export type PaperFormats = keyof typeof PaperDimensions;
 
 export interface IZsMapPrintExtent {
   dpi: number;

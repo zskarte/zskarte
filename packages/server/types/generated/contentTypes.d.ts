@@ -396,12 +396,13 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
         'fb-schutz-rettung',
         'fb-gesundheit',
         'fb-logistik',
-        'fb-infrastukturen',
+        'fb-infrastrukturen',
       ]
     >;
     entryStatus: Schema.Attribute.Enumeration<
       ['awaiting_message', 'awaiting_triage', 'awaiting_decision', 'awaiting_completion', 'completed']
     >;
+    isDrawingOnMap: Schema.Attribute.Boolean;
     isDrawnOnMap: Schema.Attribute.Boolean;
     isKeyMessage: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -419,6 +420,8 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     visumDecider: Schema.Attribute.String;
     visumMessage: Schema.Attribute.String;
     visumTriage: Schema.Attribute.String;
+    wrongContentInfo: Schema.Attribute.String;
+    wrongTriageInfo: Schema.Attribute.String;
   };
 }
 
@@ -525,6 +528,7 @@ export interface ApiOrganizationOrganization extends Struct.CollectionTypeSchema
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     defaultLocale: Schema.Attribute.Enumeration<['de-CH', 'fr-CH', 'it-CH', 'en-US']> &
       Schema.Attribute.DefaultTo<'de-CH'>;
+    journalEntryTemplate: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::organization.organization'> & Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;

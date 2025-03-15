@@ -101,8 +101,17 @@
         "fb-schutz-rettung",
         "fb-gesundheit",
         "fb-logistik",
-        "fb-infrastukturen"
+        "fb-infrastrukturen"
       ]
+    },
+    "isDrawingOnMap": {
+      "type": "boolean"
+    },
+    "wrongContentInfo": {
+      "type": "string"
+    },
+    "wrongTriageInfo": {
+      "type": "string"
     }
   }
 }

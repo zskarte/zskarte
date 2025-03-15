@@ -37,7 +37,7 @@ import { getPointResolution, transform } from 'ol/proj';
 import { BehaviorSubject, Observable, Subject, combineLatest, lastValueFrom, merge } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, takeUntil, takeWhile } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
-import { areArraysEqual, toggleInArray } from '../helper/array';
+import { addOrRemoveInArray, areArraysEqual, toggleInArray } from '../helper/array';
 import { DrawElementHelper } from '../helper/draw-element-helper';
 import { coordinatesProjection, mercatorProjection } from '../helper/projections';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
@@ -59,6 +59,7 @@ import { SyncService } from '../sync/sync.service';
 import { TextDialogComponent } from '../text-dialog/text-dialog.component';
 import { I18NService } from './i18n.service';
 import { zsMapStateMigration } from '@zskarte/common';
+import { JournalService } from '../journal/journal.service';
 
 @Injectable({
   providedIn: 'root',
@@ -70,6 +71,7 @@ export class ZsMapStateService {
   private _session = inject(SessionService);
   private _snackBar = inject(MatSnackBar);
   private _operationService = inject(OperationService);
+  private _journal = inject(JournalService);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
@@ -88,6 +90,7 @@ export class ZsMapStateService {
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<ZsMapElementToDraw | undefined>(undefined);
   private _selectedFeature = new BehaviorSubject<string | undefined>(undefined);
+  private _highlightenFeature = new BehaviorSubject<string | undefined>(undefined);
   private _hideSelectedFeature = new BehaviorSubject<boolean>(false);
   private _recentlyUsedElement = new BehaviorSubject<ZsMapDrawElementState[]>([]);
 
@@ -145,6 +148,7 @@ export class ZsMapStateService {
       wmsSources: [],
       hiddenSymbols: [],
       hiddenFeatureTypes: [],
+      highlightedFeature: [],
       enableClustering: true,
     };
     if (!mapState) {
@@ -866,6 +870,12 @@ export class ZsMapStateService {
         createdAt: Date.now(),
       };
 
+      const currentMessage = this._journal.drawingEntry;
+      if (currentMessage) {
+        //on insert or past an element while drawing message all old/copied numbers should be overridden
+        drawElement.reportNumber = [currentMessage.messageNumber];
+      }
+
       this.updateMapState((draft) => {
         if (!draft.drawElements) {
           draft.drawElements = {};
@@ -1102,6 +1112,30 @@ export class ZsMapStateService {
     return this._display.pipe(
       map((o) => {
         return o?.hiddenFeatureTypes.filter((f) => f !== undefined);
+      }),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  public updateFeatureHighlighted(featureId: string, value: boolean) {
+    if (!featureId) {
+      return;
+    }
+    this.updateDisplayState((draft) => {
+      addOrRemoveInArray<string>(draft.highlightedFeature, featureId, value);
+    });
+  }
+
+  public replaceHighlightedFeatures(featureIds: string[]) {
+    this.updateDisplayState((draft) => {
+      draft.highlightedFeature = featureIds;
+    });
+  }
+
+  public observeHighlightedFeature() {
+    return this._display.pipe(
+      map((o) => {
+        return o?.highlightedFeature.filter((f) => f !== undefined);
       }),
       distinctUntilChanged((x, y) => x === y),
     );

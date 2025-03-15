@@ -60,6 +60,8 @@ export class MapSelectService {
     this._state.observeSelectedFeature$().subscribe((element) => {
       if (!element) {
         this._select.getFeatures().clear();
+      } else if (this._select.getFeatures().getLength() === 0){
+        this._select.getFeatures().push(this._state.getDrawElement(element).getOlFeature());
       }
     });
     this._select.on('select', (event) => {

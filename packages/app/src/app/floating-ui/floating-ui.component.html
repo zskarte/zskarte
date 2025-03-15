@@ -61,6 +61,7 @@
           </button>
         }
       </div>
+      <app-journal-draw-overlay [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
       <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
     </div>
     <div class="action-buttons noprint">

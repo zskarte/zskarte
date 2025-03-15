@@ -21,6 +21,11 @@
       "locale": null
     },
     {
+      "action": "api::journal-entry.journal-entry.byNumber",
+      "documentId": "zj9b62gghfm24o57f3ztx0nf",
+      "locale": null
+    },
+    {
       "action": "api::journal-entry.journal-entry.create",
       "documentId": "hchejgreg45bf8l1flw4bj7l",
       "locale": null

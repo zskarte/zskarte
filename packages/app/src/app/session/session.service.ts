@@ -200,14 +200,17 @@ export class SessionService {
               }
             });
 
-          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
-            queryParams: {
-              center: null, //handled in overrideDisplayStateFromQueryParams
-              size: null, //handled in overrideDisplayStateFromQueryParams
-              operationId: null, //handled in updateJWT / OperationsComponent
+          await this._router.navigate(
+            [this._router.url.split('?')[0] === '/main/journal' ? '/main/journal' : '/main/map'],
+            {
+              queryParams: {
+                center: null, //handled in overrideDisplayStateFromQueryParams
+                size: null, //handled in overrideDisplayStateFromQueryParams
+                operationId: null, //handled in updateJWT / OperationsComponent
+              },
+              queryParamsHandling: 'merge',
             },
-            queryParamsHandling: 'merge',
-          });
+          );
         } else {
           await this._router.navigate(['operations'], { queryParamsHandling: 'preserve' });
           this._state.setMapState(undefined);
@@ -353,6 +356,25 @@ export class SessionService {
       await MapLayerService.saveLocalMapLayerSettings(data);
       this._session.next(this._session.value);
     }
+  }
+
+  public async saveJournalEntryTemplate(data: object | null) {
+    const organization = this.getOrganization();
+    if (organization?.documentId) {
+      const { error, result } = await this._api.put(
+        `/api/organizations/${organization.documentId}/journal-entry-template`,
+        { data },
+      );
+      if (error || !result) {
+        console.error('error on update JournalEntryTemplate', error);
+        return false;
+      }
+
+      //update object in session 
+      organization.journalEntryTemplate = data;
+      return true;
+    }
+    return false;
   }
 
   public getLabel(): string | undefined {
