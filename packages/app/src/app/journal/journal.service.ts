@@ -24,7 +24,7 @@ export class JournalService {
         return [];
       }
       const { result } = await this._api.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.request.operationId}`,
+        `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
       );
       return (result as JournalEntry[]) || [];
     },
