@@ -1,7 +1,7 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { I18NService } from '../state/i18n.service';
@@ -23,7 +23,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
 import { firstValueFrom } from 'rxjs';
-import { PdfDesignerComponent } from '../pdf/pdf-designer/pdf-designer.component';
 import { SessionService } from '../session/session.service';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -45,7 +44,7 @@ import { MatDialog } from '@angular/material/dialog';
     MatProgressSpinnerModule,
     CommonModule,
     JournalFormComponent,
-    PdfDesignerComponent,
+    NgComponentOutlet,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -93,9 +92,16 @@ export class JournalComponent implements AfterViewInit {
   sidebarOpen = false;
   selectedJournalEntry = signal<JournalEntry | null>(null);
 
-  designerActive = false;
-  messagePdfTemplate: object | null = null;
-  messagePdfDefaultTemplate: object | null = null;
+  designerActive = signal(false);
+  pdfDesignerComponent = signal<any>(null);
+  messagePdfTemplate = signal<object | null>(null);
+  messagePdfDefaultTemplate = signal<object | null>(null);
+  pdfDesignerInputs = computed(() => ({
+    template: this.messagePdfTemplate(),
+    defaultTemplate: this.messagePdfDefaultTemplate(),
+    templateName: this.i18n.get('journalEntryTemplate'),
+  }));
+  @ViewChild(NgComponentOutlet) componentOutlet!: NgComponentOutlet;
 
   constructor() {
     this.initializeSearch();
@@ -265,30 +271,51 @@ export class JournalComponent implements AfterViewInit {
     this.sidebarOpen = true;
   }
 
-  async loadPrintDesinger() {
-    this.messagePdfTemplate = this.journal.getTemplate();
-    this.messagePdfDefaultTemplate = await this.journal.getDefaultTemplate();
-    this.designerActive = true;
+  async loadPdfDesignerComponent() {
+    if (this.pdfDesignerComponent() === null) {
+      const { PdfDesignerComponent } = await import('../pdf/pdf-designer/pdf-designer.component');
+      this.pdfDesignerComponent.set(PdfDesignerComponent);
+    }
+  }
+
+  async showPdfDesigner() {
+    await this.loadPdfDesignerComponent();
+    this.messagePdfTemplate.set(this.journal.getTemplate());
+    this.messagePdfDefaultTemplate.set(await this.journal.getDefaultTemplate());
+    this.designerActive.set(true);
+
+    setTimeout(() => {
+      if (this.componentOutlet) {
+        const instance = this.componentOutlet.componentInstance;
+        if (instance) {
+          if ('save' in instance) {
+            instance.save.subscribe((newTemplate: object | null) => {
+              this.updateMessagePdfTemplate(newTemplate);
+            });
+          }
+        }
+      }
+    });
   }
 
   async updateMessagePdfTemplate(newTemplate: object | null) {
     if (newTemplate) {
-      this.messagePdfTemplate = newTemplate;
-      let saved:boolean;
+      let saved: boolean;
       const defaultTemplate = await this.journal.getDefaultTemplate();
-      if (JSON.stringify(defaultTemplate) === JSON.stringify(newTemplate)){
+      if (JSON.stringify(defaultTemplate) === JSON.stringify(newTemplate)) {
         //reset to default / empty the on saved
         saved = await this._session.saveJournalEntryTemplate(null);
       } else {
         saved = await this._session.saveJournalEntryTemplate(newTemplate);
       }
       if (saved) {
-        this.designerActive = false;
+        this.designerActive.set(false);
       } else {
+        this.messagePdfTemplate.set(newTemplate);
         InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('errorSaving'));
       }
     } else {
-      this.designerActive = false;
+      this.designerActive.set(false);
     }
   }
 }

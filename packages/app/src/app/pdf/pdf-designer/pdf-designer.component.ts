@@ -14,12 +14,12 @@ import { I18NService } from 'src/app/state/i18n.service';
 import { Designer } from '@pdfme/ui';
 import { debounce } from '../../helper/debounce';
 import { SplitComponent, SplitAreaComponent } from 'angular-split';
-import { PdfService, plugins } from '../pdf.service';
 import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
+import { PdfServiceFactory } from '../pdf-service.factory';
 
 const alignedKeys = ['name', 'position', 'width', 'height', 'type'];
 
@@ -28,6 +28,7 @@ const alignedKeys = ['name', 'position', 'width', 'height', 'type'];
   imports: [SplitComponent, SplitAreaComponent, CommonModule, MatIcon, MatDialogModule, MatIconButton],
   templateUrl: './pdf-designer.component.html',
   styleUrl: './pdf-designer.component.scss',
+  standalone: true,
 })
 export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
   @ViewChild('designer') designerRef!: ElementRef;
@@ -39,9 +40,9 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
   save = output<object | null>();
 
   i18n = inject(I18NService);
-  private _pdf = inject(PdfService);
   private _dialog = inject(MatDialog);
   private _designer: Designer | undefined;
+  private _pdfServiceFactory = inject(PdfServiceFactory);
 
   currentRow = signal<number>(0);
   currentCol = signal<number>(0);
@@ -74,11 +75,12 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
   }
 
   async ngAfterViewInit() {
+    const pdfService = await this._pdfServiceFactory.getPdfService();
     this._designer = new Designer({
       domContainer: this.designerRef.nativeElement,
       template: this.template() ?? (this.defaultTemplate() as any),
-      plugins,
-      options: { font: await this._pdf.getFonts() },
+      plugins: pdfService.getPlugins(),
+      options: { font: await pdfService.getFonts() },
     });
     this._designer.onChangeTemplate(this._debouncedHandleChangeTemplate);
 

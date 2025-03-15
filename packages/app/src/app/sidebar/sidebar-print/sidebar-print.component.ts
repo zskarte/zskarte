@@ -1,11 +1,10 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { Subject, map, takeUntil, distinctUntilChanged, Observable, firstValueFrom } from 'rxjs';
-import { jsPDF } from 'jspdf';
+import { IjsPDF, getJsPDF } from 'src/app/pdf/jsPDF.factory';
 import { ZsMapStateService } from '../../state/state.service';
 import { I18NService } from '../../state/i18n.service';
 import { SessionService } from '../../session/session.service';
 import { toDataURL as QRCodeToDataURL } from 'qrcode';
-import html2canvas from 'html2canvas';
 import { DEVICE_PIXEL_RATIO } from 'ol/has';
 import { mercatorProjection } from 'src/app/helper/projections';
 import { getPointResolution } from 'ol/proj';
@@ -26,7 +25,15 @@ import { PermissionType, PaperDimensions, IZsMapPrintState, AccessTokenType } fr
   selector: 'app-sidebar-print',
   templateUrl: './sidebar-print.component.html',
   styleUrl: './sidebar-print.component.scss',
-  imports: [MatFormFieldModule, MatButtonModule, MatInputModule, MatSelectModule, MatRadioModule, FormsModule, MatCheckboxModule],
+  imports: [
+    MatFormFieldModule,
+    MatButtonModule,
+    MatInputModule,
+    MatSelectModule,
+    MatRadioModule,
+    FormsModule,
+    MatCheckboxModule,
+  ],
 })
 export class SidebarPrintComponent {
   i18n = inject(I18NService);
@@ -241,6 +248,7 @@ export class SidebarPrintComponent {
           mapContext.globalAlpha = 1;
           mapContext.setTransform(1, 0, 0, 1, 0, 0);
 
+          const jsPDF = await getJsPDF();
           const pdf = new jsPDF(this.orientation, undefined, this.format);
           //add map image
           pdf.addImage(
@@ -312,7 +320,7 @@ export class SidebarPrintComponent {
     return tileEventCallback;
   }
 
-  addOperationInfos(pdf: jsPDF) {
+  addOperationInfos(pdf: IjsPDF) {
     if (!this.emptyMap) {
       const now = new Date();
       const pad = (val: number) => `0${val}`.slice(-2);
@@ -329,13 +337,14 @@ export class SidebarPrintComponent {
     }
   }
 
-  async addScale(pdf: jsPDF) {
+  async addScale(pdf: IjsPDF) {
     if (this.printScale) {
       //add scale bottom left
       const scaleEl = document.querySelector('.ol-scale-bar') as HTMLElement;
       if (scaleEl) {
         //use the original scale html as image
         scaleEl.classList.add('scale-print');
+        const { default: html2canvas } = await import('html2canvas');
         const scaleCanvas = await html2canvas(scaleEl, { backgroundColor: null });
         const scaleWidth = ((scaleCanvas.width / this.dpi) * MM_PER_INCHES) / window.devicePixelRatio;
         const scaleHeight = ((scaleCanvas.height / this.dpi) * MM_PER_INCHES) / window.devicePixelRatio;
@@ -346,7 +355,7 @@ export class SidebarPrintComponent {
       } else {
         //fallback to scale text
         pdf.setFontSize(14);
-        const scale = this.scale ? `1:${this.scale * 1000}` : this.autoScaleHint ?? '';
+        const scale = this.scale ? `1:${this.scale * 1000}` : (this.autoScaleHint ?? '');
         pdf.text(scale, this.printMargin, this.printMargin + this.dimensions[1] - 1);
       }
     }
@@ -368,10 +377,12 @@ export class SidebarPrintComponent {
     );
   }
 
-  addAttributions(pdf: jsPDF) {
+  addAttributions(pdf: IjsPDF) {
     //add attributions bottom center
     if (this.attributions && this.attributions.length > 0) {
-      const attribution = [...new Set(this.attributions.map((a) => SidebarPrintComponent.extractAttribution(a)))].join(' | ');
+      const attribution = [...new Set(this.attributions.map((a) => SidebarPrintComponent.extractAttribution(a)))].join(
+        ' | ',
+      );
       pdf.setDrawColor(0);
       pdf.setFillColor(224, 224, 224);
       pdf.setFontSize(8);
@@ -400,7 +411,7 @@ export class SidebarPrintComponent {
     }
   }
 
-  async addQRCode(pdf: jsPDF) {
+  async addQRCode(pdf: IjsPDF) {
     if (this.qrCode && !this.emptyMap) {
       //add QR-Code bottom right
       let relativePath: string;

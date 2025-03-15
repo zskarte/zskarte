@@ -3,8 +3,8 @@ import { JournalDateFields, JournalEntry } from './journal.types';
 import { ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
-import { PdfService } from '../pdf/pdf.service';
 import { environment } from 'src/environments/environment';
+import { IPdfService, PdfServiceFactory } from '../pdf/pdf-service.factory';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment';
 export class JournalService {
   private _api = inject(ApiService);
   private _session = inject(SessionService);
-  private _pdf = inject(PdfService);
+  private _pdfServiceFactory = inject(PdfServiceFactory);
 
   private operationId = signal<string | null>(null);
   private journalResource = resource({
@@ -163,9 +163,9 @@ export class JournalService {
     }
   }
 
-  private checkTextBlockSizeAndAdjust(template: any, fieldName: string, text: string, linePrefix: string) {
+  private checkTextBlockSizeAndAdjust(pdfService: IPdfService, template: any, fieldName: string, text: string, linePrefix: string) {
     //if decision is to long / does not fit remove optical lines and write the text more condenced.
-    if (text && !this._pdf.checkTextFitInField(template, fieldName, text)) {
+    if (text && !pdfService.checkTextFitInField(template, fieldName, text)) {
       const filteredSchemas: any[][] = [];
       for (const schema of template.schemas) {
         const filteredSchema: any[] = [];
@@ -221,6 +221,7 @@ export class JournalService {
   }
 
   public async print(entry: JournalEntry) {
+    const pdfService = await this._pdfServiceFactory.getPdfService();
     let templateDefinition = this.getTemplate();
     if (!templateDefinition) {
       templateDefinition = await this.getDefaultTemplate();
@@ -229,8 +230,8 @@ export class JournalService {
     const template = JSON.parse(JSON.stringify(templateDefinition));
 
     //adjust template if needed based on data to print
-    this.checkTextBlockSizeAndAdjust(template, 'entry.messageContent', entry.messageContent, 'line_messageContent_');
-    this.checkTextBlockSizeAndAdjust(template, 'entry.decision', entry.decision, 'line_decision_');
+    this.checkTextBlockSizeAndAdjust(pdfService, template, 'entry.messageContent', entry.messageContent, 'line_messageContent_');
+    this.checkTextBlockSizeAndAdjust(pdfService, template, 'entry.decision', entry.decision, 'line_decision_');
     this.forceEmptyTextValueToDummyText(template, entry);
 
     //prepare operation/organisation data accessible in pdf
@@ -260,6 +261,6 @@ export class JournalService {
       },
     ];
     const fileName = `${operation.name}_message${entry.messageNumber}_${(new Date()).toISOString()}.pdf`;
-    await this._pdf.downloadPdf(template, data, fileName);
+    await pdfService.downloadPdf(template, data, fileName);
   }
 }

@@ -1,7 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { generate } from '@pdfme/generator';
 import { text, image, dateTime, line, checkbox, barcodes, rectangle } from '@pdfme/schemas';
 import { I18NService } from '../state/i18n.service';
+import { IPdfService } from './pdf-service.factory';
 
 const fontConfigs = {
   fonts: {
@@ -13,7 +14,7 @@ const fontConfigs = {
   fallback: 'Roboto',
 };
 
-export const plugins = {
+const plugins = {
   text,
   image,
   dateTime,
@@ -30,14 +31,15 @@ const PT_to_PX = 96 / 72;
 @Injectable({
   providedIn: 'root',
 })
-export class PdfService {
-  private _i18n = inject(I18NService);
+export class PdfService implements IPdfService {
   private fonts: any;
+
+  constructor(private _i18n: I18NService) {}
 
   async fetchImageAsBase64(url: string) {
     const response = await fetch(url);
     const blob = await response.blob();
-    return new Promise((resolve) => {
+    return new Promise<string | ArrayBuffer | null>((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(blob);
@@ -131,6 +133,10 @@ export class PdfService {
     return this.fonts;
   }
 
+  public getPlugins() {
+    return plugins;
+  }
+
   private findFieldInTemplate(template: any, fieldName: string) {
     for (const schema of template.schemas) {
       for (const field of schema) {
@@ -204,7 +210,12 @@ export class PdfService {
     inputs = inputs.map((input: any) => this.flattenObject(input));
     inputs = await this.processInputsWithSchema(inputs, template);
 
-    const pdf = await generate({ template, inputs, plugins, options: { font: await this.getFonts() } });
+    const pdf = await generate({
+      template,
+      inputs,
+      plugins: this.getPlugins(),
+      options: { font: await this.getFonts() },
+    });
     const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
 

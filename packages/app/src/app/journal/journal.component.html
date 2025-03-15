@@ -8,7 +8,7 @@
       <div class="journal-header-content">
         <h1>{{ i18n.get('journal') }}</h1>
         <div class="buttons">
-          <button mat-icon-button (click)="loadPrintDesinger()">
+          <button mat-icon-button (click)="showPdfDesigner()">
             <mat-icon>settings</mat-icon>
           </button>
           <button mat-icon-button (click)="journal.reload()">
@@ -160,11 +160,6 @@
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
-@if (designerActive && messagePdfDefaultTemplate) {
-  <app-pdf-designer
-    [template]="messagePdfTemplate"
-    [defaultTemplate]="messagePdfDefaultTemplate"
-    [templateName]="i18n.get('journalEntryTemplate')"
-    (save)="updateMessagePdfTemplate($event)"
-  ></app-pdf-designer>
+@if (designerActive() && messagePdfDefaultTemplate() && pdfDesignerComponent()) {
+  <ng-container *ngComponentOutlet="pdfDesignerComponent(); inputs: pdfDesignerInputs()"> </ng-container>
 }
