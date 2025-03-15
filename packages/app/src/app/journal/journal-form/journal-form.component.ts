@@ -288,6 +288,21 @@ export class JournalFormComponent {
       return;
     }
     this.journal.reload();
-    await this.selectEntry(await this.journal.get(result.documentId!));
+
+    if (this.entry() === null){
+      //if in message creating "mode" directly start to add new one, and keep obvious values
+      this.addNew();
+      this.journalForm.patchValue({
+        visumMessage: rest.visumMessage,
+      });
+      if (rest.communicationType === 'funk') {
+        this.journalForm.patchValue({
+          communicationType: rest.communicationType,
+          communicationDetails: rest.communicationDetails,
+        });
+      }
+    } else  {
+      this.close.emit();
+    }
   }
 }
