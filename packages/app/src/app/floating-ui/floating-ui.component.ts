@@ -1,5 +1,5 @@
 import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, map, Observable, Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, debounceTime, firstValueFrom, map, Observable, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
@@ -155,11 +155,11 @@ export class FloatingUIComponent {
     if (this.workLocal) {
       this.state
         .observeDisplayState()
-        .pipe(takeUntil(this._ngUnsubscribe))
+        .pipe(takeUntil(this._ngUnsubscribe),debounceTime(250))
         .subscribe(async (displayState) => {
           if (displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE) {
             //using local map
-            if (displayState.layers.filter((l) => !l.offlineAvailable && !l.hidden).length === 0) {
+            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
               //all used layer are offlineAvailable
               if (displayState.source === ZsMapStateSource.LOCAL) {
                 const localMapInfo = await db.localMapInfo.get(displayState.source);
