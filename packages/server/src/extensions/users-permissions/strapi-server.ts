@@ -34,6 +34,8 @@ export default (plugin) => {
       })) as unknown as Organization[];
       const organization = _.first(organizations);
       ctx.body.organization = organization;
+    }
+    if (ctx.body.organization) {
       //want to return wms-source/map-layer id's only, strapi cannot do that (v14.7) therefore the population with fields, and here map the results to an id array
       ctx.body.organization.wms_sources = ctx.body.organization.wms_sources?.map((x) => x.id);
       ctx.body.organization.map_layer_favorites = ctx.body.organization.map_layer_favorites?.map((x) => x.id);

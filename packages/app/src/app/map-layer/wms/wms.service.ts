@@ -505,15 +505,15 @@ export class WmsService {
     ];
   }
 
-  static mapWmsSourceResponse(source: WmsSourceApi, organizationId: number) {
-    source.owner = source.organization?.id === organizationId;
+  static mapWmsSourceResponse(source: WmsSourceApi, organizationId: string) {
+    source.owner = source.organization?.documentId === organizationId;
     delete source.organization;
     delete source.createdAt;
     delete source.updatedAt;
     return source as WmsSource;
   }
 
-  async readGlobalWMSSources(organizationId: number) {
+  async readGlobalWMSSources(organizationId: string) {
     const { error, result: sources } = await this._api.get<WmsSourceApi[]>('/api/wms-sources');
     if (error || !sources) {
       return [];
@@ -521,22 +521,25 @@ export class WmsService {
     return sources.map((source) => WmsService.mapWmsSourceResponse(source, organizationId));
   }
 
-  async saveGlobalWMSSource(source: WmsSource, organizationId: number) {
+  async saveGlobalWMSSource(source: WmsSource, organizationId: string) {
     if (!source.owner) {
       return null;
     }
+    const { owner, ...validFields } = source;
     let response: ApiResponse<WmsSourceApi>;
-    if (source.id) {
-      response = await this._api.put(`/api/wms-sources/${source.id}`, {
-        data: { ...source, organization: organizationId },
+    if (source.documentId) {
+      response = await this._api.put(`/api/wms-sources/${source.documentId}`, {
+        data: { ...validFields, organization: organizationId },
       });
     } else {
-      response = await this._api.post('/api/wms-sources', { data: { ...source, organization: organizationId } });
+      response = await this._api.post('/api/wms-sources', { data: { ...validFields, organization: organizationId } });
     }
     const { error, result } = response;
     if (error) {
       console.error('saveGlobalWMSSource', error);
     } else if (result) {
+      //on save the referenced organisation is no returned
+      result.organization = { documentId: organizationId }
       return WmsService.mapWmsSourceResponse(result, organizationId);
     }
     return null;
