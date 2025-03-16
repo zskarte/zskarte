@@ -371,8 +371,8 @@ export class SessionService {
     }
   }
 
-  public getAuthError(): HttpErrorResponse | undefined {
-    return this._authError.value;
+  public observeAuthError(): Observable<HttpErrorResponse | undefined> {
+    return this._authError.asObservable();
   }
 
   public observeOrganizationId(): Observable<number | undefined> {
@@ -455,7 +455,7 @@ export class SessionService {
   public async login(params: { identifier: string; password: string }): Promise<void> {
     const { result, error: authError } = await this._api.post<IAuthResult>('/api/auth/local', params);
     this._authError.next(authError);
-    if (authError || !result) {
+    if (authError || !result?.jwt) {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
@@ -464,6 +464,24 @@ export class SessionService {
       localStorage.setItem(ALLOW_OFFLINE_ACCESS_KEY, '1');
     }
 
+    await this.updateJWT(result.jwt);
+  }
+
+  public async shareLogin(accessToken: string) {
+    if (!accessToken) {
+      await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
+      return;
+    }
+    const { result, error: authError } = await this._api.post<IAuthResult>(
+      '/api/accesses/auth/token',
+      { accessToken },
+      { preventAuthorization: true },
+    );
+    this._authError.next(authError);
+    if (authError || !result?.jwt) {
+      await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
+      return;
+    }
     await this.updateJWT(result.jwt);
   }
 

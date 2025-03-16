@@ -17,21 +17,7 @@ export class ShareComponent {
 
   constructor() {
     this._activatedRoute.params.subscribe(async (params) => {
-      try {
-        const accessToken = params['accessToken'];
-        if (accessToken) {
-          const response = await this._api.post<IAuthResult>('/api/accesses/auth/token', { accessToken }, { preventAuthorization: true });
-          if (!response.result?.jwt) {
-            throw new Error('Could not fetch token');
-          }
-          await this._session.updateJWT(response.result?.jwt);
-          return;
-        }
-      } catch {
-        // do nothing
-      }
-
-      await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
+      await this._session.shareLogin(params['accessToken']);
     });
   }
 }
