@@ -26,6 +26,9 @@ import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ZsMapStateService } from '../state/state.service';
+import { debounce } from '../helper/debounce';
+import { IZsJournalFilter } from '../../../../types/state/interfaces';
 
 @Component({
   selector: 'app-journal',
@@ -55,6 +58,7 @@ export class JournalComponent implements AfterViewInit {
   i18n = inject(I18NService);
   journal = inject(JournalService);
   private _session = inject(SessionService);
+  private _state = inject(ZsMapStateService);
   private _router = inject(Router);
   private _route = inject(ActivatedRoute);
   private _dialog = inject(MatDialog);
@@ -112,6 +116,7 @@ export class JournalComponent implements AfterViewInit {
       this.dataSource = this.journal.data() || [];
       this.dataSourceFiltered.data = this.dataSource;
       this.fuse.setCollection(this.dataSource);
+      this.filterEntries(this.searchControl.value, this.departmentControl.value);
     });
 
     //open journal entry by url messageNumber param
@@ -133,6 +138,22 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort;
+    this._state.observeJournalSort().subscribe((sortConf) => {
+      if (this.dataSourceFiltered?.sort) {
+        this.sort.sortChange.emit(sortConf);
+        this.dataSourceFiltered.sort.active = sortConf.active;
+        this.dataSourceFiltered.sort.direction = sortConf.direction;
+      }
+    });
+
+    this._state.observeJournalFilter().subscribe((filter) => {
+      this.departmentControl.setValue(filter.department);
+      this.triageFilter = filter.triageFilter;
+      this.outgoingFilter = filter.outgoingFilter;
+      this.decisionFilter = filter.decisionFilter;
+      this.keyMessageFilter = filter.keyMessageFilter;
+      this.filterEntries(this.searchControl.value, filter.department);
+    });
   }
 
   private initializeSearch() {
@@ -167,27 +188,12 @@ export class JournalComponent implements AfterViewInit {
     this.filterEntries(this.searchControl.value, this.departmentControl.value);
   }
 
+  private _debouncedPersistFilter = debounce((filter: IZsJournalFilter) => {
+    this._state.setJournalFilter(filter);
+  }, 5000);
+
   private filterEntries(searchTerm: string | null, department: string | null) {
     let filtered = this.dataSource;
-
-    if (department) {
-      filtered = filtered.filter((entry) => entry.department === department);
-    }
-
-    if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
-      filtered = filtered.filter(
-        (entry) =>
-          (this.triageFilter && entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
-          (this.outgoingFilter &&
-            (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
-              entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
-          (this.decisionFilter && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION),
-      );
-    }
-
-    if (this.keyMessageFilter) {
-      filtered = filtered.filter((entry) => entry.isKeyMessage);
-    }
 
     if (searchTerm) {
       const results = this.fuse.search(searchTerm);
@@ -205,7 +211,34 @@ export class JournalComponent implements AfterViewInit {
                   item.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
               (this.decisionFilter && item.entryStatus === JournalEntryStatus.AWAITING_DECISION)),
         );
+    } else {
+      if (department) {
+        filtered = filtered.filter((entry) => entry.department === department);
+      }
+
+      if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
+        filtered = filtered.filter(
+          (entry) =>
+            (this.triageFilter && entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
+            (this.outgoingFilter &&
+              (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
+                entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
+            (this.decisionFilter && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION),
+        );
+      }
+
+      if (this.keyMessageFilter) {
+        filtered = filtered.filter((entry) => entry.isKeyMessage);
+      }
     }
+
+    this._debouncedPersistFilter({
+      department,
+      triageFilter: this.triageFilter,
+      outgoingFilter: this.outgoingFilter,
+      decisionFilter: this.decisionFilter,
+      keyMessageFilter: this.keyMessageFilter,
+    });
 
     this.dataSourceFiltered.data = filtered;
   }
@@ -240,13 +273,18 @@ export class JournalComponent implements AfterViewInit {
     }, 1000);
   }
 
+  private _debouncedPersistSort = debounce((sort: Sort) => {
+    this._state.setJournalSort(sort);
+  }, 5000);
+
   sortData(sort: Sort) {
-    const data = this.dataSourceFiltered.data.slice();
     if (!sort.active || sort.direction === '') {
-      this.dataSourceFiltered.data = data;
       return;
     }
 
+    this._debouncedPersistSort(sort);
+
+    const data = this.dataSourceFiltered.data.slice();
     this.dataSourceFiltered.data = data.sort((a, b) => {
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {

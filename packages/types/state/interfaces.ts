@@ -1,8 +1,9 @@
-import { Coordinate } from "ol/coordinate";
-import { MapLayer, WmsSource } from "../map-layer/interfaces";
-import { FillStyle, IconsOffset } from "../sign/interfaces";
-import { Feature } from "ol";
-import { PermissionType } from "../session/interfaces";
+import { Coordinate } from 'ol/coordinate';
+import { MapLayer, WmsSource } from '../map-layer/interfaces';
+import { FillStyle, IconsOffset } from '../sign/interfaces';
+import { Feature } from 'ol';
+import { PermissionType } from '../session/interfaces';
+import { Sort } from '@angular/material/sort';
 
 export enum ZsMapStateSource {
   OPEN_STREET_MAP = 'openStreetMap',
@@ -77,6 +78,16 @@ export interface IZsMapDisplayState {
   hiddenFeatureTypes: string[];
   highlightedFeature: string[];
   enableClustering: boolean;
+  journalSort: Sort;
+  journalFilter: IZsJournalFilter;
+}
+
+export interface IZsJournalFilter {
+  department: string;
+  triageFilter: boolean;
+  outgoingFilter: boolean;
+  decisionFilter: boolean;
+  keyMessageFilter: boolean;
 }
 
 //DIN paper dimension in mm, landscape

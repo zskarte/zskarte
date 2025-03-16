@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   IPositionFlag,
+  IZsJournalFilter,
   IZsMapDisplayState,
   IZsMapPrintExtent,
   IZsMapPrintState,
@@ -60,6 +61,7 @@ import { TextDialogComponent } from '../text-dialog/text-dialog.component';
 import { I18NService } from './i18n.service';
 import { zsMapStateMigration } from '@zskarte/common';
 import { JournalService } from '../journal/journal.service';
+import { Sort } from '@angular/material/sort';
 
 @Injectable({
   providedIn: 'root',
@@ -150,6 +152,14 @@ export class ZsMapStateService {
       hiddenFeatureTypes: [],
       highlightedFeature: [],
       enableClustering: true,
+      journalSort: { active: 'messageNumber', direction: 'desc' },
+      journalFilter: {
+        department: '',
+        triageFilter: false,
+        outgoingFilter: false,
+        decisionFilter: false,
+        keyMessageFilter: false,
+      },
     };
     if (!mapState) {
       mapState = this._map.value;
@@ -1256,5 +1266,39 @@ export class ZsMapStateService {
 
   public observeDrawElementCount(): Observable<number> {
     return this.observeDrawElements().pipe(map((res) => res.length));
+  }
+
+  public observeJournalSort(): Observable<Sort> {
+    return this._display.pipe(
+      map((o) => {
+        return o.journalSort;
+      }),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  public setJournalSort(journalSort: Sort) {
+    if (!isEqual(this._display.value.journalSort, journalSort)) {
+      this.updateDisplayState((draft) => {
+        draft.journalSort = journalSort;
+      });
+    }
+  }
+
+  public observeJournalFilter(): Observable<IZsJournalFilter> {
+    return this._display.pipe(
+      map((o) => {
+        return o.journalFilter;
+      }),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
+    );
+  }
+
+  public setJournalFilter(journalFilter: IZsJournalFilter) {
+    if (!isEqual(this._display.value.journalFilter, journalFilter)) {
+      this.updateDisplayState((draft) => {
+        draft.journalFilter = journalFilter;
+      });
+    }
   }
 }
