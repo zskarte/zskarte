@@ -8,6 +8,8 @@ import { debounce } from '../helper/debounce';
 import { ZsMapStateService } from '../state/state.service';
 import { BehaviorSubject, debounceTime, filter, merge, switchMap } from 'rxjs';
 import { db } from '../db/db';
+import { JournalService } from '../journal/journal.service';
+import { JournalEntry } from '../journal/journal.types';
 
 interface PatchExtended extends Patch {
   timestamp: Date;
@@ -34,6 +36,7 @@ interface Connection {
 export class SyncService {
   private _api = inject(ApiService);
   private _session = inject(SessionService);
+  private _journal = inject(JournalService);
 
   private _connectionId = uuidv4();
   private _socket: Socket | undefined;
@@ -64,6 +67,8 @@ export class SyncService {
         await this._reconnect();
         await this._publishMapStatePatches();
       });
+
+    this._journal.setConnectionId(this._connectionId);
   }
 
   public setStateService(state: ZsMapStateService): void {
@@ -115,6 +120,9 @@ export class SyncService {
         const otherPatches = patches.filter((p) => p.identifier !== this._connectionId);
         if (otherPatches.length === 0) return;
         this._state.applyMapStatePatches(otherPatches);
+      });
+      this._socket.on('state:journal', (entry: Partial<JournalEntry>) => {
+        this._journal.patchEntry(entry);
       });
       this._socket.on('state:connections', (connections: Connection[]) => {
         this._connections.next(connections);

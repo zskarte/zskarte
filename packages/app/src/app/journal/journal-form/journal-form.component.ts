@@ -250,7 +250,6 @@ export class JournalFormComponent {
       return;
     }
 
-    this.journal.reload();
     this.dirty.emit(false);
     this.close.emit();
   }
@@ -318,7 +317,6 @@ export class JournalFormComponent {
       InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
       return;
     }
-    this.journal.reload();
 
     if (this.entry() === null) {
       //if in message creating "mode" directly start to add new one, and keep obvious values

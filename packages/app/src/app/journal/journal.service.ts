@@ -13,6 +13,7 @@ export class JournalService {
   private _api = inject(ApiService);
   private _session = inject(SessionService);
   private _pdfServiceFactory = inject(PdfServiceFactory);
+  private _connectionId!: string;
 
   private operationId = signal<string | null>(null);
   private journalResource = resource({
@@ -53,6 +54,7 @@ export class JournalService {
       }
     }
   }
+  public lastUpdated = signal<{ entry: JournalEntry; change: Partial<JournalEntry> } | null>(null);
 
   constructor() {
     effect(() => {
@@ -63,6 +65,34 @@ export class JournalService {
           tap(() => this.journalResource.reload()),
         )
         .subscribe();
+    });
+  }
+
+  public setConnectionId(_connectionId: string) {
+    this._connectionId = _connectionId;
+  }
+
+  public patchEntry(updatedEntry: Partial<JournalEntry>, internal = false) {
+    this.journalResource.update((currentEntries) => {
+      let entry = updatedEntry as JournalEntry;
+      let resultList: JournalEntry[];
+      if (!currentEntries) {
+        resultList = [entry];
+      } else {
+        const index = currentEntries.findIndex(
+          (entry) => entry.id === updatedEntry.id || entry.documentId === updatedEntry.documentId,
+        );
+        if (index !== -1) {
+          entry = { ...currentEntries[index], ...updatedEntry };
+          resultList = [...currentEntries.slice(0, index), entry, ...currentEntries.slice(index + 1)];
+        } else {
+          resultList = [entry, ...currentEntries];
+        }
+      }
+      if (!internal) {
+        this.lastUpdated.set({ entry, change: updatedEntry });
+      }
+      return resultList;
     });
   }
 
@@ -105,18 +135,46 @@ export class JournalService {
   public async insert(entry: JournalEntry) {
     const operation = this._session.getOperation();
     const organization = this._session.getOrganization();
-    return this._api.post<JournalEntry>('/api/journal-entries', {
-      data: {
-        ...entry,
-        operation: operation?.documentId,
-        organization: organization?.documentId,
+    const response = await this._api.post<JournalEntry>(
+      '/api/journal-entries',
+      {
+        data: {
+          ...entry,
+          operation: operation?.documentId,
+          organization: organization?.documentId,
+        },
       },
-    });
+      {
+        headers: {
+          identifier: this._connectionId,
+        },
+      },
+    );
+
+    const { error, result } = response;
+    if (!error && result) {
+      this.patchEntry(result, true);
+    }
+    return response;
   }
 
   public async update(entry: Partial<JournalEntry>, documentId?: string) {
     const { documentId: documentIdEntry, ...data } = entry;
-    return this._api.put<JournalEntry>(`/api/journal-entries/${documentId ?? documentIdEntry}`, { data });
+    const response = await this._api.put<JournalEntry>(
+      `/api/journal-entries/${documentId ?? documentIdEntry}`,
+      { data },
+      {
+        headers: {
+          identifier: this._connectionId,
+        },
+      },
+    );
+
+    const { error, result } = response;
+    if (!error && result) {
+      this.patchEntry({ ...entry, documentId: result.documentId }, true);
+    }
+    return response;
   }
 
   public async save(entry: JournalEntry) {
@@ -140,8 +198,6 @@ export class JournalService {
     );
     if (error || !result) {
       console.error('Error updating journal entry:', error);
-    } else {
-      this.journalResource.reload();
     }
   }
 
@@ -162,7 +218,6 @@ export class JournalService {
       console.error('Error updating journal entry:', error);
     } else {
       this.drawingEntrySignal.set(null);
-      this.journalResource.reload();
     }
   }
 

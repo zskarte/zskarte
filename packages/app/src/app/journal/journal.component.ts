@@ -29,6 +29,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
 import { IZsJournalFilter } from '../../../../types/state/interfaces';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-journal',
@@ -62,6 +63,7 @@ export class JournalComponent implements AfterViewInit {
   private _router = inject(Router);
   private _route = inject(ActivatedRoute);
   private _dialog = inject(MatDialog);
+  private _snackBar = inject(MatSnackBar);
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;
@@ -118,6 +120,44 @@ export class JournalComponent implements AfterViewInit {
       this.dataSourceFiltered.data = this.dataSource;
       this.fuse.setCollection(this.dataSource);
       this.filterEntries(this.searchControl.value, this.departmentControl.value);
+    });
+
+    effect(() => {
+      const update = this.journal.lastUpdated();
+      if (update) {
+        //prevent show snackBar if it's a draw info update
+        if (update.entry !== update.change && ('isDrawingOnMap' in update.change || 'isDrawnOnMap' in update.change)) {
+          return;
+        }
+        //only show snackBar if message match the active filters
+        const entry = update.entry;
+        if (this.departmentControl.value && this.departmentControl.value !== entry.department) {
+          return;
+        }
+
+        if ((this.triageFilter || this.outgoingFilter || this.decisionFilter) && !this.filterByState(entry)) {
+          return;
+        }
+
+        if (this.keyMessageFilter && entry.isKeyMessage) {
+          return;
+        }
+
+        if (this.openDisabled) {
+          this._snackBar.open(`#${entry.messageNumber} ${entry.messageSubject}`, undefined, {
+            duration: 5000,
+          });
+        } else {
+          this._snackBar
+            .open(`#${entry.messageNumber} ${entry.messageSubject}`, this.i18n.get('edit'), {
+              duration: 5000,
+            })
+            .onAction()
+            .subscribe(() => {
+              this.selectEntry(entry);
+            });
+        }
+      }
     });
 
     //open journal entry by url messageNumber param
@@ -193,6 +233,16 @@ export class JournalComponent implements AfterViewInit {
     this._state.setJournalFilter(filter);
   }, 5000);
 
+  private filterByState(entry: JournalEntry) {
+    return (
+      (this.triageFilter && entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
+      (this.outgoingFilter &&
+        (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
+          entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
+      (this.decisionFilter && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION)
+    );
+  }
+
   private filterEntries(searchTerm: string | null, department: string | null) {
     let filtered = this.dataSource;
 
@@ -205,12 +255,7 @@ export class JournalComponent implements AfterViewInit {
           (item) =>
             (!department || item.department === department) &&
             (!this.keyMessageFilter || item.isKeyMessage) &&
-            (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) ||
-              (this.triageFilter && item.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
-              (this.outgoingFilter &&
-                (item.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
-                  item.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
-              (this.decisionFilter && item.entryStatus === JournalEntryStatus.AWAITING_DECISION)),
+            (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) || this.filterByState(item)),
         );
     } else {
       if (department) {
@@ -218,14 +263,7 @@ export class JournalComponent implements AfterViewInit {
       }
 
       if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
-        filtered = filtered.filter(
-          (entry) =>
-            (this.triageFilter && entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
-            (this.outgoingFilter &&
-              (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
-                entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
-            (this.decisionFilter && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION),
-        );
+        filtered = filtered.filter((entry) => this.filterByState(entry));
       }
 
       if (this.keyMessageFilter) {
