@@ -246,7 +246,7 @@ export class JournalFormComponent {
     );
     if (error || !result) {
       console.error(`could not update state of journalEntry ${this.entry()?.documentId}`, error);
-      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('errorSaving'));
+      InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
       return;
     }
 
@@ -315,7 +315,7 @@ export class JournalFormComponent {
     if (error || !result) {
       console.error('Error saving journal entry', error);
       this.showPrint = true;
-      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('errorSaving'));
+      InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
       return;
     }
     this.journal.reload();

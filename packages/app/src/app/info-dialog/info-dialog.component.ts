@@ -39,4 +39,33 @@ export class InfoDialogComponent {
     });
     await lastValueFrom(dialogRef.afterClosed());
   }
+
+  public static async showSaveErrorDialog(
+    dialog: MatDialog,
+    i18n: I18NService,
+    errorResponse: any,
+    title: string | null = null,
+  ) {
+    let error = i18n.get('errorSaving');
+    if (typeof errorResponse === 'object' && errorResponse.message) {
+      if (title) {
+        error += ': ' + errorResponse.message;
+      } else {
+        title = error;
+        error = errorResponse.message;
+      }
+    } else if (typeof errorResponse === 'object' && errorResponse.error?.message) {
+      if (title) {
+        error += ': ' + errorResponse.error?.message;
+      } else {
+        title = error;
+        error = errorResponse.error?.message;
+      }
+    }
+
+    const dialogRef = dialog.open(InfoDialogComponent, {
+      data: { error, title },
+    });
+    await lastValueFrom(dialogRef.afterClosed());
+  }
 }

@@ -361,20 +361,20 @@ export class SessionService {
   public async saveJournalEntryTemplate(data: object | null) {
     const organization = this.getOrganization();
     if (organization?.documentId) {
-      const { error, result } = await this._api.put(
-        `/api/organizations/${organization.documentId}/journal-entry-template`,
-        { data },
-      );
+      const response = await this._api.put(`/api/organizations/${organization.documentId}/journal-entry-template`, {
+        data,
+      });
+      const { error, result } = response;
       if (error || !result) {
         console.error('error on update JournalEntryTemplate', error);
-        return false;
+        return response;
       }
 
-      //update object in session 
+      //update object in session
       organization.journalEntryTemplate = data;
-      return true;
+      return response;
     }
-    return false;
+    return { error: true, result: undefined };
   }
 
   public getLabel(): string | undefined {

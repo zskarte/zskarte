@@ -27,7 +27,7 @@ export class JournalService {
         `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
       );
       if (error || !result) {
-        throw "error on fetch yournal entries";
+        throw 'error on fetch journal entries';
       }
       return (result as JournalEntry[]) || [];
     },
@@ -173,7 +173,7 @@ export class JournalService {
     text: string,
     linePrefix: string,
   ) {
-    //if decision is to long / does not fit remove optical lines and write the text more condenced.
+    //if text is to long / does not fit remove optical lines and write the text more condenced.
     if (text && !pdfService.checkTextFitInField(template, fieldName, text)) {
       const filteredSchemas: any[][] = [];
       for (const schema of template.schemas) {
@@ -198,7 +198,6 @@ export class JournalService {
   private forceEmptyTextValueToDummyText(template: any, entry: JournalEntry) {
     //if date are not filled convert to normal text field
     //force none empty value for all not filled fields
-    const filteredSchemas: any[][] = [];
     for (const schema of template.schemas) {
       for (const element of schema) {
         let elementName: string = element.name;

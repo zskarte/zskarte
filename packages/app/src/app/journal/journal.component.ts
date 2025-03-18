@@ -343,19 +343,18 @@ export class JournalComponent implements AfterViewInit {
 
   async updateMessagePdfTemplate(newTemplate: object | null) {
     if (newTemplate) {
-      let saved: boolean;
+      let templateToSave: object | null = newTemplate;
       const defaultTemplate = await this.journal.getDefaultTemplate();
       if (JSON.stringify(defaultTemplate) === JSON.stringify(newTemplate)) {
         //reset to default / empty the on saved
-        saved = await this._session.saveJournalEntryTemplate(null);
-      } else {
-        saved = await this._session.saveJournalEntryTemplate(newTemplate);
+        templateToSave = null;
       }
-      if (saved) {
-        this.designerActive.set(false);
-      } else {
+      const { error, result } = await this._session.saveJournalEntryTemplate(templateToSave);
+      if (error || !result) {
         this.messagePdfTemplate.set(newTemplate);
-        InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('errorSaving'));
+        InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
+      } else {
+        this.designerActive.set(false);
       }
     } else {
       this.designerActive.set(false);
