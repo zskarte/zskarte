@@ -79,7 +79,6 @@ export class JournalFormComponent {
   journalForm = new FormGroup({
     messageNumber: new FormControl<string | number>('', {
       nonNullable: true,
-      validators: [this.requiredField('messageNumber')],
     }),
     sender: new FormControl('', {
       nonNullable: true,
@@ -200,6 +199,7 @@ export class JournalFormComponent {
       dateCreatedDate: entry.dateMessage,
       dateCreatedTime: entry.dateMessage,
     });
+    this.showPrint = false;
   }
 
   addNew() {
@@ -210,6 +210,7 @@ export class JournalFormComponent {
       dateCreatedDate: new Date(),
       dateCreatedTime: new Date(),
     });
+    this.showPrint = false;
   }
 
   isTabDisabled(tabStatus: JournalEntryStatus): boolean {

@@ -32,16 +32,89 @@ export default factories.createCoreController('api::journal-entry.journal-entry'
     await this.validateInput(body.data, ctx);
     const sanitizedInputData = (await this.sanitizeInput(body.data, ctx)) as any;
 
-    //insert journal entry
-    const entity = await strapi.documents('api::journal-entry.journal-entry').create({
-      ...sanitizedQuery,
-      data: sanitizedInputData,
-    });
+    const { db } = strapi;
+    return await db.transaction(async () => {
+      async function countOcurrence(messageNumber: number) {
+        return await strapi.documents('api::journal-entry.journal-entry').count({
+          filters: {
+            messageNumber: messageNumber,
+            operation: { documentId: { $eq: sanitizedInputData.operation } },
+            organization: { documentId: { $eq: sanitizedInputData.organization } },
+          },
+        });
+      }
+      async function earliestOcurrenceId(messageNumber: number) {
+        return (
+          await strapi.documents('api::journal-entry.journal-entry').findFirst({
+            filters: {
+              messageNumber: messageNumber,
+              operation: { documentId: { $eq: sanitizedInputData.operation } },
+              organization: { documentId: { $eq: sanitizedInputData.organization } },
+            },
+            sort: { createdAt: 'asc' },
+            fields: ['documentId' as any],
+          })
+        ).documentId;
+      }
 
-    const sanitizedEntity = (await this.sanitizeOutput(entity, ctx)) as any;
-    updateJournal(identifier, sanitizedInputData.operation, sanitizedEntity);
-    ctx.status = 201;
-    return this.transformResponse(sanitizedEntity);
+      const messageNumber = sanitizedInputData.messageNumber;
+      let nextMessageNumber = null;
+      if (messageNumber) {
+        //if messageNumber is submitted and already exist return error
+        if ((await countOcurrence(messageNumber)) > 0) {
+          ctx.status = 409;
+          return { message: `messageNumber ${messageNumber} already exist` };
+        }
+      } else {
+        //if not submitted find highest number and add 1
+        const entry = await strapi.documents('api::journal-entry.journal-entry').findFirst({
+          filters: {
+            operation: { documentId: { $eq: sanitizedInputData.operation } },
+            organization: { documentId: { $eq: sanitizedInputData.organization } },
+          },
+          sort: { messageNumber: 'desc' },
+          fields: ['messageNumber'],
+        });
+
+        nextMessageNumber = (entry?.messageNumber || 0) + 1;
+        sanitizedInputData.messageNumber = nextMessageNumber;
+      }
+
+      //insert journal entry
+      const entity = await strapi.documents('api::journal-entry.journal-entry').create({
+        ...sanitizedQuery,
+        data: sanitizedInputData,
+      });
+      const sanitizedEntity = (await this.sanitizeOutput(entity, ctx)) as any;
+
+      //check if just inserted entry have a unique messageNumber (e.g. race condition)
+      if ((await countOcurrence(sanitizedEntity.messageNumber)) > 1) {
+        const keepDocumentId = await earliestOcurrenceId(sanitizedEntity.messageNumber);
+        //check if this is not the earlier one
+        if (sanitizedEntity.documentId !== keepDocumentId) {
+          if (nextMessageNumber === null) {
+            //if not unique and number was submitted: throw error, which will rollback the transaction
+            throw new errors.ValidationError(`messageNumber ${messageNumber} already exist`);
+          }
+          //if automatic number: update entry as long as needed to make the number unique
+          while (
+            (await countOcurrence(sanitizedEntity.messageNumber)) > 1 &&
+            (await earliestOcurrenceId(sanitizedEntity.messageNumber)) !== sanitizedEntity.documentId
+          ) {
+            sanitizedEntity.messageNumber += 1;
+            await strapi.documents('api::journal-entry.journal-entry').update({
+              documentId: sanitizedEntity.documentId,
+              data: {
+                messageNumber: sanitizedEntity.messageNumber,
+              },
+            });
+          }
+        }
+      }
+      updateJournal(identifier, sanitizedInputData.operation, sanitizedEntity);
+      ctx.status = 201;
+      return this.transformResponse(sanitizedEntity);
+    });
   },
   async update(ctx) {
     const { identifier }: { identifier: string } = ctx.request.headers as any;
@@ -60,12 +133,33 @@ export default factories.createCoreController('api::journal-entry.journal-entry'
     const sanitizedInputData = (await this.sanitizeInput(body.data, ctx)) as any;
 
     const documentId = id;
-    //fetch operationId
+    //fetch infos of current entry
     const entry = await strapi.documents('api::journal-entry.journal-entry').findOne({
       documentId,
-      populate: { operation: { fields: ['documentId' as any] } },
+      fields: ['messageNumber'],
+      populate: {
+        operation: { fields: ['documentId' as any] },
+        organization: { fields: ['documentId' as any] },
+      },
     });
     const operationId = entry.operation.documentId;
+    const organizationId = entry.organization.documentId;
+
+    if ('messageNumber' in sanitizedInputData) {
+      //if messageNumber is submitted on update, make sure it's unique: used by itself or nowhere
+      const usage = await strapi.documents('api::journal-entry.journal-entry').findMany({
+        filters: {
+          messageNumber: sanitizedInputData.messageNumber,
+          operation: { documentId: { $eq: operationId } },
+          organization: { documentId: { $eq: organizationId } },
+        },
+        fields: ['documentId' as any],
+      });
+      if ((usage.length === 1 && usage[0].documentId !== documentId) || usage.length > 1) {
+        ctx.status = 409;
+        return { message: `messageNumber ${sanitizedInputData.messageNumber} already exist` };
+      }
+    }
 
     //update journal entry
     const entity = await strapi.documents('api::journal-entry.journal-entry').update({
