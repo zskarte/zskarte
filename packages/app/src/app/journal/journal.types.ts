@@ -1,3 +1,5 @@
+export const BLOB_URL_JOURNAL_ENTRY_TEMPLATE = 'local:JournalEntryTemplate';
+
 export enum JournalEntryStatus {
   AWAITING_MESSAGE = 'awaiting_message',
   AWAITING_TRIAGE = 'awaiting_triage',

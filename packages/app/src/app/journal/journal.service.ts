@@ -11,6 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounce } from '../helper/debounce';
 import { groupBy } from 'lodash';
 import { ZsMapStateService } from '../state/state.service';
+import { BlobService } from '../db/blob.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,11 +29,18 @@ export class JournalService {
   private journalResource = resource({
     request: () => ({
       operationId: this.operationId(),
+      organizationId: this.organizationId(),
     }),
     loader: async (params) => {
-      if (!params.request.operationId) {
+      if (!params.request.operationId || !params.request.organizationId) {
         return [];
       }
+      if (this._session.isWorkLocal()) {
+        return await db.localJournalEntries
+          .where({ operationId: params.request.operationId, organizationId: params.request.organizationId })
+          .toArray();
+      }
+      //organization is implicit by session
       const { error, result } = await this._api.get<JournalEntry[]>(
         `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
       );
@@ -89,6 +97,10 @@ export class JournalService {
     });
 
     effect(async () => {
+      if (this._session.isWorkLocal()) {
+        this.data.set(this.backendData() || []);
+        return;
+      }
       const operationId = this.operationId();
       const organizationId = this.organizationId();
       if (!operationId || !organizationId) {
@@ -156,8 +168,8 @@ export class JournalService {
   }
 
   public patchEntry(updatedEntry: Partial<JournalEntry>, internal = false) {
+    let entry = updatedEntry as JournalEntry;
     this.data.update((currentEntries) => {
-      let entry = updatedEntry as JournalEntry;
       let resultList: JournalEntry[];
       if (!currentEntries) {
         resultList = [entry];
@@ -191,14 +203,15 @@ export class JournalService {
 
       return resultList;
     });
+    return entry;
   }
 
   public async getDefaultTemplate() {
     return await (await fetch('/assets/pdf/journal_entry_template.json')).json();
   }
 
-  public getTemplate() {
-    const template = this._session.getOrganization()?.journalEntryTemplate;
+  public async getTemplate() {
+    const template = await this._session.getJournalEntryTemplate();
     if (!template) {
       return null;
     }
@@ -277,6 +290,17 @@ export class JournalService {
         };
       }
     }
+    if (this._session.isWorkLocal()) {
+      if (!entry.messageNumber) {
+        //on work local use positive numbers as always work local
+        entry.messageNumber = -(await this.getNextLocalNumber());
+      }
+      if (!entry.uuid) {
+        entry.uuid = uuidv4();
+      }
+      const result = this.patchEntry(entry, true);
+      return { error: undefined, result };
+    }
     const operationId = this.operationId();
     const organizationId = this.organizationId();
     if (!operationId || !organizationId) {
@@ -338,6 +362,11 @@ export class JournalService {
           result: undefined,
         };
       }
+    }
+    if (this._session.isWorkLocal()) {
+      const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
+      const result = this.patchEntry({ ...entry, documentId: documentId || entry.documentId, uuid: cacheUuid }, true);
+      return { error: undefined, result };
     }
     const { documentId: documentIdEntry, ...data } = entry;
     const response = await this._api.put<JournalEntry>(
@@ -607,7 +636,7 @@ export class JournalService {
 
   public async print(entry: JournalEntry) {
     const pdfService = await this._pdfServiceFactory.getPdfService();
-    let templateDefinition = this.getTemplate();
+    let templateDefinition = await this.getTemplate();
     if (!templateDefinition) {
       templateDefinition = await this.getDefaultTemplate();
     }
@@ -634,7 +663,7 @@ export class JournalService {
     };
     const organization = {
       documentId: organizationFull?.documentId,
-      name: organizationFull?.name,
+      name: organizationFull?.name ?? (this._session.isWorkLocal() ? 'local' : undefined),
       url: organizationFull?.url,
       logo_url: organizationFull?.logo?.url,
     };

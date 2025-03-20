@@ -370,7 +370,7 @@ export class JournalComponent implements AfterViewInit {
 
   async showPdfDesigner() {
     await this.loadPdfDesignerComponent();
-    this.messagePdfTemplate.set(this.journal.getTemplate());
+    this.messagePdfTemplate.set(await this.journal.getTemplate());
     this.messagePdfDefaultTemplate.set(await this.journal.getDefaultTemplate());
     this.designerActive.set(true);
 

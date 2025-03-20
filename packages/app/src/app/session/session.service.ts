@@ -46,6 +46,8 @@ import {
 } from './default-map-values';
 import { OperationService } from './operations/operation.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_ORG } from './userLogic';
+import { BlobService } from '../db/blob.service';
+import { BLOB_URL_JOURNAL_ENTRY_TEMPLATE } from '../journal/journal.types';
 
 export type LogoutReason = 'logout' | 'networkError' | 'expired' | 'noToken';
 
@@ -373,8 +375,42 @@ export class SessionService {
       //update object in session
       organization.journalEntryTemplate = data;
       return response;
+    } else if (this.isWorkLocal()) {
+      const blobMeta = await BlobService.getBlobMeta(BLOB_URL_JOURNAL_ENTRY_TEMPLATE);
+      if (data === null) {
+        if (blobMeta) {
+          await BlobService.clearBlobContent(blobMeta.id);
+        }
+        return { error: undefined, result: true };
+      } else {
+        const saveResult = await BlobService.saveTextAsBlobContent(
+          JSON.stringify(data),
+          'application/json',
+          blobMeta?.id,
+          BLOB_URL_JOURNAL_ENTRY_TEMPLATE,
+        );
+        if (saveResult.blobState === 'downloaded') {
+          return { error: undefined, result: true };
+        }
+      }
     }
     return { error: true, result: undefined };
+  }
+
+  public async getJournalEntryTemplate() {
+    const organization = this.getOrganization();
+    if (organization?.documentId) {
+      return organization.journalEntryTemplate;
+    } else if (this.isWorkLocal()) {
+      const blobMeta = await BlobService.getBlobMeta(BLOB_URL_JOURNAL_ENTRY_TEMPLATE);
+      if (blobMeta && blobMeta.blobState === 'downloaded') {
+        const content = await BlobService.getBlobContentAsText(blobMeta.id);
+        if (content) {
+          return JSON.parse(content);
+        }
+      }
+    }
+    return null;
   }
 
   public getLabel(): string | undefined {
@@ -398,7 +434,9 @@ export class SessionService {
   }
 
   public observeOrganizationId(): Observable<string | undefined> {
-    return this._session.pipe(map((session) => session?.organization?.documentId));
+    return this._session.pipe(
+      map((session) => session?.organization?.documentId ?? (this.isWorkLocal() ? 'local' : undefined)),
+    );
   }
 
   private static isLoadedOperation(operation?: IZsMapOperation): boolean {
