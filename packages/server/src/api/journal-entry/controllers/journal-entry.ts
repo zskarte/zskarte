@@ -59,24 +59,33 @@ export default factories.createCoreController('api::journal-entry.journal-entry'
 
       const messageNumber = sanitizedInputData.messageNumber;
       let nextMessageNumber = null;
-      if (messageNumber) {
+      if (messageNumber && messageNumber > 0) {
         //if messageNumber is submitted and already exist return error
         if ((await countOcurrence(messageNumber)) > 0) {
           ctx.status = 409;
           return { message: `messageNumber ${messageNumber} already exist` };
         }
       } else {
-        //if not submitted find highest number and add 1
-        const entry = await strapi.documents('api::journal-entry.journal-entry').findFirst({
-          filters: {
-            operation: { documentId: { $eq: sanitizedInputData.operation } },
-            organization: { documentId: { $eq: sanitizedInputData.organization } },
-          },
-          sort: { messageNumber: 'desc' },
-          fields: ['messageNumber'],
-        });
+        if (messageNumber && messageNumber < 0) {
+          //if negative messageNumber is submitted (from local patches) try if the positve equivalent is still avaliable.
+          if ((await countOcurrence(-messageNumber)) === 0) {
+            nextMessageNumber = -messageNumber;
+            sanitizedInputData.messageNumber = nextMessageNumber;
+          }
+        }
+        if (!nextMessageNumber) {
+          //if not submitted find highest number and add 1
+          const entry = await strapi.documents('api::journal-entry.journal-entry').findFirst({
+            filters: {
+              operation: { documentId: { $eq: sanitizedInputData.operation } },
+              organization: { documentId: { $eq: sanitizedInputData.organization } },
+            },
+            sort: { messageNumber: 'desc' },
+            fields: ['messageNumber'],
+          });
 
-        nextMessageNumber = (entry?.messageNumber || 0) + 1;
+          nextMessageNumber = (entry?.messageNumber || 0) + 1;
+        }
         sanitizedInputData.messageNumber = nextMessageNumber;
       }
 
@@ -132,20 +141,43 @@ export default factories.createCoreController('api::journal-entry.journal-entry'
     await this.validateInput(body.data, ctx);
     const sanitizedInputData = (await this.sanitizeInput(body.data, ctx)) as any;
 
-    const documentId = id;
-    //fetch infos of current entry
-    const entry = await strapi.documents('api::journal-entry.journal-entry').findOne({
-      documentId,
-      fields: ['messageNumber'],
-      populate: {
-        operation: { fields: ['documentId' as any] },
-        organization: { fields: ['documentId' as any] },
-      },
-    });
+    let documentId: string;
+    let entry: any;
+    let uuid: string;
+    if (id.length >= 36) {
+      //it's an uuidv4, fetch documentId & operationId
+      uuid = id;
+      entry = await strapi.documents('api::journal-entry.journal-entry').findFirst({
+        filters: { uuid },
+        fields: ['documentId' as any],
+        populate: {
+          operation: { fields: ['documentId' as any] },
+          organization: { fields: ['documentId' as any] },
+        },
+      });
+      documentId = entry.documentId;
+      ctx.params.id = documentId;
+    } else {
+      documentId = id;
+      //fetch operationId
+      entry = await strapi.documents('api::journal-entry.journal-entry').findOne({
+        documentId,
+        fields: ['uuid'],
+        populate: {
+          operation: { fields: ['documentId' as any] },
+          organization: { fields: ['documentId' as any] },
+        },
+      });
+      uuid = entry.uuid;
+    }
     const operationId = entry.operation.documentId;
     const organizationId = entry.organization.documentId;
 
     if ('messageNumber' in sanitizedInputData) {
+      if (!sanitizedInputData.messageNumber || sanitizedInputData.messageNumber < 0){
+        ctx.status = 409;
+        return { message: `messageNumber ${sanitizedInputData.messageNumber} not valid` };
+      }
       //if messageNumber is submitted on update, make sure it's unique: used by itself or nowhere
       const usage = await strapi.documents('api::journal-entry.journal-entry').findMany({
         filters: {
@@ -169,7 +201,7 @@ export default factories.createCoreController('api::journal-entry.journal-entry'
     });
 
     const sanitizedEntity = await this.sanitizeOutput(entity, ctx);
-    updateJournal(identifier, operationId, { ...sanitizedInputData, documentId });
+    updateJournal(identifier, operationId, { ...sanitizedInputData, documentId, uuid });
     return this.transformResponse(sanitizedEntity);
   },
 }));

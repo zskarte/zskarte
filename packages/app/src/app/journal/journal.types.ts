@@ -82,6 +82,7 @@ export type CommunicationType = keyof typeof CommunicationTypeValues | null;
 export interface JournalEntry {
   id?: number;
   documentId?: string;
+  uuid?: string;
   createdAt?: Date;
   createdBy?: string;
   publishedAt?: Date;
@@ -95,6 +96,9 @@ export interface JournalEntry {
     id: number;
     [key: string]: any;
   };
+  fromCache?: boolean;
+  localOnly?: boolean;
+  localPatch?: boolean;
 
   entryStatus: JournalEntryStatus;
 

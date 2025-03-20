@@ -112,6 +112,10 @@
     },
     "wrongTriageInfo": {
       "type": "string"
+    },
+    "uuid": {
+      "type": "string",
+      "unique": true
     }
   }
 }

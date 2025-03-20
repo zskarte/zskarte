@@ -397,8 +397,8 @@ export class SessionService {
     return this._authError.value;
   }
 
-  public observeOrganizationId(): Observable<number | undefined> {
-    return this._session.pipe(map((session) => session?.organization?.id));
+  public observeOrganizationId(): Observable<string | undefined> {
+    return this._session.pipe(map((session) => session?.organization?.documentId));
   }
 
   private static isLoadedOperation(operation?: IZsMapOperation): boolean {

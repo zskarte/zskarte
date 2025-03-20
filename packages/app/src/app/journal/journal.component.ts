@@ -30,6 +30,7 @@ import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
 import { IZsJournalFilter } from '../../../../types/state/interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-journal',
@@ -64,6 +65,7 @@ export class JournalComponent implements AfterViewInit {
   private _route = inject(ActivatedRoute);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
+  isOnline = toSignal(this._session.observeIsOnline());
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;
@@ -179,6 +181,20 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort;
+
+    //define special sort handling/compare function
+    const originalSortFn = this.dataSourceFiltered.sortData;
+    this.dataSourceFiltered.sortData = (items: JournalEntry[], sort: MatSort) => {
+      switch (sort.active) {
+        case 'messageNumber':
+          return items.sort((a, b) =>
+            compareNegativeHigher(a.messageNumber, b.messageNumber, sort.direction === 'asc'),
+          );
+        default:
+          return originalSortFn(items, sort);
+      }
+    };
+
     this._state.observeJournalSort().subscribe((sortConf) => {
       if (this.dataSourceFiltered?.sort) {
         this.sort.sortChange.emit(sortConf);
@@ -293,6 +309,11 @@ export class JournalComponent implements AfterViewInit {
     }
   }
 
+  close() {
+    this.sidebarOpen = false;
+    this.selectedJournalEntry.set(null);
+  }
+
   openMapClick(event: Event, entry: JournalEntry) {
     event.stopPropagation();
     this._router.navigate(['/main/map'], { fragment: `message=${entry.messageNumber}` });
@@ -322,19 +343,7 @@ export class JournalComponent implements AfterViewInit {
     }
 
     this._debouncedPersistSort(sort);
-
-    const data = this.dataSourceFiltered.data.slice();
-    this.dataSourceFiltered.data = data.sort((a, b) => {
-      const isAsc = sort.direction === 'asc';
-      switch (sort.active) {
-        case 'messageNumber':
-          return compare(a.messageNumber, b.messageNumber, isAsc);
-        case 'dateMessage':
-          return compare(a.dateMessage, b.dateMessage, isAsc);
-        default:
-          return 0;
-      }
-    });
+    //the sort logic itself is done by mat-sort, no need for own logic
   }
 
   async selectEntry(entry: JournalEntry) {
@@ -400,6 +409,17 @@ export class JournalComponent implements AfterViewInit {
   }
 }
 
-function compare(a: any, b: any, isAsc: boolean) {
-  return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+function compareNegativeHigher(a: number, b: number, isAsc: boolean) {
+  let value: number;
+  if (a > 0 && b > 0) {
+    value = a < b ? -1 : 1;
+  } else if (a < 0 && b < 0) {
+    //if both are negative it's inversed
+    value = a < b ? 1 : -1;
+  } else if (a < 0) {
+    value = 1;
+  } else {
+    value = -1;
+  }
+  return value * (isAsc ? 1 : -1);
 }

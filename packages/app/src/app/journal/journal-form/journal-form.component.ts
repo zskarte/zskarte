@@ -193,6 +193,7 @@ export class JournalFormComponent {
       : entry.entryStatus === JournalEntryStatus.AWAITING_DECISION ? 2
       : 3;
 
+    this.journalForm.reset();
     this.formDirective.resetForm();
     this.journalForm.patchValue({
       ...entry,
@@ -204,8 +205,8 @@ export class JournalFormComponent {
 
   addNew() {
     this.selectedIndex = 0;
-    this.formDirective.resetForm();
     this.journalForm.reset();
+    this.formDirective.resetForm();
     this.journalForm.patchValue({
       dateCreatedDate: new Date(),
       dateCreatedTime: new Date(),
@@ -244,11 +245,14 @@ export class JournalFormComponent {
         [required]: requiredField.value,
       },
       this.entry()?.documentId,
+      this.entry()?.uuid,
     );
     if (error || !result) {
       console.error(`could not update state of journalEntry ${this.entry()?.documentId}`, error);
       InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
-      return;
+      if (!(typeof error === 'object' && 'localOnly' in error && error.localOnly)) {
+        return;
+      }
     }
 
     this.dirty.emit(false);
@@ -272,7 +276,7 @@ export class JournalFormComponent {
       this.journalForm.patchValue({ [dateField]: new Date() });
     }
 
-    //active verify all required fileds
+    //active verify all required fields
     let allowedFields = JournalEntryStatusFields[entryStatus];
     Object.entries(this.journalForm.controls).forEach(([fieldName, control]) => {
       if (allowedFields.includes(fieldName as keyof JournalEntry)) {
@@ -310,13 +314,16 @@ export class JournalFormComponent {
       ...this.filterObject(values, allowedFields),
       entryStatus: newEntryStatus,
       documentId: this.entry()?.documentId,
+      uuid: this.entry()?.uuid,
     } as JournalEntry);
 
     if (error || !result) {
       console.error('Error saving journal entry', error);
-      this.showPrint = true;
       InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
-      return;
+      if (!(typeof error === 'object' && 'localOnly' in error && error.localOnly)) {
+        this.showPrint = true;
+        return;
+      }
     }
 
     if (this.entry() === null) {

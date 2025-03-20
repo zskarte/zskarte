@@ -417,6 +417,7 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     sender: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    uuid: Schema.Attribute.String & Schema.Attribute.Unique;
     visumDecider: Schema.Attribute.String;
     visumMessage: Schema.Attribute.String;
     visumTriage: Schema.Attribute.String;

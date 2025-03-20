@@ -66,6 +66,7 @@ export class SyncService {
         }
         await this._reconnect();
         await this._publishMapStatePatches();
+        await this._journal.publishPatches();
       });
 
     this._journal.setConnectionId(this._connectionId);

@@ -2977,6 +2977,11 @@ export class I18NService {
       en: 'Error saving',
       fr: "Erreur lors de l'enregistrement",
     },
+    storedLocallyOnly: {
+      de: 'Nur lokal gespeichert.',
+      en: 'Stored locally only.',
+      fr: 'Stocké localement uniquement.',
+    },
     pdfDesignerHelp:{
       de:`
         Im Designer links können Sie Elemente grafisch hinzufügen oder bearbeiten, die Änderungen werden rechts in der technischen Ansicht live aktualisiert.<br>
@@ -3059,6 +3064,31 @@ export class I18NService {
       de: 'Fehler beim laden der Journal Einträge.',
       en: 'Error loading journal entries.',
       fr: 'Erreur lors du chargement des entrées de journal.',
+    },
+    showCachedJournalEntries: {
+      de: 'Es werden nur lokal gecachte Journal Einträge angezeigt.',
+      en: 'Only locally cached journal entries are displayed.',
+      fr: 'Seules les entrées de journal mises en cache localement sont affichées.',
+    },
+    customizePrintForm: {
+      de: 'Druckformular anpassen',
+      en: 'Customize print form',
+      fr: "Personnaliser le formulaire d'impression",
+    },
+    reloadFromServer: {
+      de: 'Neu laden vom Server',
+      en: 'Reload from server',
+      fr: 'Recharger depuis le serveur',
+    },
+    localOnlyJournal: {
+      de: 'Dieser Journal Eintrag existiert nur Lokal.',
+      en: 'This journal entry only exists locally.',
+      fr: 'Cette entrée de journal existe uniquement localement.',
+    },
+    localPatchJournal: {
+      de: 'Dieser Journal Eintrag hat Änderungen die nur lokal sind.',
+      en: 'This journal entry has changes that are only local.',
+      fr: 'Cette entrée de journal comporte des modifications qui sont uniquement locales.',
     },
   };
 
