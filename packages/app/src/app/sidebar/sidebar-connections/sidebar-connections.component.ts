@@ -8,7 +8,7 @@ import { SessionService } from '../../session/session.service';
 import { ZsMapStateService } from '../../state/state.service';
 import { db } from 'src/app/db/db';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { BlobService } from 'src/app/db/blob.service';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from 'src/app/session/default-map-values';
 import { MapLayerService } from 'src/app/map-layer/map-layer.service';
@@ -163,8 +163,6 @@ export class SidebarConnectionsComponent implements OnDestroy {
 
   showSearchInfo(event) {
     event.preventDefault();
-    this._dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('howtoFindSearchCapability'),
-    });
+    InfoDialogComponent.showTextDialog(this._dialog, this.i18n.get('howtoFindSearchCapability'));
   }
 }

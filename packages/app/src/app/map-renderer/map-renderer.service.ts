@@ -537,13 +537,17 @@ export class MapRendererService {
       this._state.observeDrawElements(),
       this._state.observeHiddenSymbols(),
       this._state.observeHiddenFeatureTypes(),
-    ]).subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
+      this._state.observeHighlightedFeature(),
+    ]).subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes, highlightedFeature]) => {
       // Filter out hidden elements
       drawElements = drawElements.filter((element) => {
         const feature = element.getOlFeature();
+        const highlighted = highlightedFeature.includes(element.getId())
+        feature?.set('highlighted', highlighted);
         const filterType = element.elementState?.type as string;
         const hidden = hiddenSymbols.includes(feature?.get('sig')?.id) || hiddenFeatureTypes.includes(filterType);
-        return !hidden;
+        feature?.set('hidden', hidden);
+        return !hidden || highlighted;
       });
 
       for (const element of drawElements) {

@@ -116,4 +116,17 @@ const broadcastPatches = (operationCache: OperationCache, identifier: string, pa
   }
 };
 
-export { connectSocketIo, socketConnection, broadcastPatches, broadcastConnections };
+/** Broadcast received journal change to all currently connected sockets of an operation */
+const broadcastJournal = (operationCache: OperationCache, identifier: string, data: any) => {
+  const connections = _.filter(operationCache.connections, (c) => c.identifier !== identifier);
+  for (const connection of connections) {
+    try {
+      connection.socket.emit(WebsocketEvent.STATE_JOURNAL, data);
+    } catch (error) {
+      connection.socket.disconnect();
+      strapi.log.error(error);
+    }
+  }
+};
+
+export { connectSocketIo, socketConnection, broadcastConnections, broadcastPatches, broadcastJournal };
