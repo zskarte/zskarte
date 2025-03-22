@@ -122,12 +122,12 @@
           </ng-container>
 
           <ng-container matColumnDef="messageSubject">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('messageSubject') }}</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageSubject">{{ i18n.get('messageSubject') }}</th>
             <td mat-cell *matCellDef="let element">{{ element.messageSubject }}</td>
           </ng-container>
 
           <ng-container matColumnDef="messageContent">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('messageContent') }}</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageContent">{{ i18n.get('messageContent') }}</th>
             <td mat-cell *matCellDef="let element">
               <div class="journal-table-message-cell">
                 {{ element.messageContent }}
@@ -141,19 +141,21 @@
           </ng-container>
 
           <ng-container matColumnDef="entryResponsibility">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('responsibility') }}</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="entryResponsibility">
+              {{ i18n.get('responsibility') }}
+            </th>
             <td mat-cell *matCellDef="let element">
               {{ getResponsibility(element) }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="entryStatus">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('status') }}</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="entryStatus">{{ i18n.get('status') }}</th>
             <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
           </ng-container>
 
           <ng-container matColumnDef="isKeyMessage">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('keyMessage') }}</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="isKeyMessage">{{ i18n.get('keyMessage') }}</th>
             <td mat-cell *matCellDef="let element">
               @if (element.isKeyMessage) {
                 <mat-icon>key</mat-icon>

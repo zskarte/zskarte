@@ -181,6 +181,17 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort;
+    //define special field/value to do the sort
+    this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'entryResponsibility':
+          return this.getResponsibility(item);
+        case 'entryStatus':
+          return Object.values(JournalEntryStatus).indexOf(item[property]);
+        default:
+          return item[property];
+      }
+    };
 
     //define special sort handling/compare function
     const originalSortFn = this.dataSourceFiltered.sortData;
