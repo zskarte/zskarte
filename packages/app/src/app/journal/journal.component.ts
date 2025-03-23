@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
@@ -364,6 +364,20 @@ export class JournalComponent implements AfterViewInit {
     }
   }
 
+  @HostListener('window:keydown.+', ['$event'])
+  async pressPlus(event: Event) {
+    if (this.sidebarOpen || this._state.getActiveView() !== 'journal') {
+      return;
+    }
+    // While writing into a input, don't allow shortcuts
+    if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    this.openJournalAddDialog();
+  }
+
   openJournalAddDialog() {
     if (!this.sidebarOpen || !this.openDisabled) {
       this.selectedJournalEntry.set(null);
@@ -419,7 +433,19 @@ export class JournalComponent implements AfterViewInit {
     }
   }
 
-  async export(){
+  @HostListener('window:keydown.Control.p', ['$event'])
+  @HostListener('window:keydown.Meta.p', ['$event'])
+  @HostListener('window:beforeprint', ['$event'])
+  async onStartPrint(event: Event) {
+    if (this._state.getActiveView() !== 'journal') {
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    await this.export();
+  }
+
+  async export() {
     await this.journal.exportAsExcel(this.journal.data());
   }
 }

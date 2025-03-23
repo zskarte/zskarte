@@ -63,6 +63,8 @@ import { zsMapStateMigration } from '@zskarte/common';
 import { JournalService } from '../journal/journal.service';
 import { Sort } from '@angular/material/sort';
 
+type VIEW_NAMES = 'map' | 'journal';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -102,6 +104,7 @@ export class ZsMapStateService {
   private _globalWmsSources = new BehaviorSubject<WmsSource[]>([]);
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
   private _searchConfigs = new BehaviorSubject<IZsMapSearchConfig[]>([]);
+  private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
 
   constructor() {
     const _session = this._session;
@@ -1300,5 +1303,17 @@ export class ZsMapStateService {
         draft.journalFilter = journalFilter;
       });
     }
+  }
+
+  public setActiveView(view: VIEW_NAMES) {
+    this._activeView.next(view);
+  }
+
+  public getActiveView(): VIEW_NAMES {
+    return this._activeView.value;
+  }
+
+  public observeActiveView(): Observable<VIEW_NAMES> {
+    return this._activeView.pipe(distinctUntilChanged((x, y) => isEqual(x, y)));
   }
 }

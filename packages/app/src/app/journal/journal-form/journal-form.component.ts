@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output } from '@angular/core';
+import { Component, HostListener, effect, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,6 +30,7 @@ import { JournalService } from '../journal.service';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { ZsMapStateService } from 'src/app/state/state.service';
 
 @Component({
   selector: 'app-journal-form',
@@ -53,6 +54,7 @@ import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirm
 })
 export class JournalFormComponent {
   private _dialog = inject(MatDialog);
+  private _state = inject(ZsMapStateService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
@@ -344,6 +346,14 @@ export class JournalFormComponent {
       this.dirty.emit(false);
       this.close.emit();
     }
+  }
+
+  @HostListener('window:keydown.Escape', ['$event'])
+  closeSidebareOnEsc(): void {
+    if (this._state.getActiveView() !== 'journal') {
+      return;
+    }
+    this.closeForm();
   }
 
   closeForm() {

@@ -1,5 +1,5 @@
 <mat-sidenav-container hasBackdrop="false" autoFocus="false">
-  <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen">
+  <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen" disableClose>
     <app-journal-form
       [entry]="selectedJournalEntry()"
       (close)="close()"

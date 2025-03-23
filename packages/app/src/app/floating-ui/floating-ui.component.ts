@@ -248,6 +248,9 @@ export class FloatingUIComponent {
   @HostListener('window:keydown.Meta.p', ['$event'])
   @HostListener('window:beforeprint', ['$event'])
   onStartPrint(event: Event): void {
+    if (this.state.getActiveView() !== 'map') {
+      return;
+    }
     event.preventDefault();
     event.stopImmediatePropagation();
     this.sidebar.open(SidebarContext.Print);
@@ -255,6 +258,11 @@ export class FloatingUIComponent {
 
   @HostListener('window:keydown.Escape', ['$event'])
   closeSidebareOnEsc(): void {
-    this.sidebar.close();
+    if (this.state.getActiveView() !== 'map') {
+      return;
+    }
+    if (this._dialog.openDialogs.length === 0) {
+      this.sidebar.close();
+    }
   }
 }

@@ -12,6 +12,7 @@ import { ZsMapStateService } from '../state/state.service';
 import { IShortcut } from './shortcut.interfaces';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from '../state/i18n.service';
+import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 
 @Injectable({
   providedIn: 'root',
@@ -68,8 +69,11 @@ export class ShortcutService {
     this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.LINE));
     this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.FREEHAND));
     this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.SYMBOL));
+    this._listen({ shortcut: 'NumpadAdd', drawModeOnly: true }).subscribe(this._openAdd());
+    //swiss german layout for +:
+    this._listen({ shortcut: 'shift+1', drawModeOnly: true }).subscribe(this._openAdd());
 
-    this._listen({ shortcut: 'mod+c' }).subscribe(async () => {
+    this._listen({ shortcut: 'mod+c', drawModeOnly: true }).subscribe(async () => {
       if (this._session.isGuest()) {
         if (await firstValueFrom(this._session.observeIsGuestElementLimitReached())) {
           return;
@@ -156,6 +160,14 @@ export class ShortcutService {
     };
   }
 
+  private _openAdd() {
+    return () => {
+      const layer = this._state.getActiveLayer();
+      const ref = this._dialog.open(DrawDialogComponent);
+      ref.componentRef?.instance.setLayer(layer);
+    };
+  }
+
   private _listen({ shortcut, preventDefault = true, drawModeOnly = false }: IShortcut): Observable<KeyboardEvent> {
     const keys = (shortcut?.split('+') || []).map((key) => key.trim().toLowerCase());
 
@@ -171,7 +183,7 @@ export class ShortcutService {
 
     return this._keydownObserver.pipe(
       filter((event) => {
-        if (drawModeOnly && this._readOnlyMode) {
+        if (drawModeOnly && (this._readOnlyMode || this._state.getActiveView() !== 'map')) {
           return false;
         }
 
