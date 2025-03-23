@@ -879,7 +879,7 @@ export class I18NService {
       en: 'Show Table',
       fr: 'Afficher Tableau',
     },
-    protocolSaveAsExcel: {
+    saveAsExcel: {
       de: 'Als Excel exportieren',
       en: 'Export as Excel',
       fr: 'Exporter en Excel',
@@ -1208,6 +1208,11 @@ export class I18NService {
       de: 'Erstelldatum',
       en: 'Created at',
       fr: 'Date de création',
+    },
+    updatedAt: {
+      de: 'Änderungsdatum',
+      en: 'updated at',
+      fr: 'mis à jour le',
     },
     expiresOn: {
       de: 'Ablaufdatum',
@@ -2617,6 +2622,11 @@ export class I18NService {
       en: 'Mark as not drawn',
       fr: 'Marquer comme non dessiné',
     },
+    isDrawnOnMap: {
+      de: 'Eingezeichnet',
+      en: 'Drawn',
+      fr: 'Dessiné',
+    },
     deliverer: {
       de: 'Absender',
       en: 'Deliverer',
@@ -2726,6 +2736,11 @@ export class I18NService {
       de: 'Schlüsselmeldung',
       en: 'Key message',
       fr: 'Message clé',
+    },
+    keyMessageShort: {
+      de: 'Schlüssel',
+      en: 'Key',
+      fr: 'clé',
     },
     department: {
       de: 'Fachbereich',

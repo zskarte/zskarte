@@ -3,6 +3,7 @@ import { generate } from '@pdfme/generator';
 import { text, image, dateTime, line, checkbox, barcodes, rectangle } from '@pdfme/schemas';
 import { I18NService } from '../state/i18n.service';
 import { IPdfService } from './pdf-service.factory';
+import saveAs from 'file-saver';
 
 const fontConfigs = {
   fonts: {
@@ -222,12 +223,7 @@ export class PdfService implements IPdfService {
       options: { font: await this.getFonts() },
     });
     const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName.replaceAll(/[^a-zA-Z0-9_-]/g, '_');
-    link.click();
-    URL.revokeObjectURL(url);
+    fileName = fileName.replaceAll(/[^a-zA-Z0-9._-]/g, '_');
+    saveAs(blob, fileName);
   }
 }

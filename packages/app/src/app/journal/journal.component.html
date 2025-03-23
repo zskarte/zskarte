@@ -27,6 +27,14 @@
           </button>
           <button
             mat-icon-button
+            (click)="export()"
+            [attr.aria-label]="i18n.get('saveAsExcel')"
+            [title]="i18n.get('saveAsExcel')"
+          >
+            <mat-icon>save</mat-icon>
+          </button>
+          <button
+            mat-icon-button
             (click)="journal.reload()"
             [attr.aria-label]="i18n.get('reloadFromServer')"
             [title]="i18n.get('reloadFromServer')"

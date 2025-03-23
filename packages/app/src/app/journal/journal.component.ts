@@ -418,6 +418,10 @@ export class JournalComponent implements AfterViewInit {
       this.designerActive.set(false);
     }
   }
+
+  async export(){
+    await this.journal.exportAsExcel(this.journal.data());
+  }
 }
 
 function compareNegativeHigher(a: number, b: number, isAsc: boolean) {

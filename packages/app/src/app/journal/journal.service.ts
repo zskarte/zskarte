@@ -8,10 +8,10 @@ import { IPdfService, PdfServiceFactory } from '../pdf/pdf-service.factory';
 import { v4 as uuidv4 } from 'uuid';
 import { PatchJournalEntry, db } from '../db/db';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { debounce } from '../helper/debounce';
 import { groupBy } from 'lodash';
 import { ZsMapStateService } from '../state/state.service';
-import { BlobService } from '../db/blob.service';
+import { I18NService } from '../state/i18n.service';
+import saveAs from 'file-saver';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +20,7 @@ export class JournalService {
   private _api = inject(ApiService);
   private _session = inject(SessionService);
   private _pdfServiceFactory = inject(PdfServiceFactory);
+  private _i18n = inject(I18NService);
   private _state!: ZsMapStateService;
   private isOnline = toSignal(this._session.observeIsOnline());
   private _connectionId!: string;
@@ -273,7 +274,7 @@ export class JournalService {
       return -10000;
     }
     const cached = await db.localJournalEntries.where({ operationId, organizationId, messageNumber }).first();
-    return uuid ? (cached && cached?.uuid !== uuid) : cached != null;
+    return uuid ? cached && cached?.uuid !== uuid : cached != null;
   }
 
   public async insert(entry: JournalEntry) {
@@ -427,7 +428,7 @@ export class JournalService {
       return;
     }
     const entries = await db.patchJournalEntries.where({ operationId, organizationId }).toArray();
-    if (!entries.length){
+    if (!entries.length) {
       this.journalResource.reload();
       return;
     }
@@ -685,7 +686,137 @@ export class JournalService {
         url_entry: entryUrl,
       },
     ];
-    const fileName = `${operation.name}_message${entry.messageNumber}_${(new Date()).toISOString()}.pdf`;
+    const fileName = `${operation.name}_message${entry.messageNumber}_${(new Date()).toISOString().slice(0, 16)}.pdf`;
     await pdfService.downloadPdf(template, data, fileName);
+  }
+
+  private _calculateRowHeight(cellValue: string, columnWidth: number): number {
+    const charsPerLine = columnWidth;
+    const lines = cellValue.split('\n').reduce((acc, line) => {
+      return acc + Math.ceil((line.length || 1) / charsPerLine);
+    }, 0);
+
+    const lineHeight = 15;
+    return lines * lineHeight;
+  }
+
+  async exportAsExcel(entries: JournalEntry[]) {
+    const operation = this._session.getOperation();
+    if (!operation) {
+      return;
+    }
+    const fileName = `${operation.name}_${new Date().toISOString().slice(0, 16)}.xlsx`.replaceAll(/[^a-zA-Z0-9._-]/g, '_');
+
+    const { Workbook } = await import('exceljs');
+    const workbook = new Workbook();
+    const sheet = workbook.addWorksheet('Journal Entries');
+    const defaultStyleTextTop = { alignment: { vertical: 'top' } } as any;
+    const defaultStyleDate = { alignment: { vertical: 'top' }, numFmt: 'dd.mm.yyyy hh:mm' } as any;
+
+    sheet.columns = [
+      { header: this._i18n.get('messageNumberShort2'), key: 'messageNumber', width: 5, style: defaultStyleTextTop },
+      {
+        header: this._i18n.get('messageSubject'),
+        key: 'messageSubject',
+        width: 40,
+        style: { alignment: { wrapText: true, vertical: 'top' } },
+      },
+      {
+        header: this._i18n.get('messageContent'),
+        key: 'messageContent',
+        width: 50,
+        style: { alignment: { wrapText: true, vertical: 'top' } },
+      },
+      { header: this._i18n.get('dateMessage'), key: 'dateMessage', width: 20, style: defaultStyleDate },
+      {
+        header: this._i18n.get('communicationDevice'),
+        key: 'communicationType',
+        width: 20,
+        style: defaultStyleTextTop,
+      },
+      { header: this._i18n.get('detailsChanel'), key: 'communicationDetails', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('receiver'), key: 'creator', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('deliverer'), key: 'sender', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('visa'), key: 'visumMessage', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('keyMessageShort'), key: 'isKeyMessage', width: 10, style: defaultStyleTextTop },
+      { header: this._i18n.get('department'), key: 'department', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('visumTriage'), key: 'visumTriage', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('dateTriage'), key: 'dateTriage', width: 20, style: defaultStyleDate },
+      {
+        header: this._i18n.get('decision'),
+        key: 'decision',
+        width: 50,
+        style: { alignment: { wrapText: true, vertical: 'top' } },
+      },
+      { header: this._i18n.get('messageReceiver'), key: 'decisionReceiver', width: 25, style: defaultStyleTextTop },
+      { header: this._i18n.get('visumDecider'), key: 'visumDecider', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('dateDecision'), key: 'dateDecision', width: 25, style: defaultStyleDate },
+      { header: this._i18n.get('deliveredFrom'), key: 'decisionSender', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('deliveryTime'), key: 'dateDecisionDelivered', width: 20, style: defaultStyleDate },
+      { header: this._i18n.get('isDrawnOnMap'), key: 'isDrawnOnMap', width: 15, style: defaultStyleTextTop },
+      { header: this._i18n.get('entryStatus'), key: 'entryStatus', width: 20, style: defaultStyleTextTop },
+      { header: this._i18n.get('createdAt'), key: 'createdAt', width: 20, style: defaultStyleDate },
+      { header: this._i18n.get('updatedAt'), key: 'updatedAt', width: 20, style: defaultStyleDate },
+    ];
+
+    entries.sort((a,b) => a.messageNumber - b.messageNumber);
+
+    const columnsToCheck = ['messageContent', 'decision'];
+    entries.forEach((entry) => {
+      const translatedEntry = {
+        ...entry,
+        messageContent: entry.messageContent?.trim(),
+        decision: entry.decision?.trim(),
+        department: entry.department ? this._i18n.get(entry.department) : '',
+        isKeyMessage: entry.isKeyMessage ? this._i18n.get('yes') : this._i18n.get('no'),
+        isDrawnOnMap: entry.isDrawnOnMap ? this._i18n.get('yes') : this._i18n.get('no'),
+      };
+      const row = sheet.addRow(translatedEntry);
+
+      //mark messageNumber if it's a local only/local patches entry
+      if (entry.localOnly || entry.localPatch) {
+        const messageNumberCell = row.getCell('messageNumber');
+        messageNumberCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFFFA500' }, //orange
+        };
+        messageNumberCell.note = {
+          texts: [{ text: entry.localOnly ? this._i18n.get('localOnlyJournal') : this._i18n.get('localPatchJournal') }],
+        };
+      }
+
+      //verify row height by content
+      let requiredHeight = 15; //min height
+      columnsToCheck.forEach((columnKey) => {
+        const cell = row.getCell(columnKey);
+        if (cell?.value) {
+          const column = sheet.getColumn(columnKey);
+          let columnWidth = column.width;
+          if (!columnWidth) {
+            columnWidth = 50;
+            column.width = columnWidth;
+          }
+          const cellValue = cell.value.toString();
+          const estimatedHeight = this._calculateRowHeight(cellValue, columnWidth);
+          requiredHeight = Math.max(requiredHeight, estimatedHeight);
+        }
+      });
+      row.height = requiredHeight;
+    });
+
+    //add autofilter
+    const lastColumnLetter = String.fromCharCode(64 + sheet.columns.length);
+    sheet.autoFilter = {
+      from: 'A1',
+      to: `${lastColumnLetter}1`,
+    };
+
+    return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+      saveAs(
+        new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+        fileName,
+      );
+    });
   }
 }

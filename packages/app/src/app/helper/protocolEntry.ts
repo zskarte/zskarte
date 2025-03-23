@@ -76,7 +76,7 @@ export async function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n
   sheet.addRows(protocolEntries);
   return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
     saveAs(
-      new Blob([buffer], { type: 'application/octet-stream' }),
+      new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
       `${i18n.get('protocolExport')}_${new Date().toISOString().slice(0, 10)}.xlsx`,
     );
   });

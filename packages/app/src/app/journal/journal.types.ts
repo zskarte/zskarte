@@ -126,8 +126,8 @@ export interface JournalEntry {
   visumDecider: string;
   dateDecision: Date | null;
 
-  dateDecisionDelivered: Date | null;
   decisionSender: string;
+  dateDecisionDelivered: Date | null;
 
   isDrawnOnMap: boolean;
   isDrawingOnMap: boolean;
