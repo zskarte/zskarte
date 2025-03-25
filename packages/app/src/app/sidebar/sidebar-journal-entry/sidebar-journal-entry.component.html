@@ -1,4 +1,4 @@
-<div class="created-date">{{ entry().createdAt | date: 'dd.MM.yyyy, HH:mm' }}</div>
+<div class="created-date">{{ entry().dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
 <p class="preserve-linebreak">{{ entry().messageContent }}</p>
 
 @if (entryElements().length > 0) {

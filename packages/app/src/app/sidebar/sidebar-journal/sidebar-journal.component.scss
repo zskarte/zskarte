@@ -28,16 +28,19 @@
     }
     
     .mat-expansion-panel-body {
-      padding: 0 16px 16px;
+      padding: 0 16px;
     }
   }
 }
 
 .loading-spinner {
+  position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
+  right: 0;
+  width: 30rem;
 }
 
 .journal-header {

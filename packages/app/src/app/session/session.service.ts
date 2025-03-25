@@ -211,10 +211,11 @@ export class SessionService {
                 operationId: null, //handled in updateJWT / OperationsComponent
               },
               queryParamsHandling: 'merge',
+              preserveFragment: true,
             },
           );
         } else {
-          await this._router.navigate(['operations'], { queryParamsHandling: 'preserve' });
+          await this._router.navigate(['operations'], { queryParamsHandling: 'preserve', preserveFragment: true });
           this._state.setMapState(undefined);
           this._state.setDisplayState(undefined);
         }

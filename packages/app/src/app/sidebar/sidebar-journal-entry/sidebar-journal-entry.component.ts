@@ -14,7 +14,7 @@ import { I18NService } from 'src/app/state/i18n.service';
 import { MatIcon } from '@angular/material/icon';
 import { Coordinate } from 'ol/coordinate';
 import { MatButtonModule } from '@angular/material/button';
-import { skip, take } from 'rxjs';
+import { filter, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 
@@ -76,10 +76,15 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   toggleHighlightAll() {
     this.allHighlighted = !this.allHighlighted;
     if (this.allHighlighted) {
-      this._state.replaceHighlightedFeatures(this.entryElements().map((e) => e.id));
+      const elementIds = this.entryElements().map((e) => e.id);
+      this._state.replaceHighlightedFeatures(elementIds);
       this._state
         .observeHighlightedFeature()
-        .pipe(skip(1), take(1))
+        .pipe(
+          skip(1),
+          filter((v) => !elementIds.every((element) => v.includes(element))),
+          take(1),
+        )
         .subscribe((v) => (this.allHighlighted = false));
     } else {
       this._state.replaceHighlightedFeatures([]);

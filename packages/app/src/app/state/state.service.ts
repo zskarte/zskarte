@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
@@ -36,7 +36,7 @@ import { Coordinate } from 'ol/coordinate';
 import { SimpleGeometry } from 'ol/geom';
 import { getPointResolution, transform } from 'ol/proj';
 import { BehaviorSubject, Observable, Subject, combineLatest, lastValueFrom, merge } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, takeUntil, takeWhile } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, map, takeUntil, takeWhile } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import { addOrRemoveInArray, areArraysEqual, toggleInArray } from '../helper/array';
 import { DrawElementHelper } from '../helper/draw-element-helper';
@@ -62,6 +62,8 @@ import { I18NService } from './i18n.service';
 import { zsMapStateMigration } from '@zskarte/common';
 import { JournalService } from '../journal/journal.service';
 import { Sort } from '@angular/material/sort';
+import { NavigationEnd, Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 type VIEW_NAMES = 'map' | 'journal';
 
@@ -76,6 +78,8 @@ export class ZsMapStateService {
   private _snackBar = inject(MatSnackBar);
   private _operationService = inject(OperationService);
   private _journal = inject(JournalService);
+  private _router = inject(Router);
+  private _location = inject(Location);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
@@ -105,6 +109,7 @@ export class ZsMapStateService {
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
   private _searchConfigs = new BehaviorSubject<IZsMapSearchConfig[]>([]);
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
+  public urlFragment = signal<string | null>(null);
 
   constructor() {
     const _session = this._session;
@@ -129,6 +134,18 @@ export class ZsMapStateService {
           });
       }
     });
+    this._router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        map((event) => {
+          const urlTree = this._router.parseUrl(event.urlAfterRedirects);
+          return urlTree.fragment;
+        }),
+        distinctUntilChanged((x, y) => x === y),
+      )
+      .subscribe((fragment) => {
+        this.urlFragment.set(fragment);
+      });
   }
 
   private _getDefaultDisplayState(mapState?: ZsMapState): IZsMapDisplayState {
@@ -1150,7 +1167,7 @@ export class ZsMapStateService {
       map((o) => {
         return o?.highlightedFeature.filter((f) => f !== undefined);
       }),
-      distinctUntilChanged((x, y) => x === y),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
     );
   }
 
@@ -1315,5 +1332,25 @@ export class ZsMapStateService {
 
   public observeActiveView(): Observable<VIEW_NAMES> {
     return this._activeView.pipe(distinctUntilChanged((x, y) => isEqual(x, y)));
+  }
+
+  public removeUrlFragment(ifStartsWith?: string) {
+    if (ifStartsWith) {
+      if (!this.urlFragment()?.startsWith(ifStartsWith)) {
+        return;
+      }
+    }
+    const newUrl = this._router
+      .createUrlTree([], {
+        relativeTo: this._router.routerState.root,
+        queryParamsHandling: 'preserve',
+        preserveFragment: false,
+      })
+      .toString();
+
+    //to create new history entry
+    this._location.go(newUrl);
+    //to call NavigationEnd handler
+    this._router.navigateByUrl(newUrl, { skipLocationChange: true });
   }
 }
