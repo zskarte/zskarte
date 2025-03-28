@@ -97,7 +97,7 @@ export class SessionService {
             );
           }
 
-          const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.id ?? 0);
+          const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.documentId ?? '');
           if (session?.workLocal) {
             const localWmsSources = await MapLayerService.getLocalWmsSources();
             if (globalWmsSources.length > 0) {
@@ -113,7 +113,7 @@ export class SessionService {
           }
           const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(
             globalWmsSources,
-            session.organization?.id ?? 0,
+            session.organization?.documentId ?? '',
           );
           if (session?.workLocal) {
             const localMapLayers = await MapLayerService.getLocalMapLayers();
@@ -313,10 +313,6 @@ export class SessionService {
 
   public observeIsGuestElementLimitReached(): Observable<boolean> {
     return this._state.observeDrawElementCount().pipe(map((count) => count >= MAX_DRAW_ELEMENTS_GUEST));
-  }
-
-  public getOrganizationId(): number | undefined {
-    return this._session.value?.organization?.id;
   }
 
   public getOrganizationLongLat(): [number, number] {

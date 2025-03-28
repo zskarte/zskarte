@@ -99,7 +99,7 @@ export class MapLayerService {
     return source;
   }
 
-  static convertMapLayerFromApi(mapLayerApi: MapLayerApi, sources: (WmsSource | MapSource)[], organizationId: number) {
+  static convertMapLayerFromApi(mapLayerApi: MapLayerApi, sources: (WmsSource | MapSource)[], organizationId: string) {
     const source = MapLayerService.getMapSource(mapLayerApi, sources);
     const layer: MapLayer = {
       id: mapLayerApi.id,
@@ -115,11 +115,11 @@ export class MapLayerService {
       hidden: false,
       zIndex: 0,
     };
-    layer.owner = mapLayerApi.organization?.id === organizationId;
+    layer.owner = mapLayerApi.organization?.documentId === organizationId;
     return layer;
   }
 
-  async readGlobalMapLayers(sources: WmsSource[], organizationId: number) {
+  async readGlobalMapLayers(sources: WmsSource[], organizationId: string) {
     const { error, result: mapLayers } = await this._api.get<MapLayerApi[]>('/api/map-layers');
     if (error || !mapLayers) {
       return [];
@@ -160,7 +160,7 @@ export class MapLayerService {
     };
   }
 
-  async saveGlobalMapLayer(mapLayer: MapLayer, organizationId: number | undefined) {
+  async saveGlobalMapLayer(mapLayer: MapLayer, organizationId: string | undefined) {
     if (!mapLayer.owner) {
       return null;
     }
