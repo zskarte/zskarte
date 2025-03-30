@@ -10,6 +10,7 @@ import { BehaviorSubject, debounceTime, filter, merge, switchMap } from 'rxjs';
 import { db } from '../db/db';
 import { JournalService } from '../journal/journal.service';
 import { JournalEntry } from '../journal/journal.types';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 interface PatchExtended extends Patch {
   timestamp: Date;
@@ -44,14 +45,15 @@ export class SyncService {
   private _connectingPromise: Promise<void> | undefined;
   private _connections = new BehaviorSubject<Connection[]>([]);
 
+  private journalChange$ = toObservable(this._journal.data);
+
   constructor() {
     // Reload the map every 60s if nothing changed
-    const noChanges$ = this.observeConnections()
-      .pipe(
-        filter(con => con.length > 0),
-        switchMap(() => this._state.observeMapState()),
-        debounceTime(60_000)
-      )
+    const noChanges$ = this.observeConnections().pipe(
+      filter((con) => con.length > 0),
+      switchMap(() => merge(this._state.observeMapState(), this.journalChange$)),
+      debounceTime(60_000),
+    );
 
     merge(this._session.observeOperationId(), this._session.observeIsOnline(), this._session.observeLabel(), noChanges$)
       .pipe(debounceTime(250))
