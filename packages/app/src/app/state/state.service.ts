@@ -107,7 +107,6 @@ export class ZsMapStateService {
   private _currentMapCenter: BehaviorSubject<number[]> | undefined;
   private _globalWmsSources = new BehaviorSubject<WmsSource[]>([]);
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
-  private _searchConfigs = new BehaviorSubject<IZsMapSearchConfig[]>([]);
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
   public urlFragment = signal<string | null>(null);
 
@@ -1249,33 +1248,6 @@ export class ZsMapStateService {
     const hasWritePermission = this._session.hasWritePermission();
     const isArchived = this._session.isArchived();
     return !hasWritePermission || isArchived || isHistoryMode;
-  }
-
-  public addSearch(
-    searchFunc: SearchFunction,
-    searchName: string,
-    maxResultCount: number | undefined = undefined,
-    resultOrder: number | undefined = undefined,
-  ) {
-    const configs = this._searchConfigs.value;
-    const config: IZsMapSearchConfig = {
-      label: searchName,
-      func: searchFunc,
-      active: true,
-      maxResultCount: maxResultCount ?? 50,
-      resultOrder: resultOrder ?? 0,
-    };
-    configs.push(config);
-    this._searchConfigs.next(configs);
-  }
-
-  public removeSearch(searchFunc: SearchFunction) {
-    const configs = this._searchConfigs.value.filter((conf) => conf.func !== searchFunc);
-    this._searchConfigs.next(configs);
-  }
-
-  public getSearchConfigs(): IZsMapSearchConfig[] {
-    return this._searchConfigs.value;
   }
 
   public canAddElements(): boolean {

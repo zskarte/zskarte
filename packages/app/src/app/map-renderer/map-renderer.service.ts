@@ -36,6 +36,7 @@ import { MapModifyService } from './map-modify.service';
 import { MapOverlayService } from './map-overlay.service';
 import { MapPrintService } from './map-print.service';
 import { MapSelectService } from './map-select.service';
+import { SearchService } from '../search/search.service';
 
 export const LAYER_Z_INDEX_CURRENT_LOCATION = 1000000;
 export const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000001;
@@ -51,6 +52,7 @@ export class MapRendererService {
   private geoAdminService = inject(GeoadminService);
   private wmsService = inject(WmsService);
   private geoJSONService = inject(GeoJSONService);
+  private _search = inject(SearchService);
 
   private _ngUnsubscribe = new Subject<void>();
   private _map!: OlMap;
@@ -503,7 +505,7 @@ export class MapRendererService {
                     ),
                   );
                 };
-                this._state.addSearch(searchFunc, mapLayer.label, (mapLayer as GeoJSONMapLayer).searchMaxResultCount);
+                this._search.addSearch(searchFunc, mapLayer.label, (mapLayer as GeoJSONMapLayer).searchMaxResultCount);
               }
 
               // observe mapLayer changes
@@ -518,7 +520,7 @@ export class MapRendererService {
                 complete: () => {
                   this._map.removeLayer(olLayer);
                   if (searchFunc) {
-                    this._state.removeSearch(searchFunc);
+                    this._search.removeSearch(searchFunc);
                   }
                   this._mapLayerCache.delete(name);
                 },

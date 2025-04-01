@@ -261,3 +261,9 @@ export interface IZsMapSearchConfig {
   maxResultCount: number;
   resultOrder: number;
 }
+
+export interface IResultSet {
+  config: IZsMapSearchConfig;
+  results: IZsMapSearchResult[];
+  collapsed: boolean | 'peek';
+}

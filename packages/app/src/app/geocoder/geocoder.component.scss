@@ -1,7 +1,3 @@
-.mat-option {
-  font-size: 0.7em;
-}
-
 mat-form-field {
   width: 100%;
   --mdc-outlined-text-field-container-shape: 28px !important;
@@ -9,18 +5,4 @@ mat-form-field {
   border-radius: 28px;
   pointer-events: auto;
   overflow: hidden;
-}
-
-mat-optgroup {
-  cursor: pointer;
-}
-
-.hasMore {
-  cursor: pointer;
-  text-align: center;
-}
-
-/* invisible element to prevent autocomplete is closed/hidden if there are only mat-optgroups */
-.dummyOption {
-  display: none;
 }

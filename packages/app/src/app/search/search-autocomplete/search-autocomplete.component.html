@@ -1,0 +1,46 @@
+<mat-autocomplete
+  #autocompleteRef="matAutocomplete"
+  (optionSelected)="entrySelected($event)"
+  (optionActivated)="entryActivated($event.option?.value)"
+>
+  <ng-template let-location="location" #option>
+    <mat-option [value]="location" (mouseenter)="entryActivated(location)" (mouseleave)="entryDeactivated()">
+      <span [innerHTML]="location.label" [title]="getLabel(location)"></span>
+    </mat-option>
+  </ng-template>
+  @if (foundLocations().length === 1) {
+    @for (location of foundLocations()[0].results; track location.lonLat) {
+      <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
+    }
+  } @else {
+    @for (group of foundLocations(); track group) {
+      <mat-optgroup
+        [label]="group.config.label + ' (' + group.results.length + ')'"
+        (mousedown)="expandGroup(group, $event)"
+      >
+        <ng-container>
+          @if (group.collapsed === 'peek') {
+            @for (location of group.results | slice: 0 : 3; track location.lonLat) {
+              <ng-container
+                [ngTemplateOutlet]="option"
+                [ngTemplateOutletContext]="{ location: location }"
+              ></ng-container>
+            }
+            @if (group.results.length > 3) {
+              <div class="hasMore">...</div>
+            }
+          } @else if (!group.collapsed) {
+            @for (location of group.results; track location.lonLat) {
+              <ng-container
+                [ngTemplateOutlet]="option"
+                [ngTemplateOutletContext]="{ location: location }"
+              ></ng-container>
+            }
+          } @else {
+            <mat-option class="dummyOption"></mat-option>
+          }
+        </ng-container>
+      </mat-optgroup>
+    }
+  }
+</mat-autocomplete>
