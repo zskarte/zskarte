@@ -153,20 +153,18 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
         }
         addphaseFilter(phaseFilter, ctx.query.filters);
       } else {
-        if (jwtOperationId) {
+        if (hasPublic(config.type)) {
+          if (userOrganisationId) {
+            ctx.query.filters = {
+              $or: [{ organization: { documentId: { $eq: userOrganisationId } } }, { public: { $eq: true } }],
+            };
+          } else {
+            ctx.query.filters = { public: { $eq: true } };
+          }
+        } else if (jwtOperationId) {
           return ctx.unauthorized('This action is unauthorized, unknown context.');
         } else {
-          if (hasPublic(config.type)) {
-            if (userOrganisationId) {
-              ctx.query.filters = {
-                $or: [{ organization: { documentId: { $eq: userOrganisationId } } }, { public: { $eq: true } }],
-              };
-            } else {
-              ctx.query.filters = { public: { $eq: true } };
-            }
-          } else {
-            ctx.query.filters = { organization: { documentId: { $eq: userOrganisationId } } };
-          }
+          ctx.query.filters = { organization: { documentId: { $eq: userOrganisationId } } };
         }
       }
       return next();

@@ -88,13 +88,8 @@
             "development": {
               "buildTarget": "zskarte:build:development"
             },
-            "development-local": {
-              "buildTarget": "zskarte:build:local",
-              "proxyConfig": "src/proxy-dev.conf.json"
-            },
             "local": {
-              "buildTarget": "zskarte:build:local",
-              "proxyConfig": "src/proxy-local.conf.json"
+              "buildTarget": "zskarte:build:local"
             }
           },
           "defaultConfiguration": "local"

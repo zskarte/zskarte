@@ -46,6 +46,11 @@
       "locale": null
     },
     {
+      "action": "api::operation.operation.find",
+      "documentId": "zhhhydzkj6oihtedj9hceqrd",
+      "locale": null
+    },
+    {
       "action": "api::operation.operation.findOne",
       "documentId": "fv772r6j6ifiw3w8mnq00ycb",
       "locale": null

@@ -101,7 +101,7 @@ export class JournalComponent implements AfterViewInit {
     }),
     loader: async (params) => {
       const { result } = await this.apiService.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.request.operation}`,
+        `/api/journal-entries?operationId=${params.request.operation}&_limit=1000`,
       );
       this.dataSource = result || [];
       this.dataSourceFiltered.data = this.dataSource;

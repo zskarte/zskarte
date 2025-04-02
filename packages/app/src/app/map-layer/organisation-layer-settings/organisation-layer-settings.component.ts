@@ -210,7 +210,7 @@ export class OrganisationLayerSettingsComponent {
       }
       // for the new generated layer you'r the owner
       layer.owner = true;
-      const savedLayer = await this._mapLayerService.saveGlobalMapLayer(layer, this.data.organization?.id);
+      const savedLayer = await this._mapLayerService.saveGlobalMapLayer(layer, this.data.organization?.documentId);
       if (savedLayer?.id) {
         this.layer_favorites[i] = savedLayer;
         // add new added layer
