@@ -79,12 +79,12 @@
                   </mat-chip-grid>
                   <input
                     matInput
-                    type="number"
-                    min="1"
+                    type="text"
                     [placeholder]="i18n.get('pressEnter')"
                     [matChipInputFor]="reportNumberChips"
                     (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
                     (blur)="addReportNumber($event, drawElement)"
+                    (input)="validateNumberInput($event)"
                   />
                 </mat-form-field>
               }
