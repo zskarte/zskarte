@@ -28,8 +28,8 @@ interface Connection {
   currentLocation?: { long: number; lat: number };
 }
 
-const RECONNECT_ACTIVE_CONNECTION_TIME = 9_000;
-const TRY_RECONNECT_NO_CONNECTION_TIME = 6_000;
+const RECONNECT_ACTIVE_CONNECTION_TIME = 900_000;
+const TRY_RECONNECT_NO_CONNECTION_TIME = 60_000;
 
 @Injectable({
   providedIn: 'root',
