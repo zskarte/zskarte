@@ -438,7 +438,7 @@ export class JournalComponent implements AfterViewInit {
       await this.journalResource.reload();
 
       const entry = await this.apiService.get<JournalEntry>(
-        `/api/journal-entries/${this.selectedJournalEntry?.documentId}?filters[documentId][$eq]=${this.selectedJournalEntry?.documentId}`,
+        `/api/journal-entries/${this.selectedJournalEntry?.documentId}`,
       );
 
       await this.selectEntry(entry.result as JournalEntry);
