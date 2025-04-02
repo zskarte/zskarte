@@ -1,0 +1,13 @@
+diff --git a/node_modules/@strapi/types/dist/modules/documents/params/fields.d.ts b/node_modules/@strapi/types/dist/modules/documents/params/fields.d.ts
+index c58f10a..fa019c9 100644
+--- a/node_modules/@strapi/types/dist/modules/documents/params/fields.d.ts
++++ b/node_modules/@strapi/types/dist/modules/documents/params/fields.d.ts
+@@ -16,7 +16,7 @@ export type WildcardNotation = '*';
+  * type C = 'populatableField'; // ❌
+  * type D = '<random_string>'; // ❌
+  */
+-export type SingleAttribute<TSchemaUID extends UID.Schema> = 'id' | Guard.Never<Schema.NonPopulatableAttributeNames<TSchemaUID>, string>;
++export type SingleAttribute<TSchemaUID extends UID.Schema> = 'id' | 'documentId' | Guard.Never<Schema.NonPopulatableAttributeNames<TSchemaUID>, string>;
+ /**
+  * Union of all possible string representation for fields
+  *

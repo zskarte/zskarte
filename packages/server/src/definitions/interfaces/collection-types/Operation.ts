@@ -1,6 +1,5 @@
 import { OperationPhase } from '../../../definitions';
 import { Organization, StrapiObject } from '.';
-import { PatchExtended } from '../PatchExtended';
 import { MapSnapshot } from './MapSnapshot';
 
 export interface Operation extends StrapiObject {
@@ -9,7 +8,6 @@ export interface Operation extends StrapiObject {
   status?: string; //Deprecated
   mapState: object;
   organization: Organization;
-  patches: PatchExtended[];
   mapSnapshots: MapSnapshot[];
   eventStates: object;
   phase: OperationPhase;

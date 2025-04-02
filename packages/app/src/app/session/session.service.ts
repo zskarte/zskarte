@@ -80,12 +80,20 @@ export class SessionService {
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
+          const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
+          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
+            queryParams: {
+              center: null, //handled in overrideDisplayStateFromQueryParams
+              size: null, //handled in overrideDisplayStateFromQueryParams
+              operationId: null, //handled in updateJWT / OperationsComponent
+            },
+            queryParamsHandling: 'merge',
+          });
           await this._state?.refreshMapState();
           let displayState = await db.displayStates.get({
             id: session.operation?.documentId ?? session.operation?.id?.toString(),
           });
 
-          const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
             //ignore invalid/empty saved displayState
             displayState = undefined;
@@ -97,7 +105,7 @@ export class SessionService {
             );
           }
 
-          const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.id ?? 0);
+          const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.documentId ?? '');
           if (session?.workLocal) {
             const localWmsSources = await MapLayerService.getLocalWmsSources();
             if (globalWmsSources.length > 0) {
@@ -113,7 +121,7 @@ export class SessionService {
           }
           const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(
             globalWmsSources,
-            session.organization?.id ?? 0,
+            session.organization?.documentId ?? '',
           );
           if (session?.workLocal) {
             const localMapLayers = await MapLayerService.getLocalMapLayers();
@@ -199,15 +207,6 @@ export class SessionService {
                 });
               }
             });
-
-          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
-            queryParams: {
-              center: null, //handled in overrideDisplayStateFromQueryParams
-              size: null, //handled in overrideDisplayStateFromQueryParams
-              operationId: null, //handled in updateJWT / OperationsComponent
-            },
-            queryParamsHandling: 'merge',
-          });
         } else {
           await this._router.navigate(['operations'], { queryParamsHandling: 'preserve' });
           this._state.setMapState(undefined);
@@ -313,10 +312,6 @@ export class SessionService {
 
   public observeIsGuestElementLimitReached(): Observable<boolean> {
     return this._state.observeDrawElementCount().pipe(map((count) => count >= MAX_DRAW_ELEMENTS_GUEST));
-  }
-
-  public getOrganizationId(): number | undefined {
-    return this._session.value?.organization?.id;
   }
 
   public getOrganizationLongLat(): [number, number] {
