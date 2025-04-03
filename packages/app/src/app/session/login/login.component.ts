@@ -146,9 +146,9 @@ export class LoginComponent implements OnDestroy {
     const confirmation = this._dialog.open(ConfirmationDialogComponent, {
       data: this.i18n.get('localNotification'),
     });
-    confirmation.afterClosed().subscribe(async (res) => {
+    confirmation.afterClosed().subscribe((res) => {
       if (res) {
-        await this.session.startWorkLocal();
+        this.session.startWorkLocal();
       }
     });
   }

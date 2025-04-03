@@ -38,20 +38,20 @@
               }
             </mat-autocomplete>
           </mat-form-field>
-        }
-        @if (!isLoginWithCodeEnabled) {
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Passwort</mat-label>
             <input matInput type="password" placeholder="Passwort eingeben" [(ngModel)]="password" name="password" />
           </mat-form-field>
-        }
-        @if (session.getAuthError() && !isLoginWithCodeEnabled) {
-          <mat-error>{{
-            session.getAuthError()?.error?.error?.message || session.getAuthError()?.statusText || session.getAuthError()?.message
-          }}</mat-error>
-        }
-        <!-- Login with code dialog-->
-        @if (isLoginWithCodeEnabled) {
+          @if (session.observeAuthError() | async; as authError) {
+            <mat-error>{{
+              authError?.error?.details?.errors?.[0]?.message ||
+                authError?.error?.message ||
+                authError?.statusText ||
+                authError?.message
+            }}</mat-error>
+          }
+        } @else {
+          <!-- Login with code dialog-->
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>Login-Code</mat-label>
             <input matInput type="text" placeholder="Login-Code eingeben" [(ngModel)]="joinCode" name="joinCode" />
@@ -60,40 +60,47 @@
         <stack [spacing]="5">
           <button class="login-button" mat-flat-button color="primary" (click)="login()">Login</button>
           @if (isLoginWithCodeEnabled) {
-            <button class="login-button" mat-stroked-button color="secondary" (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
+            <button
+              class="login-button"
+              mat-stroked-button
+              color="secondary"
+              (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled"
+            >
               {{ i18n.get('back') }}
             </button>
-          }
-          @if (!isLoginWithCodeEnabled) {
-            <button class="alternative-login-button" mat-stroked-button (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled">
-              @if (!isLoginWithCodeEnabled) {
-                <span>{{ i18n.get('codeLogin') }}</span>
-              }
-              @if (isLoginWithCodeEnabled) {
-                <span>{{ i18n.get('cancel') }}</span>
-              }
+          } @else {
+            <button
+              class="alternative-login-button"
+              mat-stroked-button
+              (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled"
+            >
+              <span>{{ i18n.get('codeLogin') }}</span>
             </button>
-          }
-          @if (!isLoginWithCodeEnabled && hasGuestUser) {
-            <text-divider>{{ i18n.get('or') }}</text-divider>
-          }
-          @if (!isLoginWithCodeEnabled && hasGuestUser) {
-            <button class="alternative-login-button" mat-stroked-button (click)="guestLogin()">
-              {{ i18n.get('guestLogin') }}
-            </button>
-          }
-          @if (!isLoginWithCodeEnabled && allowOfflineAccess) {
-            <text-divider>{{ i18n.get('or') }}</text-divider>
-            <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
-              {{ i18n.get('workLocal') }}
-            </button>
+            @if (hasGuestUser) {
+              <text-divider>{{ i18n.get('or') }}</text-divider>
+              <button class="alternative-login-button" mat-stroked-button (click)="guestLogin()">
+                {{ i18n.get('guestLogin') }}
+              </button>
+            }
+            @if (allowOfflineAccess) {
+              <text-divider>{{ i18n.get('or') }}</text-divider>
+              <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
+                {{ i18n.get('workLocal') }}
+              </button>
+            }
           }
         </stack>
       </mat-card-content>
-    } @else if (allowOfflineAccess) {
-      <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
-        {{ i18n.get('workLocal') }}
-      </button>
+    } @else {
+      <div class="offline-container">
+        <mat-icon>cloud_off</mat-icon>
+        <mat-label class="font-gray">{{ i18n.get('youAreOffline') }}</mat-label>
+      </div>
+      @if (allowOfflineAccess) {
+        <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
+          {{ i18n.get('workLocal') }}
+        </button>
+      }
     }
   </mat-card>
 </form>
