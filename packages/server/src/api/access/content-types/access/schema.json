@@ -43,6 +43,11 @@
     },
     "expiresOn": {
       "type": "datetime"
+    },
+    "organization": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::organization.organization"
     }
   }
 }

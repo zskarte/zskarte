@@ -16,23 +16,17 @@ export default (plugin) => {
     };
     await me(ctx);
     const { jwt } = strapi.plugins['users-permissions'].services;
-    const { operationId } = await jwt.getToken(ctx);
-    if (operationId) {
+    const { organizationId } = await jwt.getToken(ctx);
+    if (organizationId) {
       //if it's a share token login, populate corresponding organization
-      const organizations = (await strapi.documents('api::organization.organization').findMany({
-        filters: {
-          operations: {
-            documentId: { $eq: operationId },
-          },
-        },
+      const organization = await strapi.documents('api::organization.organization').findOne({
+        documentId: organizationId,
         populate: {
-          logo: {},
+          logo: true,
           wms_sources: true,
           map_layer_favorites: true,
         },
-        limit: 1,
-      })) as unknown as Organization[];
-      const organization = _.first(organizations);
+      });
       ctx.body.organization = organization;
     }
     if (ctx.body.organization) {
