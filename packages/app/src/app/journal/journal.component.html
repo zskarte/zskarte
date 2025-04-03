@@ -65,7 +65,10 @@
       >
         <mat-tab label="{{ i18n.get('input') }}">
           <div class="journal-entry-details">
-            <table *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE" class="details-table">
+            <table
+              *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE || (isReadOnly | async)"
+              class="details-table"
+            >
               <tr>
                 <td>
                   <strong>{{ i18n.get('deliverer') }}:</strong>
@@ -110,7 +113,7 @@
               </tr>
             </table>
 
-            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE && !(isReadOnly | async)">
               <div class="journal-entry-details">
                 <div style="width: 134px">
                   <mat-form-field appearance="outline">
@@ -196,7 +199,10 @@
           [disabled]="this.journalForm.value.entryStatus === JournalEntryStatus.AWAITING_MESSAGE"
         >
           <div class="journal-entry-details">
-            <table *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_TRIAGE" class="details-table">
+            <table
+              *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_TRIAGE || (isReadOnly | async)"
+              class="details-table"
+            >
               <tr>
                 <td>
                   <strong>{{ i18n.get('keyMessage') }}:</strong>
@@ -231,7 +237,7 @@
               </tr>
             </table>
 
-            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE">
+            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE && !(isReadOnly | async)">
               <mat-checkbox class="journal-entry-checkbox" formControlName="isKeyMessage">{{
                 i18n.get('keyMessage')
               }}</mat-checkbox>
@@ -267,7 +273,10 @@
               </div>
             </div>
           </div>
-          <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE" class="info-send-back">
+          <div
+            *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE && !(isReadOnly | async)"
+            class="info-send-back"
+          >
             <h3>{{ i18n.get('wrongContent') }}</h3>
             <p>{{ i18n.get('wrongContentMessage') }}</p>
             <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
@@ -281,7 +290,10 @@
           "
         >
           <div class="journal-entry-details">
-            <table *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_DECISION" class="details-table">
+            <table
+              *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_DECISION || (isReadOnly | async)"
+              class="details-table"
+            >
               <tr>
                 <td>
                   <strong>{{ i18n.get('decision') }}:</strong>
@@ -308,7 +320,9 @@
               </tr>
             </table>
 
-            <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION">
+            <div
+              *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION && !(isReadOnly | async)"
+            >
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('decision') }}</mat-label>
                 <textarea matInput formControlName="decision" rows="10"></textarea>
@@ -331,7 +345,10 @@
               </div>
             </div>
           </div>
-          <div *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION" class="info-send-back">
+          <div
+            *ngIf="journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION && !(isReadOnly | async)"
+            class="info-send-back"
+          >
             <h3>{{ i18n.get('wrongDepartment') }}</h3>
             <p>{{ i18n.get('wrongTriage') }}</p>
             <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
@@ -346,7 +363,10 @@
           "
         >
           <div class="journal-entry-details">
-            <table *ngIf="journalForm.value.entryStatus === JournalEntryStatus.COMPLETED" class="details-table">
+            <table
+              *ngIf="journalForm.value.entryStatus === JournalEntryStatus.COMPLETED || (isReadOnly | async)"
+              class="details-table"
+            >
               <tr>
                 <td>
                   <strong>{{ i18n.get('deliveredFrom') }}:</strong>
@@ -361,7 +381,7 @@
               </tr>
             </table>
 
-            <div *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.COMPLETED">
+            <div *ngIf="journalForm.value.entryStatus !== JournalEntryStatus.COMPLETED && !(isReadOnly | async)">
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('deliveredFrom') }}</mat-label>
                 <input matInput formControlName="decisionSender" />
