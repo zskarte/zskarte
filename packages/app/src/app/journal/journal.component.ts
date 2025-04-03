@@ -2,7 +2,7 @@ import { Component, inject, resource, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
-import { NgIf } from '@angular/common';
+import { NgIf, AsyncPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { I18NService } from '../state/i18n.service';
@@ -29,6 +29,7 @@ import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AbstractControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { ZsMapStateService } from '../state/state.service';
 
 @Component({
   selector: 'app-journal',
@@ -48,6 +49,7 @@ import { AbstractControl, ValidationErrors, ValidatorFn, Validators } from '@ang
     MatCheckboxModule,
     MatTabsModule,
     NgIf,
+    AsyncPipe,
     ReactiveFormsModule,
     FormsModule,
     MatSelectModule,
@@ -63,6 +65,9 @@ export class JournalComponent implements AfterViewInit {
   i18n = inject(I18NService);
   private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
+  state = inject(ZsMapStateService);
+
+  public isReadOnly = this.state.observeIsReadOnly();
 
   JournalEntryStatus = JournalEntryStatus;
 
@@ -214,6 +219,8 @@ export class JournalComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort;
   }
+
+
 
   private requiredStep(status: JournalEntryStatus): ValidatorFn {
     return (control: AbstractControl) => {

@@ -205,7 +205,7 @@
                   {{
                     journalForm.value.isKeyMessage !== undefined ?
                       journalForm.value.isKeyMessage ?
-                      i18n.get('yes')
+                        i18n.get('yes')
                       : i18n.get('no')
                     : ''
                   }}
@@ -244,7 +244,9 @@
                   <mat-option value="stabschef">{{ i18n.get('stabschef') }}</mat-option>
                   <mat-option value="fb-lage">{{ i18n.get('fb-lage') }}</mat-option>
                   <mat-option value="fb-information">{{ i18n.get('fb-information') }}</mat-option>
-                  <mat-option value="fb-oeffentliche-sicherheit">{{ i18n.get('fb-oeffentliche-sicherheit') }}</mat-option>
+                  <mat-option value="fb-oeffentliche-sicherheit">{{
+                    i18n.get('fb-oeffentliche-sicherheit')
+                  }}</mat-option>
                   <mat-option value="fb-schutz-rettung">{{ i18n.get('fb-schutz-rettung') }}</mat-option>
                   <mat-option value="fb-gesundheit">{{ i18n.get('fb-gesundheit') }}</mat-option>
                   <mat-option value="fb-logistik">{{ i18n.get('fb-logistik') }}</mat-option>
@@ -485,11 +487,13 @@
           </table>
         }
 
-        <div class="fab-button">
-          <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
+        @if (!(isReadOnly | async)) {
+          <div class="fab-button">
+            <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        }
       </div>
     </div>
   </mat-sidenav-content>
