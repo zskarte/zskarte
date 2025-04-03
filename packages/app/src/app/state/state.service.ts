@@ -33,7 +33,7 @@ import { Patch, applyPatches, produce } from 'immer';
 import { isEqual } from 'lodash';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
-import { SimpleGeometry } from 'ol/geom';
+import { Geometry, SimpleGeometry } from 'ol/geom';
 import { getPointResolution, transform } from 'ol/proj';
 import { BehaviorSubject, Observable, Subject, combineLatest, lastValueFrom, merge } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, takeUntil, takeWhile } from 'rxjs/operators';
@@ -64,6 +64,7 @@ import { JournalService } from '../journal/journal.service';
 import { Sort } from '@angular/material/sort';
 import { NavigationEnd, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { Extent } from 'ol/extent';
 
 type VIEW_NAMES = 'map' | 'journal';
 
@@ -108,6 +109,7 @@ export class ZsMapStateService {
   private _globalWmsSources = new BehaviorSubject<WmsSource[]>([]);
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
+  private _searchResultFeatures = new BehaviorSubject<Feature<Geometry>[]>([]);
   public urlFragment = signal<string | null>(null);
 
   constructor() {
@@ -156,6 +158,7 @@ export class ZsMapStateService {
       positionFlag: { coordinates: DEFAULT_COORDINATES, isVisible: false },
       mapCenter: DEFAULT_COORDINATES,
       mapZoom: DEFAULT_ZOOM,
+      mapExtent: [...DEFAULT_COORDINATES, ...DEFAULT_COORDINATES],
       dpi: DEFAULT_DPI,
       activeLayer: undefined,
       showMyLocation: false,
@@ -537,6 +540,41 @@ export class ZsMapStateService {
     this.updateDisplayState((draft) => {
       draft.mapCenter = coordinates;
     });
+  }
+
+  public getMapCenter() {
+    return this._display.value.mapCenter;
+  }
+
+  // searchResultFeatures
+  public observeSearchResultFeatures(): Observable<Feature<Geometry>[]> {
+    return this._searchResultFeatures.pipe(distinctUntilChanged((x, y) => isEqual(x, y)));
+  }
+
+  public updateSearchResultFeatures(result: Feature<Geometry>[]) {
+    this._searchResultFeatures.next(result);
+  }
+
+  public getSearchResultFeatures(): Feature<Geometry>[] {
+    return this._searchResultFeatures.value;
+  }
+
+  // mapExtent
+  public observeMapExtent(): Observable<Extent> {
+    return this._display.pipe(
+      map((o) => o.mapExtent),
+      distinctUntilChanged((x, y) => isEqual(x,y)),
+    );
+  }
+
+  public setMapExtent(extent: Extent) {
+    this.updateDisplayState((draft) => {
+      draft.mapExtent = extent;
+    });
+  }
+
+  public getMapExtent(): Extent {
+    return this._display.value.mapExtent;
   }
 
   // source

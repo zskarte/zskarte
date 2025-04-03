@@ -64,13 +64,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         extendExtent(extent, featureExtent);
       }
     });
-    this._renderer
-      .getMap()
-      .getView()
-      .fit(extent, {
-        padding: [100, 600, 100, 100],
-        maxZoom: 18,
-      });
+    this._renderer.zoomToFit(extent, [100, 600, 100, 100]);
   }
 
   toggleHighlightAll() {

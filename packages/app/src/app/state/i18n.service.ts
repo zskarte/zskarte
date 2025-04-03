@@ -3105,6 +3105,11 @@ export class I18NService {
       en: 'This journal entry has changes that are only local.',
       fr: 'Cette entrée de journal comporte des modifications qui sont uniquement locales.',
     },
+    streetSearch: {
+      de: 'Strassensuche',
+      en: 'Street search',
+      fr: 'Recherche dans la rue',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

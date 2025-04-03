@@ -4,6 +4,8 @@ import { FillStyle, IconsOffset } from '../sign/interfaces';
 import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
 import { Sort } from '@angular/material/sort';
+import { Geometry } from 'ol/geom';
+import { Extent } from 'ol/extent';
 
 export enum ZsMapStateSource {
   OPEN_STREET_MAP = 'openStreetMap',
@@ -62,6 +64,7 @@ export interface IZsMapDisplayState {
   mapOpacity: number;
   mapCenter: Coordinate;
   mapZoom: number;
+  mapExtent: Extent;
   dpi?: number;
   showMyLocation: boolean;
   activeLayer: string | undefined;
@@ -252,7 +255,7 @@ export interface IZsMapSearchResult {
   internal?;
 }
 
-export type SearchFunction = (searchText: string, maxResultCount?: number) => Promise<IZsMapSearchResult[]>;
+export type SearchFunction = (searchText: string, abortController: AbortController, maxResultCount?: number) => Promise<IZsMapSearchResult[]>;
 
 export interface IZsMapSearchConfig {
   label: string;
@@ -266,4 +269,14 @@ export interface IResultSet {
   config: IZsMapSearchConfig;
   results: IZsMapSearchResult[];
   collapsed: boolean | 'peek';
+}
+
+export interface IFoundLocation {
+  attrs: IFoundLocationAttrs;
+}
+
+export interface IFoundLocationAttrs {
+  label: string;
+  lon: number;
+  lat: number;
 }

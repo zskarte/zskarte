@@ -201,7 +201,7 @@ export class GeoJSONService {
     });
   }
 
-  public search(searchText: string, layer: GeoJSONMapLayer, features: Feature<Geometry>[], maxResultCount?: number): IZsMapSearchResult[] {
+  public search(searchText: string, layer: GeoJSONMapLayer, features: Feature<Geometry>[], abortController: AbortController, maxResultCount?: number): IZsMapSearchResult[] {
     if (searchText.length < 3 || !layer.source?.url || !layer.searchRegExPatterns) {
       return [];
     }
@@ -302,6 +302,9 @@ export class GeoJSONService {
         if (resultCount >= maxResultCount) {
           break;
         }
+      }
+      if (abortController.signal.aborted){
+        return [];
       }
     }
     if (layer.searchResultGroupingFilterFields?.length) {

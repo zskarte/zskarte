@@ -11,18 +11,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { coordinateFromString } from '../helper/coordinates-extract';
 import { SearchService } from '../search/search.service';
 import { SearchAutocompleteComponent } from '../search/search-autocomplete/search-autocomplete.component';
-interface IFoundLocation {
-  attrs: IFoundLocationAttrs;
-}
-
-interface IFoundLocationAttrs {
-  label: string;
-  lon: number;
-  lat: number;
-}
+import { MapRendererService } from '../map-renderer/map-renderer.service';
 
 @Component({
   selector: 'app-geocoder',
@@ -41,11 +32,11 @@ interface IFoundLocationAttrs {
 export class GeocoderComponent implements OnDestroy {
   i18n = inject(I18NService);
   zsMapStateService = inject(ZsMapStateService);
+  private _renderer = inject(MapRendererService);
   private _session = inject(SessionService);
   private _search = inject(SearchService);
 
   readonly el = viewChild.required<ElementRef>('searchField');
-  geocoderUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&searchText=';
   foundLocations = signal<IResultSet[]>([]);
   inputText = '';
   keepCoord = false;
@@ -60,9 +51,6 @@ export class GeocoderComponent implements OnDestroy {
       .subscribe(() => {
         this.selected = null;
       });
-
-    this._search.addSearch(this.coordinateSearch.bind(this), this.i18n.get('coordinates'), undefined, 1);
-    this._search.addSearch(this.geoAdminLocationSearch.bind(this), 'Geo Admin', undefined, 100);
 
     const { searchResults$, updateSearchTerm } = this._search.createSearchInstance();
     this.updateSearchTerm = updateSearchTerm;
@@ -89,36 +77,6 @@ export class GeocoderComponent implements OnDestroy {
   ngOnDestroy(): void {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
-  }
-
-  async coordinateSearch(text: string) {
-    const coords = coordinateFromString(text);
-
-    if (coords) {
-      return [{ label: text, lonLat: coords }];
-    }
-
-    return [];
-  }
-
-  async geoAdminLocationSearch(text: string, maxResultCount?: number) {
-    if (!navigator.onLine) {
-      return [];
-    }
-    let url = this.geocoderUrl + encodeURIComponent(text);
-    if (maxResultCount !== undefined) {
-      url = `${url}&limit=${maxResultCount}`;
-    }
-    const result: { results: IFoundLocation[] } = await fetch(url).then((response) => response.json());
-    if (this.inputText !== text) {
-      // if there is already a new search query skip map results as they are not displayed.
-      return [];
-    }
-    const foundLocations: IZsMapSearchResult[] = [];
-    result.results
-      .filter((r) => r?.attrs?.label)
-      .forEach((r) => foundLocations.push({ label: r.attrs.label, lonLat: [r.attrs.lon, r.attrs.lat], internal: r }));
-    return foundLocations;
   }
 
   async geoCodeLoad() {
@@ -149,9 +107,20 @@ export class GeocoderComponent implements OnDestroy {
         coordinates = transform(element.lonLat, 'EPSG:4326', 'EPSG:3857');
       }
       if (coordinates) {
+        this.zsMapStateService.updateSearchResultFeatures([]);
         this.zsMapStateService.updatePositionFlag({ isVisible: true, coordinates });
         if (center) {
           this.zsMapStateService.setMapCenter(coordinates);
+        }
+        return;
+      } else if (element.feature) {
+        this.zsMapStateService.updateSearchResultFeatures([element.feature]);
+        const extent = element.feature.getGeometry()?.getExtent();
+        if (center && extent) {
+          this._renderer.zoomToFit(extent);
+          this.zsMapStateService.updatePositionFlag({ isVisible: false, coordinates: [0,0] });
+        } else {
+          this.zsMapStateService.updatePositionFlag({ isVisible: true, coordinates: element.internal.center ?? [0,0] });
         }
         return;
       }

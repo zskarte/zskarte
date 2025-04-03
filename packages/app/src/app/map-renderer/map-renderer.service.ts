@@ -9,7 +9,7 @@ import { FeatureLike } from 'ol/Feature';
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import { Attribution, ScaleLine } from 'ol/control';
-import { LineString, Point, Polygon } from 'ol/geom';
+import { Geometry, LineString, Point, Polygon } from 'ol/geom';
 import { Draw, Interaction, defaults } from 'ol/interaction';
 import { Layer } from 'ol/layer';
 import VectorLayer from 'ol/layer/Vector';
@@ -37,10 +37,12 @@ import { MapOverlayService } from './map-overlay.service';
 import { MapPrintService } from './map-print.service';
 import { MapSelectService } from './map-select.service';
 import { SearchService } from '../search/search.service';
+import { Extent } from 'ol/extent';
 
 export const LAYER_Z_INDEX_CURRENT_LOCATION = 1000000;
 export const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000001;
 export const LAYER_Z_INDEX_DEVICE_TRACKING = 1000002;
+export const LAYER_Z_INDEX_SEARCH_RESULT_LAYER = 1000003;
 export const LAYER_Z_INDEX_PRINT_DIMENSIONS = 1000100;
 
 @Injectable({
@@ -65,6 +67,8 @@ export class MapRendererService {
     zIndex: 0,
   });
   private _navigationLayer!: VectorLayer<VectorSource>;
+  private _searchResultFeaturesLayer!: VectorLayer<VectorSource>;
+  private _searchResultFeaturesSource!: VectorSource;
   private _deviceTrackingLayer!: VectorLayer<VectorSource>;
   private _devicePositionFlag!: Feature;
   private _devicePositionFlagLocation!: Point;
@@ -292,6 +296,15 @@ export class MapRendererService {
 
     this._map.addLayer(this._navigationLayer);
 
+    this._searchResultFeaturesSource = new VectorSource();
+    this._searchResultFeaturesLayer = new VectorLayer({
+      source: this._searchResultFeaturesSource,
+      style: this.styleSeachResultFeature,
+    });
+    this._searchResultFeaturesLayer.setZIndex(LAYER_Z_INDEX_SEARCH_RESULT_LAYER);
+
+    this._map.addLayer(this._searchResultFeaturesLayer);
+
     this._map.on('singleclick', (event) => {
       if (this._map.hasFeatureAtPixel(event.pixel)) {
         const feature = this._map.forEachFeatureAtPixel(event.pixel, (feature) => feature, { hitTolerance: 10 });
@@ -337,6 +350,7 @@ export class MapRendererService {
 
     this._map.on('moveend', () => {
       this._state.setMapCenter(this._view.getCenter() || [0, 0]);
+      this._state.setMapExtent(this.getMapExtent());
     });
 
     this._map.on('pointermove', (event) => {
@@ -358,6 +372,7 @@ export class MapRendererService {
 
     const debouncedZoomSave = debounce(() => {
       this._state.setMapZoom(this._view.getZoom() ?? 10);
+      this._state.setMapExtent(this.getMapExtent());
     }, 500);
 
     this._view.on('change:resolution', () => {
@@ -495,12 +510,13 @@ export class MapRendererService {
                 (mapLayer.type === 'geojson' || mapLayer.type === 'csv') &&
                 (mapLayer as GeoJSONMapLayer).searchable
               ) {
-                searchFunc = (searchText: string, maxResultCount?: number) => {
+                searchFunc = (searchText: string, abortController: AbortController, maxResultCount?: number) => {
                   return Promise.resolve(
                     this.geoJSONService.search(
                       searchText,
                       mapLayer as GeoJSONMapLayer,
                       (olLayer.getSource() as VectorSource).getFeatures(),
+                      abortController,
                       maxResultCount,
                     ),
                   );
@@ -542,6 +558,15 @@ export class MapRendererService {
         this._positionFlag.changed();
       });
 
+    this._state
+      .observeSearchResultFeatures()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((searchResultFeatures) => {
+        this._searchResultFeaturesSource.clear();
+        this._searchResultFeaturesSource.addFeatures(searchResultFeatures);
+        this._searchResultFeaturesLayer.setVisible(searchResultFeatures.length > 0);
+      });
+
     this._print.initialize({
       renderer: this,
     });
@@ -567,7 +592,7 @@ export class MapRendererService {
       // Filter out hidden elements
       drawElements = drawElements.filter((element) => {
         const feature = element.getOlFeature();
-        const highlighted = highlightedFeature.includes(element.getId())
+        const highlighted = highlightedFeature.includes(element.getId());
         feature?.set('highlighted', highlighted);
         const filterType = element.elementState?.type as string;
         const hidden = hiddenSymbols.includes(feature?.get('sig')?.id) || hiddenFeatureTypes.includes(filterType);
@@ -672,5 +697,39 @@ export class MapRendererService {
 
   public getScaleLine(): ScaleLine {
     return this._scaleLine;
+  }
+
+  public zoomToFit(extent: Extent, padding: [number, number, number, number] = [100, 100, 100, 100], maxZoom = 18) {
+    this.getMap().getView().fit(extent, {
+      padding,
+      maxZoom,
+    });
+  }
+
+  public getMapExtent() {
+    return this.getMap().getView().calculateExtent(this.getMap().getSize());
+  }
+
+  private styleSeachResultFeature(feature) {
+    const geometryType = feature.getGeometry().getType();
+
+    if (geometryType === 'Point') {
+      return new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+          src: 'assets/img/place.png',
+          scale: 0.15,
+        }),
+      });
+    } else {
+      return new Style({
+        stroke: new Stroke({
+          color: 'red',
+          width: 2,
+        }),
+      });
+    }
   }
 }
