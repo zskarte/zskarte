@@ -1,49 +1,48 @@
-import { Schema as SchemaNamespace, UID, Utils } from '@strapi/strapi';
-import { CollectionType } from '@strapi/types/dist/core/core-api/controller';
-import { Attribute } from '@strapi/types/dist/schema';
+import { Schema, UID, Utils, Struct } from '@strapi/strapi';
 
-//Type analysing/Schema based on logic from Common.UID
-interface IsOperationTypeSchema extends CollectionType {
+//Type analysing/Schema based on logic from UID
+interface IsOperationTypeSchema extends Struct.CollectionTypeSchema {
   collectionName: 'operations';
 }
-interface IsOrganizationTypeSchema extends CollectionType {
+interface IsOrganizationTypeSchema extends Struct.CollectionTypeSchema {
   collectionName: 'organizations';
 }
-interface HasOperationTypeSchema extends CollectionType {
+interface HasOperationTypeSchema extends Struct.CollectionTypeSchema {
   attributes: {
-    operation: Attribute.Relation<'manyToOne'>;
+    operation: Schema.Attribute.Relation<'oneToOne' | 'manyToOne', 'api::operation.operation'>;
   };
 }
-interface HasOrganizationTypeSchema extends CollectionType {
+
+interface HasOrganizationTypeSchema extends Struct.CollectionTypeSchema {
   attributes: {
-    organization: Attribute.Relation<'manyToOne'>;
+    organization: Schema.Attribute.Relation<'oneToOne' | 'manyToOne', 'api::organization.organization'>;
   };
 }
-interface HasPublicTypeSchema extends CollectionType {
+interface HasPublicTypeSchema extends Struct.CollectionTypeSchema {
   attributes: {
-    public: Attribute.Boolean;
+    public: Schema.Attribute.Boolean;
   };
 }
 
 export type IsOperationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, IsOperationTypeSchema>, UID.ContentType>,
+  Extract<Utils.Object.KeysBy<Schema.ContentTypes, IsOperationTypeSchema>, UID.ContentType>,
   UID.ContentType
 >;
 export type IsOrganizationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, IsOrganizationTypeSchema>, UID.ContentType>,
+  Extract<Utils.Object.KeysBy<Schema.ContentTypes, IsOrganizationTypeSchema>, UID.ContentType>,
   UID.ContentType
 >;
 export type HasOperationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, HasOperationTypeSchema>, UID.ContentType>,
+  Extract<Utils.Object.KeysBy<Schema.ContentTypes, HasOperationTypeSchema>, UID.ContentType>,
   UID.ContentType
 >;
 export type HasOrganizationType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, HasOrganizationTypeSchema>, UID.ContentType>,
+  Extract<Utils.Object.KeysBy<Schema.ContentTypes, HasOrganizationTypeSchema>, UID.ContentType>,
   UID.ContentType
 >;
 export type AccessCheckableType = IsOperationType | IsOrganizationType | HasOperationType | HasOrganizationType;
 export type HasPublicType = Utils.Guard.Never<
-  Extract<Utils.Object.KeysBy<SchemaNamespace.ContentTypes, HasPublicTypeSchema>, UID.ContentType>,
+  Extract<Utils.Object.KeysBy<Schema.ContentTypes, HasPublicTypeSchema>, UID.ContentType>,
   UID.ContentType
 >;
 
@@ -56,7 +55,7 @@ const HasOperationTypes: HasOperationType[] = [
   'api::journal-entry.journal-entry',
 ];
 const HasOrganizationTypes: HasOrganizationType[] = [
-  'plugin::users-permissions.user' as any,
+  'plugin::users-permissions.user',
   'api::operation.operation',
   'api::wms-source.wms-source',
   'api::map-layer.map-layer',

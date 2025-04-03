@@ -90,6 +90,25 @@ export class MapRendererService {
   private _state = inject(ZsMapStateService);
   private _drawElementCache: Record<string, { layer: string | undefined; element: ZsMapBaseDrawElement }> = {};
 
+  public terminate() {
+    this._ngUnsubscribe.next();
+    this._ngUnsubscribe.complete();
+    //as the service stay alive also if map page is leaved (and this function is callen), need to clear all now invalid caches and lists
+    for (const layer of this._allLayers) {
+      this._map.removeLayer(layer);
+      layer.getSource()?.clear();
+      layer.getRenderer()?.dispose();
+      layer.setSource(null);
+    }
+    this._layerCache = {};
+    this._allLayers = [];
+    this._mapLayerCache = new Map();
+    this._drawElementCache = {};
+    this._mapLayer = new Layer({
+      zIndex: 0,
+    });
+  }
+
   public initialize({
     mapElement,
     buttons,
@@ -538,6 +557,10 @@ export class MapRendererService {
       this._state.observeHiddenSymbols(),
       this._state.observeHiddenFeatureTypes(),
     ]).subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
+      const activeLayer = this._state.getActiveLayer();
+      if (!activeLayer || !this._state.getLayer(activeLayer.getId())) {
+        return;
+      }
       // Filter out hidden elements
       drawElements = drawElements.filter((element) => {
         const feature = element.getOlFeature();
@@ -575,7 +598,7 @@ export class MapRendererService {
       for (const element of Object.values(this._drawElementCache)) {
         if (drawElements.every((e) => e.getId() !== element.element.getId())) {
           // New elements do not contain element from cache
-          this._state.getLayer(element.layer ?? '').removeOlFeature(element.element.getOlFeature());
+          this._state.getLayer(element.layer ?? '')?.removeOlFeature(element.element.getOlFeature());
           delete this._drawElementCache[element.element.getId()];
         }
       }

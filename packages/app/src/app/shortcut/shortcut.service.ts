@@ -10,6 +10,8 @@ import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-el
 import { SessionService } from '../session/session.service';
 import { ZsMapStateService } from '../state/state.service';
 import { IShortcut } from './shortcut.interfaces';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { I18NService } from '../state/i18n.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +20,7 @@ export class ShortcutService {
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   private _dialog = inject(MatDialog);
+  public i18n = inject(I18NService);
 
   private _selectedElement: ZsMapBaseDrawElement | undefined = undefined;
   private _selectedFeatureId: string | undefined = undefined;
@@ -37,6 +40,10 @@ export class ShortcutService {
       this._selectedElement = element;
     });
 
+    this._state.observeSelectedFeature$().subscribe((featureId) => {
+      this._selectedFeatureId = featureId;
+    });
+
     this._state.observeIsReadOnly().subscribe((readOnlyMode) => {
       this._readOnlyMode = readOnlyMode;
     });
@@ -45,7 +52,14 @@ export class ShortcutService {
   public initialize(): void {
     this._listen({ shortcut: 'mod+backspace', drawModeOnly: true }).subscribe(() => {
       if (this._selectedFeatureId) {
-        this._state.removeDrawElement(this._selectedFeatureId);
+        const confirmation = this._dialog.open(ConfirmationDialogComponent, {
+          data: this.i18n.get('removeFeatureFromMapConfirm'),
+        });
+        confirmation.afterClosed().subscribe((result) => {
+          if (result && this._selectedFeatureId) {
+            this._state.removeDrawElement(this._selectedFeatureId);
+          }
+        });
       }
     });
 

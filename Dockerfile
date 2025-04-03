@@ -7,6 +7,7 @@ WORKDIR /app
 ADD ./package.json /app/package.json
 ADD ./package-lock.json /app/package-lock.json
 ADD ./packages/server/package.json /app/packages/server/package.json
+ADD ./patches/* /app/patches/
 RUN npm ci 
 
 # Copy all files
