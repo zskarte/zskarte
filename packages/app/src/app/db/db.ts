@@ -146,14 +146,14 @@ export class AppDB extends Dexie {
         }
       });
     //new modifications can be done here with only modify version number(or adding new version block), but 'localMapBlobs: null,' and 'localMapMeta: null,' need to stay here (to remove old table).
-    this.version(8.2).stores({
+    this.version(9).stores({
       localMapBlobs: null,
       localMapMeta: null,
       localOperation: 'id,phase',
       localWmsSource: 'id',
       localMapLayer: 'fullId,id',
       localMapLayerSettings: 'id',
-      patchJournalEntries: '++id, organizationId, operationId, uuid, documentId',
+      patchJournalEntries: '++id, [operationId+organizationId], organizationId, operationId, uuid, documentId',
       localJournalEntries:
         '[operationId+uuid], [organizationId+operationId+messageNumber], organizationId, operationId, uuid, documentId, messageNumber',
     });

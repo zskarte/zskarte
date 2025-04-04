@@ -350,7 +350,7 @@ export class JournalComponent implements AfterViewInit {
   }, 5000);
 
   sortData(sort: Sort) {
-    if (!sort.active || sort.direction === '') {
+    if (!sort?.active || sort?.direction === '') {
       return;
     }
 

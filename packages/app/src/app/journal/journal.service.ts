@@ -357,7 +357,7 @@ export class JournalService {
 
   public async update(entry: Partial<JournalEntry>, documentId?: string, uuid?: string) {
     if (entry.messageNumber) {
-      if (await this.messageNumberAlreadyExist(entry.messageNumber, uuid ?? entry.uuid)) {
+      if (await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)) {
         return {
           error: { message: `messageNumber ${entry.messageNumber} already exist` },
           result: undefined,

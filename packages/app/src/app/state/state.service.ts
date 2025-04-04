@@ -1293,6 +1293,7 @@ export class ZsMapStateService {
       map((o) => {
         return o.journalSort;
       }),
+      filter((x) => Boolean(x)),
       distinctUntilChanged((x, y) => x === y),
     );
   }
