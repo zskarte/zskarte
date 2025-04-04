@@ -298,6 +298,12 @@ export class SelectedFeatureComponent implements OnDestroy {
     event.chipInput!.clear();
   }
 
+  validateNumberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const negativ = input.value[0] === '-';
+    input.value = (negativ ? '-' : '') + input.value.replace(/[^0-9]/g, '');
+  }
+
   static getUpdatedFillStyle<T extends keyof FillStyle>(
     element: ZsMapDrawElementState,
     field: T,

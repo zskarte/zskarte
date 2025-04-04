@@ -66,6 +66,7 @@ export class JournalComponent implements AfterViewInit {
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
   isOnline = toSignal(this._session.observeIsOnline());
+  isReadOnly = toSignal(this._state.observeIsReadOnly());
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;

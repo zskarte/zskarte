@@ -96,8 +96,16 @@ export class ApiService {
       });
 
       if (!response.ok) {
-        console.error('Error on request', { method, path, body, options });
-        throw new Error('Error on request');
+        let json = await response.json();
+        if (json) {
+          if (json.json) {
+            json = deserialize(json);
+          }
+          throw json;
+        } else {
+          console.error('Error on request', { method, path, body, options, response });
+          throw new Error('Error on request');
+        }
       }
 
       if (response.status === 204) {

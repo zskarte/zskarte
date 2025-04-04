@@ -212,11 +212,13 @@
           ></tr>
         </table>
 
-        <div class="fab-button">
-          <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
+        @if (!isReadOnly()) {
+          <div class="fab-button">
+            <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        }
       </div>
     </div>
   </mat-sidenav-content>

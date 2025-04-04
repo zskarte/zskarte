@@ -52,6 +52,10 @@ export class MapRendererComponent implements AfterViewInit {
   private _rotating = false;
   private _initialRotation = 0;
 
+  public ngOnDestroy(): void {
+    this.renderer.terminate();
+  }
+
   public ngAfterViewInit(): void {
     this.renderer.initialize({
       mapElement: this.mapElement,

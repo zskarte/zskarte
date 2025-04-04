@@ -63,7 +63,7 @@
   >
     <mat-tab label="{{ i18n.get('input') }}">
       <div class="journal-entry-details">
-        @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE) {
+        @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE || isReadOnly()) {
           <table class="details-table">
             <tr>
               <td>
@@ -204,7 +204,7 @@
 
     <mat-tab label="{{ i18n.get('triage') }}" [disabled]="isTabDisabled(JournalEntryStatus.AWAITING_TRIAGE)">
       <div class="journal-entry-details">
-        @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_TRIAGE) {
+        @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_TRIAGE || isReadOnly()) {
           <table class="details-table">
             <tr>
               <td>
@@ -283,7 +283,7 @@
           </div>
         }
       </div>
-      @if (journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) {
+      @if (journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE && !isReadOnly()) {
         <div class="info-send-back">
           <h3>{{ i18n.get('wrongContent') }}</h3>
           <p>{{ i18n.get('wrongContentMessage') }}</p>
@@ -299,7 +299,7 @@
     </mat-tab>
     <mat-tab label="{{ i18n.get('decision') }}" [disabled]="isTabDisabled(JournalEntryStatus.AWAITING_DECISION)">
       <div class="journal-entry-details">
-        @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_DECISION) {
+        @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_DECISION || isReadOnly()) {
           <table class="details-table">
             <tr>
               <td>
@@ -363,7 +363,7 @@
           </div>
         }
       </div>
-      @if (journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION) {
+      @if (journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION && !isReadOnly()) {
         <div class="info-send-back">
           <h3>{{ i18n.get('wrongDepartment') }}</h3>
           <p>{{ i18n.get('wrongTriage') }}</p>
@@ -379,7 +379,7 @@
     </mat-tab>
     <mat-tab label="{{ i18n.get('output') }}" [disabled]="isTabDisabled(JournalEntryStatus.AWAITING_COMPLETION)">
       <div class="journal-entry-details">
-        @if (journalForm.value.entryStatus === JournalEntryStatus.COMPLETED) {
+        @if (journalForm.value.entryStatus === JournalEntryStatus.COMPLETED || isReadOnly()) {
           <table class="details-table">
             <tr>
               <td>

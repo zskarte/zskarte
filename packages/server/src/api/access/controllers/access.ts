@@ -46,27 +46,34 @@ export default factories.createCoreController('api::access.access', ({ strapi })
     const accesses = (await strapi.documents('api::access.access').findMany({
       filters: { accessToken },
       populate: {
-        operation: true,
+        operation: { fields: ['documentId'] },
+        organization: { fields: ['documentId'] },
       },
       limit: 1,
-    })) as unknown as Access[];
+    })) as Access[];
     const access = _.first(accesses);
 
     if (!access) return ctx.unauthorized('Invalid access token');
     if (!access.active) return ctx.unauthorized('Access is not active anymore');
-    if (!access.operation) return ctx.unauthorized('Access has no operation assigned');
     if (access.expiresOn && new Date(access.expiresOn).getTime() < Date.now())
       return ctx.unauthorized('Access is not active anymore');
+    if (!access.operation) return ctx.unauthorized('Access has no operation assigned');
+    if (!access.organization) return ctx.unauthorized('Access has no organization assigned');
 
-    const accessUsers = (await strapi.documents('plugin::users-permissions.user' as any).findMany({
+    const accessUsers = (await strapi.documents('plugin::users-permissions.user').findMany({
       filters: { username: `operation_${access.type}` },
       limit: 1,
-    })) as unknown as User[];
+    })) as User[];
     const accessUser = _.first(accessUsers);
 
     if (!accessUser) return ctx.unauthorized(`Couldn't find the default access user for type ${access.type}`);
 
-    const token = jwt.issue({ id: accessUser.id, operationId: access.operation.documentId, permission: access.type });
+    const token = jwt.issue({
+      id: accessUser.id,
+      operationId: access.operation.documentId,
+      organizationId: access.organization.documentId,
+      permission: access.type,
+    });
 
     //delete if it's a short time access token only
     if (accessToken.length < 32) {
@@ -81,24 +88,24 @@ export default factories.createCoreController('api::access.access', ({ strapi })
     });
   },
   async generate(ctx) {
-    const { documentId: organizationId } = ctx.state?.user?.organization || {};
-    if (!organizationId) return ctx.forbidden('This action is forbidden, invalid context.');
+    const organization = ctx.state?.user?.organization || {};
+    if (!organization.documentId) return ctx.forbidden('This action is forbidden, invalid context.');
     const { name, type, operationId, tokenType } = ctx.request.body;
 
     if (!type) return ctx.badRequest('You must define the "type" property');
     if (!Object.values(AccessTypes).includes(type))
-      return ctx.badRequest('The "type" property has an invalid value. Allowed values are: [read, write, admin]');
+      return ctx.badRequest('The "type" property has an invalid value. Allowed values are: [read, write, all]');
 
     if (!operationId) return ctx.badRequest('You must define the "operationId" property');
     const operations = (await strapi.documents('api::operation.operation').findMany({
       filters: {
         documentId: operationId,
         organization: {
-          documentId: { $eq: organizationId },
+          documentId: { $eq: organization.documentId },
         },
       },
       limit: 1,
-    })) as unknown as Operation[];
+    })) as Operation[];
     if (!operations.length)
       return ctx.badRequest(
         'The operation you provided does not exist or the operation does not match your account organization!',
@@ -106,9 +113,9 @@ export default factories.createCoreController('api::access.access', ({ strapi })
     const operation = _.first(operations);
 
     const accessToken =
-      tokenType === AccessTokenTypes.LONG
-        ? crypto.randomBytes(16).toString('hex')
-        : crypto.randomInt(999999).toString().padStart(6, '0');
+      tokenType === AccessTokenTypes.LONG ?
+        crypto.randomBytes(16).toString('hex')
+      : crypto.randomInt(999999).toString().padStart(6, '0');
 
     const expiresOn = tokenType === AccessTokenTypes.LONG ? null : new Date(Date.now() + MINUTES_15);
 
@@ -120,9 +127,20 @@ export default factories.createCoreController('api::access.access', ({ strapi })
         accessToken,
         operation,
         expiresOn,
+        organization,
       },
     });
 
     ctx.send({ accessToken });
+  },
+  async find(ctx) {
+    if (ctx.query.operationId) {
+      ctx.query.filters = {
+        operation: {
+          documentId: ctx.query.operationId,
+        },
+      };
+    }
+    return await super.find(ctx);
   },
 }));

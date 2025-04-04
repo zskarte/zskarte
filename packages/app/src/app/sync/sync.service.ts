@@ -31,6 +31,9 @@ interface Connection {
   currentLocation?: { long: number; lat: number };
 }
 
+const RECONNECT_ACTIVE_CONNECTION_TIME = 900_000;
+const TRY_RECONNECT_NO_CONNECTION_TIME = 60_000;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -48,14 +51,25 @@ export class SyncService {
   private journalChange$ = toObservable(this._journal.data);
 
   constructor() {
-    // Reload the map every 60s if nothing changed
+    // Reload the websocket every 15min if nothing changed
+    // each _reconnect try(respectively _disconnect) will set _connections again to [] and emit again
     const noChanges$ = this.observeConnections().pipe(
       filter((con) => con.length > 0),
       switchMap(() => merge(this._state.observeMapState(), this.journalChange$)),
-      debounceTime(60_000),
+      debounceTime(RECONNECT_ACTIVE_CONNECTION_TIME),
+    );
+    const lostConnection$ = this.observeConnections().pipe(
+      debounceTime(TRY_RECONNECT_NO_CONNECTION_TIME),
+      filter((con) => con.length === 0 && this._session.isOnline()),
     );
 
-    merge(this._session.observeOperationId(), this._session.observeIsOnline(), this._session.observeLabel(), noChanges$)
+    merge(
+      this._session.observeOperationId(),
+      this._session.observeIsOnline(),
+      this._session.observeLabel(),
+      noChanges$,
+      lostConnection$,
+    )
       .pipe(debounceTime(250))
       .subscribe(async () => {
         const operationId = this._session.getOperationId();

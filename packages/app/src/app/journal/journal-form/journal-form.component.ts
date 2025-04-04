@@ -31,6 +31,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ZsMapStateService } from 'src/app/state/state.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-journal-form',
@@ -57,6 +58,7 @@ export class JournalFormComponent {
   private _state = inject(ZsMapStateService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
+  isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
 
   JournalEntryStatus = JournalEntryStatus;
