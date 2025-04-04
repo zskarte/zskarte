@@ -73,6 +73,9 @@ mat-form-field {
   justify-content: space-between;
   overflow: hidden;
   text-overflow: ellipsis;
+  mat-form-field {
+    margin-top: 5px;
+  }
 }
 
 hr {

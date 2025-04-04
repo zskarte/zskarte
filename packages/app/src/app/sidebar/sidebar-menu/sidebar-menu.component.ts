@@ -60,13 +60,13 @@ export class SidebarMenuComponent {
   public incidents = new BehaviorSubject<number[]>([]);
   public hasWritePermission = false;
   public isArchived = true;
-  public workLocal = false;
+  public localOperation = false;
 
   constructor() {
     this.incidents.next(this.session.getOperationEventStates() || []);
     this.hasWritePermission = this.session.hasWritePermission();
     this.isArchived = this.session.isArchived();
-    this.workLocal = this.session.isWorkLocal()
+    this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
   }
 
   async updateIncidents(incidents: number[]): Promise<void> {

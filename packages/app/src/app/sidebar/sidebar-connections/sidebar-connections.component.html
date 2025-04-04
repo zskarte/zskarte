@@ -1,6 +1,6 @@
 <div class="flex-label">
   @if (labelEdit) {
-    <mat-form-field appearance="outline" style="margin-bottom: -1.25em">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('myName') }}</mat-label>
       <input type="text" matInput [ngModel]="session.getLabel()" (ngModelChange)="label$.next($event)" maxlength="40" />
     </mat-form-field>
@@ -16,7 +16,7 @@
   </button>
 </div>
 <hr />
-@if (!isWorkLocal && (isOnline | async)) {
+@if (!localOperation && (isOnline | async)) {
   <div class="connections-container">
     <mat-slide-toggle
       color="primary"
@@ -52,7 +52,7 @@
     <mat-label class="font-gray">{{ i18n.get('youAreOffline') }}</mat-label>
   </div>
 }
-@if (isWorkLocal) {
+@if (localOperation) {
   <div class="local-container">
     <p>{{ i18n.get('localAvailabilityStepsIntro') }}</p>
       <mat-checkbox [checked]="useLocalBaseMap" [disabled]="useLocalBaseMap" (click)="changeToLocalMap()">{{

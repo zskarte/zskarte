@@ -85,7 +85,7 @@ export class FloatingUIComponent {
   public showLogo = true;
   public sidebarTitle = '';
   public logo = '';
-  public workLocal = false;
+  public localOperation = false;
 
   constructor() {
     if (this.isInitialLaunch()) {
@@ -94,7 +94,7 @@ export class FloatingUIComponent {
       });
     }
     this.logo = this.session.getLogo() ?? '';
-    this.workLocal = this.session.isWorkLocal();
+    this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
     this.sidebar.observeContext()
     .pipe(takeUntil(this._ngUnsubscribe))
     .subscribe(sidebarContext => {
@@ -152,7 +152,7 @@ export class FloatingUIComponent {
         this.connectionCount.next(connections.length);
       });
 
-    if (this.workLocal) {
+    if (this.localOperation) {
       this.state
         .observeDisplayState()
         .pipe(takeUntil(this._ngUnsubscribe),debounceTime(250))

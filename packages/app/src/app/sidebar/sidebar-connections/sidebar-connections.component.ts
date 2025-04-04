@@ -60,7 +60,7 @@ export class SidebarConnectionsComponent implements OnDestroy {
   public isOnline = new BehaviorSubject<boolean>(true);
   private _ngUnsubscribe = new Subject<void>();
 
-  isWorkLocal: boolean;
+  localOperation: boolean;
   useLocalBaseMap = false;
   downloadLocalBaseMap = false;
   hideUnavailableLayers = false;
@@ -71,8 +71,6 @@ export class SidebarConnectionsComponent implements OnDestroy {
   mapProgress = 0;
 
   constructor() {
-    const session = this.session;
-
     this.connections$ = this.syncService.observeConnections().pipe(takeUntil(this._ngUnsubscribe));
     this.label$?.next(this.session.getLabel() ?? '');
     this.state
@@ -87,8 +85,8 @@ export class SidebarConnectionsComponent implements OnDestroy {
       .subscribe((isOnline) => {
         this.isOnline.next(isOnline);
       });
-    this.isWorkLocal = session.isWorkLocal();
-    if (this.isWorkLocal) {
+    this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
+    if (this.localOperation) {
       this.updateOfflineInfos();
     }
   }

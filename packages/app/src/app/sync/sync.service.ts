@@ -70,7 +70,7 @@ export class SyncService {
         const isOnline = this._session.isOnline();
         const label = this._session.getLabel();
         const isWorkLocal = this._session.isWorkLocal();
-        if (isWorkLocal || !isOnline || !operationId || !label) {
+        if (isWorkLocal || !isOnline || !operationId || operationId.startsWith('local-') || !label) {
           this._disconnect();
           return;
         }
@@ -198,7 +198,7 @@ export class SyncService {
   }, 250);
 
   public publishCurrentLocation = debounce(async (longLat: { long: number; lat: number } | undefined) => {
-    if (!this._session.isWorkLocal()){
+    if (!this._session.isWorkLocal()) {
       await this._publishCurrentLocation(longLat);
     }
   }, 1000);
