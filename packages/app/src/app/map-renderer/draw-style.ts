@@ -439,7 +439,7 @@ export class DrawStyle {
       const iconRadius = scale * 250 * (signature.iconSize ?? 1);
       const notificationIconRadius = iconRadius / 4;
       const highlightStroke = (selected || highlightedIcon) ? DrawStyle.getHighlightStroke(feature, scale) : null;
-      if ((showIcon && selected) || highlightedIcon) {
+      if ((showIcon || signature.type === 'Point') && (selected || highlightedIcon)) {
         // Highlight the stroke to the icon
         iconStyles.push(
           new Style({
@@ -483,7 +483,7 @@ export class DrawStyle {
         }
       }
 
-      if (showIcon || selected || highlightedIcon) {
+      if (showIcon || (signature.type === 'Point' && (selected || highlightedIcon))) {
         // Draw a dashed line to the icon
         iconStyles.push(
           new Style({
