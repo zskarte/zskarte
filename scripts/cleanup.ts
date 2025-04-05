@@ -16,7 +16,7 @@ const exec = promisify(cbExec);
   if (response.resetDb) {
     tempFolders.push('data');
     try {
-      await exec('docker-compose down -v');
+      await exec('docker compose down -v');
     } catch {
       // do nothing here
     }
