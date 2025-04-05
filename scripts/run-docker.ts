@@ -38,7 +38,7 @@ const checkDockerStatus = async () => {
 
 (async () => {
   await checkDockerStatus();
-  await exec('docker-compose up -d');
+  await exec('docker compose up -d');
   await waitOn({
     resources: ['http://localhost:7050/login'],
     delay: 1000,

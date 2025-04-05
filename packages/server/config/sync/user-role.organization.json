@@ -46,6 +46,11 @@
       "locale": null
     },
     {
+      "action": "api::journal-entry.journal-entry.byNumber",
+      "documentId": "k2liaebiiqpbfa9eaxebnh5c",
+      "locale": null
+    },
+    {
       "action": "api::journal-entry.journal-entry.create",
       "documentId": "novv2oa6e6p12tkfde3ecypl",
       "locale": null
@@ -158,6 +163,11 @@
     {
       "action": "api::organization.organization.find",
       "documentId": "fpdsz20nvavm7azft39pb1a1",
+      "locale": null
+    },
+    {
+      "action": "api::organization.organization.updateJournalEntryTemplate",
+      "documentId": "dd7hzj26ruff4aiqg37zvx02",
       "locale": null
     },
     {

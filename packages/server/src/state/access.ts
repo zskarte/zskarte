@@ -6,7 +6,7 @@ export const deleteExpiredAccessTokens = async (strapi: Core.Strapi) => {
     const expiredAccesses = (await strapi.documents('api::access.access').findMany({
       filters: { expiresOn: { $lt: Date.now() } },
       limit: -1,
-    })) as unknown as Access[];
+    })) as Access[];
     for (const expiredAccess of expiredAccesses) {
       await strapi.documents('api::access.access').delete({
         documentId: expiredAccess.documentId,

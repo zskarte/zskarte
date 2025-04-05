@@ -8,6 +8,9 @@ import { debounce } from '../helper/debounce';
 import { ZsMapStateService } from '../state/state.service';
 import { BehaviorSubject, debounceTime, filter, merge, switchMap } from 'rxjs';
 import { db } from '../db/db';
+import { JournalService } from '../journal/journal.service';
+import { JournalEntry } from '../journal/journal.types';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 interface PatchExtended extends Patch {
   timestamp: Date;
@@ -28,12 +31,16 @@ interface Connection {
   currentLocation?: { long: number; lat: number };
 }
 
+const RECONNECT_ACTIVE_CONNECTION_TIME = 900_000;
+const TRY_RECONNECT_NO_CONNECTION_TIME = 60_000;
+
 @Injectable({
   providedIn: 'root',
 })
 export class SyncService {
   private _api = inject(ApiService);
   private _session = inject(SessionService);
+  private _journal = inject(JournalService);
 
   private _connectionId = uuidv4();
   private _socket: Socket | undefined;
@@ -41,29 +48,44 @@ export class SyncService {
   private _connectingPromise: Promise<void> | undefined;
   private _connections = new BehaviorSubject<Connection[]>([]);
 
-  constructor() {
-    // Reload the map every 60s if nothing changed
-    const noChanges$ = this.observeConnections()
-      .pipe(
-        filter(con => con.length > 0),
-        switchMap(() => this._state.observeMapState()),
-        debounceTime(60_000)
-      )
+  private journalChange$ = toObservable(this._journal.data);
 
-    merge(this._session.observeOperationId(), this._session.observeIsOnline(), this._session.observeLabel(), noChanges$)
+  constructor() {
+    // Reload the websocket every 15min if nothing changed
+    // each _reconnect try(respectively _disconnect) will set _connections again to [] and emit again
+    const noChanges$ = this.observeConnections().pipe(
+      filter((con) => con.length > 0),
+      switchMap(() => merge(this._state.observeMapState(), this.journalChange$)),
+      debounceTime(RECONNECT_ACTIVE_CONNECTION_TIME),
+    );
+    const lostConnection$ = this.observeConnections().pipe(
+      debounceTime(TRY_RECONNECT_NO_CONNECTION_TIME),
+      filter((con) => con.length === 0 && this._session.isOnline()),
+    );
+
+    merge(
+      this._session.observeOperationId(),
+      this._session.observeIsOnline(),
+      this._session.observeLabel(),
+      noChanges$,
+      lostConnection$,
+    )
       .pipe(debounceTime(250))
       .subscribe(async () => {
         const operationId = this._session.getOperationId();
         const isOnline = this._session.isOnline();
         const label = this._session.getLabel();
         const isWorkLocal = this._session.isWorkLocal();
-        if (isWorkLocal || !isOnline || !operationId || !label) {
+        if (isWorkLocal || !isOnline || !operationId || operationId.startsWith('local-') || !label) {
           this._disconnect();
           return;
         }
         await this._reconnect();
         await this._publishMapStatePatches();
+        await this._journal.publishPatches();
       });
+
+    this._journal.setConnectionId(this._connectionId);
   }
 
   public setStateService(state: ZsMapStateService): void {
@@ -115,6 +137,9 @@ export class SyncService {
         const otherPatches = patches.filter((p) => p.identifier !== this._connectionId);
         if (otherPatches.length === 0) return;
         this._state.applyMapStatePatches(otherPatches);
+      });
+      this._socket.on('state:journal', (entry: Partial<JournalEntry>) => {
+        this._journal.patchEntry(entry);
       });
       this._socket.on('state:connections', (connections: Connection[]) => {
         this._connections.next(connections);
@@ -185,10 +210,12 @@ export class SyncService {
   }, 250);
 
   public publishCurrentLocation = debounce(async (longLat: { long: number; lat: number } | undefined) => {
-    await this._publishCurrentLocation(longLat);
+    if (!this._session.isWorkLocal()) {
+      await this._publishCurrentLocation(longLat);
+    }
   }, 1000);
 
-  public async _publishCurrentLocation(longLat: { long: number; lat: number } | undefined): Promise<void> {
+  private async _publishCurrentLocation(longLat: { long: number; lat: number } | undefined): Promise<void> {
     await this._api.post('/api/operations/mapstate/currentlocation', longLat, {
       headers: {
         operationId: String(this._session.getOperationId()),

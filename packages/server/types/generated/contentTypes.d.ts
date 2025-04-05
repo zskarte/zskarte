@@ -352,6 +352,7 @@ export interface ApiAccessAccess extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::access.access'> & Schema.Attribute.Private;
     name: Schema.Attribute.String;
     operation: Schema.Attribute.Relation<'oneToOne', 'api::operation.operation'>;
+    organization: Schema.Attribute.Relation<'oneToOne', 'api::organization.organization'>;
     publishedAt: Schema.Attribute.DateTime;
     type: Schema.Attribute.Enumeration<['read', 'write', 'all']> &
       Schema.Attribute.Required &
@@ -396,12 +397,13 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
         'fb-schutz-rettung',
         'fb-gesundheit',
         'fb-logistik',
-        'fb-infrastukturen',
+        'fb-infrastrukturen',
       ]
     >;
     entryStatus: Schema.Attribute.Enumeration<
       ['awaiting_message', 'awaiting_triage', 'awaiting_decision', 'awaiting_completion', 'completed']
     >;
+    isDrawingOnMap: Schema.Attribute.Boolean;
     isDrawnOnMap: Schema.Attribute.Boolean;
     isKeyMessage: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -416,9 +418,12 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     sender: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    uuid: Schema.Attribute.String & Schema.Attribute.Unique;
     visumDecider: Schema.Attribute.String;
     visumMessage: Schema.Attribute.String;
     visumTriage: Schema.Attribute.String;
+    wrongContentInfo: Schema.Attribute.String;
+    wrongTriageInfo: Schema.Attribute.String;
   };
 }
 
@@ -525,6 +530,7 @@ export interface ApiOrganizationOrganization extends Struct.CollectionTypeSchema
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     defaultLocale: Schema.Attribute.Enumeration<['de-CH', 'fr-CH', 'it-CH', 'en-US']> &
       Schema.Attribute.DefaultTo<'de-CH'>;
+    journalEntryTemplate: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::organization.organization'> & Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;

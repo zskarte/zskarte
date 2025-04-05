@@ -60,11 +60,13 @@ export class SidebarMenuComponent {
   public incidents = new BehaviorSubject<number[]>([]);
   public hasWritePermission = false;
   public isArchived = true;
+  public localOperation = false;
 
   constructor() {
     this.incidents.next(this.session.getOperationEventStates() || []);
     this.hasWritePermission = this.session.hasWritePermission();
     this.isArchived = this.session.isArchived();
+    this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
   }
 
   async updateIncidents(incidents: number[]): Promise<void> {
@@ -110,7 +112,7 @@ export class SidebarMenuComponent {
         this.zsMapStateService
           .observeDrawElements()
           .pipe(first())
-          .subscribe((elements: ZsMapBaseDrawElement[]) => {
+          .subscribe(async(elements: ZsMapBaseDrawElement[]) => {
             this.protocolEntries = mapProtocolEntry(
               elements,
               this.datePipe,
@@ -119,7 +121,7 @@ export class SidebarMenuComponent {
               result.projectionFormatIndex ?? 0,
               result.numerical ?? true,
             );
-            exportProtocolExcel(this.protocolEntries, this.i18n);
+            await exportProtocolExcel(this.protocolEntries, this.i18n);
           });
       }
     });

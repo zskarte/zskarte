@@ -1,9 +1,13 @@
+mat-panel-title {
+  max-width: 100%;
+}
+
 .journal-header-content {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  
+
   .message-id {
     flex-shrink: 0;
     color: #666;
@@ -15,29 +19,35 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 60%;
   }
+}
+
+.mat-expanded .journal-header-content .subject {
+  white-space: wrap;
 }
 
 :host ::ng-deep {
   .mat-expansion-panel {
     background: transparent;
-    
+
     .mat-expansion-panel-header {
       padding: 0 16px;
     }
-    
+
     .mat-expansion-panel-body {
-      padding: 0 16px 16px;
+      padding: 0 16px;
     }
   }
 }
 
 .loading-spinner {
+  position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
+  right: 0;
+  width: 30rem;
 }
 
 .journal-header {

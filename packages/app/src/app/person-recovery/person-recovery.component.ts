@@ -9,7 +9,7 @@ import { Signs } from '../map-renderer/signs';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
-import jsPDF from 'jspdf';
+import { getJsPDF } from 'src/app/pdf/jsPDF.factory';
 
 type PersonRecoverySign = Partial<Sign> & {
   text?: string;
@@ -107,6 +107,7 @@ export class PersonRecoveryComponent {
   );
 
   async print(rows: PersonRecoveryRow[]) {
+    const jsPDF = await getJsPDF();
     const pdf = new jsPDF('portrait', undefined, 'A4');
     const width = this.dimensions[1] - this.printMargin * 2;
 

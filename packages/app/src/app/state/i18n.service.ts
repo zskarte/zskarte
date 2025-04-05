@@ -879,7 +879,7 @@ export class I18NService {
       en: 'Show Table',
       fr: 'Afficher Tableau',
     },
-    protocolSaveAsExcel: {
+    saveAsExcel: {
       de: 'Als Excel exportieren',
       en: 'Export as Excel',
       fr: 'Exporter en Excel',
@@ -1208,6 +1208,11 @@ export class I18NService {
       de: 'Erstelldatum',
       en: 'Created at',
       fr: 'Date de création',
+    },
+    updatedAt: {
+      de: 'Änderungsdatum',
+      en: 'updated at',
+      fr: 'mis à jour le',
     },
     expiresOn: {
       de: 'Ablaufdatum',
@@ -2512,11 +2517,6 @@ export class I18NService {
       en: 'Creation date',
       fr: 'Date de création',
     },
-    creator: {
-      de: 'Empfänger',
-      en: 'Receiver',
-      fr: 'Destinataire',
-    },
     coordinates: {
       de: 'Koordinaten',
       en: 'Coordinates',
@@ -2547,11 +2547,6 @@ export class I18NService {
       en: 'Awaiting triage',
       fr: 'En attente de triage',
     },
-    journalEntry_awaiting_drawing: {
-      de: 'Zeichnen',
-      en: 'Awaiting drawing',
-      fr: 'En attente de dessin',
-    },
     journalEntry_awaiting_decision: {
       de: 'Entscheidung',
       en: 'Awaiting decision',
@@ -2566,6 +2561,26 @@ export class I18NService {
       de: 'Abgeschlossen',
       en: 'Completed',
       fr: 'Terminé',
+    },
+    journalEntryResponsibility_awaiting_triage: {
+      de: 'Triage',
+      en: 'Triage',
+      fr: 'Triage',
+    },
+    journalEntryResponsibility_awaiting_completion: {
+      de: 'Ausgang',
+      en: 'Output',
+      fr: 'Sortie',
+    },
+    journalEntryResponsibility_completed: {
+      de: '-',
+      en: '-',
+      fr: '-',
+    },
+    showOnMap: {
+      de: 'Auf Karte anzeigen',
+      en: 'Show on map',
+      fr: 'Afficher sur la carte',
     },
     journal: {
       de: 'Journal',
@@ -2587,6 +2602,16 @@ export class I18NService {
       en: 'Drawn messages',
       fr: 'Messages dessinés',
     },
+    startDrawing: {
+      de: 'Mit Zeichnen beginnen',
+      en: 'Start Drawing',
+      fr: 'Commencer à dessiner',
+    },
+    someoneIsDrawing: {
+      de: 'Jemand hat mit Zeichnen begonnen',
+      en: 'Someone started drawing',
+      fr: "Quelqu'un a commencé à dessiner",
+    },
     markAsDrawn: {
       de: 'Als gezeichnet markieren',
       en: 'Mark as drawn',
@@ -2597,10 +2622,10 @@ export class I18NService {
       en: 'Mark as not drawn',
       fr: 'Marquer comme non dessiné',
     },
-    journalNumber: {
-      de: 'Meldungsnummer',
-      en: 'Report number',
-      fr: 'Numéro de rapport',
+    isDrawnOnMap: {
+      de: 'Eingezeichnet',
+      en: 'Drawn',
+      fr: 'Dessiné',
     },
     deliverer: {
       de: 'Absender',
@@ -2672,10 +2697,25 @@ export class I18NService {
       en: 'Report time',
       fr: 'Heure de rapport',
     },
+    dateMessage: {
+      de: 'Meldung Zeitpunkt',
+      en: 'Report time',
+      fr: 'Heure de rapport',
+    },
     messageNumber: {
       de: 'Meldungsnummer',
       en: 'Report number',
       fr: 'Numéro de rapport',
+    },
+    messageNumberShort: {
+      de: 'Nummer',
+      en: 'Number',
+      fr: 'Numéro',
+    },
+    messageNumberShort2: {
+      de: 'Nr.',
+      en: 'No.',
+      fr: 'n°',
     },
     detailsChanel: {
       de: 'Nummer / Kanal',
@@ -2687,10 +2727,20 @@ export class I18NService {
       en: 'Visa',
       fr: 'Visa',
     },
+    author: {
+      de: 'Verfasser',
+      en: 'Author',
+      fr: 'Auteur',
+    },
     keyMessage: {
       de: 'Schlüsselmeldung',
       en: 'Key message',
       fr: 'Message clé',
+    },
+    keyMessageShort: {
+      de: 'Schlüssel',
+      en: 'Key',
+      fr: 'clé',
     },
     department: {
       de: 'Fachbereich',
@@ -2702,6 +2752,11 @@ export class I18NService {
       en: 'Triage time',
       fr: 'Heure de triage',
     },
+    visumTriage: {
+      de: 'Visum Triage',
+      en: 'Visa triage',
+      fr: 'Visa de triage',
+    },
     messageReceiver: {
       de: 'Empfänger der Entscheidung',
       en: 'Receiver of decision',
@@ -2711,6 +2766,11 @@ export class I18NService {
       de: 'Entscheidungszeitpunkt',
       en: 'Decision time',
       fr: 'Heure de décision',
+    },
+    visumDecider: {
+      de: 'Visum Entscheidung',
+      en: 'Visa decision',
+      fr: 'Visa de décision',
     },
     "politische-behoerde": {
       de: 'Politische Behörde',
@@ -2772,6 +2832,11 @@ export class I18NService {
       en: 'If this journal entry is not correct, return it to the input.',
       fr: 'Si cette entrée de journal n\'est pas correcte, renvoyez-la à l\'entrée.',
     },
+    wrongContentInfo:  {
+      de: 'Beschreibe was falsch ist / korrigiert werden muss.',
+      en: 'Describe what is wrong / needs to be corrected.',
+      fr: 'Décrivez ce qui ne va pas/doit être corrigé.',
+    },
     backToInput: {
       de: 'Zurück an Eingang senden',
       en: 'Return to input',
@@ -2791,6 +2856,11 @@ export class I18NService {
       de: 'Falls dieser Journaleintrag nicht in deinen Fachbereich gehört gib ihn zurück an die Triage.',
       en: 'If this journal entry does not belong to your department, return it to the triage.',
       fr: 'Si cette entrée de journal ne vous appartient pas, renvoyez-la au triage.',
+    },
+    wrongTriageInfo: {
+      de: 'Warum gehört er nicht in deinen Fachbereich?',
+      en: "Why doesn't it belong to your department?",
+      fr: "Pourquoi n'est-il pas à toi?",
     },
     backToTriage: {
       de: 'Zurück zur Triage',
@@ -2852,6 +2922,11 @@ export class I18NService {
       en: 'Maps',
       fr: 'Cartes',
     },
+    responsibility: {
+      de: 'Zuständigkeit',
+      en: 'Responsibility',
+      fr: 'Responsabilité',
+    },
     status: {
       de: 'Status',
       en: 'Status',
@@ -2891,7 +2966,145 @@ export class I18NService {
       de: 'Gezeichnete Signaturen',
       en: 'Drawn symbols',
       fr: 'Symboles dessinés'
-    }
+    },
+    zoomToAll: {
+      de: 'Auf alle gezeichnete Signaturen zoomen',
+      en: 'Zoom to all drawn signatures',
+      fr: 'Zoomez sur toutes les signatures dessinées',
+    },
+    highlightAll: {
+      de: 'Alle gezeichnete Signaturen hervorheben',
+      en: 'Highlight all drawn symbols',
+      fr: 'Surlignez tous les symboles dessinés',
+    },
+    reset: {
+      de: 'Zurücksetzen',
+      en: 'Reset',
+      fr: 'Réinitialiser',
+    },
+    journalEntryTemplate: {
+      de: 'Meldungs Vorlage',
+      en: 'Message template',
+      fr: 'Modèle de message',
+    },
+    errorSaving: {
+      de: 'Fehler beim Speichern',
+      en: 'Error saving',
+      fr: "Erreur lors de l'enregistrement",
+    },
+    storedLocallyOnly: {
+      de: 'Nur lokal gespeichert.',
+      en: 'Stored locally only.',
+      fr: 'Stocké localement uniquement.',
+    },
+    pdfDesignerHelp:{
+      de:`
+        Im Designer links können Sie Elemente grafisch hinzufügen oder bearbeiten, die Änderungen werden rechts in der technischen Ansicht live aktualisiert.<br>
+        In der technischen Ansicht habe Sie die Möglichkeit z.B. positionen einfacher einheitlich anzupassen, welche auch im Designer mit leichter Verzögerung akualisiert werden.<br>
+        Mit dem Slider/Splitter in der Mitte können Sie die Aufteilung der Bereiche verändern.<br>
+        <br>
+        Platzhalter welche mit den Daten gefüllt werden soll, müssen entsprechende Infos im "name" Attribut haben. Mögliche Werte sind alle Werte des Ausgabeobjekts "entry" z.b. "entry.messageNumber" sowie folgende Werte:
+        <ul>
+          <li>organization.documentId</li>
+          <li>organization.name</li>
+          <li>organization.url</li>
+          <li>organization.logo_url</li>
+          <li>operation.documentId</li>
+          <li>operation.name</li>
+          <li>url_entry</li>
+        </ul>
+        Texte welche fix sind, können einfach direkt im Designer definert werden (technisch im "content" Attribut) wobei das Feld auf NICHT editierbar (readOnly: true) gesetzt werden muss.<br>
+        Wenn Sie einen sprachabhängigen Text wollen, können Sie als name "i18n:&lt;text key&gt;" verwenden oder dies als Textinhalt ("content") angeben, da der Wert dann dynamisch ist, muss das Feld editierbar sein (readOnly: false).<br>
+        Möchten Sie den sprachabhängigen Text gefolgt von einem Doppelpunkt haben, verwenden sie stattdessen  "i18n_colon:&lt;text key&gt;".<br>
+        Wenn Sie die Daten z.B. "entry.department" nicht mit seinem technischen Wert sondern als sprachabhängigen Text ausgeben, können Sie "i18n_val:" voranstellen also z.B. "name" auf "i18n_val:entry.department" setzen.<br>
+        <br>
+        Wenn Sie die Daten/Infos eines Wertes mit fixer Werteliste nicht als Text sondern mehreren checkboxen ausgeben möchten, kann die Bedingung mit welchem Wert die Checkbox aktiv ist im "name" Attribut über die Notation "equals:&lt;name&gt;=&lt;Wert&gt;" also z.B. "equals:entry.communicationType=telefon" definiert werden.<br>
+        `,
+      en: `
+        In the Designer on the left, you can graphically add or edit elements, and the changes are updated live in the technical view on the right.<br>
+        In the technical view, you have the option to adjust positions more easily and uniformly, which are also updated in the Designer with a slight delay.<br>
+        With the slider/splitter in the middle, you can change the division of the areas.<br>
+        <br>
+        Placeholders that should be filled with data must have corresponding information in the "name" attribute. Possible values are all values of the output object "entry", e.g., "entry.messageNumber", as well as the following values:
+        <ul>
+          <li>organization.documentId</li>
+          <li>organization.name</li>
+          <li>organization.url</li>
+          <li>organization.logo_url</li>
+          <li>operation.documentId</li>
+          <li>operation.name</li>
+          <li>url_entry</li>
+        </ul>
+        Texts that are fixed can be defined directly in the Designer (technically in the "content" attribute), and the field must be set to NOT editable (readOnly: true).<br>
+        If you want a language-dependent text, you can use "i18n:&lt;text key&gt;" as the name or specify it as text content ("content"). Since the value is then dynamic, the field must be editable (readOnly: false).<br>
+        If you want the language-dependent text followed by a colon, use "i18n_colon:&lt;text key&gt;" instead.<br>
+        If you want to output the data, e.g., "entry.department", not with it's technical value but as a language-dependent text, you can prefix it with "i18n_val:", so set "name" to "i18n_val:entry.department".<br>
+        <br>
+        If you want to output the data/information of a value with a fixed value list not as text but as multiple checkboxes, the condition for which value activates the checkbox can be defined in the "name" attribute using the notation "equals:&lt;name&gt;=&lt;value&gt;", e.g., "equals:entry.communicationType=telefon".
+        `,
+      fr: `
+        Dans le Designer à gauche, vous pouvez ajouter ou modifier graphiquement des éléments, les changements sont mis à jour en direct dans la vue technique à droite.<br>
+        Dans la vue technique, vous avez la possibilité d'ajuster plus facilement et uniformément les positions, qui sont également mises à jour dans le Designer avec un léger délai.<br>
+        Avec le curseur/diviseur au milieu, vous pouvez modifier la répartition des zones.<br>
+        <br>
+        Les espaces réservés qui doivent être remplis avec des données doivent avoir des informations correspondantes dans l'attribut "name". Les valeurs possibles sont toutes les valeurs de l'objet de sortie "entry", par exemple "entry.messageNumber", ainsi que les valeurs suivantes:
+        <ul>
+          <li>organization.documentId</li>
+          <li>organization.name</li>
+          <li>organization.url</li>
+          <li>organization.logo_url</li>
+          <li>operation.documentId</li>
+          <li>operation.name</li>
+          <li>url_entry</li>
+        </ul>
+        Les textes qui sont fixes peuvent être définis directement dans le Designer (techniquement dans l'attribut "content") et le champ doit être défini comme NON modifiable (readOnly: true).<br>
+        Si vous voulez un texte dépendant de la langue, vous pouvez utiliser "i18n:&lt;clé du texte&gt;" comme nom ou le spécifier comme contenu du texte ("content"). Comme la valeur est alors dynamique, le champ doit être modifiable (readOnly: false).<br>
+        Si vous voulez le texte dépendant de la langue suivi d'un deux-points, utilisez plutôt "i18n_colon:&lt;clé du texte&gt;".<br>
+        Si vous voulez afficher les données, par exemple "entry.department", non pas avec sa valeur technique mais comme un texte dépendant de la langue, vous pouvez le préfixer avec "i18n_val:", donc définir "name" sur "i18n_val:entry.department".<br>
+        <br>
+        Si vous souhaitez afficher les données/informations d'une valeur avec une liste de valeurs fixes non pas sous forme de texte mais sous forme de plusieurs cases à cocher, la condition pour laquelle la valeur active la case à cocher peut être définie dans l'attribut "name" en utilisant la notation "equals:&lt;nom&gt;=&lt;valeur&gt;", par exemple "equals:entry.communicationType=telefon".<br>
+      `,
+    },
+    fillAllFields: {
+      de: 'Bitte füllen Sie alle benötigten Felder.',
+      en: 'Please fill in all required fields.',
+      fr: "Veuillez remplir tous les champs obligatoires.",
+    },
+    closeNotSaved: {
+      de: 'Sie haben noch nicht gespeicherte Änderungen, möchten Sie diese verwerfen?',
+      en: 'You have unsaved changes, do you want to discard them?',
+      fr: "Vous avez des modifications non enregistrées, souhaitez-vous les ignorer?",
+    },
+    errorLoadingJournalEntries: {
+      de: 'Fehler beim laden der Journal Einträge.',
+      en: 'Error loading journal entries.',
+      fr: 'Erreur lors du chargement des entrées de journal.',
+    },
+    showCachedJournalEntries: {
+      de: 'Es werden nur lokal gecachte Journal Einträge angezeigt.',
+      en: 'Only locally cached journal entries are displayed.',
+      fr: 'Seules les entrées de journal mises en cache localement sont affichées.',
+    },
+    customizePrintForm: {
+      de: 'Druckformular anpassen',
+      en: 'Customize print form',
+      fr: "Personnaliser le formulaire d'impression",
+    },
+    reloadFromServer: {
+      de: 'Neu laden vom Server',
+      en: 'Reload from server',
+      fr: 'Recharger depuis le serveur',
+    },
+    localOnlyJournal: {
+      de: 'Dieser Journal Eintrag existiert nur Lokal.',
+      en: 'This journal entry only exists locally.',
+      fr: 'Cette entrée de journal existe uniquement localement.',
+    },
+    localPatchJournal: {
+      de: 'Dieser Journal Eintrag hat Änderungen die nur lokal sind.',
+      en: 'This journal entry has changes that are only local.',
+      fr: 'Cette entrée de journal comporte des modifications qui sont uniquement locales.',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

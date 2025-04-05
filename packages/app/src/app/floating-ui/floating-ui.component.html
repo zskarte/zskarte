@@ -10,8 +10,7 @@
       <div class="credits">
         @if (showLogo && logo) {
           <img [src]="logo" />
-        }
-        @if (workLocal) {
+        } @else if (localOperation) {
           <mat-icon>device_hub</mat-icon>
         }
         <h1>{{ sidebarTitle }}</h1>
@@ -61,6 +60,7 @@
           </button>
         }
       </div>
+      <app-journal-draw-overlay [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
       <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
     </div>
     <div class="action-buttons noprint">
@@ -82,21 +82,27 @@
           (click)="sidebar.toggle(SidebarContext.Connections)"
           [attr.aria-label]="i18n.get('connections')"
         >
-          @if (workLocal) {
+          @if (localOperation) {
             @if (canWorkOffline | async) {
               <mat-icon>offline_pin</mat-icon>
             } @else {
               @if (isOnline | async) {
-                <mat-icon matBadgeColor="warn" matBadge="!">network_wifi</mat-icon>
+                <mat-icon matBadgeColor="warn" matBadge="!" aria-hidden="false">network_wifi</mat-icon>
               } @else {
-                <mat-icon matBadgeColor="warn" matBadge="!">signal_wifi_connected_no_internet_4</mat-icon>
+                <mat-icon matBadgeColor="warn" matBadge="!" aria-hidden="false"
+                  >signal_wifi_connected_no_internet_4</mat-icon
+                >
               }
             }
           } @else {
             @if (isOnline | async) {
-              <mat-icon [matBadge]="connectionCount | async" matBadgePosition="after">people</mat-icon>
+              <mat-icon [matBadge]="connectionCount | async" matBadgePosition="after" aria-hidden="false"
+                >people</mat-icon
+              >
             } @else {
-              <mat-icon [matBadge]="0" matBadgeColor="warn" matBadgePosition="after">offline_bolt</mat-icon>
+              <mat-icon [matBadge]="0" matBadgeColor="warn" matBadgePosition="after" aria-hidden="false"
+                >offline_bolt</mat-icon
+              >
             }
           }
         </button>

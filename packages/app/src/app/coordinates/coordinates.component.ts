@@ -6,6 +6,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {MatIconModule} from '@angular/material/icon';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-coordinates',
@@ -15,6 +16,7 @@ import {MatButtonModule} from '@angular/material/button';
     MatIconModule,
     MatDividerModule,
     MatButtonModule,
+    CommonModule,
   ],
 })
 export class CoordinatesComponent {

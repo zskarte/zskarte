@@ -28,7 +28,7 @@ const loadOperations = async (strapi: Core.Strapi) => {
       filters: { phase: OperationPhases.ACTIVE },
       populate: ['organization'],
       limit: -1,
-    })) as unknown as Operation[];
+    })) as Operation[];
     for (const operation of activeOperations) {
       await lifecycleOperation(StrapiLifecycleHooks.AFTER_CREATE, operation);
     }
@@ -45,7 +45,7 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
     ((await strapi.documents('api::operation.operation').findOne({
       documentId: operation.documentId,
       populate: ['organization.users'],
-    })) as unknown as Operation) || operation;
+    })) as Operation) || operation;
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_CREATE) {
     const mapState = operation.mapState || {};
     operationCaches[operation.documentId] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
@@ -163,7 +163,7 @@ const archiveOperations = async (strapi: Core.Strapi) => {
     const activeOperations = (await strapi.documents('api::operation.operation').findMany({
       filters: { phase: OperationPhases.ACTIVE },
       limit: -1,
-    })) as unknown as Operation[];
+    })) as Operation[];
     for (const operation of activeOperations) {
       if (new Date(operation.updatedAt).getTime() + WEEK > new Date().getTime()) continue;
       await strapi.documents('api::operation.operation').update({
@@ -180,12 +180,12 @@ const archiveOperations = async (strapi: Core.Strapi) => {
 
 const deleteGuestOperations = async (strapi: Core.Strapi) => {
   try {
-    const guestUsers = (await strapi.documents('plugin::users-permissions.user' as any).findMany({
+    const guestUsers = (await strapi.documents('plugin::users-permissions.user').findMany({
       fields: ['documentId', 'username', 'email'],
       filters: { username: 'zso_guest' },
       populate: ['organization.operations'],
       limit: 1,
-    })) as unknown as User[];
+    })) as User[];
     const guestUser = _.first(guestUsers);
     if (!guestUser?.organization?.operations) return;
     const { operations } = guestUser.organization;
@@ -211,7 +211,7 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
     const activeOperations = (await strapi.documents('api::operation.operation').findMany({
       filters: { phase: OperationPhases.ACTIVE },
       limit: -1,
-    })) as unknown as Operation[];
+    })) as Operation[];
 
     strapi.log.debug(`Found ${activeOperations.length} operations to create snapshots from`);
 

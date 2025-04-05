@@ -61,3 +61,18 @@
 mat-card:first-child {
   padding: 1rem;
 }
+
+.offline-container {
+  margin-left: 20px;
+  margin-right: 20px;
+  padding-bottom: 25px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.offline-container > .mat-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+}

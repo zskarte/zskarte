@@ -5,7 +5,6 @@ import { I18NService } from '../state/i18n.service';
 import capitalizeFirstLetter from './capitalizeFirstLetter';
 import { getCenter } from 'ol/extent';
 import saveAs from 'file-saver';
-import { Workbook } from 'exceljs';
 import { convertTo } from './projections';
 import { SimpleGeometry } from 'ol/geom';
 
@@ -61,7 +60,8 @@ export interface ProtocolEntry {
   description: string;
 }
 
-export function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n: I18NService) {
+export async function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n: I18NService) {
+  const { Workbook } = await import('exceljs')
   const workbook = new Workbook();
   const sheet = workbook.addWorksheet('Protocol Entries');
   sheet.columns = [
@@ -76,7 +76,7 @@ export function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n: I18N
   sheet.addRows(protocolEntries);
   return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
     saveAs(
-      new Blob([buffer], { type: 'application/octet-stream' }),
+      new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
       `${i18n.get('protocolExport')}_${new Date().toISOString().slice(0, 10)}.xlsx`,
     );
   });
