@@ -56,38 +56,3 @@ After that update the saved right files by call:
 npm run server:export
 ```
 Also include the updated `packages/server/config/sync/*` files in your pull request for the new type.
-
-
-### update init.sql
-After all changes are set and work as expected it would make sense to create a new init.sql for new developers.
-You can do that the folowing predefined function:
-```
-npm run server:update-init
-```
-<details>
-<summary>Manual steps</summary>
-
-The command include the following manual steps:
-
-Stop DB and backup you data:
-```
-npm run server:export
-npm run docker-stop
-mv data data_backup
-```
-If you have Linux/WSL redo the [prequisites](https://github.com/zskarte/zskarte?tab=readme-ov-file#linuxwsl-prerequisites)
-
-Now reinitialize a clean db, update / import the newest right configs and do an export of the DB afterwards.
-```
-npm run docker-run
-npm run server:import
-./scripts/dump-sort-db.sh
-```
-
-To go back to your DB/data do:
-```
-npm run docker-stop
-mv data_backup data
-npm run docker-run
-```
-</details>

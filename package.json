@@ -27,7 +27,6 @@
     "build:server": "cd packages/server && npm run build",
     "server:export": "cd packages/server && npm run export",
     "server:import": "cd packages/server && npm run import",
-    "server:update-init": "scripts/update-init.sh",
     "cleanup": "tsx scripts/cleanup.ts",
     "postinstall": "patch-package"
   },
