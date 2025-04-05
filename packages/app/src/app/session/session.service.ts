@@ -91,7 +91,7 @@ export class SessionService {
           });
           await this._state?.refreshMapState();
           let displayState = await db.displayStates.get({
-            id: session.operation?.documentId ?? session.operation?.id?.toString(),
+            id: session.operation?.documentId,
           });
 
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
@@ -200,10 +200,10 @@ export class SessionService {
             .observeDisplayState()
             .pipe(skip(1), takeUntil(this._clearOperation))
             .subscribe(async (displayState) => {
-              if (this._session.value?.operation?.id) {
+              if (this._session.value?.operation?.documentId) {
                 await db.displayStates.put({
                   ...displayState,
-                  id: this._session.value.operation?.documentId ?? this._session.value.operation?.id?.toString(),
+                  id: this._session.value.operation?.documentId,
                 });
               }
             });
@@ -395,8 +395,8 @@ export class SessionService {
     this._session.next(this._session.value);
   }
 
-  public observeOperationId(): Observable<string | number | undefined> {
-    return this._session.pipe(map((session) => session?.operation?.documentId ?? session?.operation?.id));
+  public observeOperationId(): Observable<string | undefined> {
+    return this._session.pipe(map((session) => session?.operation?.documentId));
   }
 
   public getOperation(): IZsMapOperation | undefined {
