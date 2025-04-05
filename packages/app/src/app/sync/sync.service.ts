@@ -76,7 +76,7 @@ export class SyncService {
         const isOnline = this._session.isOnline();
         const label = this._session.getLabel();
         const isWorkLocal = this._session.isWorkLocal();
-        if (isWorkLocal || !isOnline || !operationId || !label) {
+        if (isWorkLocal || !isOnline || !operationId || operationId.startsWith('local-') || !label) {
           this._disconnect();
           return;
         }
@@ -210,10 +210,12 @@ export class SyncService {
   }, 250);
 
   public publishCurrentLocation = debounce(async (longLat: { long: number; lat: number } | undefined) => {
-    await this._publishCurrentLocation(longLat);
+    if (!this._session.isWorkLocal()) {
+      await this._publishCurrentLocation(longLat);
+    }
   }, 1000);
 
-  public async _publishCurrentLocation(longLat: { long: number; lat: number } | undefined): Promise<void> {
+  private async _publishCurrentLocation(longLat: { long: number; lat: number } | undefined): Promise<void> {
     await this._api.post('/api/operations/mapstate/currentlocation', longLat, {
       headers: {
         operationId: String(this._session.getOperationId()),

@@ -1,6 +1,6 @@
 <div class="flex-label">
   @if (labelEdit) {
-    <mat-form-field appearance="outline" style="margin-bottom: -1.25em">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('myName') }}</mat-label>
       <input type="text" matInput [ngModel]="session.getLabel()" (ngModelChange)="label$.next($event)" maxlength="40" />
     </mat-form-field>
@@ -16,7 +16,7 @@
   </button>
 </div>
 <hr />
-@if (!isWorkLocal && (isOnline | async)) {
+@if (!localOperation && (isOnline | async)) {
   <div class="connections-container">
     <mat-slide-toggle
       color="primary"
@@ -52,21 +52,42 @@
     <mat-label class="font-gray">{{ i18n.get('youAreOffline') }}</mat-label>
   </div>
 }
-@if (isWorkLocal) {
+@if (localOperation) {
   <div class="local-container">
     <p>{{ i18n.get('localAvailabilityStepsIntro') }}</p>
       <mat-checkbox [checked]="useLocalBaseMap" [disabled]="useLocalBaseMap" (click)="changeToLocalMap()">{{
         i18n.get('useLocalBaseMap')
       }}</mat-checkbox>
-      <mat-checkbox [checked]="downloadLocalBaseMap" [disabled]="downloadLocalBaseMap" (click)="downloadLocalMap()">{{
-        i18n.get('downloadLocalBaseMap')
-      }}</mat-checkbox>
+      <div class="checkbox-container" [class.active]="isLoadingBaseMap || downloadLocalBaseMap" (click)="downloadLocalMap()">
+        @if (!isLoadingBaseMap) {
+          <mat-checkbox 
+            [checked]="downloadLocalBaseMap" 
+            [disabled]="isLoadingBaseMap || downloadLocalBaseMap"
+            (click)="$event.stopPropagation()">
+          </mat-checkbox>
+        } @else {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+        <span class="checkbox-label">{{ i18n.get('downloadLocalBaseMap') }}</span>
+      </div>
+      @if (isLoadingBaseMap) {
+        <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
+      }
       <mat-checkbox [checked]="hideUnavailableLayers" [disabled]="hideUnavailableLayers" (click)="hideUnavailable()">{{
         i18n.get('hideUnavailableLayers')
       }}</mat-checkbox>
-      <mat-checkbox [checked]="downloadAvailableLayers" [disabled]="downloadAvailableLayers" (click)="downloadAvailable()">{{
-        i18n.get('downloadAvailableLayers')
-      }}</mat-checkbox>
+      <div class="checkbox-container" [class.active]="isLoadingMapLayers || downloadAvailableLayers" (click)="downloadAvailable()">
+        @if (!isLoadingMapLayers) {
+          <mat-checkbox 
+            [checked]="downloadAvailableLayers" 
+            [disabled]="isLoadingMapLayers || downloadAvailableLayers"
+            (click)="$event.stopPropagation()">
+          </mat-checkbox>
+        } @else {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+        <span class="checkbox-label">{{ i18n.get('downloadAvailableLayers') }}</span>
+      </div>
       <mat-checkbox [checked]="haveSearchCapability" [disabled]="haveSearchCapability" (click)="showSearchInfo($event)">{{
         i18n.get('haveSearchCapability')
       }}</mat-checkbox>
