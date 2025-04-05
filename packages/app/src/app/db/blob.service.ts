@@ -138,7 +138,9 @@ export class BlobService {
     const url = (file as any).path ?? file.name;
     let localBlobMeta: LocalBlobMeta | undefined;
     //check if an entry with same name and modify timestamp already exist.
-    localBlobMeta = (await db.localBlobMeta.where('url').equals(url).toArray()).find((meta) => meta.lastModified === file.lastModified);
+    localBlobMeta = (await db.localBlobMeta.where('url').equals(url).toArray()).find(
+      (meta) => meta.lastModified === file.lastModified,
+    );
     if (!localBlobMeta) {
       localBlobMeta = await BlobService._newBloblMeta(url, file.lastModified);
     }
@@ -186,6 +188,16 @@ export class BlobService {
       await db.localBlobMeta.put(meta);
     }
     return meta;
+  }
+
+  public static async getBlobMeta(url: string) {
+    const results = await db.localBlobMeta.where('url').equals(url).toArray();
+    if (results.length === 0) {
+      return null;
+    } else if (results.length === 1) {
+      return results[0];
+    }
+    throw new Error(`There are multiple BlobMeta for url: "${url}"`);
   }
 
   public static async isDownloaded(blobId?: number) {
@@ -266,5 +278,19 @@ export class BlobService {
     const finishedPromise = lastValueFrom(operation.finished.asObservable());
     await BlobService._blobToStorage(blob, operation);
     return await finishedPromise;
+  }
+
+  public static async clearBlobContent(bloblId: number) {
+    const localBlobMeta = await db.localBlobMeta.get(bloblId);
+    if (localBlobMeta) {
+      if (localBlobMeta.objectUrl) {
+        URL.revokeObjectURL(localBlobMeta.objectUrl);
+      }
+      if (localBlobMeta.blobState !== 'missing') {
+        localBlobMeta.blobState = 'missing';
+        db.localBlobMeta.put(localBlobMeta);
+      }
+    }
+    await db.localBlob.delete(bloblId);
   }
 }

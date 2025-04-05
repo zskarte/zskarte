@@ -69,11 +69,13 @@
                   <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
                   <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
                     @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
-                      <mat-chip-row (removed)="removeReportNumber(reportNumber, drawElement)">
+                      <mat-chip-row
+                        (removed)="removeReportNumber(reportNumber, drawElement)"
+                        (click)="openMessage(reportNumber)"
+                        class="report-number-chip"
+                      >
                         {{ reportNumber }}
-                        <button matChipRemove>
-                          <mat-icon>cancel</mat-icon>
-                        </button>
+                        <mat-icon matChipRemove (click)="$event.stopPropagation()">cancel</mat-icon>
                       </mat-chip-row>
                     }
                   </mat-chip-grid>
@@ -243,7 +245,7 @@
                           />
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
-                      </div>             
+                      </div>
                       <div>
                         <mat-label>{{ i18n.get('symbolOffset') }} Y</mat-label>
                         <mat-slider [max]="3000" [min]="-3000" [step]="250">
@@ -254,12 +256,13 @@
                           />
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
-                      </div>  
+                      </div>
                       <div>
                         <mat-checkbox
-                        [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
-                        (ngModelChange)="updateIconsOffset(drawElement, 'endHasDifferentOffset', $event)"
-                        >{{ i18n.get('endHasDifferentOffset') }}</mat-checkbox>
+                          [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
+                          (ngModelChange)="updateIconsOffset(drawElement, 'endHasDifferentOffset', $event)"
+                          >{{ i18n.get('endHasDifferentOffset') }}</mat-checkbox
+                        >
                       </div>
                       @if (drawElement.iconsOffset?.endHasDifferentOffset) {
                         <div>
@@ -272,7 +275,7 @@
                             />
                           </mat-slider>
                           <input type="text" matInput hidden value="-" />
-                        </div>             
+                        </div>
                         <div>
                           <mat-label>{{ i18n.get('symbolOffsetEnd') }} Y</mat-label>
                           <mat-slider [max]="3000" [min]="-3000" [step]="250">
@@ -283,7 +286,7 @@
                             />
                           </mat-slider>
                           <input type="text" matInput hidden value="-" />
-                        </div>  
+                        </div>
                       }
                     }
 

@@ -165,7 +165,6 @@ export default <T extends UID.ContentType>(config: AccessControlConfig<T>, { str
           ctx.query.filters.operation.documentId = { $eq: operationIdFilter };
         }
       }
-      addPhaseFilter(phaseFilter, ctx.query.filters.operation);
       return next();
     } else if (hasOrganization(config.type)) {
       if (isOperation(config.type)) {

@@ -282,12 +282,14 @@ export class DrawStyle {
     ).toString();
   }
 
-  private static calculateCacheHashForSymbol(signature: Sign, feature: FeatureLike, resolution: number, selected: boolean): string {
+  private static calculateCacheHashForSymbol(signature: Sign, feature: FeatureLike, resolution: number, selected: boolean, highlighted: boolean, hidden: boolean): string {
     feature = DrawStyle.getSubFeature(feature);
     return Md5.hashStr(
       JSON.stringify({
         resolution,
         selected,
+        highlighted,
+        hidden,
         rotation: signature.rotation,
         label: signature.label,
         labelShow: signature.labelShow,
@@ -309,6 +311,7 @@ export class DrawStyle {
     feature: FeatureLike,
     resolution: number,
     selected: boolean,
+    highlighted: boolean,
     editMode: boolean,
   ): string {
     feature = DrawStyle.getSubFeature(feature);
@@ -322,6 +325,7 @@ export class DrawStyle {
       JSON.stringify({
         resolution,
         selected,
+        highlighted,
         editMode,
         color: signature.color,
         protected: signature.protected,
@@ -423,16 +427,19 @@ export class DrawStyle {
   private static getIconStyle(feature: FeatureLike, resolution: number, signature: Sign, selected: boolean, scale: number): Style[] {
     feature = DrawStyle.getSubFeature(feature);
     const zIndex = selected ? Infinity : this.getZIndex(feature);
-    const symbolCacheHash = DrawStyle.calculateCacheHashForSymbol(signature, feature, resolution, selected);
+    const highlighted = feature.get('highlighted');
+    const hidden = feature.get('hidden');
+    const symbolCacheHash = DrawStyle.calculateCacheHashForSymbol(signature, feature, resolution, selected, highlighted, hidden);
     let iconStyles = this.symbolStyleCache[symbolCacheHash];
     if (!iconStyles && signature.src && feature.getGeometry()) {
       iconStyles = this.symbolStyleCache[symbolCacheHash] = [];
       const showIcon = this.showIcon(signature);
+      const highlightedIcon = highlighted && Boolean(signature.src);
       const dashedStroke = this.createDefaultStroke(scale, signature.color ?? '#535353', true, signature.iconOpacity);
       const iconRadius = scale * 250 * (signature.iconSize ?? 1);
       const notificationIconRadius = iconRadius / 4;
-      const highlightStroke = selected ? DrawStyle.getHighlightStroke(feature, scale) : null;
-      if (showIcon && selected) {
+      const highlightStroke = (selected || highlightedIcon) ? DrawStyle.getHighlightStroke(feature, scale) : null;
+      if ((showIcon || signature.type === 'Point') && (selected || highlightedIcon)) {
         // Highlight the stroke to the icon
         iconStyles.push(
           new Style({
@@ -476,7 +483,7 @@ export class DrawStyle {
         }
       }
 
-      if (showIcon) {
+      if (showIcon || (signature.type === 'Point' && (selected || highlightedIcon))) {
         // Draw a dashed line to the icon
         iconStyles.push(
           new Style({
@@ -582,6 +589,7 @@ export class DrawStyle {
           src: imageFromMemory ? undefined : this.getImageUrl(signature.src),
           img: imageFromMemory ? imageFromMemory : undefined,
           // imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
+          opacity: showIcon && !hidden ? 1 : 0.5
         });
 
         // Draw the icon
@@ -674,13 +682,14 @@ export class DrawStyle {
     editMode: boolean,
   ): Style[] {
     feature = DrawStyle.getSubFeature(feature);
-    const vectorCacheHash = DrawStyle.calculateCacheHashForVector(signature, feature, resolution, selected, editMode);
+    const highlighted = feature.get('highlighted');
+    const vectorCacheHash = DrawStyle.calculateCacheHashForVector(signature, feature, resolution, selected, highlighted, editMode);
     let vectorStyle = this.vectorStyleCache[vectorCacheHash];
     if (!vectorStyle) {
       vectorStyle = this.vectorStyleCache[vectorCacheHash] = [];
       const zIndex = this.getZIndex(feature);
-      if (selected) {
-        const highlightStyle = this.getHighlightLineWhenSelectedStyle(feature, scale, selected);
+      if (selected || highlighted) {
+        const highlightStyle = this.getHighlightLineWhenSelectedStyle(feature, scale, selected, highlighted);
         if (highlightStyle) {
           highlightStyle.setZIndex(zIndex - 1);
           vectorStyle.push(highlightStyle);
@@ -744,14 +753,14 @@ export class DrawStyle {
   private static getHighlightStroke(feature: FeatureLike, scale: number): Stroke {
     feature = DrawStyle.getSubFeature(feature);
     return new Stroke({
-      color: '#fff5cb',
+      color: '#fff22b',
       width: this.calculateStrokeWidth(scale, feature.get('sig')) + scale * 30,
     });
   }
 
-  private static getHighlightLineWhenSelectedStyle(feature: FeatureLike, scale: number, selected: boolean): Style | null {
+  private static getHighlightLineWhenSelectedStyle(feature: FeatureLike, scale: number, selected: boolean, highlighted: boolean): Style | null {
     feature = DrawStyle.getSubFeature(feature);
-    if (selected) {
+    if (selected || highlighted) {
       // skipcq: JS-0047
       switch (feature.getGeometry()?.getType()) {
         case 'Polygon':

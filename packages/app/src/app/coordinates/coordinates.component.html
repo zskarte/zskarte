@@ -1,4 +1,4 @@
-<div class="coordinates mat-elevation-z3">
+<div class="coordinates mat-elevation-z3" [ngClass]="{'showOptions': showOptions}">
   @if (showOptions) {
     <app-projection-selection
       [projectionFormatIndexes]="projectionFormatIndexes()"

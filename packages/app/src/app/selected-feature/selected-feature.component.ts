@@ -38,6 +38,7 @@ import {
   IconsOffset,
 } from '@zskarte/types';
 import { MatDividerModule } from '@angular/material/divider';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-selected-feature',
@@ -65,6 +66,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   dialog = inject(MatDialog);
   i18n = inject(I18NService);
   zsMapStateService = inject(ZsMapStateService);
+  private router = inject(Router);
 
   groupedFeatures = null;
   editMode = new BehaviorSubject(true);
@@ -170,8 +172,8 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   get featureGroups() {
-    return this.groupedFeatures ?
-        Object.values(this.groupedFeatures).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    return this.groupedFeatures
+      ? Object.values(this.groupedFeatures).sort((a: any, b: any) => a.label.localeCompare(b.label))
       : null;
   }
 
@@ -263,6 +265,10 @@ export class SelectedFeatureComponent implements OnDestroy {
     );
   }
 
+  openMessage(reportNumber: string) {
+    this.router.navigate([], { fragment: `message=${reportNumber}` });
+  }
+
   addReportNumber(event: MatChipInputEvent | FocusEvent, element: ZsMapDrawElementState) {
     if (event instanceof FocusEvent) {
       const input = event.target as HTMLInputElement;
@@ -306,7 +312,6 @@ export class SelectedFeatureComponent implements OnDestroy {
     return { ...element.fillStyle, [field]: value } as FillStyle;
   }
 
-
   updateIconsOffset<T extends keyof IconsOffset>(element: ZsMapDrawElementState, field: T, value: IconsOffset[T]) {
     if (element.id) {
       this.zsMapStateService.updateDrawElementState(
@@ -316,7 +321,11 @@ export class SelectedFeatureComponent implements OnDestroy {
       );
     }
   }
-  static getUpdatedIconsOffset<T extends keyof IconsOffset>(element: ZsMapDrawElementState, field: T, value: IconsOffset[T]): IconsOffset {
+  static getUpdatedIconsOffset<T extends keyof IconsOffset>(
+    element: ZsMapDrawElementState,
+    field: T,
+    value: IconsOffset[T],
+  ): IconsOffset {
     return { ...element.iconsOffset, [field]: value } as IconsOffset;
   }
 

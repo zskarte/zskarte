@@ -112,7 +112,7 @@ export class SidebarMenuComponent {
         this.zsMapStateService
           .observeDrawElements()
           .pipe(first())
-          .subscribe((elements: ZsMapBaseDrawElement[]) => {
+          .subscribe(async(elements: ZsMapBaseDrawElement[]) => {
             this.protocolEntries = mapProtocolEntry(
               elements,
               this.datePipe,
@@ -121,7 +121,7 @@ export class SidebarMenuComponent {
               result.projectionFormatIndex ?? 0,
               result.numerical ?? true,
             );
-            exportProtocolExcel(this.protocolEntries, this.i18n);
+            await exportProtocolExcel(this.protocolEntries, this.i18n);
           });
       }
     });

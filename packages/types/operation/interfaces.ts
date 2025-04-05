@@ -45,6 +45,7 @@ export interface IZsMapOrganization extends IZsMapOrganizationMapLayerSettings {
   logo: IZsStrapiAsset;
   operations: IZsMapOperation[];
   users: IZsMapUser[];
+  journalEntryTemplate: object | null;
 }
 
 export interface IZsMapUser {

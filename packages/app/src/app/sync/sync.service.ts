@@ -8,6 +8,9 @@ import { debounce } from '../helper/debounce';
 import { ZsMapStateService } from '../state/state.service';
 import { BehaviorSubject, debounceTime, filter, merge, switchMap } from 'rxjs';
 import { db } from '../db/db';
+import { JournalService } from '../journal/journal.service';
+import { JournalEntry } from '../journal/journal.types';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 interface PatchExtended extends Patch {
   timestamp: Date;
@@ -37,6 +40,7 @@ const TRY_RECONNECT_NO_CONNECTION_TIME = 60_000;
 export class SyncService {
   private _api = inject(ApiService);
   private _session = inject(SessionService);
+  private _journal = inject(JournalService);
 
   private _connectionId = uuidv4();
   private _socket: Socket | undefined;
@@ -44,12 +48,14 @@ export class SyncService {
   private _connectingPromise: Promise<void> | undefined;
   private _connections = new BehaviorSubject<Connection[]>([]);
 
+  private journalChange$ = toObservable(this._journal.data);
+
   constructor() {
     // Reload the websocket every 15min if nothing changed
     // each _reconnect try(respectively _disconnect) will set _connections again to [] and emit again
     const noChanges$ = this.observeConnections().pipe(
       filter((con) => con.length > 0),
-      switchMap(() => this._state.observeMapState()),
+      switchMap(() => merge(this._state.observeMapState(), this.journalChange$)),
       debounceTime(RECONNECT_ACTIVE_CONNECTION_TIME),
     );
     const lostConnection$ = this.observeConnections().pipe(
@@ -76,7 +82,10 @@ export class SyncService {
         }
         await this._reconnect();
         await this._publishMapStatePatches();
+        await this._journal.publishPatches();
       });
+
+    this._journal.setConnectionId(this._connectionId);
   }
 
   public setStateService(state: ZsMapStateService): void {
@@ -128,6 +137,9 @@ export class SyncService {
         const otherPatches = patches.filter((p) => p.identifier !== this._connectionId);
         if (otherPatches.length === 0) return;
         this._state.applyMapStatePatches(otherPatches);
+      });
+      this._socket.on('state:journal', (entry: Partial<JournalEntry>) => {
+        this._journal.patchEntry(entry);
       });
       this._socket.on('state:connections', (connections: Connection[]) => {
         this._connections.next(connections);

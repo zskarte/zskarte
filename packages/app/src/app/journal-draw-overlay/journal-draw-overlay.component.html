@@ -1,0 +1,19 @@
+@if (entry()) {
+  <div class="journal-infos" [ngClass]="{ expanded: expanded() }">
+    <div class="journal-header-content">
+      <span class="message-id">#{{ entry()!.messageNumber }}</span>
+      <span class="subject">{{ entry()!.messageSubject }}</span>
+      <button mat-icon-button class="expand" (click)="toggleExpanded()">
+        <mat-icon>{{ expanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+    </div>
+    <p class="preserve-linebreak">{{ entry()!.messageContent }}</p>
+
+    <div class="buttons">
+      <button mat-flat-button (click)="close(false)">{{ i18n.get('cancel') }}</button>
+      <button mat-flat-button color="primary" (click)="close(true)">
+        {{ i18n.get('markAsDrawn') }}
+      </button>
+    </div>
+  </div>
+}

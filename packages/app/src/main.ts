@@ -44,6 +44,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { AppComponent } from './app/app.component';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app/app-routes';
+import { JournalService } from './app/journal/journal.service';
 
 // enable immerjs patches
 enablePatches();
@@ -97,7 +98,7 @@ bootstrapApplication(AppComponent, {
     ),
     { provide: LOCALE_ID, useValue: 'de-CH' },
     provideAppInitializer(() => {
-      const initializerFn = appFactory(inject(SessionService), inject(SyncService), inject(ZsMapStateService), inject(ApiService));
+      const initializerFn = appFactory(inject(SessionService), inject(SyncService), inject(ZsMapStateService), inject(ApiService), inject(JournalService));
       return initializerFn();
     }),
 
