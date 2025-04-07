@@ -6,17 +6,23 @@ import {
   IResultSet,
   IZsMapSearchConfig,
   IZsMapSearchResult,
+  IZsGlobalSearchConfig,
   SearchFunction,
 } from '../../../../types/state/interfaces';
 import { coordinateFromString } from '../helper/coordinates-extract';
 import { I18NService } from '../state/i18n.service';
 import { GeoJSONFeature, default as GeoJSON } from 'ol/format/GeoJSON';
 import { Feature } from 'ol';
-import { Geometry, LineString, MultiLineString } from 'ol/geom';
-import { Extent, containsCoordinate, getCenter } from 'ol/extent';
-import { Coordinate, distance } from 'ol/coordinate';
-import { transform } from 'ol/proj';
+import { Geometry } from 'ol/geom';
+import { Extent, containsCoordinate, getCenter, extend, getIntersection, createEmpty } from 'ol/extent';
+import { Coordinate, distance, squaredDistance } from 'ol/coordinate';
+import { transform, transformExtent } from 'ol/proj';
 import { ZsMapStateService } from '../state/state.service';
+
+const FULL_WIDTH_SWISS = 350_000;
+const FULL_HEIGHT_SWISS = 226_000;
+
+type zoomToFitFunc = (extent: Extent, padding?: [number, number, number, number], maxZoom?: number) => void;
 
 @Injectable({
   providedIn: 'root',
@@ -24,11 +30,9 @@ import { ZsMapStateService } from '../state/state.service';
 export class SearchService {
   private _i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
+  private zoomToFit: zoomToFitFunc | null = null;
 
   private _searchConfigs: IZsMapSearchConfig[] = [];
-  private sortReferencePoint: Coordinate | null = null;
-  private filterArea: Extent | null = null;
-  private _softFilterMaxDist = 20_000;
 
   geocoderUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&searchText=';
   streetGeometryUrl =
@@ -42,33 +46,63 @@ export class SearchService {
     this.addSearch(this.geoAdminLocationSearch.bind(this), 'Geo Admin', undefined, 100);
   }
 
-  public setSortReferencePoint(center: Coordinate) {
-    this.sortReferencePoint = center;
+  public setZoomToFit(func: zoomToFitFunc) {
+    this.zoomToFit = func;
   }
 
-  private getSortReferencePoint() {
-    return this.sortReferencePoint ?? this._state.getMapCenter();
+  public getDistanceReferenceCoordinate(searchConfig: IZsGlobalSearchConfig) {
+    return searchConfig.distanceReferenceCoordinate ?? this._state.getMapCenter();
   }
 
-  private getFilterArea() {
-    return this.filterArea;
+  private extendExtentAroundPoint(extent: Extent, refCoord: Coordinate) {
+    const [minX, minY, maxX, maxY] = extent;
+
+    const distanceLeft = refCoord[0] - minX;
+    const distanceRight = maxX - refCoord[0];
+    const distanceTop = maxY - refCoord[1];
+    const distanceBottom = refCoord[1] - minY;
+    const maxDistance = Math.max(distanceLeft, distanceRight, distanceTop, distanceBottom);
+
+    return this.getExtentByCoordAndDist(refCoord, maxDistance);
   }
 
-  private getSoftFilterArea() {
-    return this._state.getMapExtent();
+  public getExtentByCoordAndDist(center: Coordinate, dist: number) {
+    //web mercator / EPSG:3857 is a metric system so can calucate directly.
+    return [center[0] - dist, center[1] - dist, center[0] + dist, center[1] + dist];
   }
 
-  private filterByAreaOrDistance(locations: IZsMapSearchResult[]) {
-    const filterArea = this.getFilterArea();
-    if (filterArea) {
-      return locations.filter((l) => l.internal?.center && containsCoordinate(filterArea, l.internal.center));
+  private createOrCombineExtent(combinedExtent: Extent | null, newExtent: Extent) {
+    if (!combinedExtent) {
+      combinedExtent = createEmpty();
+      extend(combinedExtent, newExtent);
+    } else {
+      getIntersection(combinedExtent, newExtent, combinedExtent);
     }
-    const softFilterArea = this.getSoftFilterArea();
-    return locations.filter(
-      (l) =>
-        (l.internal?.center && containsCoordinate(softFilterArea, l.internal.center)) ||
-        (l.internal?.dist && l.internal.dist < this._softFilterMaxDist),
-    );
+    return combinedExtent;
+  }
+
+  public getSearchFilterArea(searchConfig: IZsGlobalSearchConfig) {
+    let combinedExtent: Extent | null = null;
+    if (searchConfig.filterByArea) {
+      const areaExtent = searchConfig.area;
+      if (areaExtent) {
+        combinedExtent = this.createOrCombineExtent(combinedExtent, areaExtent);
+      }
+    }
+
+    if (searchConfig.filterMapSection) {
+      const mapExtent = this._state.getMapExtent();
+      combinedExtent = this.createOrCombineExtent(combinedExtent, mapExtent);
+    }
+
+    if (searchConfig.filterByDistance) {
+      const distExtent = this.getExtentByCoordAndDist(
+        this.getDistanceReferenceCoordinate(searchConfig),
+        searchConfig.maxDistance,
+      );
+      combinedExtent = this.createOrCombineExtent(combinedExtent, distExtent);
+    }
+    return combinedExtent;
   }
 
   async coordinateSearch(text: string) {
@@ -79,7 +113,12 @@ export class SearchService {
     return [];
   }
 
-  async geoAdminLocationSearch(text: string, abortController: AbortController, maxResultCount?: number) {
+  async geoAdminLocationSearch(
+    text: string,
+    abortController: AbortController,
+    searchConfig: IZsGlobalSearchConfig,
+    maxResultCount?: number,
+  ) {
     if (!navigator.onLine) {
       return [];
     }
@@ -87,32 +126,77 @@ export class SearchService {
     if (maxResultCount !== undefined) {
       url = `${url}&limit=${maxResultCount}`;
     }
+
+    const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
+    const filterArea = this.getSearchFilterArea(searchConfig);
+    let boxArea = filterArea;
+    let boxAreaManipulated = false;
+    if (searchConfig.sortedByDistance) {
+      if (!boxArea) {
+        //on geoadmin search the result can only be sorted by distance of center if there is an extent to get center from.
+        //so create an extent from refCoord that always includes at least the whole swiss.
+        boxArea = [
+          refCoord[0] - FULL_WIDTH_SWISS,
+          refCoord[1] - FULL_HEIGHT_SWISS,
+          refCoord[0] + FULL_WIDTH_SWISS,
+          refCoord[1] + FULL_HEIGHT_SWISS,
+        ];
+        boxAreaManipulated = true;
+      } else {
+        //if there is an filterArea, it's not guaranted that the center of the extend is refCoord
+        //so create a new on that is at least filterArea but have refCoord as center
+        if (containsCoordinate(boxArea, refCoord)) {
+          //if the refCoord is not in allowed area keep area as is
+          boxArea = this.extendExtentAroundPoint(boxArea, refCoord);
+          boxAreaManipulated = true;
+        }
+      }
+    }
+    if (boxArea) {
+      boxArea = transformExtent(boxArea, 'EPSG:3857', 'EPSG:21781');
+      url = `${url}&bbox=${boxArea?.join(',')}&sortbbox=${searchConfig.sortedByDistance}`;
+    }
+    if (abortController.signal.aborted) {
+      // if there is already a new search query skip request
+      return [];
+    }
+
     const result: { results: IFoundLocation[] } = await fetch(url).then((response) => response.json());
     if (abortController.signal.aborted) {
       // if there is already a new search query skip map results as they are not displayed.
       return [];
     }
-    const sortCenter = this.getSortReferencePoint();
-    const foundLocations: IZsMapSearchResult[] = [];
 
+    const foundLocations: IZsMapSearchResult[] = [];
     result.results
       .filter((r) => r?.attrs?.label)
       .forEach((r) => {
         const lonLat = [r.attrs.lon, r.attrs.lat];
         const mercatorCoordinates = transform(lonLat, 'EPSG:4326', 'EPSG:3857');
-        const dist = distance(sortCenter, mercatorCoordinates);
+        //if bbox is manipulated for sort order need to redo the area check
+        if (boxAreaManipulated && filterArea && !containsCoordinate(filterArea, mercatorCoordinates)) {
+          return;
+        }
+        if (
+          r.attrs.objectclass === 'TLM_GEBIETSNAME' &&
+          (r.attrs.label.indexOf('Grossregion') !== -1 || r.attrs.label.indexOf('Landschaftsname') !== -1)
+        ) {
+          return;
+        }
         foundLocations.push({
           label: r.attrs.label,
           lonLat,
           mercatorCoordinates,
-          internal: { ...r, dist, center: mercatorCoordinates },
         });
       });
-    foundLocations.sort((a, b) => a.internal.dist - b.internal.dist);
     return foundLocations;
   }
 
-  async geoAdminStreetGeometrySearch(text: string, abortController: AbortController) {
+  async geoAdminStreetGeometrySearch(
+    text: string,
+    abortController: AbortController,
+    searchConfig: IZsGlobalSearchConfig,
+  ) {
     if (!navigator.onLine) {
       return [];
     }
@@ -123,7 +207,9 @@ export class SearchService {
       // if there is already a new search query skip map results as they are not displayed.
       return [];
     }
-    const sortCenter = this.getSortReferencePoint();
+
+    const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
+    const filterArea = this.getSearchFilterArea(searchConfig);
     const foundLocations: IZsMapSearchResult[] = [];
     result.results
       .filter((r) => r?.properties?.['stn_label'])
@@ -134,15 +220,25 @@ export class SearchService {
         if (geometry && 'getClosestPoint' in geometry) {
           center = geometry.getClosestPoint(center);
         }
-        const dist = distance(sortCenter, center);
-        foundLocations.push({
-          label: `${r.properties?.['stn_label']} (${r.properties?.['zip_label']})`,
-          feature,
-          internal: { dist, center },
-        });
+        if (!filterArea || containsCoordinate(filterArea, center)) {
+          const dist = squaredDistance(refCoord, center);
+          foundLocations.push({
+            label: `${r.properties?.['stn_label']} (${r.properties?.['zip_label']})`,
+            feature,
+            internal: {
+              dist,
+              center,
+            },
+          });
+        }
       });
-    foundLocations.sort((a, b) => a.internal.dist - b.internal.dist);
-    return this.filterByAreaOrDistance(foundLocations);
+    if (searchConfig.sortedByDistance) {
+      foundLocations.sort((a, b) => a.internal.dist - b.internal.dist);
+    } else {
+      const collator = new Intl.Collator();
+      foundLocations.sort((a, b) => collator.compare(a.label, b.label));
+    }
+    return foundLocations;
   }
 
   public async geoAdminStreetGeometryById(id: string) {
@@ -181,9 +277,10 @@ export class SearchService {
     this._searchConfigs = this._searchConfigs.filter((conf) => conf.func !== searchFunc);
   }
 
-  createSearchInstance(): {
+  createSearchInstance(searchConfig: IZsGlobalSearchConfig): {
     searchResults$: Observable<IResultSet[] | null>;
     updateSearchTerm: (searchText: string) => void;
+    updateSearchConfig: (newSearchConfig: IZsGlobalSearchConfig) => void;
   } {
     const searchSubject = new BehaviorSubject<string>('');
     let abortController: AbortController | undefined;
@@ -197,7 +294,7 @@ export class SearchService {
         }
         abortController = new AbortController();
 
-        return this.processConfigs(searchText, abortController);
+        return this.processConfigs(searchText, abortController, searchConfig);
       }),
     );
 
@@ -206,14 +303,22 @@ export class SearchService {
       updateSearchTerm: (searchText: string) => {
         searchSubject.next(searchText);
       },
+      updateSearchConfig: (newSearchConfig: IZsGlobalSearchConfig) => {
+        searchConfig = newSearchConfig;
+        searchSubject.next(searchSubject.value);
+      },
     };
   }
 
-  async simpleSearch(searchText: string): Promise<IResultSet[]> {
-    return (await this.processConfigs(searchText, new AbortController())) ?? [];
+  async simpleSearch(searchText: string, searchConfig: IZsGlobalSearchConfig): Promise<IResultSet[]> {
+    return (await this.processConfigs(searchText, new AbortController(), searchConfig)) ?? [];
   }
 
-  private async processConfigs(searchText: string, abortController: AbortController): Promise<IResultSet[] | null> {
+  private async processConfigs(
+    searchText: string,
+    abortController: AbortController,
+    searchConfig: IZsGlobalSearchConfig,
+  ): Promise<IResultSet[] | null> {
     if (searchText.length <= 1) {
       return [];
     }
@@ -227,7 +332,7 @@ export class SearchService {
       }
 
       try {
-        const results = await config.func(searchText, abortController, config.maxResultCount);
+        const results = await config.func(searchText, abortController, searchConfig, config.maxResultCount);
         if (results.length > 0) {
           resultSets.push({ config, results, collapsed: 'peek' });
         }
@@ -240,5 +345,37 @@ export class SearchService {
     }
 
     return resultSets;
+  }
+
+  public highlightResult(element: IZsMapSearchResult | null, focus: boolean) {
+    if (element) {
+      let coordinates: Coordinate | undefined;
+      if (element.mercatorCoordinates) {
+        coordinates = element.mercatorCoordinates;
+      } else if (element.lonLat) {
+        coordinates = element.mercatorCoordinates = transform(element.lonLat, 'EPSG:4326', 'EPSG:3857');
+      }
+      if (coordinates) {
+        this._state.updateSearchResultFeatures([]);
+        this._state.updatePositionFlag({ isVisible: true, coordinates });
+        if (focus) {
+          this._state.setMapCenter(coordinates);
+        }
+        return;
+      } else if (element.feature) {
+        this._state.updateSearchResultFeatures([element.feature]);
+        const extent = element.feature.getGeometry()?.getExtent();
+        if (focus && extent) {
+          if (this.zoomToFit) {
+            this.zoomToFit(extent);
+          }
+          this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
+        } else {
+          this._state.updatePositionFlag({ isVisible: true, coordinates: element.internal.center ?? [0, 0] });
+        }
+        return;
+      }
+    }
+    this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
   }
 }

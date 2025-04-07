@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   IPositionFlag,
+  IZsGlobalSearchConfig,
   IZsJournalFilter,
   IZsMapDisplayState,
   IZsMapPrintExtent,
@@ -182,6 +183,15 @@ export class ZsMapStateService {
         decisionFilter: false,
         keyMessageFilter: false,
       },
+      searchConfig: {
+        filterMapSection: false,
+        filterByDistance: false,
+        maxDistance: 20_000,
+        filterByArea: false,
+        area: null,
+        sortedByDistance: false,
+        distanceReferenceCoordinate: null,
+      }
     };
     if (!mapState) {
       mapState = this._map.value;
@@ -575,6 +585,24 @@ export class ZsMapStateService {
 
   public getMapExtent(): Extent {
     return this._display.value.mapExtent;
+  }
+
+  // searchConfig
+  public observeSearchConfig(): Observable<IZsGlobalSearchConfig> {
+    return this._display.pipe(
+      map((o) => o.searchConfig),
+      distinctUntilChanged((x, y) => isEqual(x,y)),
+    );
+  }
+
+  public setSearchConfig(searchConfig: IZsGlobalSearchConfig) {
+    this.updateDisplayState((draft) => {
+      draft.searchConfig = searchConfig;
+    });
+  }
+
+  public getSearchConfig(): IZsGlobalSearchConfig {
+    return this._display.value.searchConfig;
   }
 
   // source

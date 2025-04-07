@@ -83,6 +83,7 @@ export interface IZsMapDisplayState {
   enableClustering: boolean;
   journalSort: Sort;
   journalFilter: IZsJournalFilter;
+  searchConfig: IZsGlobalSearchConfig;
 }
 
 export interface IZsJournalFilter {
@@ -91,6 +92,16 @@ export interface IZsJournalFilter {
   outgoingFilter: boolean;
   decisionFilter: boolean;
   keyMessageFilter: boolean;
+}
+
+export interface IZsGlobalSearchConfig {
+  filterMapSection: boolean;
+  filterByDistance: boolean;
+  maxDistance: number;
+  filterByArea: false;
+  area: Extent | null;
+  sortedByDistance: boolean;
+  distanceReferenceCoordinate: Coordinate | null;
 }
 
 //DIN paper dimension in mm, landscape
@@ -255,7 +266,12 @@ export interface IZsMapSearchResult {
   internal?;
 }
 
-export type SearchFunction = (searchText: string, abortController: AbortController, maxResultCount?: number) => Promise<IZsMapSearchResult[]>;
+export type SearchFunction = (
+  searchText: string,
+  abortController: AbortController,
+  searchConfig: IZsGlobalSearchConfig,
+  maxResultCount?: number,
+) => Promise<IZsMapSearchResult[]>;
 
 export interface IZsMapSearchConfig {
   label: string;
@@ -279,4 +295,5 @@ export interface IFoundLocationAttrs {
   label: string;
   lon: number;
   lat: number;
+  objectclass?: string;
 }

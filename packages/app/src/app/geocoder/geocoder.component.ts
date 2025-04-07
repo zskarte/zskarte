@@ -1,11 +1,10 @@
 import { signal, Component, ElementRef, OnDestroy, inject, viewChild } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
-import { transform } from 'ol/proj';
 import { SessionService } from '../session/session.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { IResultSet, IZsMapSearchResult } from '@zskarte/types';
+import { IResultSet, IZsGlobalSearchConfig, IZsMapSearchResult } from '@zskarte/types';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +12,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { SearchService } from '../search/search.service';
 import { SearchAutocompleteComponent } from '../search/search-autocomplete/search-autocomplete.component';
-import { MapRendererService } from '../map-renderer/map-renderer.service';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
+import { MapSearchAreaService } from '../map-renderer/map-search-area.service';
 
 @Component({
   selector: 'app-geocoder',
@@ -27,14 +29,17 @@ import { MapRendererService } from '../map-renderer/map-renderer.service';
     CommonModule,
     FormsModule,
     SearchAutocompleteComponent,
+    OverlayModule,
+    MatCheckbox,
+    MatButtonModule,
   ],
 })
 export class GeocoderComponent implements OnDestroy {
   i18n = inject(I18NService);
-  zsMapStateService = inject(ZsMapStateService);
-  private _renderer = inject(MapRendererService);
+  private _state = inject(ZsMapStateService);
   private _session = inject(SessionService);
   private _search = inject(SearchService);
+  private _searchArea = inject(MapSearchAreaService);
 
   readonly el = viewChild.required<ElementRef>('searchField');
   foundLocations = signal<IResultSet[]>([]);
@@ -43,6 +48,11 @@ export class GeocoderComponent implements OnDestroy {
   selected: IZsMapSearchResult | null = null;
   private _ngUnsubscribe = new Subject<void>();
   private updateSearchTerm: (searchText: string) => void;
+  private updateSearchConfig: (newSearchConfig: IZsGlobalSearchConfig) => void;
+  searchConfig: IZsGlobalSearchConfig;
+
+  settingsVisble = false;
+  drawingArea = false;
 
   constructor() {
     this._session
@@ -51,9 +61,18 @@ export class GeocoderComponent implements OnDestroy {
       .subscribe(() => {
         this.selected = null;
       });
+    this.searchConfig = { ...this._state.getSearchConfig() };
 
-    const { searchResults$, updateSearchTerm } = this._search.createSearchInstance();
+    const { searchResults$, updateSearchTerm, updateSearchConfig } = this._search.createSearchInstance(
+      this.searchConfig,
+    );
     this.updateSearchTerm = updateSearchTerm;
+    this.updateSearchConfig = updateSearchConfig;
+
+    this._state.observeSearchConfig().subscribe((config: IZsGlobalSearchConfig) => {
+      this.searchConfig = { ...config };
+      this.updateSearchConfig(this.searchConfig);
+    });
 
     searchResults$.subscribe((newResultSets) => {
       if (newResultSets === null) {
@@ -68,7 +87,7 @@ export class GeocoderComponent implements OnDestroy {
       }
       this.foundLocations.set(newResultSets);
       if (newResultSets.length === 0 && this.inputText.length <= 1 && !this.keepCoord) {
-        this.zsMapStateService.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
+        this._search.highlightResult(null, false);
       }
       this.keepCoord = false;
     });
@@ -81,6 +100,7 @@ export class GeocoderComponent implements OnDestroy {
 
   async geoCodeLoad() {
     this.updateSearchTerm(this.inputText);
+    this.settingsVisble = false;
   }
 
   geoCodeSelected(value: IZsMapSearchResult) {
@@ -94,41 +114,28 @@ export class GeocoderComponent implements OnDestroy {
     if (element === null) {
       this.goToCoordinate(false);
     } else {
-      this.doGoToCoordinate(element, false);
+      this._search.highlightResult(element, false);
     }
-  }
-
-  private doGoToCoordinate(element: IZsMapSearchResult | null, center: boolean) {
-    if (element) {
-      let coordinates;
-      if (element.mercatorCoordinates) {
-        coordinates = element.mercatorCoordinates;
-      } else if (element.lonLat) {
-        coordinates = transform(element.lonLat, 'EPSG:4326', 'EPSG:3857');
-      }
-      if (coordinates) {
-        this.zsMapStateService.updateSearchResultFeatures([]);
-        this.zsMapStateService.updatePositionFlag({ isVisible: true, coordinates });
-        if (center) {
-          this.zsMapStateService.setMapCenter(coordinates);
-        }
-        return;
-      } else if (element.feature) {
-        this.zsMapStateService.updateSearchResultFeatures([element.feature]);
-        const extent = element.feature.getGeometry()?.getExtent();
-        if (center && extent) {
-          this._renderer.zoomToFit(extent);
-          this.zsMapStateService.updatePositionFlag({ isVisible: false, coordinates: [0,0] });
-        } else {
-          this.zsMapStateService.updatePositionFlag({ isVisible: true, coordinates: element.internal.center ?? [0,0] });
-        }
-        return;
-      }
-    }
-    this.zsMapStateService.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
   }
 
   goToCoordinate(center: boolean) {
-    this.doGoToCoordinate(this.selected, center);
+    this._search.highlightResult(this.selected, center);
+  }
+
+  configChanged() {
+    this._state.setSearchConfig({ ...this.searchConfig });
+    this.updateSearchConfig(this.searchConfig);
+  }
+
+  startDefineArea() {
+    this.drawingArea = true;
+    this._searchArea.activateAreaEdit();
+  }
+
+  stopDefineArea() {
+    this._searchArea.deactivateAreaEdit();
+    this.drawingArea = false;
+    this.searchConfig.area = this._searchArea.getSearchAreaExtent();
+    this.configChanged();
   }
 }

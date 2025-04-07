@@ -9,7 +9,7 @@
     </mat-option>
   </ng-template>
   @if (foundLocations().length === 1) {
-    @for (location of foundLocations()[0].results; track location.lonLat) {
+    @for (location of foundLocations()[0].results; track location.lonLat || location.feature) {
       <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
     }
   } @else {
