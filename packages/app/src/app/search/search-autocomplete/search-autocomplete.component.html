@@ -9,7 +9,7 @@
     </mat-option>
   </ng-template>
   @if (foundLocations().length === 1) {
-    @for (location of foundLocations()[0].results; track location.lonLat || location.feature) {
+    @for (location of foundLocations()[0].results; track location.internal?.id || location.lonLat || location.label) {
       <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
     }
   } @else {
@@ -20,7 +20,10 @@
       >
         <ng-container>
           @if (group.collapsed === 'peek') {
-            @for (location of group.results | slice: 0 : 3; track location.lonLat) {
+            @for (
+              location of group.results | slice: 0 : 3;
+              track location.internal?.id || location.lonLat || location.label
+            ) {
               <ng-container
                 [ngTemplateOutlet]="option"
                 [ngTemplateOutletContext]="{ location: location }"
@@ -30,7 +33,7 @@
               <div class="hasMore">...</div>
             }
           } @else if (!group.collapsed) {
-            @for (location of group.results; track location.lonLat) {
+            @for (location of group.results; track location.internal?.id || location.lonLat || location.label) {
               <ng-container
                 [ngTemplateOutlet]="option"
                 [ngTemplateOutletContext]="{ location: location }"

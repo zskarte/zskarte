@@ -3,7 +3,7 @@ import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
 import { Subject, takeUntil } from 'rxjs';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { IResultSet, IZsGlobalSearchConfig, IZsMapSearchResult } from '@zskarte/types';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
@@ -42,6 +42,7 @@ export class GeocoderComponent implements OnDestroy {
   private _searchArea = inject(MapSearchAreaService);
 
   readonly el = viewChild.required<ElementRef>('searchField');
+  readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
   foundLocations = signal<IResultSet[]>([]);
   inputText = '';
   keepCoord = false;
@@ -90,6 +91,7 @@ export class GeocoderComponent implements OnDestroy {
         this._search.highlightResult(null, false);
       }
       this.keepCoord = false;
+      this.autocompleteTrigger().openPanel();
     });
   }
 
@@ -112,6 +114,7 @@ export class GeocoderComponent implements OnDestroy {
 
   previewCoordinate(element: IZsMapSearchResult | null) {
     if (element === null) {
+      this.selected = null;
       this.goToCoordinate(false);
     } else {
       this._search.highlightResult(element, false);
@@ -124,7 +127,6 @@ export class GeocoderComponent implements OnDestroy {
 
   configChanged() {
     this._state.setSearchConfig({ ...this.searchConfig });
-    this.updateSearchConfig(this.searchConfig);
   }
 
   startDefineArea() {

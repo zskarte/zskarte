@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import {
   IFoundLocation,
   IResultSet,
@@ -15,7 +15,7 @@ import { GeoJSONFeature, default as GeoJSON } from 'ol/format/GeoJSON';
 import { Feature } from 'ol';
 import { Geometry } from 'ol/geom';
 import { Extent, containsCoordinate, getCenter, extend, getIntersection, createEmpty } from 'ol/extent';
-import { Coordinate, distance, squaredDistance } from 'ol/coordinate';
+import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { transform, transformExtent } from 'ol/proj';
 import { ZsMapStateService } from '../state/state.service';
 
@@ -23,6 +23,15 @@ const FULL_WIDTH_SWISS = 350_000;
 const FULL_HEIGHT_SWISS = 226_000;
 
 type zoomToFitFunc = (extent: Extent, padding?: [number, number, number, number], maxZoom?: number) => void;
+
+const GEOCODE_ORIGIN_TO_LAYER = {
+  zipcode: 'ch.swisstopo-vd.ortschaftenverzeichnis_plz',
+  gg25: 'ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill',
+  district: 'ch.swisstopo.swissboundaries3d-bezirk-flaeche.fill',
+  kantone: 'ch.swisstopo.swissboundaries3d-kanton-flaeche.fill',
+  //'gazetteer':['ch.swisstopo.swissnames3d','ch.bav.haltestellen-oev'],
+  //'address':'ch.bfs.gebaeude_wohnungs_register',
+} as const;
 
 @Injectable({
   providedIn: 'root',
@@ -33,12 +42,15 @@ export class SearchService {
   private zoomToFit: zoomToFitFunc | null = null;
 
   private _searchConfigs: IZsMapSearchConfig[] = [];
+  private formatGeoJSON = new GeoJSON();
 
   geocoderUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&searchText=';
+  geocoderGeometryUrlPrefix = 'https://api3.geo.admin.ch/rest/services/api/MapServer/';
+  geocoderGeometryUrlSuffix = '?geometryFormat=geojson&sr=3857';
   streetGeometryUrl =
     'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.amtliches-strassenverzeichnis&searchField=stn_label&geometryFormat=geojson&sr=3857&searchText=';
   streetGeometryByIdUrl =
-    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.amtliches-strassenverzeichnis&searchField=str_esid&geometryFormat=geojson&sr=4326&contains=false&searchText=';
+    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.amtliches-strassenverzeichnis&searchField=str_esid&geometryFormat=geojson&sr=3857&contains=false&searchText=';
 
   constructor() {
     this.addSearch(this.coordinateSearch.bind(this), this._i18n.get('coordinates'), undefined, -1);
@@ -187,9 +199,33 @@ export class SearchService {
           label: r.attrs.label,
           lonLat,
           mercatorCoordinates,
+          internal: { id: r.id, ...r.attrs },
         });
       });
     return foundLocations;
+  }
+
+  public async geoAdminGeometryByOriginAndId(origin: string, featureId: string) {
+    if (!navigator.onLine) {
+      return null;
+    }
+
+    if (origin && featureId) {
+      const detailLayerId = GEOCODE_ORIGIN_TO_LAYER[origin];
+      if (detailLayerId) {
+        const url =
+          this.geocoderGeometryUrlPrefix +
+          encodeURIComponent(detailLayerId) +
+          '/' +
+          encodeURIComponent(featureId) +
+          this.geocoderGeometryUrlSuffix;
+        const result: { feature: GeoJSONFeature } = await fetch(url).then((response) => response.json());
+        if (result?.feature) {
+          return this.formatGeoJSON.readFeature(result.feature) as Feature<Geometry>;
+        }
+      }
+    }
+    return null;
   }
 
   async geoAdminStreetGeometrySearch(
@@ -201,7 +237,6 @@ export class SearchService {
       return [];
     }
     const url = this.streetGeometryUrl + encodeURIComponent(text);
-    const format = new GeoJSON();
     const result: { results: GeoJSONFeature[] } = await fetch(url).then((response) => response.json());
     if (abortController.signal.aborted) {
       // if there is already a new search query skip map results as they are not displayed.
@@ -214,26 +249,30 @@ export class SearchService {
     result.results
       .filter((r) => r?.properties?.['stn_label'])
       .forEach((r) => {
-        const feature = format.readFeature(r) as Feature<Geometry>;
+        const feature = this.formatGeoJSON.readFeature(r) as Feature<Geometry>;
         let center = getCenter(r.bbox as Extent);
         const geometry = feature.getGeometry();
         if (geometry && 'getClosestPoint' in geometry) {
           center = geometry.getClosestPoint(center);
         }
         if (!filterArea || containsCoordinate(filterArea, center)) {
-          const dist = squaredDistance(refCoord, center);
+          let dist: number | undefined = undefined;
+          if (searchConfig.sortedByDistance) {
+            dist = squaredDistance(refCoord, center);
+          }
           foundLocations.push({
             label: `${r.properties?.['stn_label']} (${r.properties?.['zip_label']})`,
             feature,
             internal: {
               dist,
               center,
+              id: r.id,
             },
           });
         }
       });
     if (searchConfig.sortedByDistance) {
-      foundLocations.sort((a, b) => a.internal.dist - b.internal.dist);
+      foundLocations.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
     } else {
       const collator = new Intl.Collator();
       foundLocations.sort((a, b) => collator.compare(a.label, b.label));
@@ -246,10 +285,9 @@ export class SearchService {
       return null;
     }
     const url = this.streetGeometryByIdUrl + encodeURIComponent(id);
-    const format = new GeoJSON();
     const result: { results: GeoJSONFeature[] } = await fetch(url).then((response) => response.json());
     if (result.results.length > 0) {
-      return format.readFeature(result.results[0]) as Feature<Geometry>;
+      return this.formatGeoJSON.readFeature(result.results[0]) as Feature<Geometry>;
     }
     return null;
   }
@@ -283,12 +321,24 @@ export class SearchService {
     updateSearchConfig: (newSearchConfig: IZsGlobalSearchConfig) => void;
   } {
     const searchSubject = new BehaviorSubject<string>('');
+    const searchConfigSubject = new BehaviorSubject<IZsGlobalSearchConfig>(searchConfig);
     let abortController: AbortController | undefined;
 
-    const searchResults$ = searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap(async (searchText) => {
+    const searchResults$ = combineLatest([
+      searchSubject.pipe(debounceTime(300), distinctUntilChanged()),
+      searchConfigSubject,
+    ]).pipe(
+      switchMap(([searchText, searchConfig]) => {
+        if (searchText) {
+          if (searchConfig.filterMapSection) {
+            return this._state.observeMapExtent().pipe(map((extent) => ({ searchText, searchConfig, extent })));
+          } else if (searchConfig.filterByDistance || searchConfig.sortedByDistance) {
+            return this._state.observeMapCenter().pipe(map((center) => ({ searchText, searchConfig, center })));
+          }
+        }
+        return of({ searchText, searchConfig });
+      }),
+      switchMap(({ searchText, searchConfig }) => {
         if (abortController) {
           abortController.abort();
         }
@@ -304,8 +354,7 @@ export class SearchService {
         searchSubject.next(searchText);
       },
       updateSearchConfig: (newSearchConfig: IZsGlobalSearchConfig) => {
-        searchConfig = newSearchConfig;
-        searchSubject.next(searchSubject.value);
+        searchConfigSubject.next(newSearchConfig);
       },
     };
   }
@@ -347,7 +396,7 @@ export class SearchService {
     return resultSets;
   }
 
-  public highlightResult(element: IZsMapSearchResult | null, focus: boolean) {
+  public async highlightResult(element: IZsMapSearchResult | null, focus: boolean) {
     if (element) {
       let coordinates: Coordinate | undefined;
       if (element.mercatorCoordinates) {
@@ -358,7 +407,30 @@ export class SearchService {
       if (coordinates) {
         this._state.updateSearchResultFeatures([]);
         this._state.updatePositionFlag({ isVisible: true, coordinates });
+        if (element.internal?.origin && element.internal?.featureId) {
+          if (!element.feature) {
+            element.feature =
+              (await this.geoAdminGeometryByOriginAndId(element.internal.origin, element.internal.featureId)) ??
+              undefined;
+          }
+          if (element.feature) {
+            this._state.updateSearchResultFeatures([element.feature]);
+          }
+        }
         if (focus) {
+          if (this.zoomToFit && element.internal?.geom_st_box2d) {
+            const coords = element.internal.geom_st_box2d.match(/BOX\(([^ ]+) ([^,]+),([^ ]+) ([^)]+)\)/);
+            if (coords) {
+              const minX = parseFloat(coords[1]);
+              const minY = parseFloat(coords[2]);
+              const maxX = parseFloat(coords[3]);
+              const maxY = parseFloat(coords[4]);
+              let extent: Extent = [minX, minY, maxX, maxY];
+              extent = transformExtent(extent, 'EPSG:21781', 'EPSG:3857');
+              this.zoomToFit(extent);
+              return;
+            }
+          }
           this._state.setMapCenter(coordinates);
         }
         return;
@@ -371,7 +443,7 @@ export class SearchService {
           }
           this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
         } else {
-          this._state.updatePositionFlag({ isVisible: true, coordinates: element.internal.center ?? [0, 0] });
+          this._state.updatePositionFlag({ isVisible: true, coordinates: element.internal?.center ?? [0, 0] });
         }
         return;
       }

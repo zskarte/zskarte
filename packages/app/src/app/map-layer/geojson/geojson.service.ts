@@ -310,7 +310,7 @@ export class GeoJSONService {
       if (labels[label]) {
         continue;
       }
-      let dist: number | null = null;
+      let dist: number | undefined = undefined;
       if (searchConfig.sortedByDistance) {
         dist = squaredDistance(refCoord, coords);
       }
@@ -354,7 +354,7 @@ export class GeoJSONService {
       );
     }
     if (searchConfig.sortedByDistance) {
-      result.sort((a, b) => a.internal.dist - b.internal.dist);
+      result.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
     } else {
       result.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
     }
@@ -420,7 +420,7 @@ export class GeoJSONService {
     } else {
       if (currentGroup.length > 1) {
         if (sortedByDistance) {
-          currentGroup.sort((a, b) => a.internal.dist - b.internal.dist);
+          currentGroup.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
         } else {
           currentGroup.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
         }

@@ -263,7 +263,7 @@ export interface IZsMapSearchResult {
   mercatorCoordinates?: Coordinate;
   lonLat?: Coordinate;
   feature?: Feature;
-  internal?;
+  internal?: Partial<IFoundLocationAttrs> & { id?: string | number, dist?: number; center?: Coordinate };
 }
 
 export type SearchFunction = (
@@ -289,6 +289,7 @@ export interface IResultSet {
 
 export interface IFoundLocation {
   attrs: IFoundLocationAttrs;
+  id?: number;
 }
 
 export interface IFoundLocationAttrs {
@@ -296,4 +297,7 @@ export interface IFoundLocationAttrs {
   lon: number;
   lat: number;
   objectclass?: string;
+  origin?: string;
+  featureId?: string;
+  geom_st_box2d: string;
 }
