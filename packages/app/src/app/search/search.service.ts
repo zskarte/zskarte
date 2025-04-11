@@ -13,10 +13,10 @@ import { coordinateFromString } from '../helper/coordinates-extract';
 import { I18NService } from '../state/i18n.service';
 import { GeoJSONFeature, default as GeoJSON } from 'ol/format/GeoJSON';
 import { Feature } from 'ol';
-import { Geometry } from 'ol/geom';
+import { Geometry, Point } from 'ol/geom';
 import { Extent, containsCoordinate, getCenter, extend, getIntersection, createEmpty } from 'ol/extent';
 import { Coordinate, squaredDistance } from 'ol/coordinate';
-import { transform, transformExtent } from 'ol/proj';
+import { fromLonLat, transformExtent } from 'ol/proj';
 import { ZsMapStateService } from '../state/state.service';
 
 const FULL_WIDTH_SWISS = 350_000;
@@ -32,6 +32,12 @@ const GEOCODE_ORIGIN_TO_LAYER = {
   //'gazetteer':['ch.swisstopo.swissnames3d','ch.bav.haltestellen-oev'],
   //'address':'ch.bfs.gebaeude_wohnungs_register',
 } as const;
+
+export const ADDRESS_TOKEN_REGEX = /addr:\((.*?)\)(?:\[(.*?)\])?/;
+
+export function getGlobalAddressTokenRegex() {
+  return new RegExp(ADDRESS_TOKEN_REGEX.source, ADDRESS_TOKEN_REGEX.flags + 'g');
+}
 
 @Injectable({
   providedIn: 'root',
@@ -120,7 +126,7 @@ export class SearchService {
   async coordinateSearch(text: string) {
     const coords = coordinateFromString(text);
     if (coords) {
-      return [{ label: text, lonLat: coords }];
+      return [{ label: text, lonLat: coords, internal: { textToken: `addr:(${text})[lonLat:${coords.join(' ')}]` } }];
     }
     return [];
   }
@@ -184,7 +190,7 @@ export class SearchService {
       .filter((r) => r?.attrs?.label)
       .forEach((r) => {
         const lonLat = [r.attrs.lon, r.attrs.lat];
-        const mercatorCoordinates = transform(lonLat, 'EPSG:4326', 'EPSG:3857');
+        const mercatorCoordinates = fromLonLat(lonLat);
         //if bbox is manipulated for sort order need to redo the area check
         if (boxAreaManipulated && filterArea && !containsCoordinate(filterArea, mercatorCoordinates)) {
           return;
@@ -195,11 +201,23 @@ export class SearchService {
         ) {
           return;
         }
+        let linkText = r.attrs.label.replace(/<[^>]*>/g, '');
+        if (r.attrs.label.indexOf('<i>') !== -1) {
+          //if there is an "result type" extract the bold text
+          const match = r.attrs.label.match(/<b>(.*?)<\/b>/);
+          if (match) {
+            linkText = match[1].replace(/<[^>]*>/g, '');
+          }
+        }
         foundLocations.push({
           label: r.attrs.label,
           lonLat,
           mercatorCoordinates,
-          internal: { id: r.id, ...r.attrs },
+          internal: {
+            id: r.id,
+            ...r.attrs,
+            textToken: `addr:(${linkText})[lonLat:${lonLat.join(' ')}]`,
+          },
         });
       });
     return foundLocations;
@@ -236,19 +254,26 @@ export class SearchService {
     if (!navigator.onLine) {
       return [];
     }
-    const url = this.streetGeometryUrl + encodeURIComponent(text);
+    const parts = text.split(',');
+    const url = this.streetGeometryUrl + encodeURIComponent(parts[0]);
     const result: { results: GeoJSONFeature[] } = await fetch(url).then((response) => response.json());
     if (abortController.signal.aborted) {
       // if there is already a new search query skip map results as they are not displayed.
       return [];
     }
 
+    const zipLabel = parts.length > 1 ? parts[1].trim().toLowerCase() : undefined;
     const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
     const filterArea = this.getSearchFilterArea(searchConfig);
     const foundLocations: IZsMapSearchResult[] = [];
     result.results
       .filter((r) => r?.properties?.['stn_label'])
       .forEach((r) => {
+        if (zipLabel) {
+          if ((r?.properties?.['zip_label'] as string).toLowerCase().indexOf(zipLabel) === -1) {
+            return;
+          }
+        }
         const feature = this.formatGeoJSON.readFeature(r) as Feature<Geometry>;
         let center = getCenter(r.bbox as Extent);
         const geometry = feature.getGeometry();
@@ -260,13 +285,15 @@ export class SearchService {
           if (searchConfig.sortedByDistance) {
             dist = squaredDistance(refCoord, center);
           }
+          const label = `${r.properties?.['stn_label']}, ${r.properties?.['zip_label']}`;
           foundLocations.push({
-            label: `${r.properties?.['stn_label']} (${r.properties?.['zip_label']})`,
+            label,
             feature,
             internal: {
               dist,
               center,
               id: r.id,
+              textToken: `addr:(${label})[str_esid:${r.properties?.['str_esid']}]`,
             },
           });
         }
@@ -368,7 +395,7 @@ export class SearchService {
     abortController: AbortController,
     searchConfig: IZsGlobalSearchConfig,
   ): Promise<IResultSet[] | null> {
-    if (searchText.length <= 1) {
+    if (!searchText || typeof searchText !== 'string' || searchText.length <= 1) {
       return [];
     }
     const resultSets: IResultSet[] = [];
@@ -402,7 +429,7 @@ export class SearchService {
       if (element.mercatorCoordinates) {
         coordinates = element.mercatorCoordinates;
       } else if (element.lonLat) {
-        coordinates = element.mercatorCoordinates = transform(element.lonLat, 'EPSG:4326', 'EPSG:3857');
+        coordinates = element.mercatorCoordinates = fromLonLat(element.lonLat);
       }
       if (coordinates) {
         this._state.updateSearchResultFeatures([]);
@@ -449,5 +476,34 @@ export class SearchService {
       }
     }
     this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
+  }
+
+  public async getHighlightGeometryFeature(locationInfo: string): Promise<Feature<Geometry> | null> {
+    if (locationInfo.startsWith('lonLat:')) {
+      const lonLat = locationInfo
+        .substring(7)
+        .split(' ')
+        .map((v) => parseFloat(v));
+      const mercatorCoordinates = fromLonLat(lonLat);
+      return new Feature(new Point(mercatorCoordinates));
+    }
+    if (locationInfo.startsWith('str_esid:')) {
+      const esid = locationInfo.substring(9);
+      return await this.geoAdminStreetGeometryById(esid);
+    }
+
+    return null;
+  }
+
+  public parseTextToken(token: string): { address: string; locationInfo?: string } {
+    const match = ADDRESS_TOKEN_REGEX.exec(token);
+    if (!match) {
+      if (token.startsWith('addr:')) {
+        return { address: token.substring(5) };
+      } else {
+        return { address: token };
+      }
+    }
+    return { address: match[1], locationInfo: match[2] };
   }
 }

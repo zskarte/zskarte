@@ -1,0 +1,45 @@
+mat-form-field {
+  width: 100%;
+}
+
+.hint-box {
+  display: flex;
+
+  .hint {
+    white-space: pre-line;
+    flex-grow: 1;
+    margin: 5px 0;
+    color: darkgray;
+    line-height: 1.1em;
+  }
+
+  mat-checkbox {
+    width: 150px;
+    --mat-checkbox-label-text-color: darkgray;
+    --mat-checkbox-label-text-line-height: 1.1em;
+  }
+}
+
+.textContent:read-only {
+  color: #666666;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+.addresSearch {
+  display: flex;
+  padding: 5px 0;
+
+  .title {
+    margin-right: 10px;
+  }
+
+  input {
+    flex-grow: 1;
+    box-sizing: border-box;
+  }
+}
+
+.spacer {
+  margin-bottom: 1.5em;
+}

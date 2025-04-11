@@ -49,3 +49,7 @@ input {
     display: none;
   }
 }
+
+:host-context(.journal-address-preview) app-floating-ui {
+  display: none;
+}

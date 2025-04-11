@@ -1,4 +1,4 @@
-import { signal, Component, ElementRef, OnDestroy, inject, viewChild } from '@angular/core';
+import { signal, Component, ElementRef, OnDestroy, inject, viewChild, effect } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
@@ -41,15 +41,12 @@ export class GeocoderComponent implements OnDestroy {
   private _search = inject(SearchService);
   private _searchArea = inject(MapSearchAreaService);
 
-  readonly el = viewChild.required<ElementRef>('searchField');
   readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
   foundLocations = signal<IResultSet[]>([]);
-  inputText = '';
+  readonly inputText = signal("");
   keepCoord = false;
   selected: IZsMapSearchResult | null = null;
   private _ngUnsubscribe = new Subject<void>();
-  private updateSearchTerm: (searchText: string) => void;
-  private updateSearchConfig: (newSearchConfig: IZsGlobalSearchConfig) => void;
   searchConfig: IZsGlobalSearchConfig;
 
   settingsVisble = false;
@@ -67,12 +64,10 @@ export class GeocoderComponent implements OnDestroy {
     const { searchResults$, updateSearchTerm, updateSearchConfig } = this._search.createSearchInstance(
       this.searchConfig,
     );
-    this.updateSearchTerm = updateSearchTerm;
-    this.updateSearchConfig = updateSearchConfig;
 
     this._state.observeSearchConfig().subscribe((config: IZsGlobalSearchConfig) => {
       this.searchConfig = { ...config };
-      this.updateSearchConfig(this.searchConfig);
+      updateSearchConfig(this.searchConfig);
     });
 
     searchResults$.subscribe((newResultSets) => {
@@ -87,11 +82,18 @@ export class GeocoderComponent implements OnDestroy {
         newResultSets.forEach((s) => (s.collapsed = true));
       }
       this.foundLocations.set(newResultSets);
-      if (newResultSets.length === 0 && this.inputText.length <= 1 && !this.keepCoord) {
+      if (newResultSets.length === 0 && this.inputText().length <= 1 && !this.keepCoord) {
         this._search.highlightResult(null, false);
       }
       this.keepCoord = false;
-      this.autocompleteTrigger().openPanel();
+      if (this.inputText().length > 1){
+        this.autocompleteTrigger().openPanel();
+      }
+    });
+
+    effect(()=>{
+      updateSearchTerm(this.inputText());
+      this.settingsVisble = false;
     });
   }
 
@@ -100,16 +102,11 @@ export class GeocoderComponent implements OnDestroy {
     this._ngUnsubscribe.complete();
   }
 
-  async geoCodeLoad() {
-    this.updateSearchTerm(this.inputText);
-    this.settingsVisble = false;
-  }
-
   geoCodeSelected(value: IZsMapSearchResult) {
     this.selected = value;
     this.goToCoordinate(true);
     this.keepCoord = true;
-    this.inputText = '';
+    this.inputText.set('');
   }
 
   previewCoordinate(element: IZsMapSearchResult | null) {

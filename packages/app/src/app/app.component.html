@@ -1,4 +1,4 @@
-<main [style.height.px]="height">
+<main [style.height.px]="height" [class.journal-address-preview]="journalAddressPreview()">
   @if (operationId | async) {
   <nav class="main-tabs mat-elevation-z3" mat-tab-nav-bar [tabPanel]="tabPanel">
     <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.link" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">

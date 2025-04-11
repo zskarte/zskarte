@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, input, output } from '@angular/core';
+import { Component, HostListener, effect, inject, input, output, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,6 +32,7 @@ import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 
 @Component({
   selector: 'app-journal-form',
@@ -48,6 +49,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     FormsModule,
     MatSelectModule,
     CommonModule,
+    TextAreaWithAddressSearchComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
@@ -60,6 +62,7 @@ export class JournalFormComponent {
   journal = inject(JournalService);
   isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
+  messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
 
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
@@ -75,6 +78,7 @@ export class JournalFormComponent {
     effect(() => {
       this.selectEntry(this.entry());
     });
+
     this.journalForm.valueChanges.subscribe(() => {
       this.dirty.emit(this.journalForm.dirty);
     });
@@ -164,6 +168,10 @@ export class JournalFormComponent {
       validators: [this.requiredField('decisionSender')],
     }),
   });
+
+  get messageContentControl(): FormControl {
+    return this.journalForm.get('messageContent') as FormControl;
+  }
 
   private combineDateAndTime(dateObj: Date, timeObj: Date) {
     const newDate = new Date(dateObj);
@@ -259,8 +267,7 @@ export class JournalFormComponent {
       }
     }
 
-    this.dirty.emit(false);
-    this.close.emit();
+    this.doClose();
   }
 
   filterObject<T>(obj: Partial<T>, allowedKeys: (keyof T)[]): Partial<T> {
@@ -345,17 +352,16 @@ export class JournalFormComponent {
       this.dirty.emit(false);
       this.showPrint = false;
     } else {
-      this.dirty.emit(false);
-      this.close.emit();
+      this.doClose();
     }
   }
 
-  @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(): void {
-    if (this._state.getActiveView() !== 'journal') {
-      return;
+  closeSidebareOnEsc(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.closeForm();
     }
-    this.closeForm();
   }
 
   closeForm() {
@@ -365,13 +371,18 @@ export class JournalFormComponent {
       });
       confirm.afterClosed().subscribe((response) => {
         if (response) {
-          this.dirty.emit(false);
-          this.close.emit();
+          this.doClose();
         }
       });
     } else {
-      this.close.emit();
+      this.doClose();
     }
+  }
+
+  doClose() {
+    this.messageContentEl()?.formClosed();
+    this.dirty.emit(false);
+    this.close.emit();
   }
 
   async print(event: Event) {

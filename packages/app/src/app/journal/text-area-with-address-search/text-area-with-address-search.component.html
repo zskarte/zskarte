@@ -1,0 +1,44 @@
+<div class="hint-box">
+  <div class="hint">{{ i18n.get('searchAddressUsageHint') }}</div>
+  <mat-checkbox 
+  [ngModel]="showAllAddresses()"
+  (ngModelChange)="showAllAddresses.set($event)">{{ i18n.get('showAllAddresses') }}</mat-checkbox>
+</div>
+<mat-form-field appearance="outline" subscriptSizing="dynamic">
+  <mat-label>{{ label() }}</mat-label>
+  <textarea
+    #textContent
+    class="textContent"
+    matInput
+    [formControl]="formControl()"
+    (keydown)="onKeyDownText($event)"
+    (input)="onInputText($event)"
+    (dblclick)="onDoubleClickText($event)"
+    rows="10"
+    [readonly]="addressSelection()"
+  ></textarea>
+</mat-form-field>
+<div class="addresSearch" [style.display]="addressSelection() ? 'flex' : 'none'">
+  <!--
+  [style.left.px]="addressSelectionPosition.x"
+  [style.top.px]="addressSelectionPosition.y"
+-->
+  <div class="title">{{ i18n.get('searchAddress') }}</div>
+  <input
+    #addresSearchField
+    matInput
+    [matAutocomplete]="autocomplete.autocompleteRef"
+    [ngModelOptions]="{ standalone: true }"
+    [ngModel]="addressSearchTerm()"
+    (ngModelChange)="addressSearchTerm.set($event)"
+    (keydown)="onKeydownAddressSearch($event)"
+  />
+  <app-search-autocomplete
+    #autocomplete
+    [searchTerm]="addressSearchTerm()"
+    [foundLocations]="foundLocations()"
+    (active)="previewCoordinate($event)"
+    (selected)="useResult($event)"
+  ></app-search-autocomplete>
+</div>
+<div class="spacer"></div>

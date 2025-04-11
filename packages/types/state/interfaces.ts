@@ -263,7 +263,12 @@ export interface IZsMapSearchResult {
   mercatorCoordinates?: Coordinate;
   lonLat?: Coordinate;
   feature?: Feature;
-  internal?: Partial<IFoundLocationAttrs> & { id?: string | number, dist?: number; center?: Coordinate };
+  internal?: Partial<IFoundLocationAttrs> & {
+    id?: string | number;
+    dist?: number;
+    center?: Coordinate;
+    textToken?: string;
+  };
 }
 
 export type SearchFunction = (

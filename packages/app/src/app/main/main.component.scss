@@ -15,3 +15,14 @@
   z-index: 0;
   visibility: hidden;
 }
+
+:host-context(.journal-address-preview) {
+  app-map {
+    width: calc(100% - 50rem);
+    min-width: 25%;
+
+    &.hiddenmap {
+      visibility: visible;
+    }
+  }
+}

@@ -365,18 +365,21 @@ export class JournalComponent implements AfterViewInit {
     }
   }
 
-  @HostListener('window:keydown.+', ['$event'])
-  async pressPlus(event: Event) {
-    if (this.sidebarOpen || this._state.getActiveView() !== 'journal') {
-      return;
+  @HostListener('window:keydown', ['$event'])
+  pressPlus(event: KeyboardEvent) {
+    //numpad + or swiss german layout for +:
+    if (event.key === '+' || (event.shiftKey && event.key === '1')) {
+      if (this.sidebarOpen || this._state.getActiveView() !== 'journal') {
+        return;
+      }
+      // While writing into a input, don't allow shortcuts
+      if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.openJournalAddDialog();
     }
-    // While writing into a input, don't allow shortcuts
-    if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
-      return;
-    }
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    this.openJournalAddDialog();
   }
 
   openJournalAddDialog() {

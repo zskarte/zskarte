@@ -4,9 +4,8 @@
       matInput
       [placeholder]="i18n.get('findPlace')"
       [matAutocomplete]="autocomplete.autocompleteRef"
-      [(ngModel)]="inputText"
-      (ngModelChange)="geoCodeLoad()"
-      #searchField
+      [ngModel]="inputText()"
+      (ngModelChange)="inputText.set($event)"
     />
     <mat-icon
       matSuffix
@@ -27,6 +26,7 @@
   </mat-form-field>
   <app-search-autocomplete
     #autocomplete
+    [searchTerm]="inputText()"
     [foundLocations]="foundLocations()"
     (active)="previewCoordinate($event)"
     (selected)="geoCodeSelected($event)"

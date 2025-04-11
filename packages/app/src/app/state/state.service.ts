@@ -8,13 +8,11 @@ import {
   IZsMapDisplayState,
   IZsMapPrintExtent,
   IZsMapPrintState,
-  IZsMapSearchConfig,
   IZsMapSymbolDrawElementParams,
   IZsMapTextDrawElementParams,
   MapLayer,
   PaperDimensions,
   PermissionType,
-  SearchFunction,
   Sign,
   WmsSource,
   ZsMapDisplayMode,
@@ -100,7 +98,6 @@ export class ZsMapStateService {
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<ZsMapElementToDraw | undefined>(undefined);
   private _selectedFeature = new BehaviorSubject<string | undefined>(undefined);
-  private _highlightenFeature = new BehaviorSubject<string | undefined>(undefined);
   private _hideSelectedFeature = new BehaviorSubject<boolean>(false);
   private _recentlyUsedElement = new BehaviorSubject<ZsMapDrawElementState[]>([]);
 
@@ -111,6 +108,7 @@ export class ZsMapStateService {
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
   private _searchResultFeatures = new BehaviorSubject<Feature<Geometry>[]>([]);
+  private _journalAddressPreview = new BehaviorSubject<boolean>(false);
   public urlFragment = signal<string | null>(null);
 
   constructor() {
@@ -603,6 +601,15 @@ export class ZsMapStateService {
 
   public getSearchConfig(): IZsGlobalSearchConfig {
     return this._display.value.searchConfig;
+  }
+
+  // JournalAddressPreview
+  public observeJournalAddressPreview(): Observable<boolean> {
+    return this._journalAddressPreview.pipe(distinctUntilChanged((x, y) => isEqual(x, y)));
+  }
+
+  public setJournalAddressPreview(active: boolean) {
+    this._journalAddressPreview.next(active);
   }
 
   // source

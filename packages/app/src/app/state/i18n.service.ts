@@ -3145,6 +3145,26 @@ export class I18NService {
       en: 'Sorted by distance',
       fr: 'Triés par distance',
     },
+    noSearchResult: {
+      de: 'Kein Suchergebnis gefunden.',
+      en: 'No search results found',
+      fr: 'Aucun résultat de recherche trouvé',
+    },
+    searchAddress: {
+      de: 'Adresse suchen',
+      en: 'Search address',
+      fr: 'Rechercher une adresse',
+    },
+    searchAddressUsageHint: {
+      de: 'Um Adressinformationen einzufügen, geben Sie "addr:" ein oder drücken Sie Strg+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Strg+Leertaste.',
+      en: 'To insert address information, type "addr:" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',
+      fr: 'Pour insérer une adresse, saisissez "addr:" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.',
+    },
+    showAllAddresses: {
+      de: 'Alle Adressen anzeigen',
+      en: 'Show all addresses',
+      fr: 'Afficher toutes les adresses',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

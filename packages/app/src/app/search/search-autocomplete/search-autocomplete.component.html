@@ -44,6 +44,10 @@
           }
         </ng-container>
       </mat-optgroup>
+    } @empty {
+      @if (searchTerm()) {
+        <mat-option disabled>{{ i18n.get('noSearchResult') }}</mat-option>
+      }
     }
   }
 </mat-autocomplete>
