@@ -17,10 +17,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { filter, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
+import { SearchService } from 'src/app/search/search.service';
+import { ReplaceAllAddressTokensPipe } from "../../search/replace-all-address-tokens.pipe";
 
 @Component({
   selector: 'app-sidebar-journal-entry',
-  imports: [DatePipe, MatListModule, MatIcon, MatButtonModule],
+  imports: [DatePipe, MatListModule, MatIcon, MatButtonModule, ReplaceAllAddressTokensPipe],
   templateUrl: './sidebar-journal-entry.component.html',
   styleUrls: ['./sidebar-journal-entry.component.scss'],
 })
@@ -28,6 +30,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   private _state = inject(ZsMapStateService);
   private _renderer = inject(MapRendererService);
   i18n = inject(I18NService);
+  search = inject(SearchService);
   entry = input.required<JournalEntry>();
   allHighlighted = false;
 

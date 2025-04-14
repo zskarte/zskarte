@@ -31,6 +31,7 @@ import { debounce } from '../helper/debounce';
 import { IZsJournalFilter } from '../../../../types/state/interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
 
 @Component({
   selector: 'app-journal',
@@ -50,7 +51,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
     CommonModule,
     JournalFormComponent,
     NgComponentOutlet,
-  ],
+    ReplaceAllAddressTokensPipe
+],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
   styleUrl: './journal.component.scss',
@@ -65,8 +67,8 @@ export class JournalComponent implements AfterViewInit {
   private _route = inject(ActivatedRoute);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
-  isOnline = toSignal(this._session.observeIsOnline());
-  isReadOnly = toSignal(this._state.observeIsReadOnly());
+  readonly isOnline = toSignal(this._session.observeIsOnline());
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;
@@ -308,6 +310,10 @@ export class JournalComponent implements AfterViewInit {
     });
 
     this.dataSourceFiltered.data = filtered;
+  }
+
+  trackByFn(index: number, row: any): string {
+    return row.uuid || row.documentId;
   }
 
   getResponsibility(entry: JournalEntry) {

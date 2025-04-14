@@ -42,8 +42,10 @@ export class GeocoderComponent implements OnDestroy {
   private _searchArea = inject(MapSearchAreaService);
 
   readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
-  foundLocations = signal<IResultSet[]>([]);
-  readonly inputText = signal("");
+  readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
+
+  readonly foundLocations = signal<IResultSet[]>([]);
+  readonly inputText = signal('');
   keepCoord = false;
   selected: IZsMapSearchResult | null = null;
   private _ngUnsubscribe = new Subject<void>();
@@ -61,8 +63,9 @@ export class GeocoderComponent implements OnDestroy {
       });
     this.searchConfig = { ...this._state.getSearchConfig() };
 
-    const { searchResults$, updateSearchTerm, updateSearchConfig } = this._search.createSearchInstance(
+    const { searchResults$, updateSearchTerm, updateSearchConfig } = this._search.createGlobalSearchInstance(
       this.searchConfig,
+      this.inputText,
     );
 
     this._state.observeSearchConfig().subscribe((config: IZsGlobalSearchConfig) => {
@@ -82,18 +85,25 @@ export class GeocoderComponent implements OnDestroy {
         newResultSets.forEach((s) => (s.collapsed = true));
       }
       this.foundLocations.set(newResultSets);
-      if (newResultSets.length === 0 && this.inputText().length <= 1 && !this.keepCoord) {
-        this._search.highlightResult(null, false);
+      const inputText = this.inputText();
+      if (newResultSets.length === 0 && inputText.length <= 1) {
+        if (!this.keepCoord) {
+          this._search.highlightResult(null, false);
+        }
+        this.keepCoord = false;
       }
-      this.keepCoord = false;
-      if (this.inputText().length > 1){
+      if (inputText.length > 1) {
         this.autocompleteTrigger().openPanel();
       }
     });
 
-    effect(()=>{
-      updateSearchTerm(this.inputText());
+    effect(() => {
+      const inputText = this.inputText();
+      updateSearchTerm(inputText);
       this.settingsVisble = false;
+      if (inputText.length > 1) {
+        this.searchInput().nativeElement.focus();
+      }
     });
   }
 

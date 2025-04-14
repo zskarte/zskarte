@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { HostListener, Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import {
@@ -14,10 +14,20 @@ import { I18NService } from '../state/i18n.service';
 import { GeoJSONFeature, default as GeoJSON } from 'ol/format/GeoJSON';
 import { Feature } from 'ol';
 import { Geometry, Point } from 'ol/geom';
-import { Extent, containsCoordinate, getCenter, extend, getIntersection, createEmpty } from 'ol/extent';
+import {
+  Extent,
+  containsCoordinate,
+  getCenter,
+  extend,
+  getIntersection,
+  createEmpty,
+  extendCoordinate,
+} from 'ol/extent';
 import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { fromLonLat, transformExtent } from 'ol/proj';
 import { ZsMapStateService } from '../state/state.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 const FULL_WIDTH_SWISS = 350_000;
 const FULL_HEIGHT_SWISS = 226_000;
@@ -34,6 +44,15 @@ const GEOCODE_ORIGIN_TO_LAYER = {
 } as const;
 
 export const ADDRESS_TOKEN_REGEX = /addr:\((.*?)\)(?:\[(.*?)\])?/;
+export const ADDRESS_TOKEN_REPLACEMENT_ADDRESS = (p1: string) => p1;
+export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER = (p1: string, p2: string) =>
+  `<span data-geo="${p2}" class="addr-geo addr-show"><span class="material-icons">place</span><span class="text addr-search">${p1}</span></span>`;
+export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER_MISSING = (p1: string) =>
+  `<span class="addr-geo addr-search"><span class="material-icons">location_off</span><span class="text">${p1}</span></span>`;
+export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER = (p1: string, p2: string) =>
+  `<span data-geo="${p2}" class="addr-geo" contenteditable="false"><span class="material-icons addr-show">place</span><span class="text addr-search">${p1}</span><span class="material-icons addr-edit">edit</span></span>`;
+export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER_MISSING = (p1: string) =>
+  `<span class="addr-geo addr-search" contenteditable="false"><span class="material-icons addr-show">location_off</span><span class="text">${p1}</span><span class="material-icons addr-edit">edit</span></span>`;
 
 export function getGlobalAddressTokenRegex() {
   return new RegExp(ADDRESS_TOKEN_REGEX.source, ADDRESS_TOKEN_REGEX.flags + 'g');
@@ -45,10 +64,14 @@ export function getGlobalAddressTokenRegex() {
 export class SearchService {
   private _i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
+  private _sanitizer = inject(DomSanitizer);
   private zoomToFit: zoomToFitFunc | null = null;
+  public readonly addressPreview = signal(false);
+  private readonly activeView = toSignal(this._state.observeActiveView());
 
   private _searchConfigs: IZsMapSearchConfig[] = [];
   private formatGeoJSON = new GeoJSON();
+  private globalSearchInputText?: WritableSignal<string>;
 
   geocoderUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&searchText=';
   geocoderGeometryUrlPrefix = 'https://api3.geo.admin.ch/rest/services/api/MapServer/';
@@ -62,6 +85,30 @@ export class SearchService {
     this.addSearch(this.coordinateSearch.bind(this), this._i18n.get('coordinates'), undefined, -1);
     this.addSearch(this.geoAdminStreetGeometrySearch.bind(this), this._i18n.get('streetSearch'), undefined, 50);
     this.addSearch(this.geoAdminLocationSearch.bind(this), 'Geo Admin', undefined, 100);
+
+    effect(() => {
+      const activeView = this.activeView();
+      if (activeView !== 'map') {
+        const addressPreview = this.addressPreview();
+        this._state.setJournalAddressPreview(addressPreview);
+        if (!addressPreview) {
+          this._state.updateSearchResultFeatures([]);
+          if (this.globalSearchInputText) {
+            this.globalSearchInputText.set('');
+          }
+        }
+      }
+    });
+
+    window.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (this.addressPreview()) {
+          this.addressPreview.set(false);
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+    });
   }
 
   public setZoomToFit(func: zoomToFitFunc) {
@@ -126,7 +173,9 @@ export class SearchService {
   async coordinateSearch(text: string) {
     const coords = coordinateFromString(text);
     if (coords) {
-      return [{ label: text, lonLat: coords, internal: { textToken: `addr:(${text})[lonLat:${coords.join(' ')}]` } }];
+      return [
+        { label: text, lonLat: coords, internal: { addressToken: `addr:(${text})[lonLat:${coords.join(' ')}]` } },
+      ];
     }
     return [];
   }
@@ -216,7 +265,7 @@ export class SearchService {
           internal: {
             id: r.id,
             ...r.attrs,
-            textToken: `addr:(${linkText})[lonLat:${lonLat.join(' ')}]`,
+            addressToken: `addr:(${linkText})[lonLat:${lonLat.join(' ')}]`,
           },
         });
       });
@@ -293,7 +342,7 @@ export class SearchService {
               dist,
               center,
               id: r.id,
-              textToken: `addr:(${label})[str_esid:${r.properties?.['str_esid']}]`,
+              addressToken: `addr:(${label})[str_esid:${r.properties?.['str_esid']}]`,
             },
           });
         }
@@ -340,6 +389,11 @@ export class SearchService {
 
   public removeSearch(searchFunc: SearchFunction) {
     this._searchConfigs = this._searchConfigs.filter((conf) => conf.func !== searchFunc);
+  }
+
+  createGlobalSearchInstance(searchConfig: IZsGlobalSearchConfig, inputText: WritableSignal<string>) {
+    this.globalSearchInputText = inputText;
+    return this.createSearchInstance(searchConfig);
   }
 
   createSearchInstance(searchConfig: IZsGlobalSearchConfig): {
@@ -495,7 +549,66 @@ export class SearchService {
     return null;
   }
 
-  public parseTextToken(token: string): { address: string; locationInfo?: string } {
+  private showSingleFeature(feature: Feature<Geometry>) {
+    const geometry = feature.getGeometry();
+    if (geometry?.getType() === 'Point') {
+      this._state.setMapCenter((geometry as Point).getCoordinates());
+    } else {
+      const extent = feature?.getGeometry()?.getExtent();
+      if (extent && this.zoomToFit) {
+        this.zoomToFit(extent, [50, 50, 50, 50]);
+      }
+    }
+  }
+
+  public async showFeature(locationInfo: string | undefined) {
+    if (locationInfo) {
+      const feature = await this.getHighlightGeometryFeature(locationInfo);
+      if (feature) {
+        this._state.updateSearchResultFeatures([feature]);
+        this.showSingleFeature(feature);
+      }
+      return feature;
+    }
+    return null;
+  }
+
+  public async showAllFeature(text: string, focus = false) {
+    const features: Feature<Geometry>[] = [];
+    const regex = getGlobalAddressTokenRegex();
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const feature = await this.getHighlightGeometryFeature(match[2]);
+      if (feature) {
+        features.push(feature);
+      }
+    }
+    this._state.updateSearchResultFeatures(features);
+
+    if (focus && features.length > 0) {
+      if (features.length === 1) {
+        this.showSingleFeature(features[0]);
+      } else if (this.zoomToFit) {
+        const extent = createEmpty();
+        features.forEach((feature) => {
+          const geometry = feature.getGeometry();
+          if (geometry) {
+            if (geometry.getType() === 'Point') {
+              extendCoordinate(extent, (geometry as Point).getCoordinates());
+            } else {
+              const featureExtent = geometry.getExtent();
+              if (featureExtent) {
+                extend(extent, featureExtent);
+              }
+            }
+          }
+        });
+        this.zoomToFit(extent, [50, 50, 50, 50]);
+      }
+    }
+  }
+
+  public parseAddressToken(token: string): { address: string; locationInfo?: string } {
     const match = ADDRESS_TOKEN_REGEX.exec(token);
     if (!match) {
       if (token.startsWith('addr:')) {
@@ -505,5 +618,59 @@ export class SearchService {
       }
     }
     return { address: match[1], locationInfo: match[2] };
+  }
+
+  public replaceAllAddressTokens(text?: string, withMarker = false) {
+    if (!text) {
+      return text;
+    }
+    //make sure there is no html
+    text = text.replace(/<[^>]*>/g, '');
+
+    const regex = getGlobalAddressTokenRegex();
+    let response: string;
+    if (!withMarker) {
+      response = text.replace(regex, (match, p1) => ADDRESS_TOKEN_REPLACEMENT_ADDRESS(p1));
+    } else {
+      response = text.replace(regex, (match, p1, p2) =>
+        p2 ? ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER(p1, p2) : ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER_MISSING(p1),
+      );
+    }
+    //mark as secure html
+    return this._sanitizer.bypassSecurityTrustHtml(response);
+  }
+
+  public async handleMessageContentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const addrElem = target.closest('.addr-geo') as HTMLElement;
+    if (addrElem) {
+      //clicked inside addr-geo
+      event.preventDefault();
+      if (target.closest('.addr-show')) {
+        //clicked specifically inside addr-show
+        const geo = addrElem.dataset['geo'];
+        const feature = await this.showFeature(geo);
+        if (feature) {
+          this.addressPreview.set(true);
+          if (this.globalSearchInputText) {
+            this.globalSearchInputText.set('');
+          }
+          return;
+        } else {
+          const address = addrElem.querySelector('.text')?.textContent;
+          if (this.globalSearchInputText && address) {
+            this.addressPreview.set(true);
+            this.globalSearchInputText.set(address);
+          }
+        }
+      } else if (target.closest('.addr-search')) {
+        //clicked specifically inside addr-search
+        const address = addrElem.querySelector('.text')?.textContent;
+        if (this.globalSearchInputText && address) {
+          this.addressPreview.set(true);
+          this.globalSearchInputText.set(address);
+        }
+      }
+    }
   }
 }

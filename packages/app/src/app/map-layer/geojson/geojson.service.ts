@@ -320,7 +320,7 @@ export class GeoJSONService {
         label,
         mercatorCoordinates: coords,
         feature,
-        internal: { dist, textToken: `addr:(${label})[lonLat:${lonLat.join(' ')}]` },
+        internal: { dist, addressToken: `addr:(${label})[lonLat:${lonLat.join(' ')}]` },
       };
       resultCount++;
       if (layer.searchResultGroupingFilterFields?.length) {

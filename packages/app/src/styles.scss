@@ -161,3 +161,24 @@ fieldset.like-mat-form-field-outline > legend {
 .legend-img {
   display: block;
 }
+
+.preserve-linebreak {
+  white-space: pre-line;
+
+  .addr-geo {
+    cursor: pointer;
+
+    &.addr-search {
+      color: orange;
+    }
+
+    .material-icons {
+      vertical-align: text-bottom;
+      font-size: 1.5em;
+    }
+
+    .text {
+      font-weight: bold;
+    }
+  }
+}

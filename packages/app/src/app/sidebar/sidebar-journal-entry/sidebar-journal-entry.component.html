@@ -1,5 +1,9 @@
 <div class="created-date">{{ entry().dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
-<p class="preserve-linebreak">{{ entry().messageContent }}</p>
+<p
+  class="preserve-linebreak"
+  [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true"
+  (click)="search.handleMessageContentClick($event)"
+></p>
 
 @if (entryElements().length > 0) {
   <h3>

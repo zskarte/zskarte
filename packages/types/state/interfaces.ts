@@ -4,7 +4,6 @@ import { FillStyle, IconsOffset } from '../sign/interfaces';
 import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
 import { Sort } from '@angular/material/sort';
-import { Geometry } from 'ol/geom';
 import { Extent } from 'ol/extent';
 
 export enum ZsMapStateSource {
@@ -267,7 +266,7 @@ export interface IZsMapSearchResult {
     id?: string | number;
     dist?: number;
     center?: Coordinate;
-    textToken?: string;
+    addressToken?: string;
   };
 }
 

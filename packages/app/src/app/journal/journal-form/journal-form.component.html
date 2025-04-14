@@ -51,7 +51,11 @@
         <td>
           <strong>{{ i18n.get('messageContent') }}:</strong>
         </td>
-        <td class="preserve-linebreak">{{ journalForm.value.messageContent }}</td>
+        <td
+          class="preserve-linebreak"
+          [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true"
+          (click)="search.handleMessageContentClick($event)"
+        ></td>
       </tr>
     </table>
   </div>
@@ -105,7 +109,11 @@
               <td>
                 <strong>{{ i18n.get('messageContent') }}:</strong>
               </td>
-              <td class="preserve-linebreak">{{ journalForm.value.messageContent }}</td>
+              <td
+                class="preserve-linebreak"
+                [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true"
+                (click)="search.handleMessageContentClick($event)"
+              ></td>
             </tr>
           </table>
         } @else {
@@ -166,7 +174,11 @@
                 <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
                 <input matInput formControlName="messageSubject" />
               </mat-form-field>
-              <app-text-area-with-address-search #messageContent [label]="i18n.get('messageContent')" [formControl]="messageContentControl"></app-text-area-with-address-search>
+              <app-text-area-with-address-search
+                #messageContent
+                [label]="i18n.get('messageContent')"
+                [formControl]="messageContentControl"
+              ></app-text-area-with-address-search>
               <div class="end">
                 <div style="width: 200px">
                   <mat-form-field appearance="outline">

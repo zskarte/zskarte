@@ -7,7 +7,11 @@
         <mat-icon>{{ expanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
     </div>
-    <p class="preserve-linebreak">{{ entry()!.messageContent }}</p>
+    <p
+      class="preserve-linebreak"
+      [innerHTML]=" entry()!.messageContent | replaceAllAddressTokens: true"
+      (click)="search.handleMessageContentClick($event)"
+    ></p>
 
     <div class="buttons">
       <button mat-flat-button (click)="close(false)">{{ i18n.get('cancel') }}</button>

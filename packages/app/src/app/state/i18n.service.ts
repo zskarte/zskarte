@@ -3156,7 +3156,7 @@ export class I18NService {
       fr: 'Rechercher une adresse',
     },
     searchAddressUsageHint: {
-      de: 'Um Adressinformationen einzufügen, geben Sie "addr:" ein oder drücken Sie Strg+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Strg+Leertaste.',
+      de: 'Um Adressinformationen einzufügen, geben Sie "addr:" ein oder drücken Sie Ctrl+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Ctrl+Leertaste.',
       en: 'To insert address information, type "addr:" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',
       fr: 'Pour insérer une adresse, saisissez "addr:" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.',
     },

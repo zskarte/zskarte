@@ -1,6 +1,7 @@
 <div class="geocoder">
   <mat-form-field subscriptSizing="dynamic" appearance="outline" class="mat-elevation-z3">
     <input
+      #searchInput
       matInput
       [placeholder]="i18n.get('findPlace')"
       [matAutocomplete]="autocomplete.autocompleteRef"

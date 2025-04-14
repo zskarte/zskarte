@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, input, output, viewChild } from '@angular/core';
+import { Component, effect, inject, input, output, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,6 +33,8 @@ import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirm
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
+import { SearchService } from 'src/app/search/search.service';
+import { ReplaceAllAddressTokensPipe } from "../../search/replace-all-address-tokens.pipe";
 
 @Component({
   selector: 'app-journal-form',
@@ -50,7 +52,8 @@ import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-se
     MatSelectModule,
     CommonModule,
     TextAreaWithAddressSearchComponent,
-  ],
+    ReplaceAllAddressTokensPipe
+],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
   styleUrl: './journal-form.component.scss',
@@ -60,7 +63,8 @@ export class JournalFormComponent {
   private _state = inject(ZsMapStateService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
-  isReadOnly = toSignal(this._state.observeIsReadOnly());
+  search = inject(SearchService);
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
 
@@ -73,7 +77,6 @@ export class JournalFormComponent {
   close = output();
   selectedIndex = 0;
   showPrint = false;
-
   constructor() {
     effect(() => {
       this.selectEntry(this.entry());
@@ -381,6 +384,7 @@ export class JournalFormComponent {
 
   doClose() {
     this.messageContentEl()?.formClosed();
+    this.search.addressPreview.set(false);
     this.dirty.emit(false);
     this.close.emit();
   }

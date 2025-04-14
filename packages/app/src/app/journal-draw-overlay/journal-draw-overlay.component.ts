@@ -7,10 +7,12 @@ import { I18NService } from '../state/i18n.service';
 import { JournalService } from '../journal/journal.service';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
+import { SearchService } from '../search/search.service';
+import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
 
 @Component({
   selector: 'app-journal-draw-overlay',
-  imports: [MatListModule, MatButtonModule, MatIconModule, CommonModule],
+  imports: [MatListModule, MatButtonModule, MatIconModule, CommonModule, ReplaceAllAddressTokensPipe],
   templateUrl: './journal-draw-overlay.component.html',
   styleUrl: './journal-draw-overlay.component.scss',
 })
@@ -18,6 +20,7 @@ export class JournalDrawOverlayComponent {
   private _sidebar = inject(SidebarService);
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
+  public search = inject(SearchService);
   expanded = signal(true);
   entry = computed(() => this.journal.drawingEntry);
 
