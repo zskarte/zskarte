@@ -80,10 +80,15 @@ export class SearchService {
     'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.amtliches-strassenverzeichnis&searchField=stn_label&geometryFormat=geojson&sr=3857&searchText=';
   streetGeometryByIdUrl =
     'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.amtliches-strassenverzeichnis&searchField=str_esid&geometryFormat=geojson&sr=3857&contains=false&searchText=';
+  waterGeometryUrl =
+    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.swisstlm3d-gewaessernetz&searchField=name&geometryFormat=geojson&sr=3857&searchText=';
+  waterGeometryByIdUrl =
+    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.swisstlm3d-gewaessernetz&searchField=id&geometryFormat=geojson&sr=3857&contains=false&searchText=';
 
   constructor() {
     this.addSearch(this.coordinateSearch.bind(this), this._i18n.get('coordinates'), undefined, -1);
     this.addSearch(this.geoAdminStreetGeometrySearch.bind(this), this._i18n.get('streetSearch'), undefined, 50);
+    this.addSearch(this.geoAdminWaterGeometrySearch.bind(this), this._i18n.get('waterSearch'), undefined, 90);
     this.addSearch(this.geoAdminLocationSearch.bind(this), 'Geo Admin', undefined, 100);
 
     effect(() => {
@@ -381,6 +386,73 @@ export class SearchService {
     return null;
   }
 
+  async geoAdminWaterGeometrySearch(
+    text: string,
+    abortController: AbortController,
+    searchConfig: IZsGlobalSearchConfig,
+  ) {
+    if (!navigator.onLine) {
+      return [];
+    }
+    const parts = text.split(',');
+    const url = this.waterGeometryUrl + encodeURIComponent(parts[0]);
+    const result: { results: GeoJSONFeature[] } = await fetch(url).then((response) => response.json());
+    if (abortController.signal.aborted) {
+      // if there is already a new search query skip map results as they are not displayed.
+      return [];
+    }
+
+    const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
+    const filterArea = this.getSearchFilterArea(searchConfig);
+    const foundLocations: IZsMapSearchResult[] = [];
+    result.results
+      .filter((r) => r?.properties?.['name'])
+      .forEach((r) => {
+        const feature = this.formatGeoJSON.readFeature(r) as Feature<Geometry>;
+        let center = getCenter(r.bbox as Extent);
+        const geometry = feature.getGeometry();
+        if (geometry && 'getClosestPoint' in geometry) {
+          center = geometry.getClosestPoint(center);
+        }
+        if (!filterArea || containsCoordinate(filterArea, center)) {
+          let dist: number | undefined = undefined;
+          if (searchConfig.sortedByDistance) {
+            dist = squaredDistance(refCoord, center);
+          }
+          const label = r.properties?.['name'];
+          foundLocations.push({
+            label,
+            feature,
+            internal: {
+              dist,
+              center,
+              id: r.id,
+              addressToken: `addr:(${label})[gwl_nr:${r.properties?.['gwl_nr']},id:${r.id}]`,
+            },
+          });
+        }
+      });
+    if (searchConfig.sortedByDistance) {
+      foundLocations.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
+    } else {
+      const collator = new Intl.Collator();
+      foundLocations.sort((a, b) => collator.compare(a.label, b.label));
+    }
+    return foundLocations;
+  }
+
+  public async geoAdminWaterGeometryById(id: string) {
+    if (!navigator.onLine) {
+      return null;
+    }
+    const url = this.waterGeometryByIdUrl + encodeURIComponent(id);
+    const result: { results: GeoJSONFeature[] } = await fetch(url).then((response) => response.json());
+    if (result?.results?.length > 0) {
+      return this.formatGeoJSON.readFeature(result.results[0]) as Feature<Geometry>;
+    }
+    return null;
+  }
+
   public addSearch(
     searchFunc: SearchFunction,
     searchName: string,
@@ -558,6 +630,14 @@ export class SearchService {
     if (locationInfo.startsWith('str_esid:')) {
       const esid = locationInfo.substring(9);
       return await this.geoAdminStreetGeometryById(esid);
+    }
+    if (locationInfo.startsWith('gwl_nr:')) {
+      const values = locationInfo.split(',');
+      //const gwl_nr = values[0].substring(7);
+      if (values.length > 1 && values[1].startsWith('id:')) {
+        const featureId = values[1].substring(3);
+        return await this.geoAdminWaterGeometryById(featureId);
+      }
     }
 
     return null;

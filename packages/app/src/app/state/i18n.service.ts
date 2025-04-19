@@ -3110,6 +3110,11 @@ export class I18NService {
       en: 'Street search',
       fr: 'Recherche dans la rue',
     },
+    waterSearch: {
+      de: 'Gewässersuche (Abschnitt)',
+      en: 'Water search (section)',
+      fr: "Recherche d'eau (section)",
+    },
     filterMapSection: {
       de: 'Nur Ergebnisse aus Kartenausschnitt',
       en: 'Only results from map section',
