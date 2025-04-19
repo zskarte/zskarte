@@ -73,7 +73,7 @@ export class GeocoderComponent implements OnDestroy {
       updateSearchConfig(this.searchConfig);
     });
 
-    searchResults$.subscribe((newResultSets) => {
+    searchResults$.pipe(takeUntil(this._ngUnsubscribe)).subscribe((newResultSets) => {
       if (newResultSets === null) {
         //request aborted by new search
         return;

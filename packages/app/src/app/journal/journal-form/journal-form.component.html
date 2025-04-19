@@ -1,4 +1,4 @@
-<form [formGroup]="journalForm" #formDirective="ngForm" (ngSubmit)="save()" (keydown)="closeSidebareOnEsc($event)">
+<form [formGroup]="journalForm" #formDirective="ngForm" (ngSubmit)="save()">
   <div class="sidebar-header">
     <h1>
       <span class="message-number">#{{ journalForm.value.messageNumber }}</span>
@@ -51,11 +51,21 @@
         <td>
           <strong>{{ i18n.get('messageContent') }}:</strong>
         </td>
-        <td
-          class="preserve-linebreak"
-          [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true"
-          (click)="search.handleMessageContentClick($event)"
-        ></td>
+        <td>
+          <div
+            class="preserve-linebreak"
+            [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true"
+            (click)="search.handleMessageContentClick($event)"
+          ></div>
+          @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE || isReadOnly()) {
+            <div class="message-content-buttons">
+              <button mat-stroked-button type="button" (click)="showAllAddresses()">
+                <mat-icon>select_all</mat-icon>
+                {{ i18n.get('showAllAddresses') }}
+              </button>
+            </div>
+          }
+        </td>
       </tr>
     </table>
   </div>

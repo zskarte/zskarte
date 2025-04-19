@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, viewChild } from '@angular/core';
+import { Component, HostListener, effect, inject, input, output, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -361,8 +361,18 @@ export class JournalFormComponent {
     }
   }
 
+  @HostListener('window:keydown.Escape', ['$event'])
   closeSidebareOnEsc(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
+    const messageContentEl = this.messageContentEl();
+    if (messageContentEl) {
+      if (messageContentEl.abortOnEsc(event)) {
+        return;
+      }
+    } else if (this.search.handleEsc(event)) {
+      return;
+    }
+
+    if (this._dialog.openDialogs.length === 0) {
       event.preventDefault();
       event.stopPropagation();
       this.closeForm();
@@ -415,5 +425,10 @@ export class JournalFormComponent {
         button.disabled = false;
       }
     }, 1000);
+  }
+
+  async showAllAddresses() {
+    await this.search.showAllFeature(this.messageContentControl.value, true);
+    this.search.addressPreview.set(true);
   }
 }

@@ -12,6 +12,12 @@
       [innerHTML]=" entry()!.messageContent | replaceAllAddressTokens: true"
       (click)="search.handleMessageContentClick($event)"
     ></p>
+    <div class="message-content-buttons">
+      <button mat-stroked-button (click)="showAllAddresses()">
+        <mat-icon>select_all</mat-icon>
+        {{ i18n.get('showAddresses') }}
+      </button>
+    </div>
 
     <div class="buttons">
       <button mat-flat-button (click)="close(false)">{{ i18n.get('cancel') }}</button>

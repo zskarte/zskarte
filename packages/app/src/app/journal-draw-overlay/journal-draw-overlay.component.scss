@@ -35,13 +35,18 @@
   }
 }
 
+.message-content-buttons {
+  display: none;
+  margin: 10px 0;
+}
+
 .buttons {
   display: none;
 }
 
 .preserve-linebreak {
   display: none;
-  max-height: calc(100vh - 190px - 5rem);
+  max-height: calc(100vh - 190px - 5rem - 46px);
   overflow-y: scroll;
 }
 
@@ -53,6 +58,9 @@
     text-wrap: wrap;
   }
   .preserve-linebreak {
+    display: block;
+  }
+  .message-content-buttons {
     display: block;
   }
   .buttons {

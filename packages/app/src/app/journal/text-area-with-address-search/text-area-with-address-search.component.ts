@@ -1,5 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, effect, inject, input, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  effect,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +35,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { ContenteditableComponent } from 'src/app/contenteditable/contenteditable.component';
 import { debounceLeading } from 'src/app/helper/debounce';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-text-area-with-address-search',
@@ -44,7 +55,7 @@ import { debounceLeading } from 'src/app/helper/debounce';
   templateUrl: './text-area-with-address-search.component.html',
   styleUrl: './text-area-with-address-search.component.scss',
 })
-export class TextAreaWithAddressSearchComponent {
+export class TextAreaWithAddressSearchComponent implements OnDestroy {
   private _state = inject(ZsMapStateService);
   private _search = inject(SearchService);
   i18n = inject(I18NService);
@@ -64,6 +75,7 @@ export class TextAreaWithAddressSearchComponent {
   readonly linkedTextContent = viewChild.required<ContenteditableComponent>('linkedTextContent');
   textContentSelectedArea: [number, number] = [0, 0];
   settingsVisible = false;
+  private searchSubscription: Subscription;
 
   private addrEditElem: HTMLElement | null = null;
   addressSelectionPosition = { x: 0, y: 0 };
@@ -153,7 +165,7 @@ export class TextAreaWithAddressSearchComponent {
       updateSearchTerm(this.addressSearchTerm());
     });
 
-    searchResults$.subscribe((newResultSets) => {
+    this.searchSubscription = searchResults$.subscribe((newResultSets) => {
       if (newResultSets === null) {
         //request aborted by new search
         return;
@@ -167,6 +179,12 @@ export class TextAreaWithAddressSearchComponent {
       this.foundLocations.set(newResultSets);
       this.autocompleteTrigger().openPanel();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
@@ -188,12 +206,12 @@ export class TextAreaWithAddressSearchComponent {
         this.addressSelection.set(false);
       });
       this.updateShownFeature();
-    } else if (this._search.addressPreview()) {
-      this._search.addressPreview.set(false);
+      return true;
+    } else if (this._search.handleEsc(event)) {
       this.updateShownFeature();
-      event.preventDefault();
-      event.stopPropagation();
+      return true;
     }
+    return undefined;
   }
 
   updateShownFeature = debounceLeading(

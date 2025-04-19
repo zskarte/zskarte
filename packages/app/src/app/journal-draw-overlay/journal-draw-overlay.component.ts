@@ -46,4 +46,9 @@ export class JournalDrawOverlayComponent {
     }
     this._sidebar.open(SidebarContext.Journal);
   }
+
+  async showAllAddresses() {
+    await this.search.showAllFeature(this.entry()!.messageContent, true, [100, 100, 100, 100]);
+    this.search.addressPreview.set(true);
+  }
 }

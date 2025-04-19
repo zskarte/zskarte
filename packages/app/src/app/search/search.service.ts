@@ -105,28 +105,34 @@ export class SearchService {
 
     effect(() => {
       const activeView = this.activeView();
+      const addressPreview = this.addressPreview();
       if (activeView === 'journal') {
         //if journal, populate preview in state
-        const addressPreview = this.addressPreview();
         this._state.setJournalAddressPreview(addressPreview);
-        if (!addressPreview) {
-          this._state.updateSearchResultFeatures([]);
-          if (this.globalSearchInputText) {
-            this.globalSearchInputText.set('');
-          }
+      }
+      if (!addressPreview) {
+        this._state.updateSearchResultFeatures([]);
+        this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
+        if (this.globalSearchInputText) {
+          this.globalSearchInputText.set('');
         }
       }
     });
+  }
 
-    window.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (this.addressPreview()) {
-          this.addressPreview.set(false);
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
-    });
+  public handleEsc(event: KeyboardEvent) {
+    if (this.addressPreview()) {
+      this.addressPreview.set(false);
+      event.preventDefault();
+      event.stopPropagation();
+      return true;
+    } if (this._state.getCurrentPositionFlag().isVisible){
+      this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
+      event.preventDefault();
+      event.stopPropagation();
+      return true;
+    }
+    return undefined;
   }
 
   public setZoomToFit(func: zoomToFitFunc) {
@@ -650,7 +656,7 @@ export class SearchService {
     } else {
       const extent = feature?.getGeometry()?.getExtent();
       if (extent && this.zoomToFit) {
-        this.zoomToFit(extent, [50, 50, 50, 50]);
+        this.zoomToFit(extent, [100, 50, 50, 50]);
       }
     }
   }
@@ -667,7 +673,11 @@ export class SearchService {
     return null;
   }
 
-  public async showAllFeature(text: string, focus = false) {
+  public async showAllFeature(
+    text: string,
+    focus = false,
+    padding: [number, number, number, number] = [100, 50, 50, 50],
+  ) {
     const features: Feature<Geometry>[] = [];
     const regex = getGlobalAddressTokenRegex();
     let match;
@@ -697,7 +707,7 @@ export class SearchService {
             }
           }
         });
-        this.zoomToFit(extent, [50, 50, 50, 50]);
+        this.zoomToFit(extent, padding);
       }
     }
   }

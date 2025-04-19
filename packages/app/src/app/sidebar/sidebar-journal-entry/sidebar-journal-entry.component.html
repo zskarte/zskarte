@@ -4,11 +4,17 @@
   [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true"
   (click)="search.handleMessageContentClick($event)"
 ></p>
+<div class="message-content-buttons">
+  <button mat-stroked-button (click)="showAllAddresses()">
+    <mat-icon>select_all</mat-icon>
+    {{ i18n.get('showAddresses') }}
+  </button>
+</div>
 
 @if (entryElements().length > 0) {
   <h3>
     <span>{{ i18n.get('drawnSymbols') }}</span>
-    <span class="buttons">
+    <span class="drawn-buttons">
       <button mat-icon-button (click)="zoomToAll()" [title]="i18n.get('zoomToAll')">
         <mat-icon>zoom_in_map</mat-icon>
       </button>

@@ -3170,6 +3170,11 @@ export class I18NService {
       en: 'Show all addresses',
       fr: 'Afficher toutes les adresses',
     },
+    showAddresses: {
+      de: 'Adressen anzeigen',
+      en: 'Show addresses',
+      fr: 'Afficher les adresses',
+    },
     showLinkedText: {
       de: 'Adressen als Links anzeigen',
       en: 'Display addresses as links',

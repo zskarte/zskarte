@@ -20,6 +20,8 @@ import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from "../../search/replace-all-address-tokens.pipe";
 
+
+const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
   selector: 'app-sidebar-journal-entry',
   imports: [DatePipe, MatListModule, MatIcon, MatButtonModule, ReplaceAllAddressTokensPipe],
@@ -67,7 +69,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         extendExtent(extent, featureExtent);
       }
     });
-    this._renderer.zoomToFit(extent, [100, 600, 100, 100]);
+    this._renderer.zoomToFit(extent, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
   }
 
   toggleHighlightAll() {
@@ -120,5 +122,10 @@ export class SidebarJournalEntryComponent implements OnDestroy {
       Array.isArray(element.elementState?.reportNumber)
         ? element.elementState.reportNumber.includes(reportNumber)
         : element.elementState?.reportNumber === reportNumber;
+  }
+
+  async showAllAddresses() {
+    await this.search.showAllFeature(this.entry().messageContent, true, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
+    this.search.addressPreview.set(true);
   }
 }

@@ -97,13 +97,13 @@
 
     <div class="overlay-content">
       <div>
-        <mat-icon class="filter">select_all</mat-icon>
+        <mat-icon>select_all</mat-icon>
         <mat-checkbox [ngModel]="showAllAddresses()" (ngModelChange)="showAllAddresses.set($event)">{{
           i18n.get('showAllAddresses')
         }}</mat-checkbox>
       </div>
       <div>
-        <mat-icon class="filter">link</mat-icon>
+        <mat-icon>link</mat-icon>
         <mat-checkbox [ngModel]="showLinkedText()" (ngModelChange)="showLinkedText.set($event)">{{
           i18n.get('showLinkedText')
         }}</mat-checkbox>

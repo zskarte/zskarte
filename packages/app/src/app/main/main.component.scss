@@ -16,13 +16,13 @@
   visibility: hidden;
 }
 
-:host-context(.journal-address-preview) {
-  app-map {
-    width: calc(100% - 50rem);
-    min-width: 25%;
+.journalmap {
+  width: calc(100% - 50rem);
+  min-width: 25%;
+}
 
-    &.hiddenmap {
-      visibility: visible;
-    }
+:host-context(.journal-address-preview) {
+  app-map.hiddenmap {
+    visibility: visible;
   }
 }
