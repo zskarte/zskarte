@@ -32,6 +32,7 @@ import { IZsJournalFilter } from '../../../../types/state/interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
+import { SearchService } from '../search/search.service';
 
 @Component({
   selector: 'app-journal',
@@ -67,6 +68,7 @@ export class JournalComponent implements AfterViewInit {
   private _route = inject(ActivatedRoute);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
+  private _search = inject(SearchService);
   readonly isOnline = toSignal(this._session.observeIsOnline());
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
 
@@ -343,7 +345,7 @@ export class JournalComponent implements AfterViewInit {
     if (button) {
       button.disabled = true;
     }
-    await this.journal.print(entry);
+    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent, false)});
     setTimeout(() => {
       if (button) {
         button.disabled = false;

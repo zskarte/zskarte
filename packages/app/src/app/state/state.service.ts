@@ -5,6 +5,7 @@ import {
   IPositionFlag,
   IZsGlobalSearchConfig,
   IZsJournalFilter,
+  IZsJournalMessageEditConfig,
   IZsMapDisplayState,
   IZsMapPrintExtent,
   IZsMapPrintState,
@@ -189,7 +190,11 @@ export class ZsMapStateService {
         area: null,
         sortedByDistance: false,
         distanceReferenceCoordinate: null,
-      }
+      },
+      journalMessageEditConfig: {
+        showAllAddresses: false,
+        showLinkedText: true,
+      },
     };
     if (!mapState) {
       mapState = this._map.value;
@@ -571,7 +576,7 @@ export class ZsMapStateService {
   public observeMapExtent(): Observable<Extent> {
     return this._display.pipe(
       map((o) => o.mapExtent),
-      distinctUntilChanged((x, y) => isEqual(x,y)),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
     );
   }
 
@@ -589,7 +594,7 @@ export class ZsMapStateService {
   public observeSearchConfig(): Observable<IZsGlobalSearchConfig> {
     return this._display.pipe(
       map((o) => o.searchConfig),
-      distinctUntilChanged((x, y) => isEqual(x,y)),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
     );
   }
 
@@ -610,6 +615,24 @@ export class ZsMapStateService {
 
   public setJournalAddressPreview(active: boolean) {
     this._journalAddressPreview.next(active);
+  }
+
+  // JournalMessageEditConfig
+  public observeJournalMessageEditConfig(): Observable<IZsJournalMessageEditConfig> {
+    return this._display.pipe(
+      map((o) => o.journalMessageEditConfig),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
+    );
+  }
+
+  public setJournalMessageEditConfig(journalMessageEditConfig: IZsJournalMessageEditConfig) {
+    this.updateDisplayState((draft) => {
+      draft.journalMessageEditConfig = journalMessageEditConfig;
+    });
+  }
+
+  public getJournalMessageEditConfig(): IZsJournalMessageEditConfig {
+    return this._display.value.journalMessageEditConfig;
   }
 
   // source

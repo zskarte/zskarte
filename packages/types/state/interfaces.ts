@@ -83,6 +83,7 @@ export interface IZsMapDisplayState {
   journalSort: Sort;
   journalFilter: IZsJournalFilter;
   searchConfig: IZsGlobalSearchConfig;
+  journalMessageEditConfig: IZsJournalMessageEditConfig;
 }
 
 export interface IZsJournalFilter {
@@ -101,6 +102,11 @@ export interface IZsGlobalSearchConfig {
   area: Extent | null;
   sortedByDistance: boolean;
   distanceReferenceCoordinate: Coordinate | null;
+}
+
+export interface IZsJournalMessageEditConfig {
+  showAllAddresses: boolean;
+  showLinkedText: boolean;
 }
 
 //DIN paper dimension in mm, landscape

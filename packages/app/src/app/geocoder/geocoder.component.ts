@@ -120,6 +120,7 @@ export class GeocoderComponent implements OnDestroy {
   }
 
   previewCoordinate(element: IZsMapSearchResult | null) {
+    if (this.keepCoord) return;
     if (element === null) {
       this.selected = null;
       this.goToCoordinate(false);

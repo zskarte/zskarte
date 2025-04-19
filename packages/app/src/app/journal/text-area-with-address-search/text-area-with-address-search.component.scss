@@ -1,9 +1,14 @@
+:host {
+  position: relative;
+}
+
 mat-form-field {
   width: 100%;
 }
 
 .hint-box {
   display: flex;
+  align-items: center;
 
   .hint {
     white-space: pre-line;
@@ -13,10 +18,8 @@ mat-form-field {
     line-height: 1.1em;
   }
 
-  mat-checkbox {
-    width: 150px;
-    --mat-checkbox-label-text-color: darkgray;
-    --mat-checkbox-label-text-line-height: 1.1em;
+  mat-icon.settings.active {
+    color: #3f51b5;
   }
 }
 
@@ -32,6 +35,8 @@ mat-form-field {
 
   .title {
     margin-right: 10px;
+    font-size: 1rem;
+    padding: 5px 0;
   }
 
   input {
@@ -42,4 +47,60 @@ mat-form-field {
 
 .spacer {
   margin-bottom: 1.5em;
+}
+
+.overlay-container {
+  position: relative;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.overlay-arrow-top {
+  position: absolute;
+  top: -10px;
+  right: 1rem;
+}
+
+.arrow-shape-top {
+  fill: white;
+  stroke: #ccc;
+  stroke-width: 1;
+  stroke-dasharray: 15, 20; /* removes bottom line */
+}
+
+.overlay-content {
+  mat-icon {
+    vertical-align: middle;
+  }
+  mat-form-field,
+  button {
+    margin-left: 64px;
+    max-width: calc(100% - 64px);
+  }
+}
+
+.linkedText {
+  &.addresSearch {
+    display: block;
+    position: absolute;
+    padding: 0;
+
+    .title {
+      display: none;
+    }
+
+    input {
+      width: 300px;
+      border: none;
+      padding: 0;
+      font-weight: bold;
+    }
+
+    input:focus {
+      outline: none;
+    }
+  }
 }

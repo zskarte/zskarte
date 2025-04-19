@@ -50,9 +50,9 @@ export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER = (p1: string, p2: string) =>
 export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER_MISSING = (p1: string) =>
   `<span class="addr-geo addr-search"><span class="material-icons">location_off</span><span class="text">${p1}</span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER = (p1: string, p2: string) =>
-  `<span data-geo="${p2}" class="addr-geo" contenteditable="false"><span class="material-icons addr-show">place</span><span class="text addr-search">${p1}</span><span class="material-icons addr-edit">edit</span></span>`;
+  `<span data-geo="${p2}" class="addr-geo"><span class="addr-show"></span><span class="text addr-search">${p1}</span><span class="addr-edit"></span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER_MISSING = (p1: string) =>
-  `<span class="addr-geo addr-search" contenteditable="false"><span class="material-icons addr-show">location_off</span><span class="text">${p1}</span><span class="material-icons addr-edit">edit</span></span>`;
+  `<span class="addr-geo addr-search"><span class="addr-show addr-unknown"></span><span class="text">${p1}</span><span class="addr-edit"></span></span>`;
 
 export function getGlobalAddressTokenRegex() {
   return new RegExp(ADDRESS_TOKEN_REGEX.source, ADDRESS_TOKEN_REGEX.flags + 'g');
@@ -88,7 +88,20 @@ export class SearchService {
 
     effect(() => {
       const activeView = this.activeView();
-      if (activeView !== 'map') {
+      if (activeView === 'journal') {
+        //deactivate if change to journal
+        this.addressPreview.set(false);
+        this._state.updateSearchResultFeatures([]);
+        if (this.globalSearchInputText) {
+          this.globalSearchInputText.set('');
+        }
+      }
+    });
+
+    effect(() => {
+      const activeView = this.activeView();
+      if (activeView === 'journal') {
+        //if journal, populate preview in state
         const addressPreview = this.addressPreview();
         this._state.setJournalAddressPreview(addressPreview);
         if (!addressPreview) {
@@ -362,7 +375,7 @@ export class SearchService {
     }
     const url = this.streetGeometryByIdUrl + encodeURIComponent(id);
     const result: { results: GeoJSONFeature[] } = await fetch(url).then((response) => response.json());
-    if (result.results.length > 0) {
+    if (result?.results?.length > 0) {
       return this.formatGeoJSON.readFeature(result.results[0]) as Feature<Geometry>;
     }
     return null;
@@ -533,6 +546,7 @@ export class SearchService {
   }
 
   public async getHighlightGeometryFeature(locationInfo: string): Promise<Feature<Geometry> | null> {
+    if (!locationInfo) return null;
     if (locationInfo.startsWith('lonLat:')) {
       const lonLat = locationInfo
         .substring(7)
@@ -620,12 +634,22 @@ export class SearchService {
     return { address: match[1], locationInfo: match[2] };
   }
 
+  public removeAllAddressTokens(text: string, escapeHtml = true) {
+    if (escapeHtml) {
+      //make sure there is no html
+      text = SearchService.escapeHtml(text);
+    }
+
+    const regex = getGlobalAddressTokenRegex();
+    return text.replace(regex, (match, p1) => ADDRESS_TOKEN_REPLACEMENT_ADDRESS(p1));
+  }
+
   public replaceAllAddressTokens(text?: string, withMarker = false) {
     if (!text) {
       return text;
     }
     //make sure there is no html
-    text = text.replace(/<[^>]*>/g, '');
+    text = SearchService.escapeHtml(text);
 
     const regex = getGlobalAddressTokenRegex();
     let response: string;
@@ -638,6 +662,15 @@ export class SearchService {
     }
     //mark as secure html
     return this._sanitizer.bypassSecurityTrustHtml(response);
+  }
+
+  public static escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   public async handleMessageContentClick(event: MouseEvent) {

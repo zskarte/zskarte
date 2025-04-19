@@ -34,7 +34,7 @@ import { ZsMapStateService } from 'src/app/state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
-import { ReplaceAllAddressTokensPipe } from "../../search/replace-all-address-tokens.pipe";
+import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
 
 @Component({
   selector: 'app-journal-form',
@@ -52,8 +52,8 @@ import { ReplaceAllAddressTokensPipe } from "../../search/replace-all-address-to
     MatSelectModule,
     CommonModule,
     TextAreaWithAddressSearchComponent,
-    ReplaceAllAddressTokensPipe
-],
+    ReplaceAllAddressTokensPipe,
+  ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
   styleUrl: './journal-form.component.scss',
@@ -216,6 +216,7 @@ export class JournalFormComponent {
       dateCreatedTime: entry.dateMessage,
     });
     this.showPrint = false;
+    this.messageContentEl()?.formVisible.set(true);
   }
 
   addNew() {
@@ -227,6 +228,7 @@ export class JournalFormComponent {
       dateCreatedTime: new Date(),
     });
     this.showPrint = false;
+    this.messageContentEl()?.formVisible.set(true);
   }
 
   isTabDisabled(tabStatus: JournalEntryStatus): boolean {
@@ -403,7 +405,10 @@ export class JournalFormComponent {
       documentId: this.entry()?.documentId,
     };
 
-    await this.journal.print(entry);
+    await this.journal.print({
+      ...entry,
+      messageContent: this.search.removeAllAddressTokens(entry.messageContent, false),
+    });
 
     setTimeout(() => {
       if (button) {

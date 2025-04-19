@@ -1,0 +1,19 @@
+.contenteditable[contenteditable='true']:focus {
+  outline: none;
+  word-wrap: break-word;
+}
+
+.contenteditable ::ng-deep {
+  .raw {
+    display: none;
+  }
+}
+
+.contenteditable .showRaw ::ng-deep {
+  .formatted {
+    display: none;
+  }
+  .raw {
+    display: inline;
+  }
+}

@@ -125,7 +125,9 @@ fieldset.like-mat-form-field-outline {
   border-radius: var(--mdc-outlined-text-field-container-shape);
 }
 fieldset.like-mat-form-field-outline > legend {
-  font-size: calc(var(--mat-form-field-outlined-label-text-populated-size) * var(--mat-mdc-form-field-floating-label-scale, 0.75));
+  font-size: calc(
+    var(--mat-form-field-outlined-label-text-populated-size) * var(--mat-mdc-form-field-floating-label-scale, 0.75)
+  );
   color: var(--mdc-outlined-text-field-label-text-color);
   font-family: var(--mdc-outlined-text-field-label-text-font);
   font-weight: var(--mdc-outlined-text-field-label-text-weight);
@@ -164,21 +166,74 @@ fieldset.like-mat-form-field-outline > legend {
 
 .preserve-linebreak {
   white-space: pre-line;
+}
 
-  .addr-geo {
-    cursor: pointer;
+.addr-geo {
+  cursor: pointer;
+  text-wrap: nowrap;
 
-    &.addr-search {
-      color: orange;
-    }
+  &.edit-active {
+    width: 300px;
+    display: inline-block;
 
-    .material-icons {
-      vertical-align: text-bottom;
-      font-size: 1.5em;
-    }
-
-    .text {
-      font-weight: bold;
+    .addr-show,
+    .addr-edit {
+      display: none;
     }
   }
+
+  &.addr-search {
+    color: orange;
+  }
+
+  .material-icons {
+    vertical-align: text-bottom;
+    font-size: 1.5em;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .text {
+    font-weight: bold;
+  }
+
+  .addr-show,
+  .addr-edit {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: text-bottom;
+    background-color: currentColor;
+  }
+
+  .addr-edit {
+    -webkit-mask: url(/assets/fonts/material_edit.svg) no-repeat center;
+    mask: url(/assets/fonts/material_edit.svg) no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+
+  .addr-show {
+    -webkit-mask: url(/assets/fonts/material_place.svg) no-repeat center;
+    mask: url(/assets/fonts/material_place.svg) no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+
+  .addr-show.addr-unknown {
+    -webkit-mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
+    mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+}
+
+.addr-caret {
+  display: inline-block;
+  width: 300px;
+}
+
+.addr-caret::after {
+  content: '\00A0';
+  visibility: hidden;
 }

@@ -3165,6 +3165,11 @@ export class I18NService {
       en: 'Show all addresses',
       fr: 'Afficher toutes les adresses',
     },
+    showLinkedText: {
+      de: 'Adressen als Links anzeigen',
+      en: 'Display addresses as links',
+      fr: 'Afficher les adresses sous forme de liens',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {
