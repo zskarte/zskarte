@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnDestroy, computed, inject, input } from '@angular/core';
+import { Component, OnDestroy, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { ZsMapDrawElementState } from '@zskarte/types';
@@ -18,13 +18,22 @@ import { filter, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { SearchService } from 'src/app/search/search.service';
-import { ReplaceAllAddressTokensPipe } from "../../search/replace-all-address-tokens.pipe";
-
+import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FormsModule } from '@angular/forms';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
   selector: 'app-sidebar-journal-entry',
-  imports: [DatePipe, MatListModule, MatIcon, MatButtonModule, ReplaceAllAddressTokensPipe],
+  imports: [
+    DatePipe,
+    MatListModule,
+    MatIcon,
+    MatButtonModule,
+    MatCheckboxModule,
+    FormsModule,
+    ReplaceAllAddressTokensPipe,
+  ],
   templateUrl: './sidebar-journal-entry.component.html',
   styleUrls: ['./sidebar-journal-entry.component.scss'],
 })
@@ -53,6 +62,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
           };
         }) ?? [],
   );
+  markPotentialAddresses = signal(false);
 
   navigateTo(element: { id: string; coordinates: Coordinate | undefined }) {
     if (element.coordinates) {

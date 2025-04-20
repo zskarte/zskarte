@@ -3180,6 +3180,16 @@ export class I18NService {
       en: 'Display addresses as links',
       fr: 'Afficher les adresses sous forme de liens',
     },
+    markPotentialAddresses: {
+      de: 'Adressen erkennen',
+      en: 'Recognize addresses',
+      fr: 'Repérer adresses',
+    },
+    unmarkPotentialAddresses: {
+      de: 'Adressen bereinigen',
+      en: 'Clean up addresses',
+      fr: 'Nettoyer adresses',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

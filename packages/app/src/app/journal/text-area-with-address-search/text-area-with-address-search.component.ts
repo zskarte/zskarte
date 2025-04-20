@@ -36,6 +36,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { ContenteditableComponent } from 'src/app/contenteditable/contenteditable.component';
 import { debounceLeading } from 'src/app/helper/debounce';
 import { Subscription } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-text-area-with-address-search',
@@ -43,6 +44,7 @@ import { Subscription } from 'rxjs';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatButtonModule,
     MatCheckboxModule,
     ReactiveFormsModule,
     FormsModule,
@@ -71,10 +73,10 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
   readonly formVisible = signal(false);
   readonly showAllAddresses = signal(false);
   readonly showLinkedText = signal(true);
+  readonly settingsVisible = signal(false);
   readonly textContentInput = viewChild.required<ElementRef<HTMLTextAreaElement>>('textContent');
   readonly linkedTextContent = viewChild.required<ContenteditableComponent>('linkedTextContent');
   textContentSelectedArea: [number, number] = [0, 0];
-  settingsVisible = false;
   private searchSubscription: Subscription;
 
   private addrEditElem: HTMLElement | null = null;
@@ -121,7 +123,7 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
         this._state.updateSearchResultFeatures([]);
       }
       //close settings view on change
-      this.settingsVisible = false;
+      this.settingsVisible.set(false);
     });
     effect(() => {
       //if showLinkedText is updated
@@ -133,7 +135,7 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
         formControl.setValue(value);
       }
       //close settings view on change
-      this.settingsVisible = false;
+      this.settingsVisible.set(false);
     });
     effect(() => {
       const config: IZsJournalMessageEditConfig = {
@@ -340,6 +342,18 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
     this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
 
     this.updateShownFeature();
+  }
+
+  markPotentialAddresses() {
+    this.messageContentControl().setValue(
+      this._search.tokenizeAllPotentialAddresses(this.messageContentControl().value),
+    );
+    this.settingsVisible.set(false);
+  }
+
+  unmarkPotentialAddresses() {
+    this.messageContentControl().setValue(this._search.removeAllPotentialAddresses(this.messageContentControl().value));
+    this.settingsVisible.set(false);
   }
 
   onKeydownAddressSearch(event: KeyboardEvent) {

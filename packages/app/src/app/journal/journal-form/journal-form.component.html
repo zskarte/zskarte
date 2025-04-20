@@ -54,7 +54,7 @@
         <td>
           <div
             class="preserve-linebreak"
-            [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true"
+            [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()"
             (click)="search.handleMessageContentClick($event)"
           ></div>
           @if (journalForm.value.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE || isReadOnly()) {
@@ -63,6 +63,14 @@
                 <mat-icon>select_all</mat-icon>
                 {{ i18n.get('showAllAddresses') }}
               </button>
+              <div class="message-content-option">
+                <mat-checkbox
+                  [ngModel]="markPotentialAddresses()"
+                  (ngModelChange)="markPotentialAddresses.set($event)"
+                  [ngModelOptions]="{ standalone: true }"
+                  >{{ i18n.get('markPotentialAddresses') }}</mat-checkbox
+                >
+              </div>
             </div>
           }
         </td>
@@ -121,7 +129,9 @@
               </td>
               <td
                 class="preserve-linebreak"
-                [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true"
+                [innerHTML]="
+                  journalForm.value.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()
+                "
                 (click)="search.handleMessageContentClick($event)"
               ></td>
             </tr>

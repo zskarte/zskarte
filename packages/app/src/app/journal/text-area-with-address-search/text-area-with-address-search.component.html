@@ -8,7 +8,7 @@
     class="settings"
     cdkOverlayOrigin
     #trigger="cdkOverlayOrigin"
-    (click)="settingsVisible = !settingsVisible"
+    (click)="settingsVisible.set(!settingsVisible())"
     >settings</mat-icon
   >
 </div>
@@ -78,7 +78,7 @@
 <ng-template
   cdkConnectedOverlay
   [cdkConnectedOverlayOrigin]="trigger"
-  [cdkConnectedOverlayOpen]="settingsVisible"
+  [cdkConnectedOverlayOpen]="settingsVisible()"
   [cdkConnectedOverlayOffsetX]="15"
   [cdkConnectedOverlayOffsetY]="5"
   [cdkConnectedOverlayPositions]="[
@@ -107,6 +107,18 @@
         <mat-checkbox [ngModel]="showLinkedText()" (ngModelChange)="showLinkedText.set($event)">{{
           i18n.get('showLinkedText')
         }}</mat-checkbox>
+      </div>
+      <div>
+        <button mat-stroked-button type="button" (click)="markPotentialAddresses()">
+          <mat-icon>search</mat-icon>
+          {{ i18n.get('markPotentialAddresses') }}
+        </button>
+      </div>
+      <div>
+        <button mat-stroked-button type="button" (click)="unmarkPotentialAddresses()">
+          <mat-icon>restore</mat-icon>
+          {{ i18n.get('unmarkPotentialAddresses') }}
+        </button>
       </div>
     </div>
   </div>

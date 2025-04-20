@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, input, output, viewChild } from '@angular/core';
+import { Component, HostListener, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -77,6 +77,7 @@ export class JournalFormComponent {
   close = output();
   selectedIndex = 0;
   showPrint = false;
+  markPotentialAddresses = signal(false);
   constructor() {
     effect(() => {
       this.selectEntry(this.entry());

@@ -75,10 +75,9 @@ mat-form-field {
   mat-icon {
     vertical-align: middle;
   }
-  mat-form-field,
+
   button {
-    margin-left: 64px;
-    max-width: calc(100% - 64px);
+    margin-top: 5px;
   }
 }
 

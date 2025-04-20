@@ -58,6 +58,33 @@ export function getGlobalAddressTokenRegex() {
   return new RegExp(ADDRESS_TOKEN_REGEX.source, ADDRESS_TOKEN_REGEX.flags + 'g');
 }
 
+const STREET_START_WORD_REGEX =
+  /(?:(?:ob|unt|vor|hint)ere|via|val|voa|chemin|route|rue|place|avenue|sentier|promenade|pont|parc|passage|escaliers|galerie|allée|boulevard|quartier|passerelle|quai|impasse|vy|tunnel|schulhaus|\b\p{L}*schule)/giu;
+const STREET_WITH_NAME_SUFFIX_REGEX =
+  /\p{L}+(?:strasse?|(?:weg|gäss|mätt)(?:li|lein)?|gass[ea]?|matt(?:e|en)?|ac[hk]er|rain|feld|dorf|hag|ried|halde|graben|allee|ring|platz|tunnel|berg|hof|loch|bach|egg|viadukt|damm|wil|hubel|holz|wald|weid|park|stutz|promenade|steg|rank|brücke|quai|garten|reben|gut|bühl|moos|rue|schule)/giu;
+
+const NOT_PLACE_WORD =
+  /(?:ab|auf|am|im|in|bei|zu|von|um|zur|als|der|die|dass?|mit|ist|ca|bis|ein(?:e|en)?|und|für|wie|sind)\b/giu;
+const STREET_WITH_NUMBER = new RegExp(
+  `(?:\\b${STREET_START_WORD_REGEX.source}\\b \\b(?!${NOT_PLACE_WORD.source})\\p{L}+\\b|\\b${STREET_WITH_NAME_SUFFIX_REGEX.source}\\b)(?: \\d{1,3}(?: ?[a-z])?\\b)?`,
+  'gui',
+);
+const PLACE_WITH_PLZ = /(?:,| in)? (\d{4} \p{L}+\b)/giu;
+const PLACE_AFTER_IN = new RegExp(` in (?!${NOT_PLACE_WORD.source})(\\p{L}+\\b)`, 'gui');
+const PLACE_AFTER_COMMA = new RegExp(
+  `, ?(?!${NOT_PLACE_WORD.source})(?!${STREET_WITH_NAME_SUFFIX_REGEX.source})(\\p{L}+\\b)`,
+  'gui',
+);
+
+export const ADDRESS_REGEX = new RegExp(
+  `(${STREET_WITH_NUMBER.source})(?:${PLACE_WITH_PLZ.source}|${PLACE_AFTER_IN.source}|${PLACE_AFTER_COMMA.source})?`,
+  'gui',
+);
+export const ADDRESS_TOKEN_OR_NEW_REGEX = new RegExp(
+  `(?:${ADDRESS_TOKEN_REGEX.source}|${ADDRESS_REGEX.source})`,
+  'gui',
+);
+
 @Injectable({
   providedIn: 'root',
 })
@@ -126,7 +153,8 @@ export class SearchService {
       event.preventDefault();
       event.stopPropagation();
       return true;
-    } if (this._state.getCurrentPositionFlag().isVisible){
+    }
+    if (this._state.getCurrentPositionFlag().isVisible) {
       this._state.updatePositionFlag({ isVisible: false, coordinates: [0, 0] });
       event.preventDefault();
       event.stopPropagation();
@@ -754,6 +782,21 @@ export class SearchService {
     return this._sanitizer.bypassSecurityTrustHtml(response);
   }
 
+  public tokenizeAllPotentialAddresses(text?: string) {
+    if (!text) {
+      return text;
+    }
+    return text.replace(ADDRESS_TOKEN_OR_NEW_REGEX, (match) => (match.startsWith('addr:') ? match : `addr:(${match})`));
+  }
+
+  public removeAllPotentialAddresses(text?: string) {
+    if (!text) {
+      return text;
+    }
+    const regex = getGlobalAddressTokenRegex();
+    return text.replace(regex, (match, p1, p2) => (!p2 ? p1 : match));
+  }
+
   public static escapeHtml(text: string): string {
     return text
       .replace(/&/g, '&amp;')
@@ -780,17 +823,19 @@ export class SearchService {
           }
           return;
         } else {
-          const address = addrElem.querySelector('.text')?.textContent;
+          let address = addrElem.querySelector('.text')?.textContent;
           if (this.globalSearchInputText && address) {
             this.addressPreview.set(true);
+            address = address.replace(' in ', ', ');
             this.globalSearchInputText.set(address);
           }
         }
       } else if (target.closest('.addr-search')) {
         //clicked specifically inside addr-search
-        const address = addrElem.querySelector('.text')?.textContent;
+        let address = addrElem.querySelector('.text')?.textContent;
         if (this.globalSearchInputText && address) {
           this.addressPreview.set(true);
+          address = address.replace(' in ', ', ');
           this.globalSearchInputText.set(address);
         }
       }

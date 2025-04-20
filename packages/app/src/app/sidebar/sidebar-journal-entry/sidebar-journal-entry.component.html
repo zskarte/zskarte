@@ -1,7 +1,7 @@
 <div class="created-date">{{ entry().dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
 <p
   class="preserve-linebreak"
-  [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true"
+  [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()"
   (click)="search.handleMessageContentClick($event)"
 ></p>
 <div class="message-content-buttons">
@@ -9,6 +9,11 @@
     <mat-icon>select_all</mat-icon>
     {{ i18n.get('showAddresses') }}
   </button>
+  <div class="message-content-option">
+    <mat-checkbox [ngModel]="markPotentialAddresses()" (ngModelChange)="markPotentialAddresses.set($event)">{{
+      i18n.get('markPotentialAddresses')
+    }}</mat-checkbox>
+  </div>
 </div>
 
 @if (entryElements().length > 0) {

@@ -8,11 +8,21 @@ import { JournalService } from '../journal/journal.service';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
 import { SearchService } from '../search/search.service';
-import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
+import { ReplaceAllAddressTokensPipe } from '../search/replace-all-address-tokens.pipe';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-journal-draw-overlay',
-  imports: [MatListModule, MatButtonModule, MatIconModule, CommonModule, ReplaceAllAddressTokensPipe],
+  imports: [
+    MatListModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatIconModule,
+    FormsModule,
+    CommonModule,
+    ReplaceAllAddressTokensPipe,
+  ],
   templateUrl: './journal-draw-overlay.component.html',
   styleUrl: './journal-draw-overlay.component.scss',
 })
@@ -23,6 +33,7 @@ export class JournalDrawOverlayComponent {
   public search = inject(SearchService);
   expanded = signal(true);
   entry = computed(() => this.journal.drawingEntry);
+  markPotentialAddresses = signal(false);
 
   constructor() {
     // Verwenden Sie effect() im Konstruktor
