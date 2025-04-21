@@ -841,4 +841,19 @@ export class SearchService {
       }
     }
   }
+
+  public triggerGlobalSearch() {
+    if (!this.globalSearchInputText) return;
+
+    //is there a selected text that should be directly searched?
+    const selection = window.getSelection();
+    if (selection) {
+      const selectedText = selection.toString();
+      if (selectedText) {
+        this.globalSearchInputText.set(selectedText);
+        return;
+      }
+    }
+    this.globalSearchInputText.set('\u00A0');
+  }
 }

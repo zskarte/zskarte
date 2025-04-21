@@ -99,6 +99,11 @@ export class GeocoderComponent implements OnDestroy {
 
     effect(() => {
       const inputText = this.inputText();
+      if (inputText === '\u00A0') {
+        this.searchInput().nativeElement.focus();
+        this.inputText.set('');
+        return;
+      }
       updateSearchTerm(inputText);
       this.settingsVisble = false;
       if (inputText.length > 1) {

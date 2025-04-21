@@ -13,6 +13,7 @@ import { IShortcut } from './shortcut.interfaces';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from '../state/i18n.service';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
+import { SearchService } from '../search/search.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +21,7 @@ import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 export class ShortcutService {
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
+  private _search = inject(SearchService);
   private _dialog = inject(MatDialog);
   public i18n = inject(I18NService);
 
@@ -72,6 +74,9 @@ export class ShortcutService {
     this._listen({ shortcut: 'NumpadAdd', drawModeOnly: true }).subscribe(this._openAdd());
     //swiss german layout for +:
     this._listen({ shortcut: 'shift+1', drawModeOnly: true }).subscribe(this._openAdd());
+    this._listen({ shortcut: 'NumpadDivide', drawModeOnly: true }).subscribe(this._triggerSearch());
+    //swiss german layout for /:
+    this._listen({ shortcut: 'shift+7', drawModeOnly: true }).subscribe(this._triggerSearch());
 
     this._listen({ shortcut: 'mod+c', drawModeOnly: true }).subscribe(async () => {
       if (this._session.isGuest()) {
@@ -165,6 +170,12 @@ export class ShortcutService {
       const layer = this._state.getActiveLayer();
       const ref = this._dialog.open(DrawDialogComponent);
       ref.componentRef?.instance.setLayer(layer);
+    };
+  }
+
+  private _triggerSearch() {
+    return () => {
+      this._search.triggerGlobalSearch();
     };
   }
 
