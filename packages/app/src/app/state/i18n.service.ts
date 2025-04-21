@@ -2627,6 +2627,11 @@ export class I18NService {
       en: 'Drawn',
       fr: 'Dessiné',
     },
+    entryStatus: {
+      de: 'Aktueller Status',
+      en: 'Current state',
+      fr: 'Statut actuel',
+    },
     deliverer: {
       de: 'Absender',
       en: 'Deliverer',

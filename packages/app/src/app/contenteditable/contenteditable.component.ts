@@ -158,6 +158,12 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
       const positionMarker = document.createElement('span');
       range.insertNode(positionMarker);
       positionMarker.insertAdjacentHTML('beforebegin', formatedText);
+      const insertedEl = positionMarker.previousElementSibling?.previousElementSibling;
+      if (insertedEl) {
+        setTimeout(() => {
+          this.handleBlockAreaSelection(insertedEl);
+        });
+      }
       positionMarker.remove();
       //force update control
       const value = this.extractRawTextFromNodes(this.elementRef.nativeElement);
@@ -616,7 +622,11 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
       if (selection) {
         const range = document.createRange();
         range.setStart(rangeEl, rangeOffest);
-        range.collapse();
+        if (innerText) {
+          range.setEnd(rangeEl, rangeOffest + innerText.length);
+        } else {
+          range.collapse();
+        }
         selection.removeAllRanges();
         selection.addRange(range);
       }
