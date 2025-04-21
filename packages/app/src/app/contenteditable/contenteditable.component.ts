@@ -161,7 +161,7 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
       const insertedEl = positionMarker.previousElementSibling?.previousElementSibling;
       if (insertedEl) {
         setTimeout(() => {
-          this.handleBlockAreaSelection(insertedEl);
+          this.handleBlockNavigation(selection, insertedEl, false);
         });
       }
       positionMarker.remove();
