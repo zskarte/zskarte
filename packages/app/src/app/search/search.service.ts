@@ -59,20 +59,20 @@ export function getGlobalAddressTokenRegex() {
 }
 
 const STREET_START_WORD_REGEX =
-  /(?:(?:ob|unt|vor|hint)ere|via|val|voa|chemin|route|rue|place|avenue|sentier|promenade|pont|parc|passage|escaliers|galerie|allée|boulevard|quartier|passerelle|quai|impasse|vy|tunnel|schulhaus|\b\p{L}*schule)/giu;
+  /(?:(?:ob|unt|vor|hint)ere|(?:via|val|voa)(?: da(?:l|lla|ls)?| val)(?: las?| l| di | d)?|(?:chemin|ch.|route|rue|place|avenue|sentier|promenade|pont|parc|passage|escaliers|galerie|allée|boulevard|quartier|passerelle|quai|impasse|vy|tunnel)(?: du| de(?: la| l)?| des| d)?|\b\p{L}*schul(?:e|haus(?:es)?|gebäude|anlage)|(?:industrie|sport)(?:zone|gebiet|zentrum)|bahnhof|bhf|flughafen|(?:turn|sport)halle)/giu;
 const STREET_WITH_NAME_SUFFIX_REGEX =
-  /\p{L}+(?:strasse?|(?:weg|gäss|mätt)(?:li|lein)?|gass[ea]?|matt(?:e|en)?|ac[hk]er|rain|feld|dorf|hag|ried|halde|graben|allee|ring|platz|tunnel|berg|hof|loch|bach|egg|viadukt|damm|wil|hubel|holz|wald|weid|park|stutz|promenade|steg|rank|brücke|quai|garten|reben|gut|bühl|moos|rue|schule)/giu;
+  /\p{L}+(?:strass?e?|str\.?|(?:weg|gäss|mätte?)(?:li|lein)?|gass[ea]?|matt(?:e|en)?|ac[hk]er|rain|feld|dorf|hag|ried|halde|graben|allee|(?<!h)alle|ring|platz|pl\.?|tunnel|berg|hof|loch|bach|egg|viadukt|damm|wil|hubel|holz|wald|weid|park|stutz|promenade|steg|rank|brücke|quai|garten|reben|gut|bühl|moos|rue|schule)/giu;
 
 const NOT_PLACE_WORD =
-  /(?:ab|auf|am|im|in|bei|zu|von|um|zur|als|der|die|dass?|mit|ist|ca|bis|ein(?:e|en)?|und|für|wie|sind)\b/giu;
+  /(?:ab|auf|am|im|in|bei|zu|von|um|zur|als|der|die|dass?|mit|ist|ca|bis|ein(?:e|en)?|und|für|wie|sind|daneben|entlang|wurde|steht|nicht|über|alle|Kreisel)\b/giu;
 const STREET_WITH_NUMBER = new RegExp(
-  `(?:\\b${STREET_START_WORD_REGEX.source}\\b \\b(?!${NOT_PLACE_WORD.source})\\p{L}+\\b|\\b${STREET_WITH_NAME_SUFFIX_REGEX.source}\\b)(?: \\d{1,3}(?: ?[a-z])?\\b)?`,
+  `(?:\\b${STREET_START_WORD_REGEX.source}\\b[ ']\\b(?!${NOT_PLACE_WORD.source})\\p{L}+\\b|\\b${STREET_WITH_NAME_SUFFIX_REGEX.source})(?: \\d{1,3}(?: ?[a-z])?)?\\b`,
   'gui',
 );
 const PLACE_WITH_PLZ = /(?:,| in)? (\d{4} \p{L}+\b)/giu;
 const PLACE_AFTER_IN = new RegExp(` in (?!${NOT_PLACE_WORD.source})(\\p{L}+\\b)`, 'gui');
 const PLACE_AFTER_COMMA = new RegExp(
-  `, ?(?!${NOT_PLACE_WORD.source})(?!${STREET_WITH_NAME_SUFFIX_REGEX.source})(\\p{L}+\\b)`,
+  `, ?(?!${NOT_PLACE_WORD.source})(?!${STREET_START_WORD_REGEX.source})(?!${STREET_WITH_NAME_SUFFIX_REGEX.source})(\\p{L}+\\b)`,
   'gui',
 );
 
