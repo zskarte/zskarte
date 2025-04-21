@@ -614,6 +614,7 @@ export class SearchService {
               undefined;
           }
           if (element.feature) {
+            this.addressPreview.set(true);
             this._state.updateSearchResultFeatures([element.feature]);
           }
         }
@@ -635,6 +636,7 @@ export class SearchService {
         }
         return;
       } else if (element.feature) {
+        this.addressPreview.set(true);
         this._state.updateSearchResultFeatures([element.feature]);
         const extent = element.feature.getGeometry()?.getExtent();
         if (focus && extent) {

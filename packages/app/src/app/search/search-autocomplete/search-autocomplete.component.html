@@ -13,7 +13,7 @@
       <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
     }
   } @else {
-    @for (group of foundLocations(); track group) {
+    @for (group of foundLocations(); track group.config.label) {
       <mat-optgroup
         [label]="group.config.label + ' (' + group.results.length + ')'"
         (mousedown)="expandGroup(group, $event)"
