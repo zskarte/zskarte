@@ -21,9 +21,10 @@ export class AppComponent implements OnInit {
   private _shortcut = inject(ShortcutService);
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
-  journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
-
-  operationId = this._session.observeOperationId();
+  readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
+  readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
+  readonly operationId = toSignal(this._session.observeOperationId());
+  
 
   navLinks = [
     {
