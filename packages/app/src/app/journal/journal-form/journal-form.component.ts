@@ -223,6 +223,11 @@ export class JournalFormComponent {
     return order.indexOf(this.journalForm.controls.entryStatus.value) < order.indexOf(tabStatus);
   }
 
+  onEnterForResetState(event: Event) {
+    event.preventDefault();
+    this.resetState(); 
+  }
+
   async resetState() {
     const reset = JournalEntryStatusReset[this.journalForm.controls.entryStatus.value];
     if (!reset) {

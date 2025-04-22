@@ -290,7 +290,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ i18n.get('wrongContentInfo') }}</mat-label>
-            <input matInput formControlName="wrongContentInfo" />
+            <input matInput formControlName="wrongContentInfo" (keydown.enter)="onEnterForResetState($event)" />
           </mat-form-field>
 
           <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
@@ -370,7 +370,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ i18n.get('wrongTriageInfo') }}</mat-label>
-            <input matInput formControlName="wrongTriageInfo" />
+            <input matInput formControlName="wrongTriageInfo" (keydown.enter)="onEnterForResetState($event)" />
           </mat-form-field>
 
           <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
