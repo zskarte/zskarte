@@ -732,6 +732,10 @@ export class MapRendererService {
   }
 
   public zoomToFit(extent: Extent, padding: [number, number, number, number] = [100, 100, 100, 100], maxZoom = 18) {
+    const currentZoom = this.getMap().getView().getZoom();
+    if (currentZoom) {
+      maxZoom = Math.max(maxZoom, currentZoom);
+    }
     this.getMap().getView().fit(extent, {
       padding,
       maxZoom,
