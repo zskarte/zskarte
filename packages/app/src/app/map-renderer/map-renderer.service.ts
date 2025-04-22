@@ -327,20 +327,6 @@ export class MapRendererService {
 
     this._map.addLayer(this._searchResultFeaturesLayer);
 
-    this._map.on('singleclick', (event) => {
-      if (this._map.hasFeatureAtPixel(event.pixel)) {
-        const feature = this._map.forEachFeatureAtPixel(event.pixel, (feature) => feature, { hitTolerance: 10 });
-        if (feature === this._positionFlag && !this._state.isReadOnly()) {
-          this._overlay.setFlagButtonPosition(this._positionFlagLocation.getCoordinates());
-          this._overlay.toggleFlagButtons(true);
-        } else {
-          this._overlay.toggleFlagButtons(false);
-        }
-      } else {
-        this._overlay.toggleFlagButtons(false);
-      }
-    });
-
     //fade out area outside of search area
     this._searchArea.initialize({ renderer: this, state: this._state });
 
