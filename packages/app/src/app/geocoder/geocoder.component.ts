@@ -140,4 +140,9 @@ export class GeocoderComponent implements OnDestroy {
     this.searchConfig.area = this._searchArea.getSearchAreaExtent();
     this.configChanged();
   }
+
+  toggleSettings(event?: MouseEvent) {
+    event?.stopPropagation();
+    this.settingsVisble = !this.settingsVisble;
+  }
 }
