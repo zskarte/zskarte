@@ -64,6 +64,7 @@ export class JournalFormComponent {
   i18n = inject(I18NService);
   journal = inject(JournalService);
   search = inject(SearchService);
+  readonly formVisible = signal(false);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
@@ -217,9 +218,7 @@ export class JournalFormComponent {
       dateCreatedTime: entry.dateMessage,
     });
     this.showPrint = false;
-    setTimeout(() => {
-      this.messageContentEl()?.formVisible.set(true);
-    });
+    this.formVisible.set(true);
   }
 
   addNew() {
@@ -231,9 +230,7 @@ export class JournalFormComponent {
       dateCreatedTime: new Date(),
     });
     this.showPrint = false;
-    setTimeout(() => {
-      this.messageContentEl()?.formVisible.set(true);
-    });
+    this.formVisible.set(true);
   }
 
   isTabDisabled(tabStatus: JournalEntryStatus): boolean {
@@ -400,7 +397,7 @@ export class JournalFormComponent {
   }
 
   doClose() {
-    this.messageContentEl()?.formClosed();
+    this.formVisible.set(false);
     this.search.addressPreview.set(false);
     this.dirty.emit(false);
     this.close.emit();

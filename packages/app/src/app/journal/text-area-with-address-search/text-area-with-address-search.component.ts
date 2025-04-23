@@ -60,8 +60,9 @@ import { MatButtonModule } from '@angular/material/button';
 export class TextAreaWithAddressSearchComponent implements OnDestroy {
   private _state = inject(ZsMapStateService);
   private _search = inject(SearchService);
-  i18n = inject(I18NService);
-  label = input<string>('');
+  readonly i18n = inject(I18NService);
+  readonly label = input<string>('');
+  readonly formVisible = input(false);
   messageContentControl = input<FormControl>(new FormControl());
 
   readonly addressSearchTerm = signal('');
@@ -70,7 +71,7 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
   readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
   readonly addresSearchField = viewChild.required<ElementRef<HTMLInputElement>>('addresSearchField');
 
-  readonly formVisible = signal(false);
+  
   readonly showMap = signal(false);
   readonly showAllAddresses = signal(false);
   readonly showLinkedText = signal(true);
@@ -104,6 +105,12 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
       this.showLinkedText.set(config.showLinkedText);
     }
 
+    effect(() => {
+      if (!this.formVisible()) {
+        this.addressSelection.set(false);
+        this._search.addressPreview.set(false);
+      }
+    });
     effect(() => {
       //save values in local vars to make sure the effect is triggered on all changes, also if it would evaluate to true without it.
       const showMap = this.showMap();
@@ -240,12 +247,6 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
     2000,
     this,
   );
-
-  public formClosed() {
-    this.addressSelection.set(false);
-    this._search.addressPreview.set(false);
-    this.formVisible.set(false);
-  }
 
   async onKeyDownText(event: KeyboardEvent) {
     if (event.key === 'Escape') {
