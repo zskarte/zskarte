@@ -97,6 +97,12 @@
 
     <div class="overlay-content">
       <div>
+        <mat-icon>map</mat-icon>
+        <mat-checkbox [disabled]="showAllAddresses()" [ngModel]="showAllAddresses() ? true : showMap()" (ngModelChange)="showMap.set($event)">{{
+          i18n.get('showMap')
+        }}</mat-checkbox>
+      </div>
+      <div>
         <mat-icon>select_all</mat-icon>
         <mat-checkbox [ngModel]="showAllAddresses()" (ngModelChange)="showAllAddresses.set($event)">{{
           i18n.get('showAllAddresses')

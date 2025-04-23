@@ -3170,6 +3170,11 @@ export class I18NService {
       en: 'To insert address information, type "addr:" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',
       fr: 'Pour insérer une adresse, saisissez "addr:" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.',
     },
+    showMap: {
+      de: 'Map anzeigen',
+      en: 'Show map',
+      fr: 'afficher la carte',
+    },
     showAllAddresses: {
       de: 'Alle Adressen anzeigen',
       en: 'Show all addresses',

@@ -71,6 +71,7 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
   readonly addresSearchField = viewChild.required<ElementRef<HTMLInputElement>>('addresSearchField');
 
   readonly formVisible = signal(false);
+  readonly showMap = signal(false);
   readonly showAllAddresses = signal(false);
   readonly showLinkedText = signal(true);
   readonly settingsVisible = signal(false);
@@ -98,14 +99,15 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
   constructor(private elementRef: ElementRef) {
     const config = this._state.getJournalMessageEditConfig();
     if (config) {
+      this.showMap.set(config.showMap);
       this.showAllAddresses.set(config.showAllAddresses);
       this.showLinkedText.set(config.showLinkedText);
     }
 
     effect(() => {
-      const showMap =
-        this.formVisible() && (this.addressSelection() || this._search.addressPreview() || this.showAllAddresses());
-      this._state.setJournalAddressPreview(showMap);
+      const acivateMapView =
+        this.formVisible() && (this.showMap() || this._search.addressPreview() || this.showAllAddresses());
+      this._state.setJournalAddressPreview(acivateMapView);
     });
     effect(() => {
       if (!this.addressSelection()) {
@@ -139,6 +141,7 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
     });
     effect(() => {
       const config: IZsJournalMessageEditConfig = {
+        showMap: this.showMap(),
         showAllAddresses: this.showAllAddresses(),
         showLinkedText: this.showLinkedText(),
       };
@@ -146,6 +149,7 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
     });
     this._state.observeJournalMessageEditConfig().subscribe((config: IZsJournalMessageEditConfig) => {
       if (config) {
+        this.showMap.set(config.showMap);
         this.showAllAddresses.set(config.showAllAddresses);
         this.showLinkedText.set(config.showLinkedText);
       }

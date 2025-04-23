@@ -217,7 +217,9 @@ export class JournalFormComponent {
       dateCreatedTime: entry.dateMessage,
     });
     this.showPrint = false;
-    this.messageContentEl()?.formVisible.set(true);
+    setTimeout(() => {
+      this.messageContentEl()?.formVisible.set(true);
+    });
   }
 
   addNew() {
@@ -229,7 +231,9 @@ export class JournalFormComponent {
       dateCreatedTime: new Date(),
     });
     this.showPrint = false;
-    this.messageContentEl()?.formVisible.set(true);
+    setTimeout(() => {
+      this.messageContentEl()?.formVisible.set(true);
+    });
   }
 
   isTabDisabled(tabStatus: JournalEntryStatus): boolean {

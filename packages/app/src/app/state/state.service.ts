@@ -192,6 +192,7 @@ export class ZsMapStateService {
         distanceReferenceCoordinate: null,
       },
       journalMessageEditConfig: {
+        showMap: false,
         showAllAddresses: false,
         showLinkedText: true,
       },

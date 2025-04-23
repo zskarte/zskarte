@@ -105,6 +105,7 @@ export interface IZsGlobalSearchConfig {
 }
 
 export interface IZsJournalMessageEditConfig {
+  showMap: boolean;
   showAllAddresses: boolean;
   showLinkedText: boolean;
 }
