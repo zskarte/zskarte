@@ -68,10 +68,13 @@ export class GeocoderComponent implements OnDestroy {
       this.inputText,
     );
 
-    this._state.observeSearchConfig().subscribe((config: IZsGlobalSearchConfig) => {
-      this.searchConfig = { ...config };
-      updateSearchConfig(this.searchConfig);
-    });
+    this._state
+      .observeSearchConfig()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((config: IZsGlobalSearchConfig) => {
+        this.searchConfig = { ...config };
+        updateSearchConfig(this.searchConfig);
+      });
 
     searchResults$.pipe(takeUntil(this._ngUnsubscribe)).subscribe((newResultSets) => {
       if (newResultSets === null) {

@@ -31,7 +31,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ZsMapStateService } from 'src/app/state/state.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
@@ -84,7 +84,7 @@ export class JournalFormComponent {
       this.selectEntry(this.entry());
     });
 
-    this.journalForm.valueChanges.subscribe(() => {
+    this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.dirty.emit(this.journalForm.dirty);
     });
   }

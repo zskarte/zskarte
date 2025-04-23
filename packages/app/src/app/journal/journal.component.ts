@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
@@ -30,7 +30,7 @@ import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
 import { IZsJournalFilter } from '../../../../types/state/interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
 import { SearchService } from '../search/search.service';
 
@@ -69,6 +69,7 @@ export class JournalComponent implements AfterViewInit {
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
   private _search = inject(SearchService);
+  private _destroyRef = inject(DestroyRef);
   readonly isOnline = toSignal(this._session.observeIsOnline());
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
 
@@ -211,7 +212,7 @@ export class JournalComponent implements AfterViewInit {
       }
     };
 
-    this._state.observeJournalSort().subscribe((sortConf) => {
+    this._state.observeJournalSort().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((sortConf) => {
       if (this.dataSourceFiltered?.sort) {
         this.sort.sortChange.emit(sortConf);
         this.dataSourceFiltered.sort.active = sortConf.active;
@@ -219,7 +220,7 @@ export class JournalComponent implements AfterViewInit {
       }
     });
 
-    this._state.observeJournalFilter().subscribe((filter) => {
+    this._state.observeJournalFilter().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((filter) => {
       this.departmentControl.setValue(filter.department);
       this.triageFilter = filter.triageFilter;
       this.outgoingFilter = filter.outgoingFilter;
@@ -230,13 +231,13 @@ export class JournalComponent implements AfterViewInit {
   }
 
   private initializeSearch() {
-    this.searchControl.valueChanges.subscribe((searchTerm) => {
+    this.searchControl.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((searchTerm) => {
       this.filterEntries(searchTerm, this.departmentControl.value);
     });
   }
 
   private initializeDepartmentFilter() {
-    this.departmentControl.valueChanges.subscribe((department) => {
+    this.departmentControl.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((department) => {
       this.filterEntries(this.searchControl.value, department);
     });
   }
@@ -416,7 +417,7 @@ export class JournalComponent implements AfterViewInit {
         const instance = this.componentOutlet.componentInstance;
         if (instance) {
           if ('save' in instance) {
-            instance.save.subscribe((newTemplate: object | null) => {
+            instance.save.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((newTemplate: object | null) => {
               this.updateMessagePdfTemplate(newTemplate);
             });
           }

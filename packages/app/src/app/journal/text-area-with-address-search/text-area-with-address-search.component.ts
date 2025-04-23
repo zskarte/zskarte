@@ -1,15 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  OnDestroy,
-  effect,
-  inject,
-  input,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, ElementRef, HostListener, effect, inject, input, signal, viewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,8 +25,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { ContenteditableComponent } from 'src/app/contenteditable/contenteditable.component';
 import { debounceLeading } from 'src/app/helper/debounce';
-import { Subscription } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-text-area-with-address-search',
@@ -57,7 +47,7 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './text-area-with-address-search.component.html',
   styleUrl: './text-area-with-address-search.component.scss',
 })
-export class TextAreaWithAddressSearchComponent implements OnDestroy {
+export class TextAreaWithAddressSearchComponent {
   private _state = inject(ZsMapStateService);
   private _search = inject(SearchService);
   readonly i18n = inject(I18NService);
@@ -71,7 +61,6 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
   readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
   readonly addresSearchField = viewChild.required<ElementRef<HTMLInputElement>>('addresSearchField');
 
-  
   readonly showMap = signal(false);
   readonly showAllAddresses = signal(false);
   readonly showLinkedText = signal(true);
@@ -79,7 +68,6 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
   readonly textContentInput = viewChild.required<ElementRef<HTMLTextAreaElement>>('textContent');
   readonly linkedTextContent = viewChild.required<ContenteditableComponent>('linkedTextContent');
   textContentSelectedArea: [number, number] = [0, 0];
-  private searchSubscription: Subscription;
 
   private addrEditElem: HTMLElement | null = null;
   addressSelectionPosition = { x: 0, y: 0 };
@@ -116,8 +104,7 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
       const showMap = this.showMap();
       const addressPreview = this._search.addressPreview();
       const showAllAddresses = this.showAllAddresses();
-      const acivateMapView =
-        this.formVisible() && (showMap || addressPreview || showAllAddresses);
+      const acivateMapView = this.formVisible() && (showMap || addressPreview || showAllAddresses);
       this._state.setJournalAddressPreview(acivateMapView);
     });
     effect(() => {
@@ -154,31 +141,37 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
       };
       this._state.setJournalMessageEditConfig(config);
     });
-    this._state.observeJournalMessageEditConfig().subscribe((config: IZsJournalMessageEditConfig) => {
-      if (config) {
-        this.showMap.set(config.showMap);
-        this.showAllAddresses.set(config.showAllAddresses);
-        this.showLinkedText.set(config.showLinkedText);
-      }
-    });
+    this._state
+      .observeJournalMessageEditConfig()
+      .pipe(takeUntilDestroyed())
+      .subscribe((config: IZsJournalMessageEditConfig) => {
+        if (config) {
+          this.showMap.set(config.showMap);
+          this.showAllAddresses.set(config.showAllAddresses);
+          this.showLinkedText.set(config.showLinkedText);
+        }
+      });
 
     //handle address search
     const searchConfig = this._state.getSearchConfig();
     const { searchResults$, updateSearchTerm, updateSearchConfig } = this._search.createSearchInstance(searchConfig);
 
-    this._state.observeSearchConfig().subscribe((config: IZsGlobalSearchConfig) => {
-      if (!config.filterMapSection && !config.filterByDistance && !config.filterByArea && !config.sortedByDistance) {
-        //fallback config: sort by distance if nothing set
-        updateSearchConfig({ ...config, sortedByDistance: true });
-      } else {
-        updateSearchConfig(config);
-      }
-    });
+    this._state
+      .observeSearchConfig()
+      .pipe(takeUntilDestroyed())
+      .subscribe((config: IZsGlobalSearchConfig) => {
+        if (!config.filterMapSection && !config.filterByDistance && !config.filterByArea && !config.sortedByDistance) {
+          //fallback config: sort by distance if nothing set
+          updateSearchConfig({ ...config, sortedByDistance: true });
+        } else {
+          updateSearchConfig(config);
+        }
+      });
     effect(() => {
       updateSearchTerm(this.addressSearchTerm());
     });
 
-    this.searchSubscription = searchResults$.subscribe((newResultSets) => {
+    searchResults$.pipe(takeUntilDestroyed()).subscribe((newResultSets) => {
       if (newResultSets === null) {
         //request aborted by new search
         return;
@@ -192,12 +185,6 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
       this.foundLocations.set(newResultSets);
       this.autocompleteTrigger().openPanel();
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.searchSubscription) {
-      this.searchSubscription.unsubscribe();
-    }
   }
 
   toggleSettings(event?: MouseEvent) {
