@@ -4,6 +4,8 @@ import { FillStyle, IconsOffset } from '../sign/interfaces';
 import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
 import { Sort } from '@angular/material/sort';
+import { Geometry } from 'ol/geom';
+import { Extent } from 'ol/extent';
 
 export enum ZsMapStateSource {
   OPEN_STREET_MAP = 'openStreetMap',
@@ -62,6 +64,7 @@ export interface IZsMapDisplayState {
   mapOpacity: number;
   mapCenter: Coordinate;
   mapZoom: number;
+  mapExtent: Extent;
   dpi?: number;
   showMyLocation: boolean;
   activeLayer: string | undefined;
@@ -80,6 +83,7 @@ export interface IZsMapDisplayState {
   enableClustering: boolean;
   journalSort: Sort;
   journalFilter: IZsJournalFilter;
+  searchConfig: IZsGlobalSearchConfig;
 }
 
 export interface IZsJournalFilter {
@@ -88,6 +92,16 @@ export interface IZsJournalFilter {
   outgoingFilter: boolean;
   decisionFilter: boolean;
   keyMessageFilter: boolean;
+}
+
+export interface IZsGlobalSearchConfig {
+  filterMapSection: boolean;
+  filterByDistance: boolean;
+  maxDistance: number;
+  filterByArea: false;
+  area: Extent | null;
+  sortedByDistance: boolean;
+  distanceReferenceCoordinate: Coordinate | null;
 }
 
 //DIN paper dimension in mm, landscape
@@ -249,10 +263,15 @@ export interface IZsMapSearchResult {
   mercatorCoordinates?: Coordinate;
   lonLat?: Coordinate;
   feature?: Feature;
-  internal?;
+  internal?: Partial<IFoundLocationAttrs> & { id?: string | number, dist?: number; center?: Coordinate };
 }
 
-export type SearchFunction = (searchText: string, maxResultCount?: number) => Promise<IZsMapSearchResult[]>;
+export type SearchFunction = (
+  searchText: string,
+  abortController: AbortController,
+  searchConfig: IZsGlobalSearchConfig,
+  maxResultCount?: number,
+) => Promise<IZsMapSearchResult[]>;
 
 export interface IZsMapSearchConfig {
   label: string;
@@ -260,4 +279,25 @@ export interface IZsMapSearchConfig {
   active: boolean;
   maxResultCount: number;
   resultOrder: number;
+}
+
+export interface IResultSet {
+  config: IZsMapSearchConfig;
+  results: IZsMapSearchResult[];
+  collapsed: boolean | 'peek';
+}
+
+export interface IFoundLocation {
+  attrs: IFoundLocationAttrs;
+  id?: number;
+}
+
+export interface IFoundLocationAttrs {
+  label: string;
+  lon: number;
+  lat: number;
+  objectclass?: string;
+  origin?: string;
+  featureId?: string;
+  geom_st_box2d: string;
 }

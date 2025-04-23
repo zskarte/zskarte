@@ -1,7 +1,6 @@
 import { ElementRef, Injectable, Signal, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { IZsMapPrintState, SearchFunction } from '@zskarte/types';
+import { IZsGlobalSearchConfig, IZsMapPrintState, SearchFunction } from '@zskarte/types';
 import { CsvMapLayer, GeoAdminMapLayer, GeoJSONMapLayer, WMSMapLayer } from '@zskarte/types';
 import { Feature, Geolocation as OlGeolocation } from 'ol';
 import DrawHole from 'ol-ext/interaction/DrawHole';
@@ -16,6 +15,7 @@ import VectorLayer from 'ol/layer/Vector';
 import { transform } from 'ol/proj';
 import VectorSource from 'ol/source/Vector';
 import { Circle, Fill, Icon, Stroke, Style } from 'ol/style';
+import { Extent } from 'ol/extent';
 import { BehaviorSubject, Observable, Subject, combineLatest, concatMap, takeUntil } from 'rxjs';
 import { areArraysEqual } from '../helper/array';
 import { formatArea, formatLength } from '../helper/coordinates';
@@ -36,10 +36,14 @@ import { MapModifyService } from './map-modify.service';
 import { MapOverlayService } from './map-overlay.service';
 import { MapPrintService } from './map-print.service';
 import { MapSelectService } from './map-select.service';
+import { SearchService } from '../search/search.service';
+import { MapSearchAreaService } from './map-search-area.service';
 
-export const LAYER_Z_INDEX_CURRENT_LOCATION = 1000000;
-export const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000001;
-export const LAYER_Z_INDEX_DEVICE_TRACKING = 1000002;
+export const LAYER_Z_INDEX_SEARCH_AREA_LAYER = 1000000;
+export const LAYER_Z_INDEX_CURRENT_LOCATION = 1000010;
+export const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000020;
+export const LAYER_Z_INDEX_DEVICE_TRACKING = 1000030;
+export const LAYER_Z_INDEX_SEARCH_RESULT_LAYER = 1000040;
 export const LAYER_Z_INDEX_PRINT_DIMENSIONS = 1000100;
 
 @Injectable({
@@ -51,6 +55,7 @@ export class MapRendererService {
   private geoAdminService = inject(GeoadminService);
   private wmsService = inject(WmsService);
   private geoJSONService = inject(GeoJSONService);
+  private _search = inject(SearchService);
 
   private _ngUnsubscribe = new Subject<void>();
   private _map!: OlMap;
@@ -63,6 +68,8 @@ export class MapRendererService {
     zIndex: 0,
   });
   private _navigationLayer!: VectorLayer<VectorSource>;
+  private _searchResultFeaturesLayer!: VectorLayer<VectorSource>;
+  private _searchResultFeaturesSource!: VectorSource;
   private _deviceTrackingLayer!: VectorLayer<VectorSource>;
   private _devicePositionFlag!: Feature;
   private _devicePositionFlagLocation!: Point;
@@ -87,8 +94,13 @@ export class MapRendererService {
   private _modify = inject(MapModifyService);
   private _overlay = inject(MapOverlayService);
   private _print = inject(MapPrintService);
+  private _searchArea = inject(MapSearchAreaService);
   private _state = inject(ZsMapStateService);
   private _drawElementCache: Record<string, { layer: string | undefined; element: ZsMapBaseDrawElement }> = {};
+
+  public constructor() {
+    this._search.setZoomToFit(this.zoomToFit.bind(this));
+  }
 
   public terminate() {
     this._ngUnsubscribe.next();
@@ -254,6 +266,7 @@ export class MapRendererService {
       }).extend(this._mapInteractions),
     });
 
+    //Layer for highlight/mark a position
     this._geolocation = new OlGeolocation({
       // enableHighAccuracy must be set to true to have the heading value.
       trackingOptions: {
@@ -304,6 +317,34 @@ export class MapRendererService {
       }
     });
 
+    //layer for highlight search result elements
+    this._searchResultFeaturesSource = new VectorSource();
+    this._searchResultFeaturesLayer = new VectorLayer({
+      source: this._searchResultFeaturesSource,
+      style: this.styleSeachResultFeature,
+    });
+    this._searchResultFeaturesLayer.setZIndex(LAYER_Z_INDEX_SEARCH_RESULT_LAYER);
+
+    this._map.addLayer(this._searchResultFeaturesLayer);
+
+    this._map.on('singleclick', (event) => {
+      if (this._map.hasFeatureAtPixel(event.pixel)) {
+        const feature = this._map.forEachFeatureAtPixel(event.pixel, (feature) => feature, { hitTolerance: 10 });
+        if (feature === this._positionFlag && !this._state.isReadOnly()) {
+          this._overlay.setFlagButtonPosition(this._positionFlagLocation.getCoordinates());
+          this._overlay.toggleFlagButtons(true);
+        } else {
+          this._overlay.toggleFlagButtons(false);
+        }
+      } else {
+        this._overlay.toggleFlagButtons(false);
+      }
+    });
+
+    //fade out area outside of search area
+    this._searchArea.initialize({ renderer: this, state: this._state });
+
+    //layer for show location of devices / users
     this._devicePositionFlagLocation = _coords ? new Point(_coords) : new Point([0, 0]);
     this._devicePositionFlag = new Feature({
       geometry: this._devicePositionFlagLocation,
@@ -335,14 +376,15 @@ export class MapRendererService {
 
     this._map.on('moveend', () => {
       this._state.setMapCenter(this._view.getCenter() || [0, 0]);
+      this._state.setMapExtent(this.getMapExtent());
     });
 
     this._map.on('pointermove', (event) => {
       this._mousePosition.next(event.pixel);
       this._state.setCoordinates(event.coordinate);
       let sketchSize: string | null = null;
-      this._map.forEachFeatureAtPixel(event.pixel, function (feature, layer) {
-        if (feature) {
+      this._map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
+        if (feature && feature !== this._searchArea.getSearchAreaOverlayFeature()) {
           const geom = feature.getGeometry();
           if (geom instanceof Polygon) {
             sketchSize = formatArea(geom);
@@ -356,6 +398,7 @@ export class MapRendererService {
 
     const debouncedZoomSave = debounce(() => {
       this._state.setMapZoom(this._view.getZoom() ?? 10);
+      this._state.setMapExtent(this.getMapExtent());
     }, 500);
 
     this._view.on('change:resolution', () => {
@@ -493,17 +536,24 @@ export class MapRendererService {
                 (mapLayer.type === 'geojson' || mapLayer.type === 'csv') &&
                 (mapLayer as GeoJSONMapLayer).searchable
               ) {
-                searchFunc = (searchText: string, maxResultCount?: number) => {
+                searchFunc = (
+                  searchText: string,
+                  abortController: AbortController,
+                  searchConfig: IZsGlobalSearchConfig,
+                  maxResultCount?: number,
+                ) => {
                   return Promise.resolve(
                     this.geoJSONService.search(
                       searchText,
                       mapLayer as GeoJSONMapLayer,
                       (olLayer.getSource() as VectorSource).getFeatures(),
+                      abortController,
+                      searchConfig,
                       maxResultCount,
                     ),
                   );
                 };
-                this._state.addSearch(searchFunc, mapLayer.label, (mapLayer as GeoJSONMapLayer).searchMaxResultCount);
+                this._search.addSearch(searchFunc, mapLayer.label, (mapLayer as GeoJSONMapLayer).searchMaxResultCount);
               }
 
               // observe mapLayer changes
@@ -518,7 +568,7 @@ export class MapRendererService {
                 complete: () => {
                   this._map.removeLayer(olLayer);
                   if (searchFunc) {
-                    this._state.removeSearch(searchFunc);
+                    this._search.removeSearch(searchFunc);
                   }
                   this._mapLayerCache.delete(name);
                 },
@@ -538,6 +588,15 @@ export class MapRendererService {
         this._navigationLayer.setVisible(positionFlag.isVisible);
         this._positionFlagLocation.setCoordinates(positionFlag.coordinates);
         this._positionFlag.changed();
+      });
+
+    this._state
+      .observeSearchResultFeatures()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((searchResultFeatures) => {
+        this._searchResultFeaturesSource.clear();
+        this._searchResultFeaturesSource.addFeatures(searchResultFeatures);
+        this._searchResultFeaturesLayer.setVisible(searchResultFeatures.length > 0);
       });
 
     this._print.initialize({
@@ -565,7 +624,7 @@ export class MapRendererService {
       // Filter out hidden elements
       drawElements = drawElements.filter((element) => {
         const feature = element.getOlFeature();
-        const highlighted = highlightedFeature.includes(element.getId())
+        const highlighted = highlightedFeature.includes(element.getId());
         feature?.set('highlighted', highlighted);
         const filterType = element.elementState?.type as string;
         const hidden = hiddenSymbols.includes(feature?.get('sig')?.id) || hiddenFeatureTypes.includes(filterType);
@@ -670,5 +729,39 @@ export class MapRendererService {
 
   public getScaleLine(): ScaleLine {
     return this._scaleLine;
+  }
+
+  public zoomToFit(extent: Extent, padding: [number, number, number, number] = [100, 100, 100, 100], maxZoom = 18) {
+    this.getMap().getView().fit(extent, {
+      padding,
+      maxZoom,
+    });
+  }
+
+  public getMapExtent() {
+    return this.getMap().getView().calculateExtent(this.getMap().getSize());
+  }
+
+  private styleSeachResultFeature(feature) {
+    const geometryType = feature.getGeometry().getType();
+
+    if (geometryType === 'Point') {
+      return new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+          src: 'assets/img/place.png',
+          scale: 0.15,
+        }),
+      });
+    } else {
+      return new Style({
+        stroke: new Stroke({
+          color: 'red',
+          width: 2,
+        }),
+      });
+    }
   }
 }

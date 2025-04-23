@@ -1,11 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { Feature } from 'ol';
-import OlMap from 'ol/Map';
-import OlView from 'ol/View';
-import { ScaleLine } from 'ol/control';
-import { getCenter } from 'ol/extent';
+import { Collection, Feature } from 'ol';
+import { Extent, getCenter } from 'ol/extent';
 import { Polygon } from 'ol/geom';
-import { Interaction, Translate } from 'ol/interaction';
+import { Translate } from 'ol/interaction';
 import Draw, { createBox } from 'ol/interaction/Draw';
 import { Layer } from 'ol/layer';
 import VectorLayer from 'ol/layer/Vector';
@@ -17,6 +14,7 @@ import { IZsMapPrintState } from '../../../../types';
 import { DEFAULT_COORDINATES, DEFAULT_RESOLUTION, MM_PER_INCHES } from '../session/default-map-values';
 import { ZsMapStateService } from '../state/state.service';
 import { LAYER_Z_INDEX_PRINT_DIMENSIONS, MapRendererService } from './map-renderer.service';
+import { ModifyRectangle, ModifyRectangleEvent } from './modify-rectangle.interaction';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +25,7 @@ export class MapPrintService {
   private _printDimensionLayer!: VectorLayer<VectorSource>;
   private _printDimensionArea!: Feature<Polygon>;
   private _printAreaInteraction: Draw | undefined;
+  private _printAreaModifyInteraction: ModifyRectangle | undefined;
   private _printAreaPositionInteraction: Translate | undefined;
   private _renderer!: MapRendererService;
 
@@ -151,34 +150,33 @@ export class MapPrintService {
             const geometry = event?.feature?.getGeometry() as Polygon;
             if (geometry) {
               this._printDimensionArea.getGeometry()?.setCoordinates(geometry.getCoordinates());
-              this._state.updatePrintState((draft: IZsMapPrintState) => {
-                const extend = geometry.getExtent();
-                draft.printCenter = getCenter(extend);
-                /*
-                const printPixelSize = [(draft.dimensions[0] / MM_PER_INCHES) * draft.dpi, (draft.dimensions[1] / MM_PER_INCHES) * draft.dpi];
-                const extendResolution = this._view.getResolutionForExtent(extend, printPixelSize);
-                const resolution = getPointResolution(this._view.getState().projection, extendResolution, draft.printCenter, 'm');
-                draft.autoScaleVal = (resolution * INCHES_PER_METER * draft.dpi) / 1000;
-                */
-                const extendResolution = this._renderer.getView().getResolutionForExtent(extend, draft.dimensions);
-                const resolution = getPointResolution(
-                  this._renderer.getView().getState().projection,
-                  extendResolution,
-                  draft.printCenter,
-                  'm',
-                );
-                draft.autoScaleVal = resolution;
-              });
+              this._updatePrintArea(geometry.getExtent());
               this._printDimensionLayer?.getSource()?.removeFeature(event.feature);
             }
           });
           this._printAreaInteraction = draw;
           this._renderer.getMap().addInteraction(this._printAreaInteraction);
         }
+        if (!this._printAreaModifyInteraction) {
+          this._printAreaModifyInteraction = new ModifyRectangle({
+            features: new Collection([this._printDimensionArea]),
+          });
+          this._printAreaModifyInteraction.on('modifyrectangleend', (event: ModifyRectangleEvent) => {
+            const geometry = event.modifyFeature.getGeometry();
+            if (geometry) {
+              this._updatePrintArea(geometry.getExtent());
+            }
+          });
+          this._renderer.getMap().addInteraction(this._printAreaModifyInteraction);
+        }
       } else {
         if (this._printAreaInteraction) {
           this._renderer.getMap().removeInteraction(this._printAreaInteraction);
           this._printAreaInteraction = undefined;
+        }
+        if (this._printAreaModifyInteraction) {
+          this._renderer.getMap().removeInteraction(this._printAreaModifyInteraction);
+          this._printAreaModifyInteraction = undefined;
         }
         //allow to move area to print
         if (!this._printAreaPositionInteraction) {
@@ -209,6 +207,10 @@ export class MapPrintService {
         this._renderer.getMap().removeInteraction(this._printAreaInteraction);
         this._printAreaInteraction = undefined;
       }
+      if (this._printAreaModifyInteraction) {
+        this._renderer.getMap().removeInteraction(this._printAreaModifyInteraction);
+        this._printAreaModifyInteraction = undefined;
+      }
       if (this._printAreaPositionInteraction) {
         this._renderer.getMap().removeInteraction(this._printAreaPositionInteraction);
         this._printAreaPositionInteraction = undefined;
@@ -221,9 +223,12 @@ export class MapPrintService {
       document.body.style.cursor = 'progress';
       this._disabledForPrint = true;
       //prevent map changes while prepare image for pdf generation
-      this._renderer.getMap().getInteractions().forEach((i) => {
-        i.setActive(false);
-      });
+      this._renderer
+        .getMap()
+        .getInteractions()
+        .forEach((i) => {
+          i.setActive(false);
+        });
       //backup map size settings
       this._state.updatePrintState((draft: IZsMapPrintState) => {
         draft.backupResolution = this._renderer.getView().getResolution();
@@ -236,7 +241,8 @@ export class MapPrintService {
       //add callback handlers
       this._renderer.getMap().once('rendercomplete', printState.generateCallback);
       if (printState.tileEventCallback) {
-        const tileSources = this._renderer.getMap()
+        const tileSources = this._renderer
+          .getMap()
           .getLayers()
           .getArray()
           .filter((l): l is Layer => Boolean(l))
@@ -254,11 +260,14 @@ export class MapPrintService {
       this._setPrintViewSize(printState);
     } else if (!printState.generateCallback && this._disabledForPrint) {
       this._disabledForPrint = false;
-      this._renderer.getMap().getInteractions().forEach((i) => {
-        if (!this._renderer.getMapInteractions().includes(i)) {
-          i.setActive(true);
-        }
-      });
+      this._renderer
+        .getMap()
+        .getInteractions()
+        .forEach((i) => {
+          if (!this._renderer.getMapInteractions().includes(i)) {
+            i.setActive(true);
+          }
+        });
       this._printDimensionLayer.setVisible(true);
 
       this._resetPrintViewSize(printState);
@@ -315,9 +324,7 @@ export class MapPrintService {
 
   private _resetPrintViewSize(printState) {
     //reset normal map size / settings
-    this._renderer
-      .getScaleLine()
-      .setDpi(printState.backupDpi);
+    this._renderer.getScaleLine().setDpi(printState.backupDpi);
     this._renderer.getMap().getTargetElement().style.width = '';
     this._renderer.getMap().getTargetElement().style.height = '';
     this._renderer.getMap().updateSize();
@@ -326,6 +333,26 @@ export class MapPrintService {
     this._state.updatePrintState((draft: IZsMapPrintState) => {
       draft.backupResolution = undefined;
       draft.backupDpi = undefined;
+    });
+  }
+
+  private _updatePrintArea(extent: Extent) {
+    this._state.updatePrintState((draft: IZsMapPrintState) => {
+      draft.printCenter = getCenter(extent);
+      /*
+      const printPixelSize = [(draft.dimensions[0] / MM_PER_INCHES) * draft.dpi, (draft.dimensions[1] / MM_PER_INCHES) * draft.dpi];
+      const extendResolution = this._view.getResolutionForExtent(extend, printPixelSize);
+      const resolution = getPointResolution(this._view.getState().projection, extendResolution, draft.printCenter, 'm');
+      draft.autoScaleVal = (resolution * INCHES_PER_METER * draft.dpi) / 1000;
+      */
+      const extendResolution = this._renderer.getView().getResolutionForExtent(extent, draft.dimensions);
+      const resolution = getPointResolution(
+        this._renderer.getView().getState().projection,
+        extendResolution,
+        draft.printCenter,
+        'm',
+      );
+      draft.autoScaleVal = resolution;
     });
   }
 }

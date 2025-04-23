@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   IPositionFlag,
+  IZsGlobalSearchConfig,
   IZsJournalFilter,
   IZsMapDisplayState,
   IZsMapPrintExtent,
@@ -33,7 +34,7 @@ import { Patch, applyPatches, produce } from 'immer';
 import { isEqual } from 'lodash';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
-import { SimpleGeometry } from 'ol/geom';
+import { Geometry, SimpleGeometry } from 'ol/geom';
 import { getPointResolution, transform } from 'ol/proj';
 import { BehaviorSubject, Observable, Subject, combineLatest, lastValueFrom, merge } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, takeUntil, takeWhile } from 'rxjs/operators';
@@ -64,6 +65,7 @@ import { JournalService } from '../journal/journal.service';
 import { Sort } from '@angular/material/sort';
 import { NavigationEnd, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { Extent } from 'ol/extent';
 
 type VIEW_NAMES = 'map' | 'journal';
 
@@ -107,8 +109,8 @@ export class ZsMapStateService {
   private _currentMapCenter: BehaviorSubject<number[]> | undefined;
   private _globalWmsSources = new BehaviorSubject<WmsSource[]>([]);
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
-  private _searchConfigs = new BehaviorSubject<IZsMapSearchConfig[]>([]);
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
+  private _searchResultFeatures = new BehaviorSubject<Feature<Geometry>[]>([]);
   public urlFragment = signal<string | null>(null);
 
   constructor() {
@@ -157,6 +159,7 @@ export class ZsMapStateService {
       positionFlag: { coordinates: DEFAULT_COORDINATES, isVisible: false },
       mapCenter: DEFAULT_COORDINATES,
       mapZoom: DEFAULT_ZOOM,
+      mapExtent: [...DEFAULT_COORDINATES, ...DEFAULT_COORDINATES],
       dpi: DEFAULT_DPI,
       activeLayer: undefined,
       showMyLocation: false,
@@ -180,6 +183,15 @@ export class ZsMapStateService {
         decisionFilter: false,
         keyMessageFilter: false,
       },
+      searchConfig: {
+        filterMapSection: false,
+        filterByDistance: false,
+        maxDistance: 20_000,
+        filterByArea: false,
+        area: null,
+        sortedByDistance: false,
+        distanceReferenceCoordinate: null,
+      }
     };
     if (!mapState) {
       mapState = this._map.value;
@@ -538,6 +550,59 @@ export class ZsMapStateService {
     this.updateDisplayState((draft) => {
       draft.mapCenter = coordinates;
     });
+  }
+
+  public getMapCenter() {
+    return this._display.value.mapCenter;
+  }
+
+  // searchResultFeatures
+  public observeSearchResultFeatures(): Observable<Feature<Geometry>[]> {
+    return this._searchResultFeatures.pipe(distinctUntilChanged((x, y) => isEqual(x, y)));
+  }
+
+  public updateSearchResultFeatures(result: Feature<Geometry>[]) {
+    this._searchResultFeatures.next(result);
+  }
+
+  public getSearchResultFeatures(): Feature<Geometry>[] {
+    return this._searchResultFeatures.value;
+  }
+
+  // mapExtent
+  public observeMapExtent(): Observable<Extent> {
+    return this._display.pipe(
+      map((o) => o.mapExtent),
+      distinctUntilChanged((x, y) => isEqual(x,y)),
+    );
+  }
+
+  public setMapExtent(extent: Extent) {
+    this.updateDisplayState((draft) => {
+      draft.mapExtent = extent;
+    });
+  }
+
+  public getMapExtent(): Extent {
+    return this._display.value.mapExtent;
+  }
+
+  // searchConfig
+  public observeSearchConfig(): Observable<IZsGlobalSearchConfig> {
+    return this._display.pipe(
+      map((o) => o.searchConfig),
+      distinctUntilChanged((x, y) => isEqual(x,y)),
+    );
+  }
+
+  public setSearchConfig(searchConfig: IZsGlobalSearchConfig) {
+    this.updateDisplayState((draft) => {
+      draft.searchConfig = searchConfig;
+    });
+  }
+
+  public getSearchConfig(): IZsGlobalSearchConfig {
+    return this._display.value.searchConfig;
   }
 
   // source
@@ -1249,33 +1314,6 @@ export class ZsMapStateService {
     const hasWritePermission = this._session.hasWritePermission();
     const isArchived = this._session.isArchived();
     return !hasWritePermission || isArchived || isHistoryMode;
-  }
-
-  public addSearch(
-    searchFunc: SearchFunction,
-    searchName: string,
-    maxResultCount: number | undefined = undefined,
-    resultOrder: number | undefined = undefined,
-  ) {
-    const configs = this._searchConfigs.value;
-    const config: IZsMapSearchConfig = {
-      label: searchName,
-      func: searchFunc,
-      active: true,
-      maxResultCount: maxResultCount ?? 50,
-      resultOrder: resultOrder ?? 0,
-    };
-    configs.push(config);
-    this._searchConfigs.next(configs);
-  }
-
-  public removeSearch(searchFunc: SearchFunction) {
-    const configs = this._searchConfigs.value.filter((conf) => conf.func !== searchFunc);
-    this._searchConfigs.next(configs);
-  }
-
-  public getSearchConfigs(): IZsMapSearchConfig[] {
-    return this._searchConfigs.value;
   }
 
   public canAddElements(): boolean {

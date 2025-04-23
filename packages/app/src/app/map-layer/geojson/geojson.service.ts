@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Feature } from 'ol';
-import { Coordinate } from 'ol/coordinate';
+import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { Geometry, LineString, Point } from 'ol/geom';
-import { Extent, containsExtent, getCenter } from 'ol/extent';
+import { Extent, containsCoordinate, containsExtent, getCenter } from 'ol/extent';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -14,7 +14,8 @@ import { transformExtent, transform } from 'ol/proj';
 import { inferSchema, initParser } from 'udsv';
 import { LocalMapLayerMeta } from 'src/app/db/db';
 import { BlobService } from 'src/app/db/blob.service';
-import { GeoJSONMapLayer, CsvMapLayer, IZsMapSearchResult } from '@zskarte/types';
+import { GeoJSONMapLayer, CsvMapLayer, IZsMapSearchResult, IZsGlobalSearchConfig } from '@zskarte/types';
+import { SearchService } from 'src/app/search/search.service';
 
 const NumberSortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 @Injectable({
@@ -22,6 +23,7 @@ const NumberSortCollator = new Intl.Collator(undefined, { numeric: true, sensiti
 })
 export class GeoJSONService {
   private _mapLayerService = inject(MapLayerService);
+  private _search = inject(SearchService);
 
   private _searchRegExPatternsCache: Map<string, RegExp[]> = new Map();
 
@@ -41,7 +43,11 @@ export class GeoJSONService {
       .then((response) => response.json())
       .then((geojsonObject) => {
         if (mercatorProjection) {
-          const swissExtentMercatorProjection = transformExtent(swissProjection.getExtent(), swissProjection, mercatorProjection);
+          const swissExtentMercatorProjection = transformExtent(
+            swissProjection.getExtent(),
+            swissProjection,
+            mercatorProjection,
+          );
           const features = (
             new GeoJSON().readFeatures(geojsonObject, {
               //dataProjection: swissProjection,
@@ -83,7 +89,11 @@ export class GeoJSONService {
         const parser = initParser(schema);
         const csvLines = parser.typedObjs(csvContent, (rows, append) => {
           rows = rows.filter((row) => {
-            if (isNaN(row[layer.fieldX]) || isNaN(row[layer.fieldY]) || (row[layer.fieldX] === 0 && row[layer.fieldY] === 0)) {
+            if (
+              isNaN(row[layer.fieldX]) ||
+              isNaN(row[layer.fieldY]) ||
+              (row[layer.fieldX] === 0 && row[layer.fieldY] === 0)
+            ) {
               return false;
             }
             if (regexPatterns?.length) {
@@ -112,7 +122,9 @@ export class GeoJSONService {
               (csvLine) =>
                 new Feature({
                   ...csvLine,
-                  geometry: new Point(transform([csvLine[layer.fieldX], csvLine[layer.fieldY]], layer.dataProjection, destProjection)),
+                  geometry: new Point(
+                    transform([csvLine[layer.fieldX], csvLine[layer.fieldY]], layer.dataProjection, destProjection),
+                  ),
                 }),
             )
             .filter((f) => {
@@ -201,7 +213,14 @@ export class GeoJSONService {
     });
   }
 
-  public search(searchText: string, layer: GeoJSONMapLayer, features: Feature<Geometry>[], maxResultCount?: number): IZsMapSearchResult[] {
+  public search(
+    searchText: string,
+    layer: GeoJSONMapLayer,
+    features: Feature<Geometry>[],
+    abortController: AbortController,
+    searchConfig: IZsGlobalSearchConfig,
+    maxResultCount?: number,
+  ): IZsMapSearchResult[] {
     if (searchText.length < 3 || !layer.source?.url || !layer.searchRegExPatterns) {
       return [];
     }
@@ -221,7 +240,9 @@ export class GeoJSONService {
       this._searchRegExPatternsCache.set(url, regexPatterns);
     }
     searchText = searchText.toLowerCase();
-    const matches = regexPatterns.map((pattern: RegExp) => searchText.match(pattern)).filter((match) => match) as RegExpMatchArray[];
+    const matches = regexPatterns
+      .map((pattern: RegExp) => searchText.match(pattern))
+      .filter((match) => match) as RegExpMatchArray[];
     if (!matches || matches.length === 0) {
       return [];
     }
@@ -232,6 +253,8 @@ export class GeoJSONService {
       ]),
     ];
 
+    const refCoord = this._search.getDistanceReferenceCoordinate(searchConfig);
+    const filterArea = this._search.getSearchFilterArea(searchConfig);
     maxResultCount = maxResultCount ?? 50;
     const labels = {};
     const result: IZsMapSearchResult[] = [];
@@ -279,20 +302,33 @@ export class GeoJSONService {
         }
         coords = getCenter(extent);
       }
+      if (filterArea && !containsCoordinate(filterArea, coords)) {
+        continue;
+      }
       const label = GeoJSONService.renderString(layer.searchResultLabelMask, params);
       //only keep first if same label
       if (labels[label]) {
         continue;
+      }
+      let dist: number | undefined = undefined;
+      if (searchConfig.sortedByDistance) {
+        dist = squaredDistance(refCoord, coords);
       }
       labels[label] = true;
       const info: IZsMapSearchResult = {
         label,
         mercatorCoordinates: coords,
         feature,
+        internal: { dist },
       };
       resultCount++;
       if (layer.searchResultGroupingFilterFields?.length) {
-        const innerGroup = GeoJSONService.getInnerGroup(resultGroups, 0, filteredParams, layer.searchResultGroupingFilterFields);
+        const innerGroup = GeoJSONService.getInnerGroup(
+          resultGroups,
+          0,
+          filteredParams,
+          layer.searchResultGroupingFilterFields,
+        );
         innerGroup.push(info);
         if (resultCount >= 5000 || resultGroups['__count__'] >= maxResultCount) {
           break;
@@ -303,11 +339,25 @@ export class GeoJSONService {
           break;
         }
       }
+      if (abortController.signal.aborted) {
+        return [];
+      }
     }
     if (layer.searchResultGroupingFilterFields?.length) {
-      GeoJSONService.flatFilterResultGroups(resultGroups, 0, maxResultCount, result, layer.searchResultGroupingFilterFields);
+      GeoJSONService.flatFilterResultGroups(
+        resultGroups,
+        0,
+        maxResultCount,
+        result,
+        layer.searchResultGroupingFilterFields,
+        searchConfig.sortedByDistance,
+      );
     }
-    result.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
+    if (searchConfig.sortedByDistance) {
+      result.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
+    } else {
+      result.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
+    }
     return result;
   }
 
@@ -324,7 +374,12 @@ export class GeoJSONService {
       } else {
         currentGroup['__sum__']++;
       }
-      return GeoJSONService.getInnerGroup(currentGroup[val], layer + 1, filteredParams, searchResultGroupingFilterFields);
+      return GeoJSONService.getInnerGroup(
+        currentGroup[val],
+        layer + 1,
+        filteredParams,
+        searchResultGroupingFilterFields,
+      );
     } else {
       if (!currentGroup[val]) {
         currentGroup['__count__']++;
@@ -341,6 +396,7 @@ export class GeoJSONService {
     maxCount: number,
     data: IZsMapSearchResult[],
     searchResultGroupingFilterFields: string[],
+    sortedByDistance: boolean,
   ) {
     if (layer <= searchResultGroupingFilterFields.length - 1) {
       const keys = Object.keys(currentGroup);
@@ -352,11 +408,22 @@ export class GeoJSONService {
         maxCount = Math.max(1, Math.floor(maxCount / currentGroup['__count__']));
       }
       keys.forEach((key) => {
-        GeoJSONService.flatFilterResultGroups(currentGroup[key], layer + 1, maxCount, data, searchResultGroupingFilterFields);
+        GeoJSONService.flatFilterResultGroups(
+          currentGroup[key],
+          layer + 1,
+          maxCount,
+          data,
+          searchResultGroupingFilterFields,
+          sortedByDistance,
+        );
       });
     } else {
       if (currentGroup.length > 1) {
-        currentGroup.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
+        if (sortedByDistance) {
+          currentGroup.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
+        } else {
+          currentGroup.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
+        }
       }
       if (maxCount === 1) {
         data.push(currentGroup[0]);
