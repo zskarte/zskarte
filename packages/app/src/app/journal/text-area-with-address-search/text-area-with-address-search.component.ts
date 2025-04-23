@@ -105,8 +105,12 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
     }
 
     effect(() => {
+      //save values in local vars to make sure the effect is triggered on all changes, also if it would evaluate to true without it.
+      const showMap = this.showMap();
+      const addressPreview = this._search.addressPreview();
+      const showAllAddresses = this.showAllAddresses();
       const acivateMapView =
-        this.formVisible() && (this.showMap() || this._search.addressPreview() || this.showAllAddresses());
+        this.formVisible() && (showMap || addressPreview || showAllAddresses);
       this._state.setJournalAddressPreview(acivateMapView);
     });
     effect(() => {
@@ -124,8 +128,6 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
       } else {
         this._state.updateSearchResultFeatures([]);
       }
-      //close settings view on change
-      this.settingsVisible.set(false);
     });
     effect(() => {
       //if showLinkedText is updated
@@ -136,8 +138,6 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
         const value = formControl.value;
         formControl.setValue(value);
       }
-      //close settings view on change
-      this.settingsVisible.set(false);
     });
     effect(() => {
       const config: IZsJournalMessageEditConfig = {
@@ -191,6 +191,11 @@ export class TextAreaWithAddressSearchComponent implements OnDestroy {
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
     }
+  }
+
+  toggleSettings(event?: MouseEvent) {
+    event?.stopPropagation();
+    this.settingsVisible.set(!this.settingsVisible());
   }
 
   @HostListener('window:keydown.Escape', ['$event'])

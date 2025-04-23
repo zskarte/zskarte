@@ -8,7 +8,7 @@
     class="settings"
     cdkOverlayOrigin
     #trigger="cdkOverlayOrigin"
-    (click)="settingsVisible.set(!settingsVisible())"
+    (click)="toggleSettings($event)"
     >settings</mat-icon
   >
 </div>
@@ -77,6 +77,7 @@
 
 <ng-template
   cdkConnectedOverlay
+  (overlayOutsideClick)="toggleSettings($event)"
   [cdkConnectedOverlayOrigin]="trigger"
   [cdkConnectedOverlayOpen]="settingsVisible()"
   [cdkConnectedOverlayOffsetX]="15"
