@@ -20,7 +20,7 @@
       class="settings"
       cdkOverlayOrigin
       #trigger="cdkOverlayOrigin"
-      (click)="settingsVisble = !settingsVisble"
+      (click)="toggleSettings($event)"
       >settings</mat-icon
     >
     <mat-icon aria-hidden="false" aria-label="Search" matSuffix>search</mat-icon>
@@ -34,6 +34,7 @@
   ></app-search-autocomplete>
   <ng-template
     cdkConnectedOverlay
+    (overlayOutsideClick)="toggleSettings($event)"
     [cdkConnectedOverlayOrigin]="trigger"
     [cdkConnectedOverlayOpen]="settingsVisble"
     [cdkConnectedOverlayOffsetX]="+37"
