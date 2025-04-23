@@ -3105,6 +3105,46 @@ export class I18NService {
       en: 'This journal entry has changes that are only local.',
       fr: 'Cette entrée de journal comporte des modifications qui sont uniquement locales.',
     },
+    streetSearch: {
+      de: 'Strassensuche',
+      en: 'Street search',
+      fr: 'Recherche dans la rue',
+    },
+    filterMapSection: {
+      de: 'Nur Ergebnisse aus Kartenausschnitt',
+      en: 'Only results from map section',
+      fr: 'Seuls les résultats de la section de la carte',
+    },
+    filterByDistance: {
+      de: 'Nur Ergebnisse bis max Distanz',
+      en: 'Only results up to max distance',
+      fr: "Résultats uniquement jusqu'à la distance maximale",
+    },
+    maxDistance: {
+      de: 'Max Distanz',
+      en: 'Max distance',
+      fr: 'Distance maximale',
+    },
+    filterByArea: {
+      de: 'Nur Ergebnisse aus definiertem Bereich',
+      en: 'Only results from a defined area',
+      fr: 'Résulte uniquement d’une zone définie',
+    },
+    defineArea: {
+      de: 'Bereich definieren',
+      en: 'Define area',
+      fr: 'Définir la zone',
+    },
+    endDefineArea: {
+      de: 'Bereich definieren beenden',
+      en: 'End define area',
+      fr: 'Quitter définir la zone',
+    },
+    sortedByDistance: {
+      de: 'Sortiert nach Distanz',
+      en: 'Sorted by distance',
+      fr: 'Triés par distance',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {
