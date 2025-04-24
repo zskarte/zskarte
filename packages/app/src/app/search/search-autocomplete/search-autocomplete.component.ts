@@ -1,7 +1,8 @@
-import { Component, ViewChild, input, output } from '@angular/core';
+import { Component, ViewChild, inject, input, output } from '@angular/core';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent, MatAutocomplete } from '@angular/material/autocomplete';
 import { IResultSet, IZsMapSearchResult } from '@zskarte/types';
 import { CommonModule } from '@angular/common';
+import { I18NService } from 'src/app/state/i18n.service';
 
 @Component({
   selector: 'app-search-autocomplete',
@@ -11,7 +12,9 @@ import { CommonModule } from '@angular/common';
 })
 export class SearchAutocompleteComponent {
   @ViewChild('autocompleteRef', { static: false }) autocompleteRef!: MatAutocomplete;
+  i18n = inject(I18NService);
   foundLocations = input<IResultSet[]>([]);
+  searchTerm = input<string | null>(null);
   selected = output<IZsMapSearchResult>();
   active = output<IZsMapSearchResult | null>();
 

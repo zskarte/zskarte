@@ -1,12 +1,12 @@
 <div class="geocoder">
   <mat-form-field subscriptSizing="dynamic" appearance="outline" class="mat-elevation-z3">
     <input
+      #searchInput
       matInput
       [placeholder]="i18n.get('findPlace')"
       [matAutocomplete]="autocomplete.autocompleteRef"
-      [(ngModel)]="inputText"
-      (ngModelChange)="geoCodeLoad()"
-      #searchField
+      [ngModel]="inputText()"
+      (ngModelChange)="inputText.set($event)"
     />
     <mat-icon
       matSuffix
@@ -27,6 +27,7 @@
   </mat-form-field>
   <app-search-autocomplete
     #autocomplete
+    [searchTerm]="inputText()"
     [foundLocations]="foundLocations()"
     (active)="previewCoordinate($event)"
     (selected)="geoCodeSelected($event)"

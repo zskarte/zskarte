@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatTabsModule } from "@angular/material/tabs";
@@ -6,6 +6,8 @@ import {NgFor} from "@angular/common";
 import { SessionService } from './session/session.service';
 import { AsyncPipe } from '@angular/common';
 import { I18NService } from './state/i18n.service';
+import { ZsMapStateService } from './state/state.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -18,8 +20,11 @@ export class AppComponent implements OnInit {
   i18n = inject(I18NService);
   private _shortcut = inject(ShortcutService);
   private _session = inject(SessionService);
-
-  operationId = this._session.observeOperationId();
+  private _state = inject(ZsMapStateService);
+  readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
+  readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
+  readonly operationId = toSignal(this._session.observeOperationId());
+  
 
   navLinks = [
     {

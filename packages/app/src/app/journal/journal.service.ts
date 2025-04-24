@@ -12,6 +12,7 @@ import { groupBy } from 'lodash';
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
+import { SearchService } from '../search/search.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class JournalService {
   private _session = inject(SessionService);
   private _pdfServiceFactory = inject(PdfServiceFactory);
   private _i18n = inject(I18NService);
+  private _search!: SearchService;
   private _state!: ZsMapStateService;
   private isOnline = toSignal(this._session.observeIsOnline());
   private _connectionId!: string;
@@ -162,6 +164,10 @@ export class JournalService {
 
   public setStateService(state: ZsMapStateService): void {
     this._state = state;
+  }
+
+  public setSearchService(search: SearchService): void {
+    this._search = search;
   }
 
   public setConnectionId(_connectionId: string) {
@@ -765,7 +771,7 @@ export class JournalService {
     entries.forEach((entry) => {
       const translatedEntry = {
         ...entry,
-        messageContent: entry.messageContent?.trim(),
+        messageContent: this._search.removeAllAddressTokens(entry.messageContent?.trim(), false),
         decision: entry.decision?.trim(),
         department: entry.department ? this._i18n.get(entry.department) : '',
         isKeyMessage: entry.isKeyMessage ? this._i18n.get('yes') : this._i18n.get('no'),

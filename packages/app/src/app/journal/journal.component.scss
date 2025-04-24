@@ -144,3 +144,17 @@ tr.journal-table-row.key-message:hover {
 .localChange {
   vertical-align: middle;
 }
+
+:host-context(.journal-address-preview) {
+  pointer-events: none;
+
+  .journal-sidebar {
+    pointer-events: auto;
+  }
+  mat-sidenav-container {
+    background-color: transparent;
+  }
+  mat-sidenav-content {
+    display: none;
+  }
+}

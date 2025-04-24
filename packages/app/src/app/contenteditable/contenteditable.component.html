@@ -1,0 +1,12 @@
+<div
+  #inputField
+  contenteditable="true"
+  class="contenteditable"
+  [attr.placeholder]="placeholder"
+  (paste)="handlePaste($event)"
+  (keydown)="onKeydown($event)"
+  (input)="onInput($event)"
+  (blur)="onTouched()"
+  [attr.disabled]="disabled ? true : null"
+></div>
+<ng-content></ng-content>
