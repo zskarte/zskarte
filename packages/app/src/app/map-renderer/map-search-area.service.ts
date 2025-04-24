@@ -5,13 +5,13 @@ import Draw, { createBox } from 'ol/interaction/Draw';
 import VectorLayer from 'ol/layer/Vector';
 import { fromLonLat } from 'ol/proj';
 import VectorSource from 'ol/source/Vector';
-import { IZsGlobalSearchConfig } from '../../../../types';
 import { ZsMapStateService } from '../state/state.service';
 import { LAYER_Z_INDEX_SEARCH_AREA_LAYER, MapRendererService } from './map-renderer.service';
 import { Fill, Style } from 'ol/style';
 import { ModifyRectangle } from './modify-rectangle.interaction';
 import { boundingExtent } from 'ol/extent';
 import { fromExtent } from 'ol/geom/Polygon';
+import { combineLatest } from 'rxjs';
 
 const worldExtent = [
   [-180, -90],
@@ -61,16 +61,18 @@ export class MapSearchAreaService {
     this._overlayLayer.setVisible(false);
     this._renderer.getMap().addLayer(this._overlayLayer);
 
-    this._state.observeSearchConfig().subscribe((searchconfig: IZsGlobalSearchConfig) => {
-      this._overlayLayer.setVisible(searchconfig.filterByArea);
-      if (searchconfig.area) {
-        const overlayGeometry = this._searchAreaOverlayFeature.getGeometry();
-        if (overlayGeometry) {
-          const extentPoly = fromExtent(searchconfig.area);
-          overlayGeometry.setCoordinates([this._worldCoordinates, extentPoly.getCoordinates()[0]]);
+    combineLatest([this._state.observeSearchConfig(), this._state.observePrintState()]).subscribe(
+      ([searchconfig, printState]) => {
+        this._overlayLayer.setVisible(searchconfig.filterByArea && !printState.printView);
+        if (searchconfig.area) {
+          const overlayGeometry = this._searchAreaOverlayFeature.getGeometry();
+          if (overlayGeometry) {
+            const extentPoly = fromExtent(searchconfig.area);
+            overlayGeometry.setCoordinates([this._worldCoordinates, extentPoly.getCoordinates()[0]]);
+          }
         }
-      }
-    });
+      },
+    );
 
     const updateSearchAreaOverlayFeature = (markedGeometry: Polygon) => {
       const overlayGeometry = this._searchAreaOverlayFeature.getGeometry();
