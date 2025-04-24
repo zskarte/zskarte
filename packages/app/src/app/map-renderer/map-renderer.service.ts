@@ -8,7 +8,7 @@ import { FeatureLike } from 'ol/Feature';
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import { Attribution, ScaleLine } from 'ol/control';
-import { LineString, Point, Polygon } from 'ol/geom';
+import { LineString, Point, Polygon, SimpleGeometry } from 'ol/geom';
 import { Draw, Interaction, defaults } from 'ol/interaction';
 import { Layer } from 'ol/layer';
 import VectorLayer from 'ol/layer/Vector';
@@ -662,8 +662,11 @@ export class MapRendererService {
     this._drawHole.setActive(false);
     this._map.addInteraction(this._drawHole);
 
-    this._drawHole.on('drawend', () => {
+    this._drawHole.on('drawend', (e) => {
       this._state.setDrawHoleMode(false);
+      const feature = this.getFeatureInsideCluster(e.feature as Feature<SimpleGeometry>);
+      const element = this.getCachedDrawElement(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
+      element?.element?.setCoordinates(feature.getGeometry()?.getCoordinates() ?? []);
     });
 
     this._state
