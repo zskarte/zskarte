@@ -5,16 +5,15 @@ import {
   IPositionFlag,
   IZsGlobalSearchConfig,
   IZsJournalFilter,
+  IZsJournalMessageEditConfig,
   IZsMapDisplayState,
   IZsMapPrintExtent,
   IZsMapPrintState,
-  IZsMapSearchConfig,
   IZsMapSymbolDrawElementParams,
   IZsMapTextDrawElementParams,
   MapLayer,
   PaperDimensions,
   PermissionType,
-  SearchFunction,
   Sign,
   WmsSource,
   ZsMapDisplayMode,
@@ -100,7 +99,6 @@ export class ZsMapStateService {
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<ZsMapElementToDraw | undefined>(undefined);
   private _selectedFeature = new BehaviorSubject<string | undefined>(undefined);
-  private _highlightenFeature = new BehaviorSubject<string | undefined>(undefined);
   private _hideSelectedFeature = new BehaviorSubject<boolean>(false);
   private _recentlyUsedElement = new BehaviorSubject<ZsMapDrawElementState[]>([]);
 
@@ -111,6 +109,7 @@ export class ZsMapStateService {
   private _globalMapLayers = new BehaviorSubject<MapLayer[]>([]);
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
   private _searchResultFeatures = new BehaviorSubject<Feature<Geometry>[]>([]);
+  private _journalAddressPreview = new BehaviorSubject<boolean>(false);
   public urlFragment = signal<string | null>(null);
 
   constructor() {
@@ -191,7 +190,12 @@ export class ZsMapStateService {
         area: null,
         sortedByDistance: false,
         distanceReferenceCoordinate: null,
-      }
+      },
+      journalMessageEditConfig: {
+        showMap: false,
+        showAllAddresses: false,
+        showLinkedText: true,
+      },
     };
     if (!mapState) {
       mapState = this._map.value;
@@ -573,7 +577,7 @@ export class ZsMapStateService {
   public observeMapExtent(): Observable<Extent> {
     return this._display.pipe(
       map((o) => o.mapExtent),
-      distinctUntilChanged((x, y) => isEqual(x,y)),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
     );
   }
 
@@ -591,7 +595,7 @@ export class ZsMapStateService {
   public observeSearchConfig(): Observable<IZsGlobalSearchConfig> {
     return this._display.pipe(
       map((o) => o.searchConfig),
-      distinctUntilChanged((x, y) => isEqual(x,y)),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
     );
   }
 
@@ -603,6 +607,33 @@ export class ZsMapStateService {
 
   public getSearchConfig(): IZsGlobalSearchConfig {
     return this._display.value.searchConfig;
+  }
+
+  // JournalAddressPreview
+  public observeJournalAddressPreview(): Observable<boolean> {
+    return this._journalAddressPreview.pipe(distinctUntilChanged((x, y) => isEqual(x, y)));
+  }
+
+  public setJournalAddressPreview(active: boolean) {
+    this._journalAddressPreview.next(active);
+  }
+
+  // JournalMessageEditConfig
+  public observeJournalMessageEditConfig(): Observable<IZsJournalMessageEditConfig> {
+    return this._display.pipe(
+      map((o) => o.journalMessageEditConfig),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
+    );
+  }
+
+  public setJournalMessageEditConfig(journalMessageEditConfig: IZsJournalMessageEditConfig) {
+    this.updateDisplayState((draft) => {
+      draft.journalMessageEditConfig = journalMessageEditConfig;
+    });
+  }
+
+  public getJournalMessageEditConfig(): IZsJournalMessageEditConfig {
+    return this._display.value.journalMessageEditConfig;
   }
 
   // source

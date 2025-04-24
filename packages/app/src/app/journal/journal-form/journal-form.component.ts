@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, input, output } from '@angular/core';
+import { Component, HostListener, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ZsMapStateService } from 'src/app/state/state.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
+import { SearchService } from 'src/app/search/search.service';
+import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
 
 @Component({
   selector: 'app-journal-form',
@@ -48,6 +51,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
     FormsModule,
     MatSelectModule,
     CommonModule,
+    TextAreaWithAddressSearchComponent,
+    ReplaceAllAddressTokensPipe,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
@@ -58,8 +63,11 @@ export class JournalFormComponent {
   private _state = inject(ZsMapStateService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
-  isReadOnly = toSignal(this._state.observeIsReadOnly());
+  search = inject(SearchService);
+  readonly formVisible = signal(false);
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
+  messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
 
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
@@ -70,12 +78,13 @@ export class JournalFormComponent {
   close = output();
   selectedIndex = 0;
   showPrint = false;
-
+  markPotentialAddresses = signal(false);
   constructor() {
     effect(() => {
       this.selectEntry(this.entry());
     });
-    this.journalForm.valueChanges.subscribe(() => {
+
+    this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.dirty.emit(this.journalForm.dirty);
     });
   }
@@ -165,6 +174,10 @@ export class JournalFormComponent {
     }),
   });
 
+  get messageContentControl(): FormControl {
+    return this.journalForm.get('messageContent') as FormControl;
+  }
+
   private combineDateAndTime(dateObj: Date, timeObj: Date) {
     const newDate = new Date(dateObj);
     newDate.setHours(timeObj.getHours());
@@ -205,6 +218,7 @@ export class JournalFormComponent {
       dateCreatedTime: entry.dateMessage,
     });
     this.showPrint = false;
+    this.formVisible.set(true);
   }
 
   addNew() {
@@ -216,6 +230,7 @@ export class JournalFormComponent {
       dateCreatedTime: new Date(),
     });
     this.showPrint = false;
+    this.formVisible.set(true);
   }
 
   isTabDisabled(tabStatus: JournalEntryStatus): boolean {
@@ -259,8 +274,7 @@ export class JournalFormComponent {
       }
     }
 
-    this.dirty.emit(false);
-    this.close.emit();
+    this.doClose();
   }
 
   filterObject<T>(obj: Partial<T>, allowedKeys: (keyof T)[]): Partial<T> {
@@ -345,17 +359,26 @@ export class JournalFormComponent {
       this.dirty.emit(false);
       this.showPrint = false;
     } else {
-      this.dirty.emit(false);
-      this.close.emit();
+      this.doClose();
     }
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(): void {
-    if (this._state.getActiveView() !== 'journal') {
+  closeSidebareOnEsc(event: KeyboardEvent): void {
+    const messageContentEl = this.messageContentEl();
+    if (messageContentEl) {
+      if (messageContentEl.abortOnEsc(event)) {
+        return;
+      }
+    } else if (this.search.handleEsc(event)) {
       return;
     }
-    this.closeForm();
+
+    if (this._dialog.openDialogs.length === 0) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.closeForm();
+    }
   }
 
   closeForm() {
@@ -365,13 +388,19 @@ export class JournalFormComponent {
       });
       confirm.afterClosed().subscribe((response) => {
         if (response) {
-          this.dirty.emit(false);
-          this.close.emit();
+          this.doClose();
         }
       });
     } else {
-      this.close.emit();
+      this.doClose();
     }
+  }
+
+  doClose() {
+    this.formVisible.set(false);
+    this.search.addressPreview.set(false);
+    this.dirty.emit(false);
+    this.close.emit();
   }
 
   async print(event: Event) {
@@ -388,12 +417,20 @@ export class JournalFormComponent {
       documentId: this.entry()?.documentId,
     };
 
-    await this.journal.print(entry);
+    await this.journal.print({
+      ...entry,
+      messageContent: this.search.removeAllAddressTokens(entry.messageContent, false),
+    });
 
     setTimeout(() => {
       if (button) {
         button.disabled = false;
       }
     }, 1000);
+  }
+
+  async showAllAddresses() {
+    await this.search.showAllFeature(this.messageContentControl.value, true);
+    this.search.addressPreview.set(true);
   }
 }

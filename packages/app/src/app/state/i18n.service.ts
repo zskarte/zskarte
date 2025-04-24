@@ -2627,6 +2627,11 @@ export class I18NService {
       en: 'Drawn',
       fr: 'Dessiné',
     },
+    entryStatus: {
+      de: 'Aktueller Status',
+      en: 'Current state',
+      fr: 'Statut actuel',
+    },
     deliverer: {
       de: 'Absender',
       en: 'Deliverer',
@@ -3110,6 +3115,11 @@ export class I18NService {
       en: 'Street search',
       fr: 'Recherche dans la rue',
     },
+    waterSearch: {
+      de: 'Gewässersuche (Abschnitt)',
+      en: 'Water search (section)',
+      fr: "Recherche d'eau (section)",
+    },
     filterMapSection: {
       de: 'Nur Ergebnisse aus Kartenausschnitt',
       en: 'Only results from map section',
@@ -3144,6 +3154,51 @@ export class I18NService {
       de: 'Sortiert nach Distanz',
       en: 'Sorted by distance',
       fr: 'Triés par distance',
+    },
+    noSearchResult: {
+      de: 'Kein Suchergebnis gefunden.',
+      en: 'No search results found',
+      fr: 'Aucun résultat de recherche trouvé',
+    },
+    searchAddress: {
+      de: 'Adresse suchen',
+      en: 'Search address',
+      fr: 'Rechercher une adresse',
+    },
+    searchAddressUsageHint: {
+      de: 'Um Adressinformationen einzufügen, geben Sie "addr:" ein oder drücken Sie Ctrl+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Ctrl+Leertaste.',
+      en: 'To insert address information, type "addr:" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',
+      fr: 'Pour insérer une adresse, saisissez "addr:" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.',
+    },
+    showMap: {
+      de: 'Map anzeigen',
+      en: 'Show map',
+      fr: 'afficher la carte',
+    },
+    showAllAddresses: {
+      de: 'Alle Adressen anzeigen',
+      en: 'Show all addresses',
+      fr: 'Afficher toutes les adresses',
+    },
+    showAddresses: {
+      de: 'Adressen anzeigen',
+      en: 'Show addresses',
+      fr: 'Afficher les adresses',
+    },
+    showLinkedText: {
+      de: 'Adressen als Links anzeigen',
+      en: 'Display addresses as links',
+      fr: 'Afficher les adresses sous forme de liens',
+    },
+    markPotentialAddresses: {
+      de: 'Adressen erkennen',
+      en: 'Recognize addresses',
+      fr: 'Repérer adresses',
+    },
+    unmarkPotentialAddresses: {
+      de: 'Adressen bereinigen',
+      en: 'Clean up addresses',
+      fr: 'Nettoyer adresses',
     },
   };
 

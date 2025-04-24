@@ -4,7 +4,6 @@ import { FillStyle, IconsOffset } from '../sign/interfaces';
 import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
 import { Sort } from '@angular/material/sort';
-import { Geometry } from 'ol/geom';
 import { Extent } from 'ol/extent';
 
 export enum ZsMapStateSource {
@@ -84,6 +83,7 @@ export interface IZsMapDisplayState {
   journalSort: Sort;
   journalFilter: IZsJournalFilter;
   searchConfig: IZsGlobalSearchConfig;
+  journalMessageEditConfig: IZsJournalMessageEditConfig;
 }
 
 export interface IZsJournalFilter {
@@ -102,6 +102,12 @@ export interface IZsGlobalSearchConfig {
   area: Extent | null;
   sortedByDistance: boolean;
   distanceReferenceCoordinate: Coordinate | null;
+}
+
+export interface IZsJournalMessageEditConfig {
+  showMap: boolean;
+  showAllAddresses: boolean;
+  showLinkedText: boolean;
 }
 
 //DIN paper dimension in mm, landscape
@@ -263,7 +269,12 @@ export interface IZsMapSearchResult {
   mercatorCoordinates?: Coordinate;
   lonLat?: Coordinate;
   feature?: Feature;
-  internal?: Partial<IFoundLocationAttrs> & { id?: string | number, dist?: number; center?: Coordinate };
+  internal?: Partial<IFoundLocationAttrs> & {
+    id?: string | number;
+    dist?: number;
+    center?: Coordinate;
+    addressToken?: string;
+  };
 }
 
 export type SearchFunction = (

@@ -10,7 +10,7 @@ import { mercatorProjection, swissProjection } from '../../helper/projections';
 import { MapLayerService } from '../map-layer.service';
 import { stylefunction } from 'ol-mapbox-style';
 import { StyleLike } from 'ol/style/Style';
-import { transformExtent, transform } from 'ol/proj';
+import { transformExtent, transform, toLonLat } from 'ol/proj';
 import { inferSchema, initParser } from 'udsv';
 import { LocalMapLayerMeta } from 'src/app/db/db';
 import { BlobService } from 'src/app/db/blob.service';
@@ -305,6 +305,7 @@ export class GeoJSONService {
       if (filterArea && !containsCoordinate(filterArea, coords)) {
         continue;
       }
+      const lonLat = toLonLat(coords);
       const label = GeoJSONService.renderString(layer.searchResultLabelMask, params);
       //only keep first if same label
       if (labels[label]) {
@@ -319,7 +320,7 @@ export class GeoJSONService {
         label,
         mercatorCoordinates: coords,
         feature,
-        internal: { dist },
+        internal: { dist, addressToken: `addr:(${label})[lonLat:${lonLat.join(' ')}]` },
       };
       resultCount++;
       if (layer.searchResultGroupingFilterFields?.length) {

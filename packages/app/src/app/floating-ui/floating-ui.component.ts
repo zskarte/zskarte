@@ -32,6 +32,7 @@ import { MAX_DRAW_ELEMENTS_GUEST } from '../session/default-map-values';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
+import { SearchService } from '../search/search.service';
 
 @Component({
   selector: 'app-floating-ui',
@@ -64,6 +65,7 @@ export class FloatingUIComponent {
   private _sync = inject(SyncService);
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
+  private _search = inject(SearchService);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
   snackbar = inject(MatSnackBar);
@@ -257,12 +259,14 @@ export class FloatingUIComponent {
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(): void {
+  closeSidebareOnEsc(event: KeyboardEvent): void {
     if (this.state.getActiveView() !== 'map') {
       return;
     }
     if (this._dialog.openDialogs.length === 0) {
-      this.sidebar.close();
+      if (!this._search.handleEsc(event)) {
+        this.sidebar.close();
+      }
     }
   }
 }

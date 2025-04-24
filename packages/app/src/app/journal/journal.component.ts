@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
@@ -30,7 +30,9 @@ import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
 import { IZsJournalFilter } from '../../../../types/state/interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
+import { SearchService } from '../search/search.service';
 
 @Component({
   selector: 'app-journal',
@@ -50,7 +52,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
     CommonModule,
     JournalFormComponent,
     NgComponentOutlet,
-  ],
+    ReplaceAllAddressTokensPipe
+],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
   styleUrl: './journal.component.scss',
@@ -65,8 +68,10 @@ export class JournalComponent implements AfterViewInit {
   private _route = inject(ActivatedRoute);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
-  isOnline = toSignal(this._session.observeIsOnline());
-  isReadOnly = toSignal(this._state.observeIsReadOnly());
+  private _search = inject(SearchService);
+  private _destroyRef = inject(DestroyRef);
+  readonly isOnline = toSignal(this._session.observeIsOnline());
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;
@@ -207,7 +212,7 @@ export class JournalComponent implements AfterViewInit {
       }
     };
 
-    this._state.observeJournalSort().subscribe((sortConf) => {
+    this._state.observeJournalSort().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((sortConf) => {
       if (this.dataSourceFiltered?.sort) {
         this.sort.sortChange.emit(sortConf);
         this.dataSourceFiltered.sort.active = sortConf.active;
@@ -215,7 +220,7 @@ export class JournalComponent implements AfterViewInit {
       }
     });
 
-    this._state.observeJournalFilter().subscribe((filter) => {
+    this._state.observeJournalFilter().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((filter) => {
       this.departmentControl.setValue(filter.department);
       this.triageFilter = filter.triageFilter;
       this.outgoingFilter = filter.outgoingFilter;
@@ -226,13 +231,13 @@ export class JournalComponent implements AfterViewInit {
   }
 
   private initializeSearch() {
-    this.searchControl.valueChanges.subscribe((searchTerm) => {
+    this.searchControl.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((searchTerm) => {
       this.filterEntries(searchTerm, this.departmentControl.value);
     });
   }
 
   private initializeDepartmentFilter() {
-    this.departmentControl.valueChanges.subscribe((department) => {
+    this.departmentControl.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((department) => {
       this.filterEntries(this.searchControl.value, department);
     });
   }
@@ -310,6 +315,10 @@ export class JournalComponent implements AfterViewInit {
     this.dataSourceFiltered.data = filtered;
   }
 
+  trackByFn(index: number, row: any): string {
+    return row.uuid || row.documentId;
+  }
+
   getResponsibility(entry: JournalEntry) {
     switch (entry.entryStatus) {
       case JournalEntryStatus.AWAITING_MESSAGE:
@@ -337,7 +346,7 @@ export class JournalComponent implements AfterViewInit {
     if (button) {
       button.disabled = true;
     }
-    await this.journal.print(entry);
+    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent, false)});
     setTimeout(() => {
       if (button) {
         button.disabled = false;
@@ -365,18 +374,21 @@ export class JournalComponent implements AfterViewInit {
     }
   }
 
-  @HostListener('window:keydown.+', ['$event'])
-  async pressPlus(event: Event) {
-    if (this.sidebarOpen || this._state.getActiveView() !== 'journal') {
-      return;
+  @HostListener('window:keydown', ['$event'])
+  pressPlus(event: KeyboardEvent) {
+    //numpad + or swiss german layout for +:
+    if (event.key === '+' || (event.shiftKey && event.key === '1')) {
+      if (this.sidebarOpen || this._state.getActiveView() !== 'journal') {
+        return;
+      }
+      // While writing into a input, don't allow shortcuts
+      if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.openJournalAddDialog();
     }
-    // While writing into a input, don't allow shortcuts
-    if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
-      return;
-    }
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    this.openJournalAddDialog();
   }
 
   openJournalAddDialog() {
@@ -405,7 +417,7 @@ export class JournalComponent implements AfterViewInit {
         const instance = this.componentOutlet.componentInstance;
         if (instance) {
           if ('save' in instance) {
-            instance.save.subscribe((newTemplate: object | null) => {
+            instance.save.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((newTemplate: object | null) => {
               this.updateMessagePdfTemplate(newTemplate);
             });
           }

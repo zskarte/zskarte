@@ -1,4 +1,4 @@
-import { signal, Component, ElementRef, OnDestroy, inject, viewChild } from '@angular/core';
+import { signal, Component, ElementRef, OnDestroy, inject, viewChild, effect } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
@@ -41,15 +41,14 @@ export class GeocoderComponent implements OnDestroy {
   private _search = inject(SearchService);
   private _searchArea = inject(MapSearchAreaService);
 
-  readonly el = viewChild.required<ElementRef>('searchField');
   readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
-  foundLocations = signal<IResultSet[]>([]);
-  inputText = '';
+  readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
+
+  readonly foundLocations = signal<IResultSet[]>([]);
+  readonly inputText = signal('');
   keepCoord = false;
   selected: IZsMapSearchResult | null = null;
   private _ngUnsubscribe = new Subject<void>();
-  private updateSearchTerm: (searchText: string) => void;
-  private updateSearchConfig: (newSearchConfig: IZsGlobalSearchConfig) => void;
   searchConfig: IZsGlobalSearchConfig;
 
   settingsVisble = false;
@@ -64,18 +63,20 @@ export class GeocoderComponent implements OnDestroy {
       });
     this.searchConfig = { ...this._state.getSearchConfig() };
 
-    const { searchResults$, updateSearchTerm, updateSearchConfig } = this._search.createSearchInstance(
+    const { searchResults$, updateSearchTerm, updateSearchConfig } = this._search.createGlobalSearchInstance(
       this.searchConfig,
+      this.inputText,
     );
-    this.updateSearchTerm = updateSearchTerm;
-    this.updateSearchConfig = updateSearchConfig;
 
-    this._state.observeSearchConfig().subscribe((config: IZsGlobalSearchConfig) => {
-      this.searchConfig = { ...config };
-      this.updateSearchConfig(this.searchConfig);
-    });
+    this._state
+      .observeSearchConfig()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((config: IZsGlobalSearchConfig) => {
+        this.searchConfig = { ...config };
+        updateSearchConfig(this.searchConfig);
+      });
 
-    searchResults$.subscribe((newResultSets) => {
+    searchResults$.pipe(takeUntil(this._ngUnsubscribe)).subscribe((newResultSets) => {
       if (newResultSets === null) {
         //request aborted by new search
         return;
@@ -87,11 +88,30 @@ export class GeocoderComponent implements OnDestroy {
         newResultSets.forEach((s) => (s.collapsed = true));
       }
       this.foundLocations.set(newResultSets);
-      if (newResultSets.length === 0 && this.inputText.length <= 1 && !this.keepCoord) {
-        this._search.highlightResult(null, false);
+      const inputText = this.inputText();
+      if (newResultSets.length === 0 && inputText.length <= 1) {
+        if (!this.keepCoord) {
+          this._search.highlightResult(null, false);
+        }
+        this.keepCoord = false;
       }
-      this.keepCoord = false;
-      this.autocompleteTrigger().openPanel();
+      if (inputText.length > 1) {
+        this.autocompleteTrigger().openPanel();
+      }
+    });
+
+    effect(() => {
+      const inputText = this.inputText();
+      if (inputText === '\u00A0') {
+        this.searchInput().nativeElement.focus();
+        this.inputText.set('');
+        return;
+      }
+      updateSearchTerm(inputText);
+      this.settingsVisble = false;
+      if (inputText.length > 1) {
+        this.searchInput().nativeElement.focus();
+      }
     });
   }
 
@@ -100,19 +120,15 @@ export class GeocoderComponent implements OnDestroy {
     this._ngUnsubscribe.complete();
   }
 
-  async geoCodeLoad() {
-    this.updateSearchTerm(this.inputText);
-    this.settingsVisble = false;
-  }
-
   geoCodeSelected(value: IZsMapSearchResult) {
     this.selected = value;
     this.goToCoordinate(true);
     this.keepCoord = true;
-    this.inputText = '';
+    this.inputText.set('');
   }
 
   previewCoordinate(element: IZsMapSearchResult | null) {
+    if (this.keepCoord) return;
     if (element === null) {
       this.selected = null;
       this.goToCoordinate(false);
