@@ -389,7 +389,7 @@ export class JournalFormComponent {
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
     const entry: JournalEntry = {
       ...(rest as JournalEntry),
-      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
+      dateMessage: (dateCreatedDate && dateCreatedTime) ? this.combineDateAndTime(dateCreatedDate, dateCreatedTime) : undefined,
       documentId: this.entry()?.documentId,
     };
 
