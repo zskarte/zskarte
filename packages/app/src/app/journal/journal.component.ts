@@ -1,4 +1,4 @@
-import { Component, DestroyRef, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, HostListener, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
@@ -16,7 +16,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { ViewChild } from '@angular/core';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -59,7 +58,7 @@ import { SearchService } from '../search/search.service';
   styleUrl: './journal.component.scss',
 })
 export class JournalComponent implements AfterViewInit {
-  @ViewChild(JournalFormComponent) journalFormComponent!: JournalFormComponent;
+  journalFormComponent = viewChild.required(JournalFormComponent);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   private _session = inject(SessionService);
@@ -89,7 +88,7 @@ export class JournalComponent implements AfterViewInit {
   ];
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
-  @ViewChild(MatSort) sort!: MatSort;
+  sort = viewChild.required(MatSort);
   searchControl = new FormControl('');
   departmentControl = new FormControl('');
   triageFilter = false;
@@ -116,9 +115,9 @@ export class JournalComponent implements AfterViewInit {
     defaultTemplate: this.messagePdfDefaultTemplate(),
     templateName: this.i18n.get('journalEntryTemplate'),
   }));
-  @ViewChild(NgComponentOutlet) componentOutlet!: NgComponentOutlet;
+  componentOutlet = viewChild.required(NgComponentOutlet);
 
-  constructor() {
+  constructor(private cd: ChangeDetectorRef) {
     this.initializeSearch();
     this.initializeDepartmentFilter();
 
@@ -126,8 +125,11 @@ export class JournalComponent implements AfterViewInit {
       //effect is auto reevaluated wenn journal.data() is changed (by angular magic)
       this.dataSource = this.journal.data() || [];
       this.dataSourceFiltered.data = this.dataSource;
+      this.dataSourceFiltered._updateChangeSubscription();
       this.fuse.setCollection(this.dataSource);
       this.filterEntries(this.searchControl.value, this.departmentControl.value);
+      //tried all other things but without cd logic, on websocket update of data the view is only updated if mouse moved...
+      this.cd.detectChanges();
     });
 
     effect(() => {
@@ -186,7 +188,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.dataSourceFiltered.sort = this.sort;
+    this.dataSourceFiltered.sort = this.sort();
     //define special field/value to do the sort
     this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
       switch (property) {
@@ -214,7 +216,7 @@ export class JournalComponent implements AfterViewInit {
 
     this._state.observeJournalSort().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((sortConf) => {
       if (this.dataSourceFiltered?.sort) {
-        this.sort.sortChange.emit(sortConf);
+        this.sort().sortChange.emit(sortConf);
         this.dataSourceFiltered.sort.active = sortConf.active;
         this.dataSourceFiltered.sort.direction = sortConf.direction;
       }
@@ -313,6 +315,7 @@ export class JournalComponent implements AfterViewInit {
     });
 
     this.dataSourceFiltered.data = filtered;
+    this.dataSourceFiltered._updateChangeSubscription();
   }
 
   trackByFn(index: number, row: any): string {
@@ -394,7 +397,7 @@ export class JournalComponent implements AfterViewInit {
   openJournalAddDialog() {
     if (!this.sidebarOpen || !this.openDisabled) {
       this.selectedJournalEntry.set(null);
-      this.journalFormComponent.addNew();
+      this.journalFormComponent().addNew();
       this.sidebarOpen = true;
     }
   }
@@ -414,7 +417,7 @@ export class JournalComponent implements AfterViewInit {
 
     setTimeout(() => {
       if (this.componentOutlet) {
-        const instance = this.componentOutlet.componentInstance;
+        const instance = this.componentOutlet().componentInstance;
         if (instance) {
           if ('save' in instance) {
             instance.save.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((newTemplate: object | null) => {

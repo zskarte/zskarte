@@ -238,6 +238,11 @@ export class JournalFormComponent {
     return order.indexOf(this.journalForm.controls.entryStatus.value) < order.indexOf(tabStatus);
   }
 
+  onEnterForResetState(event: Event) {
+    event.preventDefault();
+    this.resetState(); 
+  }
+
   async resetState() {
     const reset = JournalEntryStatusReset[this.journalForm.controls.entryStatus.value];
     if (!reset) {
@@ -320,7 +325,7 @@ export class JournalFormComponent {
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
     const values: Partial<JournalEntry> = {
       ...(rest as JournalEntry),
-      dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
+      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
     };
     if (nextReset && values[nextReset.required]) {
       //clear reset field of next step, so it's not longer filled
@@ -413,7 +418,7 @@ export class JournalFormComponent {
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
     const entry: JournalEntry = {
       ...(rest as JournalEntry),
-      dateMessage: this.combineDateAndTime(dateCreatedDate!, dateCreatedTime!),
+      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
       documentId: this.entry()?.documentId,
     };
 

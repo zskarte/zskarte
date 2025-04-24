@@ -148,10 +148,8 @@ export class ModifyRectangle extends Modify {
       }
     }
     if (selectedVertexIndex === null) {
-      if (coordinates[1].length === 6) {
-        //try again next movement:
-        this.getMap()!.once('pointermove', this.findModifiedPoint.bind(this));
-      }
+      //try again next movement:
+      this.getMap()!.once('pointermove', this.findModifiedPoint.bind(this));
       return null;
     }
 
@@ -184,7 +182,15 @@ export class ModifyRectangle extends Modify {
         modifyY.push(nextIndex);
       }
     } else {
-      if (selectedVertexIndex === 0 || selectedVertexIndex === 2) {
+      //check which axis is "same", compare to unchanged oposite side vertice
+      const opositeSideIndex = selectedVertexIndex >= 2 ? selectedVertexIndex - 2 : selectedVertexIndex + 2;
+      if (
+        Math.abs(coordinates[polyIndex][prevIndex][0] - coordinates[polyIndex][opositeSideIndex][0]) >
+          Math.abs(coordinates[polyIndex][prevIndex][1] - coordinates[polyIndex][opositeSideIndex][1]) ||
+        Math.abs(coordinates[polyIndex][nextIndex][0] - coordinates[polyIndex][opositeSideIndex][0]) <
+          Math.abs(coordinates[polyIndex][nextIndex][1] - coordinates[polyIndex][opositeSideIndex][1])
+      ) {
+        //change the axis that are not "same"
         modifyX.push(prevIndex);
         modifyY.push(nextIndex);
       } else {

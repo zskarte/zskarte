@@ -11,6 +11,7 @@ import { db } from '../db/db';
 import { JournalService } from '../journal/journal.service';
 import { JournalEntry } from '../journal/journal.types';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { deserialize, SuperJSONResult } from 'superjson';
 
 interface PatchExtended extends Patch {
   timestamp: Date;
@@ -138,7 +139,8 @@ export class SyncService {
         if (otherPatches.length === 0) return;
         this._state.applyMapStatePatches(otherPatches);
       });
-      this._socket.on('state:journal', (entry: Partial<JournalEntry>) => {
+      this._socket.on('state:journal', (json: SuperJSONResult) => {
+        const entry = deserialize(json) as Partial<JournalEntry>;
         this._journal.patchEntry(entry);
       });
       this._socket.on('state:connections', (connections: Connection[]) => {
