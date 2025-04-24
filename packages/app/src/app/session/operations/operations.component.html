@@ -69,7 +69,7 @@
                 (click)="selectOperation(o)"
               >
                 <div matListItemMeta class="operation-list-item-meta">
-                  @if ((o.id ?? 0) < 0) {
+                  @if (o.documentId?.startsWith('local-')) {
                     <mat-icon title="{{ i18n.get('localOperation') }}">file_download_done</mat-icon>
                   }
                 </div>
@@ -117,5 +117,5 @@
       </mat-card-content>
     }
   </mat-card>
-  <button class="logout" mat-stroked-button (click)="logout()">Logout</button>
+  <button class="logout" mat-flat-button (click)="logout()">Logout</button>
 </div>

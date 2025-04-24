@@ -10,6 +10,10 @@ import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-el
 import { SessionService } from '../session/session.service';
 import { ZsMapStateService } from '../state/state.service';
 import { IShortcut } from './shortcut.interfaces';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { I18NService } from '../state/i18n.service';
+import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
+import { SearchService } from '../search/search.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +21,9 @@ import { IShortcut } from './shortcut.interfaces';
 export class ShortcutService {
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
+  private _search = inject(SearchService);
   private _dialog = inject(MatDialog);
+  public i18n = inject(I18NService);
 
   private _selectedElement: ZsMapBaseDrawElement | undefined = undefined;
   private _selectedFeatureId: string | undefined = undefined;
@@ -37,6 +43,10 @@ export class ShortcutService {
       this._selectedElement = element;
     });
 
+    this._state.observeSelectedFeature$().subscribe((featureId) => {
+      this._selectedFeatureId = featureId;
+    });
+
     this._state.observeIsReadOnly().subscribe((readOnlyMode) => {
       this._readOnlyMode = readOnlyMode;
     });
@@ -45,7 +55,14 @@ export class ShortcutService {
   public initialize(): void {
     this._listen({ shortcut: 'mod+backspace', drawModeOnly: true }).subscribe(() => {
       if (this._selectedFeatureId) {
-        this._state.removeDrawElement(this._selectedFeatureId);
+        const confirmation = this._dialog.open(ConfirmationDialogComponent, {
+          data: this.i18n.get('removeFeatureFromMapConfirm'),
+        });
+        confirmation.afterClosed().subscribe((result) => {
+          if (result && this._selectedFeatureId) {
+            this._state.removeDrawElement(this._selectedFeatureId);
+          }
+        });
       }
     });
 
@@ -54,8 +71,14 @@ export class ShortcutService {
     this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.LINE));
     this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.FREEHAND));
     this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.SYMBOL));
+    this._listen({ shortcut: 'NumpadAdd', drawModeOnly: true }).subscribe(this._openAdd());
+    //swiss german layout for +:
+    this._listen({ shortcut: 'shift+1', drawModeOnly: true }).subscribe(this._openAdd());
+    this._listen({ shortcut: 'NumpadDivide', drawModeOnly: true }).subscribe(this._triggerSearch());
+    //swiss german layout for /:
+    this._listen({ shortcut: 'shift+7', drawModeOnly: true }).subscribe(this._triggerSearch());
 
-    this._listen({ shortcut: 'mod+c' }).subscribe(async () => {
+    this._listen({ shortcut: 'mod+c', drawModeOnly: true }).subscribe(async () => {
       if (this._session.isGuest()) {
         if (await firstValueFrom(this._session.observeIsGuestElementLimitReached())) {
           return;
@@ -142,6 +165,20 @@ export class ShortcutService {
     };
   }
 
+  private _openAdd() {
+    return () => {
+      const layer = this._state.getActiveLayer();
+      const ref = this._dialog.open(DrawDialogComponent);
+      ref.componentRef?.instance.setLayer(layer);
+    };
+  }
+
+  private _triggerSearch() {
+    return () => {
+      this._search.triggerGlobalSearch();
+    };
+  }
+
   private _listen({ shortcut, preventDefault = true, drawModeOnly = false }: IShortcut): Observable<KeyboardEvent> {
     const keys = (shortcut?.split('+') || []).map((key) => key.trim().toLowerCase());
 
@@ -157,7 +194,7 @@ export class ShortcutService {
 
     return this._keydownObserver.pipe(
       filter((event) => {
-        if (drawModeOnly && this._readOnlyMode) {
+        if (drawModeOnly && (this._readOnlyMode || this._state.getActiveView() !== 'map')) {
           return false;
         }
 

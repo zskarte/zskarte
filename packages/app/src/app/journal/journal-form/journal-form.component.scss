@@ -1,0 +1,100 @@
+.journal-sidebar-content {
+  padding: 1rem;
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: -6px -11px 20px 3px;
+  padding: 1rem;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
+}
+
+.sidebar-header h1 {
+  margin-bottom: 0;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.journal-entry-details {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+  margin-bottom: 16px;
+
+  > * {
+    margin: 0;
+  }
+}
+
+.journal-entry-save-buttons {
+  display: flex;
+  justify-content: end;
+  gap: 6px;
+  align-items: center;
+}
+
+.end {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.end .journal-entry-save-buttons {
+  margin-bottom: 1rem;
+}
+
+.message-number {
+  color: #666;
+  font-size: 1rem;
+}
+
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  td {
+    padding: 0.5rem;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+    &:first-child {
+      width: 150px;
+    }
+  }
+}
+.info-send-back {
+  border: 1px solid lightgray;
+  padding: 14px;
+  border-radius: 4px;
+}
+
+.journal-entry-checkbox {
+  margin-bottom: 1rem;
+}
+
+.wrongInfoTitle {
+  font-weight: bold;
+  color: red;
+  padding-bottom: 5px;
+}
+
+.wrongInfo {
+  color: red;
+  padding-bottom: 15px;
+}
+
+.message-content-buttons {
+  margin-top: 10px;
+}
+
+.message-content-option {
+  margin-left: 5px;
+  display: inline-block;
+}

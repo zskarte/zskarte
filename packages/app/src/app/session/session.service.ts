@@ -46,6 +46,8 @@ import {
 } from './default-map-values';
 import { OperationService } from './operations/operation.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_ORG } from './userLogic';
+import { BlobService } from '../db/blob.service';
+import { BLOB_URL_JOURNAL_ENTRY_TEMPLATE } from '../journal/journal.types';
 
 export type LogoutReason = 'logout' | 'networkError' | 'expired' | 'noToken';
 
@@ -80,12 +82,24 @@ export class SessionService {
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
+          const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
+          await this._router.navigate(
+            [this._router.url.split('?')[0] === '/main/journal' ? '/main/journal' : '/main/map'],
+            {
+              queryParams: {
+                center: null, //handled in overrideDisplayStateFromQueryParams
+                size: null, //handled in overrideDisplayStateFromQueryParams
+                operationId: null, //handled in updateJWT / OperationsComponent
+              },
+              queryParamsHandling: 'merge',
+              preserveFragment: true,
+            },
+          );
           await this._state?.refreshMapState();
           let displayState = await db.displayStates.get({
-            id: session.operation?.documentId ?? session.operation?.id?.toString(),
+            id: session.operation?.documentId,
           });
 
-          const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           if (displayState && (!displayState.version || displayState.layers === undefined)) {
             //ignore invalid/empty saved displayState
             displayState = undefined;
@@ -97,7 +111,7 @@ export class SessionService {
             );
           }
 
-          const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.id ?? 0);
+          const globalWmsSources = await this._wms.readGlobalWMSSources(session.organization?.documentId ?? '');
           if (session?.workLocal) {
             const localWmsSources = await MapLayerService.getLocalWmsSources();
             if (globalWmsSources.length > 0) {
@@ -113,7 +127,7 @@ export class SessionService {
           }
           const globalMapLayers = await this._mapLayerService.readGlobalMapLayers(
             globalWmsSources,
-            session.organization?.id ?? 0,
+            session.organization?.documentId ?? '',
           );
           if (session?.workLocal) {
             const localMapLayers = await MapLayerService.getLocalMapLayers();
@@ -192,24 +206,15 @@ export class SessionService {
             .observeDisplayState()
             .pipe(skip(1), takeUntil(this._clearOperation))
             .subscribe(async (displayState) => {
-              if (this._session.value?.operation?.id) {
+              if (this._session.value?.operation?.documentId) {
                 await db.displayStates.put({
                   ...displayState,
-                  id: this._session.value.operation?.documentId ?? this._session.value.operation?.id?.toString(),
+                  id: this._session.value.operation?.documentId,
                 });
               }
             });
-
-          await this._router.navigate([this._router.url === '/main/journal' ? '/main/journal' : '/main/map'], {
-            queryParams: {
-              center: null, //handled in overrideDisplayStateFromQueryParams
-              size: null, //handled in overrideDisplayStateFromQueryParams
-              operationId: null, //handled in updateJWT / OperationsComponent
-            },
-            queryParamsHandling: 'merge',
-          });
         } else {
-          await this._router.navigate(['operations'], { queryParamsHandling: 'preserve' });
+          await this._router.navigate(['operations'], { queryParamsHandling: 'preserve', preserveFragment: true });
           this._state.setMapState(undefined);
           this._state.setDisplayState(undefined);
         }
@@ -315,10 +320,6 @@ export class SessionService {
     return this._state.observeDrawElementCount().pipe(map((count) => count >= MAX_DRAW_ELEMENTS_GUEST));
   }
 
-  public getOrganizationId(): number | undefined {
-    return this._session.value?.organization?.id;
-  }
-
   public getOrganizationLongLat(): [number, number] {
     if (this._session.value?.organization?.mapLongitude && this._session.value?.organization?.mapLatitude) {
       return [this._session.value?.organization?.mapLongitude, this._session.value?.organization?.mapLatitude];
@@ -355,6 +356,59 @@ export class SessionService {
     }
   }
 
+  public async saveJournalEntryTemplate(data: object | null) {
+    const organization = this.getOrganization();
+    if (organization?.documentId) {
+      const response = await this._api.put(`/api/organizations/${organization.documentId}/journal-entry-template`, {
+        data,
+      });
+      const { error, result } = response;
+      if (error || !result) {
+        console.error('error on update JournalEntryTemplate', error);
+        return response;
+      }
+
+      //update object in session
+      organization.journalEntryTemplate = data;
+      return response;
+    } else if (this.isWorkLocal()) {
+      const blobMeta = await BlobService.getBlobMeta(BLOB_URL_JOURNAL_ENTRY_TEMPLATE);
+      if (data === null) {
+        if (blobMeta) {
+          await BlobService.clearBlobContent(blobMeta.id);
+        }
+        return { error: undefined, result: true };
+      } else {
+        const saveResult = await BlobService.saveTextAsBlobContent(
+          JSON.stringify(data),
+          'application/json',
+          blobMeta?.id,
+          BLOB_URL_JOURNAL_ENTRY_TEMPLATE,
+        );
+        if (saveResult.blobState === 'downloaded') {
+          return { error: undefined, result: true };
+        }
+      }
+    }
+    return { error: true, result: undefined };
+  }
+
+  public async getJournalEntryTemplate() {
+    const organization = this.getOrganization();
+    if (organization?.documentId) {
+      return organization.journalEntryTemplate;
+    } else if (this.isWorkLocal()) {
+      const blobMeta = await BlobService.getBlobMeta(BLOB_URL_JOURNAL_ENTRY_TEMPLATE);
+      if (blobMeta && blobMeta.blobState === 'downloaded') {
+        const content = await BlobService.getBlobContentAsText(blobMeta.id);
+        if (content) {
+          return JSON.parse(content);
+        }
+      }
+    }
+    return null;
+  }
+
   public getLabel(): string | undefined {
     return this._session.value?.label;
   }
@@ -371,12 +425,14 @@ export class SessionService {
     }
   }
 
-  public getAuthError(): HttpErrorResponse | undefined {
-    return this._authError.value;
+  public observeAuthError(): Observable<HttpErrorResponse | undefined> {
+    return this._authError.asObservable();
   }
 
-  public observeOrganizationId(): Observable<number | undefined> {
-    return this._session.pipe(map((session) => session?.organization?.id));
+  public observeOrganizationId(): Observable<string | undefined> {
+    return this._session.pipe(
+      map((session) => session?.organization?.documentId ?? (this.isWorkLocal() ? 'local' : undefined)),
+    );
   }
 
   private static isLoadedOperation(operation?: IZsMapOperation): boolean {
@@ -400,8 +456,8 @@ export class SessionService {
     this._session.next(this._session.value);
   }
 
-  public observeOperationId(): Observable<string | number | undefined> {
-    return this._session.pipe(map((session) => session?.operation?.documentId ?? session?.operation?.id));
+  public observeOperationId(): Observable<string | undefined> {
+    return this._session.pipe(map((session) => session?.operation?.documentId));
   }
 
   public getOperation(): IZsMapOperation | undefined {
@@ -455,7 +511,7 @@ export class SessionService {
   public async login(params: { identifier: string; password: string }): Promise<void> {
     const { result, error: authError } = await this._api.post<IAuthResult>('/api/auth/local', params);
     this._authError.next(authError);
-    if (authError || !result) {
+    if (authError || !result?.jwt) {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
@@ -464,6 +520,24 @@ export class SessionService {
       localStorage.setItem(ALLOW_OFFLINE_ACCESS_KEY, '1');
     }
 
+    await this.updateJWT(result.jwt);
+  }
+
+  public async shareLogin(accessToken: string) {
+    if (!accessToken) {
+      await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
+      return;
+    }
+    const { result, error: authError } = await this._api.post<IAuthResult>(
+      '/api/accesses/auth/token',
+      { accessToken },
+      { preventAuthorization: true },
+    );
+    this._authError.next(authError);
+    if (authError || !result?.jwt) {
+      await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
+      return;
+    }
     await this.updateJWT(result.jwt);
   }
 

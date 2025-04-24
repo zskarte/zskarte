@@ -1,11 +1,21 @@
 h3 {
   margin-bottom: 0;
+  display: flex;
 }
 
 .created-date {
   color: #888;
   font-size: 12px;
   margin-top: 4px;
+}
+
+.message-content-buttons {
+  margin: 10px 0;
+}
+
+.message-content-option {
+  margin-left: 5px;
+  display: inline-block;
 }
 
 .symbol {
@@ -19,5 +29,18 @@ h3 {
 
   span {
     flex: 1;
+  }
+}
+
+.drawn-buttons {
+  margin-left: auto;
+}
+
+[mat-icon-button] {
+  --mdc-icon-button-state-layer-size: 30px;
+  padding: 3px;
+
+  &.selected {
+    background-color: #fff22b;
   }
 }

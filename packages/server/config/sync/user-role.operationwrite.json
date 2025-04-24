@@ -11,6 +11,11 @@
       "locale": null
     },
     {
+      "action": "api::journal-entry.journal-entry.byNumber",
+      "documentId": "yv0squto14yqy7fkj5fsuljh",
+      "locale": null
+    },
+    {
       "action": "api::journal-entry.journal-entry.create",
       "documentId": "lugicjly04s5n82c6bzzqk35",
       "locale": null
@@ -66,6 +71,11 @@
       "locale": null
     },
     {
+      "action": "api::operation.operation.find",
+      "documentId": "hfi71gkehw89e64bc9qd6c2g",
+      "locale": null
+    },
+    {
       "action": "api::operation.operation.findOne",
       "documentId": "eo2ig1r6b5p1rkqldreh2lue",
       "locale": null
@@ -83,6 +93,11 @@
     {
       "action": "api::operation.operation.updateMapLayers",
       "documentId": "xfz45xicm5x0zk8co3vz4go5",
+      "locale": null
+    },
+    {
+      "action": "api::organization.organization.find",
+      "documentId": "nhnev6do3c1ed1472kq63zf2",
       "locale": null
     },
     {

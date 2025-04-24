@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, from, lastValueFrom, of, retry } from 'rxjs';
-import { deserialize, stringify } from 'superjson';
+import { deserialize } from 'superjson';
 import { environment } from '../../environments/environment';
 import { SessionService } from '../session/session.service';
 import transformResponse, { TransformerOptions } from './transformer';
@@ -96,8 +96,16 @@ export class ApiService {
       });
 
       if (!response.ok) {
-        console.error('Error on request', { method, path, body, options });
-        throw new Error('Error on request');
+        let json = await response.json();
+        if (json) {
+          if (json.json) {
+            json = deserialize(json);
+          }
+          throw json;
+        } else {
+          console.error('Error on request', { method, path, body, options, response });
+          throw new Error('Error on request');
+        }
       }
 
       if (response.status === 204) {

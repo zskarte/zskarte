@@ -1,5 +1,5 @@
-<main [style.height.px]="height">
-  @if (operationId | async) {
+<main [style.height.px]="height" [class.journal-address-preview]="journalAddressPreview()">
+  @if (operationId() && !isHistoryMode()) {
   <nav class="main-tabs mat-elevation-z3" mat-tab-nav-bar [tabPanel]="tabPanel">
     <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.link" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
       {{ i18n.get(link.label) }}

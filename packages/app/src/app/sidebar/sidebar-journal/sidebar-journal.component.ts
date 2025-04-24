@@ -1,6 +1,5 @@
-import { Component, inject, resource } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../api/api.service';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,7 +7,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { I18NService } from '../../state/i18n.service';
 import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
-import { SessionService } from '../../session/session.service';
+import { JournalService } from '../../journal/journal.service';
+import { SidebarService } from '../sidebar.service';
+import { ZsMapStateService } from 'src/app/state/state.service';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -25,52 +26,54 @@ import { SessionService } from '../../session/session.service';
   styleUrl: './sidebar-journal.component.scss',
 })
 export class SidebarJournalComponent {
-  private apiService = inject(ApiService);
-  private sessionService = inject(SessionService);
-  i18n = inject(I18NService);
-  journalResource = resource({
-    request: () => ({
-      operation: this.sessionService.getOperation()?.documentId,
-    }),
-    loader: async (params) => {
-      const { result } = await this.apiService.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.request.operation}`,
-      );
-      return (result as JournalEntry[]) || [];
-    },
-  });
+  private _sidebar = inject(SidebarService);
+  public journal = inject(JournalService);
+  public i18n = inject(I18NService);
+  private _state = inject(ZsMapStateService);
+  journalEntriesToDraw = signal<JournalEntry[]>([]);
+  journalEntriesDrawn = signal<JournalEntry[]>([]);
+  currentMessageNumber: number | undefined;
 
-  get journalEntriesToDraw() {
-    return (this.journalResource.value() || []).filter((entry) => !entry.isDrawnOnMap);
+  constructor(private elementRef: ElementRef) {
+    effect(() => {
+      const journalList = this.journal.data();
+
+      const toDraw = (journalList || []).filter((entry) => !entry.isDrawnOnMap);
+      toDraw.sort((a, b) => a.messageNumber - b.messageNumber);
+      this.journalEntriesToDraw.set(toDraw);
+
+      const alreadyDrawn = (journalList || []).filter((entry) => entry.isDrawnOnMap);
+      alreadyDrawn.sort((a, b) => b.messageNumber - a.messageNumber);
+      this.journalEntriesDrawn.set(alreadyDrawn);
+
+      if (this.currentMessageNumber) {
+        this.scrollToMessage(this.currentMessageNumber);
+      }
+    });
+    effect(() => {
+      const fragment = this._state.urlFragment();
+      if (fragment?.startsWith('message=')) {
+        const messageId = fragment.split('=')[1];
+        this.currentMessageNumber = Number.parseInt(messageId);
+
+        this.scrollToMessage(this.currentMessageNumber);
+      } else {
+        this.currentMessageNumber = undefined;
+      }
+    });
   }
 
-  get journalEntriesDrawn() {
-    return (this.journalResource.value() || []).filter((entry) => entry.isDrawnOnMap);
+  scrollToMessage(messageNumber: number) {
+    setTimeout(() => {
+      const element = this.elementRef.nativeElement.querySelector(`[data-message-number="${messageNumber}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
   }
 
-  async markAsDrawn(entry: JournalEntry) {
-    try {
-      await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
-        data: {
-          isDrawnOnMap: true,
-        },
-      });
-      await this.journalResource.reload();
-    } catch (error) {
-      console.error('Error updating journal entry:', error);
-    }
-  }
-
-  async markAsNotDrawn(entry: JournalEntry) {
-    try {
-      await this.apiService.put<JournalEntry>(`/api/journal-entries/${entry.documentId}`, {
-        data: {
-          isDrawnOnMap: false,
-        },
-      });
-      await this.journalResource.reload();
-    } catch (error) {
-      console.error('Error updating journal entry:', error);
-    }
+  startDrawing(entry: JournalEntry) {
+    this._sidebar.close();
+    this.journal.startDrawing(entry, true);
   }
 }

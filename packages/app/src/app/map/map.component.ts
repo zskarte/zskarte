@@ -8,5 +8,4 @@ import { MapRendererComponent } from '../map-renderer/map-renderer.component';
   styleUrls: ['./map.component.scss'],
   imports: [FloatingUIComponent, MapRendererComponent],
 })
-// skipcq: JS-0327
 export class MapComponent {}

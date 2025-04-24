@@ -1,0 +1,74 @@
+.journal-infos {
+  display: inline-block;
+  box-sizing: border-box;
+  border-radius: 2rem;
+  background-color: white;
+  padding: 10px;
+  pointer-events: auto;
+  width: 100%;
+}
+
+.journal-header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  .message-id {
+    flex-shrink: 0;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .subject {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    font-weight: bold;
+  }
+
+  .expand {
+    --mdc-icon-button-state-layer-size: 30px;
+    padding: 3px;
+  }
+}
+
+.message-content-buttons {
+  display: none;
+  margin: 10px 0;
+}
+
+.message-content-option {
+  margin-left: 5px;
+  display: inline-block;
+}
+
+.buttons {
+  display: none;
+}
+
+.preserve-linebreak {
+  display: none;
+  max-height: calc(100vh - 190px - 5rem - 46px);
+  overflow-y: scroll;
+}
+
+.expanded {
+  &.journal-infos {
+    width: 100%;
+  }
+  .journal-header-content .subject {
+    text-wrap: wrap;
+  }
+  .preserve-linebreak {
+    display: block;
+  }
+  .message-content-buttons {
+    display: block;
+  }
+  .buttons {
+    display: block;
+  }
+}

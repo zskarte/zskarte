@@ -1,51 +1,92 @@
 <div class="geocoder">
   <mat-form-field subscriptSizing="dynamic" appearance="outline" class="mat-elevation-z3">
     <input
+      #searchInput
       matInput
       [placeholder]="i18n.get('findPlace')"
-      [matAutocomplete]="auto"
-      [(ngModel)]="inputText"
-      (ngModelChange)="geoCodeLoad()"
-      #searchField
+      [matAutocomplete]="autocomplete.autocompleteRef"
+      [ngModel]="inputText()"
+      (ngModelChange)="inputText.set($event)"
     />
+    <mat-icon
+      matSuffix
+      [ngClass]="{
+        active:
+          searchConfig.filterMapSection ||
+          searchConfig.filterByDistance ||
+          searchConfig.filterByArea ||
+          searchConfig.sortedByDistance,
+      }"
+      class="settings"
+      cdkOverlayOrigin
+      #trigger="cdkOverlayOrigin"
+      (click)="toggleSettings($event)"
+      >settings</mat-icon
+    >
     <mat-icon aria-hidden="false" aria-label="Search" matSuffix>search</mat-icon>
   </mat-form-field>
-
-  <mat-autocomplete
-    #auto="matAutocomplete"
-    (optionSelected)="geoCodeSelected($event)"
-    (optionActivated)="previewCoordinate($event.option?.value)"
+  <app-search-autocomplete
+    #autocomplete
+    [searchTerm]="inputText()"
+    [foundLocations]="foundLocations()"
+    (active)="previewCoordinate($event)"
+    (selected)="geoCodeSelected($event)"
+  ></app-search-autocomplete>
+  <ng-template
+    cdkConnectedOverlay
+    (overlayOutsideClick)="toggleSettings($event)"
+    [cdkConnectedOverlayOrigin]="trigger"
+    [cdkConnectedOverlayOpen]="settingsVisble"
+    [cdkConnectedOverlayOffsetX]="+37"
+    [cdkConnectedOverlayOffsetY]="-43"
   >
-    <ng-template let-location="location" #option>
-      <mat-option [value]="location" (mouseenter)="previewCoordinate(location)" (mouseleave)="goToCoordinate(false)">
-        <span [innerHTML]="location.label" [title]="getLabel(location)"></span>
-      </mat-option>
-    </ng-template>
-    @if (foundLocations.length === 1) {
-      @for (location of foundLocations[0].results; track location) {
-        <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
-      }
-    } @else {
-      @for (group of foundLocations; track group) {
-        <mat-optgroup [label]="group.config.label + ' (' + group.results.length + ')'" (mousedown)="expandGroup(group, $event)">
-          <ng-container>
-            @if (group.collapsed === 'peek') {
-              @for (location of group.results | slice: 0 : 3; track location) {
-                <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
-              }
-              @if (group.results.length > 3) {
-                <div class="hasMore">...</div>
-              }
-            } @else if (!group.collapsed) {
-              @for (location of group.results; track location) {
-                <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
-              }
+    <div class="overlay-container allow-overflow">
+      <svg class="overlay-arrow-left" width="10" height="20" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="0,10 10,0 10,20" class="arrow-shape-left" />
+      </svg>
+
+      <div class="overlay-content">
+        <div>
+          <mat-icon class="filter">filter_list</mat-icon>
+          <mat-checkbox [(ngModel)]="searchConfig.filterMapSection" (change)="configChanged()">{{
+            i18n.get('filterMapSection')
+          }}</mat-checkbox>
+        </div>
+        <div>
+          <mat-icon class="filter">filter_list</mat-icon>
+          <mat-checkbox [(ngModel)]="searchConfig.filterByDistance" (change)="configChanged()">{{
+            i18n.get('filterByDistance')
+          }}</mat-checkbox>
+        </div>
+        @if (searchConfig.filterByDistance) {
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-label>{{ i18n.get('maxDistance') }}</mat-label>
+            <input type="number" min="100" matInput [(ngModel)]="searchConfig.maxDistance" (change)="configChanged()" />
+          </mat-form-field>
+        }
+        <div>
+          <mat-icon class="filter">filter_list</mat-icon>
+          <mat-checkbox [(ngModel)]="searchConfig.filterByArea" (change)="configChanged()">{{
+            i18n.get('filterByArea')
+          }}</mat-checkbox>
+        </div>
+        @if (searchConfig.filterByArea) {
+          <div>
+            @if (drawingArea) {
+              <button mat-stroked-button (click)="stopDefineArea()">{{ i18n.get('endDefineArea') }}</button>
             } @else {
-              <mat-option class="dummyOption"></mat-option>
+              <button mat-stroked-button (click)="startDefineArea()">{{ i18n.get('defineArea') }}</button>
             }
-          </ng-container>
-        </mat-optgroup>
-      }
-    }
-  </mat-autocomplete>
+          </div>
+        }
+        <div>
+          <!--<mat-icon class="filter">filter_center_focus</mat-icon>-->
+          <mat-icon class="filter">sort</mat-icon>
+          <mat-checkbox [(ngModel)]="searchConfig.sortedByDistance" (change)="configChanged()">{{
+            i18n.get('sortedByDistance')
+          }}</mat-checkbox>
+        </div>
+      </div>
+    </div>
+  </ng-template>
 </div>

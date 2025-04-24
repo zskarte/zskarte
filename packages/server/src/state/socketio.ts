@@ -4,6 +4,7 @@ import { operationCaches } from './operation';
 import { OperationCache, PatchExtended, User, WebsocketEvent } from '../definitions';
 import { Server } from 'socket.io';
 import { Core } from '@strapi/strapi';
+import { serialize as superjsonSerialize } from '../middlewares/superjson';
 
 const sanitizeUser = (user) => {
   delete user.password;
@@ -116,4 +117,18 @@ const broadcastPatches = (operationCache: OperationCache, identifier: string, pa
   }
 };
 
-export { connectSocketIo, socketConnection, broadcastPatches, broadcastConnections };
+/** Broadcast received journal change to all currently connected sockets of an operation */
+const broadcastJournal = (operationCache: OperationCache, identifier: string, data: any) => {
+  data = superjsonSerialize(data);
+  const connections = _.filter(operationCache.connections, (c) => c.identifier !== identifier);
+  for (const connection of connections) {
+    try {
+      connection.socket.emit(WebsocketEvent.STATE_JOURNAL, data);
+    } catch (error) {
+      connection.socket.disconnect();
+      strapi.log.error(error);
+    }
+  }
+};
+
+export { connectSocketIo, socketConnection, broadcastConnections, broadcastPatches, broadcastJournal };

@@ -90,7 +90,7 @@
         <div class="allSelected">
           @for (
             item of mapState.observeSelectedMapLayers$() | async;
-            track item;
+            track item.fullId + item.label;
             let index = $index;
             let first = $first;
             let last = $last
@@ -193,7 +193,7 @@
           @if (favouriteLayers?.length === 0) {
             <span>{{ i18n.get('noMoreFavorites') }}</span>
           }
-          @for (item of favouriteLayers; track item) {
+          @for (item of favouriteLayers; track item.fullId + item.label) {
             <button
               mat-list-item
               (click)="selectLayer(item)"
@@ -231,7 +231,7 @@
               }
             </mat-option>
             <mat-option value="_GlobalMapLayers_">{{ i18n.get('globalMapLayers') }}</mat-option>
-            @for (item of mapState.observeWmsSources$() | async; track item) {
+            @for (item of mapState.observeWmsSources$() | async; track item.id || item.label) {
               <mat-option [value]="item.url">
                 {{ item.label }}
                 @if (wmsSourceLoadErrors[item.url]) {
@@ -252,7 +252,7 @@
         <input type="text" matInput [formControl]="layerFilter"
       /></mat-form-field>
       <mat-action-list class="availableLayers">
-        @for (item of filteredAvailableLayers$ | async; track item) {
+        @for (item of filteredAvailableLayers$ | async; track item.fullId + item.label) {
           <button
             mat-list-item
             (click)="selectLayer(item)"

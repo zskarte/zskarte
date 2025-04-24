@@ -1,11 +1,48 @@
-<div class="created-date">{{entry().createdAt | date}}</div>
-<p>{{entry().messageContent}}</p>
+<div class="created-date">{{ entry().dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
+<p
+  class="preserve-linebreak"
+  [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()"
+  (click)="search.handleMessageContentClick($event)"
+></p>
+<div class="message-content-buttons">
+  <button mat-stroked-button (click)="showAllAddresses()">
+    <mat-icon>select_all</mat-icon>
+    {{ i18n.get('showAddresses') }}
+  </button>
+  <div class="message-content-option">
+    <mat-checkbox [ngModel]="markPotentialAddresses()" (ngModelChange)="markPotentialAddresses.set($event)">{{
+      i18n.get('markPotentialAddresses')
+    }}</mat-checkbox>
+  </div>
+</div>
 
 @if (entryElements().length > 0) {
-  <h3>{{ i18n.get('drawnSymbols') }}</h3>
+  <h3>
+    <span>{{ i18n.get('drawnSymbols') }}</span>
+    <span class="drawn-buttons">
+      <button mat-icon-button (click)="zoomToAll()" [title]="i18n.get('zoomToAll')">
+        <mat-icon>zoom_in_map</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="toggleHighlightAll()"
+        class="highlightAll"
+        [title]="i18n.get('highlightAll')"
+        [class]="{ selected: allHighlighted }"
+      >
+        <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
+      </button>
+    </span>
+  </h3>
   <mat-action-list>
     @for (element of entryElements(); track element.elementState?.id) {
-      <button mat-list-item (click)="navigateTo(element.coordinates)" [disabled]="!element.coordinates">
+      <button
+        mat-list-item
+        (click)="navigateTo(element)"
+        [disabled]="!element.coordinates"
+        (mouseenter)="highlightElement(element, true)"
+        (mouseleave)="highlightElement(element, false)"
+      >
         <div class="symbol">
           @if (element.imageUrl) {
             <img [src]="element.imageUrl" />
@@ -13,6 +50,9 @@
             <mat-icon aria-hidden="true">widgets</mat-icon>
           }
           <span>{{ element.coordinatesStr }}</span>
+          @if (element.elementState?.name) {
+            <span>{{ element.elementState?.name }}</span>
+          }
         </div>
       </button>
     }

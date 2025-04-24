@@ -42,6 +42,7 @@ import {
   zsMapStateSourceToDownloadUrl,
 } from '@zskarte/types';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar',
@@ -230,6 +231,7 @@ export class SidebarComponent {
     mapState
       .observeMapSource()
       .pipe(
+        takeUntilDestroyed(),
         map((currentMapSource) => {
           this.mapSources.forEach((mapSource) => {
             mapSource.selected = currentMapSource === mapSource.key;
@@ -285,13 +287,13 @@ export class SidebarComponent {
       if (changedSources) {
         const ownSources = changedSources.filter((s) => s.owner);
         const changedOwnSources = ownSources.filter((ownSource) => {
-          let source = sources.find((s) => s.owner && s.id === ownSource.id);
+          let source = sources.find((s) => s.owner && s.documentId === ownSource.documentId);
           if (!source) {
             source = sources.find((s) => s.owner && s.url === ownSource.url);
           }
           return !source || !isEqual(ownSource, source);
         });
-        const organizationId = this._session.getOrganizationId();
+        const organizationId = this._session.getOrganization()?.documentId;
         if (organizationId) {
           for (const changedOwnSource of changedOwnSources) {
             const updatedSource = await this.wmsService.saveGlobalWMSSource(changedOwnSource, organizationId);

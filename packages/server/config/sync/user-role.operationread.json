@@ -11,6 +11,11 @@
       "locale": null
     },
     {
+      "action": "api::journal-entry.journal-entry.byNumber",
+      "documentId": "tc7aft567qzup12mjxmrtijz",
+      "locale": null
+    },
+    {
       "action": "api::journal-entry.journal-entry.find",
       "documentId": "przpsm4myjz7xoa7t6k5stdq",
       "locale": null
@@ -46,6 +51,11 @@
       "locale": null
     },
     {
+      "action": "api::operation.operation.find",
+      "documentId": "zhhhydzkj6oihtedj9hceqrd",
+      "locale": null
+    },
+    {
       "action": "api::operation.operation.findOne",
       "documentId": "fv772r6j6ifiw3w8mnq00ycb",
       "locale": null
@@ -53,6 +63,11 @@
     {
       "action": "api::operation.operation.overview",
       "documentId": "wovmt44hzindisizdtl5au96",
+      "locale": null
+    },
+    {
+      "action": "api::organization.organization.find",
+      "documentId": "hv08vb4n40ifn8ripbntnky4",
       "locale": null
     },
     {

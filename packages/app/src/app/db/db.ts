@@ -10,6 +10,7 @@ import {
   IZsMapOperation,
   WmsSource,
 } from '@zskarte/types';
+import { JournalEntry } from '../journal/journal.types';
 
 export type LocalBlobState = 'loading' | 'downloaded' | 'missing';
 
@@ -45,6 +46,19 @@ export type LocalMapLayerSettings = IZsMapOrganizationMapLayerSettings & {
   id: string;
 };
 
+export type PatchJournalEntry = {
+  id?: number;
+  entry: Partial<JournalEntry>;
+  create: boolean;
+  uuid: string;
+  documentId?: string;
+  operationId: string;
+  organizationId: string;
+  date: Date;
+};
+
+export type LocalJournalEntry = JournalEntry & { operationId: string; organizationId: string; fromCache: boolean };
+
 export class AppDB extends Dexie {
   sessions!: Table<IZsMapSession, string>;
   displayStates!: Table<IZsMapDisplayState, string>;
@@ -56,6 +70,8 @@ export class AppDB extends Dexie {
   localWmsSource!: Table<WmsSource, number>;
   localMapLayer!: Table<LocalMapLayer, string>;
   localMapLayerSettings!: Table<LocalMapLayerSettings, string>;
+  patchJournalEntries!: Table<PatchJournalEntry, number>;
+  localJournalEntries!: Table<LocalJournalEntry, string>;
 
   constructor(databaseName: string) {
     super(databaseName);
@@ -130,13 +146,16 @@ export class AppDB extends Dexie {
         }
       });
     //new modifications can be done here with only modify version number(or adding new version block), but 'localMapBlobs: null,' and 'localMapMeta: null,' need to stay here (to remove old table).
-    this.version(8).stores({
+    this.version(9).stores({
       localMapBlobs: null,
       localMapMeta: null,
       localOperation: 'id,phase',
       localWmsSource: 'id',
       localMapLayer: 'fullId,id',
       localMapLayerSettings: 'id',
+      patchJournalEntries: '++id, [operationId+organizationId], organizationId, operationId, uuid, documentId',
+      localJournalEntries:
+        '[operationId+uuid], [organizationId+operationId+messageNumber], organizationId, operationId, uuid, documentId, messageNumber',
     });
   }
 }

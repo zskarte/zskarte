@@ -1,11 +1,10 @@
-import { Component, DestroyRef, HostListener, inject, signal } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, map, Observable, Subject, takeUntil } from 'rxjs';
+import { Component, HostListener, inject } from '@angular/core';
+import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import { SyncService } from '../sync/sync.service';
 import { SessionService } from '../session/session.service';
-import { ZsMapBaseLayer } from '../map-renderer/layers/base-layer';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { HelpComponent } from '../help/help.component';
@@ -29,11 +28,11 @@ import { SelectedFeatureComponent } from '../selected-feature/selected-feature.c
 import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
 import { ZsMapStateSource } from '@zskarte/types';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAX_DRAW_ELEMENTS_GUEST } from '../session/default-map-values';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
+import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
+import { SearchService } from '../search/search.service';
 
 @Component({
   selector: 'app-floating-ui',
@@ -55,6 +54,7 @@ import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dia
     SelectedFeatureComponent,
     GeocoderComponent,
     CoordinatesComponent,
+    JournalDrawOverlayComponent,
     CommonModule,
   ],
 })
@@ -65,6 +65,7 @@ export class FloatingUIComponent {
   private _sync = inject(SyncService);
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
+  private _search = inject(SearchService);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
   snackbar = inject(MatSnackBar);
@@ -77,7 +78,7 @@ export class FloatingUIComponent {
   private _ngUnsubscribe = new Subject<void>();
   public connectionCount = new BehaviorSubject<number>(0);
   public isOnline = new BehaviorSubject<boolean>(true);
-  public isReadOnly = new BehaviorSubject<boolean>(false);
+  public isReadOnly = this.state.observeIsReadOnly();
   public canUndo = new BehaviorSubject<boolean>(false);
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;
@@ -85,7 +86,7 @@ export class FloatingUIComponent {
   public showLogo = true;
   public sidebarTitle = '';
   public logo = '';
-  public workLocal = false;
+  public localOperation = false;
 
   constructor() {
     if (this.isInitialLaunch()) {
@@ -94,7 +95,7 @@ export class FloatingUIComponent {
       });
     }
     this.logo = this.session.getLogo() ?? '';
-    this.workLocal = this.session.isWorkLocal();
+    this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
     this.sidebar.observeContext()
     .pipe(takeUntil(this._ngUnsubscribe))
     .subscribe(sidebarContext => {
@@ -152,14 +153,14 @@ export class FloatingUIComponent {
         this.connectionCount.next(connections.length);
       });
 
-    if (this.workLocal) {
+    if (this.localOperation) {
       this.state
         .observeDisplayState()
-        .pipe(takeUntil(this._ngUnsubscribe))
+        .pipe(takeUntil(this._ngUnsubscribe),debounceTime(250))
         .subscribe(async (displayState) => {
           if (displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE) {
             //using local map
-            if (displayState.layers.filter((l) => !l.offlineAvailable && !l.hidden).length === 0) {
+            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
               //all used layer are offlineAvailable
               if (displayState.source === ZsMapStateSource.LOCAL) {
                 const localMapInfo = await db.localMapInfo.get(displayState.source);
@@ -249,13 +250,23 @@ export class FloatingUIComponent {
   @HostListener('window:keydown.Meta.p', ['$event'])
   @HostListener('window:beforeprint', ['$event'])
   onStartPrint(event: Event): void {
+    if (this.state.getActiveView() !== 'map') {
+      return;
+    }
     event.preventDefault();
     event.stopImmediatePropagation();
     this.sidebar.open(SidebarContext.Print);
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(): void {
-    this.sidebar.close();
+  closeSidebareOnEsc(event: KeyboardEvent): void {
+    if (this.state.getActiveView() !== 'map') {
+      return;
+    }
+    if (this._dialog.openDialogs.length === 0) {
+      if (!this._search.handleEsc(event)) {
+        this.sidebar.close();
+      }
+    }
   }
 }
