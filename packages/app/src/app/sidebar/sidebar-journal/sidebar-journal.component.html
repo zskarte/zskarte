@@ -28,13 +28,15 @@
 
         <ng-template matExpansionPanelContent>
           <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-          @if (entry.isDrawingOnMap) {
-            <span class="drawing">{{ i18n.get('someoneIsDrawing') }}</span>
+          @if (!isReadOnly()) {
+            @if (entry.isDrawingOnMap) {
+              <span class="drawing">{{ i18n.get('someoneIsDrawing') }}</span>
+            }
+            <button mat-flat-button color="primary" (click)="startDrawing(entry)">
+              {{ i18n.get('startDrawing') }}
+            </button>
+            <button mat-flat-button (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
           }
-          <button mat-flat-button color="primary" (click)="startDrawing(entry)">
-            {{ i18n.get('startDrawing') }}
-          </button>
-          <button mat-flat-button (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
         </ng-template>
       </mat-expansion-panel>
       <mat-divider></mat-divider>
@@ -61,7 +63,9 @@
 
         <ng-template matExpansionPanelContent>
           <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-          <button mat-button (click)="journal.markAsDrawn(entry, false)">{{ i18n.get('markAsNotDrawn') }}</button>
+          @if (!isReadOnly()) {
+            <button mat-button (click)="journal.markAsDrawn(entry, false)">{{ i18n.get('markAsNotDrawn') }}</button>
+          }
         </ng-template>
       </mat-expansion-panel>
       <mat-divider></mat-divider>
