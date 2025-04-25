@@ -24,15 +24,16 @@ export function mapProtocolEntry(
     const location = JSON.stringify(convertTo(geometry.getCoordinates() || [], projectionFormatIndex, numerical));
     const extent = geometry?.getExtent();
     const centroid = convertTo(extent ? getCenter(extent) : [], projectionFormatIndex, numerical);
-    const reportNumber = (Array.isArray(element.elementState?.reportNumber) ? element.elementState?.reportNumber : [element.elementState?.reportNumber]).join(", ");
+    const reportNumber = (
+      Array.isArray(element.elementState?.reportNumber)
+        ? element.elementState?.reportNumber
+        : [element.elementState?.reportNumber]
+    ).join(', ');
     return {
       id: element.getId(),
       date: datePipe.transform(element.elementState?.createdAt, 'dd.MM.yyyy HH:mm'),
       group: sk && i18n.has(sk) ? i18n.get(sk) : '',
-      sign:
-        currentLocale === 'fr' ? sig.fr
-        : currentLocale === 'en' ? sig.en
-        : sig.de,
+      sign: currentLocale === 'fr' ? sig.fr : currentLocale === 'en' ? sig.en : sig.de,
       location,
       reportNumber,
       centroid,
@@ -61,7 +62,8 @@ export interface ProtocolEntry {
 }
 
 export async function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n: I18NService) {
-  const { Workbook } = await import('exceljs')
+  const exceljs = await import('exceljs');
+  const { Workbook } = exceljs.default ? exceljs.default : exceljs;
   const workbook = new Workbook();
   const sheet = workbook.addWorksheet('Protocol Entries');
   sheet.columns = [
