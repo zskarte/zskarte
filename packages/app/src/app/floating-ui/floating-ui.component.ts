@@ -79,6 +79,7 @@ export class FloatingUIComponent {
   public connectionCount = new BehaviorSubject<number>(0);
   public isOnline = new BehaviorSubject<boolean>(true);
   public isReadOnly = this.state.observeIsReadOnly();
+  public isHistoryMode = this.state.observeIsHistoryMode();
   public canUndo = new BehaviorSubject<boolean>(false);
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;

@@ -420,7 +420,7 @@ export class JournalComponent implements AfterViewInit {
         const instance = this.componentOutlet().componentInstance;
         if (instance) {
           if ('save' in instance) {
-            instance.save.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((newTemplate: object | null) => {
+            instance.save.subscribe((newTemplate: object | null) => {
               this.updateMessagePdfTemplate(newTemplate);
             });
           }

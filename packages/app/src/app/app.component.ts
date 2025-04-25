@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatTabsModule } from "@angular/material/tabs";
 import {NgFor} from "@angular/common";
 import { SessionService } from './session/session.service';
-import { AsyncPipe } from '@angular/common';
 import { I18NService } from './state/i18n.service';
 import { ZsMapStateService } from './state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -14,7 +13,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterModule, MatTabsModule, NgFor, AsyncPipe],
+  imports: [RouterOutlet, RouterModule, MatTabsModule, NgFor],
 })
 export class AppComponent implements OnInit {
   i18n = inject(I18NService);
