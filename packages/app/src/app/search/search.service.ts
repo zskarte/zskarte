@@ -43,7 +43,7 @@ const GEOCODE_ORIGIN_TO_LAYER = {
   //'address':'ch.bfs.gebaeude_wohnungs_register',
 } as const;
 
-export const ADDRESS_TOKEN_REGEX = /addr:\((.*?)\)(?:\[(.*?)\])?/;
+export const ADDRESS_TOKEN_REGEX = /addr:\(((?:[^()]|\([^)]*\))*)\)(?:\[(.*?)\])?/;
 export const ADDRESS_TOKEN_REPLACEMENT_ADDRESS = (p1: string) => p1;
 export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER = (p1: string, p2: string) =>
   `<span data-geo="${p2}" class="addr-geo addr-show"><span class="material-icons">place</span><span class="text addr-search">${p1}</span></span>`;
@@ -789,6 +789,7 @@ export class SearchService {
       return text;
     }
     return text.replace(ADDRESS_TOKEN_OR_NEW_REGEX, (match) => (match.startsWith('addr:') ? match : `addr:(${match})`));
+    
   }
 
   public removeAllPotentialAddresses(text?: string) {

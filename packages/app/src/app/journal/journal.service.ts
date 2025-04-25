@@ -363,7 +363,9 @@ export class JournalService {
 
   public async update(entry: Partial<JournalEntry>, documentId?: string, uuid?: string) {
     if (entry.messageNumber) {
-      if (await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)) {
+      if (
+        await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)
+      ) {
         return {
           error: { message: `messageNumber ${entry.messageNumber} already exist` },
           result: undefined,
@@ -692,7 +694,7 @@ export class JournalService {
         url_entry: entryUrl,
       },
     ];
-    const fileName = `${operation.name}_message${entry.messageNumber}_${(new Date()).toISOString().slice(0, 16)}.pdf`;
+    const fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
     await pdfService.downloadPdf(template, data, fileName);
   }
 
@@ -711,9 +713,13 @@ export class JournalService {
     if (!operation) {
       return;
     }
-    const fileName = `${operation.name}_${new Date().toISOString().slice(0, 16)}.xlsx`.replaceAll(/[^a-zA-Z0-9._-]/g, '_');
+    const fileName = `${operation.name}_${new Date().toISOString().slice(0, 16)}.xlsx`.replaceAll(
+      /[^a-zA-Z0-9._-]/g,
+      '_',
+    );
 
-    const { Workbook } = await import('exceljs');
+    const exceljs = await import('exceljs');
+    const { Workbook } = exceljs.default ? exceljs.default : exceljs;
     const workbook = new Workbook();
     const sheet = workbook.addWorksheet('Journal Entries');
     const defaultStyleTextTop = { alignment: { vertical: 'top' } } as any;
@@ -765,7 +771,7 @@ export class JournalService {
       { header: this._i18n.get('updatedAt'), key: 'updatedAt', width: 20, style: defaultStyleDate },
     ];
 
-    entries.sort((a,b) => a.messageNumber - b.messageNumber);
+    entries.sort((a, b) => a.messageNumber - b.messageNumber);
 
     const columnsToCheck = ['messageContent', 'decision'];
     entries.forEach((entry) => {

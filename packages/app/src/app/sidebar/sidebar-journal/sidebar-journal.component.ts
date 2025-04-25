@@ -10,6 +10,7 @@ import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-j
 import { JournalService } from '../../journal/journal.service';
 import { SidebarService } from '../sidebar.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -30,8 +31,9 @@ export class SidebarJournalComponent {
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
-  journalEntriesToDraw = signal<JournalEntry[]>([]);
-  journalEntriesDrawn = signal<JournalEntry[]>([]);
+  readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
+  readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
 
   constructor(private elementRef: ElementRef) {
