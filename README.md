@@ -51,9 +51,9 @@ You can run Zivilschutz-Karte without installation from [https://zskarte.ch](htt
 npm install
 ```
 
-### 2. Copy .env example file and rename it to .env (you can keep the values as they are for local development)
+### 2. For Server copy .env.example file and rename it to .env (you can keep the values as they are for local development)
 ```bash
-cp .env.example .env
+cp packages/server/.env.example packages/server/.env
 ```
 
 ### 3. Start the application (database, backend, frontend)
@@ -122,12 +122,15 @@ A postgresql database management tool
 # Create the data/postgresql folder
 mkdir -p data/postgresql
 # Add the UID 1001 (non-root user of postgresql) as the folder owner
-chown -R 1001:1001 data/postgresql
+sudo chown -R 1001:1001 data/postgresql
 # Create the data/pgadmin folder
 mkdir -p data/pgadmin
 # Add the UID 5050 (non-root user of pgadmin) as the folder owner
-chown -R 5050:5050 data/pgadmin
+sudo chown -R 5050:5050 data/pgadmin
 ```
+### Informations for developer
+
+More informations for developers for internal logic / tasks can be found in [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md).
 
 ## ☁️ Azure Setup
 
