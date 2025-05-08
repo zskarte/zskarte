@@ -101,7 +101,8 @@
         "fb-schutz-rettung",
         "fb-gesundheit",
         "fb-logistik",
-        "fb-infrastrukturen"
+        "fb-infrastrukturen",
+        "lagedarstellung"
       ]
     },
     "isDrawingOnMap": {

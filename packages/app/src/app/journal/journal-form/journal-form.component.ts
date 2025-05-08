@@ -240,7 +240,7 @@ export class JournalFormComponent {
 
   onEnterForResetState(event: Event) {
     event.preventDefault();
-    this.resetState(); 
+    this.resetState();
   }
 
   async resetState() {
@@ -318,14 +318,25 @@ export class JournalFormComponent {
       InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('fillAllFields'));
       return;
     }
-    const newEntryStatus = JournalEntryStatusNext[entryStatus];
+    let newEntryStatus = JournalEntryStatusNext[entryStatus];
     const nextReset = JournalEntryStatusReset[newEntryStatus];
+
+    if (
+      entryStatus === JournalEntryStatus.AWAITING_TRIAGE &&
+      this.journalForm.controls.department.value === 'lagedarstellung' &&
+      this.entry()?.isDrawnOnMap
+    ) {
+      //if department is set to 'lagedarstellung' only drawn on map is required, if that is already done on time of triage, set it directly to complete.
+      newEntryStatus = JournalEntryStatus.COMPLETED;
+    }
 
     //prepare object with only allowed/changed fields to save
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
     const values: Partial<JournalEntry> = {
       ...(rest as JournalEntry),
-      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
+      ...(dateCreatedDate && dateCreatedTime
+        ? { dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime) }
+        : {}),
     };
     if (nextReset && values[nextReset.required]) {
       //clear reset field of next step, so it's not longer filled
@@ -418,7 +429,9 @@ export class JournalFormComponent {
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
     const entry: JournalEntry = {
       ...(rest as JournalEntry),
-      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
+      ...(dateCreatedDate && dateCreatedTime
+        ? { dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime) }
+        : {}),
       documentId: this.entry()?.documentId,
     };
 

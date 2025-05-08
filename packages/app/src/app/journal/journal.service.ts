@@ -1,5 +1,5 @@
 import { Injectable, effect, inject, resource, signal } from '@angular/core';
-import { JournalDateFields, JournalEntry } from './journal.types';
+import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
 import { ApiResponse, ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
@@ -551,18 +551,24 @@ export class JournalService {
   }
 
   public async markAsDrawn(entry: JournalEntry, value: boolean) {
-    const { error, result } = await this.update(
-      value
-        ? {
-            isDrawnOnMap: value,
-            isDrawingOnMap: false,
-          }
-        : {
-            isDrawnOnMap: value,
-          },
-      entry.documentId,
-      entry.uuid,
-    );
+    const entryChange: Partial<JournalEntry> = value
+      ? {
+          isDrawnOnMap: value,
+          isDrawingOnMap: false,
+        }
+      : {
+          isDrawnOnMap: value,
+        };
+    if (entry.department === 'lagedarstellung') {
+      if (value && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION) {
+        //if department is 'lagedarstellung' only drawn on map is required, if that is done after triage, set it to COMPLETED.
+        entryChange.entryStatus = JournalEntryStatus.COMPLETED;
+      } else if (!value && entry.entryStatus === JournalEntryStatus.COMPLETED) {
+        //reset back to AWAITING_DECISION if mark as drawn is reverted
+        entryChange.entryStatus = JournalEntryStatus.AWAITING_DECISION;
+      }
+    }
+    const { error, result } = await this.update(entryChange, entry.documentId, entry.uuid);
 
     if (error || !result) {
       console.error('Error updating journal entry:', error);
