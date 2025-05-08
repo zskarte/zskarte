@@ -66,6 +66,7 @@ export const DepartmentValues = [
   'fb-gesundheit',
   'fb-logistik',
   'fb-infrastrukturen',
+  'lagedarstellung',
 ] as const;
 export type Department = (typeof DepartmentValues)[number] | null;
 

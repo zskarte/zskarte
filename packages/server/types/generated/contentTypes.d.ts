@@ -398,6 +398,7 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
         'fb-gesundheit',
         'fb-logistik',
         'fb-infrastrukturen',
+        'lagedarstellung',
       ]
     >;
     entryStatus: Schema.Attribute.Enumeration<

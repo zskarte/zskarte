@@ -2827,6 +2827,11 @@ export class I18NService {
       en: 'DP Infrastructure',
       fr: 'DP Infrastructure',
     },
+    lagedarstellung: {
+      de: 'Lagedarstellung',
+      en: 'Situation presentation',
+      fr: 'Présentation de la situation',
+    },
     wrongContent: {
       de: 'Falscher Inhalt',
       en: 'Wrong content',
