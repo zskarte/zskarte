@@ -679,11 +679,17 @@ export class JournalService {
     if (organizationFull?.logo?.provider === 'local') {
       organization.logo_url = `${environment.apiUrl}${organization.logo_url}`;
     }
-    let entryUrl;
+    let fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
+    let entryUrl: string | undefined;
     if (entry.messageNumber && entry.createdAt) {
       entryUrl = `${window.location.origin}/main/journal?operationId=${operation.documentId}&messageNumber=${entry.messageNumber}`;
     } else {
       this.deactivateQRCode(template);
+      if (Object.keys(entry).length === 0) {
+        operation.documentId = '';
+        operation.name = '';
+        fileName = `${organization.name}.pdf`;
+      }
     }
 
     const data = [
@@ -694,7 +700,6 @@ export class JournalService {
         url_entry: entryUrl,
       },
     ];
-    const fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
     await pdfService.downloadPdf(template, data, fileName);
   }
 

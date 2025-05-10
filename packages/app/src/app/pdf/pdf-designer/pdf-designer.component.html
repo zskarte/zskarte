@@ -6,12 +6,7 @@
     <div class="header">
       <div class="title">{{ templateName() }}</div>
       <div class="buttons">
-        <button
-          mat-icon-button
-          (click)="help()"
-          [attr.aria-label]="i18n.get('help')"
-          [title]="i18n.get('help')"
-        >
+        <button mat-icon-button (click)="help()" [attr.aria-label]="i18n.get('help')" [title]="i18n.get('help')">
           <mat-icon>help</mat-icon>
         </button>
         <button mat-icon-button (click)="reset()" [attr.aria-label]="i18n.get('reset')" [title]="i18n.get('reset')">
@@ -24,6 +19,15 @@
           [title]="i18n.get('defaultValues')"
         >
           <mat-icon>restore</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="basic"
+          (click)="generatePdf()"
+          [attr.aria-label]="i18n.get('generatePdf')"
+          [title]="i18n.get('generatePdf')"
+        >
+          <mat-icon>description</mat-icon>
         </button>
         <button
           mat-icon-button
