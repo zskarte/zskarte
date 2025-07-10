@@ -30,7 +30,7 @@
     "@angular/pwa": "^19.1.2",
     "@angular/router": "^19.1.1",
     "@angular/service-worker": "^19.1.1",
-    "@pdfme/common": "^5.3.13",
+    "@pdfme/common": "^5.4.1",
     "@pdfme/generator": "^5.3.13",
     "@pdfme/schemas": "^5.3.13",
     "@pdfme/ui": "^5.3.13",
