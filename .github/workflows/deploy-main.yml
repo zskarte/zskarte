@@ -6,7 +6,7 @@ on:
 env:
   STAGE: prod
   DOCKERHUB_USERNAME: zskarte
-  KUBERNETES_NAMESPACE: zskarte-prod
+  KUBERNETES_NAMESPACE: zskarte
   APP_NAME: zskarte-server
   IMAGE_TAG: zskarte/zskarte-server
   LETSENCRYPT_STAGE: prod
