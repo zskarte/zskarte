@@ -6,14 +6,14 @@ on:
 env:
   STAGE: prod
   DOCKERHUB_USERNAME: zskarte
-  KUBERNETES_NAMESPACE: zskarte-prod
+  KUBERNETES_NAMESPACE: zskarte
   APP_NAME: zskarte-server
   IMAGE_TAG: zskarte/zskarte-server
   LETSENCRYPT_STAGE: prod
-  DB_HOST: zskarte.postgres.database.azure.com
+  DB_HOST: postgresql.postgresql.svc.cluster.local
   DB_PORT: 5432
-  DB_NAME: zskarte_prod
-  DB_USER: zskarte_admin
+  DB_NAME: zskarte
+  DB_USER: zskarte
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET_PROD }}
   JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET_PROD }}
@@ -25,6 +25,11 @@ env:
   STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
   STORAGE_URL: https://zskarte.blob.core.windows.net
   STORAGE_CONTAINER_NAME: zskarte-prod
+  BACKUP_ENCRYPTION_PASSWORD: ${{ secrets.BACKUP_ENCRYPTION_PASSWORD }}
+  BACKUP_WEBDAV_URL: https://nextcloud.hackerman.ch/remote.php/dav/files/d4y-backup
+  BACKUP_WEBDAV_USER: d4y-backup
+  BACKUP_WEBDAV_PASSWORD: ${{ secrets.BACKUP_WEBDAV_PASSWORD }}
+  BACKUP_PINGCHECK_URL: https://uptime.digital4you.ch/api/push/Exjfv0YRNF?status=up&msg=OK&ping=
 
 jobs:
   build-and-deploy:
@@ -63,6 +68,8 @@ jobs:
             .azure/k8s/deployment.yml
             .azure/k8s/service.yml
             .azure/k8s/ingress.yml
+            .azure/k8s/backup/secrets.yml
+            .azure/k8s/backup/cronjob.yml
           replacement-method: defined
         env:
           FULL_IMAGE_NAME: ${{ env.IMAGE_TAG }}:${{ steps.previoustag.outputs.tag }}
