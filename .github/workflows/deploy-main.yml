@@ -68,8 +68,8 @@ jobs:
             .azure/k8s/deployment.yml
             .azure/k8s/service.yml
             .azure/k8s/ingress.yml
+            .azure/k8s/backup/secrets.yml
             .azure/k8s/backup/cronjob.yml
-            .azure/k8s/backup/secret.yml
           replacement-method: defined
         env:
           FULL_IMAGE_NAME: ${{ env.IMAGE_TAG }}:${{ steps.previoustag.outputs.tag }}
