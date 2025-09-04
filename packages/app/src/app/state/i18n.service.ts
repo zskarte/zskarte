@@ -11,7 +11,7 @@ export class I18NService {
   private static TRANSLATIONS = {
     local: {
       de: 'Lokal',
-      end: 'Local',
+      en: 'Local',
       fr: 'Local',
     },
     de: {
@@ -22,7 +22,7 @@ export class I18NService {
     fr: {
       de: 'Französisch',
       en: 'French',
-      fr: 'Francais',
+      fr: 'Français',
     },
     en: {
       de: 'Englisch',
@@ -81,28 +81,28 @@ export class I18NService {
     },
     password: {
       de: 'Passwort',
-      fr: 'Mot de passe',
       en: 'Password',
+      fr: 'Mot de passe',
     },
     wrongPassword: {
       de: 'Ungültiges Passwort',
-      fr: 'Mauvais mot de passe',
       en: 'Wrong password',
+      fr: 'Mauvais mot de passe',
     },
     eventname: {
       de: 'Ereignis',
-      fr: "L'événement",
       en: 'Happening',
+      fr: 'L\'événement',
     },
     mapDataOvertake: {
       de: 'Kartendaten übernehmen',
-      fr: 'Appliquer les données de la carte',
       en: 'Overtake map data',
+      fr: 'Appliquer les données de la carte',
     },
     sessionOverdue: {
       de: 'Abgelaufen',
-      fr: 'Expired',
-      en: 'Expiré',
+      en: 'Expired',
+      fr: 'Expiré',
     },
     text: {
       de: 'Text',
@@ -111,8 +111,8 @@ export class I18NService {
     },
     draw: {
       de: 'Zeichnen',
-      fr: 'Dessiner',
       en: 'Draw',
+      fr: 'Dessiner',
     },
     newMap: {
       de: 'Neue Karte erstellen',
@@ -126,8 +126,8 @@ export class I18NService {
     },
     copy: {
       de: 'Kopie',
-      fr: 'Copie',
       en: 'Copy',
+      fr: 'Copie',
     },
     importMap: {
       de: 'Karte importieren',
@@ -136,8 +136,8 @@ export class I18NService {
     },
     importMapConflict: {
       de: 'Die zu importierende Karte existiert bereits. Möchten Sie sie ersetzen? Ansonsten wird eine Kopie angelegt.',
-      fr: 'La carte à importer existe déjà. Souhaitez-vous le remplacer ? Sinon, une copie est créée.',
       en: 'The map to be imported already exists. Do you want to replace it? If not, a copy will be created.',
+      fr: 'La carte à importer existe déjà. Souhaitez-vous la remplacer ? Sinon, une copie est créée.',
     },
     editMap: {
       de: 'Ereignis bearbeiten',
@@ -146,8 +146,8 @@ export class I18NService {
     },
     downloadCurrentDrawing: {
       de: 'Aktuelle Zeichnung herunterladen',
-      fr: 'Télécharger le dessin actuel',
       en: 'Download the current drawing',
+      fr: 'Télécharger le dessin actuel',
     },
     exportSession: {
       de: 'Ereignis exportieren',
@@ -206,8 +206,8 @@ export class I18NService {
     },
     deleteOperationConfirm: {
       de: 'Möchten Sie dieses Ereignis wirklich unwiderruflich löschen?',
-      fr: 'Voulez-vous vraiment supprimer définitivement cet événement ?',
       en: 'Do you really want to permanently delete this event?',
+      fr: 'Voulez-vous vraiment supprimer définitivement cet événement ?',
     },
     lastModified: {
       de: 'Zuletzt geändert:',
@@ -227,7 +227,7 @@ export class I18NService {
     downloadMapCSV: {
       de: 'Als CSV exportieren',
       en: 'Export as CSV',
-      fr: 'Exporter a CSV',
+      fr: 'Exporter au format CSV',
     },
     filter: {
       de: 'Filter',
@@ -291,18 +291,18 @@ export class I18NService {
     },
     findPlace: {
       de: 'Ort finden',
-      fr: 'Trouver emplacement',
       en: 'Find a place',
+      fr: 'Trouver emplacement',
     },
     endHistoryMode: {
       de: 'History-Modus beenden',
-      fr: 'Quitter le mode historique',
       en: 'End history mode',
+      fr: 'Quitter le mode historique',
     },
     loadFromFile: {
       de: 'Von Datei laden',
-      fr: 'Charger à partir du fichier',
       en: 'Load from file',
+      fr: 'Charger à partir du fichier',
     },
     createdBy: {
       de: 'Erstellt von',
@@ -311,58 +311,58 @@ export class I18NService {
     },
     import: {
       de: 'Importieren',
-      fr: 'Importer',
       en: 'Import',
+      fr: 'Importer',
     },
     rewokeShareLinkFailedMessage: {
       de: 'Fehler beim löschen des Links.',
-      fr: 'Erreur lors de la suppression du lien.',
       en: 'Error while deleting the link.',
+      fr: 'Erreur lors de la suppression du lien.',
     },
     drawLayer: {
       de: 'Zeichnungsebene',
-      fr: 'Couche de dessin',
       en: 'Drawing layer',
+      fr: 'Couche de dessin',
     },
     layers: {
       de: 'Ebenen',
-      fr: 'Couches cartographiques',
       en: 'Layers',
+      fr: 'Couches cartographiques',
     },
     rotate: {
       de: 'Rotieren',
-      fr: 'Tourner',
       en: 'Rotate',
+      fr: 'Tourner',
     },
     opacity: {
       de: 'Deckkraft',
-      fr: 'Opacité',
       en: 'Opacity',
+      fr: 'Opacité',
     },
     defaultValues: {
       de: 'Standardwerte zurücksetzen',
-      fr: 'Valeurs par défaut',
       en: 'Reset Default Values',
+      fr: 'Valeurs par défaut',
     },
     solidLine: {
       de: 'Durchgezogen',
-      fr: 'Continue',
       en: 'Solid',
+      fr: 'Continue',
     },
     dottedLine: {
       de: 'Gepunktet',
       en: 'Dotted',
-      fr: 'Pointé',
+      fr: 'Pointillés',
     },
     dashedLine: {
       de: 'Gestrichelt',
       en: 'Dashed',
-      fr: 'Pointillée',
+      fr: 'Tirets',
     },
     thinDashedLine: {
       de: 'Gestrichelt (Dünn)',
       en: 'Dashed (thin)',
-      fr: 'Pointillée (maigrir)',
+      fr: 'Tirets (fins)',
     },
     lineWidth: {
       de: 'Linien-Dicke',
@@ -381,38 +381,38 @@ export class I18NService {
     },
     yourText: {
       de: 'Ihr Text',
-      fr: 'Votre texte',
       en: 'Your text',
+      fr: 'Votre texte',
     },
     drawing: {
       de: 'Zeichnung',
-      fr: 'Dessin',
       en: 'Drawing',
+      fr: 'Dessin',
     },
     currentDrawing: {
       de: 'Aktuelle Zeichnung',
-      fr: 'Dessin actuel',
       en: 'Current drawing',
+      fr: 'Dessin actuel',
     },
     viewArchivedOperation: {
       de: 'Dies ist ein archiviertes Ereignis',
-      fr: 'This is an archived event',
       en: 'Ceci est un événement archivé',
+      fr: 'Ceci est un événement archivé',
     },
     history: {
       de: 'History- / Lese-Modus',
-      fr: 'Mode historique / lecture',
       en: 'History / read mode',
+      fr: 'Mode historique / lecture',
     },
     drawMode: {
       de: 'Zeichnungsmodus',
-      fr: 'Mode de dessin',
       en: 'Drawing mode',
+      fr: 'Mode de dessin',
     },
     expertView: {
       de: 'Experten Ansicht',
       en: 'Expert view',
-      fr: "Point de vue d'expert",
+      fr: 'Point de vue d\'expert',
     },
     defaultView: {
       de: 'Standard Ansicht',
@@ -422,7 +422,7 @@ export class I18NService {
     toastExpertView: {
       de: 'Experten Ansicht aktiviert',
       en: 'Expert view activated',
-      fr: "Point de vue d'expert activée",
+      fr: 'Point de vue d\'expert activé',
     },
     toastDefaultView: {
       de: 'Standard Ansicht aktiviert',
@@ -431,18 +431,18 @@ export class I18NService {
     },
     color: {
       de: 'Farbe',
-      fr: 'Couleur',
       en: 'Color',
+      fr: 'Couleur',
     },
     colorPickerMode: {
       de: 'Weitere Farben',
-      fr: 'Plus de couleurs',
       en: 'More colors',
+      fr: 'Plus de couleurs',
     },
     drawHole: {
       de: 'Loch zeichnen',
-      fr: 'Dessiner un trou',
       en: 'Draw a hole',
+      fr: 'Dessiner un trou',
     },
     moveToTop: {
       de: 'In den Vordergrund',
@@ -461,48 +461,48 @@ export class I18NService {
     },
     ungroup: {
       de: 'Gruppierung aufheben',
-      fr: 'Dégrouper',
       en: 'Ungroup',
+      fr: 'Dégrouper',
     },
     group: {
       de: 'Gruppieren',
-      fr: 'Grouper',
       en: 'Group',
+      fr: 'Grouper',
     },
     cancelGrouping: {
       de: 'Gruppieren abbrechen',
-      fr: 'Annuler le groupement',
       en: 'Cancel grouping',
+      fr: 'Annuler le groupement',
     },
     sessionCreatorTitle: {
       de: 'Willkommen bei Zivilschutz-Karte!',
-      fr: 'Bienvenue à Zivilschutz-Karte!',
       en: 'Welcome to Zivilschutz-Karte!',
+      fr: 'Bienvenue à Zivilschutz-Karte!',
     },
     sessionCreatorInstructions: {
       de: 'Bitte beachten Sie: Die Daten werden nur auf Ihrem Browser gehalten - sie werden nicht mit einem Server geteilt! Falls Sie die Karte mit anderen zusätzlich sichern oder teilen möchten, können Sie diese exportieren (und erneut importieren).<br/><br/> <strong>Wichtig</strong>: Wenn Sie Ihre Browserdaten löschen, so werden auch die gespeicherten Karten entfernt!',
-      fr: "Remarque : les données sont uniquement conservées sur votre navigateur - elles ne sont pas partagées avec un serveur ! Si vous souhaitez enregistrer ou partager la carte avec d'autres personnes, vous pouvez exporter (et réimporter) la carte. <br/><br/><strong>Important</strong>: Si vous supprimez les données de votre navigateur, les cartes enregistrées seront également supprimées.",
       en: 'Please note: The data is only kept in your browser - it is not shared with a server! If you would like to additionally save or share the map with others, you can export (and re-import) the map.<br/><br/> <strong>Important</strong>: If you delete your browser data, the saved maps will also be removed',
+      fr: 'Remarque : les données sont uniquement conservées sur votre navigateur - elles ne sont pas partagées avec un serveur ! Si vous souhaitez enregistrer ou partager la carte avec d\'autres personnes, vous pouvez exporter (et réimporter) la carte. <br/><br/><strong>Important</strong>: Si vous supprimez les données de votre navigateur, les cartes enregistrées seront également supprimées.',
     },
     zso: {
       de: 'ZSO',
-      fr: 'PCi',
       en: 'CPO',
+      fr: 'PCi',
     },
     sessionLoaderInstructions: {
       de: 'Bitte beachten Sie: Wenn Sie eine Karte laden wird die bestehende nicht gelöscht - Sie können diese jederzeit hier wieder laden.',
-      fr: "Remarque : lorsque vous chargez une carte, la carte existante n'est pas supprimée - vous pouvez la recharger ici à tout moment.",
       en: 'Please note: When you load a map, the existing map is not deleted - you can reload it here at any time.',
+      fr: 'Remarque : lorsque vous chargez une carte, la carte existante n\'est pas supprimée - vous pouvez la recharger ici à tout moment.',
     },
     importSessionInstructions: {
       de: 'Verwenden Sie eine <strong>.zsjson</strong> Datei um eine vollständige Karte zu importieren.',
-      fr: 'Utilisez un fichier <strong>.zsjson</strong> pour importer une carte complète.',
       en: 'Use a <strong>.zsjson</strong> file to import a complete map.',
+      fr: 'Utilisez un fichier <strong>.zsjson</strong> pour importer une carte complète.',
     },
     confirmImportDrawing: {
       de: 'Wollen Sie die entsprechende Zeichnung wirklich importieren? Die aktuelle Zeichnung wird dabei ersetzt, die History bleibt aber bestehen!',
       en: 'Do you really want to import this drawing? The current drawing will be replaced - the history of the map will remain though!',
-      fr: "Voulez-vous vraiment importer le dessin correspondant ? Le dessin actuel sera remplacé, mais l'histoire restera !",
+      fr: 'Voulez-vous vraiment importer le dessin correspondant ? Le dessin actuel sera remplacé, mais l\'histoire restera !',
     },
     confirmImportDrawingNoReplace: {
       de: 'Wollen Sie die entsprechende Zeichnung wirklich importieren? Die aktuelle Zeichnung wird dabei mit den enthaltenen Elementen ergänzt!',
@@ -516,33 +516,33 @@ export class I18NService {
     },
     currentMap: {
       de: 'Basiskarten',
-      fr: 'Carte de base',
       en: 'Base map',
+      fr: 'Carte de base',
     },
     otherMaps: {
       de: 'Andere Karten',
-      fr: 'Autre cartes',
       en: 'Other map',
+      fr: 'Autres cartes',
     },
     map: {
       de: 'Karte',
-      fr: 'Carte',
       en: 'Map',
+      fr: 'Carte',
     },
     legendNotLoaded: {
       de: 'Die Legende für diese Karte konnte leider nicht geladen werden',
-      fr: "La légende de cette carte n'a pas pu être chargée",
       en: 'The legend for this map could not be loaded',
+      fr: 'La légende de cette carte n\'a pas pu être chargée',
     },
     fontSize: {
       de: 'Schriftgrösse',
-      fr: 'Taille de police',
       en: 'Font size',
+      fr: 'Taille de police',
     },
     yourTag: {
       de: 'Ihr Tag',
-      fr: 'Votre tag',
       en: 'Your tag',
+      fr: 'Votre tag',
     },
     tagState: {
       de: 'Taggen',
@@ -551,13 +551,13 @@ export class I18NService {
     },
     filterHistory: {
       de: 'Gefiltert (nur markierte / alle 30 min)',
-      fr: 'Filtré (uniquement marqué / toutes les 30 min)',
       en: 'Filtered (tagged / every 30 mins only)',
+      fr: 'Filtré (uniquement marqué / toutes les 30 min)',
     },
     removeTag: {
       de: 'Tag entfernen',
-      fr: 'Supprimer le tag',
       en: 'Remove tag',
+      fr: 'Supprimer le tag',
     },
     fillPattern: {
       de: 'Muster',
@@ -666,48 +666,48 @@ export class I18NService {
     },
     deleteLastPointOnFeature: {
       de: 'Diese Form besteht aus dem Minimum nötiger Punkte.',
-      fr: 'Cette forme consiste en un nombre minimum de points.',
       en: 'This shape consists of a minimal number of points.',
+      fr: 'Cette forme consiste en un nombre minimum de points.',
     },
     removeFeatureFromMapConfirm: {
       de: 'Möchten Sie dieses Element wirklich von der Karte entfernen?',
-      fr: 'Souhaitez-vous vraiment supprimer cet élément de la carte ?',
       en: 'Do you really want to remove this element from the map?',
+      fr: 'Souhaitez-vous vraiment supprimer cet élément de la carte ?',
     },
     shareWithOtherMaps: {
       de: 'Mit anderen Karten teilen',
-      fr: "Partager avec d'autres cartes",
       en: 'Share with other maps',
+      fr: 'Partager avec d\'autres cartes',
     },
     keepOriginal: {
       de: 'Original-Bild behalten (grössenreduziert)',
       en: 'Keep original image (reduced in size)',
-      fr: "Conserver l'image originale (taille réduite)",
+      fr: 'Conserver l\'image originale (taille réduite)',
     },
     keepOriginalWarning: {
       de: 'Vorsicht: Die Einbettung von zahlreichen Original-Bildern kann die Performanz der Applikation aufgrund der zusätzlichen Datenmenge einschränken!',
       en: 'Caution: The embedding of numerous original images can limit the performance of the application due to the additional data volume!',
-      fr: "Attention : l'intégration de nombreuses images originales peut limiter les performances de l'application en raison du volume de données supplémentaires !",
+      fr: 'Attention : l\'intégration de nombreuses images originales peut limiter les performances de l\'application en raison du volume de données supplémentaires !',
     },
     german: {
       de: 'Deutsch',
-      fr: 'Allemand',
       en: 'German',
+      fr: 'Allemand',
     },
     french: {
       de: 'Französisch',
-      fr: 'Français',
       en: 'French',
+      fr: 'Français',
     },
     english: {
       de: 'Englisch',
-      fr: 'Anglais',
       en: 'English',
+      fr: 'Anglais',
     },
     deleteSymbolConfirm: {
       de: 'Wollen Sie diese Signatur wirklich löschen?',
-      fr: 'Voulez-vous vraiment supprimer ce symbole ?',
       en: 'Do you really want to delete this symbol?',
+      fr: 'Voulez-vous vraiment supprimer ce symbole ?',
     },
     selectFormat: {
       de: 'Format wählen',
@@ -726,8 +726,8 @@ export class I18NService {
     },
     replaceByImport: {
       de: 'Existierende Elemente mit Import ersetzen',
-      fr: "Remplacer les éléments existants par l'import",
       en: 'Replace existing elements with import',
+      fr: 'Remplacer les éléments existants par l\'import',
     },
     importFromFile: {
       de: 'Von Datei',
@@ -741,8 +741,8 @@ export class I18NService {
     },
     importFromGeoadminDescription: {
       de: 'Um Formen von Geoadmin importieren zu können, benötigen Sie den Layer-Namen (z.B. "ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill") sowie einen Suchschlüssel und dessen Wert, nach welchen die Metadaten gefiltert werden (z.B. "kanton" als Schlüssel und "FR" als Wert um alle Gemeinden von Fribourg zu importieren)',
-      fr: 'Pour importer des formes de geoadmin, vous avez besoin du nom de la couche (par exemple "ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill") ainsi que d\'une clé de recherche et de sa valeur, selon laquelle les métadonnées seront filtrées (par exemple "kanton" comme clé et "FR" comme valeur pour importer toutes les communes de Fribourg)',
       en: 'To import forms of geoadmin, you need the layer name (e.g. "ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill") as well as a search key and its value, according to which the metadata will be filtered (e.g. "kanton" as key and "FR" as value to import all communes of Fribourg)',
+      fr: 'Pour importer des formes de geoadmin, vous avez besoin du nom de la couche (par exemple "ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill") ainsi que d\'une clé de recherche et de sa valeur, selon laquelle les métadonnées seront filtrées (par exemple "kanton" comme clé et "FR" comme valeur pour importer toutes les communes de Fribourg)',
     },
     geoadminImportLayer: {
       de: 'Layer',
@@ -837,7 +837,7 @@ export class I18NService {
     printScale: {
       de: 'Massstab drucken',
       en: 'Print scale',
-      fr: "imprimer l'échelle",
+      fr: 'imprimer l\'échelle',
     },
     hideAllInfos: {
       de: '​alle Signaturen und Informationen ausblenden',
@@ -852,7 +852,7 @@ export class I18NService {
     addQRCode: {
       de: 'QR-Code hinzufügen',
       en: 'Add QR code',
-      fr: 'Ajouter code QR',
+      fr: 'Ajouter un code QR',
     },
     withShare: {
       de: 'mit Freigabe',
@@ -867,7 +867,7 @@ export class I18NService {
     deactivateWebGL: {
       de: 'Der angeforderte Export ist zu gross für den WebGL-Renderer. Seite mit deaktivierter WebGL-Unterstützung neu laden?',
       en: 'The requested export is too large for the WebGL renderer. Reload the page with WebGL support disabled?',
-      fr: "L'exportation demandée est trop volumineuse pour le moteur de rendu WebGL. Recharger la page avec le support WebGL désactivé?",
+      fr: 'L\'exportation demandée est trop volumineuse pour le moteur de rendu WebGL. Recharger la page avec le support WebGL désactivé?',
     },
     protocol: {
       de: 'Protokoll',
@@ -1017,7 +1017,7 @@ export class I18NService {
     zoomToScale: {
       de: 'massstabsgetreu vergrössern',
       en: 'zoom to scale',
-      fr: "zoomer à l'échelle",
+      fr: 'zoomer à l\'échelle',
     },
     scaleToUse: {
       de: 'Massstab (1:xxx)',
@@ -1275,8 +1275,8 @@ export class I18NService {
 
     docCreateOrLoad: {
       de: '<p> Auf diesem Bildschirm können Sie <strong>bereits erstellte Ereignisse bearbeiten</strong> oder <strong>neue Ereignisse erstellen</strong>. Die Ereignisse und deren Lagekarten werden <strong>in Echtzeit unter allen Benutzern synchronisiert</strong>.</p>',
-      fr: '<p> Sur cet écran, vous pouvez <strong>modifier des événements déjà créés</strong> ou <strong>créer de nouveaux événements</strong>. Les événements et leurs cartes de localisation sont <strong>synchronisés en temps réel avec tous les utilisateurs</strong>.</p>',
       en: '<p> On this screen you can <strong>edit already created events</strong> or <strong>create new events</strong>. The events and their location maps are <strong>synchronized in real-time among all users</strong>.</p>',
+      fr: '<p> Sur cet écran, vous pouvez <strong>modifier des événements déjà créés</strong> ou <strong>créer de nouveaux événements</strong>. Les événements et leurs cartes de localisation sont <strong>synchronisés en temps réel avec tous les utilisateurs</strong>.</p>',
     },
     docMainViewTitle: {
       de: 'Kartenansicht',
@@ -1291,8 +1291,8 @@ export class I18NService {
     },
     docMapMenu: {
       de: 'Die Funktionen des Kartenmenüs sind von oben nach unten:<ul><li>Umschalten zwischen History- / Lese-Modus und Zeichnungsmodus</li><li>Sprache auswählen</li><li>Karte Drucken</li><li>Protokoll der auf der Karte dargestellten Zeichnungen anzeigen oder exportieren</li><li>Hilfefunktion öffnen</li><li>Ausloggen oder Ereignis wechseln</li></ul>',
-      fr: "Les fonctions du menu de la carte sont de haut en bas:<ul><li>Basculer entre le mode Histoire / Lecture et le mode de dessin</li><li>Sélectionner la langue</li><li>Imprimer la carte</li><li>Afficher ou exporter le journal des dessins affichés sur la carte</li><li>Ouvrir l'aide</li><li>Se déconnecter ou changer d'événement</li></ul>",
       en: 'The functions of the map menu are from top to bottom:<ul><li>Switch between History / Read-Only mode and Drawing mode</li><li>Select language</li><li>Print map</li><li>Show or export log of drawings displayed on the map</li><li>Open help</li><li>Log out or change event</li></ul>',
+      fr: 'Les fonctions du menu de la carte sont de haut en bas:<ul><li>Basculer entre le mode Histoire / Lecture et le mode de dessin</li><li>Sélectionner la langue</li><li>Imprimer la carte</li><li>Afficher ou exporter le journal des dessins affichés sur la carte</li><li>Ouvrir l\'aide</li><li>Se déconnecter ou changer d\'événement</li></ul>',
     },
     docMainView: {
       de: `<p>Die <strong>Lagekarte</strong> stellt die <strong>Hauptansicht</strong> der ZS Karten App dar. Wichtige Informationen und Funktionen sind hier zugänglich:
@@ -1326,14 +1326,14 @@ export class I18NService {
 
     docSearch: {
       de: '<p>Die <strong>Suche</strong> kann dazu verwendet werden, <strong>Adressen und andere Orte</strong> zu finden und mittels Selektion den entsprechenden Ort auf der Karte mit einem <strong>Standortmarker</strong> hervorzuheben.</p>',
-      fr: "<p>La <strong>recherche</strong> peut être utilisée pour trouver des <strong>adresses et d'autres lieux</strong> et pour mettre en évidence le lieu correspondant sur la carte à l'aide d'un <strong>marqueur de position</strong> en le sélectionnant.</p>",
       en: '<p>The <strong>search</strong> can be used to find <strong>addresses and other places</strong> and to highlight the corresponding place on the map using a <strong>location marker</strong> by selecting it.</p>',
+      fr: '<p>La <strong>recherche</strong> peut être utilisée pour trouver des <strong>adresses et d\'autres lieux</strong> et pour mettre en évidence le lieu correspondant sur la carte à l\'aide d\'un <strong>marqueur de position</strong> en le sélectionnant.</p>',
     },
 
     docMarker: {
       de: '<p>Ein Klick auf den Standortmarker zeigt die beiden Symbole, das <strong>X-Symbol</strong> entfernt den Standortmarker von der Karte. Mit dem <strong>Sternsymbol</strong> wird der Zeichnungsdialog geöffnet und es kann an dem markierten Ort eine Signatur eingefügt werden.</p>',
-      fr: "<p>Un clic sur le marqueur de position affiche les deux icônes, l'icône <strong>X</strong> supprime le marqueur de position de la carte. Avec l'icône <strong>étoile</strong>, la boîte de dialogue de dessin s'ouvre et vous pouvez insérer une signature à l'endroit marqué.</p>",
       en: '<p>A click on the location marker displays the two icons, the <strong>X icon</strong> removes the location marker from the map. With the <strong>star icon</strong>, the drawing dialog opens and you can insert a signature at the marked location.</p>',
+      fr: '<p>Un clic sur le marqueur de position affiche les deux icônes, l\'icône <strong>X</strong> supprime le marqueur de position de la carte. Avec l\'icône <strong>étoile</strong>, la boîte de dialogue de dessin s\'ouvre et vous pouvez insérer une signature à l\'endroit marqué.</p>',
     },
 
     docDraw: {
@@ -1372,8 +1372,8 @@ export class I18NService {
     },
     docSymbolSelection: {
       de: '<p>In dieser Ansicht können <strong>Signaturen</strong> ausgewählt werden. Nutzen Sie die <strong>Such- und Filterfunktion</strong> um Symbole einfacher zu finden. <strong>Kürzlich verwendete Signaturen</strong> werden hier angezeigt. Die dritte Spalte der Tabelle enthält Icons, die den <strong>Typen der Signatur</strong> darstellen. Es gibt: normale Signaturen (Stern), Polygone (vier Qudrate) und Linien (gezackte Linie).</p>',
-      fr: '<p>Dans cette vue, vous pouvez sélectionner des <strong>symboles</strong>. Utilisez la <strong>fonction de recherche et de filtrage</strong> pour trouver des symboles plus facilement. Les <strong>derniers symboles utilisés</strong> sont affichés ici. La troisième colonne du tableau contient des icônes qui représentent le <strong>type de symbole</strong>. Il y a: symboles normaux (étoile), polygones (quatre carrés) et lignes (ligne ondulée).</p>',
       en: '<p>In this view, you can select <strong>symbols</strong>. Use the <strong>search and filter function</strong> to find symbols more easily. <strong>Recently used symbols</strong> are displayed here. The third column of the table contains icons that represent the <strong>type of symbol</strong>. There are: normal symbols (star), polygons (four squares) and lines (wavy line).</p>',
+      fr: '<p>Dans cette vue, vous pouvez sélectionner des <strong>symboles</strong>. Utilisez la <strong>fonction de recherche et de filtrage</strong> pour trouver des symboles plus facilement. Les <strong>derniers symboles utilisés</strong> sont affichés ici. La troisième colonne du tableau contient des icônes qui représentent le <strong>type de symbole</strong>. Il y a: symboles normaux (étoile), polygones (quatre carrés) et lignes (ligne ondulée).</p>',
     },
     docSelectionTitle: {
       de: 'Detailansicht der Zeichnung',
@@ -1382,33 +1382,33 @@ export class I18NService {
     },
     docSelection: {
       de: '<p>Die Detailansicht öffnet sich, wenn ein gezeichnetes Element auf der Karte ausgewählt wird. Die Funktionen sind in verschiedene Untergruppen gruppiert. Von oben nach unten sind das:</p><p><strong>Name der Zeichnung ändern</strong></p><p><strong>Farbauswahlmodus ändern (Aktivierung ermöglicht stufenlose Farbauswahl)</strong></p><p><strong>Farbe der Zeichnung ändern</strong></p><p><strong>Zeichnung auf Karte fixieren (Zeichnung kann nicht mehr bewegt werden)</strong></p><p><strong>Namen der Zeichnung auf Karte anzeigen</strong></p><p><strong>Beschreibung:</strong><ul><li>Beschreibung hinzufügen. Die Beschreibung dient zur Dokumentation und ist auf der Karte nicht sichtbar, erscheint jedoch im Export.</li></ul></p><p><strong>Signatur:</strong><ul><li>Signatur hinzufügen/ersetzen</li><li>Signatur auf Karte verstecken</li><li>Größe der Signatur auf Karte ändern</li><li>Versatz der Signatur auf Karte ändern (Diese Funktion kann hilfreich sein, wenn sich mehrere Signaturen am gleichen Ort befinden)</li><li>Signatur rotieren</li><li>Deckkraft der Signatur ändern</li></ul></p><p><strong>Linie:</strong><ul><li>Linientyp definieren</li><li>Liniendicke definieren</li><li>Linie mit Pfeil versehen</li></ul></p><p><strong>Funktionen:</strong><ul><li>In den Vordergrund</li><li>In den Hintergrund</li><li>Zeichnung an Koordinaten verschieben</li></ul></p><p><strong>Kopie der Zeichnung anfertigen.</strong> Diese Funktion ist nur für Signaturen verfügbar. Die Signatur kann anschließend auf der Karte eingefügt werden.</p><p><strong>Signatur löschen</strong></p><p>Bitte beachten Sie, dass je nach Kontext bestimmte Funktionen nicht verfügbar sind.</p>',
-      fr: "<p>La vue détaillée s'ouvre lorsque vous sélectionnez un élément dessiné sur la carte. Les fonctions sont regroupées en différentes sous-groupes. De haut en bas, ce sont:</p><p><strong>Changer le nom du dessin</strong></p><p><strong>Changer le mode de sélection de la couleur (l'activation permet une sélection de couleur continue)</strong></p><p><strong>Changer la couleur du dessin</strong></p><p><strong>Fixer le dessin sur la carte (le dessin ne peut plus être déplacé)</strong></p><p><strong>Afficher le nom du dessin sur la carte</strong></p><p><strong>Description:</strong><ul><li>Ajouter une description. La description sert à la documentation et n'est pas visible sur la carte, mais apparaît dans l'export.</li></ul></p><p><strong>Symbole:</strong><ul><li>Ajouter / remplacer le symbole</li><li>Masquer le symbole sur la carte</li><li>Modifier la taille du symbole sur la carte</li><li>Modifier le décalage du symbole sur la carte (Cette fonction peut être utile si plusieurs symboles se trouvent au même endroit)</li><li>Faire pivoter le symbole</li><li>Modifier l'opacité du symbole</li></ul></p><p><strong>Ligne:</strong><ul><li>Définir le type de ligne</li><li>Définir l'épaisseur de la ligne</li><li>Marquer la ligne avec une flèche</li></ul></p><p><strong>Fonctions:</strong><ul><li>Mettre au premier plan</li><li>Mettre au dernier plan</li><li>Déplacer le dessin aux coordonnées</li></ul></p><p><strong>Copier le dessin.</strong> Cette fonction est uniquement disponible pour les symboles. Le symbole peut ensuite être inséré sur la carte.</p><p><strong>Supprimer le symbole</strong></p><p>Veuillez noter que certaines fonctions ne sont pas disponibles dans certains contextes.</p>",
       en: '<p>The detailed view opens when a drawn element on the map is selected. The functions are grouped in different subgroups. From top to bottom, these are:</p><p><strong>Change the name of the drawing</strong></p><p><strong>Change the color selection mode (activation allows for continuous color selection)</strong></p><p><strong>Change the color of the drawing</strong></p><p><strong>Fix the drawing on the map (the drawing can no longer be moved)</strong></p><p><strong>Show the name of the drawing on the map</strong></p><p><strong>Description:</strong><ul><li>Add a description. The description serves for documentation and is not visible on the map, but appears in the export.</li></ul></p><p><strong>Symbol:</strong><ul><li>Add / replace the symbol</li><li>Hide the symbol on the map</li><li>Change the size of the symbol on the map</li><li>Change the offset of the symbol on the map (This function can be useful if several symbols are located at the same place)</li><li>Rotate the symbol</li><li>Change the opacity of the symbol</li></ul></p><p><strong>Line:</strong><ul><li>Define the line type</li><li>Define the line thickness</li><li>Mark the line with an arrow</li></ul></p><p><strong>Functions:</strong><ul><li>Bring to the front</li><li>Bring to the back</li><li>Move the drawing to the coordinates</li></ul></p><p><strong>Copy the drawing.</strong> This function is only available for symbols. The symbol can then be inserted on the map.</p><p><strong>Delete the symbol</strong></p><p>Please note that certain functions are not available in certain contexts.</p>',
+      fr: '<p>La vue détaillée s\'ouvre lorsque vous sélectionnez un élément dessiné sur la carte. Les fonctions sont regroupées en différentes sous-groupes. De haut en bas, ce sont:</p><p><strong>Changer le nom du dessin</strong></p><p><strong>Changer le mode de sélection de la couleur (l\'activation permet une sélection de couleur continue)</strong></p><p><strong>Changer la couleur du dessin</strong></p><p><strong>Fixer le dessin sur la carte (le dessin ne peut plus être déplacé)</strong></p><p><strong>Afficher le nom du dessin sur la carte</strong></p><p><strong>Description:</strong><ul><li>Ajouter une description. La description sert à la documentation et n\'est pas visible sur la carte, mais apparaît dans l\'export.</li></ul></p><p><strong>Symbole:</strong><ul><li>Ajouter / remplacer le symbole</li><li>Masquer le symbole sur la carte</li><li>Modifier la taille du symbole sur la carte</li><li>Modifier le décalage du symbole sur la carte (Cette fonction peut être utile si plusieurs symboles se trouvent au même endroit)</li><li>Faire pivoter le symbole</li><li>Modifier l\'opacité du symbole</li></ul></p><p><strong>Ligne:</strong><ul><li>Définir le type de ligne</li><li>Définir l\'épaisseur de la ligne</li><li>Marquer la ligne avec une flèche</li></ul></p><p><strong>Fonctions:</strong><ul><li>Mettre au premier plan</li><li>Mettre au dernier plan</li><li>Déplacer le dessin aux coordonnées</li></ul></p><p><strong>Copier le dessin.</strong> Cette fonction est uniquement disponible pour les symboles. Le symbole peut ensuite être inséré sur la carte.</p><p><strong>Supprimer le symbole</strong></p><p>Veuillez noter que certaines fonctions ne sont pas disponibles dans certains contextes.</p>',
     },
     docMapFunctionsTitle: {
       de: 'Kartenfunktionen',
-      fr: 'Fonctions de la carte',
       en: 'Map functions',
+      fr: 'Fonctions de la carte',
     },
     docMapFunctions: {
       de: 'Die Kartenfunktionen von oben nach unten sind: <ul><li>Hineinzoomen</li><li>Herauszoomen</li><li>Ebenen: Hier kann die Art der Karte verändert werden und es können weitere Ebenen überlagert und ein- und ausgeblendet werden.</li><li>Filter: Hier können Zeichnungen entsprechend Kategorie oder Typ ein- und ausgeblendet werden.</li><li>Ortungsfunktion: Ihr Standort wird auf der Karte angezeigt und die Karte wird auf diesen Standort zentriert.</li></ul>',
-      fr: 'Les fonctions de la carte de haut en bas sont: <ul><li>Zoom avant</li><li>Zoom arrière</li><li>Niveaux: Ici, vous pouvez changer le type de carte et superposer et afficher ou masquer des niveaux supplémentaires.</li><li>Filtres: Ici, vous pouvez afficher ou masquer les dessins en fonction de la catégorie ou du type.</li><li>Fonction de localisation: Votre emplacement est affiché sur la carte et la carte est centrée sur cet emplacement.</li></ul>',
       en: 'The map functions from top to bottom are: <ul><li>Zoom in</li><li>Zoom out</li><li>Layers: Here you can change the map type and overlay and show or hide additional layers.</li><li>Filters: Here you can show or hide drawings according to category or type.</li><li>Location function: Your location is displayed on the map and the map is centered on this location.</li></ul>',
+      fr: 'Les fonctions de la carte de haut en bas sont: <ul><li>Zoom avant</li><li>Zoom arrière</li><li>Niveaux: Ici, vous pouvez changer le type de carte et superposer et afficher ou masquer des niveaux supplémentaires.</li><li>Filtres: Ici, vous pouvez afficher ou masquer les dessins en fonction de la catégorie ou du type.</li><li>Fonction de localisation: Votre emplacement est affiché sur la carte et la carte est centrée sur cet emplacement.</li></ul>',
     },
     docQuickFunctionsTitle: {
       de: 'Schnellfunktionen',
-      fr: 'Fonctions rapides',
       en: 'Quick functions',
+      fr: 'Fonctions rapides',
     },
     docQuickFunctions: {
       de: 'Klicken Sie auf eine <strong>Zeichnung</strong> auf der Karte, um die <strong>Schnellfunktionen</strong> anzuzeigen. Diese beinhalten: <ul><li>Zeichnung oder Ankerpunkt löschen</li><li>Zeichnung <strong>kopieren</strong>: Klicken Sie erneut auf die Karte, um die <strong>Kopie</strong> der Zeichnung einzufügen</li><li>Signatur <strong>rotieren</strong></li></ul>',
-      fr: "Cliquez sur un <strong>dessin</strong> sur la carte pour afficher les <strong>fonctions rapides</strong>. Cela comprend: <ul><li>Supprimer le dessin ou le point d'ancrage</li><li>Copier le dessin: Cliquez à nouveau sur la carte pour insérer la <strong>copie</strong> du dessin</li><li>Rotation de la signature</li></ul>",
       en: 'Click on a <strong>drawing</strong> on the map to display the <strong>quick functions</strong>. This includes: <ul><li>Delete the drawing or anchor point</li><li>Copy the drawing: Click again on the map to insert the <strong>copy</strong> of the drawing</li><li>Rotate the signature</li></ul>',
+      fr: 'Cliquez sur un <strong>dessin</strong> sur la carte pour afficher les <strong>fonctions rapides</strong>. Cela comprend: <ul><li>Supprimer le dessin ou le point d\'ancrage</li><li>Copier le dessin: Cliquez à nouveau sur la carte pour insérer la <strong>copie</strong> du dessin</li><li>Rotation de la signature</li></ul>',
     },
     docExpertIntroTitle: {
       de: 'Standard Ansicht vs Experten Ansicht',
-      fr: 'Default view vs Expert view',
       en: "Vue générale vs Point de vue d'expert",
+      fr: 'Default view vs Expert view',
     },
     docExpertIntro: {
       de: `Die Standard Ansicht ist die welche normalerweise verwendet wird.<br>
@@ -1453,13 +1453,13 @@ export class I18NService {
     },
     docExpertWmsSourceTitle: {
       de: 'WMS / WMTS Quellen',
-      fr: 'WMS/WMTS Sources',
       en: "sources WMS/WMTS",
+      fr: 'WMS/WMTS Sources',
     },
     docExpertWmsSourceButton: {
       de: `Wenn die Experten Ansicht aktiv ist, wird unter "Verfügbare Ebenen" neben dem "Ebenen Quelle" dropdown ein editier Symbol / Button angezeigt(1)`,
-      fr: `Lorsque la vue expert est active, un symbole/bouton d'édition s'affiche à côté du menu déroulant "Source de couche" sous "Couches disponibles" (1)`,
       en: `When the expert view is active, an edit symbol/button is displayed next to the "Layer Source" dropdown under "Available Layers" (1)`,
+      fr: `Lorsque la vue expert est active, un symbole/bouton d'édition s'affiche à côté du menu déroulant "Source de couche" sous "Couches disponibles" (1)`,
     },
     docExpertWmsSource: {
       de: `Durch den klick darauf erhält man die Möglichkeit über "Quelle auswählen"(1) eine bestehende, als Öffentlich markierte (oder eine eigene Gespeicherte), Quelle zur aktuellen Ansicht hinzuzufügen.<br>
@@ -1521,8 +1521,8 @@ export class I18NService {
     },
     docExpertWmsLayersTitle: {
       de: 'WMS/WMTS Ebenen konfigurieren',
-      fr: 'Configurer les couches WMS/WMTS',
       en: 'Configure WMS/WMTS layers',
+      fr: 'Configurer les couches WMS/WMTS',
     },
     docExpertAvailableLayers: {
       de: `Wenn spezielle Ebenen Quellen hinzugefügt wurden, werden dessen Ebenen aus den Capabilities ausgelesen und unter "Verfügbare Ebenen"(1) entspechend aufgelistet(2).<br>
@@ -1600,8 +1600,8 @@ export class I18NService {
     },
     docExpertGeoJsonLayersTitle: {
       de: 'GeoJSON Ebene',
-      fr: 'Couche GeoJSON',
       en: 'GeoJSON Layer',
+      fr: 'Couche GeoJSON',
     },
     docExpertNewLayer: {
       de: `In der Experten Ansicht hat es am Ende des Ebenen Blocks ein Button [Neue Ebene erstellen](1), über diesen können neue Ebenen unabhängig von WMS Quellen erstellt werden.<br>
@@ -1636,8 +1636,8 @@ export class I18NService {
     },
     docExpertCsvLayersTitle: {
       de: 'CSV Ebene',
-      fr: 'Couche CSV',
       en: 'CSV Layer',
+      fr: 'Couche CSV',
     },
     docExpertCsvLayers: {
       de: `Wenn bei der Erstellung einer neuen Ebene der Ebenentyp CSV ausgewählt wird, sind die gleichen Felder verfügbar wie bei GeoJSON, aber zusätzlich noch ein paar CSV spezifische.<br>
@@ -1705,8 +1705,8 @@ export class I18NService {
     },
     docExpertSucheTitle: {
       de: 'Ebenen durchsuchbar machen',
-      fr: 'Rendre les couches consultables',
       en: 'Making layers searchable',
+      fr: 'Rendre les couches consultables',
     },
     docExpertSuche: {
       de: `Bei GeoJSON und CSV Ebenen kann die Option "Ist die Ebene durchsuchbar?"(1) aktiviert werden das man in diesen Ebenen suchen kann.
@@ -1841,8 +1841,8 @@ export class I18NService {
     },
     docExpertPersistLayersTitle: {
       de: 'Aktive Ebenen auf Ereignis persistieren',
-      fr: "Persister les couches actives sur l'événement",
       en: 'Persist active layers to event',
+      fr: 'Persister les couches actives sur l\'événement',
     },
     docExpertPersistLayers: {
       de: `In der Experten Ansicht hat es am Ende des Ebenen Blocks ein Button [Ebenen auf Ereignis speichern](1).<br>
@@ -1857,13 +1857,13 @@ export class I18NService {
     },
     docExpertOrganisationDefaultsTitle: {
       de: 'Default Ebenen Favoriten für Organisation',
-      fr: "Favoris de couches par défaut pour l'organisation",
       en: 'Default layer favorites for organization',
+      fr: 'Favoris de couches par défaut pour l\'organisation',
     },
     docExpertOrganisationDefaultsButton: {
       de: 'In der Experten Ansicht hat es ganz unten in der Ebenen Sidebar den Button [Organisationseinstellungen](1), dieser öffnet eine Ansicht um WMS/WMTS Quellen sowie die Favoriten Ebenen für die eigene Organisation Ereignis und Session übergreifend zu definieren.',
-      fr: "Dans la vue expert, tout en bas de la barre latérale des couches, il y a le bouton [Paramètres de l'organisation] (1), qui ouvre une vue pour définir les sources WMS/WMTS ainsi que les couches favorites pour sa propre organisation, de manière transversale aux événements et aux sessions.",
       en: 'In the expert view, at the very bottom of the layer sidebar, there is the button [Organization settings] (1), which opens a view to define WMS/WMTS sources as well as the favorite layers for your own organization across events and sessions.',
+      fr: 'Dans la vue expert, tout en bas de la barre latérale des couches, il y a le bouton [Paramètres de l\'organisation] (1), qui ouvre une vue pour définir les sources WMS/WMTS ainsi que les couches favorites pour sa propre organisation, de manière transversale aux événements et aux sessions.',
     },
     docExpertOrganisationDefaults: {
       de: `Bei "Vorab ausgewählte WMS-Quellen"(1) werden alle Quellen angezeigt welche selbst erstellt wurden oder öffentlich sind. Hier ausgewählte Quellen sind nach dem Login auf ZS Karte automatisch geladen und werden auch in der Standard Ansicht unter den "Verfügbare Ebenen" angezeigt.<br>
@@ -1899,28 +1899,28 @@ export class I18NService {
     },
     openStreetMap: {
       de: 'OpenStreetMap',
-      fr: 'OpenStreetMap',
       en: 'OpenStreetMap',
+      fr: 'OpenStreetMap',
     },
     geoAdminSwissImage: {
       de: 'SWISSIMAGE',
-      fr: 'SWISSIMAGE',
       en: 'SWISSIMAGE',
+      fr: 'SWISSIMAGE',
     },
     geoAdminPixel: {
       de: 'Pixelkarte farbig',
-      fr: 'Carte pixelisée en couleur',
       en: 'Colored pixel map',
+      fr: 'Carte pixelisée en couleur',
     },
     geoAdminPixelBW: {
       de: 'Pixelkarte grau',
-      fr: 'Carte pixelisée en gris',
       en: 'Gray pixel map',
+      fr: 'Carte pixelisée en gris',
     },
     noBaseMap: {
       de: 'keine Basiskarte',
-      fr: 'pas de carte de base',
       en: 'no base Map',
+      fr: 'pas de carte de base',
     },
     reportNumber: {
       de: 'Meldenummer',
@@ -1980,7 +1980,7 @@ export class I18NService {
     eventState: {
       de: 'Situationslage',
       en: 'Event state',
-      fr: 'Sutiation',
+      fr: 'Situation',
     },
     affectedPersons: {
       de: 'Betroffene Personen',
@@ -2000,12 +2000,12 @@ export class I18NService {
     persistLayers: {
       de: 'Ebenen auf Ereignis speichern',
       en: 'Save layers to event',
-      fr: "Enregistrer les couches dans l'événement",
+      fr: 'Enregistrer les couches dans l\'événement',
     },
     toastPersistLayers: {
       de: 'Ebenen auf Ereignis gespeichert',
       en: 'Layers saved on event',
-      fr: "Couches enregistrées sur événement",
+      fr: 'Couches enregistrées sur événement',
     },
     layerSource: {
       de: 'Ebenen Quelle',
@@ -2055,7 +2055,7 @@ export class I18NService {
     publicSourceInfo: {
       de: 'Quelle darf von anderen Organisationen verwendet werden.',
       en: 'Source may be used by other organizations.',
-      fr: "La source peut être utilisée par d'autres organisations.",
+      fr: 'La source peut être utilisée par d\'autres organisations.',
     },
     layerSourceUrl: {
       de: 'Quell-URL',
@@ -2145,12 +2145,12 @@ export class I18NService {
     MinScaleDenominator: {
       de: 'Min. Skalennenner',
       en: 'Min scale denominator',
-      fr: "Dénominateur d'échelle minimum",
+      fr: 'Dénominateur d\'échelle minimum',
     },
     MaxScaleDenominator: {
       de: 'Max. Skalennenner',
       en: 'Max scale denominator',
-      fr: "Dénominateur d'échelle maximum",
+      fr: 'Dénominateur d\'échelle maximum',
     },
     geojsonLayerSettings: {
       de: 'Einstellungen der GeoJSON/CSV-Ebene',
@@ -2200,7 +2200,7 @@ export class I18NService {
     extent: {
       de: 'Gültiger Bereich',
       en: 'Valid area extent',
-      fr: 'Ètendue de zone valide',
+      fr: 'Étendue de zone valide',
     },
     limitExtent: {
       de: 'Beschränken Sie die Daten auf einen bestimmten Bereich.',
@@ -2210,7 +2210,7 @@ export class I18NService {
     extentInfo: {
       de: 'Der Bereich muss in Datenprojektion angegeben werden. Wenn kein Bereich definiert ist, wird es auf die Schweiz beschränkt.',
       en: 'The area must be specified in dataProjection. If no area is defined, it will be limited to Switzerland.',
-      fr: "La zone doit être spécifiée dans projection de données. Si aucune zone n'est définie, le champ d'application est limité à la Suisse.",
+      fr: 'La zone doit être spécifiée dans projection de données. Si aucune zone n\'est définie, le champ d\'application est limité à la Suisse.',
     },
     styleSourceType: {
       de: 'Stilquellentyp',
@@ -2280,7 +2280,7 @@ export class I18NService {
     searchResultLabelMask: {
       de: 'Suchergebnis Beschriftungs-Maske',
       en: 'Search result label mask',
-      fr: "Masque d'étiquette de résultat de recherche",
+      fr: 'Masque d\'étiquette de résultat de recherche',
     },
     searchResultLabelMaskInfo: {
       de: 'Definieren Sie, was bei der Auswahl der Suchergebnisse angezeigt wird. Verwenden Sie Feature-Eigenschaftsfelder, z. B.',
@@ -2295,7 +2295,7 @@ export class I18NService {
     searchRegExPatternInfo: {
       de: 'Verwenden Sie Regex mit benannten Gruppen, um Sucheingabemuster zu definieren. Der Name muss der Eigenschaftsname sein, in dem gesucht werden soll, z.B.',
       en: 'Use regex with named groups to define search input patterns, the name need to be the property name to search in e.g.',
-      fr: "Utilisez l'expression régulière avec des groupes nommés pour définir des modèles d'entrée de recherche, le nom doit être le nom de la propriété dans laquelle rechercher, par exemple",
+      fr: 'Utilisez l\'expression régulière avec des groupes nommés pour définir des modèles d\'entrée de recherche, le nom doit être le nom de la propriété dans laquelle rechercher, par exemple',
     },
     searchRegExPatternFullMatch: {
       de: 'Die RegEx werden so angepasst, dass sie nach vollständiger übereinstimmung Suchen',
@@ -2315,7 +2315,7 @@ export class I18NService {
     searchResultGroupingInfo: {
       de: 'Gruppieren der Ergebnisse nach diesen Eigenschaften. Bei zu vielen Ergebnissen wird das erste Ergebnis jeder Gruppe (sortiert nach Beschriftung) angezeigt.',
       en: 'Group results by these properties. If there are too many results, the first result of each group (sorted by label) is displayed.',
-      fr: "Regroupez les résultats par ces propriétés. S'il y a trop de résultats, le premier résultat de chaque groupe (trié par étiquette) est affiché.",
+      fr: 'Regroupez les résultats par ces propriétés. S\'il y a trop de résultats, le premier résultat de chaque groupe (trié par étiquette) est affiché.',
     },
     searchMaxResultCount: {
       de: 'Max Anzahl Suchergebnisse',
@@ -2325,12 +2325,12 @@ export class I18NService {
     organisationSettings: {
       de: 'Organisationseinstellungen',
       en: 'Organization settings',
-      fr: "Paramètres de l'organisation",
+      fr: 'Paramètres de l\'organisation',
     },
     organisationLayerSettings: {
       de: 'Organisationseinstellungen für Map-Layer',
       en: 'Organizational settings for map layers',
-      fr: "Paramètres d'organisation de la couche de carte",
+      fr: 'Paramètres d\'organisation de la couche de carte',
     },
     preSelectedWmsSources: {
       de: 'Vorab ausgewählte WMS-Quellen',
@@ -2485,7 +2485,7 @@ export class I18NService {
     offlineDialogMain: {
       de: 'Sie sind derzeit offline. Wenn Sie die Seite aktualisieren oder verlassen, werden Sie abgemeldet und können sich erst wieder anmelden, wenn Sie eine Internetverbindung haben. Sind Sie sicher, dass Sie fortfahren möchten?',
       en: "You are currently offline. Refreshing or exiting the page will log you out and you won't be able to log back in until you have an internet connection. Are you sure you want to proceed?",
-      fr: "Vous êtes actuellement hors ligne. Actualiser ou quitter la page vous déconnectera et vous ne pourrez pas vous reconnecter tant que vous ne disposerez pas d'une connexion internet. Êtes-vous sûr de vouloir continuer ?",
+      fr: 'Vous êtes actuellement hors ligne. Actualiser ou quitter la page vous déconnectera et vous ne pourrez pas vous reconnecter tant que vous ne disposerez pas d\'une connexion internet. Êtes-vous sûr de vouloir continuer ?',
     },
     personRecoveryOverview: {
       de: 'Personenbergungsübersicht',
@@ -2525,12 +2525,12 @@ export class I18NService {
     guestLimitReachedShort: {
       de: 'Gastmodus Limit erreicht',
       en: 'Guest limit reached',
-      fr: "Limite d'invités atteinte",
+      fr: 'Limite d\'invités atteinte',
     },
     guestLimitReached: {
       de: 'Die maximale Anzahl von Elementen für den Gastzugang ist erreicht. Wenn Sie Interesse an einem dauerhaften Zugang zur ZSKarte haben, wenden Sie sich bitte an info@zskarte.ch.',
       en: "The maximum number of elements for guest access has been reached. If yo're interested in having permanent access to the ZSKarte, please contact info@zskarte.ch.",
-      fr: "Le nombre maximum d'éléments pour l'accès invité a été atteint. Si vous êtes intéressé par un accès permanent à la ZSKarte, veuillez contacter info@zskarte.ch.",
+      fr: 'Le nombre maximum d\'éléments pour l\'accès invité a été atteint. Si vous êtes intéressé par un accès permanent à la ZSKarte, veuillez contacter info@zskarte.ch.',
     },
     guestLimitElements: {
       de: 'Elemente auf der Karte im Gastmodus',
@@ -2610,7 +2610,7 @@ export class I18NService {
     someoneIsDrawing: {
       de: 'Jemand hat mit Zeichnen begonnen',
       en: 'Someone started drawing',
-      fr: "Quelqu'un a commencé à dessiner",
+      fr: 'Quelqu\'un a commencé à dessiner',
     },
     markAsDrawn: {
       de: 'Als gezeichnet markieren',
@@ -2865,7 +2865,7 @@ export class I18NService {
     wrongTriageInfo: {
       de: 'Warum gehört er nicht in deinen Fachbereich?',
       en: "Why doesn't it belong to your department?",
-      fr: "Pourquoi n'est-il pas à toi?",
+      fr: 'Pourquoi n\'est-il pas à toi?',
     },
     backToTriage: {
       de: 'Zurück zur Triage',
@@ -2995,7 +2995,7 @@ export class I18NService {
     errorSaving: {
       de: 'Fehler beim Speichern',
       en: 'Error saving',
-      fr: "Erreur lors de l'enregistrement",
+      fr: 'Erreur lors de l\'enregistrement',
     },
     storedLocallyOnly: {
       de: 'Nur lokal gespeichert.',
@@ -3073,12 +3073,12 @@ export class I18NService {
     fillAllFields: {
       de: 'Bitte füllen Sie alle benötigten Felder.',
       en: 'Please fill in all required fields.',
-      fr: "Veuillez remplir tous les champs obligatoires.",
+      fr: 'Veuillez remplir tous les champs obligatoires.',
     },
     closeNotSaved: {
       de: 'Sie haben noch nicht gespeicherte Änderungen, möchten Sie diese verwerfen?',
       en: 'You have unsaved changes, do you want to discard them?',
-      fr: "Vous avez des modifications non enregistrées, souhaitez-vous les ignorer?",
+      fr: 'Vous avez des modifications non enregistrées, souhaitez-vous les ignorer?',
     },
     errorLoadingJournalEntries: {
       de: 'Fehler beim laden der Journal Einträge.',
@@ -3093,7 +3093,7 @@ export class I18NService {
     customizePrintForm: {
       de: 'Druckformular anpassen',
       en: 'Customize print form',
-      fr: "Personnaliser le formulaire d'impression",
+      fr: 'Personnaliser le formulaire d\'impression',
     },
     reloadFromServer: {
       de: 'Neu laden vom Server',
@@ -3118,7 +3118,7 @@ export class I18NService {
     waterSearch: {
       de: 'Gewässersuche (Abschnitt)',
       en: 'Water search (section)',
-      fr: "Recherche d'eau (section)",
+      fr: 'Recherche d\'eau (section)',
     },
     filterMapSection: {
       de: 'Nur Ergebnisse aus Kartenausschnitt',
@@ -3128,7 +3128,7 @@ export class I18NService {
     filterByDistance: {
       de: 'Nur Ergebnisse bis max Distanz',
       en: 'Only results up to max distance',
-      fr: "Résultats uniquement jusqu'à la distance maximale",
+      fr: 'Résultats uniquement jusqu\'à la distance maximale',
     },
     maxDistance: {
       de: 'Max Distanz',
