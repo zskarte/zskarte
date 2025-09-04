@@ -26,7 +26,7 @@
   </div>
   @if (entry().decision && entry().decision.trim()) {
   <div class="content-section" [class.entscheid-awaiting-completion]="entry().entryStatus === JournalEntryStatus.AWAITING_COMPLETION || entry().entryStatus === JournalEntryStatus.COMPLETED">
-    <div class="section-title">{{ i18n.get('entscheid') }}</div>
+    <div class="section-title">{{ i18n.get('decision') }}</div>
     <div class="section-content">
       <p class="preserve-linebreak">{{ entry().decision }}</p>
     </div>
