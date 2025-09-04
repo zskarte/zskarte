@@ -3766,51 +3766,61 @@ export class I18NService {
     },
   };
 
+    public get(key: string): string {
+    if (!key?.trim()) {
+      console.warn('Empty translation key provided');
+      return '';
+    }
+
+    const element = I18NService.TRANSLATIONS[key];
+    if (!element) {
+      console.warn(`Missing translation key: ${key}`);
+      return key;
+    }
+
+    return this.getFallbackTranslation(element, key);
+  }
+
   public getLabelForSign(sign: Sign): string {
-    const chosenLang = sign[this._session.getLocale()];
-    if (chosenLang) {
-      return chosenLang;
-    } else {
-      for (const locale of LOCALES) {
-        if (sign[locale]) {
-          return sign[locale] ?? '';
-        }
-      }
+    return this.getFallbackSignTranslation(sign);
+  }
+
+  public has(key: string): boolean {
+    const element = I18NService.TRANSLATIONS[key];
+    if (!element) return false;
+
+    return this.getFallbackTranslation(element) !== '';
+  }
+
+  // Private helper methods
+  private getFallbackTranslation(translations: Record<string, string>, key?: string): string {
+    const userLocale = this._session.getLocale();
+    const preferred = translations[userLocale];
+
+    if (preferred) return preferred;
+
+    // Log when user's preferred locale is missing
+    const keyInfo = key ? ` for key '${key}'` : '';
+    console.warn(`Translation missing${keyInfo} for user locale '${userLocale}'`);
+
+    for (const locale of LOCALES) {
+      if (translations[locale]) return translations[locale];
     }
     return '';
   }
 
-  public get(key: string): string {
-    const element = I18NService.TRANSLATIONS[key];
-    if (element) {
-      const chosenLang = element[this._session.getLocale()];
-      if (chosenLang) {
-        return chosenLang;
-      } else {
-        for (const locale of LOCALES) {
-          if (element[locale]) {
-            return element[locale];
-          }
-        }
-      }
+  private getFallbackSignTranslation(sign: Sign): string {
+    const userLocale = this._session.getLocale();
+    const preferred = sign[userLocale];
+
+    if (preferred) return preferred;
+
+    console.warn(`Sign translation missing for user locale '${userLocale}'`);
+
+    for (const locale of LOCALES) {
+      if (sign[locale]) return sign[locale];
     }
-    console.error(`Was not able to find an entry in translation table for key ${key}`);
-    return key;
+    return '';
   }
-  public has(key: string): boolean {
-    const element = I18NService.TRANSLATIONS[key];
-    if (element) {
-      const chosenLang = element[this._session.getLocale()];
-      if (chosenLang) {
-        return true;
-      } else {
-        for (const locale of LOCALES) {
-          if (element[locale]) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
+
 }
