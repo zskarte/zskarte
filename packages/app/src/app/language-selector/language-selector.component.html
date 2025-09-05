@@ -1,0 +1,28 @@
+<div class="language-selector-container">
+  <button 
+    mat-button 
+    [matMenuTriggerFor]="languageMenu" 
+    [attr.aria-label]="i18n.get('language')"
+    class="language-button"
+  >
+      <mat-icon>language</mat-icon>
+      <span class="language-text">{{ i18n.get((currentLocale$ | async) || 'de') }}</span>
+  </button>
+</div>
+
+<mat-menu #languageMenu="matMenu">
+  @for (locale of locales; track locale) {
+    <button 
+      mat-menu-item 
+      (click)="setLocale(locale)" 
+      [ngClass]="{ 'active-language': locale === (currentLocale$ | async) }"
+    >
+      @if (locale === (currentLocale$ | async)) {
+        <mat-icon>check</mat-icon>
+      }
+      <span [ngClass]="{ 'selected-text': locale === (currentLocale$ | async) }">
+        {{ i18n.get(locale) }}
+      </span>
+    </button>
+  }
+</mat-menu>

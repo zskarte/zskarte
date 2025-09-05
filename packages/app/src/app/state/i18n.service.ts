@@ -155,10 +155,30 @@ export class I18NService {
     },
 
     //login view
-    zso: {
+    loginTitle: {
+      de: 'Login',
+      en: 'Login',
+      fr: 'Connexion',
+    },
+    loginOrganization: {
       de: 'ZSO',
-      en: 'CPO',
-      fr: 'PCi',
+      en: 'Organization', 
+      fr: 'Organisation',
+    },
+    enterOrganization: {
+      de: 'Organisation eingeben',
+      en: 'Enter organization',
+      fr: 'Entrer organisation',
+    },
+    enterPassword: {
+      de: 'Passwort eingeben',
+      en: 'Enter password',
+      fr: 'Entrer mot de passe',
+    },
+    login: {
+      de: 'Login',
+      en: 'Login', 
+      fr: 'Connexion',
     },
     or: {
       de: 'oder',
@@ -169,6 +189,16 @@ export class I18NService {
       de: 'Login mit Code',
       en: 'Login with code',
       fr: 'Connexion avec code',
+    },
+    loginCode: {
+      de: 'Login-Code',
+      en: 'Login code',
+      fr: 'Code de connexion',
+    },
+    enterLoginCode: {
+      de: 'Login-Code eingeben',
+      en: 'Enter login code',
+      fr: 'Entrer code de connexion',
     },
     guestLogin: {
       de: 'Als Gast fortfahren',

@@ -15,6 +15,8 @@ import {
   PermissionType,
 } from '@zskarte/types';
 import { transform } from 'ol/proj';
+
+const LANGUAGE_PREFERENCE_KEY = 'zskarte-language-preference';
 import {
   BehaviorSubject,
   Observable,
@@ -77,6 +79,9 @@ export class SessionService {
     if (!navigator.onLine) {
       this._isOnline.next(false);
     }
+
+    // Initialize language preference for any existing session
+    this.initializeLanguagePreference();
 
     this._session.pipe(skip(1)).subscribe(async (session) => {
       this._clearOperation.next();
@@ -589,7 +594,7 @@ export class SessionService {
     } else {
       newSession = {
         id: 'current',
-        locale: DEFAULT_LOCALE,
+        locale: this.getPreferredLocale(),
       };
     }
 
@@ -650,7 +655,7 @@ export class SessionService {
   public startWorkLocal() {
     const newSession: IZsMapSession = {
       id: 'local',
-      locale: DEFAULT_LOCALE,
+      locale: this.getPreferredLocale(),
       workLocal: true,
       permission: PermissionType.ALL,
       label: 'local',
@@ -729,19 +734,59 @@ export class SessionService {
   }
 
   public setLocale(locale: Locale): void {
-    const currentSession = this._session.value;
-    if (currentSession) {
+    // Save language preference to localStorage for persistence
+    localStorage.setItem(LANGUAGE_PREFERENCE_KEY, locale);
+    
+    let currentSession = this._session.value;
+    if (!currentSession) {
+      // Create a minimal session for language selection before login
+      currentSession = {
+        id: 'pre-login',
+        locale: locale,
+      };
+    } else {
       currentSession.locale = locale;
-      this._session.next(currentSession);
     }
+    this._session.next(currentSession);
   }
 
   public getLocale(): Locale {
-    return this._session.value?.locale ?? DEFAULT_LOCALE;
+    return this._session.value?.locale ?? this.getPreferredLocale();
+  }
+
+  public observeLocale(): Observable<Locale> {
+    return this._session.pipe(
+      map(session => session?.locale ?? this.getPreferredLocale())
+    );
   }
 
   public observeIsOnline(): Observable<boolean> {
     return this._isOnline.pipe(distinctUntilChanged());
+  }
+
+  private getPreferredLocale(): Locale {
+    const savedLanguage = localStorage.getItem(LANGUAGE_PREFERENCE_KEY) as Locale;
+    if (savedLanguage && ['de', 'en', 'fr'].includes(savedLanguage)) {
+      return savedLanguage;
+    }
+    return DEFAULT_LOCALE;
+  }
+
+  private initializeLanguagePreference(): void {
+    const preferredLocale = this.getPreferredLocale();
+    const currentSession = this._session.value;
+    
+    // If we have a saved language preference and it's different from the current session
+    if (currentSession && preferredLocale !== DEFAULT_LOCALE && currentSession.locale !== preferredLocale) {
+      currentSession.locale = preferredLocale;
+      this._session.next(currentSession);
+    } else if (!currentSession && preferredLocale !== DEFAULT_LOCALE) {
+      // Create a minimal session with the preferred language
+      this._session.next({
+        id: 'language-init',
+        locale: preferredLocale,
+      });
+    }
   }
 
   public isOnline(): boolean {
