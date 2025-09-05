@@ -1,7 +1,3 @@
-.contenteditable {
-  min-height: 200px;
-}
-
 .contenteditable[contenteditable='true']:focus {
   outline: none;
   word-wrap: break-word;

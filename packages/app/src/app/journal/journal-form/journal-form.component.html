@@ -125,6 +125,17 @@
             </tr>
             <tr>
               <td>
+                <strong>{{ i18n.get('location') }}:</strong>
+              </td>
+              <td
+                class="preserve-linebreak"
+                [innerHTML]="
+                journalForm.value.location | replaceAllAddressTokens: true : markPotentialAddresses()
+                "
+                (click)="search.handleMessageContentClick($event)"></td>
+            </tr>
+            <tr>
+              <td>
                 <strong>{{ i18n.get('messageContent') }}:</strong>
               </td>
               <td
@@ -190,10 +201,18 @@
                 </mat-form-field>
               </div>
 
+              <app-location-with-address-search
+                #location
+                [label]="i18n.get('location')"
+                [formVisible]="formVisible()"
+                [locationControl]="locationControl"
+              ></app-location-with-address-search>
+
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
                 <input matInput formControlName="messageSubject" />
               </mat-form-field>
+              
               <app-text-area-with-address-search
                 #messageContent
                 [label]="i18n.get('messageContent')"

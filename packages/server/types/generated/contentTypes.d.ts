@@ -409,6 +409,7 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::journal-entry.journal-entry'> &
       Schema.Attribute.Private;
+    location: Schema.Attribute.String;
     messageContent: Schema.Attribute.Text;
     messageNumber: Schema.Attribute.Integer;
     messageSubject: Schema.Attribute.String;

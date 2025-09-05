@@ -6,7 +6,11 @@
       <button mat-icon-button class="expand" (click)="toggleExpanded()">
         <mat-icon>{{ expanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
-    </div>
+    </div><p
+      class="preserve-linebreak"
+      [innerHTML]="entry()!.location | replaceAllAddressTokens: true : markPotentialAddresses()"
+      (click)="search.handleMessageContentClick($event)"
+    ></p>
     <p
       class="preserve-linebreak"
       [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()"

@@ -27,6 +27,9 @@
     "communicationDetails": {
       "type": "string"
     },
+    "location": {
+      "type": "string"
+    },
     "messageSubject": {
       "type": "string"
     },

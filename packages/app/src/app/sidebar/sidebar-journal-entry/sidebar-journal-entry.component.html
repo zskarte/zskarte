@@ -1,3 +1,8 @@
+<p
+  class="preserve-linebreak"
+  [innerHTML]="entry()!.location | replaceAllAddressTokens: true : markPotentialAddresses()"
+  (click)="search.handleMessageContentClick($event)"
+></p>
 <div class="created-date">{{ entry().dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
 <p
   class="preserve-linebreak"

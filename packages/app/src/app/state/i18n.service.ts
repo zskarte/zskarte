@@ -2682,6 +2682,11 @@ export class I18NService {
       en: 'Other',
       fr: 'Autre',
     },
+    location: {
+      de: 'Ort',
+      en: 'Location',
+      fr: 'Lieu',
+    },
     messageContent: {
       de: 'Meldungsinhalt',
       en: 'Message content',

@@ -35,6 +35,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { LocationWithAddressSearchComponent } from '../location-with-address-search/location-with-address-search.component';
 
 @Component({
   selector: 'app-journal-form',
@@ -53,6 +54,7 @@ import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-to
     CommonModule,
     TextAreaWithAddressSearchComponent,
     ReplaceAllAddressTokensPipe,
+    LocationWithAddressSearchComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
@@ -68,6 +70,7 @@ export class JournalFormComponent {
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
+  locationEl = viewChild<LocationWithAddressSearchComponent>('location');
 
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
@@ -108,6 +111,10 @@ export class JournalFormComponent {
     communicationDetails: new FormControl('', {
       nonNullable: true,
       validators: [this.requiredField('communicationDetails')],
+    }),
+    location: new FormControl('', {
+      nonNullable: true,
+      validators: [this.requiredField('location')],
     }),
     messageSubject: new FormControl('', {
       nonNullable: true,
@@ -176,6 +183,10 @@ export class JournalFormComponent {
 
   get messageContentControl(): FormControl {
     return this.journalForm.get('messageContent') as FormControl;
+  }
+
+  get locationControl(): FormControl {
+    return this.journalForm.get('location') as FormControl;
   }
 
   private combineDateAndTime(dateObj: Date, timeObj: Date) {
@@ -371,8 +382,17 @@ export class JournalFormComponent {
   @HostListener('window:keydown.Escape', ['$event'])
   closeSidebareOnEsc(event: KeyboardEvent): void {
     const messageContentEl = this.messageContentEl();
+    const locationEl = this.locationEl();
     if (messageContentEl) {
       if (messageContentEl.abortOnEsc(event)) {
+        return;
+      }
+    } else if (this.search.handleEsc(event)) {
+      return;
+    }
+
+    if (locationEl) {
+      if (locationEl.abortOnEsc(event)) {
         return;
       }
     } else if (this.search.handleEsc(event)) {
@@ -424,6 +444,7 @@ export class JournalFormComponent {
 
     await this.journal.print({
       ...entry,
+      location: this.search.removeAllAddressTokens(entry.location, false),
       messageContent: this.search.removeAllAddressTokens(entry.messageContent, false),
     });
 
@@ -435,6 +456,7 @@ export class JournalFormComponent {
   }
 
   async showAllAddresses() {
+    await this.search.showAllFeature(this.locationControl.value, true);
     await this.search.showAllFeature(this.messageContentControl.value, true);
     this.search.addressPreview.set(true);
   }

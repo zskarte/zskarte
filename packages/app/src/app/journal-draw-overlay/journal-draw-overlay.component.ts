@@ -59,6 +59,7 @@ export class JournalDrawOverlayComponent {
   }
 
   async showAllAddresses() {
+    await this.search.showAllFeature(this.entry()!.location, true, [100, 100, 100, 100]);
     await this.search.showAllFeature(this.entry()!.messageContent, true, [100, 100, 100, 100]);
     this.search.addressPreview.set(true);
   }

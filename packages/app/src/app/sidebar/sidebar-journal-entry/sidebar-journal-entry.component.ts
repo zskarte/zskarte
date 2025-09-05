@@ -135,6 +135,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   }
 
   async showAllAddresses() {
+    await this.search.showAllFeature(this.entry().location, true, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
     await this.search.showAllFeature(this.entry().messageContent, true, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
     this.search.addressPreview.set(true);
   }

@@ -46,6 +46,7 @@ export const JournalEntryStatusFields: Record<JournalEntryStatus, (keyof Journal
     'sender',
     'creator',
     'visumMessage',
+    'location',
   ],
   [JournalEntryStatus.AWAITING_TRIAGE]: ['isKeyMessage', 'department', 'visumTriage', 'dateTriage'],
   [JournalEntryStatus.AWAITING_DECISION]: ['decision', 'decisionReceiver', 'visumDecider', 'dateDecision'],
@@ -105,6 +106,7 @@ export interface JournalEntry {
   entryStatus: JournalEntryStatus;
 
   messageNumber: number;
+  location: string;
   messageSubject: string;
   messageContent: string;
   dateMessage: Date;
