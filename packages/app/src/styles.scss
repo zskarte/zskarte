@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @include mat.core();
+@import 'quill/dist/quill.snow.css';
 
 /* You can add global styles to this file, and also import other style files */
 html,
@@ -171,10 +172,10 @@ fieldset.like-mat-form-field-outline > legend {
 .addr-geo {
   cursor: pointer;
   text-wrap: nowrap;
+  display: inline-block;
 
   &.edit-active {
     width: 300px;
-    display: inline-block;
 
     .addr-show,
     .addr-edit {
@@ -228,12 +229,9 @@ fieldset.like-mat-form-field-outline > legend {
   }
 }
 
-.addr-caret {
+.placeholder-blot {
   display: inline-block;
-  width: 300px;
+  vertical-align: middle;
+  background: transparent;
 }
 
-.addr-caret::after {
-  content: '\00A0';
-  visibility: hidden;
-}
