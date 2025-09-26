@@ -21,6 +21,8 @@ import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
+import { JournalService } from 'src/app/journal/journal.service';
+import { Router } from '@angular/router';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
@@ -42,6 +44,8 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   private _renderer = inject(MapRendererService);
   i18n = inject(I18NService);
   search = inject(SearchService);
+  journal = inject(JournalService);
+  private _router = inject(Router);
   entry = input.required<JournalEntry>();
   allHighlighted = false;
 
@@ -137,5 +141,10 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   async showAllAddresses() {
     await this.search.showAllFeature(this.entry().messageContent, true, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
     this.search.addressPreview.set(true);
+  }
+
+  openJournalClick(event: Event) {
+    event.stopPropagation();
+    this._router.navigate(['/main/journal'], { queryParams: { messageNumber: this.entry().messageNumber } });
   }
 }

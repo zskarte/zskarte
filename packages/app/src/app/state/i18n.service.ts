@@ -2582,6 +2582,11 @@ export class I18NService {
       en: 'Show on map',
       fr: 'Afficher sur la carte',
     },
+    showInJournal: {
+      de: 'Im Journal anzeigen',
+      en: 'Show in journal',
+      fr: 'Afficher dans le journal',
+    },
     journal: {
       de: 'Journal',
       en: 'Journal',

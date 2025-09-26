@@ -3,6 +3,15 @@ h3 {
   display: flex;
 }
 
+.meta-infos {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.showInJournal {
+  margin-left: auto;
+}
+
 .created-date {
   color: #888;
   font-size: 12px;

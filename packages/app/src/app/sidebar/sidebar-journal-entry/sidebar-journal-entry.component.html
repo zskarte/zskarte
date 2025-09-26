@@ -1,3 +1,16 @@
+<div class="meta-infos">
+  <div class="entryStatus">{{ i18n.get('status') }}: {{ i18n.get('journalEntry_' + entry().entryStatus) }},</div>
+  <div class="responsibility">{{ i18n.get('responsibility') }}: {{ journal.getResponsibility(entry()) }}</div>
+  <button
+    class="showInJournal"
+    mat-icon-button
+    [attr.aria-label]="i18n.get('showInJournal')"
+    [attr.title]="i18n.get('showInJournal')"
+    (click)="openJournalClick($event)"
+  >
+    <mat-icon>menu_book</mat-icon>
+  </button>
+</div>
 <div class="created-date">{{ entry().dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
 <p
   class="preserve-linebreak"
