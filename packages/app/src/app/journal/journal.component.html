@@ -11,6 +11,9 @@
     <div class="journal-header mat-elevation-z3">
       <div class="journal-header-content">
         <h1>{{ i18n.get('journal') }}</h1>
+        @if(isHistoryMode() && !isCurrentMapData()) {
+          <div class="notHistory">{{ i18n.get('journalNotHistory') }}</div>
+        }
         <div class="buttons">
           @if (!isOnline()) {
             <mat-icon class="offline" [attr.aria-label]="i18n.get('youAreOffline')" [title]="i18n.get('youAreOffline')"

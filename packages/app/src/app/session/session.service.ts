@@ -215,7 +215,7 @@ export class SessionService {
             });
         } else {
           await this._router.navigate(['operations'], { queryParamsHandling: 'preserve', preserveFragment: true });
-          this._state.setMapState(undefined);
+          this._state.setMapState(undefined, undefined);
           this._state.setDisplayState(undefined);
         }
         return;

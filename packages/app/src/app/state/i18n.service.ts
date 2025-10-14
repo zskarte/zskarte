@@ -1942,6 +1942,11 @@ export class I18NService {
       en: 'Backup applied',
       fr: 'Sauvegarde appliqué',
     },
+    currentStateActive: {
+      de: 'Aktuelle Karte',
+      en: 'Most recent map',
+      fr: 'Actuel map',
+    },
     noSignature: {
       de: 'Ohne Signatur',
       en: 'Without signature',
@@ -2586,6 +2591,11 @@ export class I18NService {
       de: 'Journal',
       en: 'Journal',
       fr: 'Journal',
+    },
+    journalNotHistory: {
+      de: 'Anzeige aktuell, nicht auf Stand Sicherungszeitpunkt.',
+      en: 'Display is current, not at the time of backup.',
+      fr: "L'affichage est actuel, pas au moment de la sauvegarde.",
     },
     noMessagesToProcess: {
       de: 'Keine Meldungen zu verarbeiten',
