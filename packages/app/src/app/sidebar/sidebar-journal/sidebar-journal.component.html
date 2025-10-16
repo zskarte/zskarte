@@ -8,9 +8,11 @@
     <p>{{ i18n.get('noMessagesToProcess') }}</p>
   </div>
 } @else {
-  <h2 class="journal-header">{{ i18n.get('messagesToDraw') }}</h2>
+  <h2 class="journal-header" (click)="toggle('toDraw')">
+    {{ i18n.get('messagesToDraw') }}<mat-icon class="toggle-icon" [class.rotated]="isOpen.toDraw">expand_more</mat-icon>
+  </h2>
   <mat-divider></mat-divider>
-  <mat-accordion multi displayMode="flat">
+  <mat-accordion *ngIf="isOpen.toDraw" multi displayMode="flat">
     @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
       <mat-expansion-panel
         class="mat-elevation-z0"
@@ -43,9 +45,11 @@
     }
   </mat-accordion>
 
-  <h2 class="journal-header">{{ i18n.get('drawnMessages') }}</h2>
+  <h2 class="journal-header" (click)="toggle('drawn')">
+    {{ i18n.get('drawnMessages') }}<mat-icon class="toggle-icon" [class.rotated]="isOpen.drawn">expand_more</mat-icon>
+  </h2>
   <mat-divider></mat-divider>
-  <mat-accordion multi displayMode="flat">
+  <mat-accordion *ngIf="isOpen.drawn" multi displayMode="flat">
     @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
       <mat-expansion-panel
         class="mat-elevation-z0"

@@ -52,4 +52,18 @@ mat-panel-title {
 
 .journal-header {
   margin: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+  vertical-align: middle;
+  margin-left: auto;
+}
+
+.toggle-icon.rotated {
+  transform: rotate(180deg);
 }
