@@ -2992,6 +2992,11 @@ export class I18NService {
       en: 'Message template',
       fr: 'Modèle de message',
     },
+    printEmptySavedTemplate: {
+      de: 'Gespeicherte Vorlage drucken, leer',
+      en: 'Print saved template, empty',
+      fr: 'Imprimer le modèle enregistré, vide',
+    },
     errorSaving: {
       de: 'Fehler beim Speichern',
       en: 'Error saving',

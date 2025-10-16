@@ -679,6 +679,12 @@ export class JournalService {
     if (organizationFull?.logo?.provider === 'local') {
       organization.logo_url = `${environment.apiUrl}${organization.logo_url}`;
     }
+    let fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
+    if (Object.keys(entry).length === 0){
+      operation.documentId = "";
+      operation.name = "";
+      fileName = `${organization.name}_message_template_${new Date().toISOString().slice(0, 10)}.pdf`;
+    }
     let entryUrl;
     if (entry.messageNumber && entry.createdAt) {
       entryUrl = `${window.location.origin}/main/journal?operationId=${operation.documentId}&messageNumber=${entry.messageNumber}`;
@@ -694,7 +700,6 @@ export class JournalService {
         url_entry: entryUrl,
       },
     ];
-    const fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
     await pdfService.downloadPdf(template, data, fileName);
   }
 
