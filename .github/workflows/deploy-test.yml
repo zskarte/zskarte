@@ -25,11 +25,6 @@ env:
   STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
   STORAGE_URL: https://zskarte.blob.core.windows.net
   STORAGE_CONTAINER_NAME: zskarte-dev
-  BACKUP_ENCRYPTION_PASSWORD: ${{ secrets.BACKUP_ENCRYPTION_PASSWORD }}
-  BACKUP_WEBDAV_URL: https://nextcloud.hackerman.ch/remote.php/dav/files/d4y-backup
-  BACKUP_WEBDAV_USER: d4y-backup
-  BACKUP_WEBDAV_PASSWORD: ${{ secrets.BACKUP_WEBDAV_PASSWORD }}
-  BACKUP_PINGCHECK_URL: https://uptime.digital4you.ch/api/push/zWihzwC36N?status=up&msg=OK&ping=
 
 jobs:
   build-and-deploy-server:
@@ -64,8 +59,6 @@ jobs:
             .azure/k8s/deployment.yml
             .azure/k8s/service.yml
             .azure/k8s/ingress.yml
-            .azure/k8s/backup/secrets.yml
-            .azure/k8s/backup/cronjob.yml
           replacement-method: defined
         env:
           IMAGE_TAG: ${{ github.sha }}
