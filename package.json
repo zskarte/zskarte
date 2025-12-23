@@ -37,6 +37,7 @@
     "tsx": "^4.19.2"
   },
   "dependencies": {
+    "@strapi/strapi": "^5.33.0",
     "fix-esm": "^1.0.1",
     "fuse.js": "^7.0.0",
     "inquirer": "^12.3.2",

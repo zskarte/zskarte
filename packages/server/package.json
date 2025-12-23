@@ -16,8 +16,8 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-users-permissions": "^5.8.0",
-    "@strapi/strapi": "^5.8.0",
+    "@strapi/plugin-users-permissions": "^5.33.0",
+    "@strapi/strapi": "^5.33.0",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "pg": "^8.13.0",
