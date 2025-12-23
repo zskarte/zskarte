@@ -369,7 +369,7 @@ export class JournalFormComponent {
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(event: KeyboardEvent): void {
+  closeSidebareOnEsc(event: Event): void {
     const messageContentEl = this.messageContentEl();
     if (messageContentEl) {
       if (messageContentEl.abortOnEsc(event)) {

@@ -193,7 +193,7 @@ export class TextAreaWithAddressSearchComponent {
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
-  abortOnEsc(event: KeyboardEvent) {
+  abortOnEsc(event: Event) {
     if (this.addressSelection()) {
       this.autocompleteTrigger().closePanel();
       event.preventDefault();

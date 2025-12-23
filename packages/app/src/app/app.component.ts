@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
     this.setSize();
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   setSize(): void {
     this.height = document.documentElement?.clientHeight || window.innerHeight;
     this.width = window.innerWidth;
