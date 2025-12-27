@@ -7,10 +7,23 @@
   "author": {
     "name": "ZSKarte Team"
   },
+  "config": {
+    "executableName": "zskarte-server"
+  },
   "scripts": {
     "dev": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
+    "export:user-role": "config-sync export --yes --type user-role",
+    "prebuild:webpack": "cd ../.. && npm run prepare-bundle",
+    "build:webpack": "npx webpack --config bundle_files/webpack.config.mjs",
+    "prebuild:sea": "cd ../.. && npm run prepare-bundle exec",
+    "build:sea": "cd ../.. && npm run bundle-sea && npm run inject-sea",
+    "postbuild:sea": "cd ../.. && npm run zip-release",
+    "build:all": "npm run build && npm run build:webpack && npm run build:sea",
+    "start:webpack": "cd bundled/ && ./startWebpack.sh",
+    "start:sea": "cd exec/ && ./startServer.sh",
+    "setup:sea": "cd exec/ && ./startServer.sh --setup",
     "regenerate": "strapi ts:generate-types",
     "export": "config-sync export --yes --type user-role",
     "strapi": "strapi"
@@ -20,7 +33,6 @@
     "@strapi/strapi": "^5.33.0",
     "immer": "^10.2.0",
     "lodash": "^4.17.21",
-    "pg": "^8.16.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.2",
@@ -31,6 +43,17 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.21"
+    "@types/lodash": "^4.17.21",
+    "node-loader": "^2.1.0",
+    "null-loader": "^4.0.1",
+    "postject": "^1.0.0-alpha.6",
+    "typescript": "^5",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "optionalDependencies": {
+    "@babel/preset-typescript": "^7.28.5",
+    "better-sqlite3": "^12.5.0",
+    "pg": "^8.16.3"
   }
 }

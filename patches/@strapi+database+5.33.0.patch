@@ -1,0 +1,171 @@
+diff --git a/node_modules/@strapi/database/dist/migrations/users.js b/node_modules/@strapi/database/dist/migrations/users.js
+index f978395..6ca9c94 100644
+--- a/node_modules/@strapi/database/dist/migrations/users.js
++++ b/node_modules/@strapi/database/dist/migrations/users.js
+@@ -1,5 +1,5 @@
+ 'use strict';
+-
++var path = require('path');
+ var fse = require('fs-extra');
+ var umzug = require('umzug');
+ var storage = require('./storage.js');
+@@ -7,7 +7,7 @@ var common = require('./common.js');
+ var logger = require('./logger.js');
+ 
+ // TODO: check multiple commands in one sql statement
+-const migrationResolver = ({ name, path, context })=>{
++const migrationResolver = ({ name, path, context, req })=>{
+     const { db } = context;
+     if (!path) {
+         throw new Error(`Migration ${name} has no path`);
+@@ -25,7 +25,7 @@ const migrationResolver = ({ name, path, context })=>{
+     }
+     // NOTE: we can add some ts register if we want to handle ts migration files at some point
+     // eslint-disable-next-line @typescript-eslint/no-var-requires
+-    const migration = require(path);
++    const migration = (typeof __webpack_require__ === 'function') ? req(path) : require(path);
+     return {
+         name,
+         up: common.wrapTransaction(db)(migration.up),
+@@ -33,8 +33,15 @@ const migrationResolver = ({ name, path, context })=>{
+     };
+ };
+ const createUserMigrationProvider = (db)=>{
+-    const dir = db.config.settings.migrations.dir;
+-    fse.ensureDirSync(dir);
++    let req;
++    let dir;
++    if (typeof __webpack_require__ === 'function') {
++        req = require.context('migrations', false, /\.(js|sql)$/);
++        process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'migrations'", req.id, req.keys());
++    } else {
++        dir = db.config.settings.migrations.dir;
++        fse.ensureDirSync(dir);
++    }
+     const context = {
+         db
+     };
+@@ -59,15 +66,28 @@ const createUserMigrationProvider = (db)=>{
+             }
+         },
+         context,
+-        migrations: {
+-            glob: [
+-                '*.{js,sql}',
+-                {
+-                    cwd: dir
+-                }
+-            ],
+-            resolve: migrationResolver
+-        }
++        migrations:
++        (typeof __webpack_require__ === "function")
++            ? () =>
++                req
++                .keys()
++                .map((filePath) =>
++                    migrationResolver({
++                        name: path.basename(filePath, path.extname(filePath)),
++                        path: filePath,
++                        context,
++                        req,
++                    })
++                )
++            : {
++                glob: [
++                    '*.{js,sql}',
++                    {
++                        cwd: dir
++                    }
++                ],
++                resolve: migrationResolver,
++            }
+     });
+     return {
+         async shouldRun () {
+diff --git a/node_modules/@strapi/database/dist/migrations/users.mjs b/node_modules/@strapi/database/dist/migrations/users.mjs
+index ca2e829..e7ffe71 100644
+--- a/node_modules/@strapi/database/dist/migrations/users.mjs
++++ b/node_modules/@strapi/database/dist/migrations/users.mjs
+@@ -1,3 +1,4 @@
++import { basename, extname } from 'path';
+ import fse from 'fs-extra';
+ import { Umzug } from 'umzug';
+ import { createStorage } from './storage.mjs';
+@@ -5,7 +6,7 @@ import { wrapTransaction } from './common.mjs';
+ import { transformLogMessage } from './logger.mjs';
+ 
+ // TODO: check multiple commands in one sql statement
+-const migrationResolver = ({ name, path, context })=>{
++const migrationResolver = ({ name, path, context, req })=>{
+     const { db } = context;
+     if (!path) {
+         throw new Error(`Migration ${name} has no path`);
+@@ -23,7 +24,7 @@ const migrationResolver = ({ name, path, context })=>{
+     }
+     // NOTE: we can add some ts register if we want to handle ts migration files at some point
+     // eslint-disable-next-line @typescript-eslint/no-var-requires
+-    const migration = require(path);
++    const migration = (typeof __webpack_require__ === 'function') ? req(path) : require(path);
+     return {
+         name,
+         up: wrapTransaction(db)(migration.up),
+@@ -31,8 +32,18 @@ const migrationResolver = ({ name, path, context })=>{
+     };
+ };
+ const createUserMigrationProvider = (db)=>{
+-    const dir = db.config.settings.migrations.dir;
+-    fse.ensureDirSync(dir);
++    let req;
++    let dir;
++    if (typeof __webpack_require__ === 'function') {
++        req = import.meta.webpackContext('migrations', {
++            recursive: false,
++            regExp: /\.(js|sql)$/,
++        });
++        process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'migrations'", req.id, req.keys());
++    } else {
++        dir = db.config.settings.migrations.dir;
++        fse.ensureDirSync(dir);
++    }
+     const context = {
+         db
+     };
+@@ -57,15 +68,28 @@ const createUserMigrationProvider = (db)=>{
+             }
+         },
+         context,
+-        migrations: {
+-            glob: [
+-                '*.{js,sql}',
+-                {
+-                    cwd: dir
+-                }
+-            ],
+-            resolve: migrationResolver
+-        }
++        migrations: 
++        (typeof __webpack_require__ === "function")
++            ? () =>
++                req
++                .keys()
++                .map((filePath) =>
++                    migrationResolver({
++                        name: basename(filePath, extname(filePath)),
++                        path: filePath,
++                        context,
++                        req,
++                    })
++                )
++            : {
++                glob: [
++                    '*.{js,sql}',
++                    {
++                        cwd: dir
++                    }
++                ],
++                resolve: migrationResolver,
++            }
+     });
+     return {
+         async shouldRun () {

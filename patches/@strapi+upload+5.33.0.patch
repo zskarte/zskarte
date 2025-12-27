@@ -1,0 +1,159 @@
+diff --git a/node_modules/@strapi/upload/dist/server/register.js b/node_modules/@strapi/upload/dist/server/register.js
+index e7deaed..592a6f6 100644
+--- a/node_modules/@strapi/upload/dist/server/register.js
++++ b/node_modules/@strapi/upload/dist/server/register.js
+@@ -7,6 +7,20 @@ var contentApi = require('./documentation/content-api.json.js');
+ 
+ const { PayloadTooLargeError } = utils.errors;
+ const { bytesToHumanReadable, kbytesToBytes } = utils.file;
++
++const extendedError = (providerName, err, origError)=>{
++    const newError = new Error(`Could not load upload provider "${providerName}".`);
++    if (origError) {
++        newError.message += "\n" + origError.message;
++    }
++    if (err instanceof Error) {
++        newError.stack = newError.message + '\n' + err.stack;
++    } else {
++        newError.stack = newError.message + '\n' + err;
++    }
++    return newError;
++};
++
+ /**
+  * Register upload plugin
+  */ async function register({ strapi }) {
+@@ -34,10 +48,22 @@ const createProvider = (config)=>{
+     const providerName = _.toLower(config.provider);
+     let provider;
+     let modulePath;
++  let origError;
++  if (typeof __webpack_require__ === 'function') {
++    const req = require.context('@strapi', true, /^\.\/provider-upload-.*\.(js|json)$/);
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log('DEBUG: webpack context "@strapi"', req.id, req.keys());
++    if (req.keys().includes(`./provider-upload-${providerName}/package.json`)){
++        const packageJson = req(`./provider-upload-${providerName}/package.json`);
++        provider = req(`./provider-upload-${providerName}/${packageJson.main.substring(2)}`);
++    } else {
++        throw new Error(`Could not load upload provider "${providerName}" in webpack context. export DEBUG_PRINT_WEBPACK_CONTEXT=1 for debuging`);
++    }
++  } else {
+     try {
+         modulePath = require.resolve(`@strapi/provider-upload-${providerName}`);
+     } catch (error) {
+         if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'MODULE_NOT_FOUND') {
++            origError = error;
+             modulePath = providerName;
+         } else {
+             throw error;
+@@ -46,12 +72,10 @@ const createProvider = (config)=>{
+     try {
+         provider = require(modulePath);
+     } catch (err) {
+-        const newError = new Error(`Could not load upload provider "${providerName}".`);
+-        if (err instanceof Error) {
+-            newError.stack = err.stack;
+-        }
+-        throw newError;
++        throw extendedError(providerName, err, origError);
+     }
++  }
++  try {
+     const providerInstance = provider.init(providerOptions);
+     if (!providerInstance.delete) {
+         throw new Error(`The upload provider "${providerName}" doesn't implement the delete method.`);
+@@ -65,7 +89,12 @@ const createProvider = (config)=>{
+     const wrappedProvider = _.mapValues(providerInstance, (method, methodName)=>{
+         return async (file, options = actionOptions[methodName])=>providerInstance[methodName](file, options);
+     });
+-    return Object.assign(Object.create(baseProvider), wrappedProvider);
++    const initialized = Object.assign(Object.create(baseProvider), wrappedProvider);
++    process.env.DEBUG_PRINT_STRAPI_MODULES && console.log(`DEBUG: modules: upload/createProvider "${providerName}"`, initialized);
++    return initialized;
++  } catch(err) {
++    throw extendedError(providerName, err, origError);
++  }
+ };
+ const baseProvider = {
+     extend (obj) {
+diff --git a/node_modules/@strapi/upload/dist/server/register.mjs b/node_modules/@strapi/upload/dist/server/register.mjs
+index d2d1cac..6ac5c26 100644
+--- a/node_modules/@strapi/upload/dist/server/register.mjs
++++ b/node_modules/@strapi/upload/dist/server/register.mjs
+@@ -5,6 +5,20 @@ import spec from './documentation/content-api.json.mjs';
+ 
+ const { PayloadTooLargeError } = errors;
+ const { bytesToHumanReadable, kbytesToBytes } = file;
++
++const extendedError = (providerName, err, origError)=>{
++    const newError = new Error(`Could not load upload provider "${providerName}".`);
++    if (origError) {
++        newError.message += "\n" + origError.message;
++    }
++    if (err instanceof Error) {
++        newError.stack = newError.message + '\n' + err.stack;
++    } else {
++        newError.stack = newError.message + '\n' + err;
++    }
++    return newError;
++};
++
+ /**
+  * Register upload plugin
+  */ async function register({ strapi }) {
+@@ -32,10 +46,25 @@ const createProvider = (config)=>{
+     const providerName = _.toLower(config.provider);
+     let provider;
+     let modulePath;
++  let origError;
++  if (typeof __webpack_require__ === 'function') {
++    const req = import.meta.webpackContext('@strapi', {
++        recursive: true,
++        regExp: /^\.\/provider-upload-.*\.(js|json)$/,
++    });
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log('DEBUG: webpack context "@strapi"', req.id, req.keys());
++    if (req.keys().includes(`./provider-upload-${providerName}/package.json`)){
++        const packageJson = req(`./provider-upload-${providerName}/package.json`);
++        provider = req(`./provider-upload-${providerName}/${packageJson.main.substring(2)}`);
++    } else {
++        throw new Error(`Could not load upload provider "${providerName}" in webpack context. export DEBUG_PRINT_WEBPACK_CONTEXT=1 for debuging`);
++    }
++  } else {
+     try {
+         modulePath = require.resolve(`@strapi/provider-upload-${providerName}`);
+     } catch (error) {
+         if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'MODULE_NOT_FOUND') {
++            origError = error;
+             modulePath = providerName;
+         } else {
+             throw error;
+@@ -44,12 +73,10 @@ const createProvider = (config)=>{
+     try {
+         provider = require(modulePath);
+     } catch (err) {
+-        const newError = new Error(`Could not load upload provider "${providerName}".`);
+-        if (err instanceof Error) {
+-            newError.stack = err.stack;
+-        }
+-        throw newError;
++        throw extendedError(providerName, err, origError);
+     }
++  }
++  try {
+     const providerInstance = provider.init(providerOptions);
+     if (!providerInstance.delete) {
+         throw new Error(`The upload provider "${providerName}" doesn't implement the delete method.`);
+@@ -63,7 +90,12 @@ const createProvider = (config)=>{
+     const wrappedProvider = _.mapValues(providerInstance, (method, methodName)=>{
+         return async (file, options = actionOptions[methodName])=>providerInstance[methodName](file, options);
+     });
+-    return Object.assign(Object.create(baseProvider), wrappedProvider);
++    const initialized = Object.assign(Object.create(baseProvider), wrappedProvider);
++    process.env.DEBUG_PRINT_STRAPI_MODULES && console.log(`DEBUG: modules: upload/createProvider "${providerName}"`, initialized);
++    return initialized;
++  } catch(err) {
++    throw extendedError(providerName, err, origError);
++  }
+ };
+ const baseProvider = {
+     extend (obj) {

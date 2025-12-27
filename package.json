@@ -26,7 +26,11 @@
     "build:app": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
     "cleanup": "tsx scripts/cleanup.ts",
-    "postinstall": "patch-package"
+    "prepare-bundle": "tsx scripts/prepare-bundle-files.ts",
+    "bundle-sea": "tsx scripts/bundle-sea.ts",
+    "inject-sea": "tsx scripts/inject-sea.ts",
+    "zip-release": "tsx scripts/zip-release.ts",
+    "postinstall": "patch-package && tsx scripts/optional-patches.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

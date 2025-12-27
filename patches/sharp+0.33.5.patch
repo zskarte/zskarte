@@ -1,0 +1,151 @@
+diff --git a/node_modules/sharp/lib/libvips.js b/node_modules/sharp/lib/libvips.js
+index c9927e7..2375383 100644
+--- a/node_modules/sharp/lib/libvips.js
++++ b/node_modules/sharp/lib/libvips.js
+@@ -53,6 +53,7 @@ const buildPlatformArch = () => {
+ };
+ 
+ const buildSharpLibvipsIncludeDir = () => {
++  if (typeof __webpack_require__ !== 'function') {
+   try {
+     return require(`@img/sharp-libvips-dev-${buildPlatformArch()}/include`);
+   } catch {
+@@ -60,19 +61,23 @@ const buildSharpLibvipsIncludeDir = () => {
+       return require('@img/sharp-libvips-dev/include');
+     } catch {}
+   }
++  }
+   /* istanbul ignore next */
+   return '';
+ };
+ 
+ const buildSharpLibvipsCPlusPlusDir = () => {
++  if (typeof __webpack_require__ !== 'function') {
+   try {
+     return require('@img/sharp-libvips-dev/cplusplus');
+   } catch {}
++  }
+   /* istanbul ignore next */
+   return '';
+ };
+ 
+ const buildSharpLibvipsLibDir = () => {
++  if (typeof __webpack_require__ !== 'function') {
+   try {
+     return require(`@img/sharp-libvips-dev-${buildPlatformArch()}/lib`);
+   } catch {
+@@ -80,6 +85,7 @@ const buildSharpLibvipsLibDir = () => {
+       return require(`@img/sharp-libvips-${buildPlatformArch()}/lib`);
+     } catch {}
+   }
++  }
+   /* istanbul ignore next */
+   return '';
+ };
+diff --git a/node_modules/sharp/lib/sharp.js b/node_modules/sharp/lib/sharp.js
+index 3428c5f..5187432 100644
+--- a/node_modules/sharp/lib/sharp.js
++++ b/node_modules/sharp/lib/sharp.js
+@@ -10,22 +10,49 @@ const { familySync, versionSync } = require('detect-libc');
+ const { runtimePlatformArch, isUnsupportedNodeRuntime, prebuiltPlatforms, minimumLibvipsVersion } = require('./libvips');
+ const runtimePlatform = runtimePlatformArch();
+ 
+-const paths = [
+-  `../src/build/Release/sharp-${runtimePlatform}.node`,
+-  '../src/build/Release/sharp-wasm32.node',
+-  `@img/sharp-${runtimePlatform}/sharp.node`,
+-  '@img/sharp-wasm32/sharp.node'
+-];
+ 
+ let sharp;
+ const errors = [];
+-for (const path of paths) {
++if (typeof __webpack_require__ === 'function') {
+   try {
+-    sharp = require(path);
+-    break;
+-  } catch (err) {
+-    /* istanbul ignore next */
++    const req = require.context("@img", true, /\/sharp-?.*\.node$/);
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context '@img'", req.id, req.keys());
++    sharp = req(`./sharp-${runtimePlatform}/lib/sharp-${runtimePlatform}.node`);
++  } catch (err){
++    console.error(err);
+     errors.push(err);
++    try {
++      const req = require.context("sharp_node_fallback_dir", false, /^\.\/sharp-?.*\.node$/);
++      process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'sharp_node_fallback_dir'", req.id, req.keys());
++      const platformName = `./sharp-${runtimePlatform}.node`;
++      if (req.keys().includes(platformName)) {
++        sharp = req(platformName);
++      } else if (req.keys().includes('./sharp.node')) {
++        sharp = req('./sharp.node');
++      } else {
++        console.error("Could not found any sharp node file in webpack context(@img module or main dir). You can copy required sharp.node to main dir. export DEBUG_PRINT_WEBPACK_CONTEXT=1 for debuging")
++      }
++    } catch (err){
++      console.error(err);
++      errors.push(err);
++    }
++  }
++} else {
++  const paths = [
++    `../src/build/Release/sharp-${runtimePlatform}.node`,
++    '../src/build/Release/sharp-wasm32.node',
++    `@img/sharp-${runtimePlatform}/sharp.node`,
++    '@img/sharp-wasm32/sharp.node'
++  ];
++
++  for (const path of paths) {
++    try {
++      sharp = require(path);
++      break;
++    } catch (err) {
++      /* istanbul ignore next */
++      errors.push(err);
++    }
+   }
+ }
+ 
+diff --git a/node_modules/sharp/lib/utility.js b/node_modules/sharp/lib/utility.js
+index 89ee9df..4c95ecd 100644
+--- a/node_modules/sharp/lib/utility.js
++++ b/node_modules/sharp/lib/utility.js
+@@ -59,17 +59,34 @@ let versions = {
+ };
+ /* istanbul ignore next */
+ if (!libvipsVersion.isGlobal) {
++  let requireVersionsJson;
++  if (typeof __webpack_require__ === 'function') {
++      const req = require.context('node_modules_@img_versions', true, /^\.\/.+\/versions.json$/);
++      process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log('DEBUG: webpack context "node_modules_@img_versions"', req.id, req.keys());
++      requireVersionsJson = (filePath) => {
++          filePath = filePath.replace('\\','/');
++          if (!filePath.startsWith('./')) {
++              filePath = `./${filePath}`;
++          }
++          if (!filePath.endsWith('.json')) {
++              filePath = `${filePath}.json`;
++          }
++          return req(filePath);
++      };
++  } else {
++      requireVersionsJson = require;
++  }
+   if (!libvipsVersion.isWasm) {
+     try {
+-      versions = require(`@img/sharp-${runtimePlatform}/versions`);
++      versions = requireVersionsJson(`@img/sharp-${runtimePlatform}/versions`);
+     } catch (_) {
+       try {
+-        versions = require(`@img/sharp-libvips-${runtimePlatform}/versions`);
++        versions = requireVersionsJson(`@img/sharp-libvips-${runtimePlatform}/versions`);
+       } catch (_) {}
+     }
+   } else {
+     try {
+-      versions = require('@img/sharp-wasm32/versions');
++      versions = requireVersionsJson('@img/sharp-wasm32/versions');
+     } catch (_) {}
+   }
+ }

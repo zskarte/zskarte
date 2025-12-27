@@ -1,0 +1,149 @@
+diff --git a/node_modules/@strapi/email/dist/server/bootstrap.js b/node_modules/@strapi/email/dist/server/bootstrap.js
+index 1e394f6..eacc6cb 100644
+--- a/node_modules/@strapi/email/dist/server/bootstrap.js
++++ b/node_modules/@strapi/email/dist/server/bootstrap.js
+@@ -1,13 +1,38 @@
+ 'use strict';
+ 
++const extendedError = (providerName, err, origError)=>{
++    const newError = new Error(`Could not load email provider "${providerName}".`);
++    if (origError) {
++        newError.message += "\n" + origError.message;
++    }
++    if (err instanceof Error) {
++        newError.stack = newError.message + '\n' + err.stack;
++    } else {
++        newError.stack = newError.message + '\n' + err;
++    }
++    return newError;
++};
++
+ const createProvider = (emailConfig)=>{
+     const providerName = emailConfig.provider.toLowerCase();
+     let provider;
+     let modulePath;
++  let origError;
++  if (typeof __webpack_require__ === "function") {
++    const req = require.context("@strapi", true, /^\.\/provider-email-.*\.(js|json)$/);
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context '@strapi'", req.id, req.keys());
++    if (req.keys().includes(`./provider-email-${providerName}/package.json`)){
++      const packageJson = req(`./provider-email-${providerName}/package.json`);
++      provider = req(`./provider-email-${providerName}/${packageJson.main.substring(2)}`);
++    } else {
++      throw new Error(`Could not load email provider "${providerName}" in webpack context. export DEBUG_PRINT_WEBPACK_CONTEXT=1 for debuging`);
++    }
++  } else {
+     try {
+         modulePath = require.resolve(`@strapi/provider-email-${providerName}`);
+     } catch (error) {
+         if (error !== null && typeof error === 'object' && 'code' in error && error.code === 'MODULE_NOT_FOUND') {
++            origError = error;
+             modulePath = providerName;
+         } else {
+             throw error;
+@@ -16,13 +41,16 @@ const createProvider = (emailConfig)=>{
+     try {
+         provider = require(modulePath);
+     } catch (err) {
+-        const newError = new Error(`Could not load email provider "${providerName}".`);
+-        if (err instanceof Error) {
+-            newError.stack = err.stack;
+-        }
+-        throw newError;
++        throw extendedError(providerName, err, origError);
+     }
+-    return provider.init(emailConfig.providerOptions, emailConfig.settings);
++  }
++  try {
++    const initialized = provider.init(emailConfig.providerOptions, emailConfig.settings);
++    process.env.DEBUG_PRINT_STRAPI_MODULES && console.log(`DEBUG: modules: email/createProvider '${providerName}'`, initialized);
++    return initialized;
++  } catch (err) {
++    throw extendedError(providerName, err, origError);
++  }
+ };
+ const bootstrap = async ({ strapi })=>{
+     const emailConfig = strapi.config.get('plugin::email');
+diff --git a/node_modules/@strapi/email/dist/server/bootstrap.mjs b/node_modules/@strapi/email/dist/server/bootstrap.mjs
+index 11de563..1e7aaa8 100644
+--- a/node_modules/@strapi/email/dist/server/bootstrap.mjs
++++ b/node_modules/@strapi/email/dist/server/bootstrap.mjs
+@@ -1,11 +1,39 @@
++const extendedError = (providerName, err, origError)=>{
++    const newError = new Error(`Could not load email provider "${providerName}".`);
++    if (origError) {
++        newError.message += "\n" + origError.message;
++    }
++    if (err instanceof Error) {
++        newError.stack = newError.message + '\n' + err.stack;
++    } else {
++        newError.stack = newError.message + '\n' + err;
++    }
++    return newError;
++};
++
+ const createProvider = (emailConfig)=>{
+     const providerName = emailConfig.provider.toLowerCase();
+     let provider;
+     let modulePath;
++  let origError;
++  if (typeof __webpack_require__ === "function") {
++    const req = import.meta.webpackContext("@strapi", {
++      recursive: true,
++      regExp: /^\.\/provider-email-.*\.(js|json)$/,
++    });
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context '@strapi'", req.id, req.keys());
++    if (req.keys().includes(`./provider-email-${providerName}/package.json`)){
++      const packageJson = req(`./provider-email-${providerName}/package.json`);
++      provider = req(`./provider-email-${providerName}/${packageJson.main.substring(2)}`);
++    } else {
++      throw new Error(`Could not load email provider "${providerName}" in webpack context. export DEBUG_PRINT_WEBPACK_CONTEXT=1 for debuging`);
++    }
++  } else {
+     try {
+         modulePath = require.resolve(`@strapi/provider-email-${providerName}`);
+     } catch (error) {
+         if (error !== null && typeof error === 'object' && 'code' in error && error.code === 'MODULE_NOT_FOUND') {
++            origError = error;
+             modulePath = providerName;
+         } else {
+             throw error;
+@@ -14,13 +42,16 @@ const createProvider = (emailConfig)=>{
+     try {
+         provider = require(modulePath);
+     } catch (err) {
+-        const newError = new Error(`Could not load email provider "${providerName}".`);
+-        if (err instanceof Error) {
+-            newError.stack = err.stack;
+-        }
+-        throw newError;
++        throw extendedError(providerName, err, origError);
+     }
+-    return provider.init(emailConfig.providerOptions, emailConfig.settings);
++  }
++  try {
++    const initialized = provider.init(emailConfig.providerOptions, emailConfig.settings);
++    process.env.DEBUG_PRINT_STRAPI_MODULES && console.log(`DEBUG: modules: email/createProvider '${providerName}'`, initialized);
++    return initialized;
++  } catch (err) {
++    throw extendedError(providerName, err, origError);
++  }
+ };
+ const bootstrap = async ({ strapi })=>{
+     const emailConfig = strapi.config.get('plugin::email');
+diff --git a/node_modules/@strapi/email/dist/server/middlewares/rateLimit.mjs b/node_modules/@strapi/email/dist/server/middlewares/rateLimit.mjs
+index ca60319..c7ad20d 100644
+--- a/node_modules/@strapi/email/dist/server/middlewares/rateLimit.mjs
++++ b/node_modules/@strapi/email/dist/server/middlewares/rateLimit.mjs
+@@ -9,9 +9,8 @@ var rateLimit = ((config, { strapi })=>async (ctx, next)=>{
+             ...pluginConfig.ratelimit || {}
+         };
+         if (rateLimitConfig.enabled === true) {
+-            // TODO: TS - Do the dynamic import
+-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+-            const rateLimit = require('koa2-ratelimit').RateLimit;
++            const mod = await import('koa2-ratelimit');
++            const rateLimit = mod.RateLimit;
+             const requestEmail = get('request.body.email')(ctx);
+             const userEmail = isString(requestEmail) ? requestEmail.toLowerCase() : 'unknownEmail';
+             const loadConfig = {

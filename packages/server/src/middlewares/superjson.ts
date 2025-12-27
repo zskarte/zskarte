@@ -1,7 +1,15 @@
 import { Core } from '@strapi/strapi';
 import { Context } from 'koa';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-export const superjson = require('fix-esm').require('superjson') as typeof import('superjson');
+
+declare const __webpack_require__: any;
+
+let superjson: any;
+if (typeof __webpack_require__ === 'function') {
+  superjson = require('superjson');
+} else {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  superjson = require('fix-esm').require('superjson') as typeof import('superjson');
+}
 
 const transformDates = (data) => {
   if (!data || typeof data !== 'object') return data;

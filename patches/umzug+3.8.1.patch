@@ -1,0 +1,60 @@
+diff --git a/node_modules/umzug/lib/index.js b/node_modules/umzug/lib/index.js
+index 48b6e72..92dc41c 100644
+--- a/node_modules/umzug/lib/index.js
++++ b/node_modules/umzug/lib/index.js
+@@ -18,5 +18,7 @@ __exportStar(require("./umzug"), exports);
+ __exportStar(require("./storage"), exports);
+ __exportStar(require("./file-locker"), exports);
+ __exportStar(require("./types"), exports);
++if (typeof __webpack_require__ !== 'function') {
+ __exportStar(require("./cli"), exports);
++}
+ //# sourceMappingURL=index.js.map
+\ No newline at end of file
+diff --git a/node_modules/umzug/lib/umzug.js b/node_modules/umzug/lib/umzug.js
+index a9dbe06..234d239 100644
+--- a/node_modules/umzug/lib/umzug.js
++++ b/node_modules/umzug/lib/umzug.js
+@@ -33,7 +33,10 @@ const fast_glob_1 = require("fast-glob");
+ const fs = __importStar(require("fs"));
+ const path = __importStar(require("path"));
+ const errorCause = __importStar(require("pony-cause"));
+-const cli_1 = require("./cli");
++let cli_1;
++if (typeof __webpack_require__ !== 'function') {
++    cli_1 = require("./cli");
++}
+ const storage_1 = require("./storage");
+ const templates = __importStar(require("./templates"));
+ const types_1 = require("./types");
+@@ -76,7 +79,11 @@ class Umzug extends emittery_1.default {
+      * and are OK to learn about/interact with the API of @rushstack/ts-command-line.
+      */
+     getCli(options) {
+-        return new cli_1.UmzugCLI(this, options);
++        if (typeof __webpack_require__ === 'function') {
++            throw Error("umzug cli not available in webpack context")
++        } else {
++            return new cli_1.UmzugCLI(this, options);
++        }
+     }
+     /**
+      * 'Run' an umzug instance as a CLI. This will read `process.argv`, execute commands based on that, and call
+@@ -362,6 +369,9 @@ class Umzug extends emittery_1.default {
+ exports.Umzug = Umzug;
+ _a = Umzug;
+ Umzug.defaultResolver = ({ name, path: filepath }) => {
++  if (typeof __webpack_require__ === 'function') {
++    throw new Error('In webpack context you need to define an already populated migration list / function that return them, not a glob pattern.');
++  } else {
+     if (!filepath) {
+         throw new Error(`Can't use default resolver for non-filesystem migrations`);
+     }
+@@ -403,6 +413,7 @@ Umzug.defaultResolver = ({ name, path: filepath }) => {
+         up: async ({ context }) => (await getModule()).up({ path: filepath, name, context }),
+         down: async ({ context }) => { var _b, _c; return (_c = (_b = (await getModule())).down) === null || _c === void 0 ? void 0 : _c.call(_b, { path: filepath, name, context }); },
+     };
++  }
+ };
+ class MissingResolverError extends Error {
+     constructor(filepath) {

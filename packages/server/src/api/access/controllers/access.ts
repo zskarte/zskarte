@@ -3,12 +3,10 @@
  */
 
 import { factories } from '@strapi/strapi';
-import utils from '@strapi/utils';
 import _ from 'lodash';
 import { Access, AccessTypes, Operation, User } from '../../../definitions';
 import crypto from 'crypto';
 import { AccessTokenTypes } from '../../../definitions/constants/AccessTokenType';
-const { sanitize } = utils;
 
 const MINUTES_15 = 1000 * 60 * 15;
 

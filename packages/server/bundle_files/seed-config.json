@@ -1,0 +1,120 @@
+{
+    "adminUser": {
+        "firstname":"ZSKarte",
+        "lastname":"Admin",
+        "email": "info@zskarte.ch",
+        "password":"Supersecret123"
+    },
+    "seedData": [ 
+        {"type":"api::organization.organization","uniqueField": "name","data":{"name":"ZSO Gast (1h)","mapLongitude":7.44297,"mapLatitude":46.94635,"mapZoomLevel":16,"defaultLocale":"de-CH","url":null}},
+        {"type":"plugin::users-permissions.user","uniqueField": "username","data":{"username":"zso_guest","email":"zso_guest@zskarte.ch","provider":"local","password":"zsogast","resetPasswordToken":null,"confirmationToken":null,"confirmed":false,"blocked":false}},
+        {"type":"plugin::users-permissions.user","uniqueField": "username","data":{"username":"operation_read","email":"operation_read@zskarte.ch","provider":"local","password":"operation_read","resetPasswordToken":null,"confirmationToken":null,"confirmed":false,"blocked":false}},
+        {"type":"plugin::users-permissions.user","uniqueField": "username","data":{"username":"operation_write","email":"operation_write@zskarte.ch","provider":"local","password":"operation_write","resetPasswordToken":null,"confirmationToken":null,"confirmed":false,"blocked":false}},
+        {
+            "type": "api::organization.organization",
+            "uniqueField": "name",
+            "data":{
+                "name": "ZSO Development",
+                "map_longitude": 7.44297,
+                "map_latitude": 46.94635,
+                "map_zoom_level": 16,
+                "default_locale": "de-CH",
+                "url": null
+            }
+        },
+        {
+            "type": "plugin::users-permissions.user",
+            "uniqueField": "username",
+            "data": {
+                "username": "zso_development",
+                "email": "zso_development@zskarte.ch",
+                "provider": "local",
+                "password": "Supersecret123",
+                "resetPasswordToken": null,
+                "confirmationToken": null,
+                "confirmed": false,
+                "blocked": false
+            }
+        }
+    ],
+    "seedLinks": [
+        {
+            "left":{
+                "type": "plugin::users-permissions.user",
+                "field": "username",
+                "value": "zso_guest"
+            },
+            "right": {
+                "type": "api::organization.organization",
+                "field": "name",
+                "value": "ZSO Gast (1h)"
+            },
+            "field": "organization"
+        },
+        {
+            "left":{
+                "type": "plugin::users-permissions.user",
+                "field": "username",
+                "value": "zso_guest"
+            },
+            "right": {
+                "type": "plugin::users-permissions.role",
+                "field": "name",
+                "value": "Guest"
+            },
+            "field": "role"
+        },
+        {
+            "left":{
+                "type": "plugin::users-permissions.user",
+                "field": "username",
+                "value": "operation_read"
+            },
+            "right": {
+                "type": "plugin::users-permissions.role",
+                "field": "name",
+                "value": "OperationRead"
+            },
+            "field": "role"
+        },
+        {
+            "left":{
+                "type": "plugin::users-permissions.user",
+                "field": "username",
+                "value": "operation_write"
+            },
+            "right": {
+                "type": "plugin::users-permissions.role",
+                "field": "name",
+                "value": "OperationWrite"
+            },
+            "field": "role"
+        },
+        {
+            "left":{
+                "type": "plugin::users-permissions.user",
+                "field": "username",
+                "value": "zso_development"
+            },
+            "right": {
+                "type": "api::organization.organization",
+                "field": "name",
+                "value": "ZSO Development"
+            },
+            "field": "organization"
+        },
+        {
+            "left":{
+                "type": "plugin::users-permissions.user",
+                "field": "username",
+                "value": "zso_development"
+            },
+            "right": {
+                "type": "plugin::users-permissions.role",
+                "field": "name",
+                "value": "Organization"
+            },
+            "field": "role"
+        }
+    ]
+}

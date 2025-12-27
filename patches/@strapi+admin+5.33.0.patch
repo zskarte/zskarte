@@ -1,0 +1,167 @@
+diff --git a/node_modules/@strapi/admin/dist/server/server/src/middlewares/rateLimit.mjs b/node_modules/@strapi/admin/dist/server/server/src/middlewares/rateLimit.mjs
+index 95610b3..b1d6d74 100644
+--- a/node_modules/@strapi/admin/dist/server/server/src/middlewares/rateLimit.mjs
++++ b/node_modules/@strapi/admin/dist/server/server/src/middlewares/rateLimit.mjs
+@@ -1,8 +1,8 @@
+ import path from 'path';
+-import utils from '@strapi/utils';
++import { errors } from '@strapi/utils';
+ import { has, get, isString, toLower } from 'lodash/fp';
+ 
+-const { RateLimitError } = utils.errors;
++const { RateLimitError } = errors;
+ var rateLimit = ((config, { strapi })=>async (ctx, next)=>{
+         let rateLimitConfig = strapi.config.get('admin.rateLimit');
+         if (!rateLimitConfig) {
+@@ -14,9 +14,8 @@ var rateLimit = ((config, { strapi })=>async (ctx, next)=>{
+             rateLimitConfig.enabled = true;
+         }
+         if (rateLimitConfig.enabled === true) {
+-            // TODO: TS - Do the dynamic import
+-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+-            const rateLimit = require('koa2-ratelimit').RateLimit;
++            const mod = await import('koa2-ratelimit');
++            const rateLimit = mod.RateLimit;
+             const requestEmail = get('request.body.email')(ctx);
+             const userEmail = isString(requestEmail) ? requestEmail.toLowerCase() : 'unknownEmail';
+             const requestPath = isString(ctx.request.path) ? toLower(path.normalize(ctx.request.path)).replace(/\/$/, '') : 'invalidPath';
+diff --git a/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.js b/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.js
+index 4f297e4..ea4d606 100644
+--- a/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.js
++++ b/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.js
+@@ -5,6 +5,37 @@ var fse = require('fs-extra');
+ var koaStatic = require('koa-static');
+ 
+ const registerAdminPanelRoute = ({ strapi })=>{
++  if (typeof __webpack_require__ === "function") {
++    const req = require.context("admin_web", true, /\.(html|css|js)$/);
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'admin_web'", req.id, req.keys());
++    strapi.server.routes([
++      {
++        method: "GET",
++        path: `${strapi.config.admin.path}/:path*`,
++        handler: [
++          async (ctx, next) => {
++            await next();
++            if (ctx.method !== "HEAD" && ctx.method !== "GET") {
++              return;
++            }
++            if (ctx.body != null || ctx.status !== 404) {
++              return;
++            }
++            const fileName = "./" + path.basename(ctx.path);
++            if (req.keys().includes(fileName)) {
++              ctx.body = req(fileName);
++              ctx.type = fileName.split('.').pop();
++              ctx.res.setHeader("cache-control", "public, max-age=31536000, immutable");
++            } else {
++              ctx.body = req("./index.html");
++              ctx.type = "html";
++            }
++          }
++        ],
++        config: { auth: false }
++      }
++    ]);
++  } else {
+     let buildDir = path.resolve(strapi.dirs.dist.root, 'build');
+     if (!fse.pathExistsSync(buildDir)) {
+         buildDir = path.resolve(__dirname, '../../build');
+@@ -44,6 +75,7 @@ const registerAdminPanelRoute = ({ strapi })=>{
+             }
+         }
+     ]);
++  }
+ };
+ // serveStatic is not supposed to be used to serve a folder that have sub-folders
+ const serveStatic = (filesDir, koaStaticOptions = {})=>{
+diff --git a/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.mjs b/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.mjs
+index ddb22eb..b1a4b65 100644
+--- a/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.mjs
++++ b/node_modules/@strapi/admin/dist/server/server/src/routes/serve-admin-panel.mjs
+@@ -3,6 +3,40 @@ import fse from 'fs-extra';
+ import koaStatic from 'koa-static';
+ 
+ const registerAdminPanelRoute = ({ strapi })=>{
++  if (typeof __webpack_require__ === "function") {
++    const req = import.meta.webpackContext("admin_web", {
++      recursive: true,
++      regExp: /\.(html|css|js)$/,
++    });
++    process.env.DEBUG_PRINT_WEBPACK_CONTEXT && console.log("DEBUG: webpack context 'admin_web'", req.id, req.keys());
++    strapi.server.routes([
++      {
++        method: "GET",
++        path: `${strapi.config.admin.path}/:path*`,
++        handler: [
++          async (ctx, next) => {
++            await next();
++            if (ctx.method !== "HEAD" && ctx.method !== "GET") {
++              return;
++            }
++            if (ctx.body != null || ctx.status !== 404) {
++              return;
++            }
++            const fileName = "./" + basename(ctx.path);
++            if (req.keys().includes(fileName)) {
++              ctx.body = req(fileName);
++              ctx.type = fileName.split('.').pop();
++              ctx.res.setHeader("cache-control", "public, max-age=31536000, immutable");
++            } else {
++              ctx.body = req("./index.html");
++              ctx.type = "html";
++            }
++          }
++        ],
++        config: { auth: false }
++      }
++    ]);
++  } else {
+     let buildDir = resolve(strapi.dirs.dist.root, 'build');
+     if (!fse.pathExistsSync(buildDir)) {
+         buildDir = resolve(__dirname, '../../build');
+@@ -42,6 +76,7 @@ const registerAdminPanelRoute = ({ strapi })=>{
+             }
+         }
+     ]);
++  }
+ };
+ // serveStatic is not supposed to be used to serve a folder that have sub-folders
+ const serveStatic = (filesDir, koaStaticOptions = {})=>{
+diff --git a/node_modules/@strapi/admin/dist/server/server/src/services/permission/engine.mjs b/node_modules/@strapi/admin/dist/server/server/src/services/permission/engine.mjs
+index 21dcc86..b6b9523 100644
+--- a/node_modules/@strapi/admin/dist/server/server/src/services/permission/engine.mjs
++++ b/node_modules/@strapi/admin/dist/server/server/src/services/permission/engine.mjs
+@@ -1,11 +1,11 @@
+ import { difference, isArray, isEmpty, curry } from 'lodash/fp';
+-import permissions from '@strapi/permissions';
++import { engine as permissionsEngine } from '@strapi/permissions';
+ import permissionDomain from '../../domain/permission/index.mjs';
+ import { getService } from '../../utils/index.mjs';
+ 
+ var createPermissionEngine = ((params)=>{
+     const { providers } = params;
+-    const engine = permissions.engine.new({
++    const engine = permissionsEngine.new({
+         providers
+     })/**
+      * Validate the permission's action exists in the action registry
+diff --git a/node_modules/@strapi/admin/dist/server/server/src/services/transfer/permission.mjs b/node_modules/@strapi/admin/dist/server/server/src/services/transfer/permission.mjs
+index 1e538a2..3b01fe8 100644
+--- a/node_modules/@strapi/admin/dist/server/server/src/services/transfer/permission.mjs
++++ b/node_modules/@strapi/admin/dist/server/server/src/services/transfer/permission.mjs
+@@ -1,4 +1,4 @@
+-import permissions from '@strapi/permissions';
++import { engine as permissionsEngine } from '@strapi/permissions';
+ import { providerFactory } from '@strapi/utils';
+ 
+ const DEFAULT_TRANSFER_ACTIONS = [
+@@ -14,7 +14,7 @@ DEFAULT_TRANSFER_ACTIONS.forEach((action)=>{
+         action
+     });
+ });
+-const engine = permissions.engine.new({
++const engine = permissionsEngine.new({
+     providers
+ });
+ 

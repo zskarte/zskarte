@@ -1,0 +1,44 @@
+diff --git a/node_modules/knex/lib/migrations/common/MigrationsLoader.js b/node_modules/knex/lib/migrations/common/MigrationsLoader.js
+index b89999f..a825173 100644
+--- a/node_modules/knex/lib/migrations/common/MigrationsLoader.js
++++ b/node_modules/knex/lib/migrations/common/MigrationsLoader.js
+@@ -23,10 +23,14 @@ class AbstractMigrationsLoader {
+   }
+ 
+   getFile(migrationsInfo) {
+-    const absoluteDir = path.resolve(process.cwd(), migrationsInfo.directory);
+-    const _path = path.join(absoluteDir, migrationsInfo.file);
+-    const importFile = require('../util/import-file'); // late import
+-    return importFile(_path);
++    if (typeof __webpack_require__ === 'function') {
++      throw Error("knex AbstractMigrationsLoader.getFile() used in CONFIG_DEFAULT.loadExtensions not available in webpack context, as it uses dynamic imports in utils/import-file");
++    } else {
++      const absoluteDir = path.resolve(process.cwd(), migrationsInfo.directory);
++      const _path = path.join(absoluteDir, migrationsInfo.file);
++      const importFile = require('../util/import-file'); // late import
++      return importFile(_path);
++    }
+   }
+ }
+ 
+diff --git a/node_modules/knex/lib/migrations/seed/sources/fs-seeds.js b/node_modules/knex/lib/migrations/seed/sources/fs-seeds.js
+index 912536e..106b053 100644
+--- a/node_modules/knex/lib/migrations/seed/sources/fs-seeds.js
++++ b/node_modules/knex/lib/migrations/seed/sources/fs-seeds.js
+@@ -54,9 +54,13 @@ class FsSeeds extends AbstractMigrationsLoader {
+   }
+ 
+   async getSeed(filepath) {
+-    const importFile = require('../../util/import-file'); // late import
+-    const seed = await importFile(filepath);
+-    return seed;
++    if (typeof __webpack_require__ === 'function') {
++      throw Error("knex FsSeeds.getSeed() not available in webpack context, as it uses dynamic imports in utils/import-file");
++    } else {
++      const importFile = require('../../util/import-file'); // late import
++      const seed = await importFile(filepath);
++      return seed;
++    }
+   }
+ }
+ 

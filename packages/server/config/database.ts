@@ -1,5 +1,9 @@
+import path from 'node:path';
+
+declare const __webpack_require__: any;
+
 export default ({ env }) => {
-  const client = env('DATABASE_CLIENT', 'postgres');
+  const client = env('DATABASE_CLIENT', (typeof __webpack_require__ === 'function') ? 'sqlite' : 'postgres');
 
   const connections = {
     postgres: {
@@ -20,6 +24,12 @@ export default ({ env }) => {
         schema: env('DATABASE_SCHEMA', 'public'),
       },
       pool: { min: env.int('DATABASE_POOL_MIN', 2), max: env.int('DATABASE_POOL_MAX', 10) },
+    },
+    sqlite: {
+      connection: {
+        filename: path.join(process.cwd(), env('DATABASE_FILENAME', 'data/data.db')),
+      },
+      useNullAsDefault: true,
     },
   };
 

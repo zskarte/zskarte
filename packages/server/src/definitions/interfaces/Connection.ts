@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io/dist/socket';
+import { Socket } from 'socket.io';
 import { User } from './collection-types';
 
 export interface Connection {

@@ -11,4 +11,8 @@ export default ({ env }) => ({
     salt: env('API_TOKEN_SALT'),
   },
   watchIgnoreFiles: ['**/data/**', '**/.git/**', '**/test/**', '**/config/sync/**'],
+  flags: {
+    nps: env.bool('FLAG_NPS', true),
+    promoteEE: env.bool('FLAG_PROMOTE_EE', false),
+  },
 });

@@ -1,0 +1,9 @@
+{
+  "main": "./packages/server/bundle_files/sea-entry.cjs",
+  "output": "strapi-app.blob",
+  "disableExperimentalSEAWarning": true,
+  "assets": {
+    "index.mjs": "./packages/server/bundled/index.mjs"
+  },
+  "execArgv": ["--experimental-vm-modules"]
+}
