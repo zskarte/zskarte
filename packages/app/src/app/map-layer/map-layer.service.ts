@@ -211,7 +211,7 @@ export class MapLayerService {
     }
     const localMapLayer = mapLayer as LocalMapLayer;
     await db.localMapLayer.put(localMapLayer);
-    if ((mapLayer.type === 'geojson' || mapLayer.type === 'csv') && downloadMissingBlobs) {
+    if ((mapLayer.type === 'geojson' || mapLayer.type === 'shape' || mapLayer.type === 'csv') && downloadMissingBlobs) {
       const geoMapLayer = mapLayer as GeoJSONMapLayer;
       let sourceDownloaded = await BlobService.isDownloaded(localMapLayer.sourceBlobId);
       if (geoMapLayer.source?.url && !sourceDownloaded) {

@@ -92,6 +92,9 @@ export interface GeoJSONMapLayer extends MapLayer, GenericOptionalMapLayerOption
   searchMaxResultCount?: number;
 }
 
+export interface ShapeMapLayer extends GeoJSONMapLayer {
+}
+
 export interface CsvMapLayer extends GeoJSONMapLayer {
   delimiter: string;
   fieldX: string;
