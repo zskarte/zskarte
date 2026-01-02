@@ -25,6 +25,7 @@
         "wmts",
         "aggregate",
         "geojson",
+        "shape",
         "csv"
       ]
     },

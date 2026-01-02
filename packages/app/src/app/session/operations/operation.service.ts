@@ -170,7 +170,7 @@ export class OperationService {
   }
 
   public async updateMapLayers(operationId: string, data: IZSMapOperationMapLayers) {
-    if (parseInt(operationId) < 0) {
+    if (operationId.startsWith('local')) {
       const operation = this._session.getOperation();
       if (operation) {
         operation.mapLayers = data;

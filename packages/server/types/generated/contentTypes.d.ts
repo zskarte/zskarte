@@ -450,7 +450,7 @@ export interface ApiMapLayerMapLayer extends Struct.CollectionTypeSchema {
     public: Schema.Attribute.Boolean;
     publishedAt: Schema.Attribute.DateTime;
     serverLayerName: Schema.Attribute.Text;
-    type: Schema.Attribute.Enumeration<['wms', 'wms_custom', 'wmts', 'aggregate', 'geojson', 'csv']>;
+    type: Schema.Attribute.Enumeration<['wms', 'wms_custom', 'wmts', 'aggregate', 'geojson', 'shape', 'csv']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     wms_source: Schema.Attribute.Relation<'manyToOne', 'api::wms-source.wms-source'>;

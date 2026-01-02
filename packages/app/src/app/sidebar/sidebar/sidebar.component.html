@@ -107,7 +107,7 @@
                   }
                   @if (workLocal) {
                     <div (click)="showLocalInfo(item, index)">
-                      @if (item.type === 'geojson' || item.type === 'csv') {
+                      @if (item.type === 'geojson' || item.type === 'shape' || item.type === 'csv') {
                         @if (item.offlineAvailable) {
                           <i class="material-icons">file_download_done</i>
                         }
@@ -123,7 +123,7 @@
                   @if (mapState.isExpertView() && item.source && (item.type === 'wms' || item.type === 'wms_custom')) {
                     <i (click)="showWmsLayerOptions(item, index)" class="material-icons">settings</i>
                   }
-                  @if (mapState.isExpertView() && item.source && (item.type === 'geojson' || item.type === 'csv')) {
+                  @if (mapState.isExpertView() && item.source && (item.type === 'geojson' || item.type === 'shape' || item.type === 'csv')) {
                     <i (click)="showGeoJSONLayerOptions(item, index)" class="material-icons">settings</i>
                   }
                   @if (!item.hidden) {
@@ -131,7 +131,7 @@
                   } @else {
                     <i (click)="mapState.toggleMapLayer(item, index)" class="material-icons">visibility_on</i>
                   }
-                  @if (item.type !== 'geojson' && item.type !== 'csv') {
+                  @if (item.type !== 'geojson' && item.type !== 'shape' && item.type !== 'csv') {
                     <i (click)="showLegend(item)" class="material-icons">info_outline</i>
                   }
                   <i (click)="mapState.removeMapLayer(index)" class="material-icons">remove_circle_outline</i>
@@ -152,6 +152,7 @@
                 <mat-radio-group [(ngModel)]="newLayerType" class="newLayerType">
                   <mat-radio-button value="wms_custom">WMS (custom)</mat-radio-button>
                   <mat-radio-button value="geojson">GeoJSON</mat-radio-button>
+                  <mat-radio-button value="shape">Shape</mat-radio-button>
                   <mat-radio-button value="csv">CSV</mat-radio-button>
                 </mat-radio-group>
             </div>
