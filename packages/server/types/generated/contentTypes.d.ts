@@ -456,6 +456,7 @@ export interface ApiMapLayerGenerationConfigMapLayerGenerationConfig extends Str
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     style_entrances: Schema.Attribute.Media<'files'>;
+    style_swissBOUNDARIES3D: Schema.Attribute.Media<'files'>;
     style_swissNAMES3D: Schema.Attribute.Media<'files'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;

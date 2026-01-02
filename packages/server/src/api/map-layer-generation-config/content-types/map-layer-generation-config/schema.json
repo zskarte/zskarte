@@ -40,6 +40,13 @@
       "type": "string",
       "default": "https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_${year}-${month}/swissboundaries3d_${year}-${month}_2056_5728.shp.zip"
     },
+    "style_swissBOUNDARIES3D": {
+      "allowedTypes": [
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
     "url_swissNAMES3D": {
       "type": "string",
       "default": "https://data.geo.admin.ch/ch.swisstopo.swissnames3d/swissnames3d_${year}/swissnames3d_${year}_2056.csv.zip"

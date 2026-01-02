@@ -300,7 +300,51 @@ async function exportToCSV(headers: string[], data: SwissNamesRow[], filePath: s
   await writeFile(filePath, csvContent, 'utf8');
 }
 
-async function updateSwissBoundaries(strapi: Core.Strapi, url_template: string, boundariesFolder: Folder) {
+async function insertOrUpdateBoundariesMapLayer(
+  mapLayer: Partial<MapLayer>,
+  boundariesLayerName: string,
+  sourceMedia: Media,
+  styleMedia: Media,
+) {
+  const mapLayerData = {
+    label: boundariesLayerName,
+    type: MapLayerTypes.SHAPE,
+    //media is referenced by id not documentId
+    media_source: sourceMedia.id,
+    public: true,
+    options: {
+      hidden: false,
+      opacity: 1,
+      styleUrl: styleMedia?.url,
+      searchable: true,
+      attribution: [['swisstopo', 'https://www.swisstopo.admin.ch/de/home.html']],
+      styleFormat: 'mapbox',
+      styleSourceName: 'swissBOUNDARIES3D',
+      styleSourceType: 'url',
+      searchRegExPatterns: [['(?<NAME>\\p{L}+(?:[ -]\\p{L}+)*)', 'u']],
+      searchResultLabelMask: '${NAME}',
+      searchResultGroupingFilterFields: [],
+    },
+  };
+  //always set/update all fields to make sure changes in the config/template here are always updated.
+  if (mapLayer) {
+    return await strapi.documents('api::map-layer.map-layer').update({
+      documentId: mapLayer.documentId,
+      data: mapLayerData,
+    });
+  } else {
+    return await strapi.documents('api::map-layer.map-layer').create({
+      data: mapLayerData,
+    });
+  }
+}
+
+async function updateSwissBoundaries(
+  strapi: Core.Strapi,
+  url_template: string,
+  boundariesFolder: Folder,
+  styleMedia: Media,
+) {
   try {
     const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
     let cantonAreasMedia: Media;
@@ -313,22 +357,28 @@ async function updateSwissBoundaries(strapi: Core.Strapi, url_template: string, 
       //check for canton shape files
       const url = renderUrlTemplate(url_template, { year, month });
       const fileNameCanton = `swissBOUNDARIES3D_KANTONSGEBIET_${year}_${month}.zip`;
-      const existingFileCanton = await strapi.documents('plugin::upload.file').findFirst({
-        filters: { name: fileNameCanton, folder: { documentId: { $eq: boundariesFolder.documentId } } },
-      });
-      if (existingFileCanton) {
-        lastModified = formatForIfModifiedSince(existingFileCanton.updatedAt);
-        cantonAreasMedia = existingFileCanton;
-      }
+      const cantonLayerName = 'Kantonsgrenzen';
+      let cantonMapLayer: Partial<MapLayer>;
+      ({ mapLayer: cantonMapLayer, media: cantonAreasMedia } = await findLayerAndMedia(
+        cantonLayerName,
+        MapLayerTypes.SHAPE,
+        fileNameCanton,
+        boundariesFolder,
+      ));
+      lastModified = formatForIfModifiedSince(cantonAreasMedia?.updatedAt);
+
       //check for district shape files
       const fileNameDistrict = `swissBOUNDARIES3D_BEZIRKSGEBIET_${year}_${month}.zip`;
-      const existingFileDistrict = await strapi.documents('plugin::upload.file').findFirst({
-        filters: { name: fileNameDistrict, folder: { documentId: { $eq: boundariesFolder.documentId } } },
-      });
-      if (existingFileDistrict) {
-        lastModified = formatForIfModifiedSince(existingFileDistrict.updatedAt);
-        districtAreasMedia = existingFileDistrict;
-      }
+
+      const districtLayerName = 'Bezirksgrenzen';
+      let districtMapLayer: Partial<MapLayer>;
+      ({ mapLayer: districtMapLayer, media: districtAreasMedia } = await findLayerAndMedia(
+        districtLayerName,
+        MapLayerTypes.SHAPE,
+        fileNameDistrict,
+        boundariesFolder,
+      ));
+      lastModified = lastModified || formatForIfModifiedSince(cantonAreasMedia?.updatedAt);
 
       const response = await downloadIfChanged(url, lastModified);
       if (response.buffer) {
@@ -380,6 +430,27 @@ async function updateSwissBoundaries(strapi: Core.Strapi, url_template: string, 
           if (year < 2025) {
             return;
           }
+        }
+      } else {
+        const savedLayer = await insertOrUpdateBoundariesMapLayer(
+          cantonMapLayer,
+          cantonLayerName,
+          cantonAreasMedia,
+          styleMedia,
+        );
+        strapi.log.info(
+          `updateSwissBoundaries canton: maplayer "${cantonLayerName}" ${cantonMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+        );
+        if (districtAreasMedia) {
+          const savedLayer = await insertOrUpdateBoundariesMapLayer(
+            districtMapLayer,
+            districtLayerName,
+            districtAreasMedia,
+            styleMedia,
+          );
+          strapi.log.info(
+            `updateSwissBoundaries district: maplayer "${districtLayerName}" ${districtMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+          );
         }
       }
     }
@@ -547,7 +618,7 @@ async function updateEntrance(
         styleMedia,
         allwaysCreateDistrict,
         districtFeaures,
-        media?.updatedAt,
+        media?.updatedAt || (response.lastModified ? new Date(response.lastModified) : null),
         targetEntry.header.size,
         async () => {
           const geojsonText = targetEntry.getData().toString('utf8');
@@ -823,7 +894,7 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
   try {
     //read and verify config
     const config = await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').findFirst({
-      populate: ['style_entrances', 'style_swissNAMES3D'],
+      populate: ['style_entrances', 'style_swissBOUNDARIES3D', 'style_swissNAMES3D'],
     });
     if (!config) {
       strapi.log.error('updateMapLayerMedias failed: no map-layer-generation-config defined');
@@ -845,14 +916,21 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
     const boundariesFolder = await findOrCreateFolder(strapi, 'swissBOUNDARIES3D', parentFolder);
     const namesFolder = await findOrCreateFolder(strapi, 'swissNAMES3D', parentFolder);
 
-    if (!config.style_entrances || !config.style_swissNAMES3D) {
-      strapi.log.error('updateMapLayerMedias failed: style_entrances or style_swissNAMES3D not set');
+    if (!config.style_entrances || !config.style_swissBOUNDARIES3D || !config.style_swissNAMES3D) {
+      strapi.log.error(
+        'updateMapLayerMedias failed: style_entrances or style_swissBOUNDARIES3D or style_swissNAMES3D not set',
+      );
       return;
     }
 
     //updateSwissBoundaries
     strapi.log.info('updateMapLayerMedias: start update boundaries');
-    const boundaries = await updateSwissBoundaries(strapi, config.url_swissBOUNDARIES3D, boundariesFolder);
+    const boundaries = await updateSwissBoundaries(
+      strapi,
+      config.url_swissBOUNDARIES3D,
+      boundariesFolder,
+      config.style_swissBOUNDARIES3D,
+    );
     strapi.log.info('updateMapLayerMedias: finished update boundaries');
 
     let cantonAreasGeoJSON: FeatureCollection;

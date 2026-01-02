@@ -4,6 +4,7 @@ export const MapLayerTypes = {
   WMTS: 'wmts',
   AGGREGATED: 'aggregate',
   GEOJSON: 'geojson',
+  SHAPE: 'shape',
   CSV: 'csv',
 } as const;
 export type MapLayerType = (typeof MapLayerTypes)[keyof typeof MapLayerTypes];

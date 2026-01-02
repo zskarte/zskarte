@@ -128,7 +128,7 @@ export interface GeoAdminMapLayer extends MapLayer {
 export interface GeoAdminMapLayers {
   [key: string]: GeoAdminMapLayer;
 }
-export type MapLayerAllFields = Omit<GeoAdminMapLayer & WMSMapLayer & CsvMapLayer, 'serverLayerName'> &
+export type MapLayerAllFields = Omit<GeoAdminMapLayer & WMSMapLayer & GeoJSONMapLayer & ShapeMapLayer & CsvMapLayer, 'serverLayerName'> &
   MapLayerGeneralSettings;
 
 export interface MapLayerOptionsApi extends Omit<Partial<MapLayerAllFields>, keyof MapLayer> {
