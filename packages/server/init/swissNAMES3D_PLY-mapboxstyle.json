@@ -31,10 +31,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          13,
-          5,
-          24,
-          14
+          13, 5,
+          24, 14
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
@@ -121,10 +119,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          10,
-          5,
-          24,
-          18
+          10, 5,
+          24, 18
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
@@ -208,10 +204,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          9,
-          6,
-          24,
-          24
+          9, 6,
+          24, 24
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
@@ -244,10 +238,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          5,
-          3,
-          24,
-          26
+          5, 3,
+          24, 26
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
@@ -279,10 +271,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          5,
-          4,
-          24,
-          28
+          5, 4,
+          24, 28
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
@@ -309,10 +299,8 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          5,
-          4,
-          24,
-          20
+          5, 4,
+          24, 20
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },

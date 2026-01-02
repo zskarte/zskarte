@@ -13,8 +13,19 @@
   </mat-form-field>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>
-    <input matInput type="url" [(ngModel)]="sourceUrl" />
+    <input matInput type="url" [(ngModel)]="sourceUrl" [disabled]="useMedia" />
   </mat-form-field>
+  @if (sourceMediaId) {
+    <fieldset class="like-mat-form-field-outline">
+      <legend>{{ i18n.get('mediaSource') }}</legend>
+      <div class="infoText">
+        {{ i18n.get('mediaSourceInfo') }} <span>{{ sourceMediaId }}</span>
+      </div>
+      <mat-checkbox [checked]="useMedia" (change)="toggleMedia($event.checked)">{{
+        i18n.get('mediaSourceActive')
+      }}</mat-checkbox>
+    </fieldset>
+  }
   @if (layer.type === 'csv') {
     <div>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -33,7 +44,8 @@
         <mat-label>{{ i18n.get('dataProjection') }}</mat-label>
         <input matInput type="text" [(ngModel)]="layer.dataProjection" />
         <div class="infoText">
-          swiss: 'EPSG:2056', GPS: 'EPSG:4326', mercator: 'EPSG:3857' <a target="_blank" href="https://epsg.io/">epsg.io</a>
+          swiss: 'EPSG:2056', GPS: 'EPSG:4326', mercator: 'EPSG:3857'
+          <a target="_blank" href="https://epsg.io/">epsg.io</a>
         </div>
       </mat-form-field>
       <fieldset class="like-mat-form-field-outline">
@@ -41,7 +53,9 @@
         <div class="infoText">
           {{ i18n.get('filterRegExPatternInfo') }}<br /><code [innerText]="'(val1|val2|prefix.*|.*suffix)'"></code>
         </div>
-        <div class="infoText">{{ i18n.get('filterRegExPatternInfo2') }}<br /><code [innerText]="'.*(?<!val1)(?<!val2)'"></code></div>
+        <div class="infoText">
+          {{ i18n.get('filterRegExPatternInfo2') }}<br /><code [innerText]="'.*(?<!val1)(?<!val2)'"></code>
+        </div>
         <div class="infoText">{{ i18n.get('searchRegExPatternFullMatch') }} <code>^...$</code></div>
         @if (layer.filterRegExPattern) {
           <div class="regexTitle">
@@ -81,7 +95,9 @@
       </fieldset>
       <fieldset class="like-mat-form-field-outline">
         <legend>{{ i18n.get('extent') }}</legend>
-        <mat-checkbox [checked]="layer.extent" (change)="toggleExtent($event.checked)">{{ i18n.get('limitExtent') }}</mat-checkbox>
+        <mat-checkbox [checked]="layer.extent" (change)="toggleExtent($event.checked)">{{
+          i18n.get('limitExtent')
+        }}</mat-checkbox>
         <div class="infoText">{{ i18n.get('extentInfo') }}</div>
         @if (layer.extent) {
           <div>
@@ -108,7 +124,9 @@
     <mat-radio-group [(ngModel)]="layer.styleFormat">
       <mat-radio-button value="mapbox"
         >{{ i18n.get('styleFormatMapBox') }}
-        <a target="_blank" href="https://docs.mapbox.com/style-spec/guides/">{{ i18n.get('styleFormatSpec') }}</a></mat-radio-button
+        <a target="_blank" href="https://docs.mapbox.com/style-spec/guides/">{{
+          i18n.get('styleFormatSpec')
+        }}</a></mat-radio-button
       >
       <mat-radio-button value="olFlat"
         >{{ i18n.get('styleFormatOlFlat') }}
@@ -228,7 +246,9 @@
 
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('publicSource') }}</legend>
-    <mat-checkbox [checked]="layer.public" (change)="layer.public = $event.checked">{{ i18n.get('publicSourceInfo') }}</mat-checkbox>
+    <mat-checkbox [checked]="layer.public" (change)="layer.public = $event.checked">{{
+      i18n.get('publicSourceInfo')
+    }}</mat-checkbox>
   </fieldset>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('MaxScaleDenominator') }}</mat-label>

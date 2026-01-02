@@ -1,5 +1,0 @@
-geopandas
-pandas
-shapely
-pyproj
-

@@ -1,0 +1,64 @@
+{
+  "kind": "singleType",
+  "collectionName": "map_layer_generation_configs",
+  "info": {
+    "singularName": "map-layer-generation-config",
+    "pluralName": "map-layer-generation-configs",
+    "displayName": "Map Layer Generation Config",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "allwaysCreateDistrict": {
+      "type": "boolean",
+      "default": false
+    },
+    "cantons": {
+      "type": "string",
+      "default": "AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH"
+    },
+    "url_madd": {
+      "type": "string",
+      "default": "https://public.madd.bfs.admin.ch/${canton}.zip"
+    },
+    "style_entrances": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "files"
+      ]
+    },
+    "url_swissBOUNDARIES3D": {
+      "type": "string",
+      "default": "https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_${year}-${month}/swissboundaries3d_${year}-${month}_2056_5728.shp.zip"
+    },
+    "url_swissNAMES3D": {
+      "type": "string",
+      "default": "https://data.geo.admin.ch/ch.swisstopo.swissnames3d/swissnames3d_${year}/swissnames3d_${year}_2056.csv.zip"
+    },
+    "style_swissNAMES3D": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "files"
+      ]
+    },
+    "fields_swissNAMES3D": {
+      "type": "string",
+      "default": "OBJEKTART,OBJEKTKLASSE_TLM,EINWOHNERKATEGORIE,NAME,E,N"
+    },
+    "file_swissNAMES3D": {
+      "type": "string",
+      "default": "swissNAMES3D_PLY"
+    }
+  }
+}

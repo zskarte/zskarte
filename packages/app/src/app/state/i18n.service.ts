@@ -2157,6 +2157,21 @@ export class I18NService {
       en: 'GeoJSON/CSV layer settings',
       fr: 'Paramètres de calque GeoJSON/CSV',
     },
+    mediaSource: {
+      de: 'Verwaltete Medienquelle',
+      en: 'Managed media source',
+      fr: 'Source multimédia gérée',
+    },
+    mediaSourceInfo: {
+      de: 'Die Ebene besitzt eine zentral verwaltete Medienquelle, id:',
+      en: 'The layer has a centrally managed media source, id:',
+      fr: 'La couche possède une source multimédia gérée de manière centralisée, id:',
+    },
+    mediaSourceActive: {
+      de: 'Die verwaltete Medienquelle verwenden',
+      en: 'Use the managed media source',
+      fr: 'Utiliser la Source multimédia gérée',
+    },
     delimiter: {
       de: 'Trennzeichen',
       en: 'delimiter',

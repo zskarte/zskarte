@@ -19,7 +19,7 @@
       "id": "entrances",
       "type": "symbol",
       "source": "entrances",
-      "minzoom": 16,
+      "minzoom": 15.5,
       "layout": {
         "text-field": "{entranceNumber}",
         "text-size": [

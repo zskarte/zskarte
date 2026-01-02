@@ -37,6 +37,13 @@
     "custom_source": {
       "type": "string"
     },
+    "media_source": {
+      "allowedTypes": [
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
     "options": {
       "type": "json"
     },
