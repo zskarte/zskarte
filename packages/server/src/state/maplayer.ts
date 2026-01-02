@@ -890,24 +890,31 @@ async function updateSwissNames(
   }
 }
 
+export const getAndVerifyMapLayerGenerationConfig = async (strapi: Core.Strapi) => {
+  //read and verify config
+  const config = await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').findFirst({
+    populate: ['style_entrances', 'style_swissBOUNDARIES3D', 'style_swissNAMES3D'],
+  });
+  if (!config) {
+    throw new Error('updateMapLayerMedias failed: no map-layer-generation-config defined');
+  }
+  if (!config.enabled) {
+    throw new Error('updateMapLayerMedias skipped: update is disabled');
+  }
+  if (!config.cantons?.trim()) {
+    throw new Error('updateMapLayerMedias failed: cantons to update is empty');
+  }
+  if (!config.style_entrances || !config.style_swissBOUNDARIES3D || !config.style_swissNAMES3D) {
+    throw new Error(
+      'updateMapLayerMedias failed: style_entrances or style_swissBOUNDARIES3D or style_swissNAMES3D not set',
+    );
+  }
+  return config;
+};
+
 export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
   try {
-    //read and verify config
-    const config = await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').findFirst({
-      populate: ['style_entrances', 'style_swissBOUNDARIES3D', 'style_swissNAMES3D'],
-    });
-    if (!config) {
-      strapi.log.error('updateMapLayerMedias failed: no map-layer-generation-config defined');
-      return;
-    }
-    if (!config.enabled) {
-      strapi.log.error('updateMapLayerMedias skipped: update is disabled');
-      return;
-    }
-    if (!config.cantons?.trim()) {
-      strapi.log.error('updateMapLayerMedias failed: cantons to update is empty');
-      return;
-    }
+    const config = await getAndVerifyMapLayerGenerationConfig(strapi);
     const cantonsToUpdate = config.cantons.trim().toUpperCase().split(',');
 
     //prepare media folders
@@ -915,13 +922,6 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
     const entrancesFolder = await findOrCreateFolder(strapi, 'entrances', parentFolder);
     const boundariesFolder = await findOrCreateFolder(strapi, 'swissBOUNDARIES3D', parentFolder);
     const namesFolder = await findOrCreateFolder(strapi, 'swissNAMES3D', parentFolder);
-
-    if (!config.style_entrances || !config.style_swissBOUNDARIES3D || !config.style_swissNAMES3D) {
-      strapi.log.error(
-        'updateMapLayerMedias failed: style_entrances or style_swissBOUNDARIES3D or style_swissNAMES3D not set',
-      );
-      return;
-    }
 
     //updateSwissBoundaries
     strapi.log.info('updateMapLayerMedias: start update boundaries');
@@ -1009,6 +1009,7 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
       } else {
         strapi.log.error('updateMapLayerMedias: swissNames not loaded');
       }
+      strapi.log.info('updateMapLayerMedias: done');
     } else {
       strapi.log.error('updateMapLayerMedias: cannot split swissNames without boundaries');
     }
