@@ -2017,6 +2017,16 @@ export class I18NService {
       en: 'all sources',
       fr: 'toutes les sources',
     },
+    ownMapLayers: {
+      de: 'Eigene Ebenen',
+      en: 'Own layers',
+      fr: 'Couche propres',
+    },
+    ownMapLayersTitleSuffix: {
+      de: 'eigen',
+      en: 'own',
+      fr: 'propre',
+    },
     globalMapLayers: {
       de: 'Geteilte Ebenen',
       en: 'Shared layers',
@@ -2026,6 +2036,16 @@ export class I18NService {
       de: 'geteilt',
       en: 'shared',
       fr: 'partagée',
+    },
+    managedMapLayers: {
+      de: 'ZSKarte verwaltete Ebenen',
+      en: 'ZSKarte managed layers',
+      fr: 'Couches gérées par ZSKarte',
+    },
+    managedMapLayerTitleSuffix: {
+      de: 'verwaltet',
+      en: 'managed',
+      fr: 'géré',
     },
     searchableLayer: {
       de: 'offline durchsuchbar',

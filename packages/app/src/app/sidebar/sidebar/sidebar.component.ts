@@ -182,8 +182,12 @@ export class SidebarComponent {
       map(([layers, filter, source]) => {
         layers = layers.sort((a: MapLayer, b: MapLayer) => a.label.localeCompare(b.label));
         if (source !== 'ALL') {
-          if (source === '_GlobalMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined);
+          if (source === '_OwnMapLayers_') {
+            layers = layers.filter((f) => f.id !== undefined && f.owner);
+          } else if (source === '_GlobalMapLayers_') {
+            layers = layers.filter((f) => f.id !== undefined && !f.owner && !f.managed);
+          } else if (source === '_ManagedMapLayers_') {
+            layers = layers.filter((f) => f.id !== undefined && f.managed);
           } else {
             const sourceFilter = source === '_GeoAdmin_' ? undefined : source;
             layers = layers.filter((f) => f.source?.url === sourceFilter);

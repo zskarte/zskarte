@@ -66,6 +66,7 @@ export interface MapLayer extends PresistedSettings, SelectedMapLayerSettings, M
   source?: MapSource | WmsSource;
   fullId: string;
   offlineAvailable?: boolean;
+  managed: boolean;
 }
 
 export interface WMSMapLayer extends MapLayer, GenericOptionalMapLayerOptions {
@@ -92,8 +93,7 @@ export interface GeoJSONMapLayer extends MapLayer, GenericOptionalMapLayerOption
   searchMaxResultCount?: number;
 }
 
-export interface ShapeMapLayer extends GeoJSONMapLayer {
-}
+export interface ShapeMapLayer extends GeoJSONMapLayer {}
 
 export interface CsvMapLayer extends GeoJSONMapLayer {
   delimiter: string;
@@ -128,7 +128,10 @@ export interface GeoAdminMapLayer extends MapLayer {
 export interface GeoAdminMapLayers {
   [key: string]: GeoAdminMapLayer;
 }
-export type MapLayerAllFields = Omit<GeoAdminMapLayer & WMSMapLayer & GeoJSONMapLayer & ShapeMapLayer & CsvMapLayer, 'serverLayerName'> &
+export type MapLayerAllFields = Omit<
+  GeoAdminMapLayer & WMSMapLayer & GeoJSONMapLayer & ShapeMapLayer & CsvMapLayer,
+  'serverLayerName'
+> &
   MapLayerGeneralSettings;
 
 export interface MapLayerOptionsApi extends Omit<Partial<MapLayerAllFields>, keyof MapLayer> {

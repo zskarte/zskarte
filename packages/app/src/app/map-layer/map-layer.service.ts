@@ -125,6 +125,7 @@ export class MapLayerService {
       layer.styleUrl = this._api.getUrl() + layer.styleUrl;
     }
     layer.owner = mapLayerApi.organization?.documentId === organizationId;
+    layer.managed = !mapLayerApi.organization;
     return layer as MapLayer;
   }
 
@@ -150,6 +151,7 @@ export class MapLayerService {
     delete cleanedOptions.source;
     delete cleanedOptions.fullId;
     delete cleanedOptions.offlineAvailable;
+    delete cleanedOptions.managed;
     // delete display specific values / from SelectedMapLayerSettings
     delete cleanedOptions.deleted;
     delete cleanedOptions.zIndex;
@@ -197,6 +199,7 @@ export class MapLayerService {
       const mapped = this.convertMapLayerFromApi(result, mapLayer.source ? [mapLayer.source] : [], organizationId);
       mapped.source = mapLayer.source;
       mapped.owner = mapLayer.owner;
+      mapped.managed = false;
       mapped.fullId = `${mapped.source?.url}|${mapped.serverLayerName}|${mapped.id}`;
       return mapped;
     }
