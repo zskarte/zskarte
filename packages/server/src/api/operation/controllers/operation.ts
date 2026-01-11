@@ -3,9 +3,10 @@
  */
 
 import { factories } from '@strapi/strapi';
-import { Operation, PatchExtended, OperationPhases } from '../../../definitions';
-import { operationCaches, updateCurrentLocation, updateMapState } from '../../../state/operation';
+import { Operation, OperationPhases } from '../../../definitions';
+import { operationCaches, updateCurrentLocation, addChangeset } from '../../../state/operation';
 import _ from 'lodash';
+import { IZsChangeset } from '@zskarte/types';
 
 const allowedMetaFields = ['name', 'description', 'eventStates'];
 
@@ -19,19 +20,43 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const operationCache = operationCaches[entity.documentId];
     if (operationCache) {
       sanitizedEntity.mapState = operationCache.mapState;
+      sanitizedEntity.changesets = operationCache.changesets;
     }
     return this.transformResponse(sanitizedEntity);
   },
-  async patch(ctx) {
+  async changeset(ctx) {
     const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
     }
-    const patches: PatchExtended[] = ctx.request.body;
-    await updateMapState(operationid, identifier, patches);
-    ctx.status = 200;
-    return { success: true };
+    try {
+      const changeset: IZsChangeset = ctx.request.body;
+      const error = await addChangeset(operationid, identifier, changeset, ctx, () => {
+        ctx.status = 429;
+        ctx.body = {
+          error: 'Too Many Requests',
+          message: 'Lock not available within 15 seconds',
+        };
+      });
+      if (error) {
+        if (ctx.status !== 429) {
+          ctx.status = 400;
+          return error;
+        }
+      }
+      if (error === false) {
+        return { success: true, alreadySubmitted: true };
+      }
+      return { success: true };
+    } catch (e: any) {
+      // onTimeout already handled 429, other errors get 500
+      if (ctx.status !== 429) {
+        strapi.log.error(e);
+        ctx.status = 500;
+        ctx.body = { error: 'Internal error', message: e.message };
+      }
+    }
   },
   async currentLocation(ctx) {
     const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;

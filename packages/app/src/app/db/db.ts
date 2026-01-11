@@ -9,6 +9,7 @@ import {
   IZsMapDisplayState,
   IZsMapOperation,
   WmsSource,
+  IZsChangeset,
 } from '@zskarte/types';
 import { JournalEntry } from '../journal/journal.types';
 
@@ -62,7 +63,7 @@ export type LocalJournalEntry = JournalEntry & { operationId: string; organizati
 export class AppDB extends Dexie {
   sessions!: Table<IZsMapSession, string>;
   displayStates!: Table<IZsMapDisplayState, string>;
-  patchSyncQueue!: Table<Patch, number>;
+  changesetOutgoingQueue!: Table<IZsChangeset, string>;
   localMapInfo!: Table<LocalMapInfo, string>;
   localBlob!: Table<LocalBlob, number>;
   localBlobMeta!: Table<LocalBlobMeta, number>;
@@ -156,6 +157,10 @@ export class AppDB extends Dexie {
       patchJournalEntries: '++id, [operationId+organizationId], organizationId, operationId, uuid, documentId',
       localJournalEntries:
         '[operationId+uuid], [organizationId+operationId+messageNumber], organizationId, operationId, uuid, documentId, messageNumber',
+    });
+    this.version(10).stores({
+      patchSyncQueue: null,
+      changesetOutgoingQueue: 'id, operationId',
     });
   }
 }

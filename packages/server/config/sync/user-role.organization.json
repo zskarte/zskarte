@@ -111,6 +111,11 @@
       "locale": null
     },
     {
+      "action": "api::operation.operation.changeset",
+      "documentId": "ewm68atm90qapiq7lhstr2pe",
+      "locale": null
+    },
+    {
       "action": "api::operation.operation.create",
       "documentId": "zjzcroggsfvbe7az1y9p43fs",
       "locale": null

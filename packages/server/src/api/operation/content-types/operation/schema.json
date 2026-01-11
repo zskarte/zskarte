@@ -38,6 +38,9 @@
     "mapState": {
       "type": "json"
     },
+    "changesets": {
+      "type": "json"
+    },
     "mapSnapshots": {
       "type": "relation",
       "relation": "oneToMany",

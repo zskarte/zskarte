@@ -16,6 +16,7 @@ import { db } from '../../db/db';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
 import { JournalService } from 'src/app/journal/journal.service';
+import { INITIAL_CHANGESET_ID } from 'src/app/changeset/changeset.service';
 
 @Injectable({
   providedIn: 'root',
@@ -205,6 +206,7 @@ export class OperationService {
       phase: 'active',
       eventStates: result.eventStates,
       mapState,
+      changesets: result.changesets,
       mapLayers: result.mapLayers,
     };
     const createdOperation = await this.insertOperation(operation);
@@ -217,6 +219,10 @@ export class OperationService {
       return;
     }
     const operation = await this.getOperation(operationId);
+    if (!operation) {
+      console.error('read operation failed');
+      return;
+    }
     const journal = await this._journalService.getJournalForExport(operationId);
     const fileName = `Ereignis_${operation?.name.replaceAll(/[^a-zA-Z0-9-]/g, '_')}_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const saveFile: OperationExportFile = {
@@ -224,6 +230,7 @@ export class OperationService {
       description: operation?.description ?? '',
       version: OperationExportFileVersion.V2,
       mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
+      changesets: operation.changesets || {},
       eventStates: operation?.eventStates ?? [],
       mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },
       journal: journal ?? [],
@@ -248,6 +255,7 @@ export class OperationService {
       phase: 'active',
       eventStates: [],
       mapState: this.createMapstate(),
+      changesets: {},
     });
   }
 
@@ -258,7 +266,10 @@ export class OperationService {
       id: uuidv4(),
       center: this._session.getOrganizationLongLat(),
       name: '',
-      layers: { [initLayerId]: { id: uuidv4(), type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      layers: { [initLayerId]: { id: initLayerId, type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      drawElements: {},
+      drawElementChangesetIds: {},
+      changesetIds: [INITIAL_CHANGESET_ID],
     };
   }
 }
