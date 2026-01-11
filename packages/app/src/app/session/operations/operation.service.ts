@@ -11,11 +11,12 @@ import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiService, IApiRequestOptions } from '../../api/api.service';
-import { OperationExportFileVersion } from '../../core/entity/operationExportFile';
+import { OperationExportFile, OperationExportFileVersion } from '../../core/entity/operationExportFile';
 import { db } from '../../db/db';
 import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
+import { INITIAL_CHANGESET_ID } from 'src/app/changeset/changeset.service';
 
 @Injectable({
   providedIn: 'root',
@@ -203,6 +204,7 @@ export class OperationService {
           eventStates: result.eventStates,
           mapState,
           mapLayers: result.mapLayers,
+          changesets: result.changesets,
         };
         await this.insertOperation(operation);
         await this.reload('active');
@@ -214,15 +216,27 @@ export class OperationService {
     if (!operationId) {
       return;
     }
-    const fileName = `Ereignis_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const operation = await this.getOperation(operationId);
-    const saveFile = {
-      name: operation?.name,
-      description: operation?.description,
-      version: OperationExportFileVersion.V2,
-      mapState: operation?.mapState,
-      eventStates: operation?.eventStates,
-      mapLayers: operation?.mapLayers,
+    if (!operation) {
+      console.error('read operation failed');
+      return;
+    }
+    await this.exportOperationByData(operation);
+  }
+
+  public async exportOperationByData(
+    operation: IZsMapOperation,
+    nameSuffix?: string,
+  ): Promise<void> {
+    const fileName = `Ereignis_${operation.name.replace(/[^a-zA-Z0-9]/g, '_')}${nameSuffix ? '_' + nameSuffix : ''}_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
+    const saveFile: OperationExportFile = {
+      name: operation.name,
+      description: operation.description,
+      version: OperationExportFileVersion.V3,
+      mapState: operation.mapState,
+      changesets: operation.changesets || {},
+      eventStates: operation.eventStates,
+      mapLayers: operation.mapLayers,
     };
     await this._ipc.saveFile({
       data: JSON.stringify(saveFile),
@@ -244,17 +258,21 @@ export class OperationService {
       phase: 'active',
       eventStates: [],
       mapState: this.createMapstate(),
+      changesets: {},
     });
   }
 
   private createMapstate(): ZsMapState {
     const initLayerId = uuidv4();
     return {
-      version: 2,
+      version: 3,
       id: uuidv4(),
       center: this._session.getOrganizationLongLat(),
       name: '',
-      layers: { [initLayerId]: { id: uuidv4(), type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      layers: { [initLayerId]: { id: initLayerId, type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      drawElements: {},
+      drawElementChangesetIds: {},
+      changesetIds: [INITIAL_CHANGESET_ID],
     };
   }
 }

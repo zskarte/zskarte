@@ -3,7 +3,7 @@ import {
   archiveOperations,
   createMapStateSnapshots,
   deleteGuestOperations,
-  persistMapStates,
+  persistOperationCache,
 } from '../src/state/operation';
 import { Core } from '@strapi/strapi';
 
@@ -14,7 +14,7 @@ export default {
     await deleteExpiredAccessTokens(strapi);
   },
   // Every fifteen seconds
-  '*/15 * * * * *': async ({ strapi }: { strapi: Core.Strapi }) => await persistMapStates(strapi),
+  '*/15 * * * * *': async ({ strapi }: { strapi: Core.Strapi }) => await persistOperationCache(strapi),
   // Every midnight delete the guest operations
   '0 0 * * *': async ({ strapi }: { strapi: Core.Strapi }) => await deleteGuestOperations(strapi),
   // Every 5 minutes

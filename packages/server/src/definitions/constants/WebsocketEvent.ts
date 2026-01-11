@@ -1,5 +1,5 @@
 export const WebsocketEvent = {
-  STATE_PATCHES: 'state:patches',
+  STATE_CHANGESET: 'state:changeset',
   STATE_JOURNAL: 'state:journal',
   CONNECTIONS: 'state:connections',
 } as const;

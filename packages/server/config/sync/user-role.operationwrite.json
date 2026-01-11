@@ -66,6 +66,11 @@
       "locale": null
     },
     {
+      "action": "api::operation.operation.changeset",
+      "documentId": "id1r55px1n2t9joj45m981iw",
+      "locale": null
+    },
+    {
       "action": "api::operation.operation.currentLocation",
       "documentId": "l5srirc9xgstd3w70r4kf4sv",
       "locale": null

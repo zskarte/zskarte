@@ -1,10 +1,11 @@
 import { Socket } from 'socket.io/dist/socket';
 import _ from 'lodash';
 import { operationCaches } from './operation';
-import { OperationCache, PatchExtended, User, WebsocketEvent } from '../definitions';
+import { OperationCache, User, WebsocketEvent } from '../definitions';
 import { Server } from 'socket.io';
 import { Core } from '@strapi/strapi';
 import { serialize as superjsonSerialize } from '../middlewares/superjson';
+import { IZsChangeset } from '@zskarte/types';
 
 const sanitizeUser = (user) => {
   delete user.password;
@@ -104,12 +105,12 @@ const broadcastConnections = (operationCache: OperationCache) => {
   }
 };
 
-/** Broadcast received patches to all currently connected sockets of an operation */
-const broadcastPatches = (operationCache: OperationCache, identifier: string, patches: PatchExtended[]) => {
+/** Broadcast received changeset to all currently connected sockets of an operation */
+const broadcastChangeset = (operationCache: OperationCache, identifier: string, changeset: IZsChangeset) => {
   const connections = _.filter(operationCache.connections, (c) => c.identifier !== identifier);
   for (const connection of connections) {
     try {
-      connection.socket.emit(WebsocketEvent.STATE_PATCHES, patches);
+      connection.socket.emit(WebsocketEvent.STATE_CHANGESET, changeset);
     } catch (error) {
       connection.socket.disconnect();
       strapi.log.error(error);
@@ -131,4 +132,4 @@ const broadcastJournal = (operationCache: OperationCache, identifier: string, da
   }
 };
 
-export { connectSocketIo, socketConnection, broadcastConnections, broadcastPatches, broadcastJournal };
+export { connectSocketIo, socketConnection, broadcastConnections, broadcastChangeset, broadcastJournal };

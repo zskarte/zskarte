@@ -5,6 +5,42 @@ import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
 import { Sort } from '@angular/material/sort';
 import { Extent } from 'ol/extent';
+import { Patch } from 'immer';
+
+export interface IZsChangeset {
+  parentChangesetId: string;
+  id: string;
+  operationId: string;
+  messageNumber?: number;
+  changedDrawElements: string[];
+  deletedDrawElements: string[];
+  drawElementsLastChangeset: Record<string, string>;
+  layer?: string;
+  organisationId: string;
+  author: string;
+  authorIp?: string;
+  serverId?: string;
+  serverSavedAt?: number;
+  manualDescription?: string;
+  description: Set<string>;
+  startAt: number;
+  firstChangeAt?: number;
+  lastChangeAt?: number;
+  endAt?: number;
+  saved: boolean;
+  applied?: boolean;
+  patches: Patch[];
+  inversePatches: Patch[];
+  manual: boolean;
+}
+
+export class ChangesetInconsistentError extends Error {
+  constructor(public changesetId: string) {
+    super(`Changeset ${changesetId} is inconsistent with current MapState`);
+    this.name = 'ChangesetInconsistentError';
+    Object.setPrototypeOf(this, ChangesetInconsistentError.prototype);
+  }
+}
 
 export enum ZsMapStateSource {
   OPEN_STREET_MAP = 'openStreetMap',
@@ -19,7 +55,17 @@ export const zsMapStateSourceToDownloadUrl = {
   [ZsMapStateSource.LOCAL]: 'https://zskarte.blob.core.windows.net/etienne/ch.swisstopo.pmtiles',
 };
 
-export type ZsMapState = IZsMapStateV2;
+export type ZsMapState = IZsMapStateV3;
+export interface IZsMapStateV3 {
+  version: number;
+  id: string;
+  name?: string;
+  layers: Record<string, ZsMapLayerState>;
+  drawElements: Record<string, ZsMapDrawElementState>;
+  drawElementChangesetIds: Record<string, string[]>;
+  changesetIds?: string[];
+  center: Coordinate;
+}
 
 export interface IZsMapStateV2 {
   version: number;
@@ -39,7 +85,7 @@ export interface IZsMapStateV1 {
   center: Coordinate;
 }
 
-export type ZsMapStateAllVersions = IZsMapStateV1 | IZsMapStateV2;
+export type ZsMapStateAllVersions = IZsMapStateV1 | IZsMapStateV2 | IZsMapStateV3;
 
 export const getDefaultZsMapState = (): ZsMapState => {
   return {} as ZsMapState;
@@ -98,7 +144,7 @@ export interface IZsGlobalSearchConfig {
   filterMapSection: boolean;
   filterByDistance: boolean;
   maxDistance: number;
-  filterByArea: false;
+  filterByArea: boolean;
   area: Extent | null;
   sortedByDistance: boolean;
   distanceReferenceCoordinate: Coordinate | null;

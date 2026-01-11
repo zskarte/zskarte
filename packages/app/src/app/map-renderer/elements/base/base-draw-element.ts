@@ -96,6 +96,8 @@ export abstract class ZsMapBaseDrawElement<
     );
   }
 
+  // WARN: this logic "debounce" all element changes together not by field
+  // -> if multiple fields are changed with less then 250ms break, the previous field change are lost.
   private _debouncedUpdateElementState = debounce((updateFn: (draft: ZsMapDrawElementState) => void) => {
     this._state.updateMapState((draft) => {
       const element = draft.drawElements?.[this._id];

@@ -1,5 +1,5 @@
 import { migrateOperationMapStates, migrateOperationStatusesToPhases } from './migrations';
-import { loadOperations, persistMapStates } from './state/operation';
+import { abortAllQueuedUpdates, loadOperations, persistOperationCache } from './state/operation';
 import { connectSocketIo } from './state/socketio';
 
 export default {
@@ -32,6 +32,7 @@ export default {
    */
   async destroy({ strapi }) {
     strapi.log.info('application shutdown initiated');
-    await persistMapStates(strapi);
+    await persistOperationCache(strapi);
+    await abortAllQueuedUpdates(strapi);
   },
 };

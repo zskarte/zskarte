@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   IPositionFlag,
+  IZsChangeset,
   IZsGlobalSearchConfig,
   IZsJournalFilter,
   IZsJournalMessageEditConfig,
@@ -65,6 +66,7 @@ import { Sort } from '@angular/material/sort';
 import { NavigationEnd, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Extent } from 'ol/extent';
+import { ChangesetService } from '../changeset/changeset.service';
 
 type VIEW_NAMES = 'map' | 'journal';
 
@@ -81,6 +83,7 @@ export class ZsMapStateService {
   private _journal = inject(JournalService);
   private _router = inject(Router);
   private _location = inject(Location);
+  private _changeset = inject(ChangesetService);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
@@ -1111,15 +1114,16 @@ export class ZsMapStateService {
     }
 
     const newUndoStackPointer = this._undoStackPointer.value + 1;
+    const patchIndex = this._mapInversePatches.value.length - newUndoStackPointer;
 
-    const lastPatch = this._mapInversePatches.value.slice(
-      this._mapInversePatches.value.length - newUndoStackPointer,
-      this._mapInversePatches.value.length - this._undoStackPointer.value,
-    );
-    const newState = applyPatches<ZsMapState>(this._map.value, lastPatch);
+    const lastPatch = this._mapInversePatches.value.slice(patchIndex, patchIndex + 1);
+    const lastPatchInverse = this._mapPatches.value.slice(patchIndex, patchIndex + 1);
+
+    const oldState = this._map.value;
+    const newState = applyPatches<ZsMapState>(oldState, lastPatch);
+    //addChange called without await
+    this._changeset.addChange(oldState, lastPatch, lastPatchInverse);
     this._map.next(newState);
-
-    this._sync.publishMapStatePatches(lastPatch);
 
     this._undoStackPointer.next(newUndoStackPointer);
   }
@@ -1130,16 +1134,16 @@ export class ZsMapStateService {
     }
 
     const newUndoStackPointer = this._undoStackPointer.value - 1;
+    const patchIndex = this._mapInversePatches.value.length - newUndoStackPointer;
 
-    const lastPatch = this._mapPatches.value.slice(
-      this._mapInversePatches.value.length - this._undoStackPointer.value,
-      this._mapInversePatches.value.length - newUndoStackPointer,
-    );
+    const lastPatch = this._mapPatches.value.slice(patchIndex - 1, patchIndex);
+    const lastPatchInverse = this._mapInversePatches.value.slice(patchIndex - 1, patchIndex);
 
-    const newState = applyPatches<ZsMapState>(this._map.value, lastPatch);
+    const oldState = this._map.value;
+    const newState = applyPatches<ZsMapState>(oldState, lastPatch);
+    //addChange called without await
+    this._changeset.addChange(oldState, lastPatch, lastPatchInverse);
     this._map.next(newState);
-
-    this._sync.publishMapStatePatches(lastPatch);
 
     this._undoStackPointer.next(newUndoStackPointer);
   }
@@ -1157,7 +1161,8 @@ export class ZsMapStateService {
     if (!preventPatches && !this._session.hasWritePermission() && this._session.isArchived()) {
       return;
     }
-    const newState = produce<ZsMapState>(this._map.value || {}, fn, (patches, inversePatches) => {
+    const mapState = this._map.value || {};
+    const newState = produce<ZsMapState>(mapState, fn, (patches, inversePatches) => {
       if (preventPatches) {
         return;
       }
@@ -1169,15 +1174,54 @@ export class ZsMapStateService {
 
       // Only publish map state changes when not in history mode
       if (!this.isHistoryMode()) {
-        this._sync.publishMapStatePatches(patches);
+        //do not await for addChange, not needed as updateMapState is often callen in debounce/asyncron context
+        this._changeset.addChange(mapState, patches, inversePatches);
       }
     });
     this._map.next(newState);
   }
 
-  public applyMapStatePatches(patches: Patch[]) {
-    const newState = applyPatches(this._map.value, patches);
-    this._map.next(newState);
+  public applyChangesets(changesets: IZsChangeset[]) {
+    let mapState = this._map.value;
+    let anyApplied = false;
+    try {
+      for (const changeset of changesets) {
+        mapState = this._changeset.applyChangeset(mapState, changeset);
+        changeset.applied = true;
+        anyApplied = true;
+      }
+    } finally {
+      if (anyApplied) {
+        this._map.next(mapState);
+      }
+    }
+  }
+
+  public addIncommingChangesets(changeset: IZsChangeset) {
+    changeset.applied = false;
+    if (!this._changeset.hasChanges()) {
+      this.applyChangesets([changeset]);
+    } else {
+      this._changeset.addIncomming(changeset);
+    }
+  }
+
+  public applyIncommingChangesets() {
+    if (this._changeset.incommingCount() > 0) {
+      try {
+        this.applyChangesets(this._changeset.incommingChangesets());
+      } finally {
+        this._changeset.incommingChangesets.update((incomming) => incomming.filter((c) => !c.applied));
+      }
+    }
+  }
+
+  public async finishCurrentChangeset(manual = false) {
+    await this._changeset.finishChangeset(this._map.value, manual);
+  }
+
+  public async handleUnhandledPatches() {
+    await this._changeset.handleUnhandledPatches(this._map.value);
   }
 
   public updateDisplayState(fn: (draft: IZsMapDisplayState) => void): void {
@@ -1295,7 +1339,6 @@ export class ZsMapStateService {
     const operationId = this._session.getOperationId();
     if (operationId) {
       if (!this.isHistoryMode()) {
-        await this._sync.sendCachedMapStatePatches();
       }
       const sha256 = async (str: string): Promise<string> => {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
