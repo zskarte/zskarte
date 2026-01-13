@@ -3,6 +3,9 @@
   "workspaces": [
     "./packages/*"
   ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "start": "npm run docker-run && run-p start:*",
     "start:app": "cd packages/app && npm start",

@@ -67,6 +67,8 @@ jobs:
   build-and-deploy-app:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    env:
+      NODE_VERSION: '22.12.0'
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js
