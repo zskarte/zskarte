@@ -38,6 +38,7 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
   defaultTemplate = input<object>();
   templateName = input<string>();
   save = output<object | null>();
+  print = output<void>();
 
   i18n = inject(I18NService);
   private _dialog = inject(MatDialog);
@@ -153,6 +154,10 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
 
   saveTemplate() {
     this.save.emit(this._designer!.getTemplate());
+  }
+
+  printEmptyTemplate() {
+    this.print.emit();
   }
 
   closeDesigner() {
