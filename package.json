@@ -40,7 +40,7 @@
     "tsx": "^4.21.0"
   },
   "dependencies": {
-    "@strapi/strapi": "^5.33.0",
+    "@strapi/strapi": "^5.33.2",
     "fix-esm": "^1.0.1",
     "fuse.js": "^7.1.0",
     "ol": "^10.7.0",
