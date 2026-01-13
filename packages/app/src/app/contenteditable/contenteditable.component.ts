@@ -416,7 +416,7 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
 
   // make sure never inside marker Methods
 
-  @HostListener('document:selectionchange', ['$event'])
+  @HostListener('document:selectionchange')
   onSelectionchange() {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0 || !selection.isCollapsed) return;
