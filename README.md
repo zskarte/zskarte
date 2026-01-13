@@ -46,7 +46,7 @@ You can run Zivilschutz-Karte without installation from [https://zskarte.ch](htt
 
 ### 📋 Installation Steps
 
-### 1. Install packages
+### 1. Install packages 2
 
 ```bash
 npm install
