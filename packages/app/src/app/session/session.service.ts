@@ -84,7 +84,11 @@ export class SessionService {
         if (session.operation?.documentId || session.operation?.id) {
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           await this._router.navigate(
-            [this._router.url.split('?')[0] === '/main/journal' ? '/main/journal' : '/main/map'],
+            [
+              this._router.url.split('?')[0] === '/main/journal' || queryParams['messageNumber']
+                ? '/main/journal'
+                : '/main/map',
+            ],
             {
               queryParams: {
                 center: null, //handled in overrideDisplayStateFromQueryParams
