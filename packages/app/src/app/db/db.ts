@@ -1,5 +1,4 @@
 import { Dexie, Table } from 'dexie';
-import { Patch } from 'immer';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
 import {
   ZsMapStateSource,
@@ -9,7 +8,7 @@ import {
   IZsMapDisplayState,
   IZsMapOperation,
   WmsSource,
-  IZsChangeset,
+  IZsChangesetInternal,
 } from '@zskarte/types';
 import { JournalEntry } from '../journal/journal.types';
 
@@ -63,7 +62,7 @@ export type LocalJournalEntry = JournalEntry & { operationId: string; organizati
 export class AppDB extends Dexie {
   sessions!: Table<IZsMapSession, string>;
   displayStates!: Table<IZsMapDisplayState, string>;
-  changesetOutgoingQueue!: Table<IZsChangeset, string>;
+  changesetOutgoingQueue!: Table<IZsChangesetInternal, string>;
   localMapInfo!: Table<LocalMapInfo, string>;
   localBlob!: Table<LocalBlob, number>;
   localBlobMeta!: Table<LocalBlobMeta, number>;

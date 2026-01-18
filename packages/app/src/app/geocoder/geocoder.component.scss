@@ -17,6 +17,21 @@ mat-icon.settings.hidden {
   display: none;
 }
 
+@container floating-ui-top-row-search (inline-size < 350px) {
+  mat-icon.search {
+    padding: 0 5px;
+  }
+}
+
+@container floating-ui-top-row-search (inline-size < 280px) {
+  mat-icon.search {
+    display: none;
+  }
+  mat-icon.settings {
+    padding-right: 8px;
+  }
+}
+
 .overlay-container {
   position: relative;
   background: white;

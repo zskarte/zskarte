@@ -8,6 +8,7 @@ import { JournalService } from './journal/journal.service';
 import { SearchService } from './search/search.service';
 import { OperationService } from './session/operations/operation.service';
 import { ChangesetService } from './changeset/changeset.service';
+import { SidebarService } from './sidebar/sidebar.service';
 
 registerLocaleData(localeCH);
 
@@ -20,6 +21,7 @@ export function appFactory(
   search: SearchService,
   operation: OperationService,
   changeset: ChangesetService,
+  sidebar: SidebarService,
 ) {
   return async () => {
     // "inject" services to prevent circular dependencies
@@ -30,6 +32,7 @@ export function appFactory(
     api.setSessionService(session);
     operation.setJournalService(journal);
     changeset.setStateService(state);
+    changeset.setSidebarService(sidebar);
     changeset.setSessionService(session);
 
     if (!window.location.pathname.startsWith('/share/')) {

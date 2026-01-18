@@ -6,6 +6,9 @@ import {
   ZsMapLayerStateType,
   ZsOperationPhase,
   ZsMapStateSource,
+  IZsChangesetInternal,
+  IZsChangeset,
+  IZsChangesetExport,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
@@ -214,6 +217,27 @@ export class OperationService {
     return createdOperation;
   }
 
+  private async getOutgoingChangesetExport(operationId: string) {
+    const outgoingChangesets = await db.changesetOutgoingQueue.where('operationId').equals(operationId).toArray();
+    const exportChangeset = outgoingChangesets.map((changeset) => {
+      let changesetToExport: IZsChangesetExport, _unused: any;
+      ({
+        cleaned: _unused,
+        stashed: _unused,
+        //TODO is that true or is origDrawElements enough? -> for sure the "elements of corresponsing state" will not work then
+        //baseMapState: _unused, //also export baseMapState as only with them conflicts can be solved.
+        currentMapState: _unused,
+        origDrawElements: _unused,
+        thereDrawElements: _unused,
+        ourDrawElements: _unused,
+        mergedDrawElements: _unused,
+        ...changesetToExport
+      } = changeset);
+      return changesetToExport;
+    });
+    return exportChangeset;
+  }
+
   public async exportOperation(operationId: string | undefined): Promise<void> {
     if (!operationId) {
       return;
@@ -223,6 +247,7 @@ export class OperationService {
       console.error('read operation failed');
       return;
     }
+    const outgoingChangesets = await this.getOutgoingChangesetExport(operationId);
     const journal = await this._journalService.getJournalForExport(operationId);
     const fileName = `Ereignis_${operation?.name.replaceAll(/[^a-zA-Z0-9-]/g, '_')}_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const saveFile: OperationExportFile = {
@@ -231,6 +256,7 @@ export class OperationService {
       version: OperationExportFileVersion.V2,
       mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
       changesets: operation.changesets || {},
+      outgoingChangesets,
       eventStates: operation?.eventStates ?? [],
       mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },
       journal: journal ?? [],

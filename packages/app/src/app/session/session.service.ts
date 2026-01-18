@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import {
   AccessTokenType,
@@ -69,6 +69,7 @@ export class SessionService {
   private _state!: ZsMapStateService;
   private _authError = new BehaviorSubject<HttpErrorResponse | undefined>(undefined);
   private _isOnline = new BehaviorSubject<boolean>(true);
+  public readonly sessionInitialized = signal(false);
 
   constructor() {
     const _operationService = this._operationService;
@@ -85,11 +86,12 @@ export class SessionService {
 
     this._session.pipe(skip(1)).subscribe(async (session) => {
       this._clearOperation.next();
+      this.sessionInitialized.set(false);
       if (session?.jwt || session?.workLocal) {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-          await this._state?.refreshMapState();
+          await this._state?.refreshMapState(false);
           let displayState = await db.displayStates.get({
             id: session.operation?.documentId,
           });
@@ -212,6 +214,7 @@ export class SessionService {
           this._state.setMapState(undefined, undefined);
           this._state.setDisplayState(undefined);
         }
+        this.sessionInitialized.set(true);
         return;
       }
 

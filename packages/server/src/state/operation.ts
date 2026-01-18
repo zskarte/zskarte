@@ -1,9 +1,8 @@
-import { applyPatches, enablePatches, produce, produceWithPatches } from 'immer';
+import { applyPatches, enablePatches } from 'immer';
 import { Core } from '@strapi/types';
 import _ from 'lodash';
-import crypto from 'crypto';
 import type { Context } from 'koa';
-import { IZsChangeset, ZsMapState } from '@zskarte/types';
+import { IZsChangeset } from '@zskarte/types';
 import { updateChangesetIdsAfterApply, verifyChangesetConsistency } from '@zskarte/common';
 import os from 'os';
 
@@ -17,6 +16,7 @@ import {
 } from '../definitions';
 import { broadcastChangeset, broadcastConnections } from './socketio';
 import { QueueMutex, QueueTask } from '../utils/queue-mutex';
+import { execSync } from 'child_process';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
 const MIN = 1000 * 60;
@@ -30,7 +30,18 @@ const serverIPs = Object.keys(interfaces)
   .flatMap((key) => interfaces[key])
   .filter((item) => item.family === 'IPv4' && !item.internal)
   .map((item) => item.address);
-const SERVER_ID = os.hostname() + '-' + (serverIPs[0] || '0.0.0.0');
+//https://www.perplexity.ai/search/wenn-ich-auf-awz-azure-oder-gc-0nu7bnbhROeFkjMTNShqzg#0
+let externalIP: string;
+/*
+TODO: user better logic not relay on external service?
+try {
+  externalIP = execSync('curl ifconfig.me', { encoding: 'utf8' });
+  if (!externalIP.match(/^\d{1-3}\.\d{1-3}\.\d{1-3}\.\d{1-3}$/)) {
+    externalIP = undefined;
+  }
+} catch (ignoreMe) {}
+*/
+const SERVER_ID = os.hostname() + '-' + (externalIP || serverIPs[0] || '0.0.0.0');
 
 const operationCaches: { [key: number]: OperationCache } = {};
 
@@ -123,10 +134,32 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
 };
 
 const changesetAlreadyExist = (operationCache: OperationCache, changeset: IZsChangeset) => {
-  if (operationCache.changesets[changeset.id]) {
-    if (_.isEqual(operationCache.changesets[changeset.id], changeset)) {
+  const savedChangeset = operationCache.changesets[changeset.id];
+  if (savedChangeset) {
+    let savedChangesetToCompare: Partial<IZsChangeset>,
+      incommingChangesetToCompare: Partial<IZsChangeset>,
+      _unused: any;
+    ({
+      applied: _unused,
+      saved: _unused,
+      serverSavedAt: _unused,
+      authorIp: _unused,
+      serverId: _unused,
+      ...savedChangesetToCompare
+    } = savedChangeset);
+    ({
+      applied: _unused,
+      saved: _unused,
+      serverSavedAt: _unused,
+      authorIp: _unused,
+      serverId: _unused,
+      ...incommingChangesetToCompare
+    } = changeset);
+
+    if (_.isEqual(savedChangesetToCompare, incommingChangesetToCompare)) {
       return true;
     }
+
     throw new Error('re-submit changeset with other content');
   }
   return false;

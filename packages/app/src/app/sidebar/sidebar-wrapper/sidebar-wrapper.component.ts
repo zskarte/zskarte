@@ -8,6 +8,7 @@ import { ZsMapStateService } from '../../state/state.service';
 import { SidebarService } from '../sidebar.service';
 import { SidebarContext } from '../sidebar.interfaces';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { SidebarChangesetComponent } from '../sidebar-changeset/sidebar-changeset.component';
 import { SidebarHistoryComponent } from '../sidebar-history/sidebar-history.component';
 import { SidebarConnectionsComponent } from '../sidebar-connections/sidebar-connections.component';
 import { SidebarMenuComponent } from '../sidebar-menu/sidebar-menu.component';
@@ -26,6 +27,7 @@ import { takeUntil, Subject } from 'rxjs';
     MatIconModule,
     MatButtonModule,
     SidebarComponent,
+    SidebarChangesetComponent,
     SidebarHistoryComponent,
     SidebarConnectionsComponent,
     SidebarMenuComponent,

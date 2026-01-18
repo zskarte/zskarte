@@ -26,6 +26,7 @@ import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-dra
 import { SearchService } from '../search/search.service';
 import { CompassButtonComponent } from '../compass-button/compass-button.component';
 import { JournalService } from '../journal/journal.service';
+import { ChangesetOverlayComponent } from '../changeset/changeset-overlay/changeset-overlay.component';
 
 @Component({
   selector: 'app-floating-ui',
@@ -40,6 +41,7 @@ import { JournalService } from '../journal/journal.service';
     GeocoderComponent,
     CoordinatesComponent,
     JournalDrawOverlayComponent,
+    ChangesetOverlayComponent,
     CommonModule,
     CompassButtonComponent,
   ],

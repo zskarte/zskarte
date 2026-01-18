@@ -12,7 +12,7 @@ import { JournalService } from '../journal/journal.service';
 import { JournalEntry } from '../journal/journal.types';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { deserialize, SuperJSONResult } from 'superjson';
-import { IZsChangeset } from '@zskarte/types';
+import { ChangesetInconsistentError, IZsChangeset } from '@zskarte/types';
 import { ChangesetService } from '../changeset/changeset.service';
 
 export interface User {
@@ -92,15 +92,25 @@ export class SyncService {
           promisReject = reject;
         });
         try {
-          //handle journal patches before changesets and reconnect websocket (for correct message number mapping)
+          //handle journal patches before reconnect websocket (for correct message number mapping)
           await this._journal.publishPatches();
-
-          try {
-            await this._changeset.submitOutgoing();
-          } catch (error) {
-            console.error('error on submit outgoing changesets after reconnect:', error);
-          }
           await this._reconnect();
+
+          //after successfull reconnect and session initialized send changesets
+          if (this._session.sessionInitialized()) {
+            try {
+              if (this._changeset.inconsistent()) {
+                throw new ChangesetInconsistentError(this._changeset.errorChangeset()?.id ?? '-1');
+              }
+              if (!this._changeset.hasChanges()) {
+                await this._changeset.submitOutgoing();
+              } else {
+                this._changeset.offlineMode.set(false);
+              }
+            } catch (error) {
+              console.error('error on submit outgoing changesets after reconnect:', error);
+            }
+          }
           promisResolver();
         } catch (ex: any) {
           promisReject(ex);
@@ -110,6 +120,7 @@ export class SyncService {
       });
 
     this._journal.setConnectionId(this._connectionId);
+    this._changeset.setConnectionId(this._connectionId);
   }
 
   public setStateService(state: ZsMapStateService): void {
@@ -158,6 +169,7 @@ export class SyncService {
         this._disconnect();
       });
       this._socket.on('state:changeset', (changeset: IZsChangeset) => {
+        //if (changeset.identifier === this._connectionId) return;
         this._state.addIncommingChangesets(changeset);
       });
       this._socket.on('state:journal', (json: SuperJSONResult) => {

@@ -1,0 +1,104 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.changeset-main {
+  display: flex;
+  background: white;
+  border-radius: 28px;
+  padding: 5px;
+  pointer-events: auto;
+  z-index: 1;
+}
+.changeset-main.inconsistent {
+  background-color: #ffbfbf;
+}
+
+.merge {
+  padding: 7px 28px;
+  padding-top: 28px;
+  margin-top: -21px;
+  background-color: var(--mat-badge-background-color);
+  color: white;
+  box-sizing: border-box;
+  border-bottom-right-radius: 28px;
+  border-bottom-left-radius: 28px;
+  margin-left: 2px;
+  width: calc(100% - 4px);
+  appearance: none;
+  border: none;
+  display: flex;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.mergeTitle {
+  display: var(--changeset-description-display, block);
+}
+
+.changeset-state {
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+}
+
+.changeset-description {
+  display: var(--changeset-description-display, block);
+  flex-grow: 1;
+}
+
+.changeset-buttons {
+  display: flex;
+  gap: 5px;
+  button {
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 5px 2px;
+  }
+}
+
+.progress-button {
+  position: relative;
+  width: 48px !important;
+  height: 48px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  .progress-bg {
+    position: absolute;
+    inset: 0;
+    width: 48px;
+    height: 48px;
+    z-index: 1;
+    pointer-events: none;
+
+    // ROTATION AUF DEM SVG CONTAINER statt circle!
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
+  .progress-ring {
+  }
+
+  mat-icon {
+    position: relative !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 24px !important;
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  ::ng-deep .mat-mdc-icon-button {
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+.d-none {
+  display: none !important;
+}
