@@ -54,6 +54,7 @@ import { appRoutes } from './app/app-routes';
 import { JournalService } from './app/journal/journal.service';
 import { SearchService } from './app/search/search.service';
 import { ChangesetService } from './app/changeset/changeset.service';
+import { SidebarService } from './app/sidebar/sidebar.service';
 
 // enable immerjs patches
 enablePatches();
@@ -115,6 +116,7 @@ bootstrapApplication(AppComponent, {
         inject(JournalService),
         inject(SearchService),
         inject(ChangesetService),
+        inject(SidebarService),
       );
       return initializerFn();
     }),

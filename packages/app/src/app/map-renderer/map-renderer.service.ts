@@ -720,8 +720,12 @@ export class MapRendererService {
     return this._scaleLine;
   }
 
+  public getCurrentZoom(){
+    return this.getMap().getView().getZoom();
+  }
+
   public zoomToFit(extent: Extent, padding: [number, number, number, number] = [100, 100, 100, 100], maxZoom = 18) {
-    const currentZoom = this.getMap().getView().getZoom();
+    const currentZoom = this.getCurrentZoom();
     if (currentZoom) {
       maxZoom = Math.max(maxZoom, currentZoom);
     }

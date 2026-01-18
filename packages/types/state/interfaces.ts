@@ -32,6 +32,59 @@ export interface IZsChangeset {
   patches: Patch[];
   inversePatches: Patch[];
   manual: boolean;
+  autoMerged?: boolean;
+  mergedAt?: number;
+  mergeConflictChangesetIds?: string[];
+  parentChangesetIdBeforeMerge?: string;
+  drawElementsLastChangesetBeforeMerge?: Record<string, string>;
+  patchesRevertedForMerge?: Patch[];
+  inversePatchesRevertedForMerge?: Patch[];
+}
+
+export interface IZsChangesetExport extends IZsChangeset {
+  baseMapState?: ZsMapState;
+}
+
+export interface IZsChangesetInternal extends IZsChangeset {
+  cleaned?: boolean;
+  stashed?: boolean;
+  baseMapState?: ZsMapState;
+  currentMapState?: ZsMapState;
+  origDrawElements?: Record<string, ZsMapDrawElementState | null>;
+  thereDrawElements?: Record<string, ZsMapDrawElementState | null>;
+  ourDrawElements?: Record<string, ZsMapDrawElementState | null>;
+  mergedDrawElements?: Record<string, ZsMapDrawElementState | null>;
+}
+
+export interface IZsChangesetValue {
+  path: string;
+  value: any;
+}
+
+export interface IZsChangesetConflictValue {
+  path: string;
+  orig: any;
+  there: any;
+  our: any;
+  conflict: boolean;
+  resolved: boolean;
+  selected: number;
+}
+
+export interface IZsChangesetConflict {
+  drawElementId: string;
+  missing: { orig: boolean; there: boolean; our: boolean };
+  requiredPrefChangesetId: string;
+  additionalChangesets: string[];
+  values: IZsChangesetConflictValue[];
+  conflict: boolean;
+}
+
+export interface IZsChangesetConflictDetails {
+  changeset: IZsChangesetInternal;
+  conflicts: IZsChangesetConflict[];
+  meta: IZsChangesetConflictValue[];
+  metaConflict: boolean;
 }
 
 export class ChangesetInconsistentError extends Error {
@@ -39,6 +92,14 @@ export class ChangesetInconsistentError extends Error {
     super(`Changeset ${changesetId} is inconsistent with current MapState`);
     this.name = 'ChangesetInconsistentError';
     Object.setPrototypeOf(this, ChangesetInconsistentError.prototype);
+  }
+}
+
+export class ChangesetMissingError extends Error {
+  constructor(public changesetId: string) {
+    super(`Changeset ${changesetId} does not exist`);
+    this.name = 'ChangesetMissingError';
+    Object.setPrototypeOf(this, ChangesetMissingError.prototype);
   }
 }
 
@@ -99,6 +160,7 @@ export interface IPositionFlag {
 export enum ZsMapDisplayMode {
   DRAW = 'draw',
   HISTORY = 'history',
+  CHANGESET_MERGE = 'changesetMerge',
 }
 
 export interface IZsMapDisplayState {
@@ -130,6 +192,7 @@ export interface IZsMapDisplayState {
   journalFilter: IZsJournalFilter;
   searchConfig: IZsGlobalSearchConfig;
   journalMessageEditConfig: IZsJournalMessageEditConfig;
+  changesetConfig: IZsChangesetConfig;
 }
 
 export interface IZsJournalFilter {
@@ -154,6 +217,10 @@ export interface IZsJournalMessageEditConfig {
   showMap: boolean;
   showAllAddresses: boolean;
   showLinkedText: boolean;
+}
+
+export interface IZsChangesetConfig {
+  automerge: boolean;
 }
 
 //DIN paper dimension in mm, landscape

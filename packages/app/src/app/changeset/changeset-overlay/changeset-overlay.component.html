@@ -1,0 +1,107 @@
+<div class="changeset-main mat-elevation-z3" [class.inconsistent]="changesetService.inconsistent()">
+  <div class="changeset-state">
+    <mat-icon
+      title="incomming"
+      [matBadge]="changesetService.incommingCount()"
+      [matBadgeColor]="changesetService.incommingCount() > 2 ? 'warn' : undefined"
+      matBadgeSize="small"
+      >arrow_downward</mat-icon
+    >
+    <mat-icon
+      title="outgoing"
+      [matBadge]="
+        changesetService.saving() ? '...' : (
+          changesetService.outgoingCount() +
+          (changesetService.unhandledPatchesCount() > 0 ? '+' + changesetService.unhandledPatchesCount() : '')
+        )
+      "
+      [matBadgeColor]="changesetService.saveError() ? 'warn' : undefined"
+      matBadgeSize="small"
+      >arrow_upward</mat-icon
+    >
+  </div>
+  <div class="changeset-description">{{ changesetService.changeDescription() }}</div>
+  <div class="changeset-buttons">
+    @if (changesetService.inconsistent()) {
+      <button
+        class="button"
+        mat-icon-button
+        [color]="changesetService.saveError() ? 'warn' : 'basic'"
+        title="fix inconsistency"
+        (click)="resolveConflicts()"
+        [disabled]="changesetService.saving()"
+      >
+        <mat-icon>bolt</mat-icon>
+      </button>
+    } @else if (changesetService.hasChanges()) {
+      @if (changesetService.changesStashed()) {
+      }
+      @if (!changesetService.isManual()) {
+        <button
+          class="button manual-button"
+          mat-icon-button
+          title="convert to manual changeset"
+          (click)="makeManual()"
+          [disabled]="changesetService.saving()"
+        >
+          <mat-icon>add_circle_outline</mat-icon>
+        </button>
+      }
+    } @else {
+      <button
+        class="button"
+        mat-icon-button
+        title="create manual changeset"
+        (click)="newChangeset()"
+        [disabled]="changesetService.saving()"
+      >
+        <mat-icon>add_circle</mat-icon>
+      </button>
+      @if (changesetService.outgoingCount() > 0) {
+        <button
+          class="button"
+          mat-icon-button
+          [color]="changesetService.saveError() ? 'warn' : 'basic'"
+          title="upload changes"
+          (click)="retrySubmit()"
+          [disabled]="changesetService.saving() || changesetService.inconsistent() || changesetService.hasChanges()"
+        >
+          <mat-icon>upload</mat-icon>
+        </button>
+      }
+    }
+    <button
+      class="button progress-button"
+      mat-icon-button
+      [color]="changesetService.inconsistent() ? 'warn' : 'basic'"
+      title="finish and sent changes"
+      (click)="finishChangeset()"
+      [disabled]="changesetService.saving() || changesetService.inconsistent()"
+      [class.d-none]="!changesetService.hasChanges()"
+    >
+      <svg class="progress-bg" width="48" height="48" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="20" fill="none" stroke-width="4" stroke="#e0e0e0" stroke-linecap="round" />
+        <circle
+          #progressRing
+          class="progress-ring"
+          cx="24"
+          cy="24"
+          r="20"
+          fill="none"
+          [attr.stroke-dasharray]="circumference"
+          [attr.stroke-dashoffset]="dashOffset"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke="#3f51b5"
+        />
+      </svg>
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+</div>
+@if (changesetService.merging()) {
+  <span class="merge">
+    <span class="mergeTitle">merging</span
+    ><span class="mergeCount">{{ changesetService.merging()?.current }} / {{ changesetService.merging()?.count }}</span>
+  </span>
+}

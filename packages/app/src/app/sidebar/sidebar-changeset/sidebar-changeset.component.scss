@@ -1,0 +1,38 @@
+.changeset-container {
+  padding: 0 20px;
+}
+
+.highlightAll {
+  vertical-align: middle;
+}
+.highlightAll.selected {
+  background: yellow;
+}
+
+.highlightAllPreview.activePreview,
+th.activePreview {
+  background: yellow;
+}
+
+table .selected {
+  border: 1px solid lightgreen;
+}
+
+.conflict {
+  background: lightcoral;
+}
+
+.value {
+  cursor: pointer;
+}
+
+.nv {
+  background: lightgray;
+}
+
+.missing {
+  position: relative;
+  background:
+    linear-gradient(to bottom right, transparent 0, transparent 45%, red 50%, transparent 55%, transparent 100%),
+    linear-gradient(to top right,    transparent 0, transparent 45%, red 50%, transparent 55%, transparent 100%);
+}

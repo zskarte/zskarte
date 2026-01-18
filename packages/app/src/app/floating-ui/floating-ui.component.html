@@ -25,6 +25,9 @@
       @case (SidebarContext.Layers) {
         <app-sidebar></app-sidebar>
       }
+      @case (SidebarContext.Changeset) {
+        <app-sidebar-changeset></app-sidebar-changeset>
+      }
       @case (SidebarContext.History) {
         <app-sidebar-history></app-sidebar-history>
       }
@@ -47,19 +50,22 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <div class="main noprint">
-      <div class="search" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
-        <app-geocoder />
-        @if (session.isGuest()) {
-          @let limitReached = session.observeIsGuestElementLimitReached() | async;
-          <button class="limit" [attr.data-limit-reached]="limitReached" (click)="openLimitDialog(limitReached)">
-            @if (limitReached) {
-              <span>{{ i18n.get('guestLimitReachedShort') }}</span>
-            } @else {
-              {{ state.observeDrawElementCount() | async }} / {{ MAX_DRAW_ELEMENTS_GUEST }}
-              <span>{{ i18n.get('guestLimitElements') }}</span>
-            }
-          </button>
-        }
+      <div class="top-row">
+        <div class="search" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
+          <app-geocoder />
+          @if (session.isGuest()) {
+            @let limitReached = session.observeIsGuestElementLimitReached() | async;
+            <button class="limit" [attr.data-limit-reached]="limitReached" (click)="openLimitDialog(limitReached)">
+              @if (limitReached) {
+                <span>{{ i18n.get('guestLimitReachedShort') }}</span>
+              } @else {
+                {{ state.observeDrawElementCount() | async }} / {{ MAX_DRAW_ELEMENTS_GUEST }}
+                <span>{{ i18n.get('guestLimitElements') }}</span>
+              }
+            </button>
+          }
+        </div>
+        <app-changeset-overlay [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
       </div>
       <app-journal-draw-overlay [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
       <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />

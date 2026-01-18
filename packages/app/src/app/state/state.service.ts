@@ -370,6 +370,29 @@ export class ZsMapStateService {
     return this._display.value?.displayMode === ZsMapDisplayMode.HISTORY;
   }
 
+  public observeIsChangesetMergeMode(): Observable<boolean> {
+    return this._display.pipe(
+      map((o) => {
+        return o.displayMode === ZsMapDisplayMode.CHANGESET_MERGE;
+      }),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  public isChangesetMergeMode(): boolean {
+    return this._display.value?.displayMode === ZsMapDisplayMode.CHANGESET_MERGE;
+  }
+
+  public setChangesetMergeMode(active = true) {
+    this.updateDisplayState((draft) => {
+      if (draft.displayMode !== ZsMapDisplayMode.CHANGESET_MERGE && active) {
+        draft.displayMode = ZsMapDisplayMode.CHANGESET_MERGE;
+      } else if (!active) {
+        draft.displayMode = ZsMapDisplayMode.DRAW;
+      }
+    });
+  }
+
   public toggleExpertView() {
     this.updateDisplayState((draft) => {
       draft.expertView = !draft.expertView;
@@ -1163,7 +1186,7 @@ export class ZsMapStateService {
     }
     const mapState = this._map.value || {};
     const newState = produce<ZsMapState>(mapState, fn, (patches, inversePatches) => {
-      if (preventPatches) {
+      if (preventPatches || this.isChangesetMergeMode()) {
         return;
       }
       this._mapPatches.value.push(...patches);
@@ -1187,7 +1210,6 @@ export class ZsMapStateService {
     try {
       for (const changeset of changesets) {
         mapState = this._changeset.applyChangeset(mapState, changeset);
-        changeset.applied = true;
         anyApplied = true;
       }
     } finally {
@@ -1197,22 +1219,34 @@ export class ZsMapStateService {
     }
   }
 
-  public addIncommingChangesets(changeset: IZsChangeset) {
-    changeset.applied = false;
-    if (!this._changeset.hasChanges()) {
-      this.applyChangesets([changeset]);
-    } else {
-      this._changeset.addIncomming(changeset);
+  public unapplyChangesets(changesets: IZsChangeset[]) {
+    let mapState = this._map.value;
+    let anyUnapplied = false;
+    try {
+      for (const changeset of changesets.reverse()) {
+        mapState = this._changeset.unapplyChangeset(mapState, changeset);
+        anyUnapplied = true;
+      }
+    } finally {
+      if (anyUnapplied) {
+        this._map.next(mapState);
+      }
     }
   }
 
-  public applyIncommingChangesets() {
-    if (this._changeset.incommingCount() > 0) {
-      try {
-        this.applyChangesets(this._changeset.incommingChangesets());
-      } finally {
-        this._changeset.incommingChangesets.update((incomming) => incomming.filter((c) => !c.applied));
-      }
+  public stashCurrentChangeset(stash = true, chatchErrors = false) {
+    const mapState = this._changeset.stashChangeset(this._map.value, null, stash, chatchErrors);
+    this._map.next(mapState);
+    //TODO deactivate undo/redo
+    return mapState;
+  }
+
+  public addIncommingChangesets(changeset: IZsChangeset) {
+    changeset.applied = false;
+    if (!this._changeset.hasChanges() && !this.isChangesetMergeMode()) {
+      this.applyChangesets([changeset]);
+    } else {
+      this._changeset.addIncomming(changeset);
     }
   }
 
@@ -1222,6 +1256,10 @@ export class ZsMapStateService {
 
   public async handleUnhandledPatches() {
     await this._changeset.handleUnhandledPatches(this._map.value);
+  }
+
+  public getErrorChangesetConflicts() {
+    return this._changeset.getErrorChangesetConflicts(this._map.value);
   }
 
   public updateDisplayState(fn: (draft: IZsMapDisplayState) => void): void {
@@ -1335,11 +1373,9 @@ export class ZsMapStateService {
     return this._drawHoleMode.asObservable();
   }
 
-  public async refreshMapState(): Promise<void> {
+  public async refreshMapState(submitOutgoing = true): Promise<void> {
     const operationId = this._session.getOperationId();
     if (operationId) {
-      if (!this.isHistoryMode()) {
-      }
       const sha256 = async (str: string): Promise<string> => {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
         return Array.prototype.map
@@ -1351,6 +1387,12 @@ export class ZsMapStateService {
         //on load error / offline, get back saved mapState to prevent "work" on history snapshot
         operation = this._session.getOperation();
       }
+      if (operation?.changesets) {
+        const sessionOperation = this._session.getOperation();
+        if (sessionOperation) {
+          sessionOperation.changesets = operation.changesets;
+        }
+      }
       if (operation?.mapState) {
         const [oldDigest, newDigest] = await Promise.all([
           sha256(JSON.stringify(this._map.value)),
@@ -1358,6 +1400,17 @@ export class ZsMapStateService {
         ]);
         if (oldDigest !== newDigest) {
           this.setMapState(operation.mapState);
+
+          if (!this.isHistoryMode() && submitOutgoing) {
+            try {
+              //all incoming should already be applied as server send actual changeset, but to be sure check anyway
+              this._changeset.applyIncommingChangesets();
+              
+              await this._changeset.submitOutgoing();
+            } catch (error) {
+              console.error(error);
+            }
+          }
         }
       }
     }
@@ -1374,6 +1427,7 @@ export class ZsMapStateService {
   observeIsReadOnly(): Observable<boolean> {
     return merge(
       this.observeIsHistoryMode(),
+      this.observeIsChangesetMergeMode(),
       this._session.observeHasWritePermission(),
       this._session.observeIsArchived(),
     ).pipe(
@@ -1385,9 +1439,10 @@ export class ZsMapStateService {
 
   isReadOnly(): boolean {
     const isHistoryMode = this.isHistoryMode();
+    const isChangesetMergeMode = this.isChangesetMergeMode();
     const hasWritePermission = this._session.hasWritePermission();
     const isArchived = this._session.isArchived();
-    return !hasWritePermission || isArchived || isHistoryMode;
+    return !hasWritePermission || isArchived || isHistoryMode || isChangesetMergeMode;
   }
 
   public canAddElements(): boolean {
