@@ -1,8 +1,8 @@
 <div class="entry-header">
   @if (entry().isDrawingOnMap) {
-    <div class="drawing-warning-card">
-      {{ i18n.get('someoneIsDrawing') }}
-    </div>
+  <div class="drawing-warning-card">
+    {{ i18n.get('someoneIsDrawing') }}
+  </div>
   }
   <div class="meta-infos-container">
     <div class="meta-info-card">
@@ -17,122 +17,95 @@
 </div>
 
 <div class="entry-content">
-  <!-- Beschreibung Section -->
   <div class="content-section">
     <div class="section-title">{{ i18n.get('description') }}</div>
     <div class="section-content">
-      <p
-        class="preserve-linebreak"
-        [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : true"
-        (click)="search.handleMessageContentClick($event)"
-      ></p>
+      <p class="preserve-linebreak" [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : true"
+        (click)="search.handleMessageContentClick($event)"></p>
     </div>
   </div>
-
-  <!-- Entscheid Section -->
   @if (entry().decision && entry().decision.trim()) {
-    <div class="content-section">
-      <div class="section-title">{{ i18n.get('entscheid') }}</div>
-      <div class="section-content">
-        <p class="preserve-linebreak">{{ entry().decision }}</p>
-      </div>
+  <div class="content-section">
+    <div class="section-title">{{ i18n.get('entscheid') }}</div>
+    <div class="section-content">
+      <p class="preserve-linebreak">{{ entry().decision }}</p>
     </div>
+  </div>
   }
-
-  <!-- Signaturen Section -->
   <div class="content-section">
     <div class="section-title">{{ i18n.get('drawnSymbols') }}</div>
     <div class="section-content">
       @if (entryElements().length === 0) {
-        <div class="signatures-empty">
-          <p>{{ i18n.get('noSignatureAvailable') }}</p>
-          <div class="signature-buttons">
-            @if (!entry().isDrawnOnMap) {
-              <button mat-flat-button color="primary" (click)="addSignature()">
-                <mat-icon>add</mat-icon>
-                {{ i18n.get('addSignature') }}
-              </button>
-            } @else {
-              <button mat-stroked-button (click)="addSignature()">
-                <mat-icon>add</mat-icon>
-                {{ i18n.get('addSignature') }}
-              </button>
-            }
-            <button mat-stroked-button (click)="noSignatureNeeded()">
-              <mat-icon>check</mat-icon>
-              {{ i18n.get('noSignatureNeeded') }}
-            </button>
-          </div>
-        </div>
-      } @else {
-        <div class="signatures-list">
-          @for (element of entryElements(); track element.elementState?.id) {
-            <div class="signature-item-container">
-              <button
-                class="signature-item"
-                [disabled]="!element.coordinates"
-                (click)="navigateTo(element)"
-                (mouseenter)="highlightElement(element, true)"
-                (mouseleave)="highlightElement(element, false)"
-              >
-                @if (element.imageUrl) {
-                  <img [src]="element.imageUrl" class="signature-icon" />
-                } @else {
-                  <mat-icon class="signature-icon">widgets</mat-icon>
-                }
-                <span class="signature-name">{{ getSignatureName(element) }}</span>
-              </button>
-              <button
-                class="delete-signature-button"
-                (click)="deleteSignature(element); $event.stopPropagation()"
-                [attr.aria-label]="i18n.get('delete')"
-                [attr.title]="i18n.get('delete')"
-                type="button"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          }
-        </div>
+      <div class="signatures-empty">
+        <p>{{ i18n.get('noSignatureAvailable') }}</p>
         <div class="signature-buttons">
           @if (!entry().isDrawnOnMap) {
-            <button mat-flat-button color="primary" (click)="addSignature()">
-              <mat-icon>add</mat-icon>
-              {{ i18n.get('addSignature') }}
-            </button>
+          <button mat-flat-button color="primary" (click)="addSignature()">
+            <mat-icon>add</mat-icon>
+            {{ i18n.get('addSignature') }}
+          </button>
           } @else {
-            <button mat-stroked-button (click)="addSignature()">
-              <mat-icon>add</mat-icon>
-              {{ i18n.get('addSignature') }}
-            </button>
+          <button mat-stroked-button (click)="addSignature()">
+            <mat-icon>add</mat-icon>
+            {{ i18n.get('addSignature') }}
+          </button>
           }
-          <button mat-stroked-button (click)="focusSignatures()">
-            <mat-icon>my_location</mat-icon>
-            {{ i18n.get('focusSignatures') }}
+          <button mat-stroked-button (click)="noSignatureNeeded()">
+            <mat-icon>check</mat-icon>
+            {{ i18n.get('noSignatureNeeded') }}
           </button>
         </div>
+      </div>
+      } @else {
+      <div class="signatures-list">
+        @for (element of entryElements(); track element.elementState?.id) {
+        <div class="signature-item-container">
+          <button class="signature-item" [disabled]="!element.coordinates" (click)="navigateTo(element)"
+            (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
+            @if (element.imageUrl) {
+            <img [src]="element.imageUrl" class="signature-icon" />
+            } @else {
+            <mat-icon class="signature-icon">widgets</mat-icon>
+            }
+            <span class="signature-name">{{ getSignatureName(element) }}</span>
+          </button>
+          <button class="delete-signature-button" (click)="deleteSignature(element); $event.stopPropagation()"
+            [attr.aria-label]="i18n.get('delete')" [attr.title]="i18n.get('delete')" type="button">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        }
+      </div>
+      <div class="signature-buttons">
+        @if (!entry().isDrawnOnMap) {
+        <button mat-flat-button color="primary" (click)="addSignature()">
+          <mat-icon>add</mat-icon>
+          {{ i18n.get('addSignature') }}
+        </button>
+        } @else {
+        <button mat-stroked-button (click)="addSignature()">
+          <mat-icon>add</mat-icon>
+          {{ i18n.get('addSignature') }}
+        </button>
+        }
+        <button mat-stroked-button (click)="focusSignatures()">
+          <mat-icon>my_location</mat-icon>
+          {{ i18n.get('focusSignatures') }}
+        </button>
+      </div>
       }
     </div>
   </div>
-
-  <!-- Action buttons -->
   <div class="action-buttons">
-    <button
-      mat-stroked-button
-      class="show-in-journal-button"
-      [attr.aria-label]="i18n.get('showInJournal')"
-      [attr.title]="i18n.get('showInJournal')"
-      (click)="openJournalClick($event)"
-    >
+    <button mat-stroked-button class="show-in-journal-button" [attr.aria-label]="i18n.get('showInJournal')"
+      [attr.title]="i18n.get('showInJournal')" (click)="openJournalClick($event)">
       <mat-icon>menu_book</mat-icon>
       {{ i18n.get('showInJournal') }}
     </button>
-
-    <!-- Warning for incomplete signatures (only for drawn messages) -->
     @if (hasIncompleteSignatures()) {
-      <button mat-stroked-button color="warn" class="warning-button" (click)="markAsNotDrawn()">
-        {{ i18n.get('signaturesNotComplete') }}
-      </button>
+    <button mat-stroked-button color="warn" class="warning-button" (click)="markAsNotDrawn()">
+      {{ i18n.get('signaturesNotComplete') }}
+    </button>
     }
   </div>
 </div>

@@ -15,7 +15,7 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "[html]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "vscode.html-language-features"
   },
   "[scss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
