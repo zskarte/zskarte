@@ -4,6 +4,7 @@
     <legend>{{ i18n.get('mapLayerType') }}</legend>
     <mat-radio-group [(ngModel)]="layer.type">
       <mat-radio-button value="geojson">GeoJSON</mat-radio-button>
+      <mat-radio-button value="shape">Shape</mat-radio-button>
       <mat-radio-button value="csv">CSV</mat-radio-button>
     </mat-radio-group>
   </fieldset>
