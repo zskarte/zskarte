@@ -71,6 +71,8 @@ export class JournalComponent implements AfterViewInit {
   private _destroyRef = inject(DestroyRef);
   readonly isOnline = toSignal(this._session.observeIsOnline());
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
+  readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
+  readonly isCurrentMapData = toSignal(this._state.observeIsCurrentMapData());
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;

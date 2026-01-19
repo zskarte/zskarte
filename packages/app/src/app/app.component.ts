@@ -21,7 +21,6 @@ export class AppComponent implements OnInit {
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
-  readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
   readonly operationId = toSignal(this._session.observeOperationId());
   
 
