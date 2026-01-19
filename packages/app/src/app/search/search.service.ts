@@ -222,6 +222,40 @@ export class SearchService {
     return combinedExtent;
   }
 
+  private sortSearchResults(
+    results: IZsMapSearchResult[],
+    searchConfig: IZsGlobalSearchConfig,
+    alphabetical = false,
+  ): IZsMapSearchResult[] {
+    const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
+    const mapExtent = this._state.getMapExtent();
+    const collator = alphabetical ? new Intl.Collator() : undefined;
+
+    return results.sort((a, b) => {
+      if (searchConfig.sortedByDistance) {
+        return (a.internal?.dist ?? Number.MAX_SAFE_INTEGER) - (b.internal?.dist ?? Number.MAX_SAFE_INTEGER);
+      }
+
+      const aCoord = a.mercatorCoordinates || a.internal?.center;
+      const bCoord = b.mercatorCoordinates || b.internal?.center;
+
+      if (aCoord && bCoord) {
+        const aInExtent = mapExtent ? containsCoordinate(mapExtent, aCoord) : false;
+        const bInExtent = mapExtent ? containsCoordinate(mapExtent, bCoord) : false;
+
+        if (aInExtent !== bInExtent) {
+          return aInExtent ? -1 : 1;
+        }
+      }
+
+      if (collator) {
+        return collator.compare(a.label, b.label);
+      }
+
+      return 0; // Maintain existing order
+    });
+  }
+
   async coordinateSearch(text: string) {
     const coords = coordinateFromString(text);
     if (coords) {
@@ -316,12 +350,13 @@ export class SearchService {
           mercatorCoordinates,
           internal: {
             id: r.id,
+            dist: refCoord ? squaredDistance(refCoord, mercatorCoordinates) : undefined,
             ...r.attrs,
             addressToken: `addr:(${linkText})[lonLat:${lonLat.join(' ')}]`,
           },
         });
       });
-    return foundLocations;
+    return this.sortSearchResults(foundLocations, searchConfig);
   }
 
   public async geoAdminGeometryByOriginAndId(origin: string, featureId: string) {
@@ -382,10 +417,7 @@ export class SearchService {
           center = geometry.getClosestPoint(center);
         }
         if (!filterArea || containsCoordinate(filterArea, center)) {
-          let dist: number | undefined = undefined;
-          if (searchConfig.sortedByDistance) {
-            dist = squaredDistance(refCoord, center);
-          }
+          const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = `${r.properties?.['stn_label']}, ${r.properties?.['zip_label']}`;
           foundLocations.push({
             label,
@@ -399,13 +431,7 @@ export class SearchService {
           });
         }
       });
-    if (searchConfig.sortedByDistance) {
-      foundLocations.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
-    } else {
-      const collator = new Intl.Collator();
-      foundLocations.sort((a, b) => collator.compare(a.label, b.label));
-    }
-    return foundLocations;
+    return this.sortSearchResults(foundLocations, searchConfig, true);
   }
 
   public async geoAdminStreetGeometryById(id: string) {
@@ -449,10 +475,7 @@ export class SearchService {
           center = geometry.getClosestPoint(center);
         }
         if (!filterArea || containsCoordinate(filterArea, center)) {
-          let dist: number | undefined = undefined;
-          if (searchConfig.sortedByDistance) {
-            dist = squaredDistance(refCoord, center);
-          }
+          const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = r.properties?.['name'];
           foundLocations.push({
             label,
@@ -466,13 +489,7 @@ export class SearchService {
           });
         }
       });
-    if (searchConfig.sortedByDistance) {
-      foundLocations.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
-    } else {
-      const collator = new Intl.Collator();
-      foundLocations.sort((a, b) => collator.compare(a.label, b.label));
-    }
-    return foundLocations;
+    return this.sortSearchResults(foundLocations, searchConfig, true);
   }
 
   public async geoAdminWaterGeometryById(id: string) {
