@@ -1014,6 +1014,11 @@ export class I18NService {
       en: 'Zoom in',
       fr: 'Zoom in',
     },
+    resetRotation: {
+      de: 'Ausrichtung zurücksetzen',
+      en: 'Reset rotation',
+      fr: 'Réinitialiser la rotation',
+    },
     zoomToScale: {
       de: 'massstabsgetreu vergrössern',
       en: 'zoom to scale',

@@ -33,6 +33,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
 import { SearchService } from '../search/search.service';
+import { CompassButtonComponent } from '../compass-button/compass-button.component';
 
 @Component({
   selector: 'app-floating-ui',
@@ -56,6 +57,7 @@ import { SearchService } from '../search/search.service';
     CoordinatesComponent,
     JournalDrawOverlayComponent,
     CommonModule,
+    CompassButtonComponent,
   ],
 })
 export class FloatingUIComponent {
