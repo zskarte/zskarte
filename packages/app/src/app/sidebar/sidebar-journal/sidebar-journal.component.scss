@@ -4,25 +4,25 @@ mat-panel-title {
 
 .journal-header-content {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
   width: 100%;
-
-  .message-id {
-    flex-shrink: 0;
-    color: #666;
-    font-size: 14px;
-  }
-
-  .subject {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  gap: 4px;
 }
 
-.mat-expanded .journal-header-content .subject {
+.entry-date-header {
+  color: #666;
+  font-size: 14px;
+}
+
+.entry-title-header {
+  font-size: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mat-expanded .entry-title-header {
   white-space: wrap;
 }
 
@@ -30,12 +30,17 @@ mat-panel-title {
   .mat-expansion-panel {
     background: transparent;
 
+    &.mat-expanded {
+      background-color: #F1F1F1;
+    }
+
     .mat-expansion-panel-header {
-      padding: 0 16px;
+      padding: 12px 16px;
     }
 
     .mat-expansion-panel-body {
-      padding: 0 16px;
+      padding: 0 16px 16px 16px;
+      background-color: #F1F1F1;
     }
   }
 }
@@ -50,20 +55,36 @@ mat-panel-title {
   width: 30rem;
 }
 
-.journal-header {
-  margin: 16px;
-  display: flex;
-  justify-content: space-between;
+
+:host ::ng-deep {
+  mat-stroked-button {
+    background-color: white;
+  }
+}
+
+.mark-as-drawn-container {
+  margin-top: -8px;
+  padding-top: 8px;
+}
+
+.mark-as-drawn-button {
+  background-color: white !important;
+  width: 100%;
+}
+
+.todo-badge,
+.done-badge {
+  display: inline-flex;
   align-items: center;
-  cursor: pointer;
-}
-
-.toggle-icon {
-  transition: transform 0.3s ease;
-  vertical-align: middle;
-  margin-left: auto;
-}
-
-.toggle-icon.rotated {
-  transform: rotate(180deg);
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 8px;
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
 }

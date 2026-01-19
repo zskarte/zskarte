@@ -2625,7 +2625,7 @@ export class I18NService {
       fr: 'Commencer à dessiner',
     },
     someoneIsDrawing: {
-      de: 'Jemand hat mit Zeichnen begonnen',
+      de: 'Jemand hat bereits mit zeichnen begonnen.',
       en: 'Someone started drawing',
       fr: "Quelqu'un a commencé à dessiner",
     },
@@ -2945,7 +2945,7 @@ export class I18NService {
       fr: 'Cartes',
     },
     responsibility: {
-      de: 'Zuständigkeit',
+      de: 'Verantwortlichkeit',
       en: 'Responsibility',
       fr: 'Responsabilité',
     },
@@ -2956,6 +2956,11 @@ export class I18NService {
     },
     decision: {
       de: 'Entscheidung',
+      en: 'Decision',
+      fr: 'Décision',
+    },
+    entscheid: {
+      de: 'Entscheid',
       en: 'Decision',
       fr: 'Décision',
     },
@@ -2998,6 +3003,41 @@ export class I18NService {
       de: 'Alle gezeichnete Signaturen hervorheben',
       en: 'Highlight all drawn symbols',
       fr: 'Surlignez tous les symboles dessinés',
+    },
+    noSignatureAvailable: {
+      de: 'Keine Signatur vorhanden.',
+      en: 'No signature available.',
+      fr: 'Aucune signature disponible.',
+    },
+    addSignature: {
+      de: 'Signatur hinzufügen',
+      en: 'Add signature',
+      fr: 'Ajouter une signature',
+    },
+    noSignatureNeeded: {
+      de: 'Keine Signatur benötigt',
+      en: 'No signature needed',
+      fr: 'Aucune signature nécessaire',
+    },
+    focusSignatures: {
+      de: 'Signaturen fokussieren',
+      en: 'Focus signatures',
+      fr: 'Mettre en évidence les signatures',
+    },
+    signaturesNotComplete: {
+      de: 'Signaturen nicht komplett',
+      en: 'Signatures not complete',
+      fr: 'Signatures incomplètes',
+    },
+    todo: {
+      de: 'Todo',
+      en: 'Todo',
+      fr: 'À faire',
+    },
+    done: {
+      de: 'Done',
+      en: 'Done',
+      fr: 'Terminé',
     },
     reset: {
       de: 'Zurücksetzen',

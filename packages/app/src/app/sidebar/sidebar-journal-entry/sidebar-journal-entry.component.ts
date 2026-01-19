@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
@@ -19,21 +18,19 @@ import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/ext
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FormsModule } from '@angular/forms';
 import { JournalService } from 'src/app/journal/journal.service';
 import { Router } from '@angular/router';
+import { SidebarService } from '../sidebar.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
   selector: 'app-sidebar-journal-entry',
   imports: [
-    DatePipe,
     MatListModule,
     MatIcon,
     MatButtonModule,
-    MatCheckboxModule,
-    FormsModule,
     ReplaceAllAddressTokensPipe,
   ],
   templateUrl: './sidebar-journal-entry.component.html',
@@ -46,6 +43,8 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   search = inject(SearchService);
   journal = inject(JournalService);
   private _router = inject(Router);
+  private _sidebar = inject(SidebarService);
+  private _dialog = inject(MatDialog);
   entry = input.required<JournalEntry>();
   allHighlighted = false;
 
@@ -66,7 +65,6 @@ export class SidebarJournalEntryComponent implements OnDestroy {
           };
         }) ?? [],
   );
-  markPotentialAddresses = signal(false);
 
   navigateTo(element: { id: string; coordinates: Coordinate | undefined }) {
     if (element.coordinates) {
@@ -95,10 +93,10 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         .observeHighlightedFeature()
         .pipe(
           skip(1),
-          filter((v) => !elementIds.every((element) => v.includes(element))),
+          filter((v: string[]) => !elementIds.every((element) => v.includes(element))),
           take(1),
         )
-        .subscribe((v) => (this.allHighlighted = false));
+        .subscribe(() => (this.allHighlighted = false));
     } else {
       this._state.replaceHighlightedFeatures([]);
     }
@@ -138,13 +136,60 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         : element.elementState?.reportNumber === reportNumber;
   }
 
-  async showAllAddresses() {
-    await this.search.showAllFeature(this.entry().messageContent, true, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
-    this.search.addressPreview.set(true);
-  }
-
   openJournalClick(event: Event) {
     event.stopPropagation();
     this._router.navigate(['/main/journal'], { queryParams: { messageNumber: this.entry().messageNumber } });
+  }
+
+  getSignatureName(element: {
+    elementState?: ZsMapDrawElementState;
+    imageUrl?: string;
+  }): string {
+    if (element.elementState?.symbolId) {
+      const sign = Signs.getSignById(element.elementState.symbolId);
+      if (sign) {
+        return this.i18n.getLabelForSign(sign);
+      }
+    }
+    return element.elementState?.name || '';
+  }
+
+  addSignature() {
+    this._sidebar.close();
+    this.journal.startDrawing(this.entry(), true);
+  }
+
+  noSignatureNeeded() {
+    this.journal.markAsDrawn(this.entry(), true);
+  }
+
+  focusSignatures() {
+    this.zoomToAll();
+    if (!this.allHighlighted) {
+      this.toggleHighlightAll();
+    }
+  }
+
+  hasIncompleteSignatures(): boolean {
+    return this.entry().isDrawnOnMap;
+  }
+
+  markAsNotDrawn() {
+    this.journal.markAsDrawn(this.entry(), false);
+  }
+
+  deleteSignature(element: { id: string; elementState?: ZsMapDrawElementState }) {
+    if (!element.id) {
+      return;
+    }
+
+    const confirm = this._dialog.open(ConfirmationDialogComponent, {
+      data: this.i18n.get('removeFeatureFromMapConfirm'),
+    });
+    confirm.afterClosed().subscribe((r) => {
+      if (r && element.id) {
+        this._state.removeDrawElement(element.id);
+      }
+    });
   }
 }

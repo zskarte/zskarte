@@ -1,11 +1,12 @@
 import { Component, ElementRef, effect, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatIcon } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatBadgeModule } from '@angular/material/badge';
 import { I18NService } from '../../state/i18n.service';
 import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
 import { JournalService } from '../../journal/journal.service';
@@ -18,11 +19,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
   standalone: true,
   imports: [
     CommonModule,
+    DatePipe,
     MatExpansionModule,
     MatProgressSpinnerModule,
     MatButtonModule,
     MatDividerModule,
-    MatIcon,
+    MatTabsModule,
+    MatBadgeModule,
     SidebarJournalEntryComponent,
   ],
   templateUrl: './sidebar-journal.component.html',
@@ -37,7 +40,6 @@ export class SidebarJournalComponent {
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
-  isOpen = { toDraw: true, drawn: true };
 
   constructor(private elementRef: ElementRef) {
     effect(() => {
@@ -48,7 +50,7 @@ export class SidebarJournalComponent {
       this.journalEntriesToDraw.set(toDraw);
 
       const alreadyDrawn = (journalList || []).filter((entry) => entry.isDrawnOnMap);
-      alreadyDrawn.sort((a, b) => b.messageNumber - a.messageNumber);
+      alreadyDrawn.sort((a, b) => a.messageNumber - b.messageNumber);
       this.journalEntriesDrawn.set(alreadyDrawn);
 
       if (this.currentMessageNumber) {
@@ -82,7 +84,11 @@ export class SidebarJournalComponent {
     this.journal.startDrawing(entry, true);
   }
 
-  toggle(section: string) {
-    this.isOpen[section] = !this.isOpen[section];
+  onPanelOpened(messageNumber: number) {
+    this.currentMessageNumber = messageNumber;
+  }
+
+  onPanelClosed() {
+    this.currentMessageNumber = undefined;
   }
 }

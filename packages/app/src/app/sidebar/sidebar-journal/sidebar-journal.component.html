@@ -8,71 +8,78 @@
     <p>{{ i18n.get('noMessagesToProcess') }}</p>
   </div>
 } @else {
-  <h2 class="journal-header" (click)="toggle('toDraw')">
-    {{ i18n.get('messagesToDraw') }}<mat-icon class="toggle-icon" [class.rotated]="isOpen.toDraw">expand_more</mat-icon>
-  </h2>
-  <mat-divider></mat-divider>
-  <mat-accordion *ngIf="isOpen.toDraw" multi displayMode="flat">
-    @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
-      <mat-expansion-panel
-        class="mat-elevation-z0"
-        [expanded]="entry.messageNumber === currentMessageNumber"
-        [attr.data-message-number]="entry.messageNumber"
-      >
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <div class="journal-header-content">
-              <span class="message-id">#{{ entry.messageNumber }}</span>
-              <span class="subject">{{ entry.messageSubject }}</span>
-            </div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+  <mat-tab-group animationDuration="0ms">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span>{{ i18n.get('todo') }}</span>
+        @if (journalEntriesToDraw().length > 0) {
+          <span class="todo-badge">{{ journalEntriesToDraw().length }}</span>
+        }
+      </ng-template>
+      <mat-accordion [multi]="false" displayMode="flat">
+        @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
+          <mat-expansion-panel
+            class="mat-elevation-z0"
+            [expanded]="entry.messageNumber === currentMessageNumber"
+            [attr.data-message-number]="entry.messageNumber"
+            (opened)="onPanelOpened(entry.messageNumber)"
+            (closed)="onPanelClosed()"
+          >
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <div class="journal-header-content">
+                  <div class="entry-date-header">{{ entry.dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
+                  <div class="entry-title-header">#{{ entry.messageNumber }} {{ entry.messageSubject }}</div>
+                </div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
 
-        <ng-template matExpansionPanelContent>
-          <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-          @if (!isReadOnly()) {
-            @if (entry.isDrawingOnMap) {
-              <span class="drawing">{{ i18n.get('someoneIsDrawing') }}</span>
-            }
-            <button mat-flat-button color="primary" (click)="startDrawing(entry)">
-              {{ i18n.get('startDrawing') }}
-            </button>
-            <button mat-flat-button (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
-          }
-        </ng-template>
-      </mat-expansion-panel>
-      <mat-divider></mat-divider>
-    }
-  </mat-accordion>
+            <ng-template matExpansionPanelContent>
+              <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
+              @if (!isReadOnly()) {
+                <div class="mark-as-drawn-container">
+                  <button mat-stroked-button class="mark-as-drawn-button" (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
+                </div>
+              }
+            </ng-template>
+          </mat-expansion-panel>
+          <mat-divider></mat-divider>
+        }
+      </mat-accordion>
+    </mat-tab>
 
-  <h2 class="journal-header" (click)="toggle('drawn')">
-    {{ i18n.get('drawnMessages') }}<mat-icon class="toggle-icon" [class.rotated]="isOpen.drawn">expand_more</mat-icon>
-  </h2>
-  <mat-divider></mat-divider>
-  <mat-accordion *ngIf="isOpen.drawn" multi displayMode="flat">
-    @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
-      <mat-expansion-panel
-        class="mat-elevation-z0"
-        [expanded]="entry.messageNumber === currentMessageNumber"
-        [attr.data-message-number]="entry.messageNumber"
-      >
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <div class="journal-header-content">
-              <span class="message-id">#{{ entry.messageNumber }}</span>
-              <span class="subject">{{ entry.messageSubject }}</span>
-            </div>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span>{{ i18n.get('done') }}</span>
+        @if (journalEntriesDrawn().length > 0) {
+          <span class="done-badge">{{ journalEntriesDrawn().length }}</span>
+        }
+      </ng-template>
+      <mat-accordion [multi]="false" displayMode="flat">
+        @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
+          <mat-expansion-panel
+            class="mat-elevation-z0"
+            [expanded]="entry.messageNumber === currentMessageNumber"
+            [attr.data-message-number]="entry.messageNumber"
+            (opened)="onPanelOpened(entry.messageNumber)"
+            (closed)="onPanelClosed()"
+          >
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <div class="journal-header-content">
+                  <div class="entry-date-header">{{ entry.dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
+                  <div class="entry-title-header">#{{ entry.messageNumber }} {{ entry.messageSubject }}</div>
+                </div>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
 
-        <ng-template matExpansionPanelContent>
-          <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-          @if (!isReadOnly()) {
-            <button mat-button (click)="journal.markAsDrawn(entry, false)">{{ i18n.get('markAsNotDrawn') }}</button>
-          }
-        </ng-template>
-      </mat-expansion-panel>
-      <mat-divider></mat-divider>
-    }
-  </mat-accordion>
+            <ng-template matExpansionPanelContent>
+              <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
+            </ng-template>
+          </mat-expansion-panel>
+          <mat-divider></mat-divider>
+        }
+      </mat-accordion>
+    </mat-tab>
+  </mat-tab-group>
 }
