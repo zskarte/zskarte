@@ -244,6 +244,16 @@ export class I18NService {
       en: 'Polygon',
       fr: 'Polygone',
     },
+    rectangle: {
+      de: 'Rechteck',
+      en: 'Rectangle',
+      fr: 'Rectangle',
+    },
+    oval: {
+      de: 'Oval',
+      en: 'Oval',
+      fr: 'Ovale',
+    },
     point: {
       de: 'Punkt',
       en: 'Point',

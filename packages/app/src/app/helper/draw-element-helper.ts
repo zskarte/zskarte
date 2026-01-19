@@ -5,6 +5,8 @@ import { ZsMapLineDrawElement } from '../map-renderer/elements/line-draw-element
 import { ZsMapPolygonDrawElement } from '../map-renderer/elements/polygon-draw-element';
 import { ZsMapSymbolDrawElement } from '../map-renderer/elements/symbol-draw-element';
 import { ZsMapTextDrawElement } from '../map-renderer/elements/text-draw-element';
+import { ZsMapRectangleDrawElement } from '../map-renderer/elements/rectangle-draw-element';
+import { ZsMapCircleDrawElement } from '../map-renderer/elements/circle-draw-element';
 import { ZsMapDrawElementStateType, ZsMapElementToDraw } from '@zskarte/types';
 import { ZsMapStateService } from '../state/state.service';
 
@@ -21,6 +23,10 @@ export const DrawElementHelper = {
         return ZsMapSymbolDrawElement.getOlDrawHandler(state, element);
       case ZsMapDrawElementStateType.FREEHAND:
         return ZsMapFreehandDrawElement.getOlDrawHandler(state, element);
+      case ZsMapDrawElementStateType.RECTANGLE:
+        return ZsMapRectangleDrawElement.getOlDrawHandler(state, element);
+      case ZsMapDrawElementStateType.CIRCLE:
+        return ZsMapCircleDrawElement.getOlDrawHandler(state, element);
       default:
         throw new Error(`Could not create draw handler for type ${element.type}`);
     }
@@ -43,6 +49,10 @@ export const DrawElementHelper = {
         return new ZsMapSymbolDrawElement(element.id, state);
       case ZsMapDrawElementStateType.FREEHAND:
         return new ZsMapFreehandDrawElement(element.id, state);
+      case ZsMapDrawElementStateType.RECTANGLE:
+        return new ZsMapRectangleDrawElement(element.id, state);
+      case ZsMapDrawElementStateType.CIRCLE:
+        return new ZsMapCircleDrawElement(element.id, state);
       default:
         throw new Error(`Could not create instance handler for draw element ${JSON.stringify(element)}`);
     }
