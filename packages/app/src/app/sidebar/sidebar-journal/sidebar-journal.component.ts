@@ -5,6 +5,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatIcon } from '@angular/material/icon';
 import { I18NService } from '../../state/i18n.service';
 import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
 import { JournalService } from '../../journal/journal.service';
@@ -21,6 +22,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     MatProgressSpinnerModule,
     MatButtonModule,
     MatDividerModule,
+    MatIcon,
     SidebarJournalEntryComponent,
   ],
   templateUrl: './sidebar-journal.component.html',
@@ -35,6 +37,7 @@ export class SidebarJournalComponent {
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
+  isOpen = { toDraw: true, drawn: true };
 
   constructor(private elementRef: ElementRef) {
     effect(() => {
@@ -77,5 +80,9 @@ export class SidebarJournalComponent {
   startDrawing(entry: JournalEntry) {
     this._sidebar.close();
     this.journal.startDrawing(entry, true);
+  }
+
+  toggle(section: string) {
+    this.isOpen[section] = !this.isOpen[section];
   }
 }
