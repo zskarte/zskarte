@@ -147,7 +147,7 @@ export class SearchService {
     });
   }
 
-  public handleEsc(event: KeyboardEvent) {
+  public handleEsc(event: Event) {
     if (this.addressPreview()) {
       this.addressPreview.set(false);
       event.preventDefault();

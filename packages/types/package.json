@@ -12,7 +12,7 @@
   "license": "MIT",
   "description": "",
   "dependencies": {
-    "typescript": "^5.7.3",
-    "ol": "^10.3.1"
+    "ol": "^10.7.0",
+    "typescript": "^5.9.3"
   }
 }
