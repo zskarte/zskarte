@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken';
 
 module.exports = (config, { strapi }) => {
   return async (ctx, next) => {
-    let token = ctx.cookies.get('jwtToken');
+    const token = ctx.cookies.get('jwtToken');
     if (!token) return ctx.unauthorized();
 
     try {
       const jwtSecret = strapi.config.get('admin.auth.secret') || strapi.config.get('plugin.admin.auth.secret');
-      let decoded = jwt.verify(token, jwtSecret, {
+      const decoded = jwt.verify(token, jwtSecret, {
         subject: strapi.config.get('server.adminUrl') ? 'admin' : undefined,
       });
       if (typeof decoded === 'object' && decoded.userId) {
