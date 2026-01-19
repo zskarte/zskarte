@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   IPositionFlag,
   IZsChangeset,
+  IZsChangesetConfig,
   IZsGlobalSearchConfig,
   IZsJournalFilter,
   IZsJournalMessageEditConfig,
@@ -202,6 +203,9 @@ export class ZsMapStateService {
         showMap: false,
         showAllAddresses: false,
         showLinkedText: true,
+      },
+      changesetConfig: {
+        automerge: true,
       },
     };
     if (!mapState) {
@@ -693,6 +697,24 @@ export class ZsMapStateService {
 
   public getSearchConfig(): IZsGlobalSearchConfig {
     return this._display.value.searchConfig;
+  }
+
+  // changesetConfig
+  public observeChangesetConfig(): Observable<IZsChangesetConfig> {
+    return this._display.pipe(
+      map((o) => o.changesetConfig),
+      distinctUntilChanged((x, y) => isEqual(x, y)),
+    );
+  }
+
+  public setChangesetConfig(changesetConfig: IZsChangesetConfig) {
+    this.updateDisplayState((draft) => {
+      draft.changesetConfig = changesetConfig;
+    });
+  }
+
+  public getChangesetConfig(): IZsChangesetConfig {
+    return this._display.value.changesetConfig;
   }
 
   // JournalAddressPreview
