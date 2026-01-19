@@ -1,5 +1,5 @@
 import { Injectable, effect, inject, resource, signal } from '@angular/core';
-import { JournalDateFields, JournalEntry } from './journal.types';
+import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
 import { ApiResponse, ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
@@ -835,5 +835,16 @@ export class JournalService {
         fileName,
       );
     });
+  }
+
+  public getResponsibility(entry: JournalEntry) {
+    switch (entry.entryStatus) {
+      case JournalEntryStatus.AWAITING_MESSAGE:
+        return entry.visumMessage;
+      case JournalEntryStatus.AWAITING_DECISION:
+        return this._i18n.get(entry.department ?? 'allDepartments');
+      default:
+        return this._i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
+    }
   }
 }
