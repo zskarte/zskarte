@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { ChangesetService, CONFLICT_INDEX_NAME, NO_CONFLICT_VALUE } from 'src/app/changeset/changeset.service';
@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 
@@ -29,10 +30,15 @@ export class SidebarChangesetComponent {
   readonly changesetService = inject(ChangesetService);
   private _snackBar = inject(MatSnackBar);
   readonly i18n = inject(I18NService);
+  readonly changesetConfig = toSignal(this._state.observeChangesetConfig());
   private _activeLayer = this._state.getActiveLayer()?.getId();
   conflictsOnly = true;
   allHighlighted = false;
   allPreviewIndex = 3;
+
+  updateAutomerge(val: boolean) {
+    this._state.setChangesetConfig({ automerge: val });
+  }
 
   toggleHighlightAll() {
     this.allHighlighted = !this.allHighlighted;

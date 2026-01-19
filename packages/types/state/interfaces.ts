@@ -3,9 +3,16 @@ import { MapLayer, WmsSource } from '../map-layer/interfaces';
 import { FillStyle, IconsOffset } from '../sign/interfaces';
 import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
-import { Sort } from '@angular/material/sort';
 import { Extent } from 'ol/extent';
 import { Patch } from 'immer';
+
+
+//copied from '@angular/material/sort' as not accessible here
+type SortDirection = 'asc' | 'desc' | '';
+interface Sort {
+    active: string;
+    direction: SortDirection;
+}
 
 export interface IZsChangeset {
   parentChangesetId: string;
@@ -85,6 +92,7 @@ export interface IZsChangesetConflictDetails {
   conflicts: IZsChangesetConflict[];
   meta: IZsChangesetConflictValue[];
   metaConflict: boolean;
+  hasConflicts: boolean;
 }
 
 export class ChangesetInconsistentError extends Error {

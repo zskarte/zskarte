@@ -162,7 +162,7 @@ export class ChangesetService {
     runInInjectionContext(this._environmentInjector, () => {
       this._operationId = toSignal(this._session.observeOperationId());
       let oldSessionInitialized = false;
-      let oldOperationId:string | undefined = undefined;
+      let oldOperationId: string | undefined = undefined;
       effect(async () => {
         const operationId = this._operationId();
         const sessionInitialized = this._session.sessionInitialized();
@@ -272,6 +272,7 @@ export class ChangesetService {
           identifier: this._connectionId,
         },
       });
+
       const { error } = response;
       if (error) {
         if ((error as any).isInconsistent) {
@@ -909,6 +910,7 @@ export class ChangesetService {
   }
 
   private _setErrorChangeset(errorChangeset: IZsChangeset | null, inconsistent: boolean) {
+    const oldConflictDetails = this.conflictDetails();
     this.conflictDetails.set(null);
     this.inconsistent.set(inconsistent);
     this.errorChangeset.set(errorChangeset);
@@ -920,7 +922,6 @@ export class ChangesetService {
       return;
     }
     const conflictDetails = this._state.getErrorChangesetConflicts();
-    this.conflictDetails.set(conflictDetails);
 
     const oldMerging = this.merging();
     if (oldMerging && count <= oldMerging.count) {
@@ -928,6 +929,18 @@ export class ChangesetService {
       this.merging.set({ current, count: oldMerging.count });
     } else {
       this.merging.set({ current: 1, count });
+    }
+
+    if (conflictDetails) {
+      if (
+        !conflictDetails.hasConflicts &&
+        this._state.getChangesetConfig().automerge &&
+        oldConflictDetails?.changeset.id !== conflictDetails.changeset.id
+      ) {
+        this.replaceErrorChangesetByMerge(conflictDetails);
+      } else {
+        this.conflictDetails.set(conflictDetails);
+      }
     }
   }
 
@@ -1270,8 +1283,8 @@ export class ChangesetService {
         }
       }
     }
-
-    return { changeset, conflicts, meta, metaConflict };
+    const hasConflicts = metaConflict || conflicts.some((c) => c.conflict);
+    return { changeset, conflicts, meta, metaConflict, hasConflicts };
   }
 
   public openChangesetMergeView() {
@@ -1526,10 +1539,12 @@ export class ChangesetService {
     changeset.mergedAt = new Date().getTime();
 
     this._removeAllConflictElements();
+
+    this.inconsistent.set(false);
+    await this._submitChangeset(changeset);
+    this._setErrorChangeset(null, false);
     this._state.setChangesetMergeMode(false);
 
-    this._setErrorChangeset(null, false);
-    await this._submitChangeset(changeset);
     await this.submitOutgoing();
   }
 }
