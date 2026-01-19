@@ -13,6 +13,7 @@
     "build": "strapi build",
     "regenerate": "strapi ts:generate-types",
     "export": "config-sync export --yes --type user-role",
+    "import": "config-sync import --yes --type user-role",
     "strapi": "strapi"
   },
   "dependencies": {
