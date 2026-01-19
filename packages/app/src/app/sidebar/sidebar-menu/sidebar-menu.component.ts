@@ -3,6 +3,7 @@ import { I18NService } from '../../state/i18n.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { HelpComponent } from '../../help/help.component';
 import { ZsMapStateService } from '../../state/state.service';
+import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { SessionService } from '../../session/session.service';
 import { ZsMapBaseDrawElement } from '../../map-renderer/elements/base/base-draw-element';
@@ -52,6 +53,7 @@ export class SidebarMenuComponent {
   private _dialog = inject(MatDialog);
   private _operation = inject(OperationService);
   sidebar = inject(SidebarService);
+  private router = inject(Router);
 
   readonly projectionSelectionTemplate = viewChild.required<TemplateRef<unknown>>('projectionSelectionTemplate');
 
@@ -84,7 +86,7 @@ export class SidebarMenuComponent {
   }
 
   help(): void {
-    this.dialog.open(HelpComponent, { data: false });
+    this.router.navigate(['/help']);
   }
 
   showExpertViewHelp(){
