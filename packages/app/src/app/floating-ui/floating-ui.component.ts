@@ -268,7 +268,7 @@ export class FloatingUIComponent {
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(event: KeyboardEvent): void {
+  closeSidebareOnEsc(event: Event): void {
     if (this.state.getActiveView() !== 'map') {
       return;
     }

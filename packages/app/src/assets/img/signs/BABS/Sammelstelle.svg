@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 28.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 156 156" width="156px" height="156px"  style="enable-background:new 0 0 156 156;" xml:space="preserve">
+<svg width="156px" height="156px" viewBox="0 0 156 156" version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" style="enable-background:new 0 0 82 125.9;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#0000FF;}
+	.st0{fill:#FFFFFF;}
+	.st1{fill:#0000FF;}
 </style>
+<g transform="translate(27.20,0.00) scale(1.239079)">
 <g>
-	<path class="st0" d="M128.2,151.4H29.3V1.5h98.9V151.4z M41,139.7h75.5V13.2H41V139.7z"/>
-	<rect x="38.2" y="79.7" class="st0" width="80" height="7.6"/>
-	<rect x="38.7" y="62" class="st0" width="80" height="7.6"/>
+	<polygon class="st0" points="3.5,3.5 78.5,3.5 78.5,122.4 3.5,122.4 3.5,3.5 	"/>
+	<path class="st1" d="M82,125.9H0V0h82V125.9z M7,118.9h68V7H7V118.9z"/>
+</g>
+<g>
+	<rect x="6.1" y="67" class="st1" width="69.2" height="4.2"/>
+</g>
+<g>
+	<rect x="6.6" y="51.7" class="st1" width="68.8" height="4.2"/>
+</g>
 </g>
 </svg>

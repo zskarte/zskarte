@@ -533,13 +533,15 @@
     }
     @if ((editMode | async) && (mergeMode | async)) {
       <mat-card-content>
-        <div>{{ i18n.get('chooseGroupingArea') }}</div>
-        @if (isPolygon()) {
-          <button mat-stroked-button (click)="merge(false)" [disabled]="drawHoleMode | async">
-            <mat-icon>cancel</mat-icon>
-            {{ i18n.get('cancelGrouping') }}
-          </button>
-        }
+        <div>
+          <div>{{ i18n.get('chooseGroupingArea') }}</div>
+          @if (isPolygon()) {
+            <button mat-stroked-button (click)="merge(false)" [disabled]="drawHoleMode | async">
+              <mat-icon>cancel</mat-icon>
+              {{ i18n.get('cancelGrouping') }}
+            </button>
+          }
+        </div>
       </mat-card-content>
     }
   }

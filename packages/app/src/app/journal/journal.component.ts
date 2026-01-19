@@ -424,6 +424,11 @@ export class JournalComponent implements AfterViewInit {
               this.updateMessagePdfTemplate(newTemplate);
             });
           }
+          if ('print' in instance) {
+            instance.print.subscribe(() => {
+              this.journal.print({} as JournalEntry);
+            });
+          }
         }
       }
     });

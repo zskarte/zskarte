@@ -1668,10 +1668,9 @@ export class I18NService {
           Wenn für ein Feld nur 1 Wert zugelassen werden soll, kann einfach der Wert ins RegEx Feld geschrieben werden.<br>
           Sollen mehrer bestimmte Werte zugelassen werden, müssen diese in ein Klammern paar eingehüllt und mit einem Pipe "|" getrennt angegeben werden, z.B. "(wert1|wert2|wert3)"<br>
           Sollen alle Werte erlaubt werden welche mit "test_" beginnen kann dieser Teil mit einem all match ".*" ergänzt werden, z.B. "test_.*<br>
-          Sollen alle Werte erlaubt werden welche mit "test_" enden kann diesem Teil ein all match ".*" vorangestellt werden, z.B. ".*_test<br>
-          Sollen alle Werte erlaubt werden welche mit "_test" enden kann dies über ".*_test" definiert werden<br>
+          Sollen alle Werte erlaubt werden welche mit "_test" enden kann diesem Teil ein all match ".*" vorangestellt werden, z.B. ".*_test<br>
           Eine fixe Werte Liste und erlaubte prefixes/suffixes können auch kombiniert werden, z.B. "(wert1|wert2|wert3|test_.*|.*_test)"<br>
-          Wenn alles zugelassen werden soll ausser bestimmt Werte kann dies über ein all match ".*" (oder ein prefix/suffix/Werteliste wie vorher) gefolgt von einem negativen Lookbehind (nur fixe Werte keine prefix/suffixe logiken) für jeden auszuschliessenden Wert angegeben werden, z.B. ".*(?<!wert1)(?<!wert2)" oder "test_.*(?<!test_temp)(?<!test_klein)"<br>
+          Wenn alles zugelassen werden soll ausser bestimmt Werte kann dies über ein all match ".*" (oder ein prefix/suffix/Werteliste wie vorher) gefolgt von einem negativen Lookbehind (nur fixe Werte keine prefix/suffixe logiken) für jeden auszuschliessenden Wert angegeben werden, z.B. ".*(?&lt;!wert1)(?&lt;!wert2)" oder "test_.*(?&lt;!test_temp)(?&lt;!test_klein)"<br>
           <br>
           Zusätzlich können über "Gültiger Bereich"(6) min/max X und Y Koordinaten angegeben werden für welche Features/Zeilen zugelassen werden. Diese Werte müssen mit dem gleichen System kodiert sein wie die X/Y Felder der Zeilen selbst.<br>
           Wird keine Einschränkung definiert, filtert das System automatisch alles raus, welcher ausserhalb eines Quadrates über der Schweiz hinausgehen. Dies hat hauptsächlich den Grund fehlerhafte Daten (z.B. mit Koordinaten 0/0) auszuschliessen da dies zu Problemen führen können.<br>
@@ -1681,10 +1680,9 @@ export class I18NService {
           Si une seule valeur doit être autorisée pour un champ, la valeur peut simplement être écrite dans le champ RegEx.<br>
           Si plusieurs valeurs spécifiques doivent être autorisées, elles doivent être enveloppées dans une paire de parenthèses et séparées par un pipe "|", par exemple "(valeur1|valeur2|valeur3)"<br>
           Si toutes les valeurs commençant par "test_" doivent être autorisées, cette partie peut être complétée par un all match ".*", par exemple "test_.*<br>
-          Si toutes les valeurs se terminant par "test_" doivent être autorisées, un all match ".*" peut être préfixé à cette partie, par exemple ".*_test<br>
-          Si toutes les valeurs se terminant par "_test" doivent être autorisées, cela peut être défini par ".*_test"<br>
+          Si toutes les valeurs se terminant par "_test" doivent être autorisées, un all match ".*" peut être préfixé à cette partie, par exemple ".*_test<br>
           Une liste de valeurs fixes et des préfixes/suffixes autorisés peuvent également être combinés, par exemple "(valeur1|valeur2|valeur3|test_.*|.*_test)"<br>
-          Si tout doit être autorisé sauf certaines valeurs, cela peut être spécifié par un all match ".*" (ou un préfixe/suffixe/liste de valeurs comme précédemment) suivi d'un lookbehind négatif (uniquement des valeurs fixes, pas de logiques de préfixe/suffixe) pour chaque valeur à exclure, par exemple ".*(?<!valeur1)(?<!valeur2)" ou "test_.*(?<!test_temp)(?<!test_petit)"<br>
+          Si tout doit être autorisé sauf certaines valeurs, cela peut être spécifié par un all match ".*" (ou un préfixe/suffixe/liste de valeurs comme précédemment) suivi d'un lookbehind négatif (uniquement des valeurs fixes, pas de logiques de préfixe/suffixe) pour chaque valeur à exclure, par exemple ".*(?&lt;!valeur1)(?&lt;!valeur2)" ou "test_.*(?&lt;!test_temp)(?&lt;!test_petit)"<br>
           <br>
           De plus, des coordonnées X et Y min/max peuvent être spécifiées via "Étendue de zone valide" (6) pour lesquelles les entités/lignes sont autorisées. Ces valeurs doivent être codées avec le même système que les champs X/Y des lignes elles-mêmes.<br>
           Si aucune restriction n'est définie, le système filtre automatiquement tout ce qui sort d'un carré au-dessus de la Suisse. Cela a principalement pour but d'exclure les données erronées (par exemple avec des coordonnées 0/0) car cela peut conduire à des problèmes.<br>
@@ -1694,10 +1692,9 @@ export class I18NService {
           If only 1 value should be allowed for a field, the value can simply be written into the RegEx field.<br>
           If several specific values should be allowed, these must be wrapped in a pair of parentheses and specified separated by a pipe "|", e.g. "(value1|value2|value3)"<br>
           If all values starting with "test_" should be allowed, this part can be supplemented with an all match ".*", e.g. "test_.*<br>
-          If all values ending with "test_" should be allowed, an all match ".*" can be prefixed to this part, e.g. ".*_test<br>
-          If all values ending with "_test" should be allowed, this can be defined via ".*_test"<br>
+          If all values ending with "_test" should be allowed, an all match ".*" can be prefixed to this part, e.g. ".*_test<br>
           A fixed value list and allowed prefixes/suffixes can also be combined, e.g. "(value1|value2|value3|test_.*|.*_test)"<br>
-          If everything should be allowed except certain values, this can be specified via an all match ".*" (or a prefix/suffix/value list as before) followed by a negative lookbehind (only fixed values no prefix/suffix logics) for each value to be excluded, e.g. ".*(?<!value1)(?<!value2)" or "test_.*(?<!test_temp)(?<!test_small)"<br>
+          If everything should be allowed except certain values, this can be specified via an all match ".*" (or a prefix/suffix/value list as before) followed by a negative lookbehind (only fixed values no prefix/suffix logics) for each value to be excluded, e.g. ".*(?&lt;!value1)(?&lt;!value2)" or "test_.*(?&lt;!test_temp)(?&lt;!test_small)"<br>
           <br>
           Additionally, min/max X and Y coordinates can be specified via "Valid area extent" (6) for which features/rows are allowed. These values must be encoded with the same system as the X/Y fields of the rows themselves.<br>
           If no restriction is defined, the system automatically filters out everything that goes outside a square over Switzerland. This is mainly to exclude erroneous data (e.g. with coordinates 0/0) as this can lead to problems.<br>
@@ -1713,7 +1710,7 @@ export class I18NService {
         Dadurch sind weitere infos nötig welche die Suche konfiguriert.<br>
         Bei der "Suchergebnis Beschriftungs-Maske"(2) wird Angegeben was angezeigt werden soll, wenn ein Treffer gefunden wird. Dafür können die Feldnamen der Eigenschaften eines Features im GeoJSON/Spalten im CSV über die Notation <code>\${FeldName}</code> angegeben werden.<br>
         Bei "RegEx Muster für Suche"(3) müssen Suchmuster definiert werden für welche die Suche in der GeoJSON/CSV Ebene suchen soll. Da ein Feature/Zeile in einem GeoJSON/CSV unterschiedliche Felder hat muss in der Suchmaske kodiert werden welcher Teil der Maske in welchem GeoJSON/CSV Feld vorkommen muss.<br>
-        Dies wird über sogenannte benannte Gruppen im RegEx gemacht welche die Form "<code>(?<FeldName>regex such maske)</code>" haben. Mehr informationen und Hilfe zum erstellen von RegEx Patterns kann z.B. auf https://regex101.com geholt werden, hier werden die relevanten Basics erklärt, inkl. Muster zum übernehmen.<br>
+        Dies wird über sogenannte benannte Gruppen im RegEx gemacht welche die Form "<code>(?&lt;FeldName>regex such maske)</code>" haben. Mehr informationen und Hilfe zum erstellen von RegEx Patterns kann z.B. auf https://regex101.com geholt werden, hier werden die relevanten Basics erklärt, inkl. Muster zum übernehmen.<br>
         <ul>
           <li>Wenn erlaubte Zeichen für die Suchmaske alle Zeichen sind welche in Worten vorkommen können (in allen Sprachen) kann dafür "<code>\\p{L}</code>" für ein einzelnes Zeichen verwendet werden.</li>
           <li>Soll eine Ziffer gesucht werden geht dies über "<code>\\d</code>".</li>
@@ -1723,12 +1720,12 @@ export class I18NService {
         </ul>
         Daraus ergeben sich nun z.B. folgene Wiederverwendbaren notationen
         <ul>
-          <li>"<code>(?<FeldName>.+)</code>" es wird nach der gesammten Suchmasken Eingabe in FeldName gesucht.</li>
-          <li>"<code>(?<FeldName1>\\p{L}+)</code>" wenn genau 1 Wort mit 1 bis unendlich Zeichen in der Suchmaske eingegeben wird, wird in FeldName1 danach gesucht</li>
-          <li>"<code>(?<FeldName2>\\d+)</code>" wenn genau eine Zahl mit 1 bis unendlich Ziffern in der Suchmaske eingegeben wird, wird in FeldName2 danach gesucht</li>
-          <li>"<code>(?<FeldName3>\\p{L}+(?: \\p{L}+)*)</code>" wenn mindestens 1 Wort bis unendlich Worte alle jeweils mit einem Leerzeichen getrennt in der Suchmaske eingegeben werden, wird in FeldName3 danach gesucht</li>
-          <li>"<code>(?<entranceNumber>\\d+ ?\\p{L}?)</code>" wenn eine Zahl mit 1 bis unendlich Ziffern, mit einem optionalen Leerzeichen und/oder einem einzelnen optionalen WortZeichen in der Suchmaske eingegeben werden, wird in entranceNumber danach gesucht</li>
-          <li>"<code>(?<FeldName4>\\p{L}+(?: \\p{L}+)*), (?<FeldName5>\\p{L}+(?: \\p{L}+)*)</code>" wenn 1 - x Worte, gefolgt von einem Komme und Leerzeichen, und wieder 1 - x Worte angegeben werden, wird der Text entsprechend in FeldName4 und FeldName5 gesucht.<br>
+          <li>"<code>(?&lt;FeldName>.+)</code>" es wird nach der gesammten Suchmasken Eingabe in FeldName gesucht.</li>
+          <li>"<code>(?&lt;FeldName1>\\p{L}+)</code>" wenn genau 1 Wort mit 1 bis unendlich Zeichen in der Suchmaske eingegeben wird, wird in FeldName1 danach gesucht</li>
+          <li>"<code>(?&lt;FeldName2>\\d+)</code>" wenn genau eine Zahl mit 1 bis unendlich Ziffern in der Suchmaske eingegeben wird, wird in FeldName2 danach gesucht</li>
+          <li>"<code>(?&lt;FeldName3>\\p{L}+(?: \\p{L}+)*)</code>" wenn mindestens 1 Wort bis unendlich Worte alle jeweils mit einem Leerzeichen getrennt in der Suchmaske eingegeben werden, wird in FeldName3 danach gesucht</li>
+          <li>"<code>(?&lt;entranceNumber>\\d+ ?\\p{L}?)</code>" wenn eine Zahl mit 1 bis unendlich Ziffern, mit einem optionalen Leerzeichen und/oder einem einzelnen optionalen WortZeichen in der Suchmaske eingegeben werden, wird in entranceNumber danach gesucht</li>
+          <li>"<code>(?&lt;FeldName4>\\p{L}+(?: \\p{L}+)*), (?&lt;FeldName5>\\p{L}+(?: \\p{L}+)*)</code>" wenn 1 - x Worte, gefolgt von einem Komma und Leerzeichen, und wieder 1 - x Worte angegeben werden, wird der Text entsprechend in FeldName4 und FeldName5 gesucht.<br>
               Die Felder mit etwas anderem als einem Leerzeichen zu Trennen ist hier wichtig, da sonnst alles bis auf des letzte Wort in FeldName4 gesucht wird und nur das letzte/einte pflicht Wort (da 1 - x) in FeldName5</li>
         </ul>
         In einem GeoJSON/CSV file können tausende von separate Objekte/Features/Zeilen sein und somit auch potentiel viele welche auf die Sucheingabe passen. Damit bei vielen ähnlichen gefundenen Features ein differenzierteres Ergebnis ausgegeben werden kann, können Feldnamen angegeben werden nach welchen die Ergebnisse gruppiert werden sollen wenn es ziviele gibt.<br>
@@ -1756,7 +1753,7 @@ export class I18NService {
         Cela nécessite des informations supplémentaires qui configurent la recherche.<br>
         Dans le "Masque d'étiquette de résultat de recherche" (2), on spécifie ce qui doit être affiché lorsqu'un résultat est trouvé. Pour cela, les noms de champs des propriétés d'une entité dans le GeoJSON/colonnes dans le CSV peuvent être spécifiés en utilisant la notation <code>\${NomDuChamp}</code>.<br>
         Dans "Modèle RegEx pour la recherche" (3), des modèles de recherche doivent être définis pour lesquels la recherche doit être effectuée dans la couche GeoJSON/CSV. Comme une entité/ligne dans un GeoJSON/CSV a différents champs, il faut coder dans le masque de recherche quelle partie du masque doit apparaître dans quel champ GeoJSON/CSV.<br>
-        Cela se fait via des groupes nommés dans le RegEx qui ont la forme "<code>(?<NomDuChamp>masque de recherche regex)</code>". Plus d'informations et d'aide pour créer des modèles RegEx peuvent être trouvées par exemple sur https://regex101.com, les bases pertinentes sont expliquées ici, y compris des modèles à adopter.<br>
+        Cela se fait via des groupes nommés dans le RegEx qui ont la forme "<code>(?&lt;NomDuChamp>masque de recherche regex)</code>". Plus d'informations et d'aide pour créer des modèles RegEx peuvent être trouvées par exemple sur https://regex101.com, les bases pertinentes sont expliquées ici, y compris des modèles à adopter.<br>
         <ul>
           <li>Si les caractères autorisés pour le masque de recherche sont tous les caractères qui peuvent apparaître dans les mots (dans toutes les langues), "<code>\\p{L}</code>" peut être utilisé pour un seul caractère.</li>
           <li>Pour rechercher un chiffre, cela se fait via "<code>\\d</code>".</li>
@@ -1766,12 +1763,12 @@ export class I18NService {
         </ul>
         Cela donne maintenant par exemple les notations réutilisables suivantes
         <ul>
-          <li>"<code>(?<NomDuChamp>.+)</code>" recherche l'ensemble de l'entrée du masque de recherche dans NomDuChamp.</li>
-          <li>"<code>(?<NomDuChamp1>\\p{L}+)</code>" si exactement 1 mot avec 1 à l'infini caractères est entré dans le masque de recherche, il est recherché dans NomDuChamp1</li>
-          <li>"<code>(?<NomDuChamp2>\\d+)</code>" si exactement un nombre avec 1 à l'infini chiffres est entré dans le masque de recherche, il est recherché dans NomDuChamp2</li>
-          <li>"<code>(?<NomDuChamp3>\\p{L}+(?: \\p{L}+)*)</code>" si au moins 1 mot jusqu'à l'infini mots, tous séparés par un espace, sont entrés dans le masque de recherche, ils sont recherchés dans NomDuChamp3</li>
-          <li>"<code>(?<numeroEntree>\\d+ ?\\p{L}?)</code>" si un nombre avec 1 à l'infini chiffres, avec un espace optionnel et/ou un seul caractère de mot optionnel est entré dans le masque de recherche, il est recherché dans numeroEntree</li>
-          <li>"<code>(?<NomDuChamp4>\\p{L}+(?: \\p{L}+)*), (?<NomDuChamp5>\\p{L}+(?: \\p{L}+)*)</code>" si 1 - x mots, suivis d'une virgule et d'un espace, et à nouveau 1 - x mots sont spécifiés, le texte est recherché en conséquence dans NomDuChamp4 et NomDuChamp5.<br>
+          <li>"<code>(?&lt;NomDuChamp>.+)</code>" recherche l'ensemble de l'entrée du masque de recherche dans NomDuChamp.</li>
+          <li>"<code>(?&lt;NomDuChamp1>\\p{L}+)</code>" si exactement 1 mot avec 1 à l'infini caractères est entré dans le masque de recherche, il est recherché dans NomDuChamp1</li>
+          <li>"<code>(?&lt;NomDuChamp2>\\d+)</code>" si exactement un nombre avec 1 à l'infini chiffres est entré dans le masque de recherche, il est recherché dans NomDuChamp2</li>
+          <li>"<code>(?&lt;NomDuChamp3>\\p{L}+(?: \\p{L}+)*)</code>" si au moins 1 mot jusqu'à l'infini mots, tous séparés par un espace, sont entrés dans le masque de recherche, ils sont recherchés dans NomDuChamp3</li>
+          <li>"<code>(?&lt;numeroEntree>\\d+ ?\\p{L}?)</code>" si un nombre avec 1 à l'infini chiffres, avec un espace optionnel et/ou un seul caractère de mot optionnel est entré dans le masque de recherche, il est recherché dans numeroEntree</li>
+          <li>"<code>(?&lt;NomDuChamp4>\\p{L}+(?: \\p{L}+)*), (?&lt;NomDuChamp5>\\p{L}+(?: \\p{L}+)*)</code>" si 1 - x mots, suivis d'une virgule et d'un espace, et à nouveau 1 - x mots sont spécifiés, le texte est recherché en conséquence dans NomDuChamp4 et NomDuChamp5.<br>
               Il est important ici de séparer les champs par autre chose qu'un espace, sinon tout sauf le dernier mot est recherché dans NomDuChamp4 et seul le dernier/unique mot obligatoire (car 1 - x) dans NomDuChamp5</li>
         </ul>
         Dans un fichier GeoJSON/CSV, il peut y avoir des milliers d'objets/entités/lignes séparés et donc potentiellement beaucoup qui correspondent à l'entrée de recherche. Afin qu'un résultat plus différencié puisse être produit lorsque de nombreuses entités similaires sont trouvées, des noms de champs peuvent être spécifiés selon lesquels les résultats doivent être groupés s'il y en a trop.<br>
@@ -1799,7 +1796,7 @@ export class I18NService {
           This requires additional information that configures the search.<br>
           In the "Search result label mask" (2), you specify what should be displayed when a match is found. For this, the field names of the properties of a feature in the GeoJSON/columns in the CSV can be specified using the notation <code>\${FieldName}</code>.<br>
           In "RegEx pattern for search" (3), search patterns must be defined for which the search should look in the GeoJSON/CSV layer. Since a feature/row in a GeoJSON/CSV has different fields, it must be coded in the search mask which part of the mask must occur in which GeoJSON/CSV field.<br>
-          This is done via so-called named groups in the RegEx which have the form "<code>(?<FieldName>regex search mask)</code>". More information and help on creating RegEx patterns can be found e.g. on https://regex101.com, the relevant basics are explained here, including patterns to adopt.<br>
+          This is done via so-called named groups in the RegEx which have the form "<code>(?&lt;FieldName>regex search mask)</code>". More information and help on creating RegEx patterns can be found e.g. on https://regex101.com, the relevant basics are explained here, including patterns to adopt.<br>
           <ul>
             <li>If allowed characters for the search mask are all characters that can occur in words (in all languages), "<code>\\p{L}</code>" can be used for a single character.</li>
             <li>To search for a digit, this is done via "<code>\\d</code>".</li>
@@ -1809,12 +1806,12 @@ export class I18NService {
           </ul>
           This now results in, for example, the following reusable notations
           <ul>
-            <li>"<code>(?<FieldName>.+)</code>" searches for the entire search mask input in FieldName.</li>
-            <li>"<code>(?<FieldName1>\\p{L}+)</code>" if exactly 1 word with 1 to infinity characters is entered in the search mask, it is searched for in FieldName1</li>
-            <li>"<code>(?<FieldName2>\\d+)</code>" if exactly one number with 1 to infinity digits is entered in the search mask, it is searched for in FieldName2</li>
-            <li>"<code>(?<FieldName3>\\p{L}+(?: \\p{L}+)*)</code>" if at least 1 word up to infinity words, all separated by a space, are entered in the search mask, they are searched for in FieldName3</li>
-            <li>"<code>(?<entranceNumber>\\d+ ?\\p{L}?)</code>" if a number with 1 to infinity digits, with an optional space and/or a single optional word character is entered in the search mask, it is searched for in entranceNumber</li>
-            <li>"<code>(?<FieldName4>\\p{L}+(?: \\p{L}+)*), (?<FieldName5>\\p{L}+(?: \\p{L}+)*)</code>" if 1 - x words, followed by a comma and space, and again 1 - x words are specified, the text is searched for accordingly in FieldName4 and FieldName5.<br>
+            <li>"<code>(?&lt;FieldName>.+)</code>" searches for the entire search mask input in FieldName.</li>
+            <li>"<code>(?&lt;FieldName1>\\p{L}+)</code>" if exactly 1 word with 1 to infinity characters is entered in the search mask, it is searched for in FieldName1</li>
+            <li>"<code>(?&lt;FieldName2>\\d+)</code>" if exactly one number with 1 to infinity digits is entered in the search mask, it is searched for in FieldName2</li>
+            <li>"<code>(?&lt;FieldName3>\\p{L}+(?: \\p{L}+)*)</code>" if at least 1 word up to infinity words, all separated by a space, are entered in the search mask, they are searched for in FieldName3</li>
+            <li>"<code>(?&lt;entranceNumber>\\d+ ?\\p{L}?)</code>" if a number with 1 to infinity digits, with an optional space and/or a single optional word character is entered in the search mask, it is searched for in entranceNumber</li>
+            <li>"<code>(?&lt;FieldName4>\\p{L}+(?: \\p{L}+)*), (?&lt;FieldName5>\\p{L}+(?: \\p{L}+)*)</code>" if 1 - x words, followed by a comma and space, and again 1 - x words are specified, the text is searched for accordingly in FieldName4 and FieldName5.<br>
                 It is important here to separate the fields with something other than a space, otherwise everything except the last word is searched for in FieldName4 and only the last/single mandatory word (since 1 - x) in FieldName5</li>
           </ul>
           In a GeoJSON/CSV file, there can be thousands of separate objects/features/rows and thus potentially many that match the search input. In order to output a more differentiated result when many similar features are found, field names can be specified according to which the results should be grouped if there are too many.<br>
@@ -2991,6 +2988,11 @@ export class I18NService {
       de: 'Meldungs Vorlage',
       en: 'Message template',
       fr: 'Modèle de message',
+    },
+    printEmptySavedTemplate: {
+      de: 'Gespeicherte Vorlage drucken, leer',
+      en: 'Print saved template, empty',
+      fr: 'Imprimer le modèle enregistré, vide',
     },
     errorSaving: {
       de: 'Fehler beim Speichern',
