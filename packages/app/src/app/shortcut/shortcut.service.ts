@@ -138,7 +138,8 @@ export class ShortcutService {
 
         offsetCoordinates(newState.coordinates, offset);
 
-        this._state.addDrawElement(newState);
+        const element = this._state.addDrawElement(newState);
+        this._state.setSelectedFeature(element?.id);
       }
     });
 
