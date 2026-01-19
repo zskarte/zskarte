@@ -65,7 +65,7 @@ export class ScaleSelectionComponent {
     this.dialogRef.close({ scale: this.scale, dpi: this.dpi });
   }
 
-  @HostListener('window:keyup.Enter', ['$event'])
+  @HostListener('window:keyup.Enter')
   onDialogClick(): void {
     this.ok();
   }

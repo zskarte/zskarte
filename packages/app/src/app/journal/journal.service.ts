@@ -1,5 +1,5 @@
 import { Injectable, effect, inject, resource, signal } from '@angular/core';
-import { JournalDateFields, JournalEntry } from './journal.types';
+import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
 import { ApiResponse, ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
@@ -30,22 +30,22 @@ export class JournalService {
   private operationId = signal<string | null>(null);
   private organizationId = signal<string | null>(null);
   private journalResource = resource({
-    request: () => ({
+    params: () => ({
       operationId: this.operationId(),
       organizationId: this.organizationId(),
     }),
     loader: async (params) => {
-      if (!params.request.operationId || !params.request.organizationId) {
+      if (!params.params.operationId || !params.params.organizationId) {
         return [];
       }
       if (this._session.isWorkLocal()) {
         return await db.localJournalEntries
-          .where({ operationId: params.request.operationId, organizationId: params.request.organizationId })
+          .where({ operationId: params.params.operationId, organizationId: params.params.organizationId })
           .toArray();
       }
       //organization is implicit by session
       const { error, result } = await this._api.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
+        `/api/journal-entries?operationId=${params.params.operationId}&pagination[pageSize]=1000`,
       );
       if (error || !result) {
         throw 'error on fetch journal entries';
@@ -273,7 +273,7 @@ export class JournalService {
     return min - 1;
   }
 
-  private async messageNumberAlreadyExist(messageNumber: number, uuid?: string) {
+  public async messageNumberAlreadyExist(messageNumber: number, uuid?: string) {
     const operationId = this.operationId();
     const organizationId = this.organizationId();
     if (!operationId) {
@@ -292,7 +292,7 @@ export class JournalService {
         };
       } else if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
         return {
-          error: { message: `messageNumber ${entry.messageNumber} already exist` },
+          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
           result: undefined,
         };
       }
@@ -337,7 +337,7 @@ export class JournalService {
             }
             if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
               return {
-                error: { message: `messageNumber ${entry.messageNumber} already exist` },
+                error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
                 result: undefined,
               };
             }
@@ -367,7 +367,7 @@ export class JournalService {
         await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)
       ) {
         return {
-          error: { message: `messageNumber ${entry.messageNumber} already exist` },
+          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
           result: undefined,
         };
       }
@@ -835,5 +835,16 @@ export class JournalService {
         fileName,
       );
     });
+  }
+
+  public getResponsibility(entry: JournalEntry) {
+    switch (entry.entryStatus) {
+      case JournalEntryStatus.AWAITING_MESSAGE:
+        return entry.visumMessage;
+      case JournalEntryStatus.AWAITING_DECISION:
+        return this._i18n.get(entry.department ?? 'allDepartments');
+      default:
+        return this._i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
+    }
   }
 }

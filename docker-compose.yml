@@ -1,6 +1,6 @@
 services:
   postgresql-zskarte:
-    image: bitnami/postgresql:16.3.0
+    image: bitnamilegacy/postgresql:16.3.0
     container_name: postgresql-zskarte
     restart: unless-stopped
     volumes:

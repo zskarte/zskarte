@@ -19,11 +19,10 @@
       #linkedTextContent
       class="linkedTextContent"
       [formControl]="messageContentControl()"
-      [formattingRules]="formattingRules"
-      (keydown)="onKeyDownFormatedText($event)"
-      (input)="onInputFormatedText()"
-      (click)="handleTextContentClick($event)"
-      (dblclick)="handleTextContentDblClick($event)"
+      (quillKeydown)="onKeyDownFormatedText($event)"
+      (quillContentChanged)="onInputFormatedText()"
+      (quillClick)="handleTextContentClick($event)"
+      (quillDblclick)="handleTextContentDblClick($event)"
     ></app-contenteditable>
   } @else {
     <textarea
@@ -50,10 +49,6 @@
   "
   [ngStyle]="showLinkedText() ? { 'left.px': addressSelectionPosition.x, 'top.px': addressSelectionPosition.y } : null"
 >
-  <!--
-  [style.left.px]="addressSelectionPosition.x"
-  [style.top.px]="addressSelectionPosition.y"
--->
   <div class="title">{{ i18n.get('searchAddress') }}</div>
   <input
     #addresSearchField
@@ -99,9 +94,12 @@
     <div class="overlay-content">
       <div>
         <mat-icon>map</mat-icon>
-        <mat-checkbox [disabled]="showAllAddresses()" [ngModel]="showAllAddresses() ? true : showMap()" (ngModelChange)="showMap.set($event)">{{
-          i18n.get('showMap')
-        }}</mat-checkbox>
+        <mat-checkbox
+          [disabled]="showAllAddresses()"
+          [ngModel]="showAllAddresses() ? true : showMap()"
+          (ngModelChange)="showMap.set($event)"
+          >{{ i18n.get('showMap') }}</mat-checkbox
+        >
       </div>
       <div>
         <mat-icon>select_all</mat-icon>

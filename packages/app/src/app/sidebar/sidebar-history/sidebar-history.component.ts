@@ -57,7 +57,7 @@ export class SidebarHistoryComponent implements AfterViewInit {
   async setHistory(snapshot: IZsMapSnapshot) {
     const { result } = await this.apiService.get(`${this.apiPath}/${snapshot.documentId}`);
 
-    this.stateService.setMapState(result.mapState);
+    this.stateService.setMapState(result.mapState, snapshot.createdAt);
 
     this.snackBarService.open(
       `${this.i18n.get('toastSnapshotApplied')}: ${snapshot.createdAt.toLocaleString()}`,
@@ -68,7 +68,15 @@ export class SidebarHistoryComponent implements AfterViewInit {
     );
   }
 
-  setCurrent() {
-    this.stateService.refreshMapState();
+  async setCurrent() {
+    await this.stateService.refreshMapState();
+
+    this.snackBarService.open(
+      this.i18n.get('currentStateActive'),
+      'OK',
+      {
+        duration: 2000,
+      },
+    );
   }
 }
