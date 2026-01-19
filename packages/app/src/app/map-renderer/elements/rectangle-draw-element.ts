@@ -50,6 +50,9 @@ export class ZsMapRectangleDrawElement extends ZsMapBaseDrawElement<ZsMapRectang
   public static override getOlDrawHandler(state: ZsMapStateService, element: ZsMapElementToDraw): Draw {
     const draw = new Draw({
       source: new VectorSource({ wrapX: false }),
+      // I am not sure why it requires a Circle,
+      // but my guess is because of the coordinates.
+      // It does not work as a polygon.
       type: 'Circle',
       geometryFunction: (coords, geom) => {
         if (!geom) {
