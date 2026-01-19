@@ -273,7 +273,7 @@ export class JournalService {
     return min - 1;
   }
 
-  private async messageNumberAlreadyExist(messageNumber: number, uuid?: string) {
+  public async messageNumberAlreadyExist(messageNumber: number, uuid?: string) {
     const operationId = this.operationId();
     const organizationId = this.organizationId();
     if (!operationId) {
@@ -292,7 +292,7 @@ export class JournalService {
         };
       } else if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
         return {
-          error: { message: `messageNumber ${entry.messageNumber} already exist` },
+          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
           result: undefined,
         };
       }
@@ -337,7 +337,7 @@ export class JournalService {
             }
             if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
               return {
-                error: { message: `messageNumber ${entry.messageNumber} already exist` },
+                error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
                 result: undefined,
               };
             }
@@ -367,7 +367,7 @@ export class JournalService {
         await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)
       ) {
         return {
-          error: { message: `messageNumber ${entry.messageNumber} already exist` },
+          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
           result: undefined,
         };
       }
