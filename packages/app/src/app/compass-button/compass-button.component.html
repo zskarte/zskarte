@@ -1,0 +1,8 @@
+<button class="compass-button mat-elevation-z3" mat-icon-button (click)="resetRotation()" [attr.aria-label]="i18n.get('resetRotation')">
+  <div class="compass-icon" [style.transform]="'rotate(' + (rotation$ | async) + 'rad)'">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+      <polygon points="12,2 15,12 12,10 9,12" fill="#EA4335"/>
+      <polygon points="12,22 9,12 12,14 15,12" fill="#BDBDBD"/>
+    </svg>
+  </div>
+</button>
