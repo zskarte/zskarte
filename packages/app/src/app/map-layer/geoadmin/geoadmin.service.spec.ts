@@ -13,7 +13,7 @@ describe('GeoadminService', () => {
   );
 
   it('should be created', () => {
-    const service: GeoadminService = TestBed.get(GeoadminService);
+    const service: GeoadminService = TestBed.inject(GeoadminService);
     expect(service).toBeTruthy();
   });
 });

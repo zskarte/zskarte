@@ -40,39 +40,45 @@ You can run Zivilschutz-Karte without installation from [https://zskarte.ch](htt
 
 ### 🛠️ Prerequisites
 
-- 📦 Node.js 20.x
+- 📦 Node.js 22.x
 - 🔧 npm 10.x
 - 🐳 docker 27.x or higher
 
 ### 📋 Installation Steps
 
 ### 1. Install packages
+
 ```bash
 npm install
 ```
 
-### 2. Copy .env example file and rename it to .env (you can keep the values as they are for local development)
+### 2. For Server copy .env.example file and rename it to .env (you can keep the values as they are for local development)
 ```bash
-cp .env.example .env
+cp packages/server/.env.example packages/server/.env
 ```
 
 ### 3. Start the application (database, backend, frontend)
+
 ```bash
 npm run start
 ```
 
 ### 4. Access the Strapi admin panel (Backend)
-  1. http://localhost:1337/admin
-  2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
+
+1. http://localhost:1337/admin
+2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
 
 ### 5. Access the Zivilschutz-Karte application (Frontend)
+
 Zivilschutz-Karte is optimized and tested for use with Google Chrome - nevertheless other browsers might work as well and are supported in a best effort manner.
-  1. http://localhost:4300
-  2. Login with credentials: User -> zso_development, Password -> Supersecret123
+
+1. http://localhost:4300
+2. Login with credentials: User -> zso_development, Password -> Supersecret123
 
 ## 💡 Help & Feedback
 
-Need assistance or want to share your thoughts? We'd love to hear from you! 
+Need assistance or want to share your thoughts? We'd love to hear from you!
+
 - 🐛 Create an issue on GitHub
 - 📧 Send feedback to [feedback@zskarte.ch](mailto:feedback@zskarte.ch)
 - 💬 Join our community discussions
@@ -90,9 +96,6 @@ This will startup a local postgresDB with a RDMS system (pgadmin).
 #### Start
 
 ```bash
-# docker version < 20.10.x
-docker-compose up -d
-# docker version >= 20.10.x
 docker compose up -d
 ```
 
@@ -101,9 +104,6 @@ docker compose up -d
 #### Stop
 
 ```bash
-# docker version < 20.10.x
-docker-compose down
-# docker version >= 20.10.x
 docker compose down
 ```
 
@@ -122,12 +122,15 @@ A postgresql database management tool
 # Create the data/postgresql folder
 mkdir -p data/postgresql
 # Add the UID 1001 (non-root user of postgresql) as the folder owner
-chown -R 1001:1001 data/postgresql
+sudo chown -R 1001:1001 data/postgresql
 # Create the data/pgadmin folder
 mkdir -p data/pgadmin
 # Add the UID 5050 (non-root user of pgadmin) as the folder owner
-chown -R 5050:5050 data/pgadmin
+sudo chown -R 5050:5050 data/pgadmin
 ```
+### Informations for developer
+
+More informations for developers for internal logic / tasks can be found in [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md).
 
 ## ☁️ Azure Setup
 
@@ -230,6 +233,7 @@ kubectl apply -f .azure/aks/cert-manager/letsencrpyt-prod.yml
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:
+
 - 🐛 Report bugs
 - 💡 Suggest new features
 - 🔧 Submit pull requests

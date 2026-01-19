@@ -1,5 +1,5 @@
 import { Injectable, effect, inject, resource, signal } from '@angular/core';
-import { JournalDateFields, JournalEntry } from './journal.types';
+import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
 import { ApiResponse, ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
@@ -30,22 +30,22 @@ export class JournalService {
   private operationId = signal<string | null>(null);
   private organizationId = signal<string | null>(null);
   private journalResource = resource({
-    request: () => ({
+    params: () => ({
       operationId: this.operationId(),
       organizationId: this.organizationId(),
     }),
     loader: async (params) => {
-      if (!params.request.operationId || !params.request.organizationId) {
+      if (!params.params.operationId || !params.params.organizationId) {
         return [];
       }
       if (this._session.isWorkLocal()) {
         return await db.localJournalEntries
-          .where({ operationId: params.request.operationId, organizationId: params.request.organizationId })
+          .where({ operationId: params.params.operationId, organizationId: params.params.organizationId })
           .toArray();
       }
       //organization is implicit by session
       const { error, result } = await this._api.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
+        `/api/journal-entries?operationId=${params.params.operationId}&pagination[pageSize]=1000`,
       );
       if (error || !result) {
         throw 'error on fetch journal entries';
@@ -679,6 +679,12 @@ export class JournalService {
     if (organizationFull?.logo?.provider === 'local') {
       organization.logo_url = `${environment.apiUrl}${organization.logo_url}`;
     }
+    let fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
+    if (Object.keys(entry).length === 0){
+      operation.documentId = "";
+      operation.name = "";
+      fileName = `${organization.name}_message_template_${new Date().toISOString().slice(0, 10)}.pdf`;
+    }
     let entryUrl;
     if (entry.messageNumber && entry.createdAt) {
       entryUrl = `${window.location.origin}/main/journal?operationId=${operation.documentId}&messageNumber=${entry.messageNumber}`;
@@ -694,7 +700,6 @@ export class JournalService {
         url_entry: entryUrl,
       },
     ];
-    const fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
     await pdfService.downloadPdf(template, data, fileName);
   }
 
@@ -830,5 +835,16 @@ export class JournalService {
         fileName,
       );
     });
+  }
+
+  public getResponsibility(entry: JournalEntry) {
+    switch (entry.entryStatus) {
+      case JournalEntryStatus.AWAITING_MESSAGE:
+        return entry.visumMessage;
+      case JournalEntryStatus.AWAITING_DECISION:
+        return this._i18n.get(entry.department ?? 'allDepartments');
+      default:
+        return this._i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
+    }
   }
 }

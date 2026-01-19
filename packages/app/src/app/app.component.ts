@@ -21,7 +21,6 @@ export class AppComponent implements OnInit {
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
-  readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
   readonly operationId = toSignal(this._session.observeOperationId());
   
 
@@ -48,7 +47,7 @@ export class AppComponent implements OnInit {
     this.setSize();
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   setSize(): void {
     this.height = document.documentElement?.clientHeight || window.innerHeight;
     this.width = window.innerWidth;

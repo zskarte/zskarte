@@ -13,28 +13,29 @@
     "build": "strapi build",
     "regenerate": "strapi ts:generate-types",
     "export": "config-sync export --yes --type user-role",
+    "import": "config-sync import --yes --type user-role",
     "strapi": "strapi"
   },
   "dependencies": {
     "@fast-csv/format": "^5.0.5",
-    "@strapi/plugin-users-permissions": "^5.8.0",
-    "@strapi/strapi": "^5.8.0",
+    "@strapi/plugin-users-permissions": "5.33.2",
+    "@strapi/strapi": "5.33.2",
     "@turf/boolean-point-in-polygon": "^7.3.1",
     "file-type": "^21.2.0",
-    "immer": "^10.1.1",
+    "immer": "^10.2.0",
     "lodash": "^4.17.21",
-    "pg": "^8.13.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.0.0",
+    "pg": "^8.16.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.2",
     "shpjs": "^4.0.4",
-    "socket.io": "^4.8.1",
-    "strapi-plugin-config-sync": "^3.1.1",
-    "strapi-provider-upload-azure-storage": "^3.4.0",
-    "styled-components": "^6.0.0",
-    "uuid": "^11.0.5"
+    "socket.io": "^4.8.3",
+    "strapi-plugin-config-sync": "^3.1.2",
+    "strapi-provider-upload-azure-storage": "^3.5.0",
+    "styled-components": "^6.1.19",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.14"
+    "@types/lodash": "^4.17.21"
   }
 }

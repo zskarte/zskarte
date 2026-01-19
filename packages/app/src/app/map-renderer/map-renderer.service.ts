@@ -87,6 +87,7 @@ export class MapRendererService {
   private _drawHole!: DrawHole;
   private _currentSketchSize = new BehaviorSubject<string | null>(null);
   private _mousePosition = new BehaviorSubject<number[]>([0, 0]);
+  private _rotation = new BehaviorSubject<number>(0);
   private existingCurrentLocations: VectorLayer<VectorSource<Feature<Point>>> | undefined;
   public connectionCount = new BehaviorSubject<number>(0);
 
@@ -389,6 +390,10 @@ export class MapRendererService {
 
     this._view.on('change:resolution', () => {
       debouncedZoomSave();
+    });
+
+    this._view.on('change:rotation', () => {
+      this._rotation.next(this._view.getRotation());
     });
 
     this._state
@@ -700,6 +705,17 @@ export class MapRendererService {
 
   public observeCurrentSketchSize(): Observable<string | null> {
     return this._currentSketchSize.asObservable();
+  }
+
+  public observeRotation(): Observable<number> {
+    return this._rotation.asObservable();
+  }
+
+  public resetRotation(): void {
+    this._view?.animate({
+      rotation: 0,
+      duration: 250,
+    });
   }
 
   public getView(): OlView {
