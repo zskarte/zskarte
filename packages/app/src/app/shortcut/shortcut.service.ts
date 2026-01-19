@@ -93,53 +93,12 @@ export class ShortcutService {
           return;
         }
       }
-      if (this._copyElement?.elementState) {
-        const currentCoordinates = await firstValueFrom(this._state.getCoordinates());
-        const newState = cloneDeep(this._copyElement.elementState);
 
-        // translate coordinates
-        const getFirstCoordinate = (
-          coordinates: undefined | number[] | number[][] | Coordinate,
-        ): number[] | undefined => {
-          if (!coordinates) {
-            return;
-          }
-          if (typeof coordinates[0] === 'number') {
-            return coordinates as number[];
-          }
-          if (Array.isArray(coordinates)) {
-            return getFirstCoordinate(coordinates[0]);
-          }
-          return;
-        };
-
-        const firstCoordinates = getFirstCoordinate(newState.coordinates);
-        const offset = [
-          currentCoordinates[0] - (firstCoordinates?.[0] || 0),
-          currentCoordinates[1] - (firstCoordinates?.[1] || 0),
-        ];
-
-        const offsetCoordinates = (coordinates: undefined | number[] | number[][] | Coordinate, offset: number[]) => {
-          if (!coordinates) {
-            return;
-          }
-
-          if (typeof coordinates[0] === 'number') {
-            (coordinates as number[])[0] += offset[0];
-            (coordinates as number[])[1] += offset[1];
-          } else {
-            if (Array.isArray(coordinates)) {
-              for (const o of coordinates) {
-                offsetCoordinates(o as number[], offset);
-              }
-            }
-          }
-        };
-
-        offsetCoordinates(newState.coordinates, offset);
-
-        const element = this._state.addDrawElement(newState);
-        this._state.setSelectedFeature(element?.id);
+      const layer = this._state.getActiveLayer();
+      const symbolId = this._copyElement?.elementState?.symbolId;
+      if (layer && symbolId) {
+        this._state.copySymbol(symbolId, layer.getId());
+        this._state.resetSelectedFeature();
       }
     });
 
