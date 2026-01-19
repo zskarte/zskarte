@@ -20,9 +20,14 @@ mat-select-trigger {
   align-items: center;
 
   img {
-    height: 0.7rem;
+    height: 1.2rem;
     margin-right: 0.5rem;
   }
+}
+
+mat-chip-row {
+  --mdc-chip-container-height: 32px;
+  --mdc-chip-label-text-size: 14px;
 }
 
 .row {
