@@ -23,7 +23,7 @@ async function globalSetup(config: FullConfig) {
     await page.locator('.operation-list-item', { hasText: 'e2e test' }).first().getByRole('button', { name: 'More options' }).click();
     await page.getByRole('menuitem', { name: 'Ereignis Archivieren' }).click();
     await page.getByRole('button', { name: 'Archivierte Ereignise anzeigen' }).click();
-    await page.waitForResponse(/api\/operations\/overview/);
+    await page.waitForResponse(/api\/operations\/overview\?phase=archived/);
     await page.locator('.operation-list-item', { hasText: 'e2e test' }).first().getByRole('button', { name: 'More options' }).click();
     await page.getByRole('menuitem', { name: 'Ereignis löschen' }).click();
     await page.getByRole('button', { name: 'Bestätigen' }).click();

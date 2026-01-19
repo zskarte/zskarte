@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { clickOnMap, dblclickOnMap, login } from './util';
 
 
-test.describe('Darwing', () => {
+test.describe('Drawing', () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await page.locator('mat-list-item', { hasText: 'e2e test' }).first().click();
