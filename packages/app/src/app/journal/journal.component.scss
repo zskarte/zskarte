@@ -117,6 +117,13 @@ tr.journal-table-row.key-message:hover {
   background-color: #d5c4c4;
 }
 
+.drawn {
+  color: oklch(79.2% 0.209 151.711)
+}
+.drawn:hover {
+  color: oklch(62.7% 0.194 149.214)
+}
+
 .journal-header-content {
   display: flex;
   justify-content: space-between;

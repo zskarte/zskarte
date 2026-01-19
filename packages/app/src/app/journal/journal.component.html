@@ -184,6 +184,7 @@
                 [attr.aria-label]="i18n.get('showOnMap')"
                 [attr.title]="i18n.get('showOnMap')"
                 (click)="openMapClick($event, element)"
+                [class.drawn]="element.isDrawnOnMap"
               >
                 <mat-icon>map</mat-icon>
               </button>
