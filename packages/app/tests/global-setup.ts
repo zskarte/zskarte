@@ -1,11 +1,5 @@
-import { chromium, FullConfig, Page } from '@playwright/test';
-
-export async function login(page: Page) {
-  await page.goto('./login');
-  await page.getByRole('button', { name: 'Als Gast fortfahren' }).click();
-  await page.getByRole('button', { name: 'Bestätigen' }).click();
-  await page.waitForResponse(/api\/operations/);
-}
+import { chromium, FullConfig } from '@playwright/test';
+import { login } from './util';
 
 async function globalSetup(config: FullConfig) {
   const { baseURL } = config.projects[0].use;
@@ -27,7 +21,13 @@ async function globalSetup(config: FullConfig) {
     const page = await browser.newPage({ baseURL });
     await login(page);
     await page.locator('.operation-list-item', { hasText: 'e2e test' }).first().getByRole('button', { name: 'More options' }).click();
+    await page.getByRole('menuitem', { name: 'Ereignis Archivieren' }).click();
+    await page.getByRole('button', { name: 'Archivierte Ereignise anzeigen' }).click();
+    await page.waitForResponse(/api\/operations\/overview\?phase=archived/);
+    await page.locator('.operation-list-item', { hasText: 'e2e test' }).first().getByRole('button', { name: 'More options' }).click();
     await page.getByRole('menuitem', { name: 'Ereignis löschen' }).click();
+    await page.getByRole('button', { name: 'Bestätigen' }).click();
+    await page.waitForResponse(/api\/operations/);
   };
 }
 
