@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, from, lastValueFrom, of, retry } from 'rxjs';
-import { deserialize, stringify } from 'superjson';
+import { deserialize } from 'superjson';
 import { environment } from '../../environments/environment';
 import { SessionService } from '../session/session.service';
 import transformResponse, { TransformerOptions } from './transformer';

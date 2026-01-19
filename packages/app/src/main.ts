@@ -1,4 +1,12 @@
-import { enableProdMode, LOCALE_ID, isDevMode, importProvidersFrom, provideAppInitializer, inject } from '@angular/core';
+import {
+  enableProdMode,
+  LOCALE_ID,
+  isDevMode,
+  importProvidersFrom,
+  provideAppInitializer,
+  inject,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { enablePatches } from 'immer';
 import { appFactory } from './app/app-factory';
 import { environment } from './environments/environment';
@@ -45,6 +53,7 @@ import { AppComponent } from './app/app.component';
 import { provideRouter } from '@angular/router';
 import { appRoutes } from './app/app-routes';
 import { JournalService } from './app/journal/journal.service';
+import { SearchService } from './app/search/search.service';
 
 // enable immerjs patches
 enablePatches();
@@ -98,7 +107,14 @@ bootstrapApplication(AppComponent, {
     ),
     { provide: LOCALE_ID, useValue: 'de-CH' },
     provideAppInitializer(() => {
-      const initializerFn = appFactory(inject(SessionService), inject(SyncService), inject(ZsMapStateService), inject(ApiService), inject(JournalService));
+      const initializerFn = appFactory(
+        inject(SessionService),
+        inject(SyncService),
+        inject(ZsMapStateService),
+        inject(ApiService),
+        inject(JournalService),
+        inject(SearchService),
+      );
       return initializerFn();
     }),
 
@@ -106,5 +122,6 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations(),
     provideRouter(appRoutes),
+    provideZoneChangeDetection(),
   ],
 }).catch((err) => console.error(err));

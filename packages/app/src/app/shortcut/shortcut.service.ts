@@ -13,6 +13,7 @@ import { IShortcut } from './shortcut.interfaces';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from '../state/i18n.service';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
+import { SearchService } from '../search/search.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +21,7 @@ import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 export class ShortcutService {
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
+  private _search = inject(SearchService);
   private _dialog = inject(MatDialog);
   public i18n = inject(I18NService);
 
@@ -72,6 +74,9 @@ export class ShortcutService {
     this._listen({ shortcut: 'NumpadAdd', drawModeOnly: true }).subscribe(this._openAdd());
     //swiss german layout for +:
     this._listen({ shortcut: 'shift+1', drawModeOnly: true }).subscribe(this._openAdd());
+    this._listen({ shortcut: 'NumpadDivide', drawModeOnly: true }).subscribe(this._triggerSearch());
+    //swiss german layout for /:
+    this._listen({ shortcut: 'shift+7', drawModeOnly: true }).subscribe(this._triggerSearch());
 
     this._listen({ shortcut: 'mod+c', drawModeOnly: true }).subscribe(async () => {
       if (this._session.isGuest()) {
@@ -88,52 +93,12 @@ export class ShortcutService {
           return;
         }
       }
-      if (this._copyElement?.elementState) {
-        const currentCoordinates = await firstValueFrom(this._state.getCoordinates());
-        const newState = cloneDeep(this._copyElement.elementState);
 
-        // translate coordinates
-        const getFirstCoordinate = (
-          coordinates: undefined | number[] | number[][] | Coordinate,
-        ): number[] | undefined => {
-          if (!coordinates) {
-            return;
-          }
-          if (typeof coordinates[0] === 'number') {
-            return coordinates as number[];
-          }
-          if (Array.isArray(coordinates)) {
-            return getFirstCoordinate(coordinates[0]);
-          }
-          return;
-        };
-
-        const firstCoordinates = getFirstCoordinate(newState.coordinates);
-        const offset = [
-          currentCoordinates[0] - (firstCoordinates?.[0] || 0),
-          currentCoordinates[1] - (firstCoordinates?.[1] || 0),
-        ];
-
-        const offsetCoordinates = (coordinates: undefined | number[] | number[][] | Coordinate, offset: number[]) => {
-          if (!coordinates) {
-            return;
-          }
-
-          if (typeof coordinates[0] === 'number') {
-            (coordinates as number[])[0] += offset[0];
-            (coordinates as number[])[1] += offset[1];
-          } else {
-            if (Array.isArray(coordinates)) {
-              for (const o of coordinates) {
-                offsetCoordinates(o as number[], offset);
-              }
-            }
-          }
-        };
-
-        offsetCoordinates(newState.coordinates, offset);
-
-        this._state.addDrawElement(newState);
+      const layer = this._state.getActiveLayer();
+      const symbolId = this._copyElement?.elementState?.symbolId;
+      if (layer && symbolId) {
+        this._state.copySymbol(symbolId, layer.getId());
+        this._state.resetSelectedFeature();
       }
     });
 
@@ -162,9 +127,17 @@ export class ShortcutService {
 
   private _openAdd() {
     return () => {
-      const layer = this._state.getActiveLayer();
-      const ref = this._dialog.open(DrawDialogComponent);
-      ref.componentRef?.instance.setLayer(layer);
+      if (this._dialog.openDialogs.length === 0) {
+        const layer = this._state.getActiveLayer();
+        const ref = this._dialog.open(DrawDialogComponent);
+        ref.componentRef?.instance.setLayer(layer);
+      }
+    };
+  }
+
+  private _triggerSearch() {
+    return () => {
+      this._search.triggerGlobalSearch();
     };
   }
 

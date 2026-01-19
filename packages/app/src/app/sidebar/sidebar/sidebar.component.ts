@@ -42,6 +42,7 @@ import {
   zsMapStateSourceToDownloadUrl,
 } from '@zskarte/types';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar',
@@ -230,6 +231,7 @@ export class SidebarComponent {
     mapState
       .observeMapSource()
       .pipe(
+        takeUntilDestroyed(),
         map((currentMapSource) => {
           this.mapSources.forEach((mapSource) => {
             mapSource.selected = currentMapSource === mapSource.key;

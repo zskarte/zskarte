@@ -1,5 +1,5 @@
 import { Injectable, effect, inject, resource, signal } from '@angular/core';
-import { JournalDateFields, JournalEntry } from './journal.types';
+import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
 import { ApiResponse, ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
@@ -12,6 +12,7 @@ import { groupBy } from 'lodash';
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
+import { SearchService } from '../search/search.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class JournalService {
   private _session = inject(SessionService);
   private _pdfServiceFactory = inject(PdfServiceFactory);
   private _i18n = inject(I18NService);
+  private _search!: SearchService;
   private _state!: ZsMapStateService;
   private isOnline = toSignal(this._session.observeIsOnline());
   private _connectionId!: string;
@@ -28,22 +30,22 @@ export class JournalService {
   private operationId = signal<string | null>(null);
   private organizationId = signal<string | null>(null);
   private journalResource = resource({
-    request: () => ({
+    params: () => ({
       operationId: this.operationId(),
       organizationId: this.organizationId(),
     }),
     loader: async (params) => {
-      if (!params.request.operationId || !params.request.organizationId) {
+      if (!params.params.operationId || !params.params.organizationId) {
         return [];
       }
       if (this._session.isWorkLocal()) {
         return await db.localJournalEntries
-          .where({ operationId: params.request.operationId, organizationId: params.request.organizationId })
+          .where({ operationId: params.params.operationId, organizationId: params.params.organizationId })
           .toArray();
       }
       //organization is implicit by session
       const { error, result } = await this._api.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
+        `/api/journal-entries?operationId=${params.params.operationId}&pagination[pageSize]=1000`,
       );
       if (error || !result) {
         throw 'error on fetch journal entries';
@@ -162,6 +164,10 @@ export class JournalService {
 
   public setStateService(state: ZsMapStateService): void {
     this._state = state;
+  }
+
+  public setSearchService(search: SearchService): void {
+    this._search = search;
   }
 
   public setConnectionId(_connectionId: string) {
@@ -357,7 +363,9 @@ export class JournalService {
 
   public async update(entry: Partial<JournalEntry>, documentId?: string, uuid?: string) {
     if (entry.messageNumber) {
-      if (await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)) {
+      if (
+        await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)
+      ) {
         return {
           error: { message: `messageNumber ${entry.messageNumber} already exist` },
           result: undefined,
@@ -671,6 +679,12 @@ export class JournalService {
     if (organizationFull?.logo?.provider === 'local') {
       organization.logo_url = `${environment.apiUrl}${organization.logo_url}`;
     }
+    let fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
+    if (Object.keys(entry).length === 0){
+      operation.documentId = "";
+      operation.name = "";
+      fileName = `${organization.name}_message_template_${new Date().toISOString().slice(0, 10)}.pdf`;
+    }
     let entryUrl;
     if (entry.messageNumber && entry.createdAt) {
       entryUrl = `${window.location.origin}/main/journal?operationId=${operation.documentId}&messageNumber=${entry.messageNumber}`;
@@ -686,7 +700,6 @@ export class JournalService {
         url_entry: entryUrl,
       },
     ];
-    const fileName = `${operation.name}_message${entry.messageNumber}_${(new Date()).toISOString().slice(0, 16)}.pdf`;
     await pdfService.downloadPdf(template, data, fileName);
   }
 
@@ -705,9 +718,13 @@ export class JournalService {
     if (!operation) {
       return;
     }
-    const fileName = `${operation.name}_${new Date().toISOString().slice(0, 16)}.xlsx`.replaceAll(/[^a-zA-Z0-9._-]/g, '_');
+    const fileName = `${operation.name}_${new Date().toISOString().slice(0, 16)}.xlsx`.replaceAll(
+      /[^a-zA-Z0-9._-]/g,
+      '_',
+    );
 
-    const { Workbook } = await import('exceljs');
+    const exceljs = await import('exceljs');
+    const { Workbook } = exceljs.default ? exceljs.default : exceljs;
     const workbook = new Workbook();
     const sheet = workbook.addWorksheet('Journal Entries');
     const defaultStyleTextTop = { alignment: { vertical: 'top' } } as any;
@@ -759,13 +776,13 @@ export class JournalService {
       { header: this._i18n.get('updatedAt'), key: 'updatedAt', width: 20, style: defaultStyleDate },
     ];
 
-    entries.sort((a,b) => a.messageNumber - b.messageNumber);
+    entries.sort((a, b) => a.messageNumber - b.messageNumber);
 
     const columnsToCheck = ['messageContent', 'decision'];
     entries.forEach((entry) => {
       const translatedEntry = {
         ...entry,
-        messageContent: entry.messageContent?.trim(),
+        messageContent: this._search.removeAllAddressTokens(entry.messageContent?.trim(), false),
         decision: entry.decision?.trim(),
         department: entry.department ? this._i18n.get(entry.department) : '',
         isKeyMessage: entry.isKeyMessage ? this._i18n.get('yes') : this._i18n.get('no'),
@@ -818,5 +835,16 @@ export class JournalService {
         fileName,
       );
     });
+  }
+
+  public getResponsibility(entry: JournalEntry) {
+    switch (entry.entryStatus) {
+      case JournalEntryStatus.AWAITING_MESSAGE:
+        return entry.visumMessage;
+      case JournalEntryStatus.AWAITING_DECISION:
+        return this._i18n.get(entry.department ?? 'allDepartments');
+      default:
+        return this._i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
+    }
   }
 }

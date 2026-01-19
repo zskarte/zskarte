@@ -40,13 +40,14 @@ You can run Zivilschutz-Karte without installation from [https://zskarte.ch](htt
 
 ### 🛠️ Prerequisites
 
-- 📦 Node.js 20.x
+- 📦 Node.js 22.x
 - 🔧 npm 10.x
 - 🐳 docker 27.x or higher
 
 ### 📋 Installation Steps
 
 ### 1. Install packages
+
 ```bash
 npm install
 ```
@@ -57,22 +58,27 @@ cp packages/server/.env.example packages/server/.env
 ```
 
 ### 3. Start the application (database, backend, frontend)
+
 ```bash
 npm run start
 ```
 
 ### 4. Access the Strapi admin panel (Backend)
-  1. http://localhost:1337/admin
-  2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
+
+1. http://localhost:1337/admin
+2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
 
 ### 5. Access the Zivilschutz-Karte application (Frontend)
+
 Zivilschutz-Karte is optimized and tested for use with Google Chrome - nevertheless other browsers might work as well and are supported in a best effort manner.
-  1. http://localhost:4300
-  2. Login with credentials: User -> zso_development, Password -> Supersecret123
+
+1. http://localhost:4300
+2. Login with credentials: User -> zso_development, Password -> Supersecret123
 
 ## 💡 Help & Feedback
 
-Need assistance or want to share your thoughts? We'd love to hear from you! 
+Need assistance or want to share your thoughts? We'd love to hear from you!
+
 - 🐛 Create an issue on GitHub
 - 📧 Send feedback to [feedback@zskarte.ch](mailto:feedback@zskarte.ch)
 - 💬 Join our community discussions
@@ -90,9 +96,6 @@ This will startup a local postgresDB with a RDMS system (pgadmin).
 #### Start
 
 ```bash
-# docker version < 20.10.x
-docker-compose up -d
-# docker version >= 20.10.x
 docker compose up -d
 ```
 
@@ -101,9 +104,6 @@ docker compose up -d
 #### Stop
 
 ```bash
-# docker version < 20.10.x
-docker-compose down
-# docker version >= 20.10.x
 docker compose down
 ```
 
@@ -233,6 +233,7 @@ kubectl apply -f .azure/aks/cert-manager/letsencrpyt-prod.yml
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:
+
 - 🐛 Report bugs
 - 💡 Suggest new features
 - 🔧 Submit pull requests

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnDestroy, computed, inject, input } from '@angular/core';
+import { Component, OnDestroy, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { ZsMapDrawElementState } from '@zskarte/types';
@@ -17,10 +17,25 @@ import { MatButtonModule } from '@angular/material/button';
 import { filter, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
+import { SearchService } from 'src/app/search/search.service';
+import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FormsModule } from '@angular/forms';
+import { JournalService } from 'src/app/journal/journal.service';
+import { Router } from '@angular/router';
 
+const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
   selector: 'app-sidebar-journal-entry',
-  imports: [DatePipe, MatListModule, MatIcon, MatButtonModule],
+  imports: [
+    DatePipe,
+    MatListModule,
+    MatIcon,
+    MatButtonModule,
+    MatCheckboxModule,
+    FormsModule,
+    ReplaceAllAddressTokensPipe,
+  ],
   templateUrl: './sidebar-journal-entry.component.html',
   styleUrls: ['./sidebar-journal-entry.component.scss'],
 })
@@ -28,6 +43,9 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   private _state = inject(ZsMapStateService);
   private _renderer = inject(MapRendererService);
   i18n = inject(I18NService);
+  search = inject(SearchService);
+  journal = inject(JournalService);
+  private _router = inject(Router);
   entry = input.required<JournalEntry>();
   allHighlighted = false;
 
@@ -48,6 +66,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
           };
         }) ?? [],
   );
+  markPotentialAddresses = signal(false);
 
   navigateTo(element: { id: string; coordinates: Coordinate | undefined }) {
     if (element.coordinates) {
@@ -64,13 +83,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         extendExtent(extent, featureExtent);
       }
     });
-    this._renderer
-      .getMap()
-      .getView()
-      .fit(extent, {
-        padding: [100, 600, 100, 100],
-        maxZoom: 18,
-      });
+    this._renderer.zoomToFit(extent, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
   }
 
   toggleHighlightAll() {
@@ -123,5 +136,15 @@ export class SidebarJournalEntryComponent implements OnDestroy {
       Array.isArray(element.elementState?.reportNumber)
         ? element.elementState.reportNumber.includes(reportNumber)
         : element.elementState?.reportNumber === reportNumber;
+  }
+
+  async showAllAddresses() {
+    await this.search.showAllFeature(this.entry().messageContent, true, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
+    this.search.addressPreview.set(true);
+  }
+
+  openJournalClick(event: Event) {
+    event.stopPropagation();
+    this._router.navigate(['/main/journal'], { queryParams: { messageNumber: this.entry().messageNumber } });
   }
 }

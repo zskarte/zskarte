@@ -217,3 +217,18 @@ app-geocoder {
 button[mat-icon-button] {
   flex-shrink: 0;
 }
+
+:host-context(.journal-address-preview) {
+  mat-sidenav {
+    display: none;
+  }
+  app-journal-draw-overlay {
+    display: none;
+  }
+  app-coordinates {
+    display: none;
+  }
+  .action-buttons {
+    display: none;
+  }
+}

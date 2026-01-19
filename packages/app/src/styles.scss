@@ -65,9 +65,10 @@ mat-action-list {
   overflow: unset;
 }
 
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .titleCard,
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .stack,
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .flex-label {
+.mat-drawer > .mat-drawer-inner-container > * > * > .titleCard,
+.mat-drawer > .mat-drawer-inner-container > * > * > .stack,
+.mat-drawer > .mat-drawer-inner-container > * > mat-card-content > div,
+.mat-drawer > .mat-drawer-inner-container > * > .flex-label {
   padding: 1rem;
 }
 
@@ -85,6 +86,10 @@ mat-action-list {
     0px 5px 5px -3px rgba(0, 0, 0, 0.2),
     0px 8px 10px 1px rgba(0, 0, 0, 0.14),
     0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-overlay-pane:has(> .allow-overflow) {
+  overflow: visible;
 }
 
 .cdk-overlay-pane:not(:has(mat-option)) {
@@ -116,17 +121,32 @@ mat-accordion mat-expansion-panel {
 fieldset.like-mat-form-field-outline {
   margin: 0;
   border-style: solid;
-  border-width: var(--mdc-outlined-text-field-outline-width);
-  border-color: var(--mdc-outlined-text-field-outline-color);
-  border-radius: var(--mdc-outlined-text-field-container-shape);
+  border-width: var(--mat-form-field-outlined-outline-width);
+  border-color: var(--mat-form-field-outlined-outline-color);
+  border-radius: var(--mat-form-field-outlined-container-shape);
+  &:hover {
+    border-color: var(--mdc-outlined-text-field-hover-outline-color, rgba(0, 0, 0, .87));
+  }
+  &:focus-within {
+    border-width: var(--mat-form-field-outlined-focus-outline-width);
+    border-color: var(--mat-form-field-outlined-focus-outline-color);
+  }
 }
 fieldset.like-mat-form-field-outline > legend {
-  font-size: calc(var(--mat-form-field-outlined-label-text-populated-size) * var(--mat-mdc-form-field-floating-label-scale, 0.75));
-  color: var(--mdc-outlined-text-field-label-text-color);
-  font-family: var(--mdc-outlined-text-field-label-text-font);
-  font-weight: var(--mdc-outlined-text-field-label-text-weight);
-  letter-spacing: var(--mdc-outlined-text-field-label-text-tracking);
+  font-size: calc(
+    var(--mat-form-field-outlined-label-text-populated-size) * var(--mat-mdc-form-field-floating-label-scale, 0.75)
+  );
+  color: var(--mat-form-field-outlined-label-text-color);
+  font-family: var(--mat-form-field-outlined-label-text-font);
+  font-weight: var(--mat-form-field-outlined-label-text-weight);
+  letter-spacing: var(--mat-form-field-outlined-label-text-tracking);
   white-space: nowrap;
+}
+fieldset.like-mat-form-field-outline:hover > legend {
+  color: var(--mat-form-field-outlined-hover-label-text-color);
+}
+fieldset.like-mat-form-field-outline:focus-within > legend {
+  color: var(--mat-form-field-outlined-focus-label-text-color);
 }
 
 .ol-scale-bar.scale-print {
@@ -156,4 +176,78 @@ fieldset.like-mat-form-field-outline > legend {
 /*for any reason the one in map-legend-display.component.css are not applied*/
 .legend-img {
   display: block;
+}
+
+.preserve-linebreak {
+  white-space: pre-line;
+}
+
+.addr-geo {
+  cursor: pointer;
+  text-wrap: nowrap;
+
+  &.edit-active {
+    width: 300px;
+    display: inline-block;
+
+    .addr-show,
+    .addr-edit {
+      display: none;
+    }
+  }
+
+  &.addr-search {
+    color: orange;
+  }
+
+  .material-icons {
+    vertical-align: text-bottom;
+    font-size: 1.5em;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .text {
+    font-weight: bold;
+  }
+
+  .addr-show,
+  .addr-edit {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align: text-bottom;
+    background-color: currentColor;
+  }
+
+  .addr-edit {
+    -webkit-mask: url(/assets/fonts/material_edit.svg) no-repeat center;
+    mask: url(/assets/fonts/material_edit.svg) no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+
+  .addr-show {
+    -webkit-mask: url(/assets/fonts/material_place.svg) no-repeat center;
+    mask: url(/assets/fonts/material_place.svg) no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+
+  .addr-show.addr-unknown {
+    -webkit-mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
+    mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+}
+
+.addr-caret {
+  display: inline-block;
+  width: 300px;
+}
+
+.addr-caret::after {
+  content: '\00A0';
+  visibility: hidden;
 }

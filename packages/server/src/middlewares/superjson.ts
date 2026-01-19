@@ -16,6 +16,10 @@ const transformDates = (data) => {
   return data;
 };
 
+export function serialize(body: any){
+  return superjson.serialize(transformDates(body));
+}
+
 export default (_index, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx: Context, next) => {
     // Ignore non api requests
@@ -26,9 +30,7 @@ export default (_index, { strapi }: { strapi: Core.Strapi }) => {
         strapi.log.warn('Response body is not an object, skipping superjson serialization');
         return;
       }
-      let body = transformDates(ctx.response.body);
-      body = superjson.serialize(body);
-      ctx.response.body = body;
+      ctx.response.body = serialize(ctx.response.body);
     } catch (e) {
       strapi.log.error(e);
     }

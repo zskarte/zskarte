@@ -1,0 +1,132 @@
+<div class="hint-box">
+  <div class="hint">{{ i18n.get('searchAddressUsageHint') }}</div>
+  <mat-icon
+    matSuffix
+    [ngClass]="{
+      active: showAllAddresses() || showLinkedText(),
+    }"
+    class="settings"
+    cdkOverlayOrigin
+    #trigger="cdkOverlayOrigin"
+    (click)="toggleSettings($event)"
+    >settings</mat-icon
+  >
+</div>
+<mat-form-field appearance="outline" subscriptSizing="dynamic" [class.linkedText]="showLinkedText()">
+  <mat-label>{{ label() }}</mat-label>
+  @if (showLinkedText()) {
+    <app-contenteditable
+      #linkedTextContent
+      class="linkedTextContent"
+      [formControl]="messageContentControl()"
+      [formattingRules]="formattingRules"
+      (keydown)="onKeyDownFormatedText($event)"
+      (input)="onInputFormatedText()"
+      (click)="handleTextContentClick($event)"
+      (dblclick)="handleTextContentDblClick($event)"
+    ></app-contenteditable>
+  } @else {
+    <textarea
+      #textContent
+      class="textContent"
+      matInput
+      [formControl]="messageContentControl()"
+      (keydown)="onKeyDownText($event)"
+      (input)="onInputText()"
+      (dblclick)="onDoubleClickText($event)"
+      rows="10"
+      [readonly]="addressSelection()"
+    ></textarea>
+  }
+</mat-form-field>
+<div
+  class="addresSearch"
+  [class.linkedText]="showLinkedText()"
+  [style.display]="
+    addressSelection() ?
+      showLinkedText() ? 'block'
+      : 'flex'
+    : 'none'
+  "
+  [ngStyle]="showLinkedText() ? { 'left.px': addressSelectionPosition.x, 'top.px': addressSelectionPosition.y } : null"
+>
+  <!--
+  [style.left.px]="addressSelectionPosition.x"
+  [style.top.px]="addressSelectionPosition.y"
+-->
+  <div class="title">{{ i18n.get('searchAddress') }}</div>
+  <input
+    #addresSearchField
+    matInput
+    class="mat-mdc-form-field"
+    [matAutocomplete]="autocomplete.autocompleteRef"
+    [ngModelOptions]="{ standalone: true }"
+    [ngModel]="addressSearchTerm()"
+    (ngModelChange)="addressSearchTerm.set($event)"
+    (keydown)="onKeydownAddressSearch($event)"
+  />
+  <app-search-autocomplete
+    #autocomplete
+    [searchTerm]="addressSearchTerm()"
+    [foundLocations]="foundLocations()"
+    (active)="previewCoordinate($event)"
+    (selected)="useResult($event)"
+  ></app-search-autocomplete>
+</div>
+<div class="spacer"></div>
+
+<ng-template
+  cdkConnectedOverlay
+  (overlayOutsideClick)="toggleSettings($event)"
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="settingsVisible()"
+  [cdkConnectedOverlayOffsetX]="15"
+  [cdkConnectedOverlayOffsetY]="5"
+  [cdkConnectedOverlayPositions]="[
+    {
+      originX: 'end',
+      originY: 'bottom',
+      overlayX: 'end',
+      overlayY: 'top',
+    },
+  ]"
+>
+  <div class="overlay-container allow-overflow">
+    <svg class="overlay-arrow-top" width="20" height="10" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="10,0 0,10 20,10" class="arrow-shape-top" />
+    </svg>
+
+    <div class="overlay-content">
+      <div>
+        <mat-icon>map</mat-icon>
+        <mat-checkbox [disabled]="showAllAddresses()" [ngModel]="showAllAddresses() ? true : showMap()" (ngModelChange)="showMap.set($event)">{{
+          i18n.get('showMap')
+        }}</mat-checkbox>
+      </div>
+      <div>
+        <mat-icon>select_all</mat-icon>
+        <mat-checkbox [ngModel]="showAllAddresses()" (ngModelChange)="showAllAddresses.set($event)">{{
+          i18n.get('showAllAddresses')
+        }}</mat-checkbox>
+      </div>
+      <div>
+        <mat-icon>link</mat-icon>
+        <mat-checkbox [ngModel]="showLinkedText()" (ngModelChange)="showLinkedText.set($event)">{{
+          i18n.get('showLinkedText')
+        }}</mat-checkbox>
+      </div>
+      <div>
+        <button mat-stroked-button type="button" (click)="markPotentialAddresses()">
+          <mat-icon>search</mat-icon>
+          {{ i18n.get('markPotentialAddresses') }}
+        </button>
+      </div>
+      <div>
+        <button mat-stroked-button type="button" (click)="unmarkPotentialAddresses()">
+          <mat-icon>restore</mat-icon>
+          {{ i18n.get('unmarkPotentialAddresses') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

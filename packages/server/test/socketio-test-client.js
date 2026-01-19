@@ -6,7 +6,7 @@ let rawPatches = fs.readFileSync('patches.json');
 let patches = JSON.parse(rawPatches);
 
 const SERVER_URL = 'http://0.0.0.0:1337';
-// const SERVER_URL = 'https://api-dev.zskarte.ch';
+// const SERVER_URL = 'https://api-test.zskarte.ch';
 const JWT_TOKEN =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjYwODA1NDU1LCJleHAiOjE2NjMzOTc0NTV9.F9L-zcSY8252FiNcthmQAWgvBbC-ZsSPOd1GwFCST-I';
 // const JWT_TOKEN =

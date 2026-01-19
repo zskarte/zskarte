@@ -79,10 +79,6 @@
   margin-bottom: 1rem;
 }
 
-.preserve-linebreak {
-  white-space: pre-line;
-}
-
 .wrongInfoTitle {
   font-weight: bold;
   color: red;
@@ -92,4 +88,13 @@
 .wrongInfo {
   color: red;
   padding-bottom: 15px;
+}
+
+.message-content-buttons {
+  margin-top: 10px;
+}
+
+.message-content-option {
+  margin-left: 5px;
+  display: inline-block;
 }

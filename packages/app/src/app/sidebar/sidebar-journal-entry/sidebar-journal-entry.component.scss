@@ -3,10 +3,28 @@ h3 {
   display: flex;
 }
 
+.meta-infos {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.showInJournal {
+  margin-left: auto;
+}
+
 .created-date {
   color: #888;
   font-size: 12px;
   margin-top: 4px;
+}
+
+.message-content-buttons {
+  margin: 10px 0;
+}
+
+.message-content-option {
+  margin-left: 5px;
+  display: inline-block;
 }
 
 .symbol {
@@ -23,7 +41,7 @@ h3 {
   }
 }
 
-.buttons {
+.drawn-buttons {
   margin-left: auto;
 }
 
@@ -34,8 +52,4 @@ h3 {
   &.selected {
     background-color: #fff22b;
   }
-}
-
-.preserve-linebreak {
-  white-space: pre-line;
 }

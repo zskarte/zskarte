@@ -11,6 +11,7 @@ import { db } from '../db/db';
 import { JournalService } from '../journal/journal.service';
 import { JournalEntry } from '../journal/journal.types';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { deserialize, SuperJSONResult } from 'superjson';
 
 interface PatchExtended extends Patch {
   timestamp: Date;
@@ -46,6 +47,8 @@ export class SyncService {
   private _socket: Socket | undefined;
   private _state!: ZsMapStateService;
   private _connectingPromise: Promise<void> | undefined;
+  private _reonnectPublishPromise: Promise<void> | undefined;
+  private _publishMapPatchesPromise: Promise<void> | undefined;
   private _connections = new BehaviorSubject<Connection[]>([]);
 
   private journalChange$ = toObservable(this._journal.data);
@@ -80,9 +83,28 @@ export class SyncService {
           this._disconnect();
           return;
         }
-        await this._reconnect();
-        await this._publishMapStatePatches();
-        await this._journal.publishPatches();
+
+        //prevent multiple submit of same patches
+        if (this._reonnectPublishPromise) {
+          await this._reonnectPublishPromise;
+        }
+        let promisResolver!: () => void;
+        let promisReject!: (reason?: any) => void;
+        this._reonnectPublishPromise = new Promise((resolve, reject) => {
+          promisResolver = resolve;
+          promisReject = reject;
+        });
+        try {
+          //handle journal patches before map patches and reconnect websocket (for correct message number mapping)
+          await this._journal.publishPatches();
+          await this._publishMapStatePatches();
+          await this._reconnect();
+          promisResolver();
+        } catch (ex: any) {
+          promisReject(ex);
+        } finally {
+          this._reonnectPublishPromise = undefined;
+        }
       });
 
     this._journal.setConnectionId(this._connectionId);
@@ -138,7 +160,8 @@ export class SyncService {
         if (otherPatches.length === 0) return;
         this._state.applyMapStatePatches(otherPatches);
       });
-      this._socket.on('state:journal', (entry: Partial<JournalEntry>) => {
+      this._socket.on('state:journal', (json: SuperJSONResult) => {
+        const entry = deserialize(json) as Partial<JournalEntry>;
         this._journal.patchEntry(entry);
       });
       this._socket.on('state:connections', (connections: Connection[]) => {
@@ -182,27 +205,46 @@ export class SyncService {
   }
 
   private async _publishMapStatePatches(): Promise<void> {
+    //prevent multiple submit of same patches
+    if (this._publishMapPatchesPromise) {
+      await this._publishMapPatchesPromise;
+    }
     const patchQueue = await db.patchSyncQueue.toArray();
     if (!patchQueue.length || !this._session.getToken() || !this._session.isOnline()) {
       return;
     }
 
-    const patches = patchQueue.map((p) => ({
-      ...p,
-      timestamp: new Date(),
-      identifier: this._connectionId,
-    }));
-    const { error } = await this._api.post('/api/operations/mapstate/patch', patches, {
-      headers: {
-        operationId: String(this._session.getOperationId()),
-        identifier: this._connectionId,
-      },
+    let promisResolver!: () => void;
+    let promisReject!: (reason?: any) => void;
+    this._publishMapPatchesPromise = new Promise((resolve, reject) => {
+      promisResolver = resolve;
+      promisReject = reject;
     });
+    try {
+      const patches = patchQueue.map((p) => ({
+        ...p,
+        timestamp: new Date(),
+        identifier: this._connectionId,
+      }));
+      const { error } = await this._api.post('/api/operations/mapstate/patch', patches, {
+        headers: {
+          operationId: String(this._session.getOperationId()),
+          identifier: this._connectionId,
+        },
+      });
 
-    if (error) {
-      return;
+      if (error) {
+        promisResolver();
+        return;
+      }
+      await db.patchSyncQueue.clear();
+
+      promisResolver();
+    } catch (ex: any) {
+      promisReject(ex);
+    } finally {
+      this._publishMapPatchesPromise = undefined;
     }
-    await db.patchSyncQueue.clear();
   }
 
   private _publishMapStatePatchesDebounced = debounce(async () => {

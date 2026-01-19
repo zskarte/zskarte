@@ -7,10 +7,22 @@ import { I18NService } from '../state/i18n.service';
 import { JournalService } from '../journal/journal.service';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
+import { SearchService } from '../search/search.service';
+import { ReplaceAllAddressTokensPipe } from '../search/replace-all-address-tokens.pipe';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-journal-draw-overlay',
-  imports: [MatListModule, MatButtonModule, MatIconModule, CommonModule],
+  imports: [
+    MatListModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatIconModule,
+    FormsModule,
+    CommonModule,
+    ReplaceAllAddressTokensPipe,
+  ],
   templateUrl: './journal-draw-overlay.component.html',
   styleUrl: './journal-draw-overlay.component.scss',
 })
@@ -18,8 +30,10 @@ export class JournalDrawOverlayComponent {
   private _sidebar = inject(SidebarService);
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
+  public search = inject(SearchService);
   expanded = signal(true);
   entry = computed(() => this.journal.drawingEntry);
+  markPotentialAddresses = signal(false);
 
   constructor() {
     // Verwenden Sie effect() im Konstruktor
@@ -42,5 +56,10 @@ export class JournalDrawOverlayComponent {
       await this.journal.startDrawing(this.entry()!, false);
     }
     this._sidebar.open(SidebarContext.Journal);
+  }
+
+  async showAllAddresses() {
+    await this.search.showAllFeature(this.entry()!.messageContent, true, [100, 100, 100, 100]);
+    this.search.addressPreview.set(true);
   }
 }

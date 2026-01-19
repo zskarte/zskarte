@@ -25,6 +25,11 @@
   margin-bottom: 0;
 }
 
+.journal-header .notHistory {
+  color: red;
+  font-size: 1.25em;
+}
+
 .journal-sidebar {
   width: 50rem;
   max-width: 75%;
@@ -112,6 +117,13 @@ tr.journal-table-row.key-message:hover {
   background-color: #d5c4c4;
 }
 
+.drawn {
+  color: oklch(79.2% 0.209 151.711)
+}
+.drawn:hover {
+  color: oklch(62.7% 0.194 149.214)
+}
+
 .journal-header-content {
   display: flex;
   justify-content: space-between;
@@ -143,4 +155,18 @@ tr.journal-table-row.key-message:hover {
 
 .localChange {
   vertical-align: middle;
+}
+
+:host-context(.journal-address-preview) {
+  pointer-events: none;
+
+  .journal-sidebar {
+    pointer-events: auto;
+  }
+  mat-sidenav-container {
+    background-color: transparent;
+  }
+  mat-sidenav-content {
+    display: none;
+  }
 }

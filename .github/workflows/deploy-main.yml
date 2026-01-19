@@ -6,14 +6,14 @@ on:
 env:
   STAGE: prod
   DOCKERHUB_USERNAME: zskarte
-  KUBERNETES_NAMESPACE: zskarte-prod
+  KUBERNETES_NAMESPACE: zskarte
   APP_NAME: zskarte-server
   IMAGE_TAG: zskarte/zskarte-server
   LETSENCRYPT_STAGE: prod
-  DB_HOST: zskarte.postgres.database.azure.com
+  DB_HOST: postgresql.postgresql.svc.cluster.local
   DB_PORT: 5432
-  DB_NAME: zskarte_prod
-  DB_USER: zskarte_admin
+  DB_NAME: zskarte
+  DB_USER: zskarte
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET_PROD }}
   JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET_PROD }}
@@ -70,8 +70,14 @@ jobs:
   build-and-deploy-app:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    env:
+      NODE_VERSION: '22.14.0'
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

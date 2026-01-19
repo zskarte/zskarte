@@ -5,11 +5,13 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatIcon } from '@angular/material/icon';
 import { I18NService } from '../../state/i18n.service';
 import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
 import { JournalService } from '../../journal/journal.service';
 import { SidebarService } from '../sidebar.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -20,6 +22,7 @@ import { ZsMapStateService } from 'src/app/state/state.service';
     MatProgressSpinnerModule,
     MatButtonModule,
     MatDividerModule,
+    MatIcon,
     SidebarJournalEntryComponent,
   ],
   templateUrl: './sidebar-journal.component.html',
@@ -30,9 +33,11 @@ export class SidebarJournalComponent {
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
-  journalEntriesToDraw = signal<JournalEntry[]>([]);
-  journalEntriesDrawn = signal<JournalEntry[]>([]);
+  readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
+  readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
+  isOpen = { toDraw: true, drawn: true };
 
   constructor(private elementRef: ElementRef) {
     effect(() => {
@@ -75,5 +80,9 @@ export class SidebarJournalComponent {
   startDrawing(entry: JournalEntry) {
     this._sidebar.close();
     this.journal.startDrawing(entry, true);
+  }
+
+  toggle(section: string) {
+    this.isOpen[section] = !this.isOpen[section];
   }
 }
