@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@fast-csv/format": "^5.0.5",
-    "@strapi/plugin-users-permissions": "5.33.2",
-    "@strapi/strapi": "5.33.2",
+    "@strapi/plugin-users-permissions": "5.33.3",
+    "@strapi/strapi": "5.33.3",
     "@turf/boolean-point-in-polygon": "^7.3.1",
     "file-type": "^21.2.0",
     "immer": "^10.2.0",
