@@ -374,7 +374,7 @@ export class SidebarComponent {
     optionsDialog.afterClosed().subscribe((type: string) => {
       if (type === 'wms_custom') {
         this.showWmsLayerOptions({ type, serverLayerName: '' } as WMSMapLayer, -1);
-      } else if (type === 'geojson' || type === 'csv') {
+      } else if (type === 'geojson' || type === 'shape' || type === 'csv') {
         this.showGeoJSONLayerOptions({ type, opacity: 1.0, serverLayerName: null } as GeoJSONMapLayer, -1);
       }
     });
@@ -411,7 +411,7 @@ export class SidebarComponent {
 
   // skipcq: JS-0105
   isSearchable(item: MapLayer) {
-    return (item.type === 'geojson' || item.type === 'csv') && ((item as GeoJSONMapLayer)?.searchable || false);
+    return (item.type === 'geojson' || item.type === 'shape' || item.type === 'csv') && ((item as GeoJSONMapLayer)?.searchable || false);
   }
 
   private updateMapCallback(map: ZsMapStateSource) {

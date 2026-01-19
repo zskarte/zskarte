@@ -45,6 +45,14 @@
         </button>
         <button
           mat-icon-button
+          (click)="printEmptyTemplate()"
+          [attr.aria-label]="i18n.get('printEmptySavedTemplate')"
+          [attr.title]="i18n.get('printEmptySavedTemplate')"
+        >
+          <mat-icon>print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
           (click)="closeDesigner()"
           [attr.aria-label]="i18n.get('cancel')"
           [title]="i18n.get('cancel')"

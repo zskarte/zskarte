@@ -83,6 +83,7 @@ export class ZsMapStateService {
   private _location = inject(Location);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
+  private _mapHistoryDate = new BehaviorSubject<Date|null|undefined>(undefined);
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
   private _mapInversePatches = new BehaviorSubject<Patch[]>([]);
   private _undoStackPointer = new BehaviorSubject<number>(0);
@@ -297,7 +298,7 @@ export class ZsMapStateService {
     return this._elementToDraw.asObservable();
   }
 
-  public setMapState(newState?: ZsMapState): void {
+  public setMapState(newState?: ZsMapState, mapHistoryDate:Date|null|undefined = undefined): void {
     newState = zsMapStateMigration(newState);
 
     const cached = Object.keys(this._layerCache);
@@ -318,6 +319,7 @@ export class ZsMapStateService {
     this.updateMapState(() => {
       return newState || getDefaultZsMapState();
     }, true);
+    this._mapHistoryDate.next(mapHistoryDate);
   }
 
   public setDisplayState(newState?: IZsMapDisplayState): void {
@@ -365,6 +367,23 @@ export class ZsMapStateService {
 
   public isHistoryMode(): boolean {
     return this._display.value?.displayMode === ZsMapDisplayMode.HISTORY;
+  }
+
+  public observeHistoryDate(){
+    return this._mapHistoryDate.asObservable();
+  }
+
+  public observeIsCurrentMapData(): Observable<boolean> {
+    return this._mapHistoryDate.pipe(
+      map((o) => {
+        return o === null;
+      }),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  public isCurrentMapData(): boolean {
+    return this._mapHistoryDate.value === null;
   }
 
   public toggleExpertView() {
@@ -1176,8 +1195,10 @@ export class ZsMapStateService {
   }
 
   public applyMapStatePatches(patches: Patch[]) {
-    const newState = applyPatches(this._map.value, patches);
-    this._map.next(newState);
+    if (!this.isHistoryMode() || this.isCurrentMapData()) {
+      const newState = applyPatches(this._map.value, patches);
+      this._map.next(newState);
+    }
   }
 
   public updateDisplayState(fn: (draft: IZsMapDisplayState) => void): void {
@@ -1314,7 +1335,9 @@ export class ZsMapStateService {
           sha256(JSON.stringify(operation.mapState)),
         ]);
         if (oldDigest !== newDigest) {
-          this.setMapState(operation.mapState);
+          this.setMapState(operation.mapState, null);
+        } else {
+          this._mapHistoryDate.next(null);
         }
       }
     }

@@ -112,13 +112,13 @@ export class SidebarConnectionsComponent implements OnDestroy {
         displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE;
       this.downloadLocalBaseMap = (await db.localMapInfo.get(ZsMapStateSource.LOCAL))?.offlineAvailable ?? false;
       this.hideUnavailableLayers =
-        displayState.layers.filter((l) => l.type !== 'geojson' && l.type !== 'csv' && !l.hidden).length === 0;
+        displayState.layers.filter((l) => l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv' && !l.hidden).length === 0;
       this.downloadAvailableLayers =
-        displayState.layers.filter((l) => (l.type === 'geojson' || l.type === 'csv') && !l.offlineAvailable).length ===
+        displayState.layers.filter((l) => (l.type === 'geojson' || l.type === 'shape' || l.type === 'csv') && !l.offlineAvailable).length ===
         0;
       this.haveSearchCapability =
         displayState.layers.filter(
-          (l) => (l.type === 'geojson' || l.type === 'csv') && (l as GeoJSONMapLayer).searchable,
+          (l) => (l.type === 'geojson' || l.type === 'shape' || l.type === 'csv') && (l as GeoJSONMapLayer).searchable,
         ).length > 0;
     });
   }
@@ -171,7 +171,7 @@ export class SidebarConnectionsComponent implements OnDestroy {
   hideUnavailable() {
     this.state.updateDisplayState((draft) => {
       draft.layers.forEach((l) => {
-        if (l.type !== 'geojson' && l.type !== 'csv') {
+        if (l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv') {
           l.hidden = true;
         }
       });
@@ -186,7 +186,7 @@ export class SidebarConnectionsComponent implements OnDestroy {
       const layers: MapLayer[] = [];
       for (const layerRO of displayState.layers) {
         const layer = { ...layerRO };
-        if (layer.type === 'geojson' || layer.type === 'csv') {
+        if (layer.type === 'geojson' || layer.type === 'shape' || layer.type === 'csv') {
           if (!layer.offlineAvailable) {
             await this._mapLayerService.saveLocalMapLayer(layer);
           }
@@ -197,7 +197,7 @@ export class SidebarConnectionsComponent implements OnDestroy {
         draft.layers = layers;
       });
       this.downloadAvailableLayers =
-        layers.filter((l) => (l.type === 'geojson' || l.type === 'csv') && !l.offlineAvailable).length === 0;
+        layers.filter((l) => (l.type === 'geojson' || l.type === 'shape' || l.type === 'csv') && !l.offlineAvailable).length === 0;
       this.isLoadingMapLayers = false;
     }
   }

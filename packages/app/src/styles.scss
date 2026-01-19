@@ -66,9 +66,10 @@ mat-action-list {
   overflow: unset;
 }
 
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .titleCard,
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .stack,
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .flex-label {
+.mat-drawer > .mat-drawer-inner-container > * > * > .titleCard,
+.mat-drawer > .mat-drawer-inner-container > * > * > .stack,
+.mat-drawer > .mat-drawer-inner-container > * > mat-card-content > div,
+.mat-drawer > .mat-drawer-inner-container > * > .flex-label {
   padding: 1rem;
 }
 
@@ -121,19 +122,32 @@ mat-accordion mat-expansion-panel {
 fieldset.like-mat-form-field-outline {
   margin: 0;
   border-style: solid;
-  border-width: var(--mdc-outlined-text-field-outline-width);
-  border-color: var(--mdc-outlined-text-field-outline-color);
-  border-radius: var(--mdc-outlined-text-field-container-shape);
+  border-width: var(--mat-form-field-outlined-outline-width);
+  border-color: var(--mat-form-field-outlined-outline-color);
+  border-radius: var(--mat-form-field-outlined-container-shape);
+  &:hover {
+    border-color: var(--mdc-outlined-text-field-hover-outline-color, rgba(0, 0, 0, .87));
+  }
+  &:focus-within {
+    border-width: var(--mat-form-field-outlined-focus-outline-width);
+    border-color: var(--mat-form-field-outlined-focus-outline-color);
+  }
 }
 fieldset.like-mat-form-field-outline > legend {
   font-size: calc(
     var(--mat-form-field-outlined-label-text-populated-size) * var(--mat-mdc-form-field-floating-label-scale, 0.75)
   );
-  color: var(--mdc-outlined-text-field-label-text-color);
-  font-family: var(--mdc-outlined-text-field-label-text-font);
-  font-weight: var(--mdc-outlined-text-field-label-text-weight);
-  letter-spacing: var(--mdc-outlined-text-field-label-text-tracking);
+  color: var(--mat-form-field-outlined-label-text-color);
+  font-family: var(--mat-form-field-outlined-label-text-font);
+  font-weight: var(--mat-form-field-outlined-label-text-weight);
+  letter-spacing: var(--mat-form-field-outlined-label-text-tracking);
   white-space: nowrap;
+}
+fieldset.like-mat-form-field-outline:hover > legend {
+  color: var(--mat-form-field-outlined-hover-label-text-color);
+}
+fieldset.like-mat-form-field-outline:focus-within > legend {
+  color: var(--mat-form-field-outlined-focus-label-text-color);
 }
 
 .ol-scale-bar.scale-print {

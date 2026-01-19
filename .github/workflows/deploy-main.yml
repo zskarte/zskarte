@@ -25,11 +25,6 @@ env:
   STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
   STORAGE_URL: https://zskarte.blob.core.windows.net
   STORAGE_CONTAINER_NAME: zskarte-prod
-  BACKUP_ENCRYPTION_PASSWORD: ${{ secrets.BACKUP_ENCRYPTION_PASSWORD }}
-  BACKUP_WEBDAV_URL: https://nextcloud.hackerman.ch/remote.php/dav/files/d4y-backup
-  BACKUP_WEBDAV_USER: d4y-backup
-  BACKUP_WEBDAV_PASSWORD: ${{ secrets.BACKUP_WEBDAV_PASSWORD }}
-  BACKUP_PINGCHECK_URL: https://uptime.digital4you.ch/api/push/Exjfv0YRNF?status=up&msg=OK&ping=
 
 jobs:
   build-and-deploy:
@@ -68,8 +63,6 @@ jobs:
             .azure/k8s/deployment.yml
             .azure/k8s/service.yml
             .azure/k8s/ingress.yml
-            .azure/k8s/backup/secrets.yml
-            .azure/k8s/backup/cronjob.yml
           replacement-method: defined
         env:
           FULL_IMAGE_NAME: ${{ env.IMAGE_TAG }}:${{ steps.previoustag.outputs.tag }}
@@ -77,8 +70,14 @@ jobs:
   build-and-deploy-app:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
+    env:
+      NODE_VERSION: '22.14.0'
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
