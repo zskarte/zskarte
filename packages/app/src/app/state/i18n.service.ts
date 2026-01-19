@@ -2024,6 +2024,16 @@ export class I18NService {
       en: 'all sources',
       fr: 'toutes les sources',
     },
+    ownMapLayers: {
+      de: 'Eigene Ebenen',
+      en: 'Own layers',
+      fr: 'Couche propres',
+    },
+    ownMapLayersTitleSuffix: {
+      de: 'eigen',
+      en: 'own',
+      fr: 'propre',
+    },
     globalMapLayers: {
       de: 'Geteilte Ebenen',
       en: 'Shared layers',
@@ -2033,6 +2043,16 @@ export class I18NService {
       de: 'geteilt',
       en: 'shared',
       fr: 'partagée',
+    },
+    managedMapLayers: {
+      de: 'ZSKarte verwaltete Ebenen',
+      en: 'ZSKarte managed layers',
+      fr: 'Couches gérées par ZSKarte',
+    },
+    managedMapLayerTitleSuffix: {
+      de: 'verwaltet',
+      en: 'managed',
+      fr: 'géré',
     },
     searchableLayer: {
       de: 'offline durchsuchbar',
@@ -2163,6 +2183,21 @@ export class I18NService {
       de: 'Einstellungen der GeoJSON/CSV-Ebene',
       en: 'GeoJSON/CSV layer settings',
       fr: 'Paramètres de calque GeoJSON/CSV',
+    },
+    mediaSource: {
+      de: 'Verwaltete Medienquelle',
+      en: 'Managed media source',
+      fr: 'Source multimédia gérée',
+    },
+    mediaSourceInfo: {
+      de: 'Die Ebene besitzt eine zentral verwaltete Medienquelle, id:',
+      en: 'The layer has a centrally managed media source, id:',
+      fr: 'La couche possède une source multimédia gérée de manière centralisée, id:',
+    },
+    mediaSourceActive: {
+      de: 'Die verwaltete Medienquelle verwenden',
+      en: 'Use the managed media source',
+      fr: 'Utiliser la Source multimédia gérée',
     },
     delimiter: {
       de: 'Trennzeichen',

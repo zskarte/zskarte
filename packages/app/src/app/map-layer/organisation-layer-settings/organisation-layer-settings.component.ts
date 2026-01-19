@@ -77,8 +77,12 @@ export class OrganisationLayerSettingsComponent {
       map(([filter, source]) => {
         let layers = data.allLayers.sort((a: MapLayer, b: MapLayer) => a.label.localeCompare(b.label));
         if (source !== 'ALL') {
-          if (source === '_GlobalMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined);
+          if (source === '_OwnMapLayers_') {
+            layers = layers.filter((f) => f.id !== undefined && f.owner);
+          } else if (source === '_GlobalMapLayers_') {
+            layers = layers.filter((f) => f.id !== undefined && !f.owner && !f.managed);
+          } else if (source === '_ManagedMapLayers_') {
+            layers = layers.filter((f) => f.id !== undefined && f.managed);
           } else {
             const sourceFilter = source === '_GeoAdmin_' ? undefined : source;
             layers = layers.filter((f) => f.source?.url === sourceFilter);
@@ -144,6 +148,7 @@ export class OrganisationLayerSettingsComponent {
     delete diff.zIndex;
     delete diff.fullId;
     delete diff.owner;
+    delete diff.managed;
     // skipcq: JS-0320
     ignoreFields.forEach((field) => delete diff[field]);
     return Object.keys(diff).length === 0;
@@ -158,6 +163,7 @@ export class OrganisationLayerSettingsComponent {
         id: savedLayer.id,
         fullId: savedLayer.fullId,
         owner: savedLayer.owner,
+        managed: savedLayer.managed,
         public: savedLayer.public,
         offlineAvailable: savedLayer.offlineAvailable,
         sourceBlobId: savedLayer.sourceBlobId,
@@ -172,7 +178,7 @@ export class OrganisationLayerSettingsComponent {
     const errors: string[] = [];
     for (let i = 0; i < this.layer_favorites.length; i++) {
       const layer = { ...this.layer_favorites[i] };
-      // check if matching entry in selectedLayers and the values are the same / it's relay added from there
+      // check if matching entry in selectedLayers and the values are the same / it's realy added from there
       const selectedLayer = this.data.selectedLayers.find(
         (g) => g.fullId === layer.fullId && OrganisationLayerSettingsComponent.sameOptions(g, layer),
       );
@@ -210,6 +216,8 @@ export class OrganisationLayerSettingsComponent {
       }
       // for the new generated layer you'r the owner
       layer.owner = true;
+      // as you change it, it's not longer managed
+      layer.managed = false;
       const savedLayer = await this._mapLayerService.saveGlobalMapLayer(layer, this.data.organization?.documentId);
       if (savedLayer?.id) {
         this.layer_favorites[i] = savedLayer;

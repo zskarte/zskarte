@@ -17,6 +17,9 @@ import {
   MapLayerOptionsApi,
   GeoJSONMapLayer,
   IZsMapOrganizationMapLayerSettings,
+  objectToRelationUpdateApi,
+  DocumentApi,
+  Media,
 } from '@zskarte/types';
 
 @Injectable({
@@ -86,22 +89,25 @@ export class MapLayerService {
     return (LOG2_ZOOM_0_RESOLUTION - Math.log2(scaleDenominator / DEFAULT_RESOLUTION)) * 0.97;
   }
 
-  static getMapSource(layerSource: MapLayerSourceApi, sources: (WmsSource | MapSource)[]) {
+  getMapSource(layerSource: MapLayerSourceApi, sources: (WmsSource | MapSource)[]) {
     let source: WmsSource | MapSource | undefined;
-    if (Number.isFinite(layerSource.wms_source)) {
-      source = sources.find((source) => source.id === layerSource.wms_source);
-    } else if (layerSource.wms_source instanceof Object && layerSource.wms_source.id) {
-      const sourceId = layerSource.wms_source.id;
-      source = sources.find((source) => source.id === sourceId);
+    if (layerSource.wms_source instanceof Object && 'documentId' in layerSource.wms_source) {
+      const sourceId = layerSource.wms_source.documentId;
+      source = sources.find((source) => source.documentId === sourceId);
+    } else if (layerSource.media_source instanceof Object && 'url' in layerSource.media_source) {
+      if (layerSource.media_source.url.startsWith('/')) {
+        layerSource.media_source.url = this._api.getUrl() + layerSource.media_source.url;
+      }
+      source = layerSource.media_source;
     } else if (layerSource.custom_source) {
       source = { url: layerSource.custom_source };
     }
     return source;
   }
 
-  static convertMapLayerFromApi(mapLayerApi: MapLayerApi, sources: (WmsSource | MapSource)[], organizationId: string) {
-    const source = MapLayerService.getMapSource(mapLayerApi, sources);
-    const layer: MapLayer = {
+  convertMapLayerFromApi(mapLayerApi: MapLayerApi, sources: (WmsSource | MapSource)[], organizationId: string) {
+    const source = this.getMapSource(mapLayerApi, sources);
+    const layer: Partial<MapLayerAllFields> = {
       id: mapLayerApi.id,
       label: mapLayerApi.label,
       serverLayerName: mapLayerApi.serverLayerName,
@@ -115,8 +121,12 @@ export class MapLayerService {
       hidden: false,
       zIndex: 0,
     };
+    if (layer.styleUrl?.startsWith('/')) {
+      layer.styleUrl = this._api.getUrl() + layer.styleUrl;
+    }
     layer.owner = mapLayerApi.organization?.documentId === organizationId;
-    return layer;
+    layer.managed = !mapLayerApi.organization;
+    return layer as MapLayer;
   }
 
   async readGlobalMapLayers(sources: WmsSource[], organizationId: string) {
@@ -124,11 +134,11 @@ export class MapLayerService {
     if (error || !mapLayers) {
       return [];
     }
-    return mapLayers.map((layer) => MapLayerService.convertMapLayerFromApi(layer, sources, organizationId));
+    return mapLayers.map((layer) => this.convertMapLayerFromApi(layer, sources, organizationId));
   }
 
-  static convertMapLayerToApi(mapLayer: MapLayer & LocalMapLayerMeta): MapLayerApi {
-    const cleanedOptions: MapLayerAllFields & LocalMapLayerMeta = { ...mapLayer };
+  convertMapLayerToApi(mapLayer: MapLayer & LocalMapLayerMeta): MapLayerApi {
+    const cleanedOptions: Partial<MapLayerAllFields> & LocalMapLayerMeta = { ...mapLayer };
     // delete values for main object / from PresistedSettings
     delete cleanedOptions.id;
     delete cleanedOptions.owner;
@@ -141,21 +151,27 @@ export class MapLayerService {
     delete cleanedOptions.source;
     delete cleanedOptions.fullId;
     delete cleanedOptions.offlineAvailable;
+    delete cleanedOptions.managed;
     // delete display specific values / from SelectedMapLayerSettings
     delete cleanedOptions.deleted;
     delete cleanedOptions.zIndex;
     // delete local cache specific values / from LocalMapLayerMeta
     delete cleanedOptions.sourceBlobId;
     delete cleanedOptions.styleBlobId;
+
     const options: MapLayerOptionsApi = cleanedOptions;
+    if (options.styleUrl?.startsWith(this._api.getUrl())) {
+      options.styleUrl = options.styleUrl.substring(this._api.getUrl().length);
+    }
     return {
       id: mapLayer.id,
       public: mapLayer.public,
       label: mapLayer.label,
       serverLayerName: mapLayer.serverLayerName,
       type: mapLayer.type,
-      wms_source: mapLayer.source?.id,
-      custom_source: !mapLayer.source?.id ? mapLayer.source?.url : undefined,
+      wms_source: mapLayer.source?.documentId && mapLayer.source?.type ? objectToRelationUpdateApi(mapLayer.source as DocumentApi) : undefined,
+      media_source: mapLayer.source?.documentId && !mapLayer.source?.type ? objectToRelationUpdateApi(mapLayer.source as DocumentApi, true) : undefined,
+      custom_source: !mapLayer.source?.documentId ? mapLayer.source?.url : undefined,
       options,
     };
   }
@@ -168,7 +184,7 @@ export class MapLayerService {
       return this.saveLocalMapLayer(mapLayer);
     }
     let response: ApiResponse<MapLayerApi>;
-    const layerApi = MapLayerService.convertMapLayerToApi(mapLayer);
+    const layerApi = this.convertMapLayerToApi(mapLayer);
     if (mapLayer.id) {
       response = await this._api.put(`/api/map-layers/${mapLayer.id}`, {
         data: { ...layerApi, organization: organizationId },
@@ -180,10 +196,11 @@ export class MapLayerService {
     if (error) {
       console.error('saveGlobalMapLayer', error);
     } else if (result) {
-      const mapped = MapLayerService.convertMapLayerFromApi(result, mapLayer.source ? [mapLayer.source] : [], organizationId);
+      const mapped = this.convertMapLayerFromApi(result, mapLayer.source ? [mapLayer.source] : [], organizationId);
       mapped.source = mapLayer.source;
       mapped.owner = mapLayer.owner;
-      mapped.fullId = `${mapped?.source?.url}|${mapped.serverLayerName}|${mapped.id}`;
+      mapped.managed = false;
+      mapped.fullId = `${mapped.source?.url}|${mapped.serverLayerName}|${mapped.id}`;
       return mapped;
     }
     return null;
@@ -264,14 +281,18 @@ export class MapLayerService {
     } else {
       const defaultLayer = allLayers.find((g) => g.fullId === mapLayer.fullId);
       if (defaultLayer) {
-        reducedFeature = getPropertyDifferences(defaultLayer, mapLayer, ['id', 'serverLayerName', 'source'], { source: ['id', 'url'] });
+        reducedFeature = getPropertyDifferences(defaultLayer, mapLayer, ['id', 'serverLayerName', 'source'], {
+          source: ['id', 'url', 'type'],
+        });
       } else {
         reducedFeature = { ...mapLayer };
       }
       delete reducedFeature.deleted;
     }
-    if (reducedFeature.source?.id) {
-      reducedFeature.wms_source = reducedFeature.source.id;
+    if (reducedFeature.source?.type && reducedFeature.source?.documentId) {
+      reducedFeature.wms_source = reducedFeature.source as WmsSource;
+    } else if (!reducedFeature.source?.type && reducedFeature.source?.documentId) {
+      reducedFeature.media_source = reducedFeature.source as Media;
     } else if (reducedFeature.source?.url) {
       reducedFeature.custom_source = reducedFeature.source.url;
     }
