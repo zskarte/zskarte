@@ -102,94 +102,30 @@
                   />
                 </mat-form-field>
               }
+              @if (editMode | async) {
+                <div class="markdown">
+                  <div class="markdownEditor">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ i18n.get('description') }}</mat-label>
+                      <textarea
+                        matInput
+                        [ngModel]="drawElement.description"
+                        (ngModelChange)="updateProperty(drawElement, 'description', $event)"
+                      ></textarea>
+                    </mat-form-field>
+                  </div>
+                </div>
+              }
               @if (!editMode && drawElement.description) {
                 <div class="description" [innerHTML]="drawElement.description"></div>
               }
-              <div class="colorPicker">
-                @if (editMode | async) {
-                  <mat-form-field appearance="outline" floatLabel="always">
-                    <mat-label>{{ i18n.get('color') }}</mat-label>
-                    @if (useColorPicker) {
-                      <input
-                        matInput
-                        type="color"
-                        name="color"
-                        [ngModel]="drawElement.color"
-                        (ngModelChange)="updateProperty(drawElement, 'color', $event)"
-                      />
-                    } @else {
-                      <mat-select
-                        [ngModel]="drawElement.color"
-                        (ngModelChange)="updateProperty(drawElement, 'color', $event)"
-                      >
-                        @for (color of quickColors; track color) {
-                          <mat-option class="color-option" [value]="color.value">
-                            <div class="categoryDot" [style.background-color]="color.value"></div>
-                            {{ i18n.get(color.viewValue) }}
-                          </mat-option>
-                        }
-                      </mat-select>
-                    }
-                  </mat-form-field>
-                }
-                @if (editMode | async) {
-                  <mat-checkbox [(ngModel)]="useColorPicker" class="color-mode-toggle">
-                    {{ i18n.get('colorPickerMode') }}
-                  </mat-checkbox>
-                }
-              </div>
-              @if (editMode | async) {
-                <mat-checkbox
-                  [ngModel]="drawElement.protected"
-                  (ngModelChange)="updateProperty(drawElement, 'protected', $event)"
-                  >{{ i18n.get('lockFeature') }}</mat-checkbox
-                >
-              }
-              <br />
-              @if ((editMode | async) && (selectedSignature.type === 'Point' || selectedSignature.src)) {
-                <mat-checkbox
-                  [ngModel]="drawElement.nameShow"
-                  (ngModelChange)="updateProperty(drawElement, 'nameShow', $event)"
-                  >{{ i18n.get('labelShow') }}</mat-checkbox
-                >
-              }
-              <br />
-              @if (selectedSignature.size) {
-                <div class="time">
-                  {{ selectedSignature.type === 'LineString' ? i18n.get('distance') : i18n.get('area') }}
-                  <span [innerHTML]="selectedSignature.size"></span>
-                </div>
-              }
+              
             </div>
           </div>
           <mat-divider></mat-divider>
         }
         @if (editMode | async) {
           <mat-accordion multi displayMode="flat">
-            @if (!isText(drawElement)) {
-              <mat-expansion-panel class="mat-elevation-z0">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>{{ i18n.get('description') }}</mat-panel-title>
-                </mat-expansion-panel-header>
-                <ng-template matExpansionPanelContent>
-                  @if (editMode | async) {
-                    <div class="markdown">
-                      <div class="markdownEditor">
-                        <mat-form-field appearance="outline">
-                          <mat-label>{{ i18n.get('description') }}</mat-label>
-                          <textarea
-                            matInput
-                            [ngModel]="drawElement.description"
-                            (ngModelChange)="updateProperty(drawElement, 'description', $event)"
-                          ></textarea>
-                        </mat-form-field>
-                      </div>
-                    </div>
-                  }
-                </ng-template>
-              </mat-expansion-panel>
-              <mat-divider></mat-divider>
-            }
             @if (selectedFeature | async; as selectedFeature) {
               @if (!selectedSignature.text) {
                 <mat-expansion-panel class="mat-elevation-z0 noPadding">
@@ -208,6 +144,68 @@
                         {{ i18n.get('replaceSymbol') }}
                       </button>
                     }
+                    <mat-divider class="section-divider"></mat-divider>
+
+                    <div class="colorPicker">
+                      @if (editMode | async) {
+                        <mat-form-field class="color-picker" appearance="outline" floatLabel="always">
+                          <mat-label>{{ i18n.get('color') }}</mat-label>
+                          @if (useColorPicker) {
+                            <input
+                              matInput
+                              type="color"
+                              name="color"
+                              [ngModel]="drawElement.color"
+                              (ngModelChange)="updateProperty(drawElement, 'color', $event)"
+                            />
+                          } @else {
+                            <mat-select
+                              [ngModel]="drawElement.color"
+                              (ngModelChange)="updateProperty(drawElement, 'color', $event)"
+                            >
+                              @for (color of quickColors; track color) {
+                                <mat-option class="color-option" [value]="color.value">
+                                  <div class="categoryDot" [style.background-color]="color.value"></div>
+                                  {{ i18n.get(color.viewValue) }}
+                                </mat-option>
+                              }
+                            </mat-select>
+                          }
+                        </mat-form-field>
+                        
+                      }
+                      @if (editMode | async) {
+                        <mat-checkbox [(ngModel)]="useColorPicker" class="color-mode-toggle">
+                          {{ i18n.get('colorPickerMode') }}
+                        </mat-checkbox>
+                      }
+                      <mat-divider class="section-divider"></mat-divider>
+                    </div>
+                    @if (editMode | async) {
+                      <mat-checkbox
+                        [ngModel]="drawElement.protected"
+                        (ngModelChange)="updateProperty(drawElement, 'protected', $event)"
+                        >{{ i18n.get('lockFeature') }}</mat-checkbox
+                      >
+                    }
+                    <br />
+                    @if ((editMode | async) && (selectedSignature.type === 'Point' || selectedSignature.src)) {
+                      <mat-checkbox
+                        [ngModel]="drawElement.nameShow"
+                        (ngModelChange)="updateProperty(drawElement, 'nameShow', $event)"
+                        >{{ i18n.get('labelShow') }}</mat-checkbox
+                      >
+                    }
+                    <br />
+                    @if (selectedSignature.size) {
+                      <div class="time">
+                        {{ selectedSignature.type === 'LineString' ? i18n.get('distance') : i18n.get('area') }}
+                        <span [innerHTML]="selectedSignature.size"></span>
+                      </div>
+                    }
+
+                    <mat-divider class="section-divider"></mat-divider>
+
                     <div class="filter">
                       @if (drawElement.symbolId) {
                         <mat-checkbox
@@ -218,6 +216,8 @@
                         >
                       }
                     </div>
+
+                    
 
                     @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>

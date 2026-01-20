@@ -47,6 +47,8 @@ const config: PlaywrightTestConfig = {
     trace: 'on-first-retry',
 
     navigationTimeout: 90000,
+
+    headless: !!process.env['CI'],
   },
 
   /* Configure projects for major browsers */

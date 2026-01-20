@@ -5,6 +5,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { A11yModule } from '@angular/cdk/a11y';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Sign, signCategories } from '@zskarte/types';
@@ -23,6 +24,7 @@ import { I18NService } from '../state/i18n.service';
     RecentlyUsedSignsComponent,
     MatFormFieldModule,
     MatInputModule,
+    A11yModule,
     FormsModule,
     MatSelectModule,
     MatTableModule,
