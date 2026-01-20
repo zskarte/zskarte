@@ -199,7 +199,7 @@
               mat-list-item
               (click)="selectLayer(item)"
               title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
-                item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
+                item.id ? '; ' + i18n.get(item.owner ? 'ownMapLayersTitleSuffix' : (item.managed ? 'managedMapLayerTitleSuffix' : 'globalMapLayerTitleSuffix')) : ''
               }})"
             >
               @if (isSearchable(item)) {
@@ -231,7 +231,9 @@
                 <mat-icon class="wmsSourceError" [title]="geoAdminLayerError">warning</mat-icon>
               }
             </mat-option>
+            <mat-option value="_OwnMapLayers_">{{ i18n.get('ownMapLayers') }}</mat-option>
             <mat-option value="_GlobalMapLayers_">{{ i18n.get('globalMapLayers') }}</mat-option>
+            <mat-option value="_ManagedMapLayers_">{{ i18n.get('managedMapLayers') }}</mat-option>
             @for (item of mapState.observeWmsSources$() | async; track item.id || item.label) {
               <mat-option [value]="item.url">
                 {{ item.label }}
@@ -258,7 +260,7 @@
             mat-list-item
             (click)="selectLayer(item)"
             title="{{ item.label }} ({{ item.source ? item.source.label ?? item.source.url : 'GeoAdmin' }}{{
-              item.id ? '; ' + i18n.get('globalMapLayerTitleSuffix') : ''
+              item.id ? '; ' + i18n.get(item.owner ? 'ownMapLayersTitleSuffix' : (item.managed ? 'managedMapLayerTitleSuffix' : 'globalMapLayerTitleSuffix')) : ''
             }})"
           >
             @if (isSearchable(item)) {
