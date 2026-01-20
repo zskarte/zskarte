@@ -128,8 +128,10 @@
                   <input
                     matInput
                     type="text"
+                    maxlength="4"
                     [ngModel]="drawElement['hazardCode']"
                     (ngModelChange)="updateProperty(drawElement, 'hazardCode', $event)"
+                    (input)="validateHazardCode($event)"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
@@ -137,8 +139,10 @@
                   <input
                     matInput
                     type="text"
+                    maxlength="4"
                     [ngModel]="drawElement['unNumber']"
                     (ngModelChange)="updateProperty(drawElement, 'unNumber', $event)"
+                    (input)="validateUnNumber($event)"
                   />
                 </mat-form-field>
               }

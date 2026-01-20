@@ -317,6 +317,20 @@ export class SelectedFeatureComponent implements OnDestroy {
     input.value = (negativ ? '-' : '') + input.value.replace(/[^0-9]/g, '');
   }
 
+  validateHazardCode(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.toUpperCase();
+    const startsWithX = value.startsWith('X');
+    const rest = startsWithX ? value.substring(1) : value;
+    const digits = rest.replace(/[^0-9]/g, '');
+    input.value = (startsWithX ? 'X' : '') + digits.slice(0, 4);
+  }
+
+  validateUnNumber(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '').slice(0, 4);
+  }
+
   static getUpdatedFillStyle<T extends keyof FillStyle>(
     element: ZsMapDrawElementState,
     field: T,
