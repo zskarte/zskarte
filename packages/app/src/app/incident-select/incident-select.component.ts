@@ -5,7 +5,6 @@ import {
   inject,
   output,
   ElementRef,
-  ViewChild,
   signal,
   computed,
   viewChild,
