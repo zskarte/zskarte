@@ -21,6 +21,11 @@ export class DetailImageViewComponent {
     const i18n = this.i18n;
 
     this.title = i18n.getLabelForSign(data);
-    this.imageSrc = DrawStyle.getImageUrl(data.src);
+    if (data.id === 57) {
+      // The gefahrentafel is generated on the fly
+      this.imageSrc = DrawStyle.getGefahrentafelSvg(data);
+    } else {
+      this.imageSrc = DrawStyle.getImageUrl(data.src);
+    }
   }
 }

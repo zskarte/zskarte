@@ -282,8 +282,8 @@ export class DrawStyle {
     ).toString();
   }
 
-  private static getGefahrentafelSvg(signature: Sign): string {
-    const color = signature.color || '#FF9100';
+  public static getGefahrentafelSvg(signature: Sign): string {
+    const color = '#FF9100';
     const hazardCode = signature.hazardCode ?? '';
     const unNumber = signature.unNumber ?? '';
     const svg = `

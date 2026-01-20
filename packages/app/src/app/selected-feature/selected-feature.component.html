@@ -7,7 +7,7 @@
             <div>
               @if (selectedSignature.src) {
                 <div class="imgwrapper" (click)="openImageDetail(selectedSignature)">
-                  <img [src]="getImageUrl(selectedSignature.src)" alt="" />
+                  <img [src]="getImageUrl(selectedSignature)" alt="" />
                 </div>
               }
               @if (i18n.getLabelForSign(selectedSignature)) {

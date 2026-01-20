@@ -6,7 +6,6 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
-import { Signs } from '../map-renderer/signs';
 import { DrawStyle } from '../map-renderer/draw-style';
 import { combineLatestWith, EMPTY, firstValueFrom, Observable, Subject } from 'rxjs';
 import { Feature } from 'ol';
@@ -147,9 +146,7 @@ export class SelectedFeatureComponent implements OnDestroy {
         const drawElement = this._drawElementCache[element?.id ?? ''];
         const sig = drawElement?.getOlFeature()?.get('sig');
         if (!sig) return undefined;
-        const signById = sig.id ? Signs.getSignById(sig.id) : { ...sig };
-        signById.createdBy = drawElement?.elementState?.createdBy;
-        return signById;
+        return sig;
       }),
     );
 
@@ -414,12 +411,11 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   // skipcq: JS-0105
-  getImageUrl(file: string) {
-    // const imageFromStore = CustomImageStoreService.getImageDataUrl(file);
-    // if (imageFromStore) {
-    //   return imageFromStore;
-    // }
-    return DrawStyle.getImageUrl(file);
+  getImageUrl(sig: Sign) {
+    if (sig.id === 57) {
+      return DrawStyle.getGefahrentafelSvg(sig);
+    }
+    return DrawStyle.getImageUrl(sig.src);
   }
 
   drawHole() {
