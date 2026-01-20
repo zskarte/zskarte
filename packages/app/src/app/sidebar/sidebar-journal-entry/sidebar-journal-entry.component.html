@@ -39,20 +39,9 @@
       <div class="signatures-empty">
         <p>{{ i18n.get('noSignatureAvailable') }}</p>
         <div class="signature-buttons">
-          @if (!entry().isDrawnOnMap) {
           <button mat-flat-button color="primary" (click)="addSignature()">
             <mat-icon>add</mat-icon>
             {{ i18n.get('addSignature') }}
-          </button>
-          } @else {
-          <button mat-stroked-button (click)="addSignature()">
-            <mat-icon>add</mat-icon>
-            {{ i18n.get('addSignature') }}
-          </button>
-          }
-          <button mat-stroked-button (click)="noSignatureNeeded()">
-            <mat-icon>check</mat-icon>
-            {{ i18n.get('noSignatureNeeded') }}
           </button>
         </div>
       </div>
