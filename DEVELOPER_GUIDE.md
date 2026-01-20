@@ -56,3 +56,44 @@ After that update the saved right files by call:
 npm run server:export
 ```
 Also include the updated `packages/server/config/sync/*` files in your pull request for the new type.
+
+
+### update init.sql
+After all changes are set and work as expected it would make sense to create a new init.sql for new developers.
+To create an clean init.sql without additional crappy own testdata the following steps should be done:
+
+export the adjusted right configs:
+```
+npm run server:export
+```
+If it does not work, skip this step.
+
+Stop DB and backup you data:
+```
+npm run docker-stop
+mv data data_backup
+```
+If you have Linux/WSL redo the [prequisites](https://github.com/zskarte/zskarte?tab=readme-ov-file#linuxwsl-prerequisites)
+
+Now reinitialize a clean db by starting DB server again with empty data folder:
+```
+npm run docker-run
+```
+
+import the newest right configs:
+```
+npm run server:import
+```
+If this does not work (because of current config-sync plugin problem), start the server `npm run start:server` and do them again in the admin UI: Settings -> Users & Permissions plugin -> [Roles](http://localhost:1337/admin/settings/users-permissions/roles)
+
+now do an export of the DB:
+```
+docker exec --env PGPASSWORD="supersecret123" pgadmin-zskarte /usr/local/pgsql-16/pg_dump --host "postgresql-zskarte" --port "5432" --username "postgres" --format=p "zskarte" --no-comment | sed 's/\r$//' > packages/server/init/init.sql
+```
+
+To go back to your DB/data do:
+```
+npm run docker-stop
+mv data_backup data
+npm run docker-run
+```
