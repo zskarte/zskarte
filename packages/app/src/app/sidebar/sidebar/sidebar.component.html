@@ -5,6 +5,17 @@
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>
+        {{ i18n.get('drawLayer') }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+      <app-sidebar-draw-layers />
+    </ng-template>
+  </mat-expansion-panel>
+  <mat-divider></mat-divider>
+  <mat-expansion-panel class="mat-elevation-z0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
         {{ i18n.get('currentMap') }}
       </mat-panel-title>
     </mat-expansion-panel-header>

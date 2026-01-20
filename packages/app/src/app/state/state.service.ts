@@ -83,7 +83,7 @@ export class ZsMapStateService {
   private _location = inject(Location);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
-  private _mapHistoryDate = new BehaviorSubject<Date|null|undefined>(undefined);
+  private _mapHistoryDate = new BehaviorSubject<Date | null | undefined>(undefined);
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
   private _mapInversePatches = new BehaviorSubject<Patch[]>([]);
   private _undoStackPointer = new BehaviorSubject<number>(0);
@@ -298,7 +298,7 @@ export class ZsMapStateService {
     return this._elementToDraw.asObservable();
   }
 
-  public setMapState(newState?: ZsMapState, mapHistoryDate:Date|null|undefined = undefined): void {
+  public setMapState(newState?: ZsMapState, mapHistoryDate: Date | null | undefined = undefined): void {
     newState = zsMapStateMigration(newState);
 
     const cached = Object.keys(this._layerCache);
@@ -369,7 +369,7 @@ export class ZsMapStateService {
     return this._display.value?.displayMode === ZsMapDisplayMode.HISTORY;
   }
 
-  public observeHistoryDate(){
+  public observeHistoryDate() {
     return this._mapHistoryDate.asObservable();
   }
 
@@ -838,6 +838,48 @@ export class ZsMapStateService {
     this.updateDisplayState((draft) => {
       draft.layers.splice(index, 1);
     });
+  }
+
+  public addDrawLayer(name: string) {
+    this.updateMapState((draft) => {
+      const id = uuidv4();
+      draft.layers![id] = { id, name, type: ZsMapLayerStateType.DRAW };
+    });
+  }
+
+  public removeDrawLayer(id: string) {
+    this.assertLayerExists(id);
+
+    // remove all drawElements of the layer
+    Object.entries(this._map.value.drawElements ?? [])
+      .filter(([, element]) => element.layer === id)
+      .forEach(([id]) => {
+        this.removeDrawElement(id);
+      });
+
+    this.updateMapState((draft) => {
+      delete draft.layers![id];
+    });
+  }
+
+  public activateDrawLayer(id: string) {
+    this.assertLayerExists(id);
+    this.updateDisplayState(draft => {
+      draft.activeLayer = id;
+    })
+  }
+
+  public toggleDrawLayerVisibility(id: string, visible: boolean) {
+    this.assertLayerExists(id);
+    this.updateDisplayState(draft => {
+      draft.layerVisibility[id] = visible;
+    });
+  }
+
+  private assertLayerExists(id: string) {
+    if (!this._layerCache[id]) {
+      throw new Error(`Cannot find layer with id: ${id}`);
+    }
   }
 
   public sortMapLayerUp(index: number) {

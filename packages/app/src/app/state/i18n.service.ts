@@ -3342,6 +3342,26 @@ export class I18NService {
       en: 'Clean up addresses',
       fr: 'Nettoyer adresses',
     },
+    addDrawLayer: {
+      de: 'Zeichnungsebene hinzufügen',
+      fr: 'Ajouter une couche de dessin',
+      en: 'Add drawing layer',
+    },
+    fieldRequired: {
+      de: 'Bitte füllen Sie dieses Feld aus.',
+      fr: 'Veuillez remplir ce champ.',
+      en: 'Please fill out this field.',
+    },
+    nameExists: {
+      de: 'Name existiert bereits.',
+      fr: 'Ce nom existe déjà.',
+      en: 'Name already exists.',
+    },
+    deleteLayerConfirm: {
+      de: 'Wollen sie diese Ebene wirklich löschen? Alle Elemente werden gelöscht.',
+      fr: 'Voulez-vous vraiment supprimer cette couche ? Tous les éléments seront supprimés.',
+      en: 'Do you really want to delete this layer? All elements will be deleted.',
+    },
     create: {
       de: 'Erfassen',
       en: 'create',
