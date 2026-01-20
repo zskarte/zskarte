@@ -15,7 +15,7 @@ ADD . /app
 # npm lint
 RUN npm run lint:server
 # npm build
-RUN NODE_ENV=production npm run build:server && rm -rf /app/packages/server/src
+RUN  npm run build:types && npm run build:common && NODE_ENV=production npm run build:server && rm -rf /app/packages/server/src
 
 
 FROM node:22.14.0-slim AS release

@@ -16,6 +16,8 @@
     "strapi": "strapi"
   },
   "dependencies": {
+    "@zskarte/types": "file:../types",
+    "@zskarte/common": "file:../common",
     "@strapi/plugin-users-permissions": "5.33.2",
     "@strapi/strapi": "5.33.2",
     "immer": "^10.2.0",
