@@ -2654,6 +2654,26 @@ export class I18NService {
       en: 'Drawn messages',
       fr: 'Messages dessinés',
     },
+    noEntriesToDraw: {
+      de: 'Keine Einträge zu zeichnen',
+      en: 'No entries to draw',
+      fr: 'Aucune entrée à dessiner',
+    },
+    noEntriesToDrawDescription: {
+      de: 'Es gibt derzeit keine Journaleinträge, die noch gezeichnet werden müssen.',
+      en: 'There are currently no journal entries that need to be drawn yet.',
+      fr: "Il n'y a actuellement aucune entrée de journal à dessiner.",
+    },
+    noEntriesDrawn: {
+      de: 'Keine abgeschlossenen Einträge',
+      en: 'No completed entries',
+      fr: 'Aucune entrée terminée',
+    },
+    noEntriesDrawnDescription: {
+      de: 'Es gibt derzeit keine Journaleinträge, bei denen das Zeichnen abgeschlossen ist.',
+      en: 'There are currently no journal entries where drawing has been completed.',
+      fr: "Il n'y a actuellement aucune entrée de journal où le dessin a été terminé.",
+    },
     startDrawing: {
       de: 'Mit Zeichnen beginnen',
       en: 'Start Drawing',

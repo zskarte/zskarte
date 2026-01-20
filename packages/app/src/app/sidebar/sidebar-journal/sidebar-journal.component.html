@@ -13,76 +13,96 @@
     <mat-tab>
       <ng-template mat-tab-label>
         <span>{{ i18n.get('todo') }}</span>
-        @if (journalEntriesToDraw().length > 0) {
-          <span class="todo-badge">{{ journalEntriesToDraw().length }}</span>
-        }
+        <app-badge [count]="journalEntriesToDraw().length"></app-badge>
       </ng-template>
-      <mat-accordion [multi]="false" displayMode="flat">
-        @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
-          <mat-expansion-panel
-            class="mat-elevation-z0"
-            [expanded]="entry.messageNumber === currentMessageNumber"
-            [attr.data-message-number]="entry.messageNumber"
-            [attr.data-testid]="'entry-to-draw'"
-            (opened)="onPanelOpened(entry.messageNumber)"
-            (closed)="onPanelClosed()"
-          >
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <div class="journal-header-content">
-                  <div class="entry-date-header">{{ entry.dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
-                  <div class="entry-title-header">#{{ entry.messageNumber }} {{ entry.messageSubject }}</div>
-                </div>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
+      @if (journalEntriesToDraw().length === 0) {
+        <app-empty>
+          <app-empty-header>
+            <app-empty-media variant="icon">
+              <mat-icon>assignment</mat-icon>
+            </app-empty-media>
+            <app-empty-title>{{ i18n.get('noEntriesToDraw') }}</app-empty-title>
+            <app-empty-description>{{ i18n.get('noEntriesToDrawDescription') }}</app-empty-description>
+          </app-empty-header>
+        </app-empty>
+      } @else {
+        <mat-accordion [multi]="false" displayMode="flat">
+          @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
+            <mat-expansion-panel
+              class="mat-elevation-z0"
+              [expanded]="entry.messageNumber === currentMessageNumber"
+              [attr.data-message-number]="entry.messageNumber"
+              [attr.data-testid]="'entry-to-draw'"
+              (opened)="onPanelOpened(entry.messageNumber)"
+              (closed)="onPanelClosed()"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <div class="journal-header-content">
+                    <div class="entry-date-header">{{ entry.dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
+                    <div class="entry-title-header">#{{ entry.messageNumber }} {{ entry.messageSubject }}</div>
+                  </div>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
 
-            <ng-template matExpansionPanelContent>
-              <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-              @if (!isReadOnly()) {
-                <div class="mark-as-drawn-container">
-                  <button mat-stroked-button class="mark-as-drawn-button" (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
-                </div>
-              }
-            </ng-template>
-          </mat-expansion-panel>
-          <mat-divider></mat-divider>
-        }
-      </mat-accordion>
+              <ng-template matExpansionPanelContent>
+                <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
+                @if (!isReadOnly()) {
+                  <div class="mark-as-drawn-container">
+                    <button mat-stroked-button class="mark-as-drawn-button" (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
+                  </div>
+                }
+              </ng-template>
+            </mat-expansion-panel>
+            <mat-divider></mat-divider>
+          }
+        </mat-accordion>
+      }
     </mat-tab>
 
     <mat-tab>
       <ng-template mat-tab-label>
         <span>{{ i18n.get('done') }}</span>
-        @if (journalEntriesDrawn().length > 0) {
-          <span class="done-badge">{{ journalEntriesDrawn().length }}</span>
-        }
+        <app-badge [count]="journalEntriesDrawn().length"></app-badge>
       </ng-template>
-      <mat-accordion [multi]="false" displayMode="flat">
-        @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
-          <mat-expansion-panel
-            class="mat-elevation-z0"
-            [expanded]="entry.messageNumber === currentMessageNumber"
-            [attr.data-message-number]="entry.messageNumber"
-            [attr.data-testid]="'entry-drawn'"
-            (opened)="onPanelOpened(entry.messageNumber)"
-            (closed)="onPanelClosed()"
-          >
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <div class="journal-header-content">
-                  <div class="entry-date-header">{{ entry.dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
-                  <div class="entry-title-header">#{{ entry.messageNumber }} {{ entry.messageSubject }}</div>
-                </div>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
+      @if (journalEntriesDrawn().length === 0) {
+        <app-empty>
+          <app-empty-header>
+            <app-empty-media variant="icon">
+              <mat-icon>check_circle</mat-icon>
+            </app-empty-media>
+            <app-empty-title>{{ i18n.get('noEntriesDrawn') }}</app-empty-title>
+            <app-empty-description>{{ i18n.get('noEntriesDrawnDescription') }}</app-empty-description>
+          </app-empty-header>
+        </app-empty>
+      } @else {
+        <mat-accordion [multi]="false" displayMode="flat">
+          @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
+            <mat-expansion-panel
+              class="mat-elevation-z0"
+              [expanded]="entry.messageNumber === currentMessageNumber"
+              [attr.data-message-number]="entry.messageNumber"
+              [attr.data-testid]="'entry-drawn'"
+              (opened)="onPanelOpened(entry.messageNumber)"
+              (closed)="onPanelClosed()"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <div class="journal-header-content">
+                    <div class="entry-date-header">{{ entry.dateMessage | date: 'dd.MM.yyyy, HH:mm' }}</div>
+                    <div class="entry-title-header">#{{ entry.messageNumber }} {{ entry.messageSubject }}</div>
+                  </div>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
 
-            <ng-template matExpansionPanelContent>
-              <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
-            </ng-template>
-          </mat-expansion-panel>
-          <mat-divider></mat-divider>
-        }
-      </mat-accordion>
+              <ng-template matExpansionPanelContent>
+                <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
+              </ng-template>
+            </mat-expansion-panel>
+            <mat-divider></mat-divider>
+          }
+        </mat-accordion>
+      }
     </mat-tab>
   </mat-tab-group>
   </div>

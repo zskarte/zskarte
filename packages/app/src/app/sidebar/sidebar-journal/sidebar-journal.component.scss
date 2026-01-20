@@ -56,11 +56,6 @@ mat-panel-title {
 }
 
 
-:host ::ng-deep {
-  mat-stroked-button {
-    background-color: white;
-  }
-}
 
 .mark-as-drawn-container {
   margin-top: -8px;
@@ -72,21 +67,11 @@ mat-panel-title {
   width: 100%;
 }
 
-.todo-badge,
-.done-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  margin-left: 8px;
-  background-color: #3f51b5;
-  color: white;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 20px;
+
+.tab-group-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 :host ::ng-deep {
@@ -95,6 +80,39 @@ mat-panel-title {
     .mat-mdc-tab-header,
     .mat-tab-header-container {
       border-bottom: 1px solid #dedede !important;
+    }
+
+    .mat-tab-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+    }
+
+    .mat-tab-body-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .mat-tab-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .mat-tab-body-content {
+      padding: 0;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: 0;
+      overflow: visible;
+      box-sizing: border-box;
     }
   }
 }

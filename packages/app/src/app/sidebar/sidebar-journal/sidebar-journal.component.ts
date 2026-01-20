@@ -13,6 +13,16 @@ import { JournalService } from '../../journal/journal.service';
 import { SidebarService } from '../sidebar.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  EmptyComponent,
+  EmptyHeaderComponent,
+  EmptyMediaComponent,
+  EmptyTitleComponent,
+  EmptyDescriptionComponent,
+  EmptyContentComponent,
+} from '../../empty/empty.component';
+import { MatIconModule } from '@angular/material/icon';
+import { BadgeComponent } from '../../badge/badge.component';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -26,7 +36,15 @@ import { toSignal } from '@angular/core/rxjs-interop';
     MatDividerModule,
     MatTabsModule,
     MatBadgeModule,
+    MatIconModule,
     SidebarJournalEntryComponent,
+    EmptyComponent,
+    EmptyHeaderComponent,
+    EmptyMediaComponent,
+    EmptyTitleComponent,
+    EmptyDescriptionComponent,
+    EmptyContentComponent,
+    BadgeComponent,
   ],
   templateUrl: './sidebar-journal.component.html',
   styleUrl: './sidebar-journal.component.scss',
