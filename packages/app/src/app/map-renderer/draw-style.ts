@@ -374,6 +374,63 @@ export class DrawStyle {
     return this.asDataImageSvg(svg);
   }
 
+  public static getLeaderSignSvg(signature: Sign): string {
+    const color = signature.color ?? '#0000FF';
+    const organization = signature.organization ?? '';
+    const signId = signature.id;
+
+    // Determine if this is an Offizier (2 bars) or Gruppenführer (1 bar)
+    const isOffizier = signId === 84;
+
+    // Use larger viewBox with padding to prevent clipping
+    const padding = 20;
+    const viewBoxWidth = 156 + padding * 2;
+    const viewBoxHeight = 156 + padding * 2;
+
+    // Center coordinates
+    const centerX = 78 + padding;
+    const circleY = 129 + padding;
+    const circleRadius = 37;
+
+    // Pole dimensions
+    const poleX = centerX;
+    const poleTop = padding;
+    const poleBottom = circleY - circleRadius;
+    const poleWidth = 8;
+    const barWidth = 32;
+    const barHeight = 8;
+
+    // Generate the horizontal bar(s) at top
+    let barsHtml = `<rect x="${poleX}" y="${poleTop}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+    if (isOffizier) {
+      // Second bar for Offizier/Zugführer
+      barsHtml += `<rect x="${poleX}" y="${poleTop + 22}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+    }
+
+    // Calculate font size for organization text based on length
+    let orgFontSize = 40;
+    if (organization.length > 1) {
+      orgFontSize = Math.max(20, 40 - (organization.length - 1) * 8);
+    }
+
+    const svg = `
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" width="${viewBoxWidth}px" height="${viewBoxHeight}px">
+  <!-- Vertical pole -->
+  <rect x="${poleX - poleWidth/2}" y="${poleTop}" width="${poleWidth}" height="${poleBottom - poleTop}" fill="${color}"/>
+  
+  <!-- Horizontal bar(s) at top -->
+  ${barsHtml}
+  
+  <!-- Circle with white fill -->
+  <circle cx="${centerX}" cy="${circleY}" r="${circleRadius}" fill="white" stroke="${color}" stroke-width="9"/>
+  
+  <!-- Organization text inside circle -->
+  <text x="${centerX}" y="${circleY + 8}" fill="${color}" font-family="Arial" font-weight="700" font-size="${orgFontSize}" text-anchor="middle">${organization}</text>
+</svg>`.trim();
+
+    return this.asDataImageSvg(svg);
+  }
+
   public static getFormationSvg(signature: Sign): string {
     const color = signature.color ?? '#0000FF';
     const hierarchyLevel = signature.hierarchyLevel ?? HierarchyLevel.TRUPP;
@@ -796,7 +853,10 @@ export class DrawStyle {
                 : [190, 192, 201].includes(signature.id ?? 0)
                   // we create the svg for transport signs on the fly because the values within change.
                   ? this.getTransportSvg(signature)
-                  : this.getImageUrl(signature.src),
+                  : [84, 60].includes(signature.id ?? 0)
+                    // we create the svg for leader signs on the fly because the values within change.
+                    ? this.getLeaderSignSvg(signature)
+                    : this.getImageUrl(signature.src),
           img: imageFromMemory ? imageFromMemory : undefined,
           // imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
           opacity: showIcon && !hidden ? 1 : 0.5,

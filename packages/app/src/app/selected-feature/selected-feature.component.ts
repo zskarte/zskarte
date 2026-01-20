@@ -81,6 +81,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   hazardSigns = [57];
   formationSigns = [210];
   transportSigns = [190, 192, 201]; // Lastwagen, Motorfahrzeug, Transportfahrzeug
+  leaderSigns = [60, 84]; // Gruppenführer FW/P, Offizier Zugführer FW/P
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _ngUnsubscribe = new Subject<void>();
 
@@ -436,6 +437,9 @@ export class SelectedFeatureComponent implements OnDestroy {
     }
     if ([190, 192, 201].includes(sig.id ?? 0)) {
       return DrawStyle.getTransportSvg(sig);
+    }
+    if ([185, 186, 194, 195].includes(sig.id ?? 0)) {
+      return DrawStyle.getLeaderSignSvg(sig);
     }
     return DrawStyle.getImageUrl(sig.src);
   }

@@ -30,6 +30,9 @@ export class DetailImageViewComponent {
     } else if ([190, 192, 201].includes(data.id ?? 0)) {
       // The transport sign is generated on the fly
       this.imageSrc = DrawStyle.getTransportSvg(data);
+    } else if ([84, 60].includes(data.id ?? 0)) {
+      // The leader sign is generated on the fly
+      this.imageSrc = DrawStyle.getLeaderSignSvg(data);
     } else {
       this.imageSrc = DrawStyle.getImageUrl(data.src);
     }
