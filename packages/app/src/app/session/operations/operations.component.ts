@@ -112,8 +112,12 @@ export class OperationsComponent implements OnDestroy {
     const importDialog = this._dialog.open(ImportDialogComponent);
     importDialog.afterClosed().subscribe(async (result: any) => {
       if (result) {
-        await this.operationService.importOperation(result);
-        console.log('result', result);
+        console.log('importOperation', result);
+        const importedOperation = await this.operationService.importOperation(result);
+        console.log('importedOperation', importedOperation);
+        if (importedOperation) {
+          this._session.setOperation(importedOperation);
+        }
         await this.journalService.importJournal(result);
       }
     });

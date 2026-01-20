@@ -241,7 +241,7 @@ export class JournalService {
     }
     const journal = await db.localJournalEntries.where({ operationId }).toArray();
     return journal.map((entry) => {
-      const { id, createdAt, createdBy, publishedAt, updatedAt, updatedBy, operationId, organizationId, documentId, ...rest } = entry;
+      const { id, createdAt, createdBy, publishedAt, updatedAt, updatedBy, operationId, fromCache, organizationId, uuid, documentId, ...rest } = entry;
       return rest;
     });
   }

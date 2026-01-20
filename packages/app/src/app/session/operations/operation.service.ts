@@ -85,7 +85,7 @@ export class OperationService {
     this.operationToEdit.next(undefined);
   }
 
-  public async insertOperation(operation: IZsMapOperation): Promise<void> {
+  public async insertOperation(operation: IZsMapOperation): Promise<IZsMapOperation | undefined> {
     if (!operation.mapState) {
       operation.mapState = this.createMapstate();
     }
@@ -98,11 +98,15 @@ export class OperationService {
       operation.id = minId - 1;
       operation.documentId = 'local' + operation.id;
       await db.localOperation.add(operation);
-    } else {
-      await this._api.post('/api/operations', {
-        data: { ...operation, organization: this._session.getOrganization()?.documentId },
-      });
+      return operation;
+    } 
+    const { error, result } = await this._api.post<IZsMapOperation>('/api/operations', {
+      data: { ...operation, organization: this._session.getOrganization()?.documentId },
+    });
+    if (!error && result) {
+        return result;
     }
+    return undefined;
   }
 
   public async updateMeta(operation: IZsMapOperation): Promise<void> {
@@ -190,8 +194,8 @@ export class OperationService {
     }
   }
 
-  public async importOperation(result: any): Promise<void> {
-            // Prior to V2 the "map" key was used to store the map state.
+  public async importOperation(result: any): Promise<IZsMapOperation | undefined> {
+        // Prior to V2 the "map" key was used to store the map state.
         // To keep consistent with our internal naming, use "mapState" from V2 on
         const mapState = result.version === OperationExportFileVersion.V2 ? result.mapState : result.map;
         const operation: IZsMapOperation = {
@@ -202,8 +206,9 @@ export class OperationService {
           mapState,
           mapLayers: result.mapLayers,
         };
-        await this.insertOperation(operation);
+        const createdOperation = await this.insertOperation(operation);
         await this.reload('active');
+        return createdOperation;
   }
 
   public async exportOperation(operationId: string | undefined): Promise<void> {
