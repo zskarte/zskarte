@@ -283,7 +283,11 @@ export class DrawStyle {
     ).toString();
   }
 
-  public static getGefahrentafelSvg(signature: Sign): string {
+  private static asDataImageSvg(svg: string): string {
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  public static getHazardSignSvg(signature: Sign): string {
     const color = '#FF9100';
     const hazardCode = signature.hazardCode ?? '';
     const unNumber = signature.unNumber ?? '';
@@ -301,7 +305,73 @@ export class DrawStyle {
 	<rect x="6.5" y="76.2" class="st0" width="139.1" height="7.4"/>
 </g>
 </svg>`.trim();
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    return this.asDataImageSvg(svg)
+  }
+
+  public static getTransportSvg(signature: Sign): string {
+    const color = signature.color ?? '#0000FF';
+    const organization = signature.organization ?? '';
+    const formationDetail = signature.formationDetail ?? '';
+    const signId = signature.id;
+
+    // Use larger viewBox with padding to prevent clipping
+    const padding = 40;
+    const viewBoxWidth = 156 + padding * 2;
+    const viewBoxHeight = 156 + padding * 2;
+
+    // Generate wheels based on sign ID
+    // 192 = Motorfahrzeug (2 wheels)
+    // 201 = Transportfahrzeug (3 wheels)
+    // 190 = Lastwagen (4 wheels in 2/2 pattern)
+    let wheelsHtml = '';
+    const wheelRadius = 16.5;
+    const wheelStroke = 6.5;
+    const wheelY = 135;
+
+    if (signId === 192) {
+      // Motorfahrzeug: 2 wheels
+      wheelsHtml = `
+        <circle cx="${padding + 45}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 111}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>`;
+    } else if (signId === 201) {
+      // Transportfahrzeug: 3 wheels
+      wheelsHtml = `
+        <circle cx="${padding + 33}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 78}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 123}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>`;
+    } else {
+      // Lastwagen (190): 3 wheels, one in front, two in the back
+      wheelsHtml = `
+        <circle cx="${padding + 20}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 95}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 135}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>`;
+    }
+
+    // Calculate font size for organization text based on length
+    let orgFontSize = 32;
+    if (organization.length > 3) {
+      orgFontSize = Math.max(18, 32 - (organization.length - 3) * 4);
+    }
+
+    // Truck body path
+    const bodyPath = `M${padding + 3.8},${68.5 + padding} L${padding + 3.8},${3.8 + padding} L${padding + 41.5},${15 + padding} L${padding + 78},${17.3 + padding} L${padding + 114.5},${15 + padding} L${padding + 152.2},${3.8 + padding} L${padding + 152.2},${68.5 + padding} Z`;
+
+    const svg = `
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" width="${viewBoxWidth}px" height="${viewBoxHeight}px">
+  <!-- Truck body -->
+  <path d="${bodyPath}" fill="white" stroke="${color}" stroke-width="7"/>
+  
+  <!-- Organization text in body -->
+  <text x="${padding + 78}" y="${55 + padding}" fill="${color}" font-family="Arial" font-weight="700" font-size="${orgFontSize}" text-anchor="middle">${organization}</text>
+  
+  <!-- Formation detail text above body -->
+  <text x="${padding + 78}" y="${padding - 5}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationDetail}</text>
+  
+  <!-- Wheels -->
+  ${wheelsHtml}
+</svg>`.trim();
+
+    return this.asDataImageSvg(svg);
   }
 
   public static getFormationSvg(signature: Sign): string {
@@ -398,7 +468,7 @@ export class DrawStyle {
   ${bottomText}
 </svg>`.trim();
 
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    return this.asDataImageSvg(svg);
   }
 
   private static calculateCacheHashForSymbol(signature: Sign, feature: FeatureLike, resolution: number, selected: boolean, highlighted: boolean, hidden: boolean): string {
@@ -719,11 +789,14 @@ export class DrawStyle {
             ? undefined
             : signature.id === 57
               // we create the svg for the gefahrentafel on the fly because the values within change.
-              ? this.getGefahrentafelSvg(signature)
+              ? this.getHazardSignSvg(signature)
               : signature.id === 210
                 // we create the svg for the formation sign on the fly because the values within change.
                 ? this.getFormationSvg(signature)
-                : this.getImageUrl(signature.src),
+                : [190, 192, 201].includes(signature.id ?? 0)
+                  // we create the svg for transport signs on the fly because the values within change.
+                  ? this.getTransportSvg(signature)
+                  : this.getImageUrl(signature.src),
           img: imageFromMemory ? imageFromMemory : undefined,
           // imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
           opacity: showIcon && !hidden ? 1 : 0.5,

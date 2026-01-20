@@ -211,6 +211,28 @@
                   />
                 </mat-form-field>
               }
+              @if ((editMode()) && transportSigns.includes((selectedFeature())?.get('sig').id)) {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ i18n.get('organization') }}</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    maxlength="6"
+                    [ngModel]="drawElement['organization']"
+                    (ngModelChange)="updateProperty(drawElement, 'organization', $event)"
+                  />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ i18n.get('formationDetail') }}</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    maxlength="10"
+                    [ngModel]="drawElement['formationDetail']"
+                    (ngModelChange)="updateProperty(drawElement, 'formationDetail', $event)"
+                  />
+                </mat-form-field>
+              }
               @if (!editMode() && drawElement.description) {
                 <div class="description" [innerHTML]="drawElement.description"></div>
               }

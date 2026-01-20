@@ -80,6 +80,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   personSigns = [39, 82, 112, 122, 123];
   hazardSigns = [57];
   formationSigns = [210];
+  transportSigns = [190, 192, 201]; // Lastwagen, Motorfahrzeug, Transportfahrzeug
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _ngUnsubscribe = new Subject<void>();
 
@@ -428,10 +429,13 @@ export class SelectedFeatureComponent implements OnDestroy {
   // skipcq: JS-0105
   getImageUrl(sig: Sign) {
     if (sig.id === 57) {
-      return DrawStyle.getGefahrentafelSvg(sig);
+      return DrawStyle.getHazardSignSvg(sig);
     }
     if (sig.id === 210) {
       return DrawStyle.getFormationSvg(sig);
+    }
+    if ([190, 192, 201].includes(sig.id ?? 0)) {
+      return DrawStyle.getTransportSvg(sig);
     }
     return DrawStyle.getImageUrl(sig.src);
   }

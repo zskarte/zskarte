@@ -23,10 +23,13 @@ export class DetailImageViewComponent {
     this.title = i18n.getLabelForSign(data);
     if (data.id === 57) {
       // The gefahrentafel is generated on the fly
-      this.imageSrc = DrawStyle.getGefahrentafelSvg(data);
+      this.imageSrc = DrawStyle.getHazardSignSvg(data);
     } else if (data.id === 210) {
       // The formation sign is generated on the fly
       this.imageSrc = DrawStyle.getFormationSvg(data);
+    } else if ([190, 192, 201].includes(data.id ?? 0)) {
+      // The transport sign is generated on the fly
+      this.imageSrc = DrawStyle.getTransportSvg(data);
     } else {
       this.imageSrc = DrawStyle.getImageUrl(data.src);
     }
