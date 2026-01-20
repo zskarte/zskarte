@@ -2660,7 +2660,7 @@ export class I18NService {
       fr: 'Commencer à dessiner',
     },
     someoneIsDrawing: {
-      de: 'Jemand hat bereits mit zeichnen begonnen.',
+      de: 'Jemand hat bereits mit Zeichnen begonnen.',
       en: 'Someone started drawing',
       fr: "Quelqu'un a commencé à dessiner",
     },
