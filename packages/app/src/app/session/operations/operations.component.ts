@@ -20,6 +20,7 @@ import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirm
 import { MatDialog } from '@angular/material/dialog';
 import { ImportDialogComponent } from 'src/app/import-dialog/import-dialog.component';
 import { JournalService } from 'src/app/journal/journal.service';
+import { OperationExportFile } from 'src/app/core/entity/operationExportFile';
 
 @Component({
   selector: 'app-operations',
@@ -110,11 +111,9 @@ export class OperationsComponent implements OnDestroy {
 
   public importOperation(): void {
     const importDialog = this._dialog.open(ImportDialogComponent);
-    importDialog.afterClosed().subscribe(async (result: any) => {
+    importDialog.afterClosed().subscribe(async (result: OperationExportFile) => {
       if (result) {
-        console.log('importOperation', result);
         const importedOperation = await this.operationService.importOperation(result);
-        console.log('importedOperation', importedOperation);
         if (importedOperation) {
           this._session.setOperation(importedOperation);
         }
