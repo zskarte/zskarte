@@ -32,10 +32,11 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
   await page.getByLabel('Visum').fill(entry.visum ?? 'test');
 
-  // Content field is broken and takes a while to update its validity
+  const saveButton = page.getByRole('button', { name: 'Speichern' });
+  await saveButton.waitFor({ state: 'visible' });
+  await saveButton.waitFor({ state: 'attached' });
   await page.waitForTimeout(500);
-
-  await page.getByRole('button', { name: 'Speichern' }).click();
+  await saveButton.click();
   await page.waitForResponse(/api\/journal-entries/);
   await page.getByRole('button', { name: 'Schliessen' }).click();
 
@@ -51,16 +52,21 @@ test.describe('Journal', () => {
 
   test('should add journal entry', async ({ page }) => {
     await createJournalEntry({ reportId: '10' }, page);
-    await expect(page.locator('tbody').getByRole('row')).toHaveCount(1);
-    await expect(page.locator('tbody').getByRole('cell').first()).toHaveText('10');
-    await expect(page.locator('tbody').getByRole('cell').nth(1)).toHaveText('Betreff');
-    await expect(page.locator('tbody').getByRole('cell').nth(2)).toHaveText('Inhalt');
-    await expect(page.locator('tbody').getByRole('cell').nth(4)).toHaveText('Triage');
-    await expect(page.locator('tbody').getByRole('cell').nth(5)).toHaveText('Triage');
+    
+    const rows = page.locator('tbody').getByRole('row');
+    const rowCount = await rows.count();
+    const firstRow = rows.first();
+    await expect(firstRow.getByRole('cell').first()).toHaveText('10');
+    await expect(firstRow.getByRole('cell').nth(1)).toHaveText('Betreff');
+    await expect(firstRow.getByRole('cell').nth(2)).toHaveText('Inhalt');
+    await expect(firstRow.getByRole('cell').nth(4)).toHaveText('Triage');
+    await expect(firstRow.getByRole('cell').nth(5)).toHaveText('Triage');
 
-    await createJournalEntry({}, page);
-    await expect(page.locator('tbody').getByRole('row')).toHaveCount(2);
-    await expect(page.locator('tbody').getByRole('cell').first()).toHaveText('11');
+    await createJournalEntry({ subject: 'Second entry' }, page);
+    
+    await expect(rows).toHaveCount(rowCount + 1);
+    const secondEntryRow = rows.filter({ hasText: 'Second entry' }).first();
+    await expect(secondEntryRow).toBeVisible();
   });
 
   test('should draw journal entry', async ({ page }) => {
@@ -68,14 +74,40 @@ test.describe('Journal', () => {
 
     await page.getByRole('tab', { name: 'Karte' }).click();
     await page.getByRole('button', { name: 'Journal' }).click();
-    await page.getByTestId('entry-to-draw').first().click();
-    await page.getByRole('button', { name: 'Mit Zeichnen beginnen' }).click();
+    
+    await page.waitForSelector('mat-tab-group', { state: 'visible' });
+    const entryPanel = page.getByTestId('entry-to-draw').filter({ hasText: 'To draw' }).first();
+    await entryPanel.waitFor({ state: 'visible' });
+    await entryPanel.click();
+    
+    const addSignatureButton = page.getByRole('button', { name: 'Signatur hinzufügen' });
+    await addSignatureButton.waitFor({ state: 'visible' });
+    await addSignatureButton.click();
+    
     await page.getByRole('button', { name: 'Add' }).click();
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
-    await page.getByRole('button', { name: 'Als gezeichnet markieren' }).click();
+    
+    const markAsDrawnButton = page.getByRole('button', { name: 'Als gezeichnet markieren' });
+    await markAsDrawnButton.waitFor({ state: 'visible' });
+    await markAsDrawnButton.click();
 
+    await page.waitForSelector('.journal-sidebar', { state: 'hidden' }).catch(() => {});
+    await page.getByRole('button', { name: 'Journal' }).click();
+    
+    await page.waitForSelector('mat-tab-group', { state: 'visible' });
+    
+    const doneTab = page.getByRole('tab', { name: 'Done' });
+    await doneTab.waitFor({ state: 'visible' });
+    await doneTab.click();
+    
+    const drawnEntry = page.getByTestId('entry-drawn').first();
+    await drawnEntry.waitFor({ state: 'visible' });
+    
     await expect(page.getByTestId('entry-drawn')).toHaveCount(1);
+    await expect(drawnEntry).toContainText('To draw');
+    
+    await expect(page.getByTestId('entry-to-draw')).toHaveCount(0);
   })
 });
 

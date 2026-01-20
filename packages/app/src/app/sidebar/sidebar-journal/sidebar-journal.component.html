@@ -23,6 +23,7 @@
             class="mat-elevation-z0"
             [expanded]="entry.messageNumber === currentMessageNumber"
             [attr.data-message-number]="entry.messageNumber"
+            [attr.data-testid]="'entry-to-draw'"
             (opened)="onPanelOpened(entry.messageNumber)"
             (closed)="onPanelClosed()"
           >
@@ -62,6 +63,7 @@
             class="mat-elevation-z0"
             [expanded]="entry.messageNumber === currentMessageNumber"
             [attr.data-message-number]="entry.messageNumber"
+            [attr.data-testid]="'entry-drawn'"
             (opened)="onPanelOpened(entry.messageNumber)"
             (closed)="onPanelClosed()"
           >
