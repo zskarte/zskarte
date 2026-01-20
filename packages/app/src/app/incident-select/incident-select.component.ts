@@ -1,13 +1,22 @@
-import { ChangeDetectionStrategy, Component, Input, inject, output, ElementRef, ViewChild, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  inject,
+  output,
+  ElementRef,
+  ViewChild,
+  signal,
+  computed,
+  viewChild,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { I18NService } from '../state/i18n.service';
 import { Signs } from '../map-renderer/signs';
 import { SessionService } from '../session/session.service';
-import { BehaviorSubject } from 'rxjs';
 import { DrawStyle } from '../map-renderer/draw-style';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { AsyncPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -22,7 +31,6 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     MatFormFieldModule,
     MatInputModule,
-    AsyncPipe,
     ReactiveFormsModule,
     MatButtonModule,
     MatAutocompleteModule,
@@ -34,7 +42,7 @@ export class IncidentSelectComponent {
   i18n = inject(I18NService);
   private _session = inject(SessionService);
 
-  @ViewChild('incidentInput') incidentInput!: ElementRef<HTMLInputElement>;
+  incidentInput = viewChild.required<ElementRef<HTMLInputElement>>('incidentInput');
 
   @Input()
   set values(values: number[]) {
@@ -54,11 +62,11 @@ export class IncidentSelectComponent {
   readonly valuesChange = output<number[]>();
   incidents = new FormControl<number[]>([]);
   incidentSearchControl = new FormControl('');
-  incidentList = new BehaviorSubject<{ id: number | undefined; icon: string | undefined; name: string | undefined }[]>([]);
+  incidentList = signal<{ id: number | undefined; icon: string | undefined; name: string | undefined }[]>([]);
 
   filteredIncidents = computed(() => {
     const search = this.incidentSearch().toLowerCase();
-    const allIncidents = this.incidentList.value;
+    const allIncidents = this.incidentList();
     const selectedIds = this.incidents.value || [];
 
     return allIncidents.filter((incident) => {
@@ -79,7 +87,9 @@ export class IncidentSelectComponent {
       return aValue.localeCompare(bValue);
     });
 
-    this.incidentList.next(incidents.map((o) => ({ id: o.id, icon: DrawStyle.getImageUrl(o.src), name: o[this._session.getLocale()] })));
+    this.incidentList.set(
+      incidents.map((o) => ({ id: o.id, icon: DrawStyle.getImageUrl(o.src), name: o[this._session.getLocale()] })),
+    );
 
     this.incidents.valueChanges.pipe(takeUntilDestroyed()).subscribe((values) => {
       this.valuesChange.emit(values || []);
@@ -95,7 +105,7 @@ export class IncidentSelectComponent {
   }
 
   getIncident(id: number | undefined) {
-    return this.incidentList.value.find((o) => o.id === id);
+    return this.incidentList().find((o) => o.id === id);
   }
 
   remove(id: number): void {
@@ -115,7 +125,7 @@ export class IncidentSelectComponent {
     if (!values.includes(id)) {
       this.incidents.setValue([...values, id]);
     }
-    this.incidentInput.nativeElement.value = '';
+    this.incidentInput().nativeElement.value = '';
     this.incidentSearchControl.setValue('');
   }
 }
