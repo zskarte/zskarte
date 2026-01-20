@@ -1,4 +1,5 @@
 import { ZsMapState } from '@zskarte/types';
+import { JournalEntry } from 'src/app/journal/journal.types';
 
 export enum OperationExportFileVersion {
   V1 = 'V1',
@@ -11,4 +12,5 @@ export interface OperationExportFile {
   description: string;
   version: OperationExportFileVersion;
   map: ZsMapState;
+  journal: JournalEntry[];
 }

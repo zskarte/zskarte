@@ -11,11 +11,13 @@ import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiService, IApiRequestOptions } from '../../api/api.service';
-import { OperationExportFileVersion } from '../../core/entity/operationExportFile';
+import { OperationExportFile, OperationExportFileVersion } from '../../core/entity/operationExportFile';
 import { db } from '../../db/db';
 import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
+import { JournalService } from 'src/app/journal/journal.service';
+import { JournalEntry } from 'src/app/journal/journal.types';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +25,6 @@ import { SessionService } from '../session.service';
 export class OperationService {
   private _api = inject(ApiService);
   _ipc = inject(IpcService);
-  private _dialog = inject(MatDialog);
 
   private _session!: SessionService;
   public operations = new BehaviorSubject<IZsMapOperation[]>([]);
@@ -189,11 +190,8 @@ export class OperationService {
     }
   }
 
-  public importOperation(): void {
-    const importDialog = this._dialog.open(ImportDialogComponent);
-    importDialog.afterClosed().subscribe(async (result) => {
-      if (result) {
-        // Prior to V2 the "map" key was used to store the map state.
+  public async importOperation(result: any): Promise<void> {
+            // Prior to V2 the "map" key was used to store the map state.
         // To keep consistent with our internal naming, use "mapState" from V2 on
         const mapState = result.version === OperationExportFileVersion.V2 ? result.mapState : result.map;
         const operation: IZsMapOperation = {
@@ -206,8 +204,6 @@ export class OperationService {
         };
         await this.insertOperation(operation);
         await this.reload('active');
-      }
-    });
   }
 
   public async exportOperation(operationId: string | undefined): Promise<void> {
@@ -216,6 +212,7 @@ export class OperationService {
     }
     const fileName = `Ereignis_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const operation = await this.getOperation(operationId);
+    const journal = await JournalService.getJournal(operationId);
     const saveFile = {
       name: operation?.name,
       description: operation?.description,
@@ -223,6 +220,7 @@ export class OperationService {
       mapState: operation?.mapState,
       eventStates: operation?.eventStates,
       mapLayers: operation?.mapLayers,
+      journal: journal ?? [],
     };
     await this._ipc.saveFile({
       data: JSON.stringify(saveFile),
