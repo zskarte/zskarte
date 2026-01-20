@@ -8,7 +8,6 @@ import { ZsMapOLFeatureProps } from './base/ol-feature-props';
 import { distinctUntilChanged, map, takeUntil } from 'rxjs';
 import { Draw } from 'ol/interaction';
 import VectorSource from 'ol/source/Vector';
-import { KeyboardHelper } from '../../helper/keyboard';
 
 export class ZsMapCircleDrawElement extends ZsMapBaseDrawElement<ZsMapCircleDrawElementState> {
   protected _olCircle!: Circle;
@@ -84,8 +83,8 @@ export class ZsMapCircleDrawElement extends ZsMapBaseDrawElement<ZsMapCircleDraw
       type: 'Circle',
       geometryFunction: (coords, geom) => {
         const start = coords[0] as number[];
-        let end = coords[1] as number[];
-        
+        const end = coords[1] as number[];
+
         if (!end) {
           // No end point yet, create a zero-radius circle at start
           if (!geom) {
@@ -93,30 +92,18 @@ export class ZsMapCircleDrawElement extends ZsMapBaseDrawElement<ZsMapCircleDraw
           }
           return geom;
         }
-        
+
         // Calculate center as midpoint between start and end
         let center: number[];
         let radius: number;
-        
-        if (KeyboardHelper.isShiftPressed()) {
-          // Shift pressed: make a perfect circle (square bounding box)
-          const dx = end[0] - start[0];
-          const dy = end[1] - start[1];
-          const absDx = Math.abs(dx);
-          const absDy = Math.abs(dy);
-          const side = Math.max(absDx, absDy);
-          end = [start[0] + (dx >= 0 ? side : -side), start[1] + (dy >= 0 ? side : -side)];
-          center = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
-          radius = side / 2;
-        } else {
-          // Normal oval/ellipse - but Circle geometry can only be a circle
-          // Use the larger of the two radii for a circle that fits the bounding box
-          center = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
-          const radiusX = Math.abs(end[0] - start[0]) / 2;
-          const radiusY = Math.abs(end[1] - start[1]) / 2;
-          radius = Math.max(radiusX, radiusY);
-        }
-        
+
+        // Normal oval/ellipse - but Circle geometry can only be a circle
+        // Use the larger of the two radii for a circle that fits the bounding box
+        center = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+        const radiusX = Math.abs(end[0] - start[0]) / 2;
+        const radiusY = Math.abs(end[1] - start[1]) / 2;
+        radius = Math.max(radiusX, radiusY);
+
         if (!geom) {
           geom = new Circle(center, radius);
         } else {

@@ -8,7 +8,6 @@ import { ZsMapOLFeatureProps } from './base/ol-feature-props';
 import { takeUntil } from 'rxjs';
 import { Draw } from 'ol/interaction';
 import VectorSource from 'ol/source/Vector';
-import { KeyboardHelper } from '../../helper/keyboard';
 
 export class ZsMapRectangleDrawElement extends ZsMapBaseDrawElement<ZsMapRectangleDrawElementState> {
   protected _olPolygon!: Polygon;
@@ -59,15 +58,7 @@ export class ZsMapRectangleDrawElement extends ZsMapBaseDrawElement<ZsMapRectang
           geom = new Polygon([]);
         }
         const start = coords[0] as number[];
-        let end = coords[1] as number[];
-        if (KeyboardHelper.isShiftPressed()) {
-          const dx = end[0] - start[0];
-          const dy = end[1] - start[1];
-          const absDx = Math.abs(dx);
-          const absDy = Math.abs(dy);
-          const side = Math.max(absDx, absDy);
-          end = [start[0] + (dx >= 0 ? side : -side), start[1] + (dy >= 0 ? side : -side)];
-        }
+        const end = coords[1] as number[];
         const boxCoords = [start, [start[0], end[1]], end, [end[0], start[1]], start];
         (geom as Polygon).setCoordinates([boxCoords]);
         return geom;
