@@ -122,10 +122,30 @@
                   </div>
                 </div>
               }
+              @if ((editMode | async) && hazardSigns.includes((selectedFeature | async)?.get('sig').id)) {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ i18n.get('hazardCode') }}</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    [ngModel]="drawElement['hazardCode']"
+                    (ngModelChange)="updateProperty(drawElement, 'hazardCode', $event)"
+                  />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ i18n.get('unNumber') }}</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    [ngModel]="drawElement['unNumber']"
+                    (ngModelChange)="updateProperty(drawElement, 'unNumber', $event)"
+                  />
+                </mat-form-field>
+              }
               @if (!editMode() && drawElement.description) {
                 <div class="description" [innerHTML]="drawElement.description"></div>
               }
-              
+
             </div>
           </div>
           <mat-divider></mat-divider>
@@ -178,7 +198,7 @@
                             </mat-select>
                           }
                         </mat-form-field>
-                        
+
                       }
                       @if (editMode()) {
                         <mat-checkbox [(ngModel)]="useColorPicker" class="color-mode-toggle">
@@ -223,7 +243,7 @@
                       }
                     </div>
 
-                    
+
 
                     @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>

@@ -282,6 +282,27 @@ export class DrawStyle {
     ).toString();
   }
 
+  private static getGefahrentafelSvg(signature: Sign): string {
+    const color = signature.color || '#FF9100';
+    const hazardCode = signature.hazardCode ?? '';
+    const unNumber = signature.unNumber ?? '';
+    const svg = `
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 156 156" width="156px" height="156px" style="enable-background:new 0 0 156 156;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:${color};}
+	.st2{font-family:'Arial'; font-weight: 600; font-size: 36px; text-anchor: middle;}
+</style>
+<g>
+	<path class="st0" d="M149.2,125.6H2.8V34.6h146.4L149.2,125.6L149.2,125.6z M10.2,118.1h131.5v-76H10.2V118.1z"/>
+	<text x="78" y="72" class="st0 st2">${hazardCode}</text>
+	<text x="78" y="115" class="st0 st2">${unNumber}</text>
+	<rect x="6.5" y="76.2" class="st0" width="139.1" height="7.4"/>
+</g>
+</svg>`.trim();
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
   private static calculateCacheHashForSymbol(signature: Sign, feature: FeatureLike, resolution: number, selected: boolean, highlighted: boolean, hidden: boolean): string {
     feature = DrawStyle.getSubFeature(feature);
     return Md5.hashStr(
@@ -302,6 +323,8 @@ export class DrawStyle {
         iconOpacity: signature.iconOpacity,
         zindex: this.getZIndex(feature),
         affectedPersons: signature.affectedPersons,
+        hazardCode: signature.hazardCode,
+        unNumber: signature.unNumber,
       }),
     ).toString();
   }
@@ -588,10 +611,15 @@ export class DrawStyle {
           scale: scaledSize ? scaledSize : scale * 2 * (signature.iconSize ?? 1),
           rotation: signature.rotation !== undefined ? (signature.rotation * Math.PI) / 180 : 0,
           // rotationWithView: false,
-          src: imageFromMemory ? undefined : this.getImageUrl(signature.src),
+          src: imageFromMemory
+            ? undefined
+            : signature.id === 57
+              // we create the svg for the gefahrentafel on the fly because the values within change.
+              ? this.getGefahrentafelSvg(signature)
+              : this.getImageUrl(signature.src),
           img: imageFromMemory ? imageFromMemory : undefined,
           // imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
-          opacity: showIcon && !hidden ? 1 : 0.5
+          opacity: showIcon && !hidden ? 1 : 0.5,
         });
 
         // Draw the icon

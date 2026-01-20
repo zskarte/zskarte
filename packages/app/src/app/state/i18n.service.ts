@@ -1999,6 +1999,16 @@ export class I18NService {
       en: 'Affected Persons',
       fr: 'Persones affectés',
     },
+    hazardCode: {
+      de: 'Gefahrennummer',
+      en: 'Hazard code',
+      fr: 'Numéro de danger',
+    },
+    unNumber: {
+      de: 'UN-Nummer',
+      en: 'UN number',
+      fr: 'Numéro ONU',
+    },
     addNewLayer: {
       de: 'Neue Ebene erstellen',
       en: 'Create new layer',

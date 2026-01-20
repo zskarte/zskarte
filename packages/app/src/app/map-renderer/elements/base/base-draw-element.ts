@@ -71,6 +71,8 @@ export abstract class ZsMapBaseDrawElement<
       zindex: state.zindex,
       reportNumber: state.reportNumber,
       affectedPersons: state.affectedPersons,
+      hazardCode: state.hazardCode,
+      unNumber: state.unNumber,
     });
   }
 

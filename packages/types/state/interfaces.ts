@@ -217,6 +217,8 @@ export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
   zindex?: number;
   reportNumber?: number | number[];
   affectedPersons?: number;
+  hazardCode?: string;
+  unNumber?: string;
 }
 
 export interface ZsMapTextDrawElementState extends IZsMapBaseDrawElementState {

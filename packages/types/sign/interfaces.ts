@@ -52,6 +52,8 @@ export interface Sign {
   createdAt?: Date;
   reportNumber?: number;
   affectedPersons?: number;
+  hazardCode?: string;
+  unNumber?: string;
   deprecated?: boolean;
 }
 
@@ -151,6 +153,8 @@ export const signatureDefaultValues: SignatureDefaultValues = {
   images: [],
   hideIcon: false,
   affectedPersons: undefined,
+  hazardCode: undefined,
+  unNumber: undefined,
 };
 
 export function defineDefaultValuesForSignature(signature: Sign) {
@@ -187,6 +191,10 @@ export function defineDefaultValuesForSignature(signature: Sign) {
   signature.images = signature.images ?? signatureDefaultValues.images;
   signature.affectedPersons =
     signature.affectedPersons ?? signatureDefaultValues.affectedPersons;
+  signature.hazardCode =
+    signature.hazardCode ?? signatureDefaultValues.hazardCode;
+  signature.unNumber =
+    signature.unNumber ?? signatureDefaultValues.unNumber;
 }
 
 export interface SignatureDefaultValues {
@@ -210,4 +218,6 @@ export interface SignatureDefaultValues {
   images: string[];
   hideIcon: boolean;
   affectedPersons: number | undefined;
+  hazardCode: string | undefined;
+  unNumber: string | undefined;
 }
