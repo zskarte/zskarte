@@ -186,7 +186,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     
     // Focus the input after a microtask to ensure it's rendered
     setTimeout(() => {
-      const input = document.querySelector(`.signature-name-input`) as HTMLInputElement;
+      const input = document.querySelector('.signature-name-input') as HTMLInputElement;
       if (input) {
         input.focus();
         input.select();
