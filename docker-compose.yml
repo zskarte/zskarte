@@ -3,7 +3,6 @@ services:
     image: bitnamilegacy/postgresql:16.3.0
     container_name: postgresql-zskarte
     restart: unless-stopped
-    user: root
     volumes:
       - ./data/postgresql:/bitnami/postgresql
       - ./packages/server/init:/docker-entrypoint-initdb.d
@@ -19,7 +18,6 @@ services:
     image: dpage/pgadmin4:latest
     container_name: pgadmin-zskarte
     restart: unless-stopped
-    user: root
     volumes:
       - ./data/pgadmin:/var/lib/pgadmin
       - ./packages/server/init/servers.json:/pgadmin4/servers.json
