@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HierarchyLevel, ZsMapDrawElementState } from '@zskarte/types';
+import { HierarchyLevel, Sign, ZsMapDrawElementState } from '@zskarte/types';
 import { map } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { AsyncPipe } from '@angular/common';
@@ -28,23 +28,31 @@ export class ResourceOverviewComponent {
   private destroyRef = inject(DestroyRef);
   i18n = inject(I18NService);
 
-  readonly FORMATION_SIGN_ID = 210;
+  readonly RESOURCE_SIGN_ID = [210];
 
-  displayedColumns: string[] = ['organization', 'formationLocation', 'hierarchyLevel', 'formationNumber', 'formationDetail', 'additionalInfo'];
+  displayedColumns: string[] = [
+    'organization',
+    'formationLocation',
+    'hierarchyLevel',
+    'formationNumber',
+    'formationDetail',
+    'additionalInfo',
+  ];
 
   resources$ = this.state.observeDrawElements().pipe(
     takeUntilDestroyed(this.destroyRef),
-    map(elements => elements
-      .filter(e => e.elementState?.symbolId === this.FORMATION_SIGN_ID)
-      .map(e => this.mapToResourceRow(e.elementState as ZsMapDrawElementState))
-    )
+    map((elements) =>
+      elements
+        .filter((e) => this.RESOURCE_SIGN_ID.includes(e.elementState?.symbolId as number))
+        .map((e) => this.mapToResourceRow(e.elementState as ZsMapDrawElementState)),
+    ),
   );
 
   private mapToResourceRow(state: ZsMapDrawElementState): ResourceRow {
     return {
       id: state.id ?? '',
       organization: state.organization ?? '',
-      formationLocation: state.formationLocation ?? '',
+      formationLocation: state.formationLocation ?? String(state.coordinates) ?? '',
       hierarchyLevel: this.getHierarchyLabel(state.hierarchyLevel),
       formationNumber: state.formationNumber ?? '',
       formationDetail: state.formationDetail ?? '',
