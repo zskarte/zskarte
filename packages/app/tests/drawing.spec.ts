@@ -45,5 +45,23 @@ test.describe('Drawing', () => {
     await expect(page.locator('app-selected-feature')).toBeVisible();
     await expect(page.getByLabel('Name')).toHaveValue('A TEST');
   });
+
+
+  test('add rectangle', async ({ page }) => {
+    await page.getByRole('button', { name: 'Add' }).click();
+    await page.getByRole('button', { name: 'Rechteck' }).click();
+    await clickOnMap(page, { x: 400, y: 400 });
+    await dblclickOnMap(page, { x: 800, y: 600 });
+    await expect(page.locator('app-selected-feature')).toBeVisible();
+  });
+
+
+  test('add circle', async ({ page }) => {
+    await page.getByRole('button', { name: 'Add' }).click();
+    await page.getByRole('button', { name: 'Kreis' }).click();
+    await clickOnMap(page, { x: 500, y: 400 });
+    await dblclickOnMap(page, { x: 900, y: 600 });
+    await expect(page.locator('app-selected-feature')).toBeVisible();
+  });
 });
 

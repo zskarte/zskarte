@@ -766,6 +766,7 @@ export class DrawStyle {
         case 'Polygon':
         case 'MultiPolygon':
         case 'LineString':
+        case 'Circle':
           return new Style({
             geometry: feature.getGeometry() as Geometry,
             stroke: DrawStyle.getHighlightStroke(feature, scale),

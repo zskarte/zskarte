@@ -39,6 +39,16 @@ export class DrawDialogComponent {
     this.layer?.draw(ZsMapDrawElementStateType.POLYGON);
   }
 
+  public addRectangle(): void {
+    this.dialogRef.close();
+    this.layer?.draw(ZsMapDrawElementStateType.RECTANGLE);
+  }
+
+  public addCircle(): void {
+    this.dialogRef.close();
+    this.layer?.draw(ZsMapDrawElementStateType.CIRCLE);
+  }
+
   public startFreehand(): void {
     this.dialogRef.close();
     this.layer?.draw(ZsMapDrawElementStateType.FREEHAND);
