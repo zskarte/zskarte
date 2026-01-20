@@ -177,7 +177,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('time') }}</mat-label>
-                  <input matInput [matTimepicker]="pickerTime" formControlName="dateCreatedTime" />
+                  <input matInput [matTimepicker]="pickerTime" formControlName="dateCreatedTime" (input)="normalizeTimeInput($event)" />
                   <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
                   <mat-timepicker #pickerTime />
                 </mat-form-field>
