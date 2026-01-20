@@ -59,8 +59,8 @@ Also include the updated `packages/server/config/sync/*` files in your pull requ
 
 
 ### update init.sql
-After all changes are set and work as expected it would make sense to create a new init.sql for new developers.
-To create an clean init.sql without additional crappy own testdata the following steps should be done:
+After all changes are set and work as expected please create a new init.sql for the other developers.
+To create an clean init.sql without your testdata the following steps should be done:
 
 export the adjusted right configs:
 ```
@@ -80,7 +80,7 @@ Now reinitialize a clean db by starting DB server again with empty data folder:
 npm run docker-run
 ```
 
-import the newest right configs:
+import the most recent correct configs:
 ```
 npm run server:import
 ```
