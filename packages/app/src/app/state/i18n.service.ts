@@ -3367,6 +3367,11 @@ export class I18NService {
       en: 'create',
       fr: 'créer',
     },
+    elementOnDifferentLayer: {
+      de: 'Dieses Element befindet sich auf einer anderen Ebene und ist nicht selektierbar.',
+      fr: "Cet élément se trouve sur une autre couche et n'est pas sélectionnable.",
+      en: 'This element is on a different layer and cannot be selected.',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

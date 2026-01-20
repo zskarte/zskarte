@@ -1,16 +1,18 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { SimpleGeometry } from 'ol/geom';
 import { Select } from 'ol/interaction';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { Observable } from 'rxjs';
-import { ZsMapDrawElementStateType } from '../../../../types';
+import { ZsMapDrawElementStateType } from '@zskarte/types';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 import { MapModifyService } from './map-modify.service';
 import { MapOverlayService } from './map-overlay.service';
 import { MapRendererService } from './map-renderer.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { I18NService } from '../state/i18n.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,9 @@ export class MapSelectService {
   private _overlay!: MapOverlayService;
   private _renderer!: MapRendererService;
   public selectedFeature = new BehaviorSubject<Feature<SimpleGeometry> | undefined>(undefined);
+
+  private _snackbar = inject(MatSnackBar);
+  private _i18n = inject(I18NService);
 
   initialize({
     _state,
@@ -60,7 +65,7 @@ export class MapSelectService {
     this._state.observeSelectedFeature$().subscribe((element) => {
       if (!element) {
         this._select.getFeatures().clear();
-      } else if (this._select.getFeatures().getLength() === 0){
+      } else if (this._select.getFeatures().getLength() === 0) {
         this._select.getFeatures().push(this._state.getDrawElement(element).getOlFeature());
       }
     });
@@ -70,6 +75,16 @@ export class MapSelectService {
       for (const cluster of event.selected) {
         const feature = this._renderer.getFeatureInsideCluster(cluster);
         const nextElement = this._renderer.getCachedDrawElement(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
+        const activeLayer = this._state.getActiveLayer();
+
+        // Only allow selection for elements on the current layer
+        if (activeLayer && nextElement.layer !== activeLayer.getId()) {
+          this._select.clearSelection();
+          firstValueFrom(activeLayer.observeName()).then(name => {
+            this._snackbar.open(`${this._i18n.get('elementOnDifferentLayer')} (${name})`);
+          });
+          return;
+        }
 
         if (this._state.isMergeMode()) {
           const selectedElement = this._renderer.getCachedDrawElement(
