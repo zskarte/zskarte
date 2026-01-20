@@ -9,6 +9,6 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./badge.component.scss'],
 })
 export class BadgeComponent {
-  @Input() count: number = 0;
+  @Input() count = 0;
   @Input() className = '';
 }
