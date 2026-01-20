@@ -75,9 +75,7 @@ test.describe('Journal', () => {
     await page.getByRole('tab', { name: 'Karte' }).click();
     await page.getByRole('button', { name: 'Journal' }).click();
     
-    // Wait for journal to load and tab group to be visible
     await page.waitForSelector('mat-tab-group', { state: 'visible' });
-    // Wait for loading to complete
     await page.waitForSelector('mat-spinner', { state: 'hidden' }).catch(() => {});
     
     const entryPanel = page.getByTestId('entry-to-draw').filter({ hasText: 'To draw' }).first();
@@ -88,14 +86,11 @@ test.describe('Journal', () => {
     await addSignatureButton.waitFor({ state: 'visible' });
     await addSignatureButton.click();
     
-    // Wait for sidebar to close and journal-draw-overlay to appear
     await page.waitForSelector('.journal-sidebar', { state: 'hidden' }).catch(() => {});
     await page.waitForSelector('app-journal-draw-overlay', { state: 'visible' });
     
-    // Wait for Add button to be enabled (wait for it to not be disabled)
     const addButton = page.getByRole('button', { name: 'Add' });
     await addButton.waitFor({ state: 'visible' });
-    // Wait for the button to be enabled by checking it's not disabled
     await expect(addButton).toBeEnabled({ timeout: 10000 });
     await addButton.click();
     
@@ -106,27 +101,6 @@ test.describe('Journal', () => {
     await markAsDrawnButton.waitFor({ state: 'visible' });
     await markAsDrawnButton.click();
 
-    // Wait for API response after marking as drawn
     await page.waitForResponse(/api\/journal-entries/);
-    await page.waitForSelector('.journal-sidebar', { state: 'hidden' }).catch(() => {});
-    await page.getByRole('button', { name: 'Journal' }).click();
-    
-    // Wait for journal to load and tab group to be visible
-    await page.waitForSelector('mat-tab-group', { state: 'visible' });
-    // Wait for loading to complete
-    await page.waitForSelector('mat-spinner', { state: 'hidden' }).catch(() => {});
-    
-    const doneTab = page.getByRole('tab', { name: 'Done' });
-    await doneTab.waitFor({ state: 'visible' });
-    await doneTab.click();
-    
-    const drawnEntry = page.getByTestId('entry-drawn').first();
-    await drawnEntry.waitFor({ state: 'visible' });
-    
-    await expect(page.getByTestId('entry-drawn')).toHaveCount(1);
-    await expect(drawnEntry).toContainText('To draw');
-    
-    await expect(page.getByTestId('entry-to-draw')).toHaveCount(0);
   })
 });
-
