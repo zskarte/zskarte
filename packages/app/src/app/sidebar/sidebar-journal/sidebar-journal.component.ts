@@ -19,7 +19,6 @@ import {
   EmptyMediaComponent,
   EmptyTitleComponent,
   EmptyDescriptionComponent,
-  EmptyContentComponent,
 } from '../../empty/empty.component';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
@@ -43,7 +42,6 @@ import { BadgeComponent } from '../../badge/badge.component';
     EmptyMediaComponent,
     EmptyTitleComponent,
     EmptyDescriptionComponent,
-    EmptyContentComponent,
     BadgeComponent,
   ],
   templateUrl: './sidebar-journal.component.html',
