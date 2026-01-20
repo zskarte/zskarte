@@ -71,6 +71,8 @@ export class ShortcutService {
     this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.LINE));
     this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.FREEHAND));
     this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.SYMBOL));
+    this._listen({ shortcut: 'mod+6', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.RECTANGLE));
+    this._listen({ shortcut: 'mod+7', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.CIRCLE));
     this._listen({ shortcut: 'NumpadAdd', drawModeOnly: true }).subscribe(this._openAdd());
     //swiss german layout for +:
     this._listen({ shortcut: 'shift+1', drawModeOnly: true }).subscribe(this._openAdd());

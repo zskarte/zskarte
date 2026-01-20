@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: -6px -11px 20px 3px;
+  border-bottom: 1px solid #dedede;
   padding: 1rem;
   position: sticky;
   top: 0;
@@ -97,4 +97,28 @@
 .message-content-option {
   margin-left: 5px;
   display: inline-block;
+}
+
+.message-number-hint {
+  white-space: pre-line;
+  margin: 5px 0;
+  color: darkgray;
+  line-height: 1.1em;
+}
+
+.message-number-container {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.message-number-container mat-form-field {
+  flex: 0 0 calc(50% - 3px);
+  
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    min-height: 0;
+    height: 0;
+    margin-top: 0;
+    overflow: hidden;
+  }
 }

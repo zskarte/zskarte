@@ -1,6 +1,6 @@
 import { ElementRef, Injectable, Signal, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { IZsGlobalSearchConfig, IZsMapPrintState, SearchFunction } from '@zskarte/types';
+import { IZsGlobalSearchConfig, IZsMapPrintState, SearchFunction, ShapeMapLayer } from '@zskarte/types';
 import { CsvMapLayer, GeoAdminMapLayer, GeoJSONMapLayer, WMSMapLayer } from '@zskarte/types';
 import { Feature, Geolocation as OlGeolocation } from 'ol';
 import DrawHole from 'ol-ext/interaction/DrawHole';
@@ -531,6 +531,8 @@ export class MapRendererService {
               olLayers = await this.wmsService.createWMSCustomLayer(mapLayer as WMSMapLayer);
             } else if (mapLayer.type === 'geojson') {
               olLayers = await this.geoJSONService.createGeoJSONLayer(mapLayer as GeoJSONMapLayer);
+            } else if (mapLayer.type === 'shape') {
+              olLayers = await this.geoJSONService.createShapeLayer(mapLayer as ShapeMapLayer);
             } else if (mapLayer.type === 'csv') {
               olLayers = await this.geoJSONService.createCsvLayer(mapLayer as CsvMapLayer);
             } else {
@@ -543,7 +545,7 @@ export class MapRendererService {
               this._mapLayerCache.set(name, olLayer);
               let searchFunc: SearchFunction;
               if (
-                (mapLayer.type === 'geojson' || mapLayer.type === 'csv') &&
+                (mapLayer.type === 'geojson' || mapLayer.type === 'shape' || mapLayer.type === 'csv') &&
                 (mapLayer as GeoJSONMapLayer).searchable
               ) {
                 searchFunc = (

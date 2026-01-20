@@ -163,7 +163,7 @@ export class FloatingUIComponent {
         .subscribe(async (displayState) => {
           if (displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE) {
             //using local map
-            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
+            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
               //all used layer are offlineAvailable
               if (displayState.source === ZsMapStateSource.LOCAL) {
                 const localMapInfo = await db.localMapInfo.get(displayState.source);

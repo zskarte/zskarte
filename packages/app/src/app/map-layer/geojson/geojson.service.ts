@@ -6,7 +6,7 @@ import { Extent, containsCoordinate, containsExtent, getCenter } from 'ol/extent
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
-import { mercatorProjection, swissProjection } from '../../helper/projections';
+import { coordinatesProjection, mercatorProjection, swissProjection } from '../../helper/projections';
 import { MapLayerService } from '../map-layer.service';
 import { stylefunction } from 'ol-mapbox-style';
 import { StyleLike } from 'ol/style/Style';
@@ -14,8 +14,9 @@ import { transformExtent, transform, toLonLat } from 'ol/proj';
 import { inferSchema, initParser } from 'udsv';
 import { LocalMapLayerMeta } from 'src/app/db/db';
 import { BlobService } from 'src/app/db/blob.service';
-import { GeoJSONMapLayer, CsvMapLayer, IZsMapSearchResult, IZsGlobalSearchConfig } from '@zskarte/types';
+import { GeoJSONMapLayer, CsvMapLayer, IZsMapSearchResult, IZsGlobalSearchConfig, ShapeMapLayer } from '@zskarte/types';
 import { SearchService } from 'src/app/search/search.service';
+import shp from 'shpjs';
 
 const NumberSortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 @Injectable({
@@ -42,6 +43,9 @@ export class GeoJSONService {
     return fetch(url)
       .then((response) => response.json())
       .then((geojsonObject) => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
         if (mercatorProjection) {
           const swissExtentMercatorProjection = transformExtent(
             swissProjection.getExtent(),
@@ -60,6 +64,58 @@ export class GeoJSONService {
             return extent && containsExtent(swissExtentMercatorProjection, extent);
           });
           return features;
+        }
+        return [];
+      })
+      .finally(()=>{
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+        return [];
+      });
+  }
+
+  static async fetchShapeData(layer: ShapeMapLayer & LocalMapLayerMeta) {
+    if (!layer.source) {
+      return [];
+    }
+    let url = layer.source?.url;
+    if (layer.sourceBlobId) {
+      url = await BlobService.getBlobOrRealUrl(url, layer.sourceBlobId);
+    }
+
+    return fetch(url)
+      .then((response) => response.arrayBuffer())
+      .then((arrayBuffer) => shp(arrayBuffer))
+      .then((shape) => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+        //shp transform all data automatically into WGS84 / coordinatesProjection
+        if (mercatorProjection && coordinatesProjection) {
+          const swissExtentMercatorProjection = transformExtent(
+            swissProjection.getExtent(),
+            swissProjection,
+            mercatorProjection,
+          );
+          const features = (
+            new GeoJSON().readFeatures(shape, {
+              dataProjection: coordinatesProjection,
+              featureProjection: mercatorProjection,
+              //featureClass not set to RenderFeature in GeoJSON constructor so it's Feature for sure
+            }) as Feature[]
+          ).filter((f) => {
+            //filter data not in swiss extent (e.g. invalid coors 0,0)
+            const extent = f.getGeometry()?.getExtent();
+            return extent && containsExtent(swissExtentMercatorProjection, extent);
+          });
+          return features;
+        }
+        return [];
+      })
+      .finally(()=>{
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
         }
         return [];
       });
@@ -82,6 +138,9 @@ export class GeoJSONService {
     return fetch(url)
       .then((response) => response.text())
       .then((csvContent) => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
         //force defined delimiter
         const schema = inferSchema(csvContent, { col: layer.delimiter });
         //force number type for coord fields
@@ -135,6 +194,12 @@ export class GeoJSONService {
           return features;
         }
         return [];
+      })
+      .finally(()=>{
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+        return [];
       });
   }
 
@@ -144,6 +209,16 @@ export class GeoJSONService {
       return this.createLayerForFeatures(layer, features);
     } catch (err) {
       console.error('Error on creating GeoJSON Layer', layer, err);
+      return [];
+    }
+  }
+
+  async createShapeLayer(layer: ShapeMapLayer) {
+    try {
+      const features = await GeoJSONService.fetchShapeData(layer);
+      return this.createLayerForFeatures(layer, features);
+    } catch (err) {
+      console.error('Error on creating Shape Layer', layer, err);
       return [];
     }
   }

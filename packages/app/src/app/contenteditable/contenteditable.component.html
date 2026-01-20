@@ -1,12 +1,12 @@
-<div
-  #inputField
-  contenteditable="true"
-  class="contenteditable"
-  [attr.placeholder]="placeholder"
-  (paste)="handlePaste($event)"
-  (keydown)="onKeydown($event)"
-  (input)="onInput($event)"
-  (blur)="onTouched()"
-  [attr.disabled]="disabled ? true : null"
-></div>
+<quill-editor
+  [(ngModel)]="content"
+  [format]="'object'"
+  [formats]="['addressToken', 'placeholderBlot']"
+  [modules]="{ toolbar: false, keyboard: { bindings: quillBindings } }"
+  placeholder=""
+  (onEditorCreated)="onEditorCreated($event)"
+  (onContentChanged)="onContentChanged($event)"
+  (onBlur)="onTouched()"
+  [readOnly]="disabled"
+></quill-editor>
 <ng-content></ng-content>

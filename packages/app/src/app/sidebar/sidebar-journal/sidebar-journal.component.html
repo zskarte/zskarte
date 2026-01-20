@@ -16,6 +16,7 @@
     @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
       <mat-expansion-panel
         class="mat-elevation-z0"
+        data-testid="entry-to-draw"
         [expanded]="entry.messageNumber === currentMessageNumber"
         [attr.data-message-number]="entry.messageNumber"
       >
@@ -53,6 +54,7 @@
     @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
       <mat-expansion-panel
         class="mat-elevation-z0"
+        data-testid="entry-drawn"
         [expanded]="entry.messageNumber === currentMessageNumber"
         [attr.data-message-number]="entry.messageNumber"
       >
