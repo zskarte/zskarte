@@ -434,7 +434,7 @@ export class JournalService {
   }
 
   public async importJournal(result: OperationExportFile) {
-    const journal = result.journal
+    const journal = result.journal || []
     for (const entry of journal) {
       await this.save(entry);
     }
