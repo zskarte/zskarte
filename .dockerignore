@@ -1,5 +1,6 @@
 node_modules
 .cache
+.angular
 Dockerfile
 .azure
 .github
@@ -13,5 +14,5 @@ data
 docker-compose.yml
 test
 dist
-public/uploads/*
+packages/server/public/uploads/*
 packages/app
