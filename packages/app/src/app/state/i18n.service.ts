@@ -2060,9 +2060,9 @@ export class I18NService {
       fr: 'Numéro',
     },
     formationLocation: {
-      de: 'Ortsbezeichnung',
-      en: 'Location',
-      fr: 'Localisation',
+      de: 'Einsatzort',
+      en: 'Site of operation',
+      fr: 'Lieu d\'intervention',
     },
     addNewLayer: {
       de: 'Neue Ebene erstellen',
@@ -2603,6 +2603,16 @@ export class I18NService {
       de: 'Personenbergungsübersicht',
       en: 'Person recovery overview',
       fr: 'Aperçu des personnes hébergées',
+    },
+    resourceOverview: {
+      de: 'Mittelübersicht',
+      en: 'Resource overview',
+      fr: 'Aperçu des ressources',
+    },
+    noResources: {
+      de: 'Keine Ressourcen vorhanden',
+      en: 'No resources available',
+      fr: 'Aucune ressource disponible',
     },
     noMissingPersons: {
       de: 'Keine auswirkungen auf Personen gefunden',

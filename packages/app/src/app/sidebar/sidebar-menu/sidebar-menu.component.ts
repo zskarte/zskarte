@@ -24,6 +24,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types';
 import { PersonRecoveryComponent } from "../../person-recovery/person-recovery.component";
 import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expert-view-help.component';
+import { ResourceOverviewComponent } from '../../resource-overview/resource-overview.component';
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -97,6 +98,10 @@ export class SidebarMenuComponent {
 
   personRecovery(): void {
     this.dialog.open(PersonRecoveryComponent);
+  }
+
+  openResourceOverviewWindow(): void {
+    this.dialog.open(ResourceOverviewComponent);
   }
 
   protocolExcelExport(): void {

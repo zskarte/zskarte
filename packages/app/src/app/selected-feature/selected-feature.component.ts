@@ -429,19 +429,7 @@ export class SelectedFeatureComponent implements OnDestroy {
 
   // skipcq: JS-0105
   getImageUrl(sig: Sign) {
-    if (sig.id === 57) {
-      return DrawStyle.getHazardSignSvg(sig);
-    }
-    if (sig.id === 210) {
-      return DrawStyle.getFormationSvg(sig);
-    }
-    if ([190, 192, 201].includes(sig.id ?? 0)) {
-      return DrawStyle.getTransportSvg(sig);
-    }
-    if ([185, 186, 194, 195].includes(sig.id ?? 0)) {
-      return DrawStyle.getLeaderSignSvg(sig);
-    }
-    return DrawStyle.getImageUrl(sig.src);
+    return DrawStyle.getSignatureURI(sig);
   }
 
   drawHole() {

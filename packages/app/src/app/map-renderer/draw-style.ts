@@ -36,6 +36,24 @@ export class DrawStyle {
 
   private static lastResolution = 0;
 
+  public static getSignatureURI(signature: Sign): string {
+    if (signature.id === 57) {
+      // The gefahrentafel is generated on the fly
+      return DrawStyle.getHazardSignSvg(signature);
+    } else if (signature.id === 210) {
+      // The formation sign is generated on the fly
+      return DrawStyle.getFormationSvg(signature);
+    } else if ([190, 192, 201].includes(signature.id ?? 0)) {
+      // The transport sign is generated on the fly
+      return DrawStyle.getTransportSvg(signature);
+    } else if ([84, 60].includes(signature.id ?? 0)) {
+      // The leader sign is generated on the fly
+      return DrawStyle.getLeaderSignSvg(signature);
+    } else {
+      return DrawStyle.getImageUrl(signature.src);
+    }
+  }
+
   public static getImageUrl(file: string): string {
     return `assets/img/signs/${file}`;
   }
@@ -822,42 +840,15 @@ export class DrawStyle {
           );
         }
 
-        let imageFromMemory;
-        let scaledSize;
-        // let naturalDim = null;
-        // const imageFromMemoryDataUrl = CustomImageStoreService.getImageDataUrl(signature.src);
-        // if (imageFromMemoryDataUrl) {
-        //   imageFromMemory = this.imageCache[featureId];
-        //   if (!imageFromMemory) {
-        //     imageFromMemory = this.imageCache[featureId] = new Image();
-        //   }
-        //   imageFromMemory.src = imageFromMemoryDataUrl;
-        //   naturalDim = Math.min.apply(null, CustomImageStoreService.getDimensions(signature.src));
-        //   scaledSize = (492 / naturalDim) * scale * signature.iconSize;
-        // }
         const icon = new Icon({
           anchor: [0.5, 0.5],
           anchorXUnits: 'fraction',
           anchorYUnits: 'fraction',
-          scale: scaledSize ? scaledSize : scale * 2 * (signature.iconSize ?? 1),
+          scale: scale * 2 * (signature.iconSize ?? 1),
           rotation: signature.rotation !== undefined ? (signature.rotation * Math.PI) / 180 : 0,
           // rotationWithView: false,
-          src: imageFromMemory
-            ? undefined
-            : signature.id === 57
-              // we create the svg for the gefahrentafel on the fly because the values within change.
-              ? this.getHazardSignSvg(signature)
-              : signature.id === 210
-                // we create the svg for the formation sign on the fly because the values within change.
-                ? this.getFormationSvg(signature)
-                : [190, 192, 201].includes(signature.id ?? 0)
-                  // we create the svg for transport signs on the fly because the values within change.
-                  ? this.getTransportSvg(signature)
-                  : [84, 60].includes(signature.id ?? 0)
-                    // we create the svg for leader signs on the fly because the values within change.
-                    ? this.getLeaderSignSvg(signature)
-                    : this.getImageUrl(signature.src),
-          img: imageFromMemory ? imageFromMemory : undefined,
+          src: this.getSignatureURI(signature),
+          img: undefined,
           // imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
           opacity: showIcon && !hidden ? 1 : 0.5,
         });

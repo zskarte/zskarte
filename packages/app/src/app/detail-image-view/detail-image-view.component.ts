@@ -21,20 +21,6 @@ export class DetailImageViewComponent {
     const i18n = this.i18n;
 
     this.title = i18n.getLabelForSign(data);
-    if (data.id === 57) {
-      // The gefahrentafel is generated on the fly
-      this.imageSrc = DrawStyle.getHazardSignSvg(data);
-    } else if (data.id === 210) {
-      // The formation sign is generated on the fly
-      this.imageSrc = DrawStyle.getFormationSvg(data);
-    } else if ([190, 192, 201].includes(data.id ?? 0)) {
-      // The transport sign is generated on the fly
-      this.imageSrc = DrawStyle.getTransportSvg(data);
-    } else if ([84, 60].includes(data.id ?? 0)) {
-      // The leader sign is generated on the fly
-      this.imageSrc = DrawStyle.getLeaderSignSvg(data);
-    } else {
-      this.imageSrc = DrawStyle.getImageUrl(data.src);
-    }
+    this.imageSrc = DrawStyle.getSignatureURI(data);
   }
 }
