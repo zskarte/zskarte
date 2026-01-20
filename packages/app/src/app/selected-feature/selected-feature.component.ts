@@ -79,6 +79,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   // we only show the affected persons for Dead, Trapped, Missing, Homeless and Injured
   personSigns = [39, 82, 112, 122, 123];
   hazardSigns = [57];
+  formationSigns = [210];
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _ngUnsubscribe = new Subject<void>();
 
@@ -428,6 +429,9 @@ export class SelectedFeatureComponent implements OnDestroy {
   getImageUrl(sig: Sign) {
     if (sig.id === 57) {
       return DrawStyle.getGefahrentafelSvg(sig);
+    }
+    if (sig.id === 210) {
+      return DrawStyle.getFormationSvg(sig);
     }
     return DrawStyle.getImageUrl(sig.src);
   }

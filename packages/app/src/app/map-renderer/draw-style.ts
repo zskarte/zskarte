@@ -15,6 +15,7 @@ import {
   FillStyle,
   getFirstCoordinate,
   getLastCoordinate,
+  HierarchyLevel,
   Sign,
   signatureDefaultValues,
 } from '@zskarte/types';
@@ -303,6 +304,103 @@ export class DrawStyle {
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
 
+  public static getFormationSvg(signature: Sign): string {
+    const color = signature.color ?? '#0000FF';
+    const hierarchyLevel = signature.hierarchyLevel ?? HierarchyLevel.TRUPP;
+    const organization = signature.organization ?? '';
+    const formationDetail = signature.formationDetail ?? '';
+    const additionalInfo = signature.additionalInfo ?? '';
+    const formationNumber = signature.formationNumber ?? '';
+    const formationLocation = signature.formationLocation ?? '';
+
+    // Use larger viewBox with padding to prevent clipping
+    const padding = 40;
+    const radius = 78;
+    const viewBoxSize = (radius * 2) + padding * 2;
+    const circleCenter = radius + padding; // Center of the main circle, offset by padding
+
+    // Generate hierarchy indicator (dots or bars)
+    let hierarchyIndicator = '';
+    const dotRadius = 8;
+    const dotY = 15 + padding;
+    const dotSpacing = 25;
+
+    switch (hierarchyLevel) {
+      case HierarchyLevel.TRUPP: // 1 dot
+        hierarchyIndicator = `<circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.GRUPPE: // 2 dots
+        hierarchyIndicator = `
+          <circle cx="${circleCenter - dotSpacing/2}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>
+          <circle cx="${circleCenter + dotSpacing/2}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.ZUG: // 3 dots
+        hierarchyIndicator = `
+          <circle cx="${circleCenter - dotSpacing}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>
+          <circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>
+          <circle cx="${circleCenter + dotSpacing}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.KOMPANIE: // cross with two lines
+        hierarchyIndicator = `
+          <rect x="${circleCenter - 3}" y="${padding}" width="6" height="40" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${20 + padding}" width="30" height="4" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${13 + padding}" width="30" height="4" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.BATAILLON: // cross
+        hierarchyIndicator = `
+          <rect x="${circleCenter - 3}" y="${padding}" width="6" height="40" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${15 + padding}" width="30" height="6" fill="${color}"/>`;
+        break;
+      default:
+        hierarchyIndicator = `<circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+    }
+
+    // Calculate font size for organization text based on length
+    let orgFontSize = 28;
+    if (organization.length > 3) {
+      orgFontSize = Math.max(16, 28 - (organization.length - 3) * 4);
+    }
+
+    // Bottom text (number and location)
+    let bottomText = '';
+    if (formationNumber || formationLocation) {
+      const bottomY1 = 150 + padding;
+      const bottomY2 = 170 + padding;
+      if (formationNumber && formationLocation) {
+        bottomText = `
+          <text x="${circleCenter}" y="${bottomY1}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationNumber}</text>
+          <text x="${circleCenter}" y="${bottomY2}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationLocation}</text>`;
+      } else if (formationNumber) {
+        bottomText = `<text x="${circleCenter}" y="${bottomY1}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationNumber}</text>`;
+      } else {
+        bottomText = `<text x="${circleCenter}" y="${bottomY1}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationLocation}</text>`;
+      }
+    }
+
+    const svg = `
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxSize} ${viewBoxSize}" width="${viewBoxSize}px" height="${viewBoxSize}px">
+  <!-- Hierarchy indicator (dots or bars) -->
+  ${hierarchyIndicator}
+  
+  <!-- Main circle with white fill -->
+  <circle cx="${circleCenter}" cy="${78 + padding}" r="40" fill="white" stroke="${color}" stroke-width="8"/>
+  
+  <!-- Organization text inside circle -->
+  <text x="${circleCenter}" y="${85 + padding}" fill="${color}" font-family="Arial" font-weight="700" font-size="${orgFontSize}" text-anchor="middle">${organization}</text>
+  
+  <!-- Left text (formation detail) -->
+  <text x="${25 + padding}" y="${85 + padding}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="end">${formationDetail}</text>
+  
+  <!-- Right text (additional info) -->
+  <text x="${131 + padding}" y="${85 + padding}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="start">${additionalInfo}</text>
+  
+  <!-- Bottom text -->
+  ${bottomText}
+</svg>`.trim();
+
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
   private static calculateCacheHashForSymbol(signature: Sign, feature: FeatureLike, resolution: number, selected: boolean, highlighted: boolean, hidden: boolean): string {
     feature = DrawStyle.getSubFeature(feature);
     return Md5.hashStr(
@@ -325,6 +423,12 @@ export class DrawStyle {
         affectedPersons: signature.affectedPersons,
         hazardCode: signature.hazardCode,
         unNumber: signature.unNumber,
+        hierarchyLevel: signature.hierarchyLevel,
+        organization: signature.organization,
+        formationDetail: signature.formationDetail,
+        additionalInfo: signature.additionalInfo,
+        formationNumber: signature.formationNumber,
+        formationLocation: signature.formationLocation,
       }),
     ).toString();
   }
@@ -616,7 +720,10 @@ export class DrawStyle {
             : signature.id === 57
               // we create the svg for the gefahrentafel on the fly because the values within change.
               ? this.getGefahrentafelSvg(signature)
-              : this.getImageUrl(signature.src),
+              : signature.id === 210
+                // we create the svg for the formation sign on the fly because the values within change.
+                ? this.getFormationSvg(signature)
+                : this.getImageUrl(signature.src),
           img: imageFromMemory ? imageFromMemory : undefined,
           // imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
           opacity: showIcon && !hidden ? 1 : 0.5,

@@ -24,6 +24,9 @@ export class DetailImageViewComponent {
     if (data.id === 57) {
       // The gefahrentafel is generated on the fly
       this.imageSrc = DrawStyle.getGefahrentafelSvg(data);
+    } else if (data.id === 210) {
+      // The formation sign is generated on the fly
+      this.imageSrc = DrawStyle.getFormationSvg(data);
     } else {
       this.imageSrc = DrawStyle.getImageUrl(data.src);
     }
