@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>{{ i18n.get('enterYourName') }}</h2>
+<div mat-dialog-content>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ i18n.get('myName') }}</mat-label>
+    <input matInput [(ngModel)]="name" maxlength="40" (keyup.enter)="submit()" cdkFocusInitial />
+  </mat-form-field>
+</div>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">
+    {{ i18n.get('cancel') }}
+  </button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="!name.trim()">
+    {{ i18n.get('ok') }}
+  </button>
+</mat-dialog-actions>

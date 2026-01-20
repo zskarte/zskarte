@@ -18,6 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { NameEntryDialogComponent } from './name-entry-dialog/name-entry-dialog.component';
 
 @Component({
   selector: 'app-operations',
@@ -87,7 +88,13 @@ export class OperationsComponent implements OnDestroy {
 
   public selectOperation(operation: IZsMapOperation) {
     if (operation.documentId || operation.id) {
-      this._session.setOperation(operation);
+      const dialogRef = this.dialog.open(NameEntryDialogComponent);
+      dialogRef.afterClosed().subscribe((name: string | null) => {
+        if (name) {
+          this._session.setLabel(name);
+          this._session.setOperation(operation);
+        }
+      });
     }
   }
 

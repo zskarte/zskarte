@@ -59,6 +59,11 @@ export class I18NService {
       en: 'My name',
       fr: 'Mon nom',
     },
+    enterYourName: {
+      de: 'Bitte geben Sie Ihren Namen ein',
+      en: 'Please enter your name',
+      fr: 'Veuillez entrer votre nom',
+    },
     shareLocation: {
       de: 'Standort teilen',
       en: 'Share location',
