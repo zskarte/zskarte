@@ -140,8 +140,10 @@
           <div>
             <div class="journal-entry-details">
               @if (journalForm.value.wrongContentInfo) {
-                <div class="wrongInfoTitle">{{ i18n.get('wrongContentInfo') }}</div>
-                <div class="wrongInfo">{{ journalForm.value.wrongContentInfo }}</div>
+                <div class="errorMessage">
+                  <div class="wrongInfoTitle">{{ i18n.get('wrongContentInfo') }}</div>
+                  <div class="wrongInfo">{{ journalForm.value.wrongContentInfo }}</div>
+                </div>
               }
               <div style="margin-bottom: 16px">
                 <div class="message-number-container">

@@ -26,6 +26,7 @@
   flex-direction: column;
   margin-top: 16px;
   margin-bottom: 16px;
+  gap: 1rem;
 
   > * {
     margin: 0;
@@ -79,29 +80,36 @@
   margin-bottom: 1rem;
 }
 
+.errorMessage {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  color: red;
+  margin-top: 10px;
+  padding: 1rem;
+  border-radius: .5rem;
+  border: 1px solid red;
+  background-color: #fff2f2;
+}
+
 .wrongInfoTitle {
   font-weight: bold;
-  color: red;
-  padding-bottom: 5px;
 }
 
-.wrongInfo {
-  color: red;
-  padding-bottom: 15px;
-}
+
 
 .message-content-buttons {
-  margin-top: 10px;
+  margin-top: .5rem;
 }
 
 .message-content-option {
-  margin-left: 5px;
+  margin-left: .5rem;
   display: inline-block;
 }
 
 .message-number-hint {
   white-space: pre-line;
-  margin: 5px 0;
+  margin: .5rem 0;
   color: darkgray;
   line-height: 1.1em;
 }
