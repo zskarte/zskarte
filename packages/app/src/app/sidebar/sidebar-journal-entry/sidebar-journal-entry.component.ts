@@ -180,11 +180,9 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   }
 
   startEditing(element: { id: string; elementState?: ZsMapDrawElementState }) {
-    // Start with empty input if no name is set, otherwise use the set name
     this.editingValue.set(element.elementState?.name || '');
     this.editingElementId.set(element.id);
     
-    // Focus the input after a microtask to ensure it's rendered
     setTimeout(() => {
       const input = document.querySelector('.signature-name-input') as HTMLInputElement;
       if (input) {
@@ -235,16 +233,13 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   }
 
   handleInputKeydown(event: KeyboardEvent) {
-    // Stop space key from triggering button click, but allow space in input
     if (event.key === ' ' || event.code === 'Space') {
       event.stopPropagation();
       event.stopImmediatePropagation();
-      // Don't preventDefault - we want space to work in the input
     }
   }
 
   handleButtonKeydown(event: KeyboardEvent, elementId: string) {
-    // Prevent button from handling space when editing this element
     if ((event.key === ' ' || event.code === 'Space') && this.editingElementId() === elementId) {
       event.preventDefault();
       event.stopPropagation();
@@ -253,13 +248,11 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   }
 
   handleButtonClick(event: MouseEvent, element: { id: string; coordinates: Coordinate | undefined }) {
-    // Prevent button click when editing this element
     if (this.editingElementId() === element.id) {
       event.preventDefault();
       event.stopPropagation();
       return;
     }
-    // Otherwise navigate to the element
     this.navigateTo(element);
   }
 
