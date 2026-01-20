@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@fast-csv/format": "^5.0.5",
-    "@strapi/plugin-users-permissions": "5.33.3",
-    "@strapi/strapi": "5.33.3",
+    "@strapi/plugin-users-permissions": "5.8.0",
+    "@strapi/strapi": "5.8.0",
     "@turf/boolean-point-in-polygon": "^7.3.1",
     "file-type": "^21.2.0",
     "immer": "^10.2.0",
@@ -30,8 +30,8 @@
     "react-router-dom": "^6.30.2",
     "shpjs": "^4.0.4",
     "socket.io": "^4.8.3",
-    "strapi-plugin-config-sync": "^3.1.2",
-    "strapi-provider-upload-azure-storage": "^3.5.0",
+    "strapi-plugin-config-sync": "3.1.1",
+    "strapi-provider-upload-azure-storage": "^3.4.0",
     "styled-components": "^6.1.19",
     "uuid": "^11.1.0"
   },
