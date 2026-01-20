@@ -1,4 +1,4 @@
-import { HostListener, Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import {
@@ -8,7 +8,7 @@ import {
   IZsMapSearchResult,
   IZsGlobalSearchConfig,
   SearchFunction,
-} from '../../../../types/state/interfaces';
+} from '@zskarte/types';
 import { coordinateFromString } from '../helper/coordinates-extract';
 import { I18NService } from '../state/i18n.service';
 import { GeoJSONFeature, default as GeoJSON } from 'ol/format/GeoJSON';
@@ -26,7 +26,7 @@ import {
 import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { fromLonLat, transformExtent } from 'ol/proj';
 import { ZsMapStateService } from '../state/state.service';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 const FULL_WIDTH_SWISS = 350_000;
@@ -227,7 +227,6 @@ export class SearchService {
     searchConfig: IZsGlobalSearchConfig,
     alphabetical = false,
   ): IZsMapSearchResult[] {
-    const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
     const mapExtent = this._state.getMapExtent();
     const collator = alphabetical ? new Intl.Collator() : undefined;
 
