@@ -65,22 +65,13 @@
 .help-sidenav-container {
   flex: 1;
   overflow: hidden;
+  padding-left: 1rem;
 }
 
 .help-sidenav {
   width: 300px;
   border-right: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.sidenav-header {
-  padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  
-  h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 500;
-  }
+  border-radius: 1rem;
 }
 
 .search-field {
@@ -92,14 +83,63 @@
 mat-nav-list {
   padding-top: 0;
   
-  a {
-    &.active {
-      background-color: rgba(25, 118, 210, 0.08);
-      color: #1976d2;
-    }
+  > div {
+    margin-bottom: 0;
     
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.04);
+    > a {
+      min-height: 48px;
+      padding: 0 16px;
+      
+      &.active {
+        background-color: rgba(25, 118, 210, 0.08);
+        color: #1976d2;
+        font-weight: 500;
+      }
+      
+      &:hover:not(.active) {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+
+      &.parent-article {
+        font-weight: 500;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.87);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      }
+    }
+
+    .child-article {
+      padding-left: 40px;
+      min-height: 40px;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.7);
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 3px;
+        background-color: rgba(0, 0, 0, 0.38);
+        border-radius: 50%;
+      }
+      
+      &.active {
+        background-color: rgba(25, 118, 210, 0.08);
+        color: #1976d2;
+        font-weight: 500;
+        
+        &::before {
+          background-color: #1976d2;
+        }
+      }
+      
+      &:hover:not(.active) {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
     }
   }
 }
@@ -111,14 +151,21 @@ mat-nav-list {
 }
 
 .help-content {
-  padding: 24px;
+  padding: 0;
   overflow-y: auto;
   background-color: #fafafa;
 }
 
+:host ::ng-deep mat-sidenav-content.help-content {
+  margin-left: calc(300px + 0.5rem) !important;
+}
+
 .article-card {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0.5rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid #dedede;
+  box-shadow: none;
 }
 
 .article-content {

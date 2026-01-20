@@ -18,6 +18,8 @@ interface HelpArticle {
   contentKey: string;
   imageKey?: string;
   imageClass?: string;
+  images?: Array<{ src: string; class?: string; alt?: string }>;
+  parentId?: string;
 }
 
 @Component({
@@ -124,9 +126,95 @@ export class HelpPageComponent implements OnInit {
       imageKey: 'assets/doc/quick-functions.png',
       imageClass: 'responsive',
     },
+    {
+      id: 'expert-view',
+      titleKey: 'expertView',
+      contentKey: 'docExpertIntro',
+      imageKey: 'assets/doc/expert/view-button.png',
+      imageClass: 'limitHeight',
+    },
+    {
+      id: 'expert-view-wms-source',
+      titleKey: 'docExpertWmsSourceTitle',
+      contentKey: 'docExpertWmsSourceCombined',
+      images: [
+        { src: 'assets/doc/expert/wms-source-button.png', class: 'small' },
+        { src: 'assets/doc/expert/wms-source.png', class: 'small' },
+        { src: 'assets/doc/expert/wms-source-details.png', class: 'responsive' },
+      ],
+      parentId: 'expert-view',
+    },
+    {
+      id: 'expert-view-wms-layers',
+      titleKey: 'docExpertWmsLayersTitle',
+      contentKey: 'docExpertWmsLayersCombined',
+      images: [
+        { src: 'assets/doc/expert/available-layer.png', class: 'small' },
+        { src: 'assets/doc/expert/selected-layers.png', class: 'small' },
+        { src: 'assets/doc/expert/wms-layer.png', class: 'responsive' },
+        { src: 'assets/doc/expert/wms-layer-group.png', class: 'responsive' },
+      ],
+      parentId: 'expert-view',
+    },
+    {
+      id: 'expert-view-geojson',
+      titleKey: 'docExpertGeoJsonLayersTitle',
+      contentKey: 'docExpertGeoJsonLayersCombined',
+      images: [
+        { src: 'assets/doc/expert/new-layer.png', class: 'small' },
+        { src: 'assets/doc/expert/geojson-layer.png', class: 'responsive' },
+      ],
+      parentId: 'expert-view',
+    },
+    {
+      id: 'expert-view-csv',
+      titleKey: 'docExpertCsvLayersTitle',
+      contentKey: 'docExpertCsvLayersCombined',
+      images: [
+        { src: 'assets/doc/expert/csv-layer.png', class: 'responsive' },
+        { src: 'assets/doc/expert/csv-layer-filter.png', class: 'responsive' },
+      ],
+      parentId: 'expert-view',
+    },
+    {
+      id: 'expert-view-search',
+      titleKey: 'docExpertSucheTitle',
+      contentKey: 'docExpertSuche',
+      imageKey: 'assets/doc/expert/suche-layer.png',
+      imageClass: 'responsive',
+      parentId: 'expert-view',
+    },
+    {
+      id: 'expert-view-persist',
+      titleKey: 'docExpertPersistLayersTitle',
+      contentKey: 'docExpertPersistLayers',
+      imageKey: 'assets/doc/expert/persist-layers.png',
+      imageClass: 'small',
+      parentId: 'expert-view',
+    },
+    {
+      id: 'expert-view-org-defaults',
+      titleKey: 'docExpertOrganisationDefaultsTitle',
+      contentKey: 'docExpertOrganisationDefaultsCombined',
+      images: [
+        { src: 'assets/doc/expert/organisation-defaults-button.png', class: 'small' },
+        { src: 'assets/doc/expert/organisation-defaults.png', class: 'responsive' },
+      ],
+      parentId: 'expert-view',
+    },
   ];
   
   ngOnInit(): void {
+    // Check for article ID in route query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const articleId = urlParams.get('article');
+    if (articleId) {
+      const article = this.articles.find((a) => a.id === articleId);
+      if (article) {
+        this.selectedArticleId.set(articleId);
+        return;
+      }
+    }
     // Auto-select first article on load
     if (this.articles.length > 0) {
       this.selectedArticleId.set(this.articles[0].id);
@@ -145,12 +233,18 @@ export class HelpPageComponent implements OnInit {
     });
   });
 
+  topLevelArticles = computed(() => {
+    return this.filteredArticles().filter((article) => !article.parentId);
+  });
+
+  getChildArticles(parentId: string): HelpArticle[] {
+    return this.filteredArticles().filter((article) => article.parentId === parentId);
+  }
+
   onSearchChange(query: string): void {
     this.searchQuery.set(query);
-    // Auto-select first article if search returns results
     const filtered = this.filteredArticles();
     if (filtered.length > 0) {
-      // If current selection is not in filtered results, select first result
       const currentId = this.selectedArticleId();
       if (!currentId || !filtered.find(a => a.id === currentId)) {
         this.selectedArticleId.set(filtered[0].id);

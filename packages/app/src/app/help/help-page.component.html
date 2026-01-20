@@ -8,30 +8,41 @@
   
   <mat-sidenav-container class="help-sidenav-container">
     <mat-sidenav mode="side" opened class="help-sidenav">
-      <div class="sidenav-header">
-        <h2>{{ i18n.get('help') }}</h2>
-      </div>
-      
       <mat-form-field appearance="outline" class="search-field">
-        <mat-label>{{ i18n.get('search') || 'Search' }}</mat-label>
+        <mat-label>{{ i18n.get('searchHelp') || 'Search help' }}</mat-label>
         <input
           matInput
           [value]="searchQuery()"
           (input)="onSearchChange($any($event.target).value)"
-          placeholder="{{ i18n.get('search') || 'Search help articles...' }}"
+          placeholder="{{ i18n.get('searchHelp') || 'Search help articles...' }}"
         />
         <mat-icon matPrefix>search</mat-icon>
       </mat-form-field>
 
       <mat-nav-list>
-        @for (article of filteredArticles(); track article.id) {
-          <a
-            mat-list-item
-            [class.active]="selectedArticleId() === article.id"
-            (click)="selectArticle(article.id)"
-          >
-            <span matListItemTitle>{{ i18n.get(article.titleKey) }}</span>
-          </a>
+        @for (article of topLevelArticles(); track article.id) {
+          <div>
+            <a
+              mat-list-item
+              [class.active]="selectedArticleId() === article.id"
+              [class.parent-article]="getChildArticles(article.id).length > 0"
+              (click)="selectArticle(article.id)"
+            >
+              <span matListItemTitle>{{ i18n.get(article.titleKey) }}</span>
+            </a>
+            @if (getChildArticles(article.id).length > 0) {
+              @for (child of getChildArticles(article.id); track child.id) {
+                <a
+                  mat-list-item
+                  class="child-article"
+                  [class.active]="selectedArticleId() === child.id"
+                  (click)="selectArticle(child.id)"
+                >
+                  <span matListItemTitle>{{ i18n.get(child.titleKey) }}</span>
+                </a>
+              }
+            }
+          </div>
         }
         @empty {
           <div class="no-results">
@@ -49,7 +60,17 @@
           </mat-card-header>
           <mat-card-content>
             <div class="article-content">
-              @if (article.imageKey) {
+              @if (article.images && article.images.length > 0) {
+                @for (img of article.images; track img.src) {
+                  <div class="article-image-container">
+                    <img
+                      [src]="img.src"
+                      [class]="img.class || 'responsive'"
+                      [alt]="img.alt || i18n.get(article.titleKey)"
+                    />
+                  </div>
+                }
+              } @else if (article.imageKey) {
                 <div class="article-image-container">
                   <img
                     [src]="article.imageKey"

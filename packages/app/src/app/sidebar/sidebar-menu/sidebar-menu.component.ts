@@ -24,7 +24,6 @@ import { IncidentSelectComponent } from '../../incident-select/incident-select.c
 import { MatMenuModule } from '@angular/material/menu';
 import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types';
 import { PersonRecoveryComponent } from "../../person-recovery/person-recovery.component";
-import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expert-view-help.component';
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -90,7 +89,7 @@ export class SidebarMenuComponent {
   }
 
   showExpertViewHelp(){
-    this.dialog.open(ExpertViewHelpComponent);
+    this.router.navigate(['/help'], { queryParams: { article: 'expert-view' } });
   }
 
   protocolTable(): void {
