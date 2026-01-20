@@ -98,6 +98,13 @@
   gap: 8px;
 }
 
+.signature-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .signature-item {
   display: flex;
   align-items: center;
@@ -115,40 +122,37 @@
     background-color: rgba(0, 0, 0, 0.04);
   }
 
-  &:disabled {
+  &:disabled:not([data-editing]) {
     cursor: not-allowed;
     opacity: 0.5;
   }
+  
+  &[data-editing] {
+    opacity: 1;
+    cursor: default;
+  }
 }
 
+.edit-signature-button,
+.save-signature-button,
 .delete-signature-button {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
-  opacity: 0.6;
-  transition: opacity 0.2s, color 0.2s;
-  border-radius: 4px;
-
-  &:hover {
-    opacity: 1;
-    color: #d32f2f;
-    background-color: rgba(211, 47, 47, 0.08);
-  }
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
   }
+}
+
+.save-signature-button {
+  color: #4caf50;
 }
 
 .signature-icon {
@@ -159,6 +163,26 @@
 
 .signature-name {
   flex: 1;
+}
+
+.signature-name-fallback {
+  color: #999;
+  font-style: italic;
+}
+
+.signature-name-input {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+
+  &:focus {
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.1);
+  }
 }
 
 .signature-buttons {

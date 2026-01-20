@@ -49,19 +49,55 @@
       <div class="signatures-list">
         @for (element of entryElements(); track element.elementState?.id) {
         <div class="signature-item-container">
-          <button class="signature-item" [disabled]="!element.coordinates" (click)="navigateTo(element)"
-            (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
+          <button class="signature-item" [disabled]="!element.coordinates || editingElementId() === element.id" 
+            [attr.data-editing]="editingElementId() === element.id ? '' : null"
+            (click)="handleButtonClick($event, element)"
+            (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)"
+            (keydown)="handleButtonKeydown($event, element.id)">
             @if (element.imageUrl) {
             <img [src]="element.imageUrl" class="signature-icon" />
             } @else {
             <mat-icon class="signature-icon">widgets</mat-icon>
             }
-            <span class="signature-name">{{ getSignatureName(element) }}</span>
+            @if (editingElementId() === element.id) {
+              <input
+                class="signature-name-input"
+                type="text"
+                [value]="editingValue()"
+                (input)="updateEditingValue($any($event.target).value)"
+                (keydown.enter)="saveElementName(element, $any($event.target).value); $event.preventDefault(); $event.stopPropagation()"
+                (keydown.escape)="cancelEditing(); $event.stopPropagation()"
+                (keydown)="handleInputKeydown($event)"
+                (click)="$event.stopPropagation()"
+                (mousedown)="$event.stopPropagation()"
+                (focus)="$event.stopPropagation()"
+                autofocus
+              />
+            } @else {
+              @if (getElementName(element)) {
+                <span class="signature-name">{{ getElementName(element) }}</span>
+              } @else {
+                <span class="signature-name signature-name-fallback">{{ getSymbolName(element) }}</span>
+              }
+            }
           </button>
-          <button class="delete-signature-button" (click)="deleteSignature(element); $event.stopPropagation()"
-            [attr.aria-label]="i18n.get('delete')" [attr.title]="i18n.get('delete')" type="button">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <div class="signature-actions">
+            @if (editingElementId() === element.id) {
+              <button mat-icon-button class="save-signature-button" (click)="saveElementName(element); $event.stopPropagation()"
+                [attr.aria-label]="i18n.get('save')" [attr.title]="i18n.get('save')" type="button">
+                <mat-icon>check</mat-icon>
+              </button>
+            } @else {
+              <button mat-icon-button class="edit-signature-button" (click)="startEditing(element); $event.stopPropagation()"
+                [attr.aria-label]="i18n.get('edit')" [attr.title]="i18n.get('edit')" type="button">
+                <mat-icon>edit</mat-icon>
+              </button>
+            }
+            <button mat-icon-button color="warn" class="delete-signature-button" (click)="deleteSignature(element); $event.stopPropagation()"
+              [attr.aria-label]="i18n.get('delete')" [attr.title]="i18n.get('delete')" type="button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </div>
         }
       </div>

@@ -88,3 +88,13 @@ mat-panel-title {
   font-weight: 500;
   line-height: 20px;
 }
+
+:host ::ng-deep {
+  .tab-group-wrapper {
+    .mat-tab-header,
+    .mat-mdc-tab-header,
+    .mat-tab-header-container {
+      border-bottom: 1px solid #dedede !important;
+    }
+  }
+}

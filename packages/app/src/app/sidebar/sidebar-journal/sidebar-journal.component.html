@@ -8,7 +8,8 @@
     <p>{{ i18n.get('noMessagesToProcess') }}</p>
   </div>
 } @else {
-  <mat-tab-group animationDuration="0ms">
+  <div class="tab-group-wrapper">
+    <mat-tab-group animationDuration="0ms">
     <mat-tab>
       <ng-template mat-tab-label>
         <span>{{ i18n.get('todo') }}</span>
@@ -82,4 +83,5 @@
       </mat-accordion>
     </mat-tab>
   </mat-tab-group>
+  </div>
 }

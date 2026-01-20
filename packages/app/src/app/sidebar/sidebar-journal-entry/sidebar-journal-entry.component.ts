@@ -1,4 +1,4 @@
-import { Component, OnDestroy, computed, inject, input, signal } from '@angular/core';
+import { Component, OnDestroy, computed, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { ZsMapDrawElementState } from '@zskarte/types';
@@ -13,6 +13,8 @@ import { I18NService } from 'src/app/state/i18n.service';
 import { MatIcon } from '@angular/material/icon';
 import { Coordinate } from 'ol/coordinate';
 import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 import { filter, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
@@ -31,6 +33,8 @@ const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100,
     MatListModule,
     MatIcon,
     MatButtonModule,
+    MatInputModule,
+    FormsModule,
     ReplaceAllAddressTokensPipe,
   ],
   templateUrl: './sidebar-journal-entry.component.html',
@@ -47,23 +51,35 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   private _dialog = inject(MatDialog);
   entry = input.required<JournalEntry>();
   allHighlighted = false;
+  editingElementId = signal<string | null>(null);
+  editingValue = signal<string>('');
+  refreshTrigger = signal<number>(0);
 
   elements = toSignal(this._state.observeDrawElements());
+  
   entryElements = computed(
-    () =>
-      this.elements()
-        ?.filter(this.containsNumber(this.entry().messageNumber))
+    () => {
+      this.refreshTrigger();
+      const elements = this.elements();
+      if (!elements) return [];
+      
+      return elements
+        .filter(this.containsNumber(this.entry().messageNumber))
         .map((el) => {
-          const coordinates = this.mapCoordinates(el.elementState?.coordinates);
-          const imageSrc = Signs.getSignById(el.elementState?.symbolId)?.src;
+          const elementId = el.getId();
+          const elementState = this._state.getDrawElementState(elementId) || el.elementState;
+          const coordinates = this.mapCoordinates(elementState?.coordinates);
+          const imageSrc = Signs.getSignById(elementState?.symbolId)?.src;
           return {
             ...el,
-            id: el.getId(),
+            id: elementId,
+            elementState: elementState,
             imageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
             coordinates,
             coordinatesStr: coordinates ? this.transformCoordinates(coordinates) : '',
           };
-        }) ?? [],
+        });
+    },
   );
 
   navigateTo(element: { id: string; coordinates: Coordinate | undefined }) {
@@ -141,17 +157,110 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     this._router.navigate(['/main/journal'], { queryParams: { messageNumber: this.entry().messageNumber } });
   }
 
-  getSignatureName(element: {
+  getElementName(element: {
+    id?: string;
     elementState?: ZsMapDrawElementState;
-    imageUrl?: string;
   }): string {
-    if (element.elementState?.symbolId) {
-      const sign = Signs.getSignById(element.elementState.symbolId);
+    const stateFromService = element.id ? this._state.getDrawElementState(element.id) : undefined;
+    const name = stateFromService?.name?.trim() || element.elementState?.name?.trim();
+    return name || '';
+  }
+
+  getSymbolName(element: {
+    elementState?: ZsMapDrawElementState;
+  }): string {
+    const symbolId = element.elementState?.symbolId;
+    if (symbolId) {
+      const sign = Signs.getSignById(symbolId);
       if (sign) {
         return this.i18n.getLabelForSign(sign);
       }
     }
-    return element.elementState?.name || '';
+    return '';
+  }
+
+  startEditing(element: { id: string; elementState?: ZsMapDrawElementState }) {
+    // Start with empty input if no name is set, otherwise use the set name
+    this.editingValue.set(element.elementState?.name || '');
+    this.editingElementId.set(element.id);
+    
+    // Focus the input after a microtask to ensure it's rendered
+    setTimeout(() => {
+      const input = document.querySelector(`.signature-name-input`) as HTMLInputElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 0);
+  }
+
+  saveElementName(element: { id: string; elementState?: ZsMapDrawElementState }, newName?: string) {
+    if (!element.id || this.editingElementId() !== element.id) {
+      return;
+    }
+    
+    const valueToSave = newName !== undefined ? newName : this.editingValue();
+    const trimmedValue = valueToSave.trim();
+    
+    this.editingElementId.set(null);
+    this.editingValue.set('');
+    
+    this._state.updateDrawElementState(element.id, 'name', trimmedValue);
+    
+    const el = this._state.getDrawElement(element.id);
+    if (el) {
+      const feature = el.getOlFeature();
+      if (feature) {
+        const sig = feature.get('sig');
+        if (sig) {
+          sig.label = trimmedValue;
+          feature.changed();
+        }
+      }
+      el.updateElementState((draft) => {
+        draft.name = trimmedValue;
+      });
+    }
+    
+    this.refreshTrigger.set(this.refreshTrigger() + 1);
+  }
+
+  cancelEditing() {
+    this.editingElementId.set(null);
+    this.editingValue.set('');
+  }
+
+  updateEditingValue(value: string) {
+    this.editingValue.set(value);
+  }
+
+  handleInputKeydown(event: KeyboardEvent) {
+    // Stop space key from triggering button click, but allow space in input
+    if (event.key === ' ' || event.code === 'Space') {
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      // Don't preventDefault - we want space to work in the input
+    }
+  }
+
+  handleButtonKeydown(event: KeyboardEvent, elementId: string) {
+    // Prevent button from handling space when editing this element
+    if ((event.key === ' ' || event.code === 'Space') && this.editingElementId() === elementId) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+  }
+
+  handleButtonClick(event: MouseEvent, element: { id: string; coordinates: Coordinate | undefined }) {
+    // Prevent button click when editing this element
+    if (this.editingElementId() === element.id) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    // Otherwise navigate to the element
+    this.navigateTo(element);
   }
 
   addSignature() {
