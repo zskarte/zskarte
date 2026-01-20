@@ -1,4 +1,4 @@
-import { ZsMapState } from '@zskarte/types';
+import { IZSMapOperationMapLayers, ZsMapState } from '@zskarte/types';
 import { JournalEntry } from 'src/app/journal/journal.types';
 
 export enum OperationExportFileVersion {
@@ -11,6 +11,8 @@ export interface OperationExportFile {
   name: string;
   description: string;
   version: OperationExportFileVersion;
-  map: ZsMapState;
+  mapState: ZsMapState;
+  mapLayers: IZSMapOperationMapLayers;
+  eventStates: number[];
   journal: JournalEntry[];
 }

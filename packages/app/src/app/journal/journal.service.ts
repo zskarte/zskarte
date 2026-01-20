@@ -13,7 +13,7 @@ import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
 import { SearchService } from '../search/search.service';
-import { OperationExportFileVersion } from '../core/entity/operationExportFile';
+import { OperationExportFile } from '../core/entity/operationExportFile';
 
 @Injectable({
   providedIn: 'root',
@@ -433,7 +433,7 @@ export class JournalService {
     return response;
   }
 
-  public async importJournal(result: any) {
+  public async importJournal(result: OperationExportFile) {
     const journal = result.journal
     for (const entry of journal) {
       await this.save(entry);

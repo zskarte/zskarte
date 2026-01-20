@@ -6,6 +6,7 @@ import {
   ZsMapState,
   ZsMapLayerStateType,
   ZsOperationPhase,
+  ZsMapStateSource,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
@@ -194,21 +195,19 @@ export class OperationService {
     }
   }
 
-  public async importOperation(result: any): Promise<IZsMapOperation | undefined> {
-        // Prior to V2 the "map" key was used to store the map state.
-        // To keep consistent with our internal naming, use "mapState" from V2 on
-        const mapState = result.version === OperationExportFileVersion.V2 ? result.mapState : result.map;
-        const operation: IZsMapOperation = {
-          name: result.name,
-          description: result.description,
-          phase: 'active',
-          eventStates: result.eventStates,
-          mapState,
-          mapLayers: result.mapLayers,
-        };
-        const createdOperation = await this.insertOperation(operation);
-        await this.reload('active');
-        return createdOperation;
+  public async importOperation(result: OperationExportFile) {
+    const mapState = result.version === OperationExportFileVersion.V2 ? result.mapState : (result as any).map;
+    const operation: IZsMapOperation = {
+      name: result.name,
+      description: result.description,
+      phase: 'active',
+      eventStates: result.eventStates,
+      mapState,
+      mapLayers: result.mapLayers,
+    };
+    const createdOperation = await this.insertOperation(operation);
+    await this.reload('active');
+    return createdOperation;
   }
 
   public async exportOperation(operationId: string | undefined): Promise<void> {
@@ -218,13 +217,13 @@ export class OperationService {
     const fileName = `Ereignis_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const operation = await this.getOperation(operationId);
     const journal = await JournalService.getJournal(operationId);
-    const saveFile = {
-      name: operation?.name,
-      description: operation?.description,
+    const saveFile: OperationExportFile = {
+      name: operation?.name ?? '',
+      description: operation?.description ?? '',
       version: OperationExportFileVersion.V2,
-      mapState: operation?.mapState,
-      eventStates: operation?.eventStates,
-      mapLayers: operation?.mapLayers,
+      mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
+      eventStates: operation?.eventStates ?? [],
+      mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },
       journal: journal ?? [],
     };
     await this._ipc.saveFile({
