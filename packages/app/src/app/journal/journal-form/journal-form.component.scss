@@ -89,14 +89,43 @@
   padding: 1rem;
   border-radius: .5rem;
   border: 1px solid red;
-  background-color: #fff2f2;
+  background-color: #ffffff;
 }
 
 .wrongInfoTitle {
   font-weight: bold;
 }
 
+.mat-mdc-tab-group {
+  background-color: #f1f1f1;
+}
 
+.journal-section {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  gap: 1.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #dedede;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  column-gap: 1rem;
+  row-gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.row > * {
+  flex: 1;
+  min-width: 200px;
+}
+
+.entry-message-number {
+  gap: 0;
+}
 
 .message-content-buttons {
   margin-top: .5rem;
@@ -112,12 +141,6 @@
   margin: .5rem 0;
   color: darkgray;
   line-height: 1.1em;
-}
-
-.message-number-container {
-  display: flex;
-  gap: 6px;
-  align-items: center;
 }
 
 .message-number-container mat-form-field {

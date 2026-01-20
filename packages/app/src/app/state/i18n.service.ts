@@ -2914,6 +2914,11 @@ export class I18NService {
       en: 'Describe what is wrong / needs to be corrected.',
       fr: 'Décrivez ce qui ne va pas/doit être corrigé.',
     },
+    toCorrect: {
+      de: 'Zu korrigieren:',
+      en: 'To correct:',
+      fr: 'À corriger:',
+    },
     backToInput: {
       de: 'Zurück an Eingang senden',
       en: 'Return to input',
