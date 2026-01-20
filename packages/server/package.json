@@ -8,6 +8,7 @@
     "name": "ZSKarte Team"
   },
   "scripts": {
+    "postinstall": "patch-package --patch-dir ../../patches",
     "dev": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
@@ -36,6 +37,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.21"
+    "@types/lodash": "^4.17.21",
+    "patch-package": "^8.0.0"
   }
 }
