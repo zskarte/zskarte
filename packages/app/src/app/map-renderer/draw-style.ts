@@ -46,7 +46,7 @@ export class DrawStyle {
     } else if ([190, 192, 201].includes(signature.id ?? 0)) {
       // The transport sign is generated on the fly
       return DrawStyle.getTransportSvg(signature);
-    } else if ([84, 60].includes(signature.id ?? 0)) {
+    } else if ([40, 60, 84].includes(signature.id ?? 0)) {
       // The leader sign is generated on the fly
       return DrawStyle.getLeaderSignSvg(signature);
     } else {
@@ -397,9 +397,6 @@ export class DrawStyle {
     const organization = signature.organization ?? '';
     const signId = signature.id;
 
-    // Determine if this is an Offizier (2 bars) or Gruppenführer (1 bar)
-    const isOffizier = signId === 84;
-
     // Use larger viewBox with padding to prevent clipping
     const padding = 20;
     const viewBoxWidth = 156 + padding * 2;
@@ -420,9 +417,14 @@ export class DrawStyle {
 
     // Generate the horizontal bar(s) at top
     let barsHtml = `<rect x="${poleX}" y="${poleTop}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
-    if (isOffizier) {
-      // Second bar for Offizier/Zugführer
+    if (signId === 84) {
+      // Second bar for platoon leader
       barsHtml += `<rect x="${poleX}" y="${poleTop + 22}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+    }
+    if (signId === 40) {
+      // Third bar for head of operations
+      barsHtml += `<rect x="${poleX}" y="${poleTop + 22}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+      barsHtml += `<rect x="${poleX}" y="${poleTop + 44}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
     }
 
     // Calculate font size for organization text based on length

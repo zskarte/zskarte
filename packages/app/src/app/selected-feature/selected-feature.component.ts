@@ -81,7 +81,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   hazardSigns = [57];
   formationSigns = [210];
   transportSigns = [190, 192, 201]; // Lastwagen, Motorfahrzeug, Transportfahrzeug
-  leaderSigns = [60, 84]; // Gruppenführer FW/P, Offizier Zugführer FW/P
+  leaderSigns = [40, 60, 84]; // Leaders
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _ngUnsubscribe = new Subject<void>();
 
