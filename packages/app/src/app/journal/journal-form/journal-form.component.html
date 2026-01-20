@@ -214,31 +214,30 @@
                   [formVisible]="formVisible()"
                   [messageContentControl]="messageContentControl"
                 ></app-text-area-with-address-search>
-                <div class="end">
-                  <div>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                      <mat-label>{{ i18n.get('visa') }}</mat-label>
-                      <input matInput formControlName="visumMessage" />
-                    </mat-form-field>
-                  </div>
+              </div>
+                
+              <div class="end journal-section">
+                <mat-form-field class="visa" appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ i18n.get('visa') }}</mat-label>
+                  <input matInput formControlName="visumMessage" />
+                </mat-form-field>
 
-                  <div class="journal-entry-save-buttons">
-                    @if (showPrint) {
-                      <button
-                        mat-icon-button
-                        [attr.aria-label]="i18n.get('print')"
-                        [attr.title]="i18n.get('print')"
-                        (click)="print($event)"
-                        type="button"
-                      >
-                        <mat-icon>print</mat-icon>
-                      </button>
-                    }
-                    <button mat-flat-button color="primary" type="submit">
-                      <mat-icon>check</mat-icon>
-                      {{ i18n.get('save') }}
+                <div class="journal-entry-save-buttons">
+                  @if (showPrint) {
+                    <button
+                      mat-icon-button
+                      [attr.aria-label]="i18n.get('create')"
+                      [attr.title]="i18n.get('create')"
+                      (click)="print($event)"
+                      type="button"
+                    >
+                      <mat-icon>print</mat-icon>
                     </button>
-                  </div>
+                  }
+                  <button mat-flat-button color="primary" type="submit">
+                    <mat-icon>check</mat-icon>
+                    {{ i18n.get('create') }}
+                  </button>
                 </div>
               </div>
             </div>

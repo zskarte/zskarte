@@ -1,6 +1,7 @@
 .journal-sidebar-content {
   padding: 1rem;
 }
+
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -38,17 +39,6 @@
   justify-content: end;
   gap: 6px;
   align-items: center;
-}
-
-.end {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.end .journal-entry-save-buttons {
-  margin-bottom: 1rem;
 }
 
 .message-number {
@@ -121,6 +111,27 @@
 .row > * {
   flex: 1;
   min-width: 200px;
+}
+
+.end {
+  align-self: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+  width: max-content;
+
+  > .visa{
+    width: 200px;
+  }
+
+  > .journal-entry-save-buttons {
+    width: 200px;
+
+    > button {
+      width: 100%;
+    }
+  }
 }
 
 .entry-message-number {

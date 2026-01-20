@@ -3282,6 +3282,11 @@ export class I18NService {
       en: 'Clean up addresses',
       fr: 'Nettoyer adresses',
     },
+    create: {
+      de: 'Erfassen',
+      en: 'create',
+      fr: 'créer',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {
