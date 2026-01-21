@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, input, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -22,6 +22,8 @@ import {
 } from '../../empty/empty.component';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
+import { Router } from '@angular/router';
+import { SidebarContext } from '../sidebar.interfaces';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -52,15 +54,33 @@ export class SidebarJournalComponent {
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
+  private _router = inject(Router);
+
+  currentMessage = input<string>();
+  protected currentMessageNumber = computed(() => {
+    const param = this.currentMessage();
+    return param && !isNaN(param) ? +param : undefined;
+  });
+
   readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
-  currentMessageNumber: number | undefined;
-  selectedIndex = 0;
+
+  readonly selectedTabIndex = computed(() => {
+    const current = this.currentMessageNumber();
+    const drawn = this.journalEntriesDrawn();
+
+    if (drawn.some(t => t.messageNumber === current)) {
+      return 1;
+    }
+
+    return 0;
+  });
 
   constructor(private elementRef: ElementRef) {
     effect(() => {
       const journalList = this.journal.data();
+      const messageNumber = this.currentMessageNumber();
 
       const toDraw = (journalList || []).filter((entry) => !entry.isDrawnOnMap);
       toDraw.sort((a, b) => a.messageNumber - b.messageNumber);
@@ -70,26 +90,8 @@ export class SidebarJournalComponent {
       alreadyDrawn.sort((a, b) => a.messageNumber - b.messageNumber);
       this.journalEntriesDrawn.set(alreadyDrawn);
 
-      if (this.currentMessageNumber) {
-        this.scrollToMessage(this.currentMessageNumber);
-      }
-    });
-    effect(() => {
-      const fragment = this._state.urlFragment();
-      if (fragment?.startsWith('message=')) {
-        const messageId = fragment.split('=')[1];
-        const messageNumber = Number.parseInt(messageId);
-        this.currentMessageNumber = messageNumber;
-
-        const journalList = this.journal.data();
-        const entry = (journalList || []).find((e) => e.messageNumber === messageNumber);
-        if (entry) {
-          this.selectedIndex = entry.isDrawnOnMap ? 1 : 0;
-        }
-
+      if (messageNumber) {
         this.scrollToMessage(messageNumber);
-      } else {
-        this.currentMessageNumber = undefined;
       }
     });
   }
@@ -108,11 +110,11 @@ export class SidebarJournalComponent {
     this.journal.startDrawing(entry, true);
   }
 
-  onPanelOpened(messageNumber: number) {
-    this.currentMessageNumber = messageNumber;
+  onPanelOpened(messageNumber: number | undefined) {
+    void this._router.navigate([{ outlets: { sidebar: [SidebarContext.Journal, messageNumber] } }]);
   }
 
   onPanelClosed() {
-    this.currentMessageNumber = undefined;
+    void this._router.navigate([{ outlets: { sidebar: SidebarContext.Journal } }]);
   }
 }

@@ -68,11 +68,6 @@
   overflow-x: hidden;
 }
 
-app-sidebar-menu {
-  display: flex;
-  flex-direction: column;
-}
-
 :host-context(.journal-address-preview) {
   .sidebar {
     display: none;

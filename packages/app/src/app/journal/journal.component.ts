@@ -336,7 +336,14 @@ export class JournalComponent implements AfterViewInit {
 
   openMapClick(event: Event, entry: JournalEntry) {
     event.stopPropagation();
-    this._router.navigate(['/main/map'], { fragment: `message=${entry.messageNumber}` });
+    void this._router.navigate([
+      {
+        outlets: {
+          primary: '/main/map',
+          sidebar: [SidebarContext.Journal, entry.messageNumber],
+        },
+      },
+    ]);
   }
 
   async print(event: Event, entry: JournalEntry) {

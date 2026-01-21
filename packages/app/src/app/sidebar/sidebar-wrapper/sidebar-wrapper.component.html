@@ -1,4 +1,4 @@
-<aside class="sidebar noprint" [class.open]="sidebar.observeIsOpen() | async">
+<aside class="sidebar noprint" [class.open]="sidebar.isOpen()">
   <div class="sidebar-header">
     <div class="credits">
       @if (showLogo && logo) {
@@ -14,28 +14,29 @@
   </div>
 
   <div class="sidebar-content">
-    @switch (sidebar.observeContext() | async) {
-      @case (SidebarContext.Layers) {
-        <app-sidebar></app-sidebar>
-      }
-      @case (SidebarContext.History) {
-        <app-sidebar-history></app-sidebar-history>
-      }
-      @case (SidebarContext.Connections) {
-        <app-sidebar-connections></app-sidebar-connections>
-      }
-      @case (SidebarContext.Menu) {
-        <app-sidebar-menu></app-sidebar-menu>
-      }
-      @case (SidebarContext.SelectedFeature) {
-        <app-selected-feature></app-selected-feature>
-      }
-      @case (SidebarContext.Print) {
-        <app-sidebar-print></app-sidebar-print>
-      }
-      @case (SidebarContext.Journal) {
-        <app-sidebar-journal></app-sidebar-journal>
-      }
-    }
+    <router-outlet name="sidebar" />
+<!--    @switch (sidebar.observeContext() | async) {-->
+<!--      @case (SidebarContext.Layers) {-->
+<!--        <app-sidebar></app-sidebar>-->
+<!--      }-->
+<!--      @case (SidebarContext.History) {-->
+<!--        <app-sidebar-history></app-sidebar-history>-->
+<!--      }-->
+<!--      @case (SidebarContext.Connections) {-->
+<!--        <app-sidebar-connections></app-sidebar-connections>-->
+<!--      }-->
+<!--      @case (SidebarContext.Menu) {-->
+<!--        <app-sidebar-menu></app-sidebar-menu>-->
+<!--      }-->
+<!--      @case (SidebarContext.SelectedFeature) {-->
+<!--        <app-selected-feature></app-selected-feature>-->
+<!--      }-->
+<!--      @case (SidebarContext.Print) {-->
+<!--        <app-sidebar-print></app-sidebar-print>-->
+<!--      }-->
+<!--      @case (SidebarContext.Journal) {-->
+<!--        <app-sidebar-journal></app-sidebar-journal>-->
+<!--      }-->
+<!--    }-->
   </div>
 </aside>

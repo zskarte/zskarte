@@ -1,27 +1,38 @@
-import { Injectable, effect, inject } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { SidebarContext } from './sidebar.interfaces';
-import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { combineLatest, filter, map, skip, startWith } from 'rxjs';
 import { ZsMapStateService } from '../state/state.service';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SidebarService {
   private _state = inject(ZsMapStateService);
+  private _router = inject(Router);
+  private _route = inject(ActivatedRoute);
 
-  private _context = new BehaviorSubject<SidebarContext | undefined>(undefined);
   private _preventDeselect = false;
   private _preventClose = false;
 
+  public context = toSignal(
+    this._router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      startWith(null),
+      map(() => {
+        const route = this._router.routerState.snapshot.root;
+        const outletNode = route.children.find((child) => child.outlet === 'sidebar');
+        return outletNode?.routeConfig?.path as SidebarContext | null;
+      }),
+    ),
+  );
+  public isOpen = computed(() => Boolean(this.context()));
+
   constructor() {
-    effect(() => {
-      const fragment = this._state.urlFragment();
-      if (fragment?.startsWith('message=')) {
-        this.open(SidebarContext.Journal);
-      }
-    });
-    combineLatest([this._state.observeSelectedFeature$(), this._state.observeHideSelectedFeature$()]).subscribe(
-      ([element, hide]) => {
+    combineLatest([this._state.observeSelectedFeature$(), this._state.observeHideSelectedFeature$()])
+      .pipe(skip(1)) // skip initial load
+      .subscribe(([element, hide]) => {
         this._preventDeselect = true;
         if (element && !hide) {
           this.open(SidebarContext.SelectedFeature);
@@ -29,48 +40,49 @@ export class SidebarService {
           this.close();
         }
         this._preventClose = false;
-      },
-    );
+      });
   }
 
   close(): void {
-    if (!this._context.value) {
-      return;
-    }
-    this._context.next(undefined);
+    void this._router.navigate(
+      [
+        {
+          outlets: {
+            sidebar: null,
+          },
+        },
+      ]
+    );
     if (!this._preventDeselect) {
       this._state.resetSelectedFeature();
     }
     this._preventDeselect = false;
-    this._state.removeUrlFragment('message=');
   }
 
   open(context: SidebarContext): void {
-    if (this._context.value !== context && !this._preventDeselect) {
+    if (this.context() !== context && !this._preventDeselect) {
       //deselect element if switched to other sidebar
       this._preventClose = true;
       this._state.resetSelectedFeature();
     }
-    if (context !== SidebarContext.Journal) {
-      this._state.removeUrlFragment('message=');
-    }
-    this._context.next(context);
+    void this._router.navigate(
+      [
+        {
+          outlets: {
+            sidebar: context,
+          },
+        },
+      ]
+    );
     this._preventDeselect = false;
   }
 
   toggle(context: SidebarContext): void {
-    if (this._context.value === context) {
+    // this._context.value === context
+    if (this.context() === context) {
       this.close();
     } else {
       this.open(context);
     }
-  }
-
-  observeIsOpen(): Observable<boolean> {
-    return this._context.pipe(map((context) => context !== undefined));
-  }
-
-  observeContext(): Observable<SidebarContext | undefined> {
-    return this._context.asObservable();
   }
 }

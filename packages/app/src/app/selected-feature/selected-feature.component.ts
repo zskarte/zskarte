@@ -39,6 +39,7 @@ import {
 } from '@zskarte/types';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
+import { SidebarContext } from '../sidebar/sidebar.interfaces';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -281,7 +282,13 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   openMessage(reportNumber: string) {
-    this.router.navigate([], { fragment: `message=${reportNumber}` });
+    void this.router.navigate([
+      {
+        outlets: {
+          sidebar: [SidebarContext.Journal, reportNumber],
+        },
+      },
+    ]);
   }
 
   addReportNumber(event: MatChipInputEvent | FocusEvent, element: ZsMapDrawElementState) {

@@ -111,7 +111,6 @@ export class ZsMapStateService {
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
   private _searchResultFeatures = new BehaviorSubject<Feature<Geometry>[]>([]);
   private _journalAddressPreview = new BehaviorSubject<boolean>(false);
-  public urlFragment = signal<string | null>(null);
 
   constructor() {
     const _session = this._session;
@@ -136,18 +135,6 @@ export class ZsMapStateService {
           });
       }
     });
-    this._router.events
-      .pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-        map((event) => {
-          const urlTree = this._router.parseUrl(event.urlAfterRedirects);
-          return urlTree.fragment;
-        }),
-        distinctUntilChanged((x, y) => x === y),
-      )
-      .subscribe((fragment) => {
-        this.urlFragment.set(fragment);
-      });
   }
 
   private _getDefaultDisplayState(mapState?: ZsMapState): IZsMapDisplayState {
@@ -1477,25 +1464,5 @@ export class ZsMapStateService {
 
   public observeActiveView(): Observable<VIEW_NAMES> {
     return this._activeView.pipe(distinctUntilChanged((x, y) => isEqual(x, y)));
-  }
-
-  public removeUrlFragment(ifStartsWith?: string) {
-    if (ifStartsWith) {
-      if (!this.urlFragment()?.startsWith(ifStartsWith)) {
-        return;
-      }
-    }
-    const newUrl = this._router
-      .createUrlTree([], {
-        relativeTo: this._router.routerState.root,
-        queryParamsHandling: 'preserve',
-        preserveFragment: false,
-      })
-      .toString();
-
-    //to create new history entry
-    this._location.go(newUrl);
-    //to call NavigationEnd handler
-    this._router.navigateByUrl(newUrl, { skipLocationChange: true });
   }
 }

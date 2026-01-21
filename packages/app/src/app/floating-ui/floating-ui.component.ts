@@ -21,7 +21,6 @@ import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
 import { ZsMapStateSource } from '@zskarte/types';
 import { MAX_DRAW_ELEMENTS_GUEST } from '../session/default-map-values';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
 import { SearchService } from '../search/search.service';
@@ -56,7 +55,6 @@ export class FloatingUIComponent {
   private _journal = inject(JournalService);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
-  snackbar = inject(MatSnackBar);
   mapState = inject(ZsMapStateService);
 
   static ONBOARDING_VERSION = '1.0';

@@ -25,6 +25,7 @@ import { Router } from '@angular/router';
 import { SidebarService } from '../sidebar.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { SidebarContext } from '../sidebar.interfaces';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({

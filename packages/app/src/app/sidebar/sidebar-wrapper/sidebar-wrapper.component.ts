@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, effect, HostListener, inject } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,6 +15,8 @@ import { SidebarPrintComponent } from '../sidebar-print/sidebar-print.component'
 import { SidebarJournalComponent } from '../sidebar-journal/sidebar-journal.component';
 import { SelectedFeatureComponent } from '../../selected-feature/selected-feature.component';
 import { takeUntil, Subject } from 'rxjs';
+import { RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-wrapper',
@@ -25,13 +27,7 @@ import { takeUntil, Subject } from 'rxjs';
     CommonModule,
     MatIconModule,
     MatButtonModule,
-    SidebarComponent,
-    SidebarHistoryComponent,
-    SidebarConnectionsComponent,
-    SidebarMenuComponent,
-    SidebarPrintComponent,
-    SidebarJournalComponent,
-    SelectedFeatureComponent,
+    RouterOutlet,
   ],
 })
 export class SidebarWrapperComponent {
@@ -47,51 +43,43 @@ export class SidebarWrapperComponent {
   public logo = '';
   public localOperation = false;
 
-  private _ngUnsubscribe = new Subject<void>();
-
   constructor() {
     this.logo = this.session.getLogo() ?? '';
     this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
-    
-    this.sidebar.observeContext()
-      .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe(sidebarContext => {
-        switch (sidebarContext) {
-          case SidebarContext.Layers:
-            this.showLogo = false;
-            this.sidebarTitle = this.i18n.get('view');
-            break;
-          case SidebarContext.History:
-            this.showLogo = false;
-            this.sidebarTitle = this.i18n.get('history');
-            break;
-          case SidebarContext.Connections:
-            this.showLogo = false;
-            this.sidebarTitle = this.i18n.get('connections');
-            break;
-          case SidebarContext.Print:
-            this.showLogo = false;
-            this.sidebarTitle = this.i18n.get('print');
-            break;
-          case SidebarContext.SelectedFeature:
-            this.showLogo = false;
-            this.sidebarTitle = this.i18n.get('selectedFeature');
-            break;
-          case SidebarContext.Journal:
-            this.showLogo = false;
-            this.sidebarTitle = this.i18n.get('journal');
-            break;
-          default:
-            this.showLogo = true;
-            this.sidebarTitle = this.session.getOperationName() ?? '';
-            break;
-        }
-      });
-  }
 
-  ngOnDestroy() {
-    this._ngUnsubscribe.next();
-    this._ngUnsubscribe.complete();
+    effect(() => {
+      const sidebarContext = this.sidebar.context();
+      switch (sidebarContext) {
+        case SidebarContext.Layers:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('view');
+          break;
+        case SidebarContext.History:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('history');
+          break;
+        case SidebarContext.Connections:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('connections');
+          break;
+        case SidebarContext.Print:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('print');
+          break;
+        case SidebarContext.SelectedFeature:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('selectedFeature');
+          break;
+        case SidebarContext.Journal:
+          this.showLogo = false;
+          this.sidebarTitle = this.i18n.get('journal');
+          break;
+        default:
+          this.showLogo = true;
+          this.sidebarTitle = this.session.getOperationName() ?? '';
+          break;
+      }
+    });
   }
 
   @HostListener('document:keydown.escape')

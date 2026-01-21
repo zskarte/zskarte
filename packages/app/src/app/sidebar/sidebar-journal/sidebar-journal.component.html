@@ -4,7 +4,7 @@
   </div>
 }
 <div class="tab-group-wrapper">
-  <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectedIndex">
+  <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectedTabIndex()">
     <mat-tab>
       <ng-template mat-tab-label>
         <span>{{ i18n.get('todo') }}</span>
@@ -25,7 +25,7 @@
           @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
             <mat-expansion-panel
               class="mat-elevation-z0"
-              [expanded]="entry.messageNumber === currentMessageNumber"
+              [expanded]="entry.messageNumber === currentMessageNumber()"
               [attr.data-message-number]="entry.messageNumber"
               [attr.data-testid]="'entry-to-draw'"
               (opened)="onPanelOpened(entry.messageNumber)"
@@ -75,7 +75,7 @@
           @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
             <mat-expansion-panel
               class="mat-elevation-z0"
-              [expanded]="entry.messageNumber === currentMessageNumber"
+              [expanded]="entry.messageNumber === currentMessageNumber()"
               [attr.data-message-number]="entry.messageNumber"
               [attr.data-testid]="'entry-drawn'"
               (opened)="onPanelOpened(entry.messageNumber)"
