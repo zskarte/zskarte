@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Collection, Feature } from 'ol';
 import { FeatureLike } from 'ol/Feature';
-import { SimpleGeometry } from 'ol/geom';
+import { Circle, SimpleGeometry } from 'ol/geom';
 import { Modify } from 'ol/interaction';
 import { ZsMapDrawElementStateType } from '../../../../types';
 import { areCoordinatesEqual } from '../helper/coordinates';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
+import { ZsMapCircleDrawElement } from './elements/circle-draw-element';
 import { MapOverlayService } from './map-overlay.service';
 import { MapRendererService } from './map-renderer.service';
 import { MapSelectService } from './map-select.service';
@@ -72,10 +73,19 @@ export class MapModifyService {
       // only first feature is relevant
       const feature = this._renderer.getFeatureInsideCluster(e.features.getArray()[0] as Feature<SimpleGeometry>);
       const element = this._renderer.getCachedDrawElement(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
-      element?.element?.setCoordinates(feature.getGeometry()?.getCoordinates() ?? []);
+      
+      // Handle Circle geometry specially (uses center/radius instead of coordinates)
+      const geometry = feature.getGeometry();
+      if (geometry?.getType() === 'Circle' && element?.element instanceof ZsMapCircleDrawElement) {
+        const circleGeom = geometry as Circle;
+        element.element.setCircleGeometry(circleGeom.getCenter(), circleGeom.getRadius());
+      } else {
+        element?.element?.setCoordinates(geometry?.getCoordinates() ?? []);
+      }
+      
       if (this._modify['vertexFeature_']) {
         this._select.updateVertexPoint(this._modify['vertexFeature_'].getGeometry().getCoordinates());
-        const type = element.element.elementState?.type;
+        const type = element?.element?.elementState?.type;
         const symbolCoordinates = DrawStyle.getIconCoordinates(feature, _renderer.getView().getResolution() ?? 1)[0];
         const modifyCoordinates = e.mapBrowserEvent.coordinate;
         const toggleRotate =

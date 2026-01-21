@@ -44,7 +44,7 @@ const checkDockerStatus = async () => {
     delay: 1000,
     interval: 100,
     simultaneous: 1,
-    timeout: 30000,
+    timeout: 60000,
     tcpTimeout: 1000,
     window: 1000,
   });

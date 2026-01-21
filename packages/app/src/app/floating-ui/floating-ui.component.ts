@@ -34,6 +34,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
 import { SearchService } from '../search/search.service';
+import { CompassButtonComponent } from '../compass-button/compass-button.component';
 import { ChangesetOverlayComponent } from '../changeset/changeset-overlay/changeset-overlay.component';
 
 @Component({
@@ -60,6 +61,7 @@ import { ChangesetOverlayComponent } from '../changeset/changeset-overlay/change
     JournalDrawOverlayComponent,
     ChangesetOverlayComponent,
     CommonModule,
+    CompassButtonComponent,
   ],
 })
 export class FloatingUIComponent {
@@ -169,7 +171,7 @@ export class FloatingUIComponent {
         .subscribe(async (displayState) => {
           if (displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE) {
             //using local map
-            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
+            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
               //all used layer are offlineAvailable
               if (displayState.source === ZsMapStateSource.LOCAL) {
                 const localMapInfo = await db.localMapInfo.get(displayState.source);

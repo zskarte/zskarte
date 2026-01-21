@@ -57,7 +57,7 @@ export class BlobMetaOptionsComponent {
   async loadBlobMeta() {
     if (this.data.mapLayer) {
       this.label = this.data.mapLayer.label;
-      if (this.data.mapLayer.type === 'geojson' || this.data.mapLayer.type === 'csv') {
+      if (this.data.mapLayer.type === 'geojson' || this.data.mapLayer.type === 'shape' || this.data.mapLayer.type === 'csv') {
         this.mapUploadType = '.' + this.data.mapLayer.type;
         this.data.mapLayer = { ...this.data.mapLayer };
         this.dataBlobMeta = this.data.mapLayer.sourceBlobId

@@ -79,6 +79,7 @@ export class JournalFormComponent {
   selectedIndex = 0;
   showPrint = false;
   markPotentialAddresses = signal(false);
+  manualMessageNumber = signal(false);
   constructor() {
     effect(() => {
       this.selectEntry(this.entry());
@@ -90,7 +91,7 @@ export class JournalFormComponent {
   }
 
   journalForm = new FormGroup({
-    messageNumber: new FormControl<string | number>('', {
+    messageNumber: new FormControl<string | number>({ value: '', disabled: true }, {
       nonNullable: true,
     }),
     sender: new FormControl('', {
@@ -199,6 +200,7 @@ export class JournalFormComponent {
     };
   }
 
+
   async selectEntry(entry: JournalEntry | null) {
     if (!entry) {
       return;
@@ -212,11 +214,16 @@ export class JournalFormComponent {
 
     this.journalForm.reset();
     this.formDirective.resetForm();
+    this.manualMessageNumber.set(false);
     this.journalForm.patchValue({
       ...entry,
       dateCreatedDate: entry.dateMessage,
       dateCreatedTime: entry.dateMessage,
     });
+    // Keep messageNumber disabled when editing existing entry
+    if (entry.messageNumber) {
+      this.journalForm.controls.messageNumber.disable();
+    }
     this.showPrint = false;
     this.formVisible.set(true);
   }
@@ -225,12 +232,26 @@ export class JournalFormComponent {
     this.selectedIndex = 0;
     this.journalForm.reset();
     this.formDirective.resetForm();
+    this.manualMessageNumber.set(false);
+    this.journalForm.controls.messageNumber.disable();
     this.journalForm.patchValue({
       dateCreatedDate: new Date(),
       dateCreatedTime: new Date(),
     });
     this.showPrint = false;
     this.formVisible.set(true);
+  }
+
+  toggleManualMessageNumber(event: boolean) {
+    this.manualMessageNumber.set(event);
+    if (event) {
+      this.journalForm.controls.messageNumber.enable();
+      this.journalForm.controls.messageNumber.updateValueAndValidity();
+    } else {
+      this.journalForm.controls.messageNumber.disable();
+      this.journalForm.controls.messageNumber.setValue('');
+      this.journalForm.controls.messageNumber.setErrors(null);
+    }
   }
 
   isTabDisabled(tabStatus: JournalEntryStatus): boolean {
@@ -306,11 +327,31 @@ export class JournalFormComponent {
         control.updateValueAndValidity();
       }
     });
-    //unrequire reset field
     const currentReset = JournalEntryStatusReset[entryStatus];
     if (currentReset) {
       this.journalForm.controls[currentReset.required].markAsUntouched();
       this.journalForm.controls[currentReset.required].setErrors(null);
+    }
+
+    if (this.manualMessageNumber() && this.journalForm.controls.messageNumber.value) {
+      const messageNumber = typeof this.journalForm.controls.messageNumber.value === 'string' 
+        ? parseInt(this.journalForm.controls.messageNumber.value, 10) 
+        : this.journalForm.controls.messageNumber.value;
+      
+      if (!isNaN(messageNumber) && messageNumber > 0) {
+        const currentEntry = this.entry();
+        const exists = await this.journal.messageNumberAlreadyExist(
+          messageNumber,
+          currentEntry?.uuid || currentEntry?.documentId,
+        );
+        
+        if (exists) {
+          this.journalForm.controls.messageNumber.setErrors({ messageNumberExists: true });
+          this.journalForm.controls.messageNumber.markAsTouched();
+          InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()));
+          return;
+        }
+      }
     }
 
     if (this.journalForm.invalid || this.journalForm.pending) {
@@ -322,10 +363,14 @@ export class JournalFormComponent {
     const nextReset = JournalEntryStatusReset[newEntryStatus];
 
     //prepare object with only allowed/changed fields to save
-    const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
+    // Use getRawValue() to include disabled controls (like messageNumber when manually entered)
+    const formRawValue = this.journalForm.getRawValue();
+    const { dateCreatedTime, dateCreatedDate, messageNumber, ...rest } = formRawValue;
     const values: Partial<JournalEntry> = {
       ...(rest as JournalEntry),
       ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
+      // Only include messageNumber if manually entered
+      ...(this.manualMessageNumber() && messageNumber ? { messageNumber: typeof messageNumber === 'string' ? parseInt(messageNumber, 10) : messageNumber } : {}),
     };
     if (nextReset && values[nextReset.required]) {
       //clear reset field of next step, so it's not longer filled

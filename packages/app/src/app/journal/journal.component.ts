@@ -71,6 +71,8 @@ export class JournalComponent implements AfterViewInit {
   private _destroyRef = inject(DestroyRef);
   readonly isOnline = toSignal(this._session.observeIsOnline());
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
+  readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
+  readonly isCurrentMapData = toSignal(this._state.observeIsCurrentMapData());
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;
@@ -193,7 +195,7 @@ export class JournalComponent implements AfterViewInit {
     this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'entryResponsibility':
-          return this.getResponsibility(item);
+          return this.journal.getResponsibility(item);
         case 'entryStatus':
           return Object.values(JournalEntryStatus).indexOf(item[property]);
         default:
@@ -320,17 +322,6 @@ export class JournalComponent implements AfterViewInit {
 
   trackByFn(index: number, row: any): string {
     return row.uuid || row.documentId;
-  }
-
-  getResponsibility(entry: JournalEntry) {
-    switch (entry.entryStatus) {
-      case JournalEntryStatus.AWAITING_MESSAGE:
-        return entry.visumMessage;
-      case JournalEntryStatus.AWAITING_DECISION:
-        return this.i18n.get(entry.department ?? 'allDepartments');
-      default:
-        return this.i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
-    }
   }
 
   close() {

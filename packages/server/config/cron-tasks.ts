@@ -5,6 +5,7 @@ import {
   deleteGuestOperations,
   persistOperationCache,
 } from '../src/state/operation';
+import { updateMapLayerMedias } from '../src/state/maplayer';
 import { Core } from '@strapi/strapi';
 
 export default {
@@ -19,4 +20,6 @@ export default {
   '0 0 * * *': async ({ strapi }: { strapi: Core.Strapi }) => await deleteGuestOperations(strapi),
   // Every 5 minutes
   '*/5 * * * *': async ({ strapi }: { strapi: Core.Strapi }) => await createMapStateSnapshots(strapi),
+  // Every 1st and 15th of month update mapLayers
+  '0 0 1,15 * *': async ({ strapi }: { strapi: Core.Strapi }) => await updateMapLayerMedias(strapi),
 };

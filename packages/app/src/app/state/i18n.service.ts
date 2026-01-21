@@ -244,15 +244,20 @@ export class I18NService {
       en: 'Polygon',
       fr: 'Polygone',
     },
+    rectangle: {
+      de: 'Rechteck',
+      en: 'Rectangle',
+      fr: 'Rectangle',
+    },
+    oval: {
+      de: 'Kreis',
+      en: 'Circle',
+      fr: 'Cercle',
+    },
     point: {
       de: 'Punkt',
       en: 'Point',
       fr: 'Point',
-    },
-    circle: {
-      de: 'Kreis',
-      en: 'Circle',
-      fr: 'Cercle',
     },
     line: {
       de: 'Linie',
@@ -1014,6 +1019,11 @@ export class I18NService {
       en: 'Zoom in',
       fr: 'Zoom in',
     },
+    resetRotation: {
+      de: 'Ausrichtung zurücksetzen',
+      en: 'Reset rotation',
+      fr: 'Réinitialiser la rotation',
+    },
     zoomToScale: {
       de: 'massstabsgetreu vergrössern',
       en: 'zoom to scale',
@@ -1454,7 +1464,7 @@ export class I18NService {
     docExpertWmsSourceTitle: {
       de: 'WMS / WMTS Quellen',
       fr: 'WMS/WMTS Sources',
-      en: "sources WMS/WMTS",
+      en: 'sources WMS/WMTS',
     },
     docExpertWmsSourceButton: {
       de: `Wenn die Experten Ansicht aktiv ist, wird unter "Verfügbare Ebenen" neben dem "Ebenen Quelle" dropdown ein editier Symbol / Button angezeigt(1)`,
@@ -1939,6 +1949,11 @@ export class I18NService {
       en: 'Backup applied',
       fr: 'Sauvegarde appliqué',
     },
+    currentStateActive: {
+      de: 'Aktuelle Karte',
+      en: 'Most recent map',
+      fr: 'Actuel map',
+    },
     noSignature: {
       de: 'Ohne Signatur',
       en: 'Without signature',
@@ -2002,7 +2017,7 @@ export class I18NService {
     toastPersistLayers: {
       de: 'Ebenen auf Ereignis gespeichert',
       en: 'Layers saved on event',
-      fr: "Couches enregistrées sur événement",
+      fr: 'Couches enregistrées sur événement',
     },
     layerSource: {
       de: 'Ebenen Quelle',
@@ -2014,6 +2029,16 @@ export class I18NService {
       en: 'all sources',
       fr: 'toutes les sources',
     },
+    ownMapLayers: {
+      de: 'Eigene Ebenen',
+      en: 'Own layers',
+      fr: 'Couche propres',
+    },
+    ownMapLayersTitleSuffix: {
+      de: 'eigen',
+      en: 'own',
+      fr: 'propre',
+    },
     globalMapLayers: {
       de: 'Geteilte Ebenen',
       en: 'Shared layers',
@@ -2023,6 +2048,16 @@ export class I18NService {
       de: 'geteilt',
       en: 'shared',
       fr: 'partagée',
+    },
+    managedMapLayers: {
+      de: 'ZSKarte verwaltete Ebenen',
+      en: 'ZSKarte managed layers',
+      fr: 'Couches gérées par ZSKarte',
+    },
+    managedMapLayerTitleSuffix: {
+      de: 'verwaltet',
+      en: 'managed',
+      fr: 'géré',
     },
     searchableLayer: {
       de: 'offline durchsuchbar',
@@ -2153,6 +2188,21 @@ export class I18NService {
       de: 'Einstellungen der GeoJSON/CSV-Ebene',
       en: 'GeoJSON/CSV layer settings',
       fr: 'Paramètres de calque GeoJSON/CSV',
+    },
+    mediaSource: {
+      de: 'Verwaltete Medienquelle',
+      en: 'Managed media source',
+      fr: 'Source multimédia gérée',
+    },
+    mediaSourceInfo: {
+      de: 'Die Ebene besitzt eine zentral verwaltete Medienquelle, id:',
+      en: 'The layer has a centrally managed media source, id:',
+      fr: 'La couche possède une source multimédia gérée de manière centralisée, id:',
+    },
+    mediaSourceActive: {
+      de: 'Die verwaltete Medienquelle verwenden',
+      en: 'Use the managed media source',
+      fr: 'Utiliser la Source multimédia gérée',
     },
     delimiter: {
       de: 'Trennzeichen',
@@ -2579,10 +2629,20 @@ export class I18NService {
       en: 'Show on map',
       fr: 'Afficher sur la carte',
     },
+    showInJournal: {
+      de: 'Im Journal anzeigen',
+      en: 'Show in journal',
+      fr: 'Afficher dans le journal',
+    },
     journal: {
       de: 'Journal',
       en: 'Journal',
       fr: 'Journal',
+    },
+    journalNotHistory: {
+      de: 'Anzeige aktuell, nicht auf Stand Sicherungszeitpunkt.',
+      en: 'Display is current, not at the time of backup.',
+      fr: "L'affichage est actuel, pas au moment de la sauvegarde.",
     },
     noMessagesToProcess: {
       de: 'Keine Meldungen zu verarbeiten',
@@ -2599,13 +2659,33 @@ export class I18NService {
       en: 'Drawn messages',
       fr: 'Messages dessinés',
     },
+    noEntriesToDraw: {
+      de: 'Keine Einträge zu zeichnen',
+      en: 'No entries to draw',
+      fr: 'Aucune entrée à dessiner',
+    },
+    noEntriesToDrawDescription: {
+      de: 'Es gibt derzeit keine Journaleinträge, die noch gezeichnet werden müssen.',
+      en: 'There are currently no journal entries that need to be drawn yet.',
+      fr: "Il n'y a actuellement aucune entrée de journal à dessiner.",
+    },
+    noEntriesDrawn: {
+      de: 'Keine abgeschlossenen Einträge',
+      en: 'No completed entries',
+      fr: 'Aucune entrée terminée',
+    },
+    noEntriesDrawnDescription: {
+      de: 'Es gibt derzeit keine Journaleinträge, bei denen das Zeichnen abgeschlossen ist.',
+      en: 'There are currently no journal entries where drawing has been completed.',
+      fr: "Il n'y a actuellement aucune entrée de journal où le dessin a été terminé.",
+    },
     startDrawing: {
       de: 'Mit Zeichnen beginnen',
       en: 'Start Drawing',
       fr: 'Commencer à dessiner',
     },
     someoneIsDrawing: {
-      de: 'Jemand hat mit Zeichnen begonnen',
+      de: 'Jemand hat bereits mit Zeichnen begonnen.',
       en: 'Someone started drawing',
       fr: "Quelqu'un a commencé à dessiner",
     },
@@ -2719,6 +2799,21 @@ export class I18NService {
       en: 'No.',
       fr: 'n°',
     },
+    messageNumberAutoGenerated: {
+      de: 'Meldungsnummer wird beim Speichern automatisch generiert.',
+      en: 'Report number will be automatically generated when saving.',
+      fr: "Le numéro de rapport sera généré automatiquement lors de l'enregistrement.",
+    },
+    messageNumberManualEntry: {
+      de: 'Meldungsnummer manuell erfassen',
+      en: 'Enter report number manually',
+      fr: 'Saisir le numéro de rapport manuellement',
+    },
+    messageNumberAlreadyExists: {
+      de: 'Die Meldungsnummer {number} existiert bereits.',
+      en: 'Report number {number} already exists.',
+      fr: 'Le numéro de rapport {number} existe déjà.',
+    },
     detailsChanel: {
       de: 'Nummer / Kanal',
       en: 'Number / channel',
@@ -2774,52 +2869,52 @@ export class I18NService {
       en: 'Visa decision',
       fr: 'Visa de décision',
     },
-    "politische-behoerde": {
+    'politische-behoerde': {
       de: 'Politische Behörde',
       en: 'Political authority',
       fr: 'Autorité politique',
     },
-    "chef-fuehrungsorgan": {
+    'chef-fuehrungsorgan': {
       de: 'Chef Führungsorgan',
       en: 'Chief executive body',
       fr: 'Organe directeur',
     },
-    "stabschef": {
+    stabschef: {
       de: 'Stabschef',
       en: 'Chief staff',
       fr: 'Chef du personnel',
     },
-    "fb-lage": {
+    'fb-lage': {
       de: 'FB Lage',
       en: 'DP Location',
       fr: 'DP localisation',
     },
-    "fb-information": {
+    'fb-information': {
       de: 'FB Information',
       en: 'DP Information',
       fr: 'DP Information',
     },
-    "fb-oeffentliche-sicherheit": {
+    'fb-oeffentliche-sicherheit': {
       de: 'FB Sicherheit',
       en: 'DP Safety',
       fr: 'DP Sécurité',
     },
-    "fb-schutz-rettung": {
+    'fb-schutz-rettung': {
       de: 'FB Schutz und Rettung',
       en: 'DP Safety and Rescue',
       fr: 'DP Sécurité et sauvetage',
     },
-    "fb-gesundheit": {
+    'fb-gesundheit': {
       de: 'FB Gesundheit',
       en: 'DP Health',
       fr: 'DP Santé',
     },
-    "fb-logistik": {
+    'fb-logistik': {
       de: 'FB Logistik',
       en: 'DP Logistics',
       fr: 'DP Logistique',
     },
-    "fb-infrastrukturen": {
+    'fb-infrastrukturen': {
       de: 'FB Infrastruktur',
       en: 'DP Infrastructure',
       fr: 'DP Infrastructure',
@@ -2832,17 +2927,22 @@ export class I18NService {
     wrongContentMessage: {
       de: 'Falls dieser Journaleintrag nicht korrekt ist, gib ihn zurück an den Eingang.',
       en: 'If this journal entry is not correct, return it to the input.',
-      fr: 'Si cette entrée de journal n\'est pas correcte, renvoyez-la à l\'entrée.',
+      fr: "Si cette entrée de journal n'est pas correcte, renvoyez-la à l'entrée.",
     },
-    wrongContentInfo:  {
+    wrongContentInfo: {
       de: 'Beschreibe was falsch ist / korrigiert werden muss.',
       en: 'Describe what is wrong / needs to be corrected.',
       fr: 'Décrivez ce qui ne va pas/doit être corrigé.',
     },
+    toCorrect: {
+      de: 'Zu korrigieren:',
+      en: 'To correct:',
+      fr: 'À corriger:',
+    },
     backToInput: {
       de: 'Zurück an Eingang senden',
       en: 'Return to input',
-      fr: 'Renvoyer à l\'entrée',
+      fr: "Renvoyer à l'entrée",
     },
     wrongDepartment: {
       de: 'Falscher Fachbereich',
@@ -2894,12 +2994,12 @@ export class I18NService {
       en: 'Output',
       fr: 'Sortie',
     },
-    searchText:{
+    searchText: {
       de: 'Suche',
       en: 'Search',
       fr: 'Recherche',
     },
-    noDepartment:{
+    noDepartment: {
       de: 'Kein Fachbereich',
       en: 'No department',
       fr: 'Pas de département',
@@ -2912,7 +3012,7 @@ export class I18NService {
     noInfo: {
       de: 'Keine Angabe',
       en: 'No information',
-      fr: 'Pas d\'information',
+      fr: "Pas d'information",
     },
     view: {
       de: 'Darstellung',
@@ -2925,7 +3025,7 @@ export class I18NService {
       fr: 'Cartes',
     },
     responsibility: {
-      de: 'Zuständigkeit',
+      de: 'Verantwortlichkeit',
       en: 'Responsibility',
       fr: 'Responsabilité',
     },
@@ -2936,6 +3036,11 @@ export class I18NService {
     },
     decision: {
       de: 'Entscheidung',
+      en: 'Decision',
+      fr: 'Décision',
+    },
+    entscheid: {
+      de: 'Entscheid',
       en: 'Decision',
       fr: 'Décision',
     },
@@ -2962,12 +3067,12 @@ export class I18NService {
     pressEnter: {
       de: 'Drücken Sie Enter, um die Meldenummer hinzuzufügen',
       en: 'Press enter to add the report number',
-      fr: 'Appuyez sur Entrée pour ajouter le numéro du rapport'
+      fr: 'Appuyez sur Entrée pour ajouter le numéro du rapport',
     },
     drawnSymbols: {
       de: 'Gezeichnete Signaturen',
       en: 'Drawn symbols',
-      fr: 'Symboles dessinés'
+      fr: 'Symboles dessinés',
     },
     zoomToAll: {
       de: 'Auf alle gezeichnete Signaturen zoomen',
@@ -2978,6 +3083,41 @@ export class I18NService {
       de: 'Alle gezeichnete Signaturen hervorheben',
       en: 'Highlight all drawn symbols',
       fr: 'Surlignez tous les symboles dessinés',
+    },
+    noSignatureAvailable: {
+      de: 'Keine Signatur vorhanden.',
+      en: 'No signature available.',
+      fr: 'Aucune signature disponible.',
+    },
+    addSignature: {
+      de: 'Signatur hinzufügen',
+      en: 'Add signature',
+      fr: 'Ajouter une signature',
+    },
+    noSignatureNeeded: {
+      de: 'Keine Signatur benötigt',
+      en: 'No signature needed',
+      fr: 'Aucune signature nécessaire',
+    },
+    focusSignatures: {
+      de: 'Signaturen fokussieren',
+      en: 'Focus signatures',
+      fr: 'Mettre en évidence les signatures',
+    },
+    signaturesNotComplete: {
+      de: 'Signaturen nicht komplett',
+      en: 'Signatures not complete',
+      fr: 'Signatures incomplètes',
+    },
+    todo: {
+      de: 'Todo',
+      en: 'Todo',
+      fr: 'À faire',
+    },
+    done: {
+      de: 'Done',
+      en: 'Done',
+      fr: 'Terminé',
     },
     reset: {
       de: 'Zurücksetzen',
@@ -3004,8 +3144,8 @@ export class I18NService {
       en: 'Stored locally only.',
       fr: 'Stocké localement uniquement.',
     },
-    pdfDesignerHelp:{
-      de:`
+    pdfDesignerHelp: {
+      de: `
         Im Designer links können Sie Elemente grafisch hinzufügen oder bearbeiten, die Änderungen werden rechts in der technischen Ansicht live aktualisiert.<br>
         In der technischen Ansicht habe Sie die Möglichkeit z.B. positionen einfacher einheitlich anzupassen, welche auch im Designer mit leichter Verzögerung akualisiert werden.<br>
         Mit dem Slider/Splitter in der Mitte können Sie die Aufteilung der Bereiche verändern.<br>
@@ -3075,12 +3215,12 @@ export class I18NService {
     fillAllFields: {
       de: 'Bitte füllen Sie alle benötigten Felder.',
       en: 'Please fill in all required fields.',
-      fr: "Veuillez remplir tous les champs obligatoires.",
+      fr: 'Veuillez remplir tous les champs obligatoires.',
     },
     closeNotSaved: {
       de: 'Sie haben noch nicht gespeicherte Änderungen, möchten Sie diese verwerfen?',
       en: 'You have unsaved changes, do you want to discard them?',
-      fr: "Vous avez des modifications non enregistrées, souhaitez-vous les ignorer?",
+      fr: 'Vous avez des modifications non enregistrées, souhaitez-vous les ignorer?',
     },
     errorLoadingJournalEntries: {
       de: 'Fehler beim laden der Journal Einträge.',
@@ -3201,6 +3341,11 @@ export class I18NService {
       de: 'Adressen bereinigen',
       en: 'Clean up addresses',
       fr: 'Nettoyer adresses',
+    },
+    create: {
+      de: 'Erfassen',
+      en: 'create',
+      fr: 'créer',
     },
   };
 

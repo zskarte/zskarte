@@ -294,6 +294,8 @@ export enum ZsMapDrawElementStateType {
   POLYGON = 'polygon',
   LINE = 'line',
   FREEHAND = 'freehand',
+  RECTANGLE = 'rectangle',
+  CIRCLE = 'circle',
 }
 
 export type ZsMapDrawElementState =
@@ -301,7 +303,9 @@ export type ZsMapDrawElementState =
   | ZsMapSymbolDrawElementState
   | ZsMapLineDrawElementState
   | ZsMapPolygonDrawElementState
-  | ZsMapFreehandDrawElementState;
+  | ZsMapFreehandDrawElementState
+  | ZsMapRectangleDrawElementState
+  | ZsMapCircleDrawElementState;
 
 export interface IZsMapBaseElementState {
   id?: string;
@@ -356,6 +360,16 @@ export interface ZsMapPolygonDrawElementState extends IZsMapBaseDrawElementState
 
 export interface ZsMapFreehandDrawElementState extends IZsMapBaseDrawElementState {
   type: ZsMapDrawElementStateType.FREEHAND;
+}
+
+export interface ZsMapRectangleDrawElementState extends IZsMapBaseDrawElementState {
+  type: ZsMapDrawElementStateType.RECTANGLE;
+}
+
+export interface ZsMapCircleDrawElementState extends IZsMapBaseDrawElementState {
+  type: ZsMapDrawElementStateType.CIRCLE;
+  center?: number[];
+  radius?: number;
 }
 
 export interface ZsMapElementToDraw {

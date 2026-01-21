@@ -474,6 +474,47 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
   };
 }
 
+export interface ApiMapLayerGenerationConfigMapLayerGenerationConfig extends Struct.SingleTypeSchema {
+  collectionName: 'map_layer_generation_configs';
+  info: {
+    description: '';
+    displayName: 'Map Layer Generation Config';
+    pluralName: 'map-layer-generation-configs';
+    singularName: 'map-layer-generation-config';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    allwaysCreateDistrict: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    cantons: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    enabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    fields_swissNAMES3D: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'OBJEKTART,OBJEKTKLASSE_TLM,EINWOHNERKATEGORIE,NAME,E,N'>;
+    file_swissNAMES3D: Schema.Attribute.String & Schema.Attribute.DefaultTo<'swissNAMES3D_PLY'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::map-layer-generation-config.map-layer-generation-config'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    style_entrances: Schema.Attribute.Media<'files'>;
+    style_swissBOUNDARIES3D: Schema.Attribute.Media<'files'>;
+    style_swissNAMES3D: Schema.Attribute.Media<'files'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    url_madd: Schema.Attribute.String & Schema.Attribute.DefaultTo<'https://public.madd.bfs.admin.ch/${canton}.zip'>;
+    url_swissBOUNDARIES3D: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_${year}-${month}/swissboundaries3d_${year}-${month}_2056_5728.shp.zip'>;
+    url_swissNAMES3D: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://data.geo.admin.ch/ch.swisstopo.swissnames3d/swissnames3d_${year}/swissnames3d_${year}_2056.csv.zip'>;
+  };
+}
+
 export interface ApiMapLayerMapLayer extends Struct.CollectionTypeSchema {
   collectionName: 'map_layers';
   info: {
@@ -492,12 +533,13 @@ export interface ApiMapLayerMapLayer extends Struct.CollectionTypeSchema {
     label: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::map-layer.map-layer'> & Schema.Attribute.Private;
+    media_source: Schema.Attribute.Media<'files'>;
     options: Schema.Attribute.JSON;
     organization: Schema.Attribute.Relation<'oneToOne', 'api::organization.organization'>;
     public: Schema.Attribute.Boolean;
     publishedAt: Schema.Attribute.DateTime;
     serverLayerName: Schema.Attribute.Text;
-    type: Schema.Attribute.Enumeration<['wms', 'wms_custom', 'wmts', 'aggregate', 'geojson', 'csv']>;
+    type: Schema.Attribute.Enumeration<['wms', 'wms_custom', 'wmts', 'aggregate', 'geojson', 'shape', 'csv']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     wms_source: Schema.Attribute.Relation<'manyToOne', 'api::wms-source.wms-source'>;
@@ -1039,6 +1081,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::access.access': ApiAccessAccess;
       'api::journal-entry.journal-entry': ApiJournalEntryJournalEntry;
+      'api::map-layer-generation-config.map-layer-generation-config': ApiMapLayerGenerationConfigMapLayerGenerationConfig;
       'api::map-layer.map-layer': ApiMapLayerMapLayer;
       'api::map-snapshot.map-snapshot': ApiMapSnapshotMapSnapshot;
       'api::operation.operation': ApiOperationOperation;

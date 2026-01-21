@@ -1,5 +1,5 @@
 import { FeatureLike } from "ol/Feature";
-import { LineString, MultiPolygon, Point, Polygon } from "ol/geom";
+import { Circle, LineString, MultiPolygon, Point, Polygon } from "ol/geom";
 
 export interface FillStyle {
   name: string;
@@ -65,6 +65,8 @@ export function getFirstCoordinate(feature: FeatureLike): any {
       return (feature?.getGeometry() as LineString)?.getCoordinates()[0];
     case "Point":
       return (feature?.getGeometry() as Point)?.getCoordinates();
+    case "Circle":
+      return (feature?.getGeometry() as Circle)?.getCenter();
     default:
       return [];
   }
@@ -88,6 +90,8 @@ export function getLastCoordinate(feature: FeatureLike): any {
     }
     case "Point":
       return (feature?.getGeometry() as Point)?.getCoordinates();
+    case "Circle":
+      return (feature?.getGeometry() as Circle)?.getCenter();
     default:
       return [];
   }

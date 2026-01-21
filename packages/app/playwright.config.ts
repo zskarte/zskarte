@@ -47,6 +47,8 @@ const config: PlaywrightTestConfig = {
     trace: 'on-first-retry',
 
     navigationTimeout: 90000,
+
+    headless: !!process.env['CI'],
   },
 
   /* Configure projects for major browsers */
@@ -60,48 +62,6 @@ const config: PlaywrightTestConfig = {
         },
       },
     },
-
-    // {
-    //   name: 'firefox',
-    //   use: {
-    //     ...devices['Desktop Firefox'],
-    //   },
-    // },
-
-    // {
-    //   name: 'webkit',
-    //   use: {
-    //     ...devices['Desktop Safari'],
-    //   },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: {
-    //     ...devices['Pixel 5'],
-    //   },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: {
-    //     ...devices['iPhone 12'],
-    //   },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: {
-    //     channel: 'msedge',
-    //   },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: {
-    //     channel: 'chrome',
-    //   },
-    // },
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
@@ -109,7 +69,7 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: `npm run ng:serve:dev --host 0.0.0.0 --port ${PORT}`,
+    command: `npx ng serve --configuration development --host 0.0.0.0 --port ${PORT}`,
     port: PORT,
     reuseExistingServer: true,
     timeout: 120 * 1000,

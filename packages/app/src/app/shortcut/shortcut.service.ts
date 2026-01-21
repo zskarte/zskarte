@@ -71,6 +71,8 @@ export class ShortcutService {
     this._listen({ shortcut: 'mod+3', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.LINE));
     this._listen({ shortcut: 'mod+4', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.FREEHAND));
     this._listen({ shortcut: 'mod+5', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.SYMBOL));
+    this._listen({ shortcut: 'mod+6', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.RECTANGLE));
+    this._listen({ shortcut: 'mod+7', drawModeOnly: true }).subscribe(this._draw(ZsMapDrawElementStateType.CIRCLE));
     this._listen({ shortcut: 'NumpadAdd', drawModeOnly: true }).subscribe(this._openAdd());
     //swiss german layout for +:
     this._listen({ shortcut: 'shift+1', drawModeOnly: true }).subscribe(this._openAdd());
@@ -93,52 +95,12 @@ export class ShortcutService {
           return;
         }
       }
-      if (this._copyElement?.elementState) {
-        const currentCoordinates = await firstValueFrom(this._state.getCoordinates());
-        const newState = cloneDeep(this._copyElement.elementState);
 
-        // translate coordinates
-        const getFirstCoordinate = (
-          coordinates: undefined | number[] | number[][] | Coordinate,
-        ): number[] | undefined => {
-          if (!coordinates) {
-            return;
-          }
-          if (typeof coordinates[0] === 'number') {
-            return coordinates as number[];
-          }
-          if (Array.isArray(coordinates)) {
-            return getFirstCoordinate(coordinates[0]);
-          }
-          return;
-        };
-
-        const firstCoordinates = getFirstCoordinate(newState.coordinates);
-        const offset = [
-          currentCoordinates[0] - (firstCoordinates?.[0] || 0),
-          currentCoordinates[1] - (firstCoordinates?.[1] || 0),
-        ];
-
-        const offsetCoordinates = (coordinates: undefined | number[] | number[][] | Coordinate, offset: number[]) => {
-          if (!coordinates) {
-            return;
-          }
-
-          if (typeof coordinates[0] === 'number') {
-            (coordinates as number[])[0] += offset[0];
-            (coordinates as number[])[1] += offset[1];
-          } else {
-            if (Array.isArray(coordinates)) {
-              for (const o of coordinates) {
-                offsetCoordinates(o as number[], offset);
-              }
-            }
-          }
-        };
-
-        offsetCoordinates(newState.coordinates, offset);
-
-        this._state.addDrawElement(newState);
+      const layer = this._state.getActiveLayer();
+      const symbolId = this._copyElement?.elementState?.symbolId;
+      if (layer && symbolId) {
+        this._state.copySymbol(symbolId, layer.getId());
+        this._state.resetSelectedFeature();
       }
     });
 
@@ -167,9 +129,11 @@ export class ShortcutService {
 
   private _openAdd() {
     return () => {
-      const layer = this._state.getActiveLayer();
-      const ref = this._dialog.open(DrawDialogComponent);
-      ref.componentRef?.instance.setLayer(layer);
+      if (this._dialog.openDialogs.length === 0) {
+        const layer = this._state.getActiveLayer();
+        const ref = this._dialog.open(DrawDialogComponent);
+        ref.componentRef?.instance.setLayer(layer);
+      }
     };
   }
 

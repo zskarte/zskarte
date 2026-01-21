@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @include mat.core();
+@import 'quill/dist/quill.snow.css';
 
 /* You can add global styles to this file, and also import other style files */
 html,
@@ -61,6 +62,13 @@ mat-action-list {
   margin-bottom: 2rem;
 }
 
+.mat-sidenav {
+  margin: .5rem .5rem .5rem 0;
+  background-color: #fff;
+  border-radius: 1rem !important;
+  border: 1px solid #dedede;
+}
+
 .mat-drawer .mat-drawer-inner-container {
   overflow: unset;
 }
@@ -76,6 +84,11 @@ mat-action-list {
 .mat-mdc-button,
 .mat-mdc-button-base {
   border-radius: 2rem !important;
+}
+
+mat-stroked-button,
+.mat-mdc-stroked-button {
+  background-color: white !important;
 }
 
 .cdk-overlay-pane {
@@ -185,10 +198,10 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
 .addr-geo {
   cursor: pointer;
   text-wrap: nowrap;
+  display: inline-block;
 
   &.edit-active {
     width: 300px;
-    display: inline-block;
 
     .addr-show,
     .addr-edit {
@@ -242,12 +255,9 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   }
 }
 
-.addr-caret {
+.placeholder-blot {
   display: inline-block;
-  width: 300px;
+  vertical-align: middle;
+  background: transparent;
 }
 
-.addr-caret::after {
-  content: '\00A0';
-  visibility: hidden;
-}

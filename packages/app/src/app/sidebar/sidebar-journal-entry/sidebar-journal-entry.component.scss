@@ -1,46 +1,198 @@
-h3 {
-  margin-bottom: 0;
+.entry-header {
+  margin-bottom: 16px;
+}
+
+.drawing-warning-card {
+  background: #ffebee;
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  color: #d32f2f;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.meta-infos-container {
   display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.created-date {
-  color: #888;
-  font-size: 12px;
-  margin-top: 4px;
+.meta-info-card {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #E0E0E0;
 }
 
-.message-content-buttons {
-  margin: 10px 0;
+.meta-info-label {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 4px;
 }
 
-.message-content-option {
-  margin-left: 5px;
-  display: inline-block;
+.meta-info-value {
+  font-size: 14px;
+  color: #666;
 }
 
-.symbol {
+.entry-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.show-in-journal-button {
+  width: 100%;
+  background-color: white !important;
+}
+
+.content-section {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #E0E0E0;
+}
+
+.section-title {
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.section-content {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.preserve-linebreak {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.signatures-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.signatures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.signature-item-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
 
-  img {
-    width: 24px;
+.signature-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.signature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  text-align: left;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.04);
   }
 
-  span {
-    flex: 1;
+  &:disabled:not([data-editing]) {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  &[data-editing] {
+    opacity: 1;
+    cursor: default;
   }
 }
 
-.drawn-buttons {
-  margin-left: auto;
+.edit-signature-button,
+.save-signature-button,
+.delete-signature-button {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
 }
 
-[mat-icon-button] {
-  --mdc-icon-button-state-layer-size: 30px;
-  padding: 3px;
+.save-signature-button {
+  color: #4caf50;
+}
 
-  &.selected {
-    background-color: #fff22b;
+.signature-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.signature-name {
+  flex: 1;
+}
+
+.signature-name-fallback {
+  color: #999;
+  font-style: italic;
+}
+
+.signature-name-input {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+
+  &:focus {
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.1);
   }
+}
+
+.signature-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.warning-button {
+  width: 100%;
+  background-color: white !important;
 }
