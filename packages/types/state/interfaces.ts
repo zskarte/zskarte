@@ -55,6 +55,8 @@ export enum ZsMapDisplayMode {
   HISTORY = 'history',
 }
 
+export type ZsMapGlobalSymbolScaleMode = 'manual' | 'zoom';
+
 export interface IZsMapDisplayState {
   id?: string;
   version: number;
@@ -80,6 +82,8 @@ export interface IZsMapDisplayState {
   hiddenFeatureTypes: string[];
   highlightedFeature: string[];
   enableClustering: boolean;
+  globalSymbolScale: number;
+  globalSymbolScaleMode: ZsMapGlobalSymbolScaleMode;
   journalSort: Sort;
   journalFilter: IZsJournalFilter;
   searchConfig: IZsGlobalSearchConfig;

@@ -1069,6 +1069,16 @@ export class I18NService {
       en: 'Global filters',
       fr: 'Filtre globale',
     },
+    globalSymbolScale: {
+      de: 'Globale Symbolgrösse',
+      en: 'Global symbol scale',
+      fr: 'Échelle globale des symboles',
+    },
+    globalSymbolScaleZoomBased: {
+      de: 'Grösse nach Zoom',
+      en: 'Zoom-based size',
+      fr: 'Taille basée sur le zoom',
+    },
     showAllElements: {
       de: 'Alle Elemente anzeigen',
       en: 'Show all elements',

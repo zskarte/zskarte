@@ -28,6 +28,7 @@ export class DrawStyle {
 
   static textScaleFactor = 1;
 
+  private static globalScaleFactor = 1;
   private static symbolStyleCache = {};
   private static vectorStyleCache = {};
   private static colorFill = {};
@@ -39,8 +40,18 @@ export class DrawStyle {
     return `assets/img/signs/${file}`;
   }
 
+  public static setGlobalScaleFactor(scale: number): void {
+    const nextScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+    if (nextScale === DrawStyle.globalScaleFactor) {
+      return;
+    }
+    DrawStyle.globalScaleFactor = nextScale;
+    DrawStyle.clearCaches();
+  }
+
   private static scale(resolution: number, scaleFactor: number, min = 0.05): number {
-    return Math.max(min, (scaleFactor * Math.sqrt(0.5 * resolution)) / resolution);
+    const baseScale = Math.max(min, (scaleFactor * Math.sqrt(0.5 * resolution)) / resolution);
+    return baseScale * DrawStyle.globalScaleFactor;
   }
 
   private static getDash(lineStyle: string | undefined, resolution: number): number[] {
@@ -352,7 +363,7 @@ export class DrawStyle {
     const symbolAnchorCoordinate = getFirstCoordinate(feature);
     const offsetX = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.x : 0.1;
     const offsetY = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.y : 0.1;
-    const resolutionFactor = resolution / 10;
+    const resolutionFactor = (resolution / 10) * DrawStyle.globalScaleFactor;
     const symbolCoordinate = [
       symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
       symbolAnchorCoordinate[1] - offsetY * resolutionFactor,
@@ -370,7 +381,7 @@ export class DrawStyle {
     const offsetY = signature.iconsOffset ? 
       (signature.iconsOffset.endHasDifferentOffset && signature.iconsOffset.endY !== undefined ?
       signature.iconsOffset.endY : signature.iconsOffset.y) : 0.1;
-    const resolutionFactor = resolution / 10;
+    const resolutionFactor = (resolution / 10) * DrawStyle.globalScaleFactor;
     const symbolCoordinate = [
       symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
       symbolAnchorCoordinate[1] - offsetY * resolutionFactor,

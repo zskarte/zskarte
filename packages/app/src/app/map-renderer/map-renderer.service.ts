@@ -29,6 +29,7 @@ import { I18NService } from '../state/i18n.service';
 import { ZsMapSources } from '../state/map-sources';
 import { ZsMapStateService } from '../state/state.service';
 import { SyncService } from '../sync/sync.service';
+import { DrawStyle } from './draw-style';
 import { ZsMapBaseDrawElement } from './elements/base/base-draw-element';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 import { ZsMapBaseLayer } from './layers/base-layer';
@@ -101,6 +102,13 @@ export class MapRendererService {
 
   public constructor() {
     this._search.setZoomToFit(this.zoomToFit.bind(this));
+  }
+
+  private getZoomScaleFactor(zoom: number | undefined): number {
+    const baseZoom = DEFAULT_ZOOM;
+    const normalizedZoom = Number.isFinite(zoom) ? (zoom as number) : baseZoom;
+    const rawFactor = Math.pow(2, normalizedZoom - baseZoom);
+    return Math.min(4, Math.max(0.25, rawFactor));
   }
 
   public terminate() {
@@ -418,6 +426,18 @@ export class MapRendererService {
           }
           this._view.setZoom(zoom);
         }
+      });
+
+    combineLatest([
+      this._state.observeGlobalSymbolScale(),
+      this._state.observeGlobalSymbolScaleMode(),
+      this._state.observeMapZoom(),
+    ])
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe(([scale, mode, zoom]) => {
+        const factor = mode === 'zoom' ? scale * this.getZoomScaleFactor(zoom) : scale;
+        DrawStyle.setGlobalScaleFactor(factor);
+        this._map?.render();
       });
 
     this._state
