@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadge } from '@angular/material/badge';
 import { ZsMapStateService } from 'src/app/state/state.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-changeset-overlay',
@@ -15,12 +16,14 @@ export class ChangesetOverlayComponent {
   @ViewChild('progressRing', { static: false }) progressRing!: ElementRef<SVGCircleElement>;
   private _state = inject(ZsMapStateService);
   changesetService = inject(ChangesetService);
+  readonly changesetConfig = toSignal(this._state.observeChangesetConfig());
+  readonly isChangesetMergeMode = toSignal(this._state.observeIsChangesetMergeMode());
 
   private timeoutId: any;
   private progressElement: SVGCircleElement | null = null;
 
-  progress = 0; // 0 = voll, 100 = leer
-  circumference = 2 * Math.PI * 20; // Umfang des Rings (r=20)
+  progress = 0; // 0 = full, 100 = empty
+  circumference = 2 * Math.PI * 20;
   dashOffset = 0;
 
   constructor() {
@@ -61,13 +64,19 @@ export class ChangesetOverlayComponent {
   private startProgressTimer(totalTime: number): void {
     this.stopProgressTimer();
 
-    this.progress = 0;
-    this.updateRing();
+    if (!this.progressElement) {
+      this.progressElement = this.progressRing?.nativeElement;
+    }
 
     const interval = 250;
-    const steps = totalTime / interval;
-
+    let steps = totalTime / interval;
     let step = 0;
+    if (steps < 60) {
+      step = 60 - steps;
+      steps = 60;
+      this.progress = (step / steps) * 100;
+    }
+    this.updateRing();
     this.timeoutId = setInterval(() => {
       step++;
       this.progress = (step / steps) * 100;
@@ -83,7 +92,7 @@ export class ChangesetOverlayComponent {
   }
 
   private updateRing(): void {
-    // Von voll (dashOffset=0) nach leer (dashOffset=circumference)
+    // from full (dashOffset=0) to empty (dashOffset=circumference)
     this.dashOffset = (this.progress / 100) * this.circumference;
     if (this.progressElement) {
       this.progressElement.style.strokeDashoffset = this.dashOffset.toString();

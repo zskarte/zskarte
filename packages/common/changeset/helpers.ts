@@ -14,7 +14,7 @@ export const isValidImmerPatch = (patch: Patch) => {
 
 export const verifyChangesetConsistency = (mapState: ZsMapState, changeset: IZsChangeset) => {
   for (const [elemId, changeId] of Object.entries(changeset.drawElementsLastChangeset)) {
-    const changesetIds = mapState.drawElementChangesetIds[elemId];
+    const changesetIds = mapState.drawElementChangesetIds?.[elemId];
     if (!mapState.drawElements?.[elemId] && !changesetIds) {
       if (changeId !== '0') {
         const message = `drawElement ${elemId} to change no longer exist on try apply changeset ${changeset.id}`;
