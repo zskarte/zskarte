@@ -70,6 +70,9 @@
           <div class="journal-filter-buttons">
             <div class="journal-filter-buttons">
               <mat-button-toggle-group hideSingleSelectionIndicator multiple>
+                <mat-button-toggle [checked]="eingangFilter" (change)="toggleEingangFilter($event)">
+                  {{ i18n.get('input') }}
+                </mat-button-toggle>
                 <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
                   {{ i18n.get('triage') }}
                 </mat-button-toggle>

@@ -92,6 +92,7 @@ export interface IZsJournalFilter {
   outgoingFilter: boolean;
   decisionFilter: boolean;
   keyMessageFilter: boolean;
+  eingangFilter: boolean;
 }
 
 export interface IZsGlobalSearchConfig {

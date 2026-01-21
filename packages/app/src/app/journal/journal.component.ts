@@ -99,6 +99,7 @@ export class JournalComponent implements AfterViewInit {
   keyMessageFilter = false;
   outgoingFilter = false;
   decisionFilter = false;
+  eingangFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
     keys: ['messageSubject', 'messageContent', 'decision'],
@@ -149,7 +150,7 @@ export class JournalComponent implements AfterViewInit {
           return;
         }
 
-        if ((this.triageFilter || this.outgoingFilter || this.decisionFilter) && !this.filterByState(entry)) {
+        if ((this.triageFilter || this.outgoingFilter || this.decisionFilter || this.eingangFilter) && !this.filterByState(entry)) {
           return;
         }
 
@@ -232,6 +233,7 @@ export class JournalComponent implements AfterViewInit {
       this.outgoingFilter = filter.outgoingFilter;
       this.decisionFilter = filter.decisionFilter;
       this.keyMessageFilter = filter.keyMessageFilter;
+      this.eingangFilter = filter.eingangFilter;
       this.filterEntries(this.searchControl.value, filter.department);
     });
   }
@@ -268,16 +270,20 @@ export class JournalComponent implements AfterViewInit {
     this.filterEntries(this.searchControl.value, this.departmentControl.value);
   }
 
+  toggleEingangFilter(event: any) {
+    this.eingangFilter = event.source.checked;
+    this.filterEntries(this.searchControl.value, this.departmentControl.value);
+  }
+
   private _debouncedPersistFilter = debounce((filter: IZsJournalFilter) => {
     this._state.setJournalFilter(filter);
   }, 5000);
 
   private filterByState(entry: JournalEntry) {
     return (
+      (this.eingangFilter && entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE) ||
       (this.triageFilter && entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
-      (this.outgoingFilter &&
-        (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
-          entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
+      (this.outgoingFilter && entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION) ||
       (this.decisionFilter && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION)
     );
   }
@@ -294,14 +300,14 @@ export class JournalComponent implements AfterViewInit {
           (item) =>
             (!department || item.department === department) &&
             (!this.keyMessageFilter || item.isKeyMessage) &&
-            (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) || this.filterByState(item)),
+            (!(this.triageFilter || this.outgoingFilter || this.decisionFilter || this.eingangFilter) || this.filterByState(item)),
         );
     } else {
       if (department) {
         filtered = filtered.filter((entry) => entry.department === department);
       }
 
-      if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
+      if (this.triageFilter || this.outgoingFilter || this.decisionFilter || this.eingangFilter) {
         filtered = filtered.filter((entry) => this.filterByState(entry));
       }
 
@@ -316,6 +322,7 @@ export class JournalComponent implements AfterViewInit {
       outgoingFilter: this.outgoingFilter,
       decisionFilter: this.decisionFilter,
       keyMessageFilter: this.keyMessageFilter,
+      eingangFilter: this.eingangFilter,
     });
 
     this.dataSourceFiltered.data = filtered;
