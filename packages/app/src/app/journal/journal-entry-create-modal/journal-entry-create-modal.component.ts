@@ -55,7 +55,7 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
       this._dialog.open(ConfirmationDialogComponent, {
         data: {
           message: this.i18n.get('discardEntryConfirm'),
-          cancelLabel: this.i18n.get('continueEditing'),
+          cancelLabel: this.i18n.get('continueEditingAction'),
           confirmLabel: this.i18n.get('discardEntry'),
         },
         width: '400px',

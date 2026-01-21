@@ -3357,11 +3357,6 @@ export class I18NService {
       en: 'Do you really want to discard the entry?',
       fr: 'Voulez-vous vraiment rejeter l\'entrée?',
     },
-    continueEditing: {
-      de: 'Weiter bearbeiten',
-      en: 'Continue editing',
-      fr: 'Continuer à modifier',
-    },
     continueEditingAction: {
       de: 'Bearbeiten fortsetzen',
       en: 'Continue editing',
