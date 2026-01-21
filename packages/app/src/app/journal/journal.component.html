@@ -238,6 +238,7 @@
             (click)="!openDisabled && selectEntry(row)"
           ></tr>
         </table>
+        <mat-paginator [pageSizeOptions]="[10, 25, 100]" showFirstLastButtons aria-label="Select page of journal entries"></mat-paginator>
 
         @if (!isReadOnly()) {
           <div class="fab-button">

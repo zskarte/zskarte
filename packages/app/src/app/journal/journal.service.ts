@@ -28,8 +28,8 @@ export class JournalService {
   private isOnline = toSignal(this._session.observeIsOnline());
   private _connectionId!: string;
 
-  private operationId = signal<string | null>(null);
-  private organizationId = signal<string | null>(null);
+  private operationId = toSignal(this._session.observeOperationId(), { initialValue: null as string | null });
+  private organizationId = toSignal(this._session.observeOrganizationId(), { initialValue: null as string | null });
   private journalResource = resource({
     params: () => ({
       operationId: this.operationId(),
@@ -81,25 +81,6 @@ export class JournalService {
   public lastUpdated = signal<{ entry: JournalEntry; change: Partial<JournalEntry> } | null>(null);
 
   constructor() {
-    effect(() => {
-      this._session
-        .observeOperationId()
-        .pipe(
-          tap((operationId) => this.operationId.set(operationId as string)),
-          tap(() => this.journalResource.reload()),
-        )
-        .subscribe();
-    });
-    effect(() => {
-      this._session
-        .observeOrganizationId()
-        .pipe(
-          tap((organizationId) => this.organizationId.set(organizationId as string)),
-          tap(() => this.journalResource.reload()),
-        )
-        .subscribe();
-    });
-
     effect(async () => {
       if (this._session.isWorkLocal()) {
         this.data.set(this.backendData() || []);

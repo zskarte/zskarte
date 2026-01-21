@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -22,6 +22,7 @@ import {
 } from '../../ui/empty';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -43,6 +44,7 @@ import { BadgeComponent } from '../../badge/badge.component';
     EmptyTitleComponent,
     EmptyDescriptionComponent,
     BadgeComponent,
+    MatPaginatorModule,
   ],
   templateUrl: './sidebar-journal.component.html',
   styleUrl: './sidebar-journal.component.scss',
@@ -52,24 +54,30 @@ export class SidebarJournalComponent {
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
-  readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
-  readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
+  private elementRef = inject(ElementRef);
+  readonly journalEntries = this.journal.data;
+  readonly journalEntriesToDraw = computed(() => (this.journalEntries() || []).filter((entry) => !entry.isDrawnOnMap).sort((a, b) => a.messageNumber - b.messageNumber));
+  readonly journalEntriesDrawn = computed(() => (this.journalEntries() || []).filter((entry) => entry.isDrawnOnMap).sort((a, b) => a.messageNumber - b.messageNumber));
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
   selectedIndex = 0;
 
-  constructor(private elementRef: ElementRef) {
+  readonly pageSize = signal(10);
+  readonly todoPageIndex = signal(0);
+  readonly donePageIndex = signal(0);
+
+  readonly paginatedToDraw = computed(() => {
+    const start = this.todoPageIndex() * this.pageSize();
+    return this.journalEntriesToDraw().slice(start, start + this.pageSize());
+  });
+
+  readonly paginatedDrawn = computed(() => {
+    const start = this.donePageIndex() * this.pageSize();
+    return this.journalEntriesDrawn().slice(start, start + this.pageSize());
+  });
+
+  constructor() {
     effect(() => {
-      const journalList = this.journal.data();
-
-      const toDraw = (journalList || []).filter((entry) => !entry.isDrawnOnMap);
-      toDraw.sort((a, b) => a.messageNumber - b.messageNumber);
-      this.journalEntriesToDraw.set(toDraw);
-
-      const alreadyDrawn = (journalList || []).filter((entry) => entry.isDrawnOnMap);
-      alreadyDrawn.sort((a, b) => a.messageNumber - b.messageNumber);
-      this.journalEntriesDrawn.set(alreadyDrawn);
-
       if (this.currentMessageNumber) {
         this.scrollToMessage(this.currentMessageNumber);
       }
@@ -94,7 +102,27 @@ export class SidebarJournalComponent {
     });
   }
 
+  onTodoPageChange(event: PageEvent) {
+    this.todoPageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
+
+  onDonePageChange(event: PageEvent) {
+    this.donePageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
+
   scrollToMessage(messageNumber: number) {
+    const toDrawIndex = this.journalEntriesToDraw().findIndex((e) => e.messageNumber === messageNumber);
+    if (toDrawIndex !== -1) {
+      this.todoPageIndex.set(Math.floor(toDrawIndex / this.pageSize()));
+    } else {
+      const drawnIndex = this.journalEntriesDrawn().findIndex((e) => e.messageNumber === messageNumber);
+      if (drawnIndex !== -1) {
+        this.donePageIndex.set(Math.floor(drawnIndex / this.pageSize()));
+      }
+    }
+
     setTimeout(() => {
       const element = this.elementRef.nativeElement.querySelector(`[data-message-number="${messageNumber}"]`);
       if (element) {

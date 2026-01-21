@@ -1,5 +1,4 @@
 import { ChangeDetectorRef, Component, DestroyRef, HostListener, computed, effect, inject, signal, viewChild } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,8 +13,9 @@ import { DepartmentValues, JournalEntry, JournalEntryStatus } from './journal.ty
 import Fuse from 'fuse.js';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -40,12 +40,14 @@ import { SidebarContext } from '../sidebar/sidebar.interfaces';
 
 @Component({
   selector: 'app-journal',
+  standalone: true,
   imports: [
     MatTableModule,
     MatIconModule,
     MatSidenavModule,
     MatButtonModule,
     MatSortModule,
+    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
@@ -100,22 +102,23 @@ export class JournalComponent implements AfterViewInit {
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
   sort = viewChild.required(MatSort);
-  
+
   // Computed counts for each filter
-  eingangCount = computed(() => 
+  eingangCount = computed(() =>
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE).length
   );
-  triageCount = computed(() => 
+  triageCount = computed(() =>
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE).length
   );
-  decisionCount = computed(() => 
+  decisionCount = computed(() =>
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_DECISION).length
   );
-  outgoingCount = computed(() => 
+  outgoingCount = computed(() =>
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION).length
   );
   searchControl = new FormControl('');
   departmentControl = new FormControl('');
+  paginator = viewChild.required(MatPaginator);
   triageFilter = false;
   keyMessageFilter = false;
   outgoingFilter = false;
@@ -141,9 +144,10 @@ export class JournalComponent implements AfterViewInit {
     defaultTemplate: this.messagePdfDefaultTemplate(),
     templateName: this.i18n.get('journalEntryTemplate'),
   }));
+  private cd = inject(ChangeDetectorRef);
   componentOutlet = viewChild.required(NgComponentOutlet);
 
-  constructor(private cd: ChangeDetectorRef) {
+  constructor() {
     this.initializeSearch();
     this.initializeDepartmentFilter();
 
@@ -215,6 +219,7 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort();
+    this.dataSourceFiltered.paginator = this.paginator();
     //define special field/value to do the sort
     this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
       switch (property) {
