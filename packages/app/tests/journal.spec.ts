@@ -38,7 +38,7 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.waitForTimeout(500);
   await saveButton.click();
   await page.waitForResponse(/api\/journal-entries/);
-  await page.getByRole('button', { name: 'Schliessen' }).click();
+  await page.locator('.journal-sidebar').getByRole('button', { name: 'Schliessen' }).click();
 
   await expect(page.locator('.journal-sidebar')).not.toBeVisible();
 }
