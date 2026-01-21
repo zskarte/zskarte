@@ -34,6 +34,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
 import { SearchService } from '../search/search.service';
+import { BadgeComponent } from '../badge/badge.component';
 
 @Component({
   selector: 'app-journal',
@@ -53,7 +54,8 @@ import { SearchService } from '../search/search.service';
     CommonModule,
     JournalFormComponent,
     NgComponentOutlet,
-    ReplaceAllAddressTokensPipe
+    ReplaceAllAddressTokensPipe,
+    BadgeComponent
 ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -93,6 +95,20 @@ export class JournalComponent implements AfterViewInit {
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
   sort = viewChild.required(MatSort);
+  
+  // Computed counts for each filter
+  eingangCount = computed(() => 
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE).length
+  );
+  triageCount = computed(() => 
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE).length
+  );
+  decisionCount = computed(() => 
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_DECISION).length
+  );
+  outgoingCount = computed(() => 
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION).length
+  );
   searchControl = new FormControl('');
   departmentControl = new FormControl('');
   triageFilter = false;

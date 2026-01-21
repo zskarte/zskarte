@@ -68,19 +68,23 @@
             </mat-form-field>
           </div>
           <div class="journal-filter-buttons">
-            <div class="journal-filter-buttons">
+            <div class="journal-filter-buttons-scroll">
               <mat-button-toggle-group hideSingleSelectionIndicator multiple>
                 <mat-button-toggle [checked]="eingangFilter" (change)="toggleEingangFilter($event)">
                   {{ i18n.get('input') }}
+                  <app-badge [count]="eingangCount()"></app-badge>
                 </mat-button-toggle>
                 <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
                   {{ i18n.get('triage') }}
+                  <app-badge [count]="triageCount()"></app-badge>
                 </mat-button-toggle>
                 <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
                   {{ i18n.get('decision') }}
+                  <app-badge [count]="decisionCount()"></app-badge>
                 </mat-button-toggle>
                 <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
                   {{ i18n.get('output') }}
+                  <app-badge [count]="outgoingCount()"></app-badge>
                 </mat-button-toggle>
               </mat-button-toggle-group>
             </div>
