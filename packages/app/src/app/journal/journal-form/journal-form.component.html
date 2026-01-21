@@ -282,9 +282,9 @@
                 </div>
               
                 <div class="row">
-                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" data-testid="communicationDevice">
                     <mat-label>{{ i18n.get('communicationDevice') }}</mat-label>
-                    <mat-select matNativeControl formControlName="communicationType" [attr.aria-label]="i18n.get('communicationDevice')">
+                    <mat-select formControlName="communicationType" [attr.aria-label]="i18n.get('communicationDevice')">
                       <mat-option>{{ i18n.get('noInfo') }}</mat-option>
                       @for (item of CommunicationTypeValues | keyvalue; track item.key) {
                         <mat-option [value]="item.key">{{ i18n.get(item.value) }}</mat-option>
