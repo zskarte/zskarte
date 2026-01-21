@@ -24,7 +24,7 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.getByLabel('Absender').fill(entry.deliverer ?? 'Absender');
   await page.getByLabel('Empfänger').fill(entry.receiver ?? 'Empfänger');
   await page.getByLabel('Zeit').fill(entry.time ?? '12:00');
-  await page.getByLabel('Kommunikationsmittel').click();
+  await page.getByTestId('communicationDevice').click();
   await page.getByRole('option', { name: entry.communicationDevice ?? 'E-Mail' }).click();
   await page.getByLabel('Nummer / Kanal').fill(entry.numberOrChannel ?? 'testtest');
   await page.getByLabel('Betreff').fill(entry.subject ?? 'Betreff');
@@ -32,7 +32,7 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
   await page.getByLabel('Visum').fill(entry.visum ?? 'test');
 
-  const saveButton = page.getByRole('button', { name: 'Speichern' });
+  const saveButton = page.getByRole('button', { name: 'Erfassen' });
   await saveButton.waitFor({ state: 'visible' });
   await saveButton.waitFor({ state: 'attached' });
   await page.waitForTimeout(500);
