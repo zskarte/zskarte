@@ -28,8 +28,8 @@ export class JournalService {
   private isOnline = toSignal(this._session.observeIsOnline());
   private _connectionId!: string;
 
-  private operationId = toSignal(this._session.observeOperationId(), { initialValue: null as string | null });
-  private organizationId = toSignal(this._session.observeOrganizationId(), { initialValue: null as string | null });
+  private operationId = toSignal(this._session.observeOperationId(), { initialValue: undefined });
+  private organizationId = toSignal(this._session.observeOrganizationId(), { initialValue: undefined });
   private journalResource = resource({
     params: () => ({
       operationId: this.operationId(),
@@ -40,7 +40,7 @@ export class JournalService {
         return [];
       }
       if (this._session.isWorkLocal()) {
-        return await db.localJournalEntries
+        return db.localJournalEntries
           .where({ operationId: params.params.operationId, organizationId: params.params.organizationId })
           .toArray();
       }
@@ -250,7 +250,7 @@ export class JournalService {
     if (error || !result) {
       console.error(`could not get journalEntry with number ${messageNumber}`, error);
       const organizationId = this.organizationId();
-      return await db.localJournalEntries.where({ operationId, organizationId, messageNumber }).first();
+      return db.localJournalEntries.where({ operationId, organizationId, messageNumber }).first();
     }
     return result;
   }
