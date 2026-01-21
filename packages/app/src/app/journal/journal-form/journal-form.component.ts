@@ -24,7 +24,8 @@ import {
 } from '../journal.types';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ViewChild } from '@angular/core';
+import { ViewChild, ElementRef } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { JournalService } from '../journal.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -53,6 +54,7 @@ import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-to
     CommonModule,
     TextAreaWithAddressSearchComponent,
     ReplaceAllAddressTokensPipe,
+    A11yModule,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
@@ -67,7 +69,14 @@ export class JournalFormComponent {
   readonly formVisible = signal(false);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
+  @ViewChild('senderInput') private senderInput?: ElementRef<HTMLInputElement>;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
+  
+  focusSenderInput() {
+    setTimeout(() => {
+      this.senderInput?.nativeElement?.focus();
+    }, 0);
+  }
 
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
@@ -248,6 +257,7 @@ export class JournalFormComponent {
     });
     this.showPrint = false;
     this.formVisible.set(true);
+    
   }
 
   toggleManualMessageNumber(event: boolean) {

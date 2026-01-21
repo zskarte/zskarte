@@ -104,7 +104,7 @@
         <div class="row">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>{{ i18n.get('deliverer') }}</mat-label>
-            <input matInput formControlName="sender" />
+            <input matInput formControlName="sender" #senderInput cdkFocusInitial />
           </mat-form-field>
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>{{ i18n.get('receiver') }}</mat-label>

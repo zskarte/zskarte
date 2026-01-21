@@ -388,6 +388,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   openJournalAddDialog() {
+    console.log('openJournalAddDialog');
     if (!this.sidebarOpen || !this.openDisabled) {
       this._dialog.open(JournalEntryCreateModalComponent, {
         width: '800px',
@@ -397,6 +398,7 @@ export class JournalComponent implements AfterViewInit {
         panelClass: 'journal-entry-create-modal',
         backdropClass: 'modal-backdrop',
         disableClose: true,
+        autoFocus: false,
         data: {},
       });
     }

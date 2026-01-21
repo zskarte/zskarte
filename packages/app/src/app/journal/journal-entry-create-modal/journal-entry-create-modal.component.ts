@@ -1,64 +1,49 @@
-import { Component, inject, signal, viewChild, afterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, viewChild, AfterViewInit, DestroyRef } from '@angular/core';
 import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { I18NService } from '../../state/i18n.service';
-import { JournalFormComponent } from '../journal-form/journal-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { JournalService } from '../journal.service';
-import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DestroyRef } from '@angular/core';
+import { I18NService } from '../../state/i18n.service';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { JournalFormComponent } from '../journal-form/journal-form.component';
 
 @Component({
   selector: 'app-journal-entry-create-modal',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatIconModule,
-    MatButtonModule,
-    JournalFormComponent,
-  ],
+  imports: [MatDialogModule, MatIconModule, MatButtonModule, JournalFormComponent],
   templateUrl: './journal-entry-create-modal.component.html',
   styleUrl: './journal-entry-create-modal.component.scss',
 })
-export class JournalEntryCreateModalComponent implements afterViewInit {
-  dialogRef = inject<MatDialogRef<JournalEntryCreateModalComponent>>(MatDialogRef);
+export class JournalEntryCreateModalComponent implements AfterViewInit {
+  private dialogRef = inject<MatDialogRef<JournalEntryCreateModalComponent>>(MatDialogRef);
   private _dialog = inject(MatDialog);
-  i18n = inject(I18NService);
-  journal = inject(JournalService);
   private _snackBar = inject(MatSnackBar);
   private _destroyRef = inject(DestroyRef);
+  i18n = inject(I18NService);
   journalFormComponent = viewChild.required(JournalFormComponent);
   isDirty = signal(false);
 
   constructor() {
-    this.dialogRef.backdropClick().pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
-      this.handleCloseAttempt();
-    });
-
+    this.dialogRef.disableClose = true;
+    this.dialogRef.backdropClick().pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => this.handleCloseAttempt());
     this.dialogRef.keydownEvents().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((event) => {
       if (event.key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
         this.handleCloseAttempt();
       }
     });
   }
 
   ngAfterViewInit() {
-    // Initialize the form for creating a new entry
     const formComponent = this.journalFormComponent();
-    if (formComponent) {
-      formComponent.addNew();
-      
-      // Subscribe to saved events from the form
-      formComponent.saved.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((messageNumber) => {
-        this.showSuccessSnackbar(messageNumber);
-      });
-    }
+    formComponent.addNew();
+    formComponent.saved.subscribe((messageNumber) => this.showSuccessSnackbar(messageNumber));
+    
+    this.dialogRef.afterOpened().subscribe(() => {
+      setTimeout(() => {
+        formComponent.focusSenderInput();
+      }, 100);
+    });
   }
 
   onDirty(dirty: boolean) {
@@ -67,16 +52,15 @@ export class JournalEntryCreateModalComponent implements afterViewInit {
 
   handleCloseAttempt() {
     if (this.isDirty()) {
-      const confirmDialog = this._dialog.open(ConfirmationDialogComponent, {
+      this._dialog.open(ConfirmationDialogComponent, {
         data: {
           message: this.i18n.get('discardEntryConfirm'),
           cancelLabel: this.i18n.get('continueEditing'),
           confirmLabel: this.i18n.get('discardEntry'),
         },
         width: '400px',
-      });
-      confirmDialog.afterClosed().subscribe((response) => {
-        if (response === true) {
+      }).afterClosed().subscribe((confirmed) => {
+        if (confirmed) {
           this.dialogRef.close();
         }
       });
@@ -89,11 +73,7 @@ export class JournalEntryCreateModalComponent implements afterViewInit {
     this.handleCloseAttempt();
   }
 
-  showSuccessSnackbar(messageNumber: number) {
-    this._snackBar.open(
-      this.i18n.get('entryCreated').replace('{number}', messageNumber.toString()),
-      undefined,
-      { duration: 3000 },
-    );
+  private showSuccessSnackbar(messageNumber: number) {
+    this._snackBar.open(this.i18n.get('entryCreated').replace('{number}', messageNumber.toString()), undefined, { duration: 3000 });
   }
 }
