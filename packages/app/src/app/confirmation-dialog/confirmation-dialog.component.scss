@@ -1,0 +1,8 @@
+:host ::ng-deep .mat-mdc-dialog-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}

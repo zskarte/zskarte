@@ -58,7 +58,7 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
           cancelLabel: this.i18n.get('continueEditingAction'),
           confirmLabel: this.i18n.get('discardEntry'),
         },
-        width: '400px',
+        width: '520px',
       }).afterClosed().subscribe((confirmed) => {
         if (confirmed) {
           this.dialogRef.close();
