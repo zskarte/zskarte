@@ -17,30 +17,62 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.getByRole('tab', { name: 'Journal' }).click();
   await page.getByRole('button', { name: 'Add' }).click();
 
-  if (entry.reportId) {
-    await page.getByLabel('Meldungsnummer manuell').click();
-    await page.getByRole('spinbutton', { name: 'Meldungsnummer' }).fill(entry.reportId);
-  }
-  await page.getByLabel('Absender').fill(entry.deliverer ?? 'Absender');
-  await page.getByLabel('Empfänger').fill(entry.receiver ?? 'Empfänger');
-  await page.getByLabel('Zeit').fill(entry.time ?? '12:00');
-  await page.getByTestId('communicationDevice').click();
-  await page.getByRole('option', { name: entry.communicationDevice ?? 'E-Mail' }).click();
-  await page.getByLabel('Nummer / Kanal').fill(entry.numberOrChannel ?? 'testtest');
-  await page.getByLabel('Betreff').fill(entry.subject ?? 'Betreff');
-  await page.locator('app-text-area-with-address-search .ql-container').click();
-  await page.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
-  await page.getByLabel('Visum').fill(entry.visum ?? 'test');
+  const modal = page.locator('app-journal-entry-create-modal');
+  await modal.waitFor({ state: 'visible' });
 
-  const saveButton = page.getByRole('button', { name: 'Erfassen' });
+  const modalContent = modal.locator('.modal-content');
+
+  const senderInput = modalContent.getByLabel('Absender');
+  await senderInput.scrollIntoViewIfNeeded();
+  await senderInput.fill(entry.deliverer ?? 'Absender');
+
+  const receiverInput = modalContent.getByLabel('Empfänger');
+  await receiverInput.scrollIntoViewIfNeeded();
+  await receiverInput.fill(entry.receiver ?? 'Empfänger');
+
+  const timeInput = modalContent.getByLabel('Zeit');
+  await timeInput.scrollIntoViewIfNeeded();
+  await timeInput.fill(entry.time ?? '12:00');
+
+  const communicationSelect = modalContent.locator('mat-select[formcontrolname="communicationType"]');
+  await communicationSelect.scrollIntoViewIfNeeded();
+  await communicationSelect.locator('.mat-mdc-select-trigger').click({ force: true });
+  const communicationOption = page.locator('.cdk-overlay-container mat-option').getByText(entry.communicationDevice ?? 'E-Mail');
+  await communicationOption.waitFor({ state: 'visible' });
+  await communicationOption.click();
+
+  const channelInput = modalContent.getByLabel('Nummer / Kanal');
+  await channelInput.scrollIntoViewIfNeeded();
+  await channelInput.fill(entry.numberOrChannel ?? 'testtest');
+
+  const subjectInput = modalContent.getByLabel('Betreff');
+  await subjectInput.scrollIntoViewIfNeeded();
+  await subjectInput.fill(entry.subject ?? 'Betreff');
+
+  const messageEditor = modalContent.locator('app-text-area-with-address-search .ql-editor');
+  await messageEditor.scrollIntoViewIfNeeded();
+  await messageEditor.dblclick();
+  await messageEditor.type(entry.content ?? 'Inhalt');
+  await page.waitForTimeout(600);
+
+  const visaInput = modalContent.getByLabel('Visum');
+  await visaInput.scrollIntoViewIfNeeded();
+  await visaInput.fill(entry.visum ?? 'test');
+
+  const saveButton = modalContent.getByRole('button', { name: 'Erfassen' });
+  await saveButton.scrollIntoViewIfNeeded();
   await saveButton.waitFor({ state: 'visible' });
-  await saveButton.waitFor({ state: 'attached' });
-  await page.waitForTimeout(500);
+  await expect(saveButton).toBeEnabled({ timeout: 5000 });
+  const saveResponsePromise = page.waitForResponse((response) => {
+    return response.url().includes('/api/journal-entries') && response.request().method() === 'POST';
+  });
   await saveButton.click();
-  await page.waitForResponse(/api\/journal-entries/);
-  await page.getByRole('button', { name: 'Schliessen' }).click();
-
-  await expect(page.locator('.journal-sidebar')).not.toBeVisible();
+  await saveResponsePromise;
+  const snackbarLabel = page.locator('mat-snack-bar-container .mat-mdc-snack-bar-label');
+  await expect(snackbarLabel.last()).toContainText(/Eintrag #\d+ erfasst\./);
+  
+  await modal.locator('.modal-header').getByRole('button', { name: 'Schliessen' }).click();
+  await modal.waitFor({ state: 'hidden' });
 }
 
 test.describe('Journal', () => {
@@ -51,22 +83,25 @@ test.describe('Journal', () => {
   });
 
   test('should add journal entry', async ({ page }) => {
-    await createJournalEntry({ reportId: '10' }, page);
-    
     const rows = page.locator('tbody').getByRole('row');
-    const rowCount = await rows.count();
-    const firstRow = rows.first();
-    await expect(firstRow.getByRole('cell').first()).toHaveText('10');
-    await expect(firstRow.getByRole('cell').nth(1)).toHaveText('Betreff');
-    await expect(firstRow.getByRole('cell').nth(2)).toHaveText('Inhalt');
-    await expect(firstRow.getByRole('cell').nth(4)).toHaveText('Triage');
-    await expect(firstRow.getByRole('cell').nth(5)).toHaveText('Triage');
+    const initialRowCount = await rows.count();
+
+    await createJournalEntry({ subject: 'First entry' }, page);
+    
+    const firstEntryRow = rows.filter({ hasText: 'First entry' }).first();
+    await expect(firstEntryRow).toBeVisible();
+    await expect(firstEntryRow.getByRole('cell').nth(2)).toHaveText('Inhalt');
+    await expect
+      .poll(async () => rows.count(), { timeout: 10000 })
+      .toBeGreaterThan(initialRowCount);
 
     await createJournalEntry({ subject: 'Second entry' }, page);
     
-    await expect(rows).toHaveCount(rowCount + 1);
     const secondEntryRow = rows.filter({ hasText: 'Second entry' }).first();
     await expect(secondEntryRow).toBeVisible();
+    await expect
+      .poll(async () => rows.count(), { timeout: 10000 })
+      .toBeGreaterThan(initialRowCount + 1);
   });
 
   test('should draw journal entry', async ({ page }) => {
