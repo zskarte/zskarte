@@ -11,6 +11,7 @@ import {
 import {
   ChangesetInconsistentError,
   ChangesetMissingError,
+  INITIAL_CHANGESET_ID,
   IZsChangeset,
   IZsChangesetConflict,
   IZsChangesetConflictDetails,
@@ -20,7 +21,6 @@ import {
   ZsMapState,
 } from '@zskarte/types';
 import { applyPatches, Patch, produce } from 'immer';
-import { v4 as uuidv4 } from 'uuid';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
 import { Signs } from '../map-renderer/signs';
@@ -30,9 +30,12 @@ import { db } from '../db/db';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { I18NService } from '../state/i18n.service';
 import {
+  createNewChangeset,
+  getModifiedDrawElements,
   isValidImmerPatch,
   updateChangesetIdsAfterApply,
   updateChangesetIdsAfterUnapply,
+  updateChangesetIdsFromPatches,
   verifyChangesetCanUnapply,
   verifyChangesetConsistency,
 } from '@zskarte/common';
@@ -41,7 +44,6 @@ import { Md5 } from 'ts-md5';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
 
-export const INITIAL_CHANGESET_ID = '0';
 export const NO_CONFLICT_VALUE = 'NO_CONFLICT_VALUE';
 export const CONFLICT_INDEX_NAME = ['orig', 'there', 'our'];
 
@@ -389,7 +391,7 @@ export class ChangesetService {
       },
     );
     //clean drawElementsLastChangeset/changedDrawElements/deletedDrawElements by remove unchanged elements after clean patch list
-    const modifiedDrawElements = this._getModifiedDrawElements(changeset.patches);
+    const modifiedDrawElements = getModifiedDrawElements(changeset.patches);
     Object.keys(changeset.drawElementsLastChangeset).forEach((elemId) => {
       if (!modifiedDrawElements.has(elemId)) {
         delete changeset.drawElementsLastChangeset[elemId];
@@ -488,24 +490,14 @@ export class ChangesetService {
       const author = this._session.getLabel();
 
       if (organisationId && operationId && author) {
-        const newChangeset: IZsChangeset = {
-          parentChangesetId: '-1',
-          id: uuidv4(),
-          operationId,
-          messageNumber,
-          changedDrawElements: [],
-          deletedDrawElements: [],
-          drawElementsLastChangeset: {},
+        const newChangeset = createNewChangeset(
           organisationId,
+          operationId,
           author,
-          description: new Set(),
-          startAt: new Date().getTime(),
-          saved: false,
-          patches: [],
-          inversePatches: [],
+          messageNumber,
           manual,
           manualDescription,
-        };
+        );
         this._current.set(newChangeset);
         return newChangeset;
       } else {
@@ -658,18 +650,9 @@ export class ChangesetService {
     }
   }
 
-  private _getModifiedDrawElements(patches: Patch[]) {
-    return patches.reduce<Set<string>>((acc, patch) => {
-      if (patch.path.length > 1 && patch.path[0] === 'drawElements') {
-        acc.add(patch.path[1] as string);
-      }
-      return acc;
-    }, new Set());
-  }
-
   public async addChange(mapState: ZsMapState, patches: Patch[], inversePatches: Patch[], handleUnhandled = false) {
     if (patches.length === 0) return;
-    const modifiedDrawElements = this._getModifiedDrawElements(patches);
+    const modifiedDrawElements = getModifiedDrawElements(patches);
 
     //make sure timeout is not handled while update
     this.timeout.set(null);
@@ -728,7 +711,7 @@ export class ChangesetService {
         if (!changeset.changedDrawElements.includes(elemId)) {
           changeset.changedDrawElements.push(elemId);
           changeset.drawElementsLastChangeset[elemId] =
-            mapState.drawElementChangesetIds[elemId]?.[mapState.drawElementChangesetIds[elemId].length - 1] || '0';
+            mapState.drawElementChangesetIds[elemId]?.[mapState.drawElementChangesetIds[elemId].length - 1] || INITIAL_CHANGESET_ID;
           if (changeset.origDrawElements) {
             if (element) {
               changeset.origDrawElements[elemId] = _.cloneDeep(element);
@@ -1546,30 +1529,7 @@ export class ChangesetService {
     }
 
     //recreate changeset meta informations
-    const modifiedDrawElements = this._getModifiedDrawElements(changeset.patches);
-    changeset.changedDrawElements = Array.from(modifiedDrawElements);
-    changeset.deletedDrawElements = changeset.changedDrawElements.filter((elemId) =>
-      changeset.patches.some(
-        (patch) =>
-          patch.op === 'remove' &&
-          patch.path.length === 2 &&
-          patch.path[0] === 'drawElements' &&
-          patch.path[1] === elemId,
-      ),
-    );
-    changeset.drawElementsLastChangeset = changeset.changedDrawElements.reduce(
-      (acc, elemId) => {
-        acc[elemId] =
-          incommingAppliedMapState.drawElementChangesetIds[elemId]?.[
-            incommingAppliedMapState.drawElementChangesetIds[elemId].length - 1
-          ] || '-1';
-
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
-    changeset.parentChangesetId =
-      incommingAppliedMapState.changesetIds?.[incommingAppliedMapState.changesetIds.length - 1] || INITIAL_CHANGESET_ID;
+    updateChangesetIdsFromPatches(changeset, incommingAppliedMapState);
 
     //extract changes not longer contained
     const patchesHash = changeset.patches.map((patch) => Md5.hashStr(JSON.stringify(patch)));
