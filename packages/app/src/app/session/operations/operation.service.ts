@@ -240,17 +240,18 @@ export class OperationService {
     if (!operationId) {
       return;
     }
+    const fileName = `Ereignis_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const operation = await this.getOperation(operationId);
     const journal = await JournalService.getJournal(operationId);
     const outgoingChangesets = await this.getOutgoingChangesetExport(operationId);
     const saveFile: OperationExportFile = {
       name: operation?.name ?? '',
       description: operation?.description ?? '',
-      version: OperationExportFileVersion.V3,
+      version: OperationExportFileVersion.V2,
       mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
       eventStates: operation?.eventStates ?? [],
       mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },     
-      changesets: operation.changesets || {},
+      changesets: operation?.changesets || {},
       outgoingChangesets,
       journal: journal ?? [],
     };

@@ -1284,7 +1284,10 @@ export class ZsMapStateService {
 
   public addIncommingChangesets(changeset: IZsChangeset) {
     changeset.applied = false;
-    if (!this.isHistoryMode() || this.isCurrentMapData() || (this.isHistoryMode() && !this.isCurrentMapData())) {
+    if (
+      (!this._changeset.hasChanges() || this.getChangesetConfig().hiddenMode) &&
+      (!this.isHistoryMode() || this.isCurrentMapData())
+    ) {
       this.applyChangesets([changeset]);
     } else {
       this._changeset.addIncomming(changeset);
