@@ -52,14 +52,15 @@ export class SidebarDrawLayers {
     );
   }
   private layerNameModel = signal({
+    id: '',
     name: '',
   });
   protected layerNameForm = form(this.layerNameModel, (schema) => {
     required(schema.name, { message: this.i18n.get('fieldRequired') });
     validate(schema.name, (ctx) => {
       const value = ctx.value();
-      const nameExists = this.layers()?.find((layer) => layer.name === value);
-      if (nameExists) {
+      const existingLayer = this.layers()?.find((layer) => layer.name === value);
+      if (existingLayer && existingLayer.id !== ctx.valueOf(schema.id)) {
         return [
           {
             kind: 'duplicate',
@@ -76,8 +77,13 @@ export class SidebarDrawLayers {
       .open(this.dialogTemplate(), { minWidth: '400px' })
       .afterClosed()
       .subscribe(() => {
-        this.layerNameForm().reset({ name: '' });
+        this.layerNameForm().reset({ name: '', id: '' });
       });
+  }
+
+  protected async renameLayer(layer: { id: string, name?: string }) {
+    this.layerNameForm().reset({ id: layer.id, name: layer.name ?? '' });
+    this.addDrawLayer();
   }
 
   protected submit(e: SubmitEvent) {
@@ -86,7 +92,13 @@ export class SidebarDrawLayers {
       return;
     }
 
-    this.stateService.addDrawLayer(this.layerNameForm().value().name);
+    const value = this.layerNameForm().value();
+    if (value.id) {
+      this.stateService.renameDrawLayer(value.id, value.name)
+    } else {
+      this.stateService.addDrawLayer(value.name);
+    }
+
     this.dialog.closeAll();
   }
 

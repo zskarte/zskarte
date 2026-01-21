@@ -3,6 +3,9 @@
   @for (layer of layers(); track layer.id) {
     <div class="layer">
       <mat-radio-button [value]="layer.id">{{ layer.name }}</mat-radio-button>
+      <button mat-icon-button [attr.aria-label]="i18n.get('renameLayer')" (click)="renameLayer(layer)">
+        <mat-icon>edit</mat-icon>
+      </button>
       @if (activeLayerId !== layer.id) {
         <button mat-icon-button [attr.aria-label]="layer.isVisible ? i18n.get('show') : i18n.get('hide')" (click)="toggleLayerVisibility(layer.id, !layer.isVisible)">
           @if (layer.isVisible) {
@@ -28,7 +31,7 @@
     <div mat-dialog-content>
       <mat-form-field appearance="outline">
         <mat-label>{{ i18n.get('name') }}</mat-label>
-        <input class="" matInput [formField]="layerNameForm.name" />
+        <input matInput [formField]="layerNameForm.name" />
         @if (layerNameForm.name().touched() && layerNameForm.name().invalid() && layerNameForm.name().errors().length) {
           <mat-error>{{layerNameForm.name().errors()[0].message}}</mat-error>
         }

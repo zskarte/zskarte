@@ -847,17 +847,23 @@ export class ZsMapStateService {
     });
   }
 
+  public renameDrawLayer(id: string, name: string) {
+    this.assertLayerExists(id);
+    this.updateMapState((draft) => {
+      draft.layers![id].name = name;
+    });
+  }
+
   public removeDrawLayer(id: string) {
     this.assertLayerExists(id);
 
-    // remove all drawElements of the layer
-    Object.entries(this._map.value.drawElements ?? [])
-      .filter(([, element]) => element.layer === id)
-      .forEach(([id]) => {
-        this.removeDrawElement(id);
-      });
-
     this.updateMapState((draft) => {
+      Object.entries(draft.drawElements ?? [])
+        .filter(([, element]) => element.layer === id)
+        .forEach(([id]) => {
+          delete draft.drawElements![id];
+        });
+
       delete draft.layers![id];
     });
   }
@@ -866,7 +872,11 @@ export class ZsMapStateService {
     this.assertLayerExists(id);
     this.updateDisplayState(draft => {
       draft.activeLayer = id;
-    })
+      Object.keys(draft.layerOpacity).forEach((key) => {
+        draft.layerOpacity[key] = 0.5;
+      });
+      draft.layerOpacity[id] = 1;
+    });
   }
 
   public toggleDrawLayerVisibility(id: string, visible: boolean) {
@@ -1224,7 +1234,7 @@ export class ZsMapStateService {
       }
       this._mapPatches.value.push(...patches);
       this._mapPatches.next(this._mapPatches.value);
-      this._mapInversePatches.value.push(...inversePatches);
+      this._mapInversePatches.value.push(...inversePatches.reverse());
       this._mapInversePatches.next(this._mapInversePatches.value);
       this._undoStackPointer.next(0);
 

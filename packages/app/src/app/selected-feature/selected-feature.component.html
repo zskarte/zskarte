@@ -7,7 +7,7 @@
             <div>
               @if (selectedSignature.src) {
                 <div class="imgwrapper" (click)="openImageDetail(selectedSignature)">
-                  <img [src]="getImageUrl(selectedSignature.src)" />
+                  <img [src]="getImageUrl(selectedSignature.src)" alt="" />
                 </div>
               }
               @if (i18n.getLabelForSign(selectedSignature)) {
@@ -28,9 +28,15 @@
                       {{ drawElement.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
                     </div>
                   }
+                  <div>
+                    {{ i18n.get('drawLayer') }}: {{ selectedElementLayerName() }}
+                  </div>
                 </div>
               }
-              @if (editMode | async) {
+              @if (selectedElementLayer()?.getId() !== activeLayer()?.getId()) {
+                <div class="other-layer">{{ i18n.get('elementOnOtherLayer') }}</div>
+              }
+              @if (editMode()) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('name') }}</mat-label>
                   @if (!isText(drawElement)) {
@@ -50,7 +56,7 @@
                   }
                 </mat-form-field>
               }
-              @if (!(editMode | async)) {
+              @if (!(editMode())) {
                 <div class="title">
                   @if (!isText(drawElement)) {
                     <div>
@@ -64,7 +70,7 @@
                   }
                 </div>
               }
-              @if (editMode | async) {
+              @if (editMode()) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
                   <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
@@ -90,7 +96,7 @@
                   />
                 </mat-form-field>
               }
-              @if ((editMode | async) && personSigns.includes((selectedFeature | async)?.get('sig').id)) {
+              @if ((editMode()) && personSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('affectedPersons') }}</mat-label>
                   <input
@@ -102,7 +108,7 @@
                   />
                 </mat-form-field>
               }
-              @if (editMode | async) {
+              @if (editMode()) {
                 <div class="markdown">
                   <div class="markdownEditor">
                     <mat-form-field appearance="outline">
@@ -116,7 +122,7 @@
                   </div>
                 </div>
               }
-              @if (!editMode && drawElement.description) {
+              @if (!editMode() && drawElement.description) {
                 <div class="description" [innerHTML]="drawElement.description"></div>
               }
               
@@ -124,7 +130,7 @@
           </div>
           <mat-divider></mat-divider>
         }
-        @if (editMode | async) {
+        @if (editMode()) {
           <mat-accordion multi displayMode="flat">
             @if (selectedFeature | async; as selectedFeature) {
               @if (!selectedSignature.text) {
@@ -147,7 +153,7 @@
                     <mat-divider class="section-divider"></mat-divider>
 
                     <div class="colorPicker">
-                      @if (editMode | async) {
+                      @if (editMode()) {
                         <mat-form-field class="color-picker" appearance="outline" floatLabel="always">
                           <mat-label>{{ i18n.get('color') }}</mat-label>
                           @if (useColorPicker) {
@@ -174,14 +180,14 @@
                         </mat-form-field>
                         
                       }
-                      @if (editMode | async) {
+                      @if (editMode()) {
                         <mat-checkbox [(ngModel)]="useColorPicker" class="color-mode-toggle">
                           {{ i18n.get('colorPickerMode') }}
                         </mat-checkbox>
                       }
                       <mat-divider class="section-divider"></mat-divider>
                     </div>
-                    @if (editMode | async) {
+                    @if (editMode()) {
                       <mat-checkbox
                         [ngModel]="drawElement.protected"
                         (ngModelChange)="updateProperty(drawElement, 'protected', $event)"
@@ -189,7 +195,7 @@
                       >
                     }
                     <br />
-                    @if ((editMode | async) && (selectedSignature.type === 'Point' || selectedSignature.src)) {
+                    @if ((editMode()) && (selectedSignature.type === 'Point' || selectedSignature.src)) {
                       <mat-checkbox
                         [ngModel]="drawElement.nameShow"
                         (ngModelChange)="updateProperty(drawElement, 'nameShow', $event)"
@@ -519,7 +525,7 @@
       </div>
       <mat-divider></mat-divider>
       <stack>
-        @if (editMode | async) {
+        @if (editMode()) {
           <button class="primarybutton" mat-stroked-button (click)="copy(drawElement)">
             <mat-icon>content_copy</mat-icon>
             {{ i18n.get('copy') }}
@@ -531,7 +537,7 @@
         }
       </stack>
     }
-    @if ((editMode | async) && (mergeMode | async)) {
+    @if ((editMode()) && (mergeMode | async)) {
       <mat-card-content>
         <div>
           <div>{{ i18n.get('chooseGroupingArea') }}</div>

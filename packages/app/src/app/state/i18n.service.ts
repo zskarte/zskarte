@@ -3382,10 +3382,15 @@ export class I18NService {
       en: 'create',
       fr: 'créer',
     },
-    elementOnDifferentLayer: {
-      de: 'Dieses Element befindet sich auf einer anderen Ebene und ist nicht selektierbar.',
-      fr: "Cet élément se trouve sur une autre couche et n'est pas sélectionnable.",
-      en: 'This element is on a different layer and cannot be selected.',
+    renameLayer: {
+      de: 'Ebene umbenennen',
+      fr: 'Renommer la couche',
+      en: 'Rename layer',
+    },
+    elementOnOtherLayer: {
+      de: 'Element ist auf einer anderen Ebene eingezeichnet und kann nicht editiert werden.',
+      fr: "L'élément est dessiné sur une autre couche et ne peut pas être édité.",
+      en: 'Element is drawn on a different layer and cannot be edited.',
     },
   };
 

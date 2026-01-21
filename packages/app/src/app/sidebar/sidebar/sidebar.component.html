@@ -5,6 +5,72 @@
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>
+        {{ i18n.get('currentMap') }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-template matExpansionPanelContent>
+        <div>
+          <div class="title">{{ i18n.get('opacity') }}</div>
+          <mat-slider [max]="1" [min]="0" [step]="0.1" class="layer-slider">
+            <input matSliderThumb [ngModel]="mapState.observeMapOpacity() | async" (ngModelChange)="mapState.setMapOpacity($event)" />
+          </mat-slider>
+        </div>
+        @for (mapSource of mapSources; track mapSource; let index = $index) {
+          <div>
+            <mat-radio-group>
+              <mat-radio-button [value]="mapSource.key" (click)="switchMapSource(mapSource.key)" [checked]="mapSource.selected">
+                {{ mapSource.translation }}
+              </mat-radio-button>
+            </mat-radio-group>
+            @if (workLocal && mapSource.key !== 'noBaseMap') {
+              <span class="mapSourceAvailable" (click)="showLocalInfoMap(mapSource.key, index)">
+                @if (isDownloadableMap(mapSource.key)) {
+                  @if (mapSource.offlineAvailable) {
+                    <i class="material-icons">file_download_done</i>
+                  }
+                  @if (!mapSource.offlineAvailable) {
+                    <i class="material-icons">file_download</i>
+                  }
+                } @else {
+                  <i class="material-icons">file_download_off</i>
+                }
+              </span>
+            }
+            @if (isDownloadableMap(mapSource.key)) {
+              <div class="buttons">
+                @switch (mapDownloadStates[mapSource.key]) {
+                  @case ('loading') {
+                    <button mat-flat-button color="warn" class="button-cancel" (click)="cancelDownloadMap(mapSource.key)">
+                      {{ i18n.get('cancel') }}
+                    </button>
+                    <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
+                  }
+                  @case ('downloaded') {
+                    <button mat-flat-button color="warn" class="button-remove" (click)="removeLocalMap(mapSource.key)">
+                      <mat-icon>file_download</mat-icon>
+                      {{ i18n.get('removeSymbol') }}
+                    </button>
+                  }
+                  @default {
+                    <button mat-stroked-button class="button-download" (click)="downloadMap(mapSource.key)">
+                      <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
+                    </button>
+                    <button mat-stroked-button class="button-upload" (click)="mapUpload.click()">
+                      <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
+                    </button>
+                    <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadMap($event, mapSource.key)" #mapUpload />
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+    </ng-template>
+  </mat-expansion-panel>
+  <mat-divider></mat-divider>
+  <mat-expansion-panel class="mat-elevation-z0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
         {{ i18n.get('drawLayer') }}
       </mat-panel-title>
     </mat-expansion-panel-header>
@@ -12,83 +78,6 @@
       <app-sidebar-draw-layers />
     </ng-template>
   </mat-expansion-panel>
-  <mat-divider></mat-divider>
-  <mat-expansion-panel class="mat-elevation-z0">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        {{ i18n.get('currentMap') }}
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-    <ng-template matExpansionPanelContent>
-      
-      @if (mapState.getActiveLayer(); as layer) {
-        <div class="selectedLayer">
-          
-          <div>
-            <div class="titleRow">
-              <div class="title">{{ layer.observeName() | async }}</div>
-            </div>
-            <div>
-              <mat-slider [max]="1" [min]="0" [step]="0.1" class="layer-slider">
-                <input matSliderThumb [ngModel]="mapState.observeMapOpacity() | async" (ngModelChange)="mapState.setMapOpacity($event)" />
-              </mat-slider>
-            </div>
-          </div>
-          @for (mapSource of mapSources; track mapSource; let index = $index) {
-            <div>
-              <mat-radio-group>
-                <mat-radio-button [value]="mapSource.key" (click)="switchMapSource(mapSource.key)" [checked]="mapSource.selected">
-                  {{ mapSource.translation }}
-                </mat-radio-button>
-              </mat-radio-group>
-              @if (workLocal && mapSource.key !== 'noBaseMap') {
-                <span class="mapSourceAvailable" (click)="showLocalInfoMap(mapSource.key, index)">
-                  @if (isDownloadableMap(mapSource.key)) {
-                    @if (mapSource.offlineAvailable) {
-                      <i class="material-icons">file_download_done</i>
-                    }
-                    @if (!mapSource.offlineAvailable) {
-                      <i class="material-icons">file_download</i>
-                    }
-                  } @else {
-                    <i class="material-icons">file_download_off</i>
-                  }
-                </span>
-              }
-              @if (isDownloadableMap(mapSource.key)) {
-                <div class="buttons">
-                  @switch (mapDownloadStates[mapSource.key]) {
-                    @case ('loading') {
-                      <button mat-flat-button color="warn" class="button-cancel" (click)="cancelDownloadMap(mapSource.key)">
-                        {{ i18n.get('cancel') }}
-                      </button>
-                      <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
-                    }
-                    @case ('downloaded') {
-                      <button mat-flat-button color="warn" class="button-remove" (click)="removeLocalMap(mapSource.key)">
-                        <mat-icon>file_download</mat-icon>
-                        {{ i18n.get('removeSymbol') }}
-                      </button>
-                    }
-                    @default {
-                      <button mat-stroked-button class="button-download" (click)="downloadMap(mapSource.key)">
-                        <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
-                      </button>
-                      <button mat-stroked-button class="button-upload" (click)="mapUpload.click()">
-                        <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
-                      </button>
-                      <input type="file" class="mapfile-input" accept=".pmtiles" (change)="uploadMap($event, mapSource.key)" #mapUpload />
-                    }
-                  }
-                </div>
-              }
-            </div>
-          }
-        </div>
-      }
-    </ng-template>
-  </mat-expansion-panel>
-
   @if ((mapState.observeSelectedMapLayers$() | async)?.length ?? 0 > 0) {
     <mat-divider></mat-divider>
     <mat-expansion-panel class="mat-elevation-z0">
