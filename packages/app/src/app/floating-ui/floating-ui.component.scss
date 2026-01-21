@@ -42,6 +42,11 @@
   width: 80%;
   max-width: 400px;
   align-self: flex-start;
+  will-change: width;
+
+  &.sidebar-open {
+    width: calc(100% - 48px - var(--sidebar-width));
+  }
 }
 
 .limit {
