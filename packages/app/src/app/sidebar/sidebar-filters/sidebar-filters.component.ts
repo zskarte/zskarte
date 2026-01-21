@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { combineLatest, Subject } from 'rxjs';
 import { I18NService } from 'src/app/state/i18n.service';
@@ -43,7 +43,6 @@ import { MatSliderModule } from '@angular/material/slider';
 export class SidebarFiltersComponent implements OnInit, OnDestroy {
   i18n = inject(I18NService);
   private mapState = inject(ZsMapStateService);
-  private globalScaleChanges = new Subject<number>();
 
   filterSymbols: any[] = [];
   signCategories: any[] = [...signCategories.values()];
@@ -76,9 +75,6 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
         this.updateFilterSymbolsAndFeatureTypes(drawElements, hiddenSymbols, hiddenFeatureTypes);
       });
 
-    this.globalScaleChanges
-      .pipe(debounceTime(200), takeUntil(this._ngUnsubscribe))
-      .subscribe((scale) => this.mapState.setGlobalSymbolScale(scale));
   }
 
   ngOnDestroy(): void {
@@ -201,7 +197,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   }
 
   public setGlobalSymbolScale(scale: number) {
-    this.globalScaleChanges.next(scale);
+    this.mapState.setGlobalSymbolScale(scale);
   }
 
   public setGlobalSymbolScaleMode(zoomBased: boolean) {

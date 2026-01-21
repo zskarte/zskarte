@@ -99,6 +99,8 @@ export class MapRendererService {
   private _searchArea = inject(MapSearchAreaService);
   private _state = inject(ZsMapStateService);
   private _drawElementCache: Record<string, { layer: string | undefined; element: ZsMapBaseDrawElement }> = {};
+  private _globalSymbolScale = 1;
+  private _globalSymbolScaleMode: 'manual' | 'zoom' = 'manual';
 
   public constructor() {
     this._search.setZoomToFit(this.zoomToFit.bind(this));
@@ -109,6 +111,16 @@ export class MapRendererService {
     const normalizedZoom = Number.isFinite(zoom) ? (zoom as number) : baseZoom;
     const rawFactor = Math.pow(2, normalizedZoom - baseZoom);
     return Math.min(4, Math.max(0.25, rawFactor));
+  }
+
+  private applyGlobalSymbolScale(zoom?: number) {
+    const factor =
+      this._globalSymbolScaleMode === 'zoom'
+        ? this._globalSymbolScale * this.getZoomScaleFactor(zoom ?? this._view?.getZoom())
+        : this._globalSymbolScale;
+    DrawStyle.setGlobalScaleFactor(factor);
+    this._allLayers.forEach((layer) => layer.changed());
+    this._map?.render();
   }
 
   public terminate() {
@@ -398,6 +410,9 @@ export class MapRendererService {
 
     this._view.on('change:resolution', () => {
       debouncedZoomSave();
+      if (this._globalSymbolScaleMode === 'zoom') {
+        this.applyGlobalSymbolScale(this._view.getZoom());
+      }
     });
 
     this._view.on('change:rotation', () => {
@@ -428,17 +443,20 @@ export class MapRendererService {
         }
       });
 
-    combineLatest([
-      this._state.observeGlobalSymbolScale(),
-      this._state.observeGlobalSymbolScaleMode(),
-      this._state.observeMapZoom(),
-    ])
+    this._state
+      .observeGlobalSymbolScale()
       .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe(([scale, mode, zoom]) => {
-        const factor = mode === 'zoom' ? scale * this.getZoomScaleFactor(zoom) : scale;
-        DrawStyle.setGlobalScaleFactor(factor);
-        this._allLayers.forEach((layer) => layer.changed());
-        this._map?.render();
+      .subscribe((scale) => {
+        this._globalSymbolScale = scale;
+        this.applyGlobalSymbolScale();
+      });
+
+    this._state
+      .observeGlobalSymbolScaleMode()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((mode) => {
+        this._globalSymbolScaleMode = mode;
+        this.applyGlobalSymbolScale();
       });
 
     this._state
