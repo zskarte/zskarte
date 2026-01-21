@@ -74,15 +74,23 @@ export class JournalFormComponent {
   CommunicationTypeValues = CommunicationTypeValues;
 
   entry = input.required<JournalEntry | null>();
+  isCreateModal = input<boolean>(false);
   dirty = output<boolean>();
   close = output();
+  saved = output<number>();
   selectedIndex = 0;
   showPrint = false;
   markPotentialAddresses = signal(false);
   manualMessageNumber = signal(false);
   constructor() {
     effect(() => {
-      this.selectEntry(this.entry());
+      const entry = this.entry();
+      if (entry !== null) {
+        this.selectEntry(entry);
+      } else if (this.isCreateModal()) {
+        // Don't call addNew here, it will be called from the modal component
+        this.formVisible.set(true);
+      }
     });
 
     this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
@@ -395,19 +403,36 @@ export class JournalFormComponent {
     }
 
     if (this.entry() === null) {
-      //if in message creating "mode" directly start to add new one, and keep obvious values
-      this.addNew();
-      this.journalForm.patchValue({
-        visumMessage: rest.visumMessage,
-      });
-      if (rest.communicationType === 'funk') {
+      // Get the message number from the saved result
+      const savedMessageNumber = result?.messageNumber;
+      
+      if (this.isCreateModal()) {
+        // In create modal mode, emit saved event and reset form except visa
+        if (savedMessageNumber) {
+          this.saved.emit(savedMessageNumber);
+        }
+        const savedVisa = rest.visumMessage;
+        this.addNew();
         this.journalForm.patchValue({
-          communicationType: rest.communicationType,
-          communicationDetails: rest.communicationDetails,
+          visumMessage: savedVisa,
         });
+        this.dirty.emit(false);
+        this.showPrint = false;
+      } else {
+        //if in message creating "mode" directly start to add new one, and keep obvious values
+        this.addNew();
+        this.journalForm.patchValue({
+          visumMessage: rest.visumMessage,
+        });
+        if (rest.communicationType === 'funk') {
+          this.journalForm.patchValue({
+            communicationType: rest.communicationType,
+            communicationDetails: rest.communicationDetails,
+          });
+        }
+        this.dirty.emit(false);
+        this.showPrint = false;
       }
-      this.dirty.emit(false);
-      this.showPrint = false;
     } else {
       this.doClose();
     }

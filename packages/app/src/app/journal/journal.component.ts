@@ -21,9 +21,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
+import { JournalEntryCreateModalComponent } from './journal-entry-create-modal/journal-entry-create-modal.component';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
@@ -387,9 +389,16 @@ export class JournalComponent implements AfterViewInit {
 
   openJournalAddDialog() {
     if (!this.sidebarOpen || !this.openDisabled) {
-      this.selectedJournalEntry.set(null);
-      this.journalFormComponent().addNew();
-      this.sidebarOpen = true;
+      this._dialog.open(JournalEntryCreateModalComponent, {
+        width: '800px',
+        maxWidth: '800px',
+        height: '80vh',
+        maxHeight: '80vh',
+        panelClass: 'journal-entry-create-modal',
+        backdropClass: 'modal-backdrop',
+        disableClose: true,
+        data: {},
+      });
     }
   }
 
