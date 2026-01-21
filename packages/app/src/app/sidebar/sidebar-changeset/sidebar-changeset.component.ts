@@ -37,7 +37,9 @@ export class SidebarChangesetComponent {
   allPreviewIndex = 3;
 
   updateAutomerge(val: boolean) {
-    this._state.setChangesetConfig({ automerge: val });
+    this._state.updateChangesetConfig((draft) => {
+      draft.automerge = val;
+    });
   }
 
   toggleHighlightAll() {
@@ -197,7 +199,7 @@ export class SidebarChangesetComponent {
     this.allHighlighted = false;
     this._state.replaceHighlightedFeatures([]);
     try {
-      await this.changesetService.replaceErrorChangesetByMerge(conflictDetails);
+      await this.changesetService.replaceErrorChangesetByMerge(conflictDetails, false);
     } catch (error: any) {
       this._snackBar.open(error.message ? error.message : error.toString(), 'OK', {
         duration: 5000,

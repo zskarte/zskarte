@@ -87,7 +87,7 @@ export class ZsMapStateService {
   private _changeset = inject(ChangesetService);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
-  private _mapHistoryDate = new BehaviorSubject<Date|null|undefined>(undefined);
+  private _mapHistoryDate = new BehaviorSubject<Date | null | undefined>(undefined);
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
   private _mapInversePatches = new BehaviorSubject<Patch[]>([]);
   private _undoStackPointer = new BehaviorSubject<number>(0);
@@ -202,7 +202,9 @@ export class ZsMapStateService {
         showLinkedText: true,
       },
       changesetConfig: {
+        hiddenMode: true,
         automerge: true,
+        conflictTakeOur: true,
       },
     };
     if (!mapState) {
@@ -305,7 +307,7 @@ export class ZsMapStateService {
     return this._elementToDraw.asObservable();
   }
 
-  public setMapState(newState?: ZsMapState, mapHistoryDate:Date|null|undefined = undefined): void {
+  public setMapState(newState?: ZsMapState, mapHistoryDate: Date | null | undefined = undefined): void {
     newState = zsMapStateMigration(newState);
 
     const cached = Object.keys(this._layerCache);
@@ -376,7 +378,7 @@ export class ZsMapStateService {
     return this._display.value?.displayMode === ZsMapDisplayMode.HISTORY;
   }
 
-  public observeHistoryDate(){
+  public observeHistoryDate() {
     return this._mapHistoryDate.asObservable();
   }
 
@@ -419,6 +421,8 @@ export class ZsMapStateService {
   public toggleExpertView() {
     this.updateDisplayState((draft) => {
       draft.expertView = !draft.expertView;
+      //TODO: optimize this shortcut / make it configurable!
+      draft.changesetConfig.hiddenMode = !draft.expertView;
       if (draft.expertView) {
         this._snackBar.open(this.i18n.get('toastExpertView'), 'OK', {
           duration: 2000,
@@ -666,9 +670,9 @@ export class ZsMapStateService {
     );
   }
 
-  public setChangesetConfig(changesetConfig: IZsChangesetConfig) {
+  public updateChangesetConfig(fn: (draft: IZsChangesetConfig) => void) {
     this.updateDisplayState((draft) => {
-      draft.changesetConfig = changesetConfig;
+      fn(draft.changesetConfig);
     });
   }
 
@@ -1237,7 +1241,7 @@ export class ZsMapStateService {
       this._undoStackPointer.next(0);
 
       // Only publish map state changes when not in history mode
-      if (!this.isHistoryMode()) {
+      if (!this.isHistoryMode() || this.isCurrentMapData()) {
         //do not await for addChange, not needed as updateMapState is often callen in debounce/asyncron context
         this._changeset.addChange(mapState, patches, inversePatches);
       }
@@ -1449,7 +1453,7 @@ export class ZsMapStateService {
             try {
               //all incoming should already be applied as server send actual changeset, but to be sure check anyway
               this._changeset.applyIncommingChangesets();
-              
+
               await this._changeset.submitOutgoing();
             } catch (error) {
               console.error(error);

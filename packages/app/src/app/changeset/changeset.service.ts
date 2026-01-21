@@ -30,6 +30,7 @@ import { db } from '../db/db';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { I18NService } from '../state/i18n.service';
 import {
+  isValidImmerPatch,
   updateChangesetIdsAfterApply,
   updateChangesetIdsAfterUnapply,
   verifyChangesetCanUnapply,
@@ -77,6 +78,7 @@ export class ChangesetService {
   readonly merging = signal<{ current: number; count: number } | null>(null);
   readonly errorChangeset = signal<IZsChangesetInternal | null>(null);
   readonly conflictDetails = signal<IZsChangesetConflictDetails | null>(null);
+  readonly oldConflictDetails = signal<IZsChangesetConflictDetails | null>(null);
   readonly saveError = computed(() => {
     const errorChangeset = this.errorChangeset();
     return !!errorChangeset;
@@ -103,11 +105,12 @@ export class ChangesetService {
   private _connectionId!: string;
 
   private _timeoutId: NodeJS.Timeout | undefined = undefined;
-  private _forceCommitMessageTimeout = 300000; //5min
-  private _forceCommitManualTimeout = 300000; //5min
-  private _forceCommitSingleTimeout = 30000; //30sec
-  private _forceCommitDefaultTimeout = 60000; //60sec
-  private _createMultiElementChangesetDelta = 30000; //30sec
+  private _createMultiElementChangesetDelta = 15000; //15sec
+  private _commitSingleTimeout = 15000; //15sec
+  private _commitMultiTimeout = 30000; //30sec
+  private _commitMessageTimeout = 120000; //2min
+  private _commitManualTimeout = 120000; //2min
+  private _maxEditTimeout = 300000; //5min
 
   constructor() {
     effect(() => {
@@ -582,7 +585,10 @@ export class ChangesetService {
       if (changeset.changedDrawElements.some((elemId) => !modifiedDrawElements.has(elemId))) {
         //new drawElement is changed
         const timestamp = new Date().getTime();
-        if (changeset.firstChangeAt + this._createMultiElementChangesetDelta < timestamp) {
+        if (
+          this._state.getChangesetConfig().hiddenMode ||
+          changeset.firstChangeAt + this._createMultiElementChangesetDelta < timestamp
+        ) {
           //Multi element changeset creation time over
           return this.newChangeset(this._getMessageNumberFromPatches(patches));
         }
@@ -765,14 +771,16 @@ export class ChangesetService {
 
   private _updateTimeout(changeset: IZsChangeset | null) {
     if (!changeset?.firstChangeAt) return;
+    const timeSinceFirstChange = new Date().getTime() - changeset?.firstChangeAt;
+    const maxTimeout = timeSinceFirstChange > this._maxEditTimeout ? 0 : this._maxEditTimeout - timeSinceFirstChange;
     if (changeset.messageNumber) {
-      this.timeout.set(this._forceCommitMessageTimeout);
+      this.timeout.set(Math.min(maxTimeout, this._commitMessageTimeout));
     } else if (changeset.manual) {
-      this.timeout.set(this._forceCommitManualTimeout);
+      this.timeout.set(Math.min(maxTimeout, this._commitManualTimeout));
     } else if (changeset.changedDrawElements.length === 1) {
-      this.timeout.set(this._forceCommitSingleTimeout);
+      this.timeout.set(Math.min(maxTimeout, this._commitSingleTimeout));
     } else {
-      this.timeout.set(this._forceCommitDefaultTimeout);
+      this.timeout.set(Math.min(maxTimeout, this._commitMultiTimeout));
     }
   }
 
@@ -800,6 +808,32 @@ export class ChangesetService {
           operation.changesets = {};
         }
         operation.changesets[changeset.id] = changeset;
+      }
+
+      //update current changest if in hiddenMode (remove patches for things overridden by applied changeset)
+      if (this._state.getChangesetConfig().hiddenMode && this.hasChanges()) {
+        const currentChangeset = this._current();
+        if (currentChangeset) {
+          const conflictPatches = changeset.patches.filter(
+            (p) => p.path.length >= 2 && currentChangeset.changedDrawElements.includes(p.path[1] as string),
+          );
+          if (conflictPatches.length > 0) {
+            const patchesPaths = conflictPatches.map((p) => p.path.join('.'));
+            if (!currentChangeset.patchesRevertedForMerge) {
+              currentChangeset.patchesRevertedForMerge = [];
+            }
+            const filteredPatches: Patch[] = [];
+            currentChangeset.patches.forEach((p) => {
+              if (patchesPaths.includes(p.path.join('.'))) {
+                currentChangeset.patchesRevertedForMerge?.push(p);
+              } else {
+                filteredPatches.push(p);
+              }
+            });
+            currentChangeset.patches = filteredPatches;
+            this._current.set(currentChangeset);
+          }
+        }
       }
     } else {
       changeset.applied = true;
@@ -910,7 +944,7 @@ export class ChangesetService {
   }
 
   private _setErrorChangeset(errorChangeset: IZsChangeset | null, inconsistent: boolean) {
-    const oldConflictDetails = this.conflictDetails();
+    const oldConflictDetails = this.oldConflictDetails();
     this.conflictDetails.set(null);
     this.inconsistent.set(inconsistent);
     this.errorChangeset.set(errorChangeset);
@@ -932,15 +966,15 @@ export class ChangesetService {
     }
 
     if (conflictDetails) {
-      if (
-        !conflictDetails.hasConflicts &&
+      const automerge =
         this._state.getChangesetConfig().automerge &&
-        oldConflictDetails?.changeset.id !== conflictDetails.changeset.id
-      ) {
-        this.replaceErrorChangesetByMerge(conflictDetails);
+        (!conflictDetails.hasConflicts || this._state.getChangesetConfig().conflictTakeOur);
+      if (automerge && oldConflictDetails?.changeset.id !== conflictDetails.changeset.id) {
+        this.replaceErrorChangesetByMerge(conflictDetails, this._state.getChangesetConfig().conflictTakeOur);
       } else {
         this.conflictDetails.set(conflictDetails);
       }
+      this.oldConflictDetails.set(conflictDetails);
     }
   }
 
@@ -1066,7 +1100,7 @@ export class ChangesetService {
         conflict = true;
         selected = 3;
       }
-      return { path, orig, there, our, conflict, selected, resolved: false };
+      return { path, orig, there, our, conflict, selected, resolved: false } as IZsChangesetConflictValue;
     });
     Object.entries(ourValues).forEach(([path, value]) => {
       if (!(path in origValues)) {
@@ -1425,10 +1459,11 @@ export class ChangesetService {
     return null;
   }
 
-  public async replaceErrorChangesetByMerge(conflictDetails: IZsChangesetConflictDetails) {
+  public async replaceErrorChangesetByMerge(conflictDetails: IZsChangesetConflictDetails, conflictTakeOur: boolean) {
     const changeset = this.errorChangeset();
     if (!conflictDetails || !changeset || !changeset.currentMapState) return;
     const incommingAppliedMapState = changeset.currentMapState;
+    console.log('replacemerge', changeset.baseMapState, incommingAppliedMapState);
 
     //remember old values
     const oldPatches = [...changeset.patches];
@@ -1446,11 +1481,12 @@ export class ChangesetService {
       (draft) => {
         //apply meta changes
         for (const value of conflictDetails.meta) {
-          if (
-            value.resolved ||
-            (value.selected !== 1 && value[CONFLICT_INDEX_NAME[value.selected]] !== NO_CONFLICT_VALUE)
-          ) {
-            this.updateConflictValue(draft, value.path.split('.'), value, value.selected);
+          let selected = value.selected;
+          if (selected === 3) {
+            selected = conflictTakeOur ? 2 : 1;
+          }
+          if (value.resolved || (selected !== 1 && value[CONFLICT_INDEX_NAME[selected]] !== NO_CONFLICT_VALUE)) {
+            this.updateConflictValue(draft, value.path.split('.'), value, selected);
           }
         }
         //apply element changes
@@ -1469,11 +1505,12 @@ export class ChangesetService {
           }
 
           for (const value of conflict.values) {
-            if (
-              value.resolved ||
-              (value.selected !== 1 && value[CONFLICT_INDEX_NAME[value.selected]] !== NO_CONFLICT_VALUE)
-            ) {
-              this.updateConflictValue(element, value.path.split('.'), value, value.selected);
+            let selected = value.selected;
+            if (selected === 3) {
+              selected = conflictTakeOur ? 2 : 1;
+            }
+            if (value.resolved || (selected !== 1 && value[CONFLICT_INDEX_NAME[selected]] !== NO_CONFLICT_VALUE)) {
+              this.updateConflictValue(element, value.path.split('.'), value, selected);
             }
           }
         }
@@ -1483,6 +1520,18 @@ export class ChangesetService {
         changeset.inversePatches = inversePatches;
       },
     );
+
+    //make sure no invalid patches are submitted
+    const patches = changeset.patches.filter((p) => isValidImmerPatch(p));
+    if (patches.length !== changeset.patches.length) {
+      console.warn(
+        `merge of ${changeset.id} generated invalid patches, they are removed:`,
+        changeset.patches.filter((p) => !isValidImmerPatch(p)),
+      );
+    }
+    changeset.patches = patches;
+    changeset.inversePatches = changeset.inversePatches.filter((p) => isValidImmerPatch(p));
+
     //cancel changeset if empty
     if (changeset.patches.length === 0) {
       await this.updateOutgoing(changeset, true);
@@ -1513,7 +1562,7 @@ export class ChangesetService {
         acc[elemId] =
           incommingAppliedMapState.drawElementChangesetIds[elemId]?.[
             incommingAppliedMapState.drawElementChangesetIds[elemId].length - 1
-          ] || INITIAL_CHANGESET_ID;
+          ] || '-1';
 
         return acc;
       },

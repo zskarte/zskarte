@@ -228,7 +228,9 @@ export interface IZsJournalMessageEditConfig {
 }
 
 export interface IZsChangesetConfig {
+  hiddenMode: boolean;
   automerge: boolean;
+  conflictTakeOur: boolean;
 }
 
 //DIN paper dimension in mm, landscape
