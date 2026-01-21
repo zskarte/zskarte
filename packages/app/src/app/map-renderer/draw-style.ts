@@ -340,7 +340,7 @@ export class DrawStyle {
     // Generate wheels based on sign ID
     // 192 = Motorfahrzeug (2 wheels)
     // 201 = Transportfahrzeug (3 wheels)
-    // 190 = Lastwagen (4 wheels in 2/2 pattern)
+    // 190 = Lastwagen (3 wheels in 1/2 pattern)
     let wheelsHtml = '';
     const wheelRadius = 16.5;
     const wheelStroke = 6.5;
