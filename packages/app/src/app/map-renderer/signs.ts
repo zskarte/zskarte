@@ -1,6 +1,28 @@
 import { Sign } from '@zskarte/types';
 
 export class Signs {
+  public static HAZARD_SIGN_ID = 57;
+  public static FORMATION_SIGN_ID = 210;
+  public static TRUCK_SIGN_ID = 190;
+  public static MOTOR_VEHICLE_SIGN_ID = 192;
+  public static TRANSPORT_VEHICLE_SIGN_ID = 192;
+
+  public static TRANSPORT_SIGN_IDS = [
+    Signs.TRUCK_SIGN_ID,
+    Signs.TRANSPORT_VEHICLE_SIGN_ID,
+    Signs.MOTOR_VEHICLE_SIGN_ID
+  ];
+
+  public static OPERATIONS_COMMANDER_SIGN_ID = 40;
+  public static GROUP_LEADER_SIGN_ID = 60;
+  public static PLATOON_LEADER_SIGN_ID = 84;
+
+  public static LEADER_SIGN_IDS = [
+    Signs.OPERATIONS_COMMANDER_SIGN_ID,
+    Signs.GROUP_LEADER_SIGN_ID,
+    Signs.PLATOON_LEADER_SIGN_ID
+  ];
+
   public static SIGNS: Sign[] = [
     {
       id: 1,
@@ -388,7 +410,7 @@ export class Signs {
       fr: 'Personnes enfermées ou retranchées',
     },
     {
-      id: 40,
+      id: Signs.OPERATIONS_COMMANDER_SIGN_ID,
       kat: 'formation',
       type: 'Point',
       color: '#0000FF',
@@ -539,7 +561,7 @@ export class Signs {
       fr: "Danger en cas d'extinction avec de l'eau",
     },
     {
-      id: 57,
+      id: Signs.HAZARD_SIGN_ID,
       kat: 'danger',
       type: 'Point',
       color: '#FF9100',
@@ -570,7 +592,7 @@ export class Signs {
       deprecated: true,
     },
     {
-      id: 60,
+      id: Signs.GROUP_LEADER_SIGN_ID,
       kat: 'formation',
       type: 'Point',
       color: '#0000FF',
@@ -794,7 +816,7 @@ export class Signs {
       fr: 'Pollution aux hydrocarbures',
     },
     {
-      id: 84,
+      id: Signs.PLATOON_LEADER_SIGN_ID,
       kat: 'formation',
       type: 'Point',
       color: '#0000FF',
@@ -1645,7 +1667,7 @@ export class Signs {
       fr: 'Organe de conduite cantonal (KFO)',
     },
     {
-      id: 190,
+      id: Signs.TRUCK_SIGN_ID,
       kat: 'action',
       type: 'Point',
       color: '#0000FF',
@@ -1665,7 +1687,7 @@ export class Signs {
       fr: 'Centrale d’engagement mobile (MEZ)',
     },
     {
-      id: 192,
+      id: Signs.MOTOR_VEHICLE_SIGN_ID,
       kat: 'action',
       type: 'Point',
       color: '#0000FF',
@@ -1735,7 +1757,7 @@ export class Signs {
       fr: 'Unité technique',
     },
     {
-      id: 201,
+      id: Signs.TRANSPORT_VEHICLE_SIGN_ID,
       kat: 'action',
       type: 'Point',
       color: '#0000FF',
@@ -1755,7 +1777,7 @@ export class Signs {
       fr: 'Zone de survol interdite',
     },
     {
-      id: 210,
+      id: Signs.FORMATION_SIGN_ID,
       kat: 'formation',
       type: 'Point',
       color: '#0000FF',

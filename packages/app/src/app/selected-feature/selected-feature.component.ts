@@ -39,6 +39,7 @@ import {
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Signs } from '../map-renderer/signs';
 
 @Component({
   selector: 'app-selected-feature',
@@ -78,10 +79,10 @@ export class SelectedFeatureComponent implements OnDestroy {
   useColorPicker = false;
   // we only show the affected persons for Dead, Trapped, Missing, Homeless and Injured
   personSigns = [39, 82, 112, 122, 123];
-  hazardSigns = [57];
-  formationSigns = [210];
-  transportSigns = [190, 192, 201]; // Lastwagen, Motorfahrzeug, Transportfahrzeug
-  leaderSigns = [40, 60, 84]; // Leaders
+  hazardSigns = [Signs.HAZARD_SIGN_ID];
+  formationSigns = [Signs.FORMATION_SIGN_ID];
+  transportSigns = Signs.TRANSPORT_SIGN_IDS; // Lastwagen, Motorfahrzeug, Transportfahrzeug
+  leaderSigns = Signs.LEADER_SIGN_IDS; // Leaders
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _ngUnsubscribe = new Subject<void>();
 

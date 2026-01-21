@@ -22,6 +22,7 @@ import {
 import { Geometry, MultiPolygon } from 'ol/geom';
 import { FeatureLike } from 'ol/Feature';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
+import { Signs } from './signs';
 
 // skipcq: JS-0327
 export class DrawStyle {
@@ -37,16 +38,16 @@ export class DrawStyle {
   private static lastResolution = 0;
 
   public static getSignatureURI(signature: Sign): string {
-    if (signature.id === 57) {
+    if (signature.id === Signs.HAZARD_SIGN_ID) {
       // The gefahrentafel is generated on the fly
       return DrawStyle.getHazardSignSvg(signature);
-    } else if (signature.id === 210) {
+    } else if (signature.id === Signs.FORMATION_SIGN_ID) {
       // The formation sign is generated on the fly
       return DrawStyle.getFormationSvg(signature);
-    } else if ([190, 192, 201].includes(signature.id ?? 0)) {
+    } else if (Signs.TRANSPORT_SIGN_IDS.includes(signature.id ?? 0)) {
       // The transport sign is generated on the fly
       return DrawStyle.getTransportSvg(signature);
-    } else if ([40, 60, 84].includes(signature.id ?? 0)) {
+    } else if (Signs.LEADER_SIGN_IDS.includes(signature.id ?? 0)) {
       // The leader sign is generated on the fly
       return DrawStyle.getLeaderSignSvg(signature);
     } else {
@@ -346,12 +347,12 @@ export class DrawStyle {
     const wheelStroke = 6.5;
     const wheelY = 135;
 
-    if (signId === 192) {
+    if (signId === Signs.MOTOR_VEHICLE_SIGN_ID) {
       // Motorfahrzeug: 2 wheels
       wheelsHtml = `
         <circle cx="${padding + 45}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
         <circle cx="${padding + 111}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>`;
-    } else if (signId === 201) {
+    } else if (signId === Signs.TRANSPORT_VEHICLE_SIGN_ID) {
       // Transportfahrzeug: 3 wheels
       wheelsHtml = `
         <circle cx="${padding + 33}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
