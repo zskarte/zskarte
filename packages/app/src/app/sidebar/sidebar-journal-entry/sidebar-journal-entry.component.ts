@@ -286,7 +286,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     }
 
     const confirm = this._dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('removeFeatureFromMapConfirm'),
+      data: { message: this.i18n.get('removeFeatureFromMapConfirm') },
     });
     confirm.afterClosed().subscribe((r) => {
       if (r && element.id) {

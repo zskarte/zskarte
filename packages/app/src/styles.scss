@@ -2,6 +2,10 @@
 @include mat.core();
 @import 'quill/dist/quill.snow.css';
 
+:root {
+  --mat-dialog-container-color: #f1f1f1;
+}
+
 /* You can add global styles to this file, and also import other style files */
 html,
 body {
@@ -77,6 +81,14 @@ mat-action-list {
   background-color: #fff;
   border-radius: 1rem !important;
   border: 1px solid #dedede;
+}
+
+.mat-mdc-dialog-panel {
+  max-height: 80vh !important;
+}
+
+.mat-mdc-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0;
 }
 
 .mat-drawer .mat-drawer-inner-container {

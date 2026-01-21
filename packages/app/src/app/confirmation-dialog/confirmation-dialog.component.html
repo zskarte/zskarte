@@ -1,10 +1,10 @@
-<div mat-dialog-content>{{ message }}</div>
+<div mat-dialog-content>{{ data.message }}</div>
 <div mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="cancel()">{{ cancelLabel }}</button>
+  <button mat-stroked-button (click)="cancel()">{{ data.cancelLabel ?? i18n.get('cancel') }}</button>
   <button
     mat-flat-button
     color="primary"
     cdkFocusInitial
     (click)="ok()"
-  >{{ confirmLabel }}</button>
+  >{{ data.confirmLabel ?? i18n.get('confirm') }}</button>
 </div>

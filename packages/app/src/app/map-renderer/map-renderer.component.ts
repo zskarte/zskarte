@@ -180,7 +180,7 @@ export class MapRendererComponent implements AfterViewInit {
 
       if (remove) {
         const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-          data: this.i18n.get('removeFeatureFromMapConfirm'),
+          data: { message: this.i18n.get('removeFeatureFromMapConfirm') },
         });
         const result = await lastValueFrom(confirmation.afterClosed());
         if (result) {

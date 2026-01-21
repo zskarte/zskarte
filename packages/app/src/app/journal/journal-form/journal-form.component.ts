@@ -483,7 +483,7 @@ export class JournalFormComponent {
   closeForm() {
     if (this.journalForm.dirty) {
       const confirm = this._dialog.open(ConfirmationDialogComponent, {
-        data: this.i18n.get('closeNotSaved'),
+        data: { message: this.i18n.get('closeNotSaved') },
       });
       confirm.afterClosed().subscribe((response) => {
         if (response) {

@@ -34,13 +34,6 @@
   }
 }
 
-.journal-entry-save-buttons {
-  display: flex;
-  justify-content: end;
-  gap: 6px;
-  align-items: center;
-}
-
 .message-number {
   color: #666;
   font-size: 1rem;
@@ -124,14 +117,6 @@
   > .visa{
     width: 200px;
   }
-
-  > .journal-entry-save-buttons {
-    width: 200px;
-
-    > button {
-      width: 100%;
-    }
-  }
 }
 
 .visum-row {
@@ -139,33 +124,14 @@
   flex-direction: row;
   align-items: center;
   gap: 1rem;
-  padding-right: 1rem;
 
   > .visa {
-    flex: 0 0 50%;
-    width: 50%;
-  }
-
-  > .journal-entry-save-buttons {
-    flex: 0 0 50%;
-    width: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin-right: 1rem;
-
-    > button {
-      margin-right: 1rem;
-    }
+    flex: 1;
   }
 }
 
 .entry-message-number {
   gap: 0;
-}
-
-.message-content-buttons {
-  margin-top: .5rem;
 }
 
 .message-content-option {
