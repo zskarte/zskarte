@@ -2934,6 +2934,11 @@ export class I18NService {
       en: 'Describe what is wrong / needs to be corrected.',
       fr: 'Décrivez ce qui ne va pas/doit être corrigé.',
     },
+    toCorrect: {
+      de: 'Zu korrigieren:',
+      en: 'To correct:',
+      fr: 'À corriger:',
+    },
     backToInput: {
       de: 'Zurück an Eingang senden',
       en: 'Return to input',
@@ -3336,6 +3341,11 @@ export class I18NService {
       de: 'Adressen bereinigen',
       en: 'Clean up addresses',
       fr: 'Nettoyer adresses',
+    },
+    create: {
+      de: 'Erfassen',
+      en: 'create',
+      fr: 'créer',
     },
   };
 
