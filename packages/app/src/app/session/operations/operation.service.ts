@@ -6,9 +6,8 @@ import {
   ZsMapLayerStateType,
   ZsOperationPhase,
   ZsMapStateSource,
-  IZsChangesetInternal,
-  IZsChangeset,
   IZsChangesetExport,
+  INITIAL_CHANGESET_ID,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
@@ -19,7 +18,6 @@ import { db } from '../../db/db';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
 import { JournalService } from 'src/app/journal/journal.service';
-import { INITIAL_CHANGESET_ID } from 'src/app/changeset/changeset.service';
 
 @Injectable({
   providedIn: 'root',

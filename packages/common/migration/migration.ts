@@ -1,5 +1,5 @@
 import type { IZsMapStateV1, IZsMapStateV2, IZsMapStateV3, ZsMapState, ZsMapStateAllVersions } from '@zskarte/types';
-import { ZsMapLayerStateType } from '@zskarte/types';
+import { INITIAL_CHANGESET_ID, ZsMapLayerStateType } from '@zskarte/types';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,7 +47,7 @@ export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined)
 
       newMapState.version = 3;
       if (!newMapState.changesetIds) {
-        newMapState.changesetIds = ['0'];
+        newMapState.changesetIds = [INITIAL_CHANGESET_ID];
       }
       if (!newMapState.drawElementChangesetIds) {
         newMapState.drawElementChangesetIds = {};
@@ -60,7 +60,7 @@ export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined)
         Object.keys(newMapState.drawElements).forEach((id) => {
           const drawElementChangesetIds = newMapState.drawElementChangesetIds[id];
           if (!drawElementChangesetIds || drawElementChangesetIds.length === 0) {
-            newMapState.drawElementChangesetIds[id] = ['0'];
+            newMapState.drawElementChangesetIds[id] = [INITIAL_CHANGESET_ID];
           }
         });
       }
@@ -79,7 +79,7 @@ export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined)
       if (!convertedMapState.changesetIds) {
         convertedMapState.changesetIds = [];
       }
-      //prevent problems if there is no layer
+      //prevent problems if there is no draw layer
       if (!convertedMapState.layers || Object.values(convertedMapState.layers).length === 0) {
         let layerId = Object.values(convertedMapState.drawElements).find((e) => e.layer)?.layer;
         if (!layerId) {

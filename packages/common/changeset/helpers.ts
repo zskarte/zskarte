@@ -1,6 +1,35 @@
 import { produce, type Patch } from 'immer';
+import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
-import { ChangesetInconsistentError, type IZsChangeset, type ZsMapState } from '@zskarte/types';
+import { ChangesetInconsistentError, INITIAL_CHANGESET_ID, type IZsChangeset, type ZsMapState } from '@zskarte/types';
+
+export const createNewChangeset = (
+  organisationId: string,
+  operationId: string,
+  author: string,
+  messageNumber?: number,
+  manual = false,
+  manualDescription?: string,
+): IZsChangeset => {
+  return {
+    parentChangesetId: '-1',
+    id: uuidv4(),
+    operationId,
+    messageNumber,
+    changedDrawElements: [],
+    deletedDrawElements: [],
+    drawElementsLastChangeset: {},
+    organisationId,
+    author,
+    description: new Set(),
+    startAt: new Date().getTime(),
+    saved: false,
+    patches: [],
+    inversePatches: [],
+    manual,
+    manualDescription,
+  };
+};
 
 export const isValidImmerPatch = (patch: Patch) => {
   if (typeof patch !== 'object' || patch === null) return false;
@@ -16,13 +45,13 @@ export const verifyChangesetConsistency = (mapState: ZsMapState, changeset: IZsC
   for (const [elemId, changeId] of Object.entries(changeset.drawElementsLastChangeset)) {
     const changesetIds = mapState.drawElementChangesetIds?.[elemId];
     if (!mapState.drawElements?.[elemId] && !changesetIds) {
-      if (changeId !== '0') {
+      if (changeId !== INITIAL_CHANGESET_ID) {
         const message = `drawElement ${elemId} to change no longer exist on try apply changeset ${changeset.id}`;
         return { message, isInconsistent: true };
       }
     } else {
       if (!changesetIds) {
-        if (changeId !== '0') {
+        if (changeId !== INITIAL_CHANGESET_ID) {
           const message = `drawElementChangesetIds ${elemId} does not exist to verify changeset ${changeset.id}`;
           return { message, isInconsistent: true };
         }
@@ -117,4 +146,148 @@ export const updateChangesetIdsAfterUnapply = (mapState: ZsMapState, changeset: 
       }
     });
   });
+};
+
+
+export const getModifiedDrawElements = (patches: Patch[]) => {
+  return patches.reduce<Set<string>>((acc, patch) => {
+    if (patch.path.length > 1 && patch.path[0] === 'drawElements') {
+      acc.add(patch.path[1] as string);
+    }
+    return acc;
+  }, new Set());
+};
+
+export const updateChangesetIdsFromPatches = (changeset: IZsChangeset, mapState: ZsMapState) => {
+  const modifiedDrawElements = getModifiedDrawElements(changeset.patches);
+  changeset.changedDrawElements = Array.from(modifiedDrawElements);
+  changeset.deletedDrawElements = changeset.changedDrawElements.filter((elemId) =>
+    changeset.patches.some(
+      (patch) =>
+        patch.op === 'remove' &&
+        patch.path.length === 2 &&
+        patch.path[0] === 'drawElements' &&
+        patch.path[1] === elemId,
+    ),
+  );
+  changeset.drawElementsLastChangeset = changeset.changedDrawElements.reduce(
+    (acc, elemId) => {
+      acc[elemId] =
+        mapState.drawElementChangesetIds[elemId]?.[mapState.drawElementChangesetIds[elemId].length - 1] || '-2';
+
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+  changeset.parentChangesetId = mapState.changesetIds?.[mapState.changesetIds.length - 1] || INITIAL_CHANGESET_ID;
+};
+
+export const createImmerDeepDiffForObjects = (
+  oldObj: any,
+  newObj: any,
+  currentPath: (string | number)[] = [],
+  ignoreKeys: string[] = [],
+) => {
+  const patches: Patch[] = [];
+  const inversePatches: Patch[] = [];
+
+  function diff(obj1: any, obj2: any, currentPath: (string | number)[] = [], ignoreKeys: string[] = []) {
+    // FIRST: Primitiv handling
+    if (!isObject(obj1) || !isObject(obj2)) {
+      if (obj1 !== obj2) {
+        const path = [...currentPath];
+        patches.push({ path, op: 'replace', value: obj2 });
+        inversePatches.push({ path, op: 'replace', value: obj1 });
+      }
+      return;
+    }
+
+    const oldKeys = obj1 ? Object.keys(obj1) : [];
+    const newKeys = obj2 ? Object.keys(obj2) : [];
+
+    // REMOVE: Keys only in oldObj (deleted properties)
+    for (const key of oldKeys) {
+      if (!newKeys.includes(key)) {
+        // Skip if this key should be ignored (root level only)
+        if (currentPath.length === 0 && ignoreKeys.includes(key)) {
+          continue;
+        }
+        const path = [...currentPath, key];
+        patches.push({ path, op: 'remove' });
+        inversePatches.push({ path, op: 'add', value: obj1[key] });
+      }
+    }
+
+    // ADD/REPLACE: Keys in newObj
+    for (const key of newKeys) {
+      // Skip root level keys that should be ignored
+      if (currentPath.length === 0 && ignoreKeys.includes(key)) {
+        continue;
+      }
+
+      const path = [...currentPath, key];
+      const oldValue = obj1?.[key];
+      const newValue = obj2?.[key];
+
+      if (oldValue === undefined) {
+        // ADD: New property that didn't exist before
+        patches.push({ path, op: 'add', value: newValue });
+        inversePatches.push({ path, op: 'remove' });
+        continue;
+      }
+
+      // Array comparison: replace complete if different (coordinates, reportNumber)
+      if (Array.isArray(oldValue) && Array.isArray(newValue)) {
+        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+          patches.push({ path, op: 'replace', value: newValue });
+          inversePatches.push({ path, op: 'replace', value: oldValue });
+        }
+        continue;
+      }
+
+      // Array to non-array or vice versa → replace entire property
+      if (Array.isArray(oldValue) !== Array.isArray(newValue)) {
+        patches.push({ path, op: 'replace', value: newValue });
+        inversePatches.push({ path, op: 'replace', value: oldValue });
+        continue;
+      }
+
+      // Both objects → recurse deeper (pass ignoreKeys only for root level)
+      if (isObject(oldValue) && isObject(newValue)) {
+        const subIgnoreKeys = currentPath.length === 0 ? ignoreKeys : [];
+        diff(oldValue, newValue, path, subIgnoreKeys);
+        continue;
+      }
+
+      // Primitive values different → replace
+      if (oldValue !== newValue) {
+        patches.push({ path, op: 'replace', value: newValue });
+        inversePatches.push({ path, op: 'replace', value: oldValue });
+      }
+    }
+  }
+
+  function isObject(value: any): value is object {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  diff(oldObj, newObj, currentPath, ignoreKeys);
+  return { patches, inversePatches };
+};
+
+export const updateChangesetFromDiff = (
+  prevMapState: ZsMapState,
+  mapState: ZsMapState,
+  changeset: IZsChangeset,
+): IZsChangeset => {
+  const { patches, inversePatches } = createImmerDeepDiffForObjects(
+    prevMapState,
+    mapState,
+    [],
+    ['drawElementChangesetIds', 'changesetIds'],
+  );
+  changeset.patches.push(...patches);
+  changeset.inversePatches.push(...inversePatches);
+  updateChangesetIdsFromPatches(changeset, prevMapState)
+  return changeset;
 };

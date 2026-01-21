@@ -14,6 +14,8 @@ interface Sort {
     direction: SortDirection;
 }
 
+export const INITIAL_CHANGESET_ID = '0';
+
 export interface IZsChangeset {
   parentChangesetId: string;
   id: string;
