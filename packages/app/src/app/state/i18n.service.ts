@@ -3362,6 +3362,11 @@ export class I18NService {
       en: 'Continue editing',
       fr: 'Continuer à modifier',
     },
+    continueEditingAction: {
+      de: 'Bearbeiten fortsetzen',
+      en: 'Continue editing',
+      fr: 'Continuer à modifier',
+    },
     discardEntry: {
       de: 'Eintrag verwerfen',
       en: 'Discard entry',

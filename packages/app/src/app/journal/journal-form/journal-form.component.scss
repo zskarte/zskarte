@@ -134,6 +134,32 @@
   }
 }
 
+.visum-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding-right: 1rem;
+
+  > .visa {
+    flex: 0 0 50%;
+    width: 50%;
+  }
+
+  > .journal-entry-save-buttons {
+    flex: 0 0 50%;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-right: 1rem;
+
+    > button {
+      margin-right: 1rem;
+    }
+  }
+}
+
 .entry-message-number {
   gap: 0;
 }

@@ -97,7 +97,6 @@ export class JournalFormComponent {
       if (entry !== null) {
         this.selectEntry(entry);
       } else if (this.isCreateModal()) {
-        // Don't call addNew here, it will be called from the modal component
         this.formVisible.set(true);
       }
     });
@@ -298,7 +297,12 @@ export class JournalFormComponent {
       });
       requiredField.setErrors({ required: true });
       requiredField.markAsTouched();
-      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('fillAllFields'));
+      InfoDialogComponent.showErrorDialog(
+        this._dialog,
+        this.i18n.get('fillAllFields'),
+        null,
+        this.i18n.get('continueEditingAction'),
+      );
       return;
     }
 
@@ -366,7 +370,12 @@ export class JournalFormComponent {
         if (exists) {
           this.journalForm.controls.messageNumber.setErrors({ messageNumberExists: true });
           this.journalForm.controls.messageNumber.markAsTouched();
-          InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()));
+          InfoDialogComponent.showErrorDialog(
+            this._dialog,
+            this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()),
+            null,
+            this.i18n.get('continueEditingAction'),
+          );
           return;
         }
       }
@@ -374,7 +383,12 @@ export class JournalFormComponent {
 
     if (this.journalForm.invalid || this.journalForm.pending) {
       this.journalForm.markAllAsTouched();
-      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('fillAllFields'));
+      InfoDialogComponent.showErrorDialog(
+        this._dialog,
+        this.i18n.get('fillAllFields'),
+        null,
+        this.i18n.get('continueEditingAction'),
+      );
       return;
     }
     const newEntryStatus = JournalEntryStatusNext[entryStatus];

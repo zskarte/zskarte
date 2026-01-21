@@ -15,6 +15,6 @@
     [mat-dialog-close]="true"
     cdkFocusInitial
     (click)="close()"
-    [innerText]="i18n.get('close')"
+    [innerText]="data?.actionLabel || i18n.get('close')"
   ></button>
 </div>

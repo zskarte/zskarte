@@ -33,9 +33,14 @@ export class InfoDialogComponent {
     await lastValueFrom(dialogRef.afterClosed());
   }
 
-  public static async showErrorDialog(dialog: MatDialog, error: string, title: string | null = null) {
+  public static async showErrorDialog(
+    dialog: MatDialog,
+    error: string,
+    title: string | null = null,
+    actionLabel?: string,
+  ) {
     const dialogRef = dialog.open(InfoDialogComponent, {
-      data: { error, title },
+      data: { error, title, actionLabel },
     });
     await lastValueFrom(dialogRef.afterClosed());
   }
