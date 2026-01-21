@@ -100,24 +100,13 @@ export class MapRendererService {
   private _state = inject(ZsMapStateService);
   private _drawElementCache: Record<string, { layer: string | undefined; element: ZsMapBaseDrawElement }> = {};
   private _globalSymbolScale = 1;
-  private _globalSymbolScaleMode: 'manual' | 'zoom' = 'manual';
 
   public constructor() {
     this._search.setZoomToFit(this.zoomToFit.bind(this));
   }
 
-  private getZoomScaleFactor(zoom: number | undefined): number {
-    const baseZoom = DEFAULT_ZOOM;
-    const normalizedZoom = Number.isFinite(zoom) ? (zoom as number) : baseZoom;
-    const rawFactor = Math.pow(2, normalizedZoom - baseZoom);
-    return Math.min(4, Math.max(0.25, rawFactor));
-  }
-
-  private applyGlobalSymbolScale(zoom?: number) {
-    const factor =
-      this._globalSymbolScaleMode === 'zoom'
-        ? this._globalSymbolScale * this.getZoomScaleFactor(zoom ?? this._view?.getZoom())
-        : this._globalSymbolScale;
+  private applyGlobalSymbolScale() {
+    const factor = this._globalSymbolScale;
     DrawStyle.setGlobalScaleFactor(factor);
     this._allLayers.forEach((layer) => layer.changed());
     this._map?.render();
@@ -410,9 +399,6 @@ export class MapRendererService {
 
     this._view.on('change:resolution', () => {
       debouncedZoomSave();
-      if (this._globalSymbolScaleMode === 'zoom') {
-        this.applyGlobalSymbolScale(this._view.getZoom());
-      }
     });
 
     this._view.on('change:rotation', () => {
@@ -448,14 +434,6 @@ export class MapRendererService {
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((scale) => {
         this._globalSymbolScale = scale;
-        this.applyGlobalSymbolScale();
-      });
-
-    this._state
-      .observeGlobalSymbolScaleMode()
-      .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe((mode) => {
-        this._globalSymbolScaleMode = mode;
         this.applyGlobalSymbolScale();
       });
 

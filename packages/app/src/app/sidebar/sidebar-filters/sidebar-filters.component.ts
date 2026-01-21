@@ -50,7 +50,6 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   hiddenFeatureTypes$: Observable<string[]>;
   enableClustering$: Observable<boolean>;
   globalSymbolScale$: Observable<number>;
-  globalSymbolScaleMode$: Observable<'manual' | 'zoom'>;
   filtersOpenState = false;
   filtersGeneralOpenState = false;
   capitalizeFirstLetter = capitalizeFirstLetter;
@@ -61,7 +60,6 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     this.hiddenFeatureTypes$ = this.mapState.observeHiddenFeatureTypes().pipe(takeUntil(this._ngUnsubscribe));
     this.enableClustering$ = this.mapState.observeEnableClustering().pipe(takeUntil(this._ngUnsubscribe));
     this.globalSymbolScale$ = this.mapState.observeGlobalSymbolScale().pipe(takeUntil(this._ngUnsubscribe));
-    this.globalSymbolScaleMode$ = this.mapState.observeGlobalSymbolScaleMode().pipe(takeUntil(this._ngUnsubscribe));
   }
 
   ngOnInit(): void {
@@ -200,7 +198,4 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     this.mapState.setGlobalSymbolScale(scale);
   }
 
-  public setGlobalSymbolScaleMode(zoomBased: boolean) {
-    this.mapState.setGlobalSymbolScaleMode(zoomBased ? 'zoom' : 'manual');
-  }
 }

@@ -21,7 +21,6 @@ import {
   ZsMapDrawElementState,
   ZsMapDrawElementStateType,
   ZsMapElementToDraw,
-  ZsMapGlobalSymbolScaleMode,
   ZsMapLayerState,
   ZsMapLayerStateType,
   ZsMapPolygonDrawElementState,
@@ -176,8 +175,7 @@ export class ZsMapStateService {
       hiddenFeatureTypes: [],
       highlightedFeature: [],
       enableClustering: false,
-      globalSymbolScale: 1,
-      globalSymbolScaleMode: 'manual',
+      globalSymbolScale: 1.25,
       journalSort: { active: 'messageNumber', direction: 'desc' },
       journalFilter: {
         department: '',
@@ -515,23 +513,10 @@ export class ZsMapStateService {
     );
   }
 
-  public observeGlobalSymbolScaleMode(): Observable<ZsMapGlobalSymbolScaleMode> {
-    return this._display.pipe(
-      map((o) => o.globalSymbolScaleMode ?? 'manual'),
-      distinctUntilChanged((x, y) => x === y),
-    );
-  }
-
   public setGlobalSymbolScale(scale: number) {
     const nextScale = Number.isFinite(scale) ? Math.max(0.1, scale) : 1;
     this.updateDisplayState((draft) => {
       draft.globalSymbolScale = nextScale;
-    });
-  }
-
-  public setGlobalSymbolScaleMode(mode: ZsMapGlobalSymbolScaleMode) {
-    this.updateDisplayState((draft) => {
-      draft.globalSymbolScaleMode = mode;
     });
   }
 

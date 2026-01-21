@@ -19,20 +19,14 @@
         </mat-slide-toggle>
         <div class="global-scale">
           <div class="mat-caption">{{ i18n.get('globalSymbolScale') }}</div>
-          <mat-slider class="global-scale-slider" [max]="1.5" [min]="0.5" [step]="0.1">
+          <mat-slider class="global-scale-slider" [max]="2" [min]="0.5" [step]="0.05">
             <input
               matSliderThumb
-              [ngModel]="(globalSymbolScale$ | async) ?? 1"
+              [ngModel]="(globalSymbolScale$ | async) ?? 1.25"
               (ngModelChange)="setGlobalSymbolScale($event)"
             />
           </mat-slider>
         </div>
-        <mat-slide-toggle
-          [checked]="(globalSymbolScaleMode$ | async) === 'zoom'"
-          (change)="setGlobalSymbolScaleMode($event.checked)"
-        >
-          {{ i18n.get('globalSymbolScaleZoomBased') }}
-        </mat-slide-toggle>
       </div>
     </ng-template>
   </mat-expansion-panel>
