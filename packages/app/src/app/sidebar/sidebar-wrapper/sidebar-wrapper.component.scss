@@ -1,17 +1,16 @@
 .sidebar {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  top: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
   width: var(--sidebar-width);
   background: white;
   z-index: 100;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
-  transform: translateX(100%);
+  border: 1px solid var(--mat-sidenav-container-divider-color);
+  transform: translateX(calc(100% + 0.5rem));
   transition: transform 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  margin: 0.5rem 0.5rem 0.5rem 0;
   border-radius: 1rem;
   
   &.open {
