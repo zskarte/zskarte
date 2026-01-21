@@ -23,7 +23,6 @@ import {
   CommunicationType,
 } from '../journal.types';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTabsModule } from '@angular/material/tabs';
 import { ViewChild, ElementRef } from '@angular/core';
 import { A11yModule } from '@angular/cdk/a11y';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
@@ -33,11 +32,12 @@ import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { FormSectionComponent } from '../../ui/form-section';
+import { MatDivider } from "@angular/material/divider";
+import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 
 @Component({
   selector: 'app-journal-form',
@@ -49,16 +49,15 @@ import { FormSectionComponent } from '../../ui/form-section';
     MatDatepickerModule,
     MatTimepickerModule,
     MatCheckboxModule,
-    MatTabsModule,
     ReactiveFormsModule,
     FormsModule,
     MatSelectModule,
     MatCardModule,
     CommonModule,
-    TextAreaWithAddressSearchComponent,
     ReplaceAllAddressTokensPipe,
     A11yModule,
     FormSectionComponent,
+    MatDivider
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
@@ -289,11 +288,6 @@ export class JournalFormComponent {
     }
   }
 
-  isTabDisabled(tabStatus: JournalEntryStatus): boolean {
-    const order = Object.values(JournalEntryStatus);
-    return order.indexOf(this.journalForm.controls.entryStatus.value) < order.indexOf(tabStatus);
-  }
-
   onEnterForResetState(event: Event) {
     event.preventDefault();
     this.resetState(); 
@@ -477,24 +471,6 @@ export class JournalFormComponent {
       }
     } else {
       this.doClose();
-    }
-  }
-
-  @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(event: Event): void {
-    const messageContentEl = this.messageContentEl();
-    if (messageContentEl) {
-      if (messageContentEl.abortOnEsc(event)) {
-        return;
-      }
-    } else if (this.search.handleEsc(event)) {
-      return;
-    }
-
-    if (this._dialog.openDialogs.length === 0) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.closeForm();
     }
   }
 
