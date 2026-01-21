@@ -17,9 +17,9 @@
         <mat-slide-toggle [checked]="enableClustering$ | async" (change)="toggleClustering()">
           {{ i18n.get('featureClustering') }}
         </mat-slide-toggle>
-        <div>
+        <div class="global-scale">
           <div class="mat-caption">{{ i18n.get('globalSymbolScale') }}</div>
-          <mat-slider [max]="4" [min]="0.1" [step]="0.1">
+          <mat-slider class="global-scale-slider" [max]="1.5" [min]="0.5" [step]="0.1">
             <input
               matSliderThumb
               [ngModel]="(globalSymbolScale$ | async) ?? 1"
