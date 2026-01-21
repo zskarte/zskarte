@@ -204,6 +204,27 @@ export class JournalFormComponent {
     return newDate;
   }
 
+  normalizeTimeInput(event: Event) {
+    const input = event.target as HTMLInputElement | null;
+    if (!input) {
+      return;
+    }
+    const digits = input.value.replace(/\D/g, '');
+    if (digits.length !== 4) {
+      return;
+    }
+    const hours = Number(digits.slice(0, 2));
+    const minutes = Number(digits.slice(2, 4));
+    if (Number.isNaN(hours) || Number.isNaN(minutes) || hours > 23 || minutes > 59) {
+      return;
+    }
+    const base = this.journalForm.controls.dateCreatedTime.value ?? new Date();
+    const normalized = new Date(base);
+    normalized.setHours(hours, minutes, 0, 0);
+    this.journalForm.controls.dateCreatedTime.setValue(normalized);
+    input.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
   private requiredField(fieldName: keyof JournalEntry): ValidatorFn {
     return (control: AbstractControl) => {
       if (this.journalForm === undefined) return null;
