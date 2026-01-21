@@ -1,4 +1,15 @@
-import { ChangeDetectorRef, Component, DestroyRef, HostListener, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  HostListener,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,8 +26,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { AfterViewInit } from '@angular/core';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
@@ -29,10 +39,10 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
-import { IZsJournalFilter } from '../../../../types/state/interfaces';
+import { IZsJournalFilter } from '@zskarte/types';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
+import { ReplaceAllAddressTokensPipe } from '../search/replace-all-address-tokens.pipe';
 import { SearchService } from '../search/search.service';
 import { BadgeComponent } from '../badge/badge.component';
 import { SidebarService } from '../sidebar/sidebar.service';
@@ -59,7 +69,7 @@ import { SidebarContext } from '../sidebar/sidebar.interfaces';
     JournalFormComponent,
     NgComponentOutlet,
     ReplaceAllAddressTokensPipe,
-    BadgeComponent
+  BadgeComponent
 ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -245,23 +255,28 @@ export class JournalComponent implements AfterViewInit {
       }
     };
 
-    this._state.observeJournalSort().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((sortConf) => {
-      if (this.dataSourceFiltered?.sort) {
-        this.sort().sortChange.emit(sortConf);
-        this.dataSourceFiltered.sort.active = sortConf.active;
-        this.dataSourceFiltered.sort.direction = sortConf.direction;
-      }
-    });
+    this._state
+      .observeJournalSort()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((sortConf) => {
+        if (this.dataSourceFiltered?.sort) {
+          this.sort().sortChange.emit(sortConf);
+          this.dataSourceFiltered.sort.active = sortConf.active;
+          this.dataSourceFiltered.sort.direction = sortConf.direction;
+        }
+      });
 
-    this._state.observeJournalFilter().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((filter) => {
-      this.departmentControl.setValue(filter.department);
-      this.triageFilter = filter.triageFilter;
-      this.outgoingFilter = filter.outgoingFilter;
-      this.decisionFilter = filter.decisionFilter;
-      this.keyMessageFilter = filter.keyMessageFilter;
-      this.eingangFilter = filter.eingangFilter;
-      this.filterEntries(this.searchControl.value, filter.department);
-    });
+    this._state
+      .observeJournalFilter()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((filter) => {
+        this.departmentControl.setValue(filter.department);
+        this.triageFilter = filter.triageFilter;
+        this.outgoingFilter = filter.outgoingFilter;
+        this.decisionFilter = filter.decisionFilter;
+        this.keyMessageFilter = filter.keyMessageFilter;
+        this.eingangFilter = filter.eingangFilter;this.filterEntries(this.searchControl.value, filter.department);
+      });
   }
 
   private initializeSearch() {
@@ -375,7 +390,10 @@ export class JournalComponent implements AfterViewInit {
     if (button) {
       button.disabled = true;
     }
-    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent, false)});
+    await this.journal.print({
+      ...entry,
+      messageContent: this._search.removeAllAddressTokens(entry.messageContent, false),
+    });
     setTimeout(() => {
       if (button) {
         button.disabled = false;
@@ -394,6 +412,15 @@ export class JournalComponent implements AfterViewInit {
 
     this._debouncedPersistSort(sort);
     //the sort logic itself is done by mat-sort, no need for own logic
+  }
+
+  onPageChange(event: PageEvent) {
+    // PageEvent uses 0-based pageIndex, API uses 1-based page
+    this.journal.setPage(event.pageIndex + 1);
+    if (event.pageSize !== this.journal.paginationPageSize()) {
+      this.journal.setPageSize(event.pageSize);
+    }
+    this.journal.reload();
   }
 
   async selectEntry(entry: JournalEntry) {
@@ -505,7 +532,8 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async export() {
-    await this.journal.exportAsExcel(this.journal.data());
+    const allEntries = await this.journal.fetchAllEntries();
+    await this.journal.exportAsExcel(allEntries);
   }
 }
 

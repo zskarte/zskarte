@@ -30,10 +30,19 @@ export class JournalService {
 
   private operationId = toSignal(this._session.observeOperationId(), { initialValue: undefined });
   private organizationId = toSignal(this._session.observeOrganizationId(), { initialValue: undefined });
+
+  // Pagination signals
+  readonly paginationPage = signal(1);
+  readonly paginationPageSize = signal(25);
+  readonly paginationTotal = signal(0);
+  readonly paginationPageCount = signal(0);
+
   private journalResource = resource({
     params: () => ({
       operationId: this.operationId(),
       organizationId: this.organizationId(),
+      page: this.paginationPage(),
+      pageSize: this.paginationPageSize(),
     }),
     loader: async (params) => {
       if (!params.params.operationId || !params.params.organizationId) {
@@ -45,22 +54,63 @@ export class JournalService {
           .toArray();
       }
       //organization is implicit by session
-      const { error, result } = await this._api.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.params.operationId}&pagination[pageSize]=1000`,
+      const { error, result } = await this._api.get<{ data: JournalEntry[]; meta: { pagination: { page: number; pageSize: number; pageCount: number; total: number } } }>(
+        `/api/journal-entries?operationId=${params.params.operationId}&pagination[page]=${params.params.page}&pagination[pageSize]=${params.params.pageSize}`,
+        { keepMeta: true },
       );
       if (error || !result) {
         throw 'error on fetch journal entries';
       }
-      return (result as JournalEntry[]) || [];
+      // Update pagination meta from response
+      if (result.meta?.pagination) {
+        this.paginationTotal.set(result.meta.pagination.total);
+        this.paginationPageCount.set(result.meta.pagination.pageCount);
+      }
+      return result.data || [];
     },
   });
   readonly backendData = this.journalResource.value;
   readonly data = signal<JournalEntry[]>([]);
+  readonly allData = signal<JournalEntry[]>([]); // All entries for sidebar/export
   readonly loading = this.journalResource.isLoading;
   readonly backendError = this.journalResource.error;
   readonly error = signal(false);
   readonly cachedOnly = signal(false);
   readonly reload = () => this.journalResource.reload();
+
+  setPage(page: number) {
+    this.paginationPage.set(page);
+  }
+
+  setPageSize(pageSize: number) {
+    this.paginationPageSize.set(pageSize);
+    // Reset to first page when page size changes
+    this.paginationPage.set(1);
+  }
+
+  async fetchAllEntries(): Promise<JournalEntry[]> {
+    const operationId = this.operationId();
+    const organizationId = this.organizationId();
+    if (!operationId || !organizationId) {
+      return [];
+    }
+    if (this._session.isWorkLocal()) {
+      const entries = await db.localJournalEntries
+        .where({ operationId, organizationId })
+        .toArray();
+      this.allData.set(entries);
+      return entries;
+    }
+    const { error, result } = await this._api.get<JournalEntry[]>(
+      `/api/journal-entries?operationId=${operationId}&pagination[pageSize]=1000000`,
+    );
+    if (error || !result) {
+      console.error('Error fetching all journal entries:', error);
+      return [];
+    }
+    this.allData.set(result);
+    return result;
+  }
 
   private drawingEntrySignal = signal<JournalEntry | null>(null);
   get drawingEntry() {

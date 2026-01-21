@@ -55,7 +55,7 @@ export class SidebarJournalComponent {
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
   private elementRef = inject(ElementRef);
-  readonly journalEntries = this.journal.data;
+  readonly journalEntries = this.journal.allData;
   readonly journalEntriesToDraw = computed(() => (this.journalEntries() || []).filter((entry) => !entry.isDrawnOnMap).sort((a, b) => a.messageNumber - b.messageNumber));
   readonly journalEntriesDrawn = computed(() => (this.journalEntries() || []).filter((entry) => entry.isDrawnOnMap).sort((a, b) => a.messageNumber - b.messageNumber));
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
@@ -77,6 +77,9 @@ export class SidebarJournalComponent {
   });
 
   constructor() {
+    // Fetch all entries for sidebar display
+    this.journal.fetchAllEntries();
+
     effect(() => {
       if (this.currentMessageNumber) {
         this.scrollToMessage(this.currentMessageNumber);
