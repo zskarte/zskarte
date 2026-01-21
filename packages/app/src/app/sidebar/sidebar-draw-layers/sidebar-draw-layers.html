@@ -1,17 +1,17 @@
-@let activeLayer = (activeLayer$ | async)?.getId();
-<mat-radio-group [value]="activeLayer" (change)="activateLayer($event)">
+@let activeLayerId = activeLayer()?.getId();
+<mat-radio-group [value]="activeLayerId" (change)="activateLayer($event)">
   @for (layer of layers(); track layer.id) {
     <div class="layer">
       <mat-radio-button [value]="layer.id">{{ layer.name }}</mat-radio-button>
-      @if (activeLayer !== layer.id) {
-        <button mat-icon-button [attr.aria-label]="layer.isVisible ? 'Ausblenden' : 'Einblenden'" (click)="toggleLayerVisibility(layer.id, !layer.isVisible)">
+      @if (activeLayerId !== layer.id) {
+        <button mat-icon-button [attr.aria-label]="layer.isVisible ? i18n.get('show') : i18n.get('hide')" (click)="toggleLayerVisibility(layer.id, !layer.isVisible)">
           @if (layer.isVisible) {
             <mat-icon>visibility_off</mat-icon>
           } @else {
             <mat-icon>visibility_on</mat-icon>
           }
         </button>
-        <button mat-icon-button aria-label="Ebene löschen" (click)="deleteLayer(layer.id)">
+        <button mat-icon-button [attr.aria-label]="i18n.get('deleteLayer')" (click)="deleteLayer(layer.id)">
           <mat-icon>delete</mat-icon>
         </button>
       }

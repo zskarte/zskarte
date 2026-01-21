@@ -3357,6 +3357,21 @@ export class I18NService {
       fr: 'Ce nom existe déjà.',
       en: 'Name already exists.',
     },
+    deleteLayer: {
+      de: 'Ebene löschen',
+      fr: 'Supprimer la couche',
+      en: 'Delete layer',
+    },
+    show: {
+      de: 'Anzeigen',
+      fr: 'Afficher',
+      en: 'Show',
+    },
+    hide: {
+      de: 'Ausblenden',
+      fr: 'Masquer',
+      en: 'Hide',
+    },
     deleteLayerConfirm: {
       de: 'Wollen sie diese Ebene wirklich löschen? Alle Elemente werden gelöscht.',
       fr: 'Voulez-vous vraiment supprimer cette couche ? Tous les éléments seront supprimés.',

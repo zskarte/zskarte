@@ -1,7 +1,6 @@
 import { Component, inject, signal, TemplateRef, viewChild } from '@angular/core';
 import { ZsMapStateService } from '../../state/state.service';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
-import { AsyncPipe } from '@angular/common';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { I18NService } from '../../state/i18n.service';
 import { MatDialog, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
@@ -21,7 +20,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   imports: [
     MatRadioButton,
     MatRadioGroup,
-    AsyncPipe,
     MatButton,
     MatDialogActions,
     MatDialogContent,
@@ -43,7 +41,7 @@ export class SidebarDrawLayers {
 
   private dialogTemplate = viewChild.required<TemplateRef<any>>('dialog');
 
-  protected activeLayer$ = this.stateService.observeActiveLayer();
+  protected activeLayer = toSignal(this.stateService.observeActiveLayer());
   protected layers = toSignal(
     this.stateService.observeLayers().pipe(switchMap((layer) => combineLatest(layer.map((l) => this.mapLayer(l))))),
   );
