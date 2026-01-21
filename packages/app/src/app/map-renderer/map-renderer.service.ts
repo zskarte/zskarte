@@ -437,6 +437,7 @@ export class MapRendererService {
       .subscribe(([scale, mode, zoom]) => {
         const factor = mode === 'zoom' ? scale * this.getZoomScaleFactor(zoom) : scale;
         DrawStyle.setGlobalScaleFactor(factor);
+        this._allLayers.forEach((layer) => layer.changed());
         this._map?.render();
       });
 
