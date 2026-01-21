@@ -9,7 +9,7 @@
   </div>
 } @else {
   <div class="tab-group-wrapper">
-    <mat-tab-group animationDuration="0ms">
+    <mat-tab-group animationDuration="0ms" [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="onTabIndexChange($event)">
     <mat-tab>
       <ng-template mat-tab-label>
         <span>{{ i18n.get('todo') }}</span>

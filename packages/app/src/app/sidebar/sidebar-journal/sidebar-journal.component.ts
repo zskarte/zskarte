@@ -54,6 +54,7 @@ export class SidebarJournalComponent {
   private _state = inject(ZsMapStateService);
   readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
+  readonly selectedTabIndex = signal(0);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
 
@@ -71,6 +72,7 @@ export class SidebarJournalComponent {
 
       if (this.currentMessageNumber) {
         this.scrollToMessage(this.currentMessageNumber);
+        this.updateSelectedTabFromMessage();
       }
     });
     effect(() => {
@@ -79,6 +81,7 @@ export class SidebarJournalComponent {
         const messageId = fragment.split('=')[1];
         this.currentMessageNumber = Number.parseInt(messageId);
 
+        this.updateSelectedTabFromMessage();
         this.scrollToMessage(this.currentMessageNumber);
       } else {
         this.currentMessageNumber = undefined;
@@ -102,9 +105,30 @@ export class SidebarJournalComponent {
 
   onPanelOpened(messageNumber: number) {
     this.currentMessageNumber = messageNumber;
+    this.updateSelectedTabFromMessage();
   }
 
   onPanelClosed() {
     this.currentMessageNumber = undefined;
+  }
+
+  onTabIndexChange(index: number) {
+    this.selectedTabIndex.set(index);
+  }
+
+  private updateSelectedTabFromMessage() {
+    if (!this.currentMessageNumber) {
+      return;
+    }
+
+    const messageNumber = this.currentMessageNumber;
+    const isDrawn = this.journalEntriesDrawn().some((entry) => entry.messageNumber === messageNumber);
+    const isToDraw = this.journalEntriesToDraw().some((entry) => entry.messageNumber === messageNumber);
+
+    if (isDrawn) {
+      this.selectedTabIndex.set(1);
+    } else if (isToDraw) {
+      this.selectedTabIndex.set(0);
+    }
   }
 }
