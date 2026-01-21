@@ -36,7 +36,7 @@
           <button mat-flat-button color="primary" (click)="operationService.createOperation()">
             {{ i18n.get('newScenario') }}
           </button>
-          <button mat-flat-button (click)="operationService.importOperation()">{{ i18n.get('importScenario') }}</button>
+          <button mat-flat-button (click)="importOperation()">{{ i18n.get('importScenario') }}</button>
           @if (showOpPhase == 'active') {
             <button
               mat-icon-button

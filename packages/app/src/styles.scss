@@ -86,6 +86,11 @@ mat-action-list {
   border-radius: 2rem !important;
 }
 
+mat-stroked-button,
+.mat-mdc-stroked-button {
+  background-color: white !important;
+}
+
 .cdk-overlay-pane {
   border-radius: 1rem;
   overflow: hidden;

@@ -13,6 +13,7 @@ import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
 import { SearchService } from '../search/search.service';
+import { OperationExportFile } from '../core/entity/operationExportFile';
 
 @Injectable({
   providedIn: 'root',
@@ -234,6 +235,17 @@ export class JournalService {
     return result;
   }
 
+  public static async getJournal(operationId: string) {
+    if (!operationId) {
+      return null;
+    }
+    const journal = await db.localJournalEntries.where({ operationId }).toArray();
+    return journal.map((entry) => {
+      const { id, createdAt, createdBy, publishedAt, updatedAt, updatedBy, operationId, fromCache, organizationId, uuid, documentId, ...rest } = entry;
+      return rest;
+    });
+  }
+
   public async getByNumber(messageNumber: number) {
     const operationId = this.operationId();
     if (!operationId) {
@@ -419,6 +431,13 @@ export class JournalService {
       }
     }
     return response;
+  }
+
+  public async importJournal(result: OperationExportFile) {
+    const journal = result.journal || []
+    for (const entry of journal) {
+      await this.save(entry);
+    }
   }
 
   public async save(entry: JournalEntry) {
