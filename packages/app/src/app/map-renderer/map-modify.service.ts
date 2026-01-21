@@ -102,6 +102,12 @@ export class MapModifyService {
       !this._state.isReadOnly() &&
       this._modifyCache.getArray().every((clusterOrFeature) => {
         const feature = this._renderer.getFeatureInsideCluster(clusterOrFeature);
+        const element = this._renderer.getCachedDrawElement(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
+
+        // Only allow modification on features on the active layer
+        if (element?.layer !== this._state.getActiveLayer()?.getId()) {
+          return false;
+        }
 
         // If the feature is a ZS DrawElement, ensure it's not protected
         // Else it's a cluster, ensure it's a cluster with a single feature

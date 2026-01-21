@@ -93,7 +93,9 @@ export class MapSelectService {
             !this._state.isReadOnly() &&
             nextElement?.element?.elementState?.type === ZsMapDrawElementStateType.SYMBOL
           ) {
-            this._overlay.toggleEditButtons(true, true);
+            const allowDeleteAndRotation =
+              nextElement?.element?.elementState?.layer === this._state.getActiveLayer()?.getId();
+            this._overlay.toggleEditButtons(allowDeleteAndRotation, allowDeleteAndRotation, true);
           }
         }
       }
