@@ -3,6 +3,10 @@
 @import 'quill/dist/quill.snow.css';
 
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --sidebar-width: min(30rem, 75vw);
+}
+
 html,
 body {
   height: 100%;

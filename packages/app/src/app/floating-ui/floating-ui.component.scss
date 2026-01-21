@@ -1,4 +1,4 @@
-mat-sidenav-container {
+.floating-ui-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -7,29 +7,24 @@ mat-sidenav-container {
   z-index: 10;
   background: none;
   pointer-events: none;
-}
-
-mat-sidenav-content {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: start;
 }
 
-mat-sidenav {
-  background: white;
-  width: 30rem;
-  max-width: 75%;
-  pointer-events: auto;
-}
-
 .action-buttons {
   display: flex;
   flex-direction: column;
-  align-items: end;
+  align-items: end; 
   justify-content: space-between;
   height: calc(100% - 2.5rem);
   margin: 1.25rem 1.25rem 1.25rem 0;
+  transition: transform 0.3s ease-in-out;
+
+  &.sidebar-open {
+    transform: translateX(calc(var(--sidebar-width) * -1));
+  }
 }
 
 .vertical-stack {
@@ -105,11 +100,6 @@ app-fab-menu {
   margin-top: 1.25rem;
 }
 
-app-sidebar-menu {
-  display: flex;
-  flex-direction: column;
-}
-
 app-journal-draw-overlay {
   position: fixed;
   bottom: 5rem;
@@ -159,57 +149,14 @@ app-geocoder {
   .sidebar-open {
     display: none;
   }
-}
 
-.sidebar-header {
-  display: flex;
-  align-items: center; /* Align items vertically */
-  justify-content: space-between; /* Ensure credits and button are spaced apart */
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: white;
-  padding: 1rem; /* Optional: Add some padding */
-  border-bottom: 1px solid #dedede;
-  overflow: hidden; /* Prevent overflowing children */
-}
-
-.credits {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-}
-
-.credits img {
-  height: 46px;
-  width: auto;
-  margin-right: 1rem;
-  flex-shrink: 0;
-}
-
-.credits mat-icon {
-  margin-right: 1rem;
-  flex-shrink: 0;
-}
-
-.credits h1 {
-  flex: 1;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-button[mat-icon-button] {
-  flex-shrink: 0;
+  .action-buttons.sidebar-open {
+    display: flex;
+    transform: none;
+  }
 }
 
 :host-context(.journal-address-preview) {
-  mat-sidenav {
-    display: none;
-  }
   app-journal-draw-overlay {
     display: none;
   }
