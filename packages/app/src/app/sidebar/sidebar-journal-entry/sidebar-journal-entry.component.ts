@@ -1,4 +1,4 @@
-import { Component, OnDestroy, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, OnDestroy, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { ZsMapDrawElementState } from '@zskarte/types';
@@ -21,23 +21,15 @@ import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
 import { JournalService } from 'src/app/journal/journal.service';
-import { Router } from '@angular/router';
+import { PRIMARY_OUTLET, Router } from '@angular/router';
 import { SidebarService } from '../sidebar.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
-import { SidebarContext } from '../sidebar.interfaces';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
   selector: 'app-sidebar-journal-entry',
-  imports: [
-    MatListModule,
-    MatIcon,
-    MatButtonModule,
-    MatInputModule,
-    FormsModule,
-    ReplaceAllAddressTokensPipe,
-  ],
+  imports: [MatListModule, MatIcon, MatButtonModule, MatInputModule, FormsModule, ReplaceAllAddressTokensPipe],
   templateUrl: './sidebar-journal-entry.component.html',
   styleUrls: ['./sidebar-journal-entry.component.scss'],
 })
@@ -57,36 +49,32 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   refreshTrigger = signal<number>(0);
 
   elements = toSignal(this._state.observeDrawElements());
-  
-  entryElements = computed(
-    () => {
-      this.refreshTrigger();
-      const elements = this.elements();
-      if (!elements) return [];
-      
-      return elements
-        .filter(this.containsNumber(this.entry().messageNumber))
-        .map((el) => {
-          const elementId = el.getId();
-          const elementState = this._state.getDrawElementState(elementId) || el.elementState;
-          const coordinates = this.mapCoordinates(elementState?.coordinates);
-          const imageSrc = Signs.getSignById(elementState?.symbolId)?.src;
-          return {
-            ...el,
-            id: elementId,
-            elementState: elementState,
-            imageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
-            coordinates,
-            coordinatesStr: coordinates ? this.transformCoordinates(coordinates) : '',
-          };
-        });
-    },
-  );
+
+  entryElements = computed(() => {
+    this.refreshTrigger();
+    const elements = this.elements();
+    if (!elements) return [];
+
+    return elements.filter(this.containsNumber(this.entry().messageNumber)).map((el) => {
+      const elementId = el.getId();
+      const elementState = this._state.getDrawElementState(elementId) || el.elementState;
+      const coordinates = this.mapCoordinates(elementState?.coordinates);
+      const imageSrc = Signs.getSignById(elementState?.symbolId)?.src;
+      return {
+        ...el,
+        id: elementId,
+        elementState: elementState,
+        imageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
+        coordinates,
+        coordinatesStr: coordinates ? this.transformCoordinates(coordinates) : '',
+      };
+    });
+  });
 
   navigateTo(element: { id: string; coordinates: Coordinate | undefined }) {
     if (element.coordinates) {
       this._state.setMapCenter(element.coordinates);
-      this._state.setSelectedFeature(element.id);
+      this._state.selectFeature(element.id);
     }
   }
 
@@ -148,28 +136,25 @@ export class SidebarJournalEntryComponent implements OnDestroy {
 
   private containsNumber(reportNumber: number) {
     return (element: ZsMapBaseDrawElement<ZsMapDrawElementState>) =>
-      Array.isArray(element.elementState?.reportNumber)
-        ? element.elementState.reportNumber.includes(reportNumber)
-        : element.elementState?.reportNumber === reportNumber;
+      Array.isArray(element.elementState?.reportNumber) ?
+        element.elementState.reportNumber.includes(reportNumber)
+      : element.elementState?.reportNumber === reportNumber;
   }
 
   openJournalClick(event: Event) {
     event.stopPropagation();
-    this._router.navigate(['/main/journal'], { queryParams: { messageNumber: this.entry().messageNumber } });
+    void this._router.navigate([{ outlets: { [PRIMARY_OUTLET]: ['main', 'journal'], sidebar: null } }], {
+      queryParams: { messageNumber: this.entry().messageNumber },
+    });
   }
 
-  getElementName(element: {
-    id?: string;
-    elementState?: ZsMapDrawElementState;
-  }): string {
+  getElementName(element: { id?: string; elementState?: ZsMapDrawElementState }): string {
     const stateFromService = element.id ? this._state.getDrawElementState(element.id) : undefined;
     const name = stateFromService?.name?.trim() || element.elementState?.name?.trim();
     return name || '';
   }
 
-  getSymbolName(element: {
-    elementState?: ZsMapDrawElementState;
-  }): string {
+  getSymbolName(element: { elementState?: ZsMapDrawElementState }): string {
     const symbolId = element.elementState?.symbolId;
     if (symbolId) {
       const sign = Signs.getSignById(symbolId);
@@ -183,7 +168,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   startEditing(element: { id: string; elementState?: ZsMapDrawElementState }) {
     this.editingValue.set(element.elementState?.name || '');
     this.editingElementId.set(element.id);
-    
+
     setTimeout(() => {
       const input = document.querySelector('.signature-name-input') as HTMLInputElement;
       if (input) {
@@ -197,15 +182,15 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     if (!element.id || this.editingElementId() !== element.id) {
       return;
     }
-    
+
     const valueToSave = newName !== undefined ? newName : this.editingValue();
     const trimmedValue = valueToSave.trim();
-    
+
     this.editingElementId.set(null);
     this.editingValue.set('');
-    
+
     this._state.updateDrawElementState(element.id, 'name', trimmedValue);
-    
+
     const el = this._state.getDrawElement(element.id);
     if (el) {
       const feature = el.getOlFeature();
@@ -220,7 +205,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         draft.name = trimmedValue;
       });
     }
-    
+
     this.refreshTrigger.set(this.refreshTrigger() + 1);
   }
 

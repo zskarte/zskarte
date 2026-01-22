@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, signal, input, computed } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, input, computed, linkedSignal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -59,22 +59,27 @@ export class SidebarJournalComponent {
   currentMessage = input<string>();
   protected currentMessageNumber = computed(() => {
     const param = this.currentMessage();
-    return param && !isNaN(param) ? +param : undefined;
+    return param && !isNaN(+param) ? +param : undefined;
   });
 
   readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
 
-  readonly selectedTabIndex = computed(() => {
-    const current = this.currentMessageNumber();
-    const drawn = this.journalEntriesDrawn();
+  readonly selectedTabIndex = linkedSignal({
+    source: this.currentMessageNumber,
+    computation: (next, prev) => {
+      // don't change on deselection
+      if (next === undefined) {
+        return prev?.value;
+      }
 
-    if (drawn.some(t => t.messageNumber === current)) {
-      return 1;
+      const drawn = this.journalEntriesDrawn();
+      if (drawn.some((t) => t.messageNumber === next)) {
+        return 1;
+      }
+      return 0;
     }
-
-    return 0;
   });
 
   constructor(private elementRef: ElementRef) {
@@ -115,6 +120,6 @@ export class SidebarJournalComponent {
   }
 
   onPanelClosed() {
-    void this._router.navigate([{ outlets: { sidebar: SidebarContext.Journal } }]);
+    void this._router.navigate([{ outlets: { sidebar: [SidebarContext.Journal, 'null'] } }]);
   }
 }

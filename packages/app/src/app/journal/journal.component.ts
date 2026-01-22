@@ -18,7 +18,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, PRIMARY_OUTLET, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
 import { firstValueFrom } from 'rxjs';
@@ -339,7 +339,7 @@ export class JournalComponent implements AfterViewInit {
     void this._router.navigate([
       {
         outlets: {
-          primary: '/main/map',
+          [PRIMARY_OUTLET]: ['main', 'map'],
           sidebar: [SidebarContext.Journal, entry.messageNumber],
         },
       },

@@ -37,6 +37,6 @@ export class ZsMapPolygonDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawE
       coordinates: (feature.getGeometry()?.getCoordinates() as any) || [],
       layer: element.layer,
     });
-    state.setSelectedFeature(drawElement?.id);
+    state.selectFeature(drawElement?.id);
   }
 }

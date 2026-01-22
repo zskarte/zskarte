@@ -47,6 +47,11 @@ const sidebarRoutes: Routes = [
     component: SelectedFeatureComponent,
   },
   {
+    path: `${SidebarContext.SelectedFeature}/:selectedFeatureId`,
+    outlet: 'sidebar',
+    component: SelectedFeatureComponent,
+  },
+  {
     path: SidebarContext.Print,
     outlet: 'sidebar',
     component: SidebarPrintComponent,

@@ -1,5 +1,5 @@
 import { Component, effect, HostListener, inject } from '@angular/core';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { I18NService } from '../../state/i18n.service';
@@ -7,28 +7,13 @@ import { SessionService } from '../../session/session.service';
 import { ZsMapStateService } from '../../state/state.service';
 import { SidebarService } from '../sidebar.service';
 import { SidebarContext } from '../sidebar.interfaces';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { SidebarHistoryComponent } from '../sidebar-history/sidebar-history.component';
-import { SidebarConnectionsComponent } from '../sidebar-connections/sidebar-connections.component';
-import { SidebarMenuComponent } from '../sidebar-menu/sidebar-menu.component';
-import { SidebarPrintComponent } from '../sidebar-print/sidebar-print.component';
-import { SidebarJournalComponent } from '../sidebar-journal/sidebar-journal.component';
-import { SelectedFeatureComponent } from '../../selected-feature/selected-feature.component';
-import { takeUntil, Subject } from 'rxjs';
 import { RouterOutlet } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-wrapper',
   templateUrl: './sidebar-wrapper.component.html',
   styleUrl: './sidebar-wrapper.component.scss',
-  imports: [
-    AsyncPipe,
-    CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    RouterOutlet,
-  ],
+  imports: [CommonModule, MatIconModule, MatButtonModule, RouterOutlet],
 })
 export class SidebarWrapperComponent {
   i18n = inject(I18NService);

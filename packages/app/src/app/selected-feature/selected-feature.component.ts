@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, computed, inject, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject, input, computed } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
@@ -70,6 +70,8 @@ export class SelectedFeatureComponent implements OnDestroy {
   zsMapStateService = inject(ZsMapStateService);
   private router = inject(Router);
 
+  protected selectedFeatureId = input<string>();
+
   groupedFeatures = null;
   selectedFeature: Observable<Feature<SimpleGeometry> | undefined>;
   selectedSignature: Observable<Sign | undefined>;
@@ -133,6 +135,11 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   constructor() {
+    effect(() => {
+      // Select feature when param changes
+      this.zsMapStateService.setSelectedFeature(this.selectedFeatureId());
+    });
+
     this.selectedFeature = this.zsMapStateService.observeSelectedElement$().pipe(
       takeUntil(this._ngUnsubscribe),
       map((element) => element?.getOlFeature() as Feature<SimpleGeometry> | undefined),

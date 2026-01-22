@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { PRIMARY_OUTLET, RouterModule, RouterOutlet } from '@angular/router';
 import { MatTabsModule } from "@angular/material/tabs";
 import {NgFor} from "@angular/common";
 import { SessionService } from './session/session.service';
@@ -23,19 +23,17 @@ export class AppComponent implements OnInit {
   private _state = inject(ZsMapStateService);
   readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
   readonly operationId = toSignal(this._session.observeOperationId());
-  
 
   navLinks = [
     {
-
       label: 'map',
-      link: '/main/map',
-    }, {
+      link: [{ outlets: { [PRIMARY_OUTLET]: ['main', 'map'], sidebar: null } }],
+    },
+    {
       label: 'journal',
-      link: '/main/journal'
-    }
+      link: [{ outlets: { [PRIMARY_OUTLET]: ['main', 'journal'], sidebar: null } }],
+    },
   ];
-
 
   height = window.innerHeight;
   width = window.innerWidth;
