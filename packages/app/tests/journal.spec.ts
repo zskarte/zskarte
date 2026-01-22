@@ -41,7 +41,7 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.waitForTimeout(500);
   await saveButton.click();
   await expect(page.locator('tbody').getByRole('row')).toHaveCount(rowCount + 1);
-  await page.getByRole('button', { name: 'Schliessen' }).click();
+  await page.locator('.journal-sidebar').getByRole('button', { name: 'Schliessen' }).click();
 
   await expect(page.locator('.journal-sidebar')).not.toBeVisible();
 }
@@ -95,7 +95,7 @@ test.describe('Journal', () => {
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
     
-    await page.getByRole('button', { name: 'Als gezeichnet markieren' }).click();
+    await page.getByRole('button', { name: 'Als done markieren' }).click();
     await page.waitForResponse(/api\/journal-entries/);
   })
 });

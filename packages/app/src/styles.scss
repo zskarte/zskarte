@@ -3,6 +3,10 @@
 @import 'quill/dist/quill.snow.css';
 
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --sidebar-width: min(30rem, 75vw);
+}
+
 html,
 body {
   height: 100%;
@@ -73,10 +77,10 @@ mat-action-list {
   overflow: unset;
 }
 
-.mat-drawer > .mat-drawer-inner-container > * > * > .titleCard,
-.mat-drawer > .mat-drawer-inner-container > * > * > .stack,
-.mat-drawer > .mat-drawer-inner-container > * > mat-card-content > div,
-.mat-drawer > .mat-drawer-inner-container > * > .flex-label {
+.sidebar .titleCard,
+.sidebar .stack,
+.sidebar mat-card-content > div,
+.sidebar .flex-label {
   padding: 1rem;
 }
 

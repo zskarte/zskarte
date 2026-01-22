@@ -1,0 +1,50 @@
+@let activeLayerId = activeLayer()?.getId();
+<mat-radio-group [value]="activeLayerId" (change)="activateLayer($event)">
+  @for (layer of layers(); track layer.id) {
+    <div class="layer">
+      <mat-radio-button [value]="layer.id">{{ layer.name }}</mat-radio-button>
+      <button mat-icon-button [attr.aria-label]="i18n.get('renameLayer')" (click)="renameLayer(layer)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      @if (activeLayerId !== layer.id) {
+        <button mat-icon-button [attr.aria-label]="layer.isVisible ? i18n.get('show') : i18n.get('hide')" (click)="toggleLayerVisibility(layer.id, !layer.isVisible)">
+          @if (layer.isVisible) {
+            <mat-icon>visibility_off</mat-icon>
+          } @else {
+            <mat-icon>visibility_on</mat-icon>
+          }
+        </button>
+        <button mat-icon-button [attr.aria-label]="i18n.get('deleteLayer')" (click)="deleteLayer(layer.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
+    </div>
+  }
+</mat-radio-group>
+
+<button mat-raised-button color="primary" (click)="addDrawLayer()" >
+  {{ i18n.get('addDrawLayer') }}
+</button>
+
+<ng-template #dialog>
+  <form (submit)="submit($event)">
+    <div mat-dialog-content>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18n.get('name') }}</mat-label>
+        <input matInput [formField]="layerNameForm.name" />
+        @if (layerNameForm.name().touched() && layerNameForm.name().invalid() && layerNameForm.name().errors().length) {
+          <mat-error>{{layerNameForm.name().errors()[0].message}}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button mat-dialog-close>
+        {{ i18n.get('cancel') }}
+      </button>
+      <button mat-flat-button color="primary" type="submit">
+        {{ i18n.get('ok') }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+
+</ng-template>

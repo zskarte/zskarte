@@ -1,0 +1,41 @@
+<aside class="sidebar noprint" [class.open]="sidebar.observeIsOpen() | async">
+  <div class="sidebar-header">
+    <div class="credits">
+      @if (showLogo && logo) {
+        <img [src]="logo" />
+      } @else if (localOperation) {
+        <mat-icon>device_hub</mat-icon>
+      }
+      <h1>{{ sidebarTitle }}</h1>
+    </div>
+    <button mat-icon-button (click)="sidebar.close()" [attr.aria-label]="i18n.get('close')">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="sidebar-content">
+    @switch (sidebar.observeContext() | async) {
+      @case (SidebarContext.Layers) {
+        <app-sidebar></app-sidebar>
+      }
+      @case (SidebarContext.History) {
+        <app-sidebar-history></app-sidebar-history>
+      }
+      @case (SidebarContext.Connections) {
+        <app-sidebar-connections></app-sidebar-connections>
+      }
+      @case (SidebarContext.Menu) {
+        <app-sidebar-menu></app-sidebar-menu>
+      }
+      @case (SidebarContext.SelectedFeature) {
+        <app-selected-feature></app-selected-feature>
+      }
+      @case (SidebarContext.Print) {
+        <app-sidebar-print></app-sidebar-print>
+      }
+      @case (SidebarContext.Journal) {
+        <app-sidebar-journal></app-sidebar-journal>
+      }
+    }
+  </div>
+</aside>

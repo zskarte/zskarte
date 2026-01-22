@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.layer {
+  display: flex;
+  align-items: center;
+
+  mat-radio-button {
+    flex: 1;
+  }
+}
