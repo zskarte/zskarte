@@ -56,6 +56,7 @@ export class SidebarJournalComponent {
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
+  selectedIndex = 0;
 
   constructor(private elementRef: ElementRef) {
     effect(() => {
@@ -77,9 +78,16 @@ export class SidebarJournalComponent {
       const fragment = this._state.urlFragment();
       if (fragment?.startsWith('message=')) {
         const messageId = fragment.split('=')[1];
-        this.currentMessageNumber = Number.parseInt(messageId);
+        const messageNumber = Number.parseInt(messageId);
+        this.currentMessageNumber = messageNumber;
 
-        this.scrollToMessage(this.currentMessageNumber);
+        const journalList = this.journal.data();
+        const entry = (journalList || []).find((e) => e.messageNumber === messageNumber);
+        if (entry) {
+          this.selectedIndex = entry.isDrawnOnMap ? 1 : 0;
+        }
+
+        this.scrollToMessage(messageNumber);
       } else {
         this.currentMessageNumber = undefined;
       }
@@ -92,7 +100,7 @@ export class SidebarJournalComponent {
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    });
+    }, 100);
   }
 
   startDrawing(entry: JournalEntry) {
