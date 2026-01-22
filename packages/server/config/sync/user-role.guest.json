@@ -96,7 +96,7 @@
       "locale": null
     },
     {
-      "action": "api::operation.operation.patch",
+      "action": "api::operation.operation.changeset",
       "documentId": "i321cwfv5ow8qhr978ip6uje",
       "locale": null
     },
