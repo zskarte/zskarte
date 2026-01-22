@@ -3,13 +3,8 @@
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 }
-@if (journalEntriesToDraw().length === 0 && journalEntriesDrawn().length === 0) {
-  <div class="loading-spinner">
-    <p>{{ i18n.get('noMessagesToProcess') }}</p>
-  </div>
-} @else {
-  <div class="tab-group-wrapper">
-    <mat-tab-group animationDuration="0ms">
+<div class="tab-group-wrapper">
+  <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectedIndex">
     <mat-tab>
       <ng-template mat-tab-label>
         <span>{{ i18n.get('todo') }}</span>
@@ -49,7 +44,7 @@
                 <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
                 @if (!isReadOnly()) {
                   <div class="mark-as-drawn-container">
-                    <button mat-stroked-button class="mark-as-drawn-button" (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
+                      <button mat-flat-button color="primary" class="mark-as-drawn-button" (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}</button>
                   </div>
                 }
               </ng-template>
@@ -105,5 +100,4 @@
       }
     </mat-tab>
   </mat-tab-group>
-  </div>
-}
+</div>

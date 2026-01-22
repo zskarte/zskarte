@@ -2690,9 +2690,9 @@ export class I18NService {
       fr: "Quelqu'un a commencé à dessiner",
     },
     markAsDrawn: {
-      de: 'Als gezeichnet markieren',
-      en: 'Mark as drawn',
-      fr: 'Marquer comme dessiné',
+      de: 'Als done markieren',
+      en: 'Mark as done',
+      fr: 'Marquer comme done',
     },
     markAsNotDrawn: {
       de: 'Als nicht gezeichnet markieren',
@@ -3342,6 +3342,41 @@ export class I18NService {
       en: 'Clean up addresses',
       fr: 'Nettoyer adresses',
     },
+    addDrawLayer: {
+      de: 'Zeichnungsebene hinzufügen',
+      fr: 'Ajouter une couche de dessin',
+      en: 'Add drawing layer',
+    },
+    fieldRequired: {
+      de: 'Bitte füllen Sie dieses Feld aus.',
+      fr: 'Veuillez remplir ce champ.',
+      en: 'Please fill out this field.',
+    },
+    nameExists: {
+      de: 'Name existiert bereits.',
+      fr: 'Ce nom existe déjà.',
+      en: 'Name already exists.',
+    },
+    deleteLayer: {
+      de: 'Ebene löschen',
+      fr: 'Supprimer la couche',
+      en: 'Delete layer',
+    },
+    show: {
+      de: 'Anzeigen',
+      fr: 'Afficher',
+      en: 'Show',
+    },
+    hide: {
+      de: 'Ausblenden',
+      fr: 'Masquer',
+      en: 'Hide',
+    },
+    deleteLayerConfirm: {
+      de: 'Wollen sie diese Ebene wirklich löschen? Alle Elemente werden gelöscht.',
+      fr: 'Voulez-vous vraiment supprimer cette couche ? Tous les éléments seront supprimés.',
+      en: 'Do you really want to delete this layer? All elements will be deleted.',
+    },
     create: {
       de: 'Erfassen',
       en: 'create',
@@ -3371,6 +3406,16 @@ export class I18NService {
       de: 'Eintrag #{number} erfasst.',
       en: 'Entry #{number} created.',
       fr: 'Entrée #{number} créée.',
+    },
+    renameLayer: {
+      de: 'Ebene umbenennen',
+      fr: 'Renommer la couche',
+      en: 'Rename layer',
+    },
+    elementOnOtherLayer: {
+      de: 'Element ist auf einer anderen Ebene eingezeichnet und kann nicht editiert werden.',
+      fr: "L'élément est dessiné sur une autre couche et ne peut pas être édité.",
+      en: 'Element is drawn on a different layer and cannot be edited.',
     },
   };
 
