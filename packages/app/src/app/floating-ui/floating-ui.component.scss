@@ -40,13 +40,38 @@ mat-sidenav {
   gap: 1rem;
 }
 
+.top-row {
+  display: flex;
+  width: 100%;
+  align-self: flex-start;
+  justify-content: space-between;
+  container: floating-ui-top-row / inline-size;
+}
+
 .search {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  width: 80%;
+  width: min(80%, calc(100% - 95px));
   max-width: 400px;
   align-self: flex-start;
+}
+
+app-changeset-overlay {
+  align-self: center;
+  --changeset-description-display: block;
+}
+
+@container floating-ui-top-row (inline-size < 500px) {
+  app-changeset-overlay {
+    --changeset-description-display: none;
+  }
+}
+
+/* empty element to allow app-changeset-overlay to be in middle */
+.top-row::after {
+  content: '';
+  flex: 0 0 0px;
 }
 
 .limit {

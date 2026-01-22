@@ -14,6 +14,8 @@ import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
 import { SearchService } from '../search/search.service';
 import { OperationExportFile } from '../core/entity/operationExportFile';
+import { IZsChangeset } from '@zskarte/types';
+import { ChangesetService } from '../changeset/changeset.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +25,7 @@ export class JournalService {
   private _session = inject(SessionService);
   private _pdfServiceFactory = inject(PdfServiceFactory);
   private _i18n = inject(I18NService);
+  private _changeset = inject(ChangesetService);
   private _search!: SearchService;
   private _state!: ZsMapStateService;
   private isOnline = toSignal(this._session.observeIsOnline());
@@ -528,6 +531,18 @@ export class JournalService {
 
     this.journalResource.reload();
 
+    //create explicite changeset for messageNumber update
+    let changeset: IZsChangeset | undefined = undefined;
+    try {
+      changeset = await this._changeset.newChangeset(
+        undefined,
+        false,
+        true,
+        'Update messageNumbers after publish offline Journal entries.',
+      );
+    } catch (error) {
+      console.error('failed/delayed create new changeset for messageNumber update:', error);
+    }
     //update messageNumber on map if it's changed
     this._state.updateMapState((draft) => {
       if (draft?.drawElements) {
@@ -550,9 +565,29 @@ export class JournalService {
         }
       }
     });
+
+    //a new changeset should be created afterwards
+    if (changeset) {
+      try {
+        await this._state.finishCurrentChangeset();
+      } catch (error) {
+        console.error('failed finish current changeset, delay new changeset instead:', error);
+        changeset = undefined;
+      }
+    }
+    if (!changeset) {
+      try {
+        await this._changeset.newChangeset(undefined, false, true);
+      } catch (error) {
+        //ignore as it's expected to fail (but queued)
+      }
+    }
   }
 
   public startDrawing(entry: JournalEntry, value: boolean) {
+    if (value) {
+      this._changeset.newChangeset(entry.messageNumber, false, true);
+    }
     this.drawingEntry = value ? entry : null;
   }
 
@@ -591,6 +626,7 @@ export class JournalService {
     } else {
       this.drawingEntrySignal.set(null);
     }
+    this._state.finishCurrentChangeset();
   }
 
   private checkTextBlockSizeAndAdjust(

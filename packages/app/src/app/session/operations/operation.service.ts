@@ -7,6 +7,8 @@ import {
   ZsMapLayerStateType,
   ZsOperationPhase,
   ZsMapStateSource,
+  IZsChangesetExport,
+  INITIAL_CHANGESET_ID,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
@@ -14,11 +16,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { ApiService, IApiRequestOptions } from '../../api/api.service';
 import { OperationExportFile, OperationExportFileVersion } from '../../core/entity/operationExportFile';
 import { db } from '../../db/db';
-import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
 import { JournalService } from 'src/app/journal/journal.service';
-import { JournalEntry } from 'src/app/journal/journal.types';
 
 @Injectable({
   providedIn: 'root',
@@ -204,10 +204,32 @@ export class OperationService {
       eventStates: result.eventStates,
       mapState,
       mapLayers: result.mapLayers,
+      changesets: result.changesets,
     };
     const createdOperation = await this.insertOperation(operation);
     await this.reload('active');
     return createdOperation;
+  }
+
+  private async getOutgoingChangesetExport(operationId: string) {
+    const outgoingChangesets = await db.changesetOutgoingQueue.where('operationId').equals(operationId).toArray();
+    const exportChangeset = outgoingChangesets.map((changeset) => {
+      let changesetToExport: IZsChangesetExport, _unused: any;
+      ({
+        cleaned: _unused,
+        stashed: _unused,
+        //TODO is that true or is origDrawElements enough? -> for sure the "elements of corresponsing state" will not work then
+        //baseMapState: _unused, //also export baseMapState as only with them conflicts can be solved.
+        currentMapState: _unused,
+        origDrawElements: _unused,
+        thereDrawElements: _unused,
+        ourDrawElements: _unused,
+        mergedDrawElements: _unused,
+        ...changesetToExport
+      } = changeset);
+      return changesetToExport;
+    });
+    return exportChangeset;
   }
 
   public async exportOperation(operationId: string | undefined): Promise<void> {
@@ -217,13 +239,16 @@ export class OperationService {
     const fileName = `Ereignis_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const operation = await this.getOperation(operationId);
     const journal = await JournalService.getJournal(operationId);
+    const outgoingChangesets = await this.getOutgoingChangesetExport(operationId);
     const saveFile: OperationExportFile = {
       name: operation?.name ?? '',
       description: operation?.description ?? '',
       version: OperationExportFileVersion.V2,
       mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
       eventStates: operation?.eventStates ?? [],
-      mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },
+      mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },     
+      changesets: operation?.changesets || {},
+      outgoingChangesets,
       journal: journal ?? [],
     };
     await this._ipc.saveFile({
@@ -246,17 +271,21 @@ export class OperationService {
       phase: 'active',
       eventStates: [],
       mapState: this.createMapstate(),
+      changesets: {},
     });
   }
 
   private createMapstate(): ZsMapState {
     const initLayerId = uuidv4();
     return {
-      version: 2,
+      version: 3,
       id: uuidv4(),
       center: this._session.getOrganizationLongLat(),
       name: '',
-      layers: { [initLayerId]: { id: uuidv4(), type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      layers: { [initLayerId]: { id: initLayerId, type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      drawElements: {},
+      drawElementChangesetIds: {},
+      changesetIds: [INITIAL_CHANGESET_ID],
     };
   }
 }

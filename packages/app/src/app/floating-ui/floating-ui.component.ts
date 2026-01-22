@@ -19,6 +19,7 @@ import { MatDivider } from '@angular/material/divider';
 import { MatBadge } from '@angular/material/badge';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
+import { SidebarChangesetComponent } from '../sidebar/sidebar-changeset/sidebar-changeset.component';
 import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
 import { SidebarConnectionsComponent } from '../sidebar/sidebar-connections/sidebar-connections.component';
 import { SidebarMenuComponent } from '../sidebar/sidebar-menu/sidebar-menu.component';
@@ -35,6 +36,7 @@ import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-dra
 import { SearchService } from '../search/search.service';
 import { CompassButtonComponent } from '../compass-button/compass-button.component';
 import { JournalService } from '../journal/journal.service';
+import { ChangesetOverlayComponent } from '../changeset/changeset-overlay/changeset-overlay.component';
 
 @Component({
   selector: 'app-floating-ui',
@@ -48,6 +50,7 @@ import { JournalService } from '../journal/journal.service';
     MatBadge,
     MatSidenavModule,
     SidebarComponent,
+    SidebarChangesetComponent,
     SidebarHistoryComponent,
     SidebarConnectionsComponent,
     SidebarMenuComponent,
@@ -57,6 +60,7 @@ import { JournalService } from '../journal/journal.service';
     GeocoderComponent,
     CoordinatesComponent,
     JournalDrawOverlayComponent,
+    ChangesetOverlayComponent,
     CommonModule,
     CompassButtonComponent,
   ],
@@ -112,6 +116,10 @@ export class FloatingUIComponent {
         case SidebarContext.Layers:
           this.showLogo = false;
           this.sidebarTitle = this.i18n.get('view');
+          break;
+        case SidebarContext.Changeset:
+          this.showLogo = false;
+          this.sidebarTitle = 'changeset'; //TODO: this.i18n.get('changeset');
           break;
         case SidebarContext.History:
           this.showLogo = false;

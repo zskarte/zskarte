@@ -582,6 +582,7 @@ export interface ApiOperationOperation extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    changesets: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     description: Schema.Attribute.RichText;

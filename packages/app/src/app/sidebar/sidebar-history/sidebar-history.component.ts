@@ -9,8 +9,11 @@ import { ApiService } from 'src/app/api/api.service';
 import { SessionService } from 'src/app/session/session.service';
 import { I18NService } from 'src/app/state/i18n.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
-import { IZsMapSnapshot, IZsMapSnapshots } from '@zskarte/types';
+import { IZsMapSnapshot } from '@zskarte/types';
+import { StrapiApiResponseList } from 'src/app/helper/strapi-utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+export type IZsMapSnapshots = StrapiApiResponseList<IZsMapSnapshot[]>;
 
 @Component({
   selector: 'app-sidebar-history',

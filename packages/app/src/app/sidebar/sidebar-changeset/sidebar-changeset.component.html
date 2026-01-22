@@ -1,0 +1,154 @@
+<div class="changeset-container">
+  <mat-checkbox [ngModel]="changesetConfig()?.automerge" (change)="updateAutomerge($event.checked)">automerge</mat-checkbox>
+
+  @if (changesetService.inconsistent()) {
+    <div>{{ changesetService.errorDescription() }}</div>
+
+    <div>
+      <span>conflict with changesets:</span>
+      @for (changeId of changesetService.errorChangeset()?.mergeConflictChangesetIds; track changeId) {
+        <span>{{ changeId }}</span>
+      }
+    </div>
+
+    <mat-checkbox [(ngModel)]="conflictsOnly" (change)="conflictsOnly = $event.checked">
+      show conflicts only
+    </mat-checkbox>
+
+    @if (
+      (changesetService.conflictDetails()?.metaConflict || !conflictsOnly) &&
+      changesetService.conflictDetails()?.meta?.length
+    ) {
+      <div>
+        <h3>mapState meta</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>field</th>
+              @for (field of CONFLICT_INDEX_NAME; track field) {
+                <th>
+                  {{ field }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (value of changesetService.conflictDetails()?.meta; track value.path) {
+              @if (value.conflict || !conflictsOnly) {
+                <tr [class.conflict]="value.conflict && !value.resolved">
+                  <td>{{ value.path }}</td>
+                  @for (field of CONFLICT_INDEX_NAME; track field) {
+                    <td
+                      class="value"
+                      [class.nv]="value[field] === NO_CONFLICT_VALUE"
+                      [class.selected]="value.selected === $index"
+                      (click)="selectMeta(value, $index)"
+                    >
+                      @if (value[field] !== NO_CONFLICT_VALUE) {
+                        {{ value[field] }}
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    <div>
+      <div>show elements of corresponsing state</div>
+      @for (field of CONFLICT_INDEX_NAME; track field) {
+        <button
+          mat-flat-button
+          [class]="'header-' + $index"
+          [class.activePreview]="allPreviewIndex === $index"
+          (click)="highlightAllPreview($index)"
+          class="highlightAllPreview"
+          [title]="i18n.get('highlightAll')"
+        >
+          {{ field }}
+        </button>
+      }
+      <button
+        mat-flat-button
+        class="header-3"
+        [class.activePreview]="allPreviewIndex === 3"
+        (click)="highlightAllPreview(3)"
+        class="highlightAllPreview"
+        [title]="i18n.get('highlightAll')"
+      >
+        merged
+      </button>
+
+      <button
+        mat-icon-button
+        (click)="toggleHighlightAll()"
+        class="highlightAll"
+        [title]="i18n.get('highlightAll')"
+        [class]="{ selected: allHighlighted }"
+      >
+        <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
+      </button>
+    </div>
+    @for (element of changesetService.conflictDetails()?.conflicts; track element.drawElementId) {
+      @if (element.conflict || !conflictsOnly) {
+        <div [attr.data-elemId]="element.drawElementId">
+          <h3 (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
+            {{ element.drawElementId }}
+          </h3>
+          <button mat-icon-button (click)="zoomToElement()" title="zoomToElement">
+            <mat-icon>zoom_in_map</mat-icon>
+          </button>
+          <table>
+            <thead>
+              <tr>
+                <th>field</th>
+                @for (field of CONFLICT_INDEX_NAME; track field) {
+                  <th
+                    [class]="'header-' + $index"
+                    [class.activePreview]="allPreviewIndex === $index"
+                    (mouseenter)="highlightPreview(element, $index, true, $event)"
+                    (mouseleave)="highlightPreview(element, $index, false, $event)"
+                  >
+                    {{ field }}
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (value of element.values; track value.path) {
+                @if (value.conflict || !conflictsOnly) {
+                  <tr [class.conflict]="value.conflict && !value.resolved">
+                    <td>{{ value.path }}</td>
+                    @for (field of CONFLICT_INDEX_NAME; track field) {
+                      <td
+                        class="value"
+                        [class.nv]="value[field] === NO_CONFLICT_VALUE"
+                        [class.missing]="element.missing[field]"
+                        [class.selected]="value.selected === $index"
+                        (click)="select(element, value, $index)"
+                      >
+                        @if (value[field] === NO_CONFLICT_VALUE || element.missing[field]) {
+                        } @else if (value.path === 'coordinates') {
+                          coords
+                        } @else {
+                          {{ value[field] }}
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+    <button mat-icon-button (click)="finish()" title="finish">
+      <mat-icon>checked</mat-icon>
+    </button>
+  } @else {
+    <p>no conflicts, all fine</p>
+  }
+</div>

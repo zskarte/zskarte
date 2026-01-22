@@ -1,17 +1,24 @@
 {
   "name": "@zskarte/common",
   "version": "0.0.0",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc -b",
+    "dev": "tsc --watch"
   },
   "files": ["dist"],
   "author": "",
   "license": "MIT",
   "description": "",
   "dependencies": {
+    "@zskarte/types": "file:../types",
     "ol": "^10.7.0",
     "typescript": "^5.9.3"
   }
