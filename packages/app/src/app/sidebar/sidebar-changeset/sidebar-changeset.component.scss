@@ -15,7 +15,7 @@ th.activePreview {
 }
 
 table .selected {
-  border: 1px solid lightgreen;
+  background: lightgreen;
 }
 
 .conflict {
@@ -34,5 +34,47 @@ table .selected {
   position: relative;
   background:
     linear-gradient(to bottom right, transparent 0, transparent 45%, red 50%, transparent 55%, transparent 100%),
-    linear-gradient(to top right,    transparent 0, transparent 45%, red 50%, transparent 55%, transparent 100%);
+    linear-gradient(to top right, transparent 0, transparent 45%, red 50%, transparent 55%, transparent 100%);
+}
+
+.title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.description {
+  margin-bottom: 15px;
+}
+
+.sub-title {
+  font-weight: bold;
+}
+
+.merge-button {
+  margin-top: 15px;
+}
+
+.conflict-element {
+  display: flex;
+  gap: 10px;
+}
+
+.signature-icon {
+  align-self: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.elem-title {
+  flex-grow: 1;
+  align-self: center;
+}
+
+.merge-element {
+  margin-top: 15px;
+  border-top: 1px solid black;
+}
+
+.conflicts-only {
+  margin: 15px 0;
 }

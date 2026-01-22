@@ -278,7 +278,11 @@ export const updateDescription = (
             changedProps.add(desc);
           }
         }
+      }
+      if (changedCoords.size > 0) {
         description.push(`update coordinates of ${Array.from(changedCoords).join(', ')}`);
+      }
+      if (changedProps.size > 0) {
         description.push(`update properties of ${Array.from(changedProps).join(', ')}`);
       }
     }
