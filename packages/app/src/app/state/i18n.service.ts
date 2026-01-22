@@ -2690,9 +2690,9 @@ export class I18NService {
       fr: "Quelqu'un a commencé à dessiner",
     },
     markAsDrawn: {
-      de: 'Als gezeichnet markieren',
-      en: 'Mark as drawn',
-      fr: 'Marquer comme dessiné',
+      de: 'Als done markieren',
+      en: 'Mark as done',
+      fr: 'Marquer comme done',
     },
     markAsNotDrawn: {
       de: 'Als nicht gezeichnet markieren',

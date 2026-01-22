@@ -95,7 +95,7 @@ test.describe('Journal', () => {
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
     
-    await page.getByRole('button', { name: 'Als gezeichnet markieren' }).click();
+    await page.getByRole('button', { name: 'Als done markieren' }).click();
     await page.waitForResponse(/api\/journal-entries/);
   })
 });
