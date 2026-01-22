@@ -283,3 +283,11 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   background: transparent;
 }
 
+
+.mat-mdc-card {
+  box-shadow: none !important;
+  border: 1px solid #dedede !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
+}
+

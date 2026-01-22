@@ -7,7 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { I18NService } from '../../state/i18n.service';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { JournalFormComponent } from '../journal-form/journal-form.component';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../../dialog-layout';
+import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-journal-entry-create-modal',

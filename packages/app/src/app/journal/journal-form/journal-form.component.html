@@ -87,7 +87,7 @@
           <div class="wrongInfo">{{ journalForm.value.wrongContentInfo }}</div>
         </div>
       }
-      <div class="entry-message-number journal-section">
+      <mat-card class="entry-message-number">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>{{ i18n.get('messageNumber') }}</mat-label>
           <input matInput type="number" formControlName="messageNumber" />
@@ -99,9 +99,9 @@
         <mat-checkbox [checked]="manualMessageNumber()" (change)="toggleManualMessageNumber($event.checked)">
           {{ i18n.get('messageNumberManualEntry') }}
         </mat-checkbox>
-      </div>
-      <div class="journal-section">
-        <div class="row">
+      </mat-card>
+      <mat-card>
+        <app-form-section>
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>{{ i18n.get('deliverer') }}</mat-label>
             <input matInput formControlName="sender" #senderInput cdkFocusInitial />
@@ -110,9 +110,6 @@
             <mat-label>{{ i18n.get('receiver') }}</mat-label>
             <input matInput formControlName="creator" />
           </mat-form-field>
-        </div>
-
-        <div class="row">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>{{ i18n.get('date') }}</mat-label>
             <input matInput [matDatepicker]="picker" formControlName="dateCreatedDate" />
@@ -125,9 +122,6 @@
             <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
             <mat-timepicker #pickerTime />
           </mat-form-field>
-        </div>
-      
-        <div class="row">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>{{ i18n.get('communicationDevice') }}</mat-label>
             <mat-select matNativeControl formControlName="communicationType" [attr.aria-label]="i18n.get('communicationDevice')">
@@ -137,33 +131,36 @@
               }
             </mat-select>
           </mat-form-field>
-
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>{{ i18n.get('detailsChanel') }}</mat-label>
             <input matInput formControlName="communicationDetails" />
           </mat-form-field>
-        </div>
-      </div>
+        </app-form-section>
+      </mat-card>
       
-      <div class="journal-section">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
-          <input matInput formControlName="messageSubject" />
-        </mat-form-field>
-        <app-text-area-with-address-search
-          #messageContent
-          [label]="i18n.get('messageContent')"
-          [formVisible]="formVisible()"
-          [messageContentControl]="messageContentControl"
-        ></app-text-area-with-address-search>
-      </div>
+      <mat-card>
+        <app-form-section>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
+            <input matInput formControlName="messageSubject" />
+          </mat-form-field>
+          <app-text-area-with-address-search
+            #messageContent
+            [label]="i18n.get('messageContent')"
+            [formVisible]="formVisible()"
+            [messageContentControl]="messageContentControl"
+          ></app-text-area-with-address-search>
+        </app-form-section>
+      </mat-card>
         
-      <div class="visum-row journal-section">
-        <mat-form-field class="visa" appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ i18n.get('visa') }}</mat-label>
-          <input matInput formControlName="visumMessage" />
-        </mat-form-field>
-      </div>
+      <mat-card>
+        <app-form-section>
+          <mat-form-field class="visa" appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ i18n.get('visa') }}</mat-label>
+            <input matInput formControlName="visumMessage" />
+          </mat-form-field>
+        </app-form-section>
+      </mat-card>
     </div>
   } @else {
   <mat-tab-group
@@ -234,7 +231,7 @@
                   <div class="wrongInfo">{{ journalForm.value.wrongContentInfo }}</div>
                 </div>
               }
-              <div class="entry-message-number journal-section">
+              <mat-card class="entry-message-number">
                   <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>{{ i18n.get('messageNumber') }}</mat-label>
                     <input matInput type="number" formControlName="messageNumber" />
@@ -246,9 +243,9 @@
                   <mat-checkbox [checked]="manualMessageNumber()" (change)="toggleManualMessageNumber($event.checked)">
                     {{ i18n.get('messageNumberManualEntry') }}
                   </mat-checkbox>
-              </div>
-              <div class="journal-section">
-                <div class="row">
+              </mat-card>
+              <mat-card>
+                <app-form-section>
                   <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>{{ i18n.get('deliverer') }}</mat-label>
                     <input matInput formControlName="sender" />
@@ -257,9 +254,6 @@
                     <mat-label>{{ i18n.get('receiver') }}</mat-label>
                     <input matInput formControlName="creator" />
                   </mat-form-field>
-                </div>
-
-                <div class="row">
                   <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>{{ i18n.get('date') }}</mat-label>
                     <input matInput [matDatepicker]="picker" formControlName="dateCreatedDate" />
@@ -272,9 +266,6 @@
                     <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
                     <mat-timepicker #pickerTime />
                   </mat-form-field>
-                </div>
-              
-                <div class="row">
                   <mat-form-field appearance="outline" subscriptSizing="dynamic" data-testid="communicationDevice">
                     <mat-label>{{ i18n.get('communicationDevice') }}</mat-label>
                     <mat-select formControlName="communicationType" [attr.aria-label]="i18n.get('communicationDevice')">
@@ -284,50 +275,50 @@
                       }
                     </mat-select>
                   </mat-form-field>
-
                   <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>{{ i18n.get('detailsChanel') }}</mat-label>
                     <input matInput formControlName="communicationDetails" />
                   </mat-form-field>
-                </div>
-              </div>
+                </app-form-section>
+              </mat-card>
               
-              <div class="journal-section">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                  <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
-                  <input matInput formControlName="messageSubject" />
-                </mat-form-field>
-                <app-text-area-with-address-search
-                  #messageContent
-                  [label]="i18n.get('messageContent')"
-                  [formVisible]="formVisible()"
-                  [messageContentControl]="messageContentControl"
-                ></app-text-area-with-address-search>
-              </div>
+              <mat-card>
+                <app-form-section>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
+                    <input matInput formControlName="messageSubject" />
+                  </mat-form-field>
+                  <app-text-area-with-address-search
+                    #messageContent
+                    [label]="i18n.get('messageContent')"
+                    [formVisible]="formVisible()"
+                    [messageContentControl]="messageContentControl"
+                  ></app-text-area-with-address-search>
+                </app-form-section>
+              </mat-card>
                 
-              <div class="end journal-section">
+              <mat-card class="end">
                 <mat-form-field class="visa" appearance="outline" subscriptSizing="dynamic">
                   <mat-label>{{ i18n.get('visa') }}</mat-label>
                   <input matInput formControlName="visumMessage" />
                 </mat-form-field>
-
-                <div class="journal-entry-save-buttons">
-                  @if (showPrint) {
-                    <button
-                      mat-icon-button
-                      [attr.aria-label]="i18n.get('create')"
-                      [attr.title]="i18n.get('create')"
-                      (click)="print($event)"
-                      type="button"
-                    >
-                      <mat-icon>print</mat-icon>
-                    </button>
-                  }
-                  <button mat-flat-button color="primary" type="submit">
-                    <mat-icon>check</mat-icon>
-                    {{ i18n.get('create') }}
+              </mat-card>
+              <div class="journal-entry-save-buttons">
+                @if (showPrint) {
+                  <button
+                    mat-icon-button
+                    [attr.aria-label]="i18n.get('create')"
+                    [attr.title]="i18n.get('create')"
+                    (click)="print($event)"
+                    type="button"
+                  >
+                    <mat-icon>print</mat-icon>
                   </button>
-                </div>
+                }
+                <button mat-flat-button color="primary" type="submit">
+                  <mat-icon>check</mat-icon>
+                  {{ i18n.get('create') }}
+                </button>
               </div>
             </div>
           </div>
@@ -373,7 +364,7 @@
             </tr>
           </table>
         } @else {
-          <div>
+          <mat-card>
             @if (journalForm.value.wrongTriageInfo) {
               <div class="wrongInfoTitle">{{ i18n.get('wrongTriageInfo') }}</div>
               <div class="wrongInfo">{{ journalForm.value.wrongTriageInfo }}</div>
@@ -395,29 +386,28 @@
               <mat-label>{{ i18n.get('visa') }}</mat-label>
               <input matInput formControlName="visumTriage" />
             </mat-form-field>
-
-            <div class="journal-entry-save-buttons">
-              @if (showPrint) {
-                <button
-                  mat-icon-button
-                  [attr.aria-label]="i18n.get('print')"
-                  [attr.title]="i18n.get('print')"
-                  (click)="print($event)"
-                  type="button"
-                >
-                  <mat-icon>print</mat-icon>
-                </button>
-              }
-              <button mat-flat-button color="primary" type="submit">
-                <mat-icon>check</mat-icon>
-                {{ i18n.get('save') }}
+          </mat-card>
+          <div class="journal-entry-save-buttons">
+            @if (showPrint) {
+              <button
+                mat-icon-button
+                [attr.aria-label]="i18n.get('print')"
+                [attr.title]="i18n.get('print')"
+                (click)="print($event)"
+                type="button"
+              >
+                <mat-icon>print</mat-icon>
               </button>
-            </div>
+            }
+            <button mat-flat-button color="primary" type="submit">
+              <mat-icon>check</mat-icon>
+              {{ i18n.get('save') }}
+            </button>
           </div>
         }
       </div>
       @if (journalForm.value.entryStatus === JournalEntryStatus.AWAITING_TRIAGE && !isReadOnly()) {
-        <div class="info-send-back">
+        <mat-card class="info-send-back">
           <h3>{{ i18n.get('wrongContent') }}</h3>
           <p>{{ i18n.get('wrongContentMessage') }}</p>
 
@@ -427,7 +417,7 @@
           </mat-form-field>
 
           <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
-        </div>
+        </mat-card>
       }
     </mat-tab>
     <mat-tab label="{{ i18n.get('decision') }}" [disabled]="isTabDisabled(JournalEntryStatus.AWAITING_DECISION)">
@@ -460,7 +450,7 @@
             </tr>
           </table>
         } @else {
-          <div>
+          <mat-card>
             <mat-form-field appearance="outline">
               <mat-label>{{ i18n.get('decision') }}</mat-label>
               <textarea matInput formControlName="decision" rows="10"></textarea>
@@ -475,29 +465,28 @@
               <mat-label>{{ i18n.get('visa') }}</mat-label>
               <input matInput formControlName="visumDecider" />
             </mat-form-field>
-
-            <div class="journal-entry-save-buttons">
-              @if (showPrint) {
-                <button
-                  mat-icon-button
-                  [attr.aria-label]="i18n.get('print')"
-                  [attr.title]="i18n.get('print')"
-                  (click)="print($event)"
-                  type="button"
-                >
-                  <mat-icon>print</mat-icon>
-                </button>
-              }
-              <button mat-flat-button color="primary" type="submit">
-                <mat-icon>check</mat-icon>
-                {{ i18n.get('save') }}
+          </mat-card>
+          <div class="journal-entry-save-buttons">
+            @if (showPrint) {
+              <button
+                mat-icon-button
+                [attr.aria-label]="i18n.get('print')"
+                [attr.title]="i18n.get('print')"
+                (click)="print($event)"
+                type="button"
+              >
+                <mat-icon>print</mat-icon>
               </button>
-            </div>
+            }
+            <button mat-flat-button color="primary" type="submit">
+              <mat-icon>check</mat-icon>
+              {{ i18n.get('save') }}
+            </button>
           </div>
         }
       </div>
       @if (journalForm.value.entryStatus === JournalEntryStatus.AWAITING_DECISION && !isReadOnly()) {
-        <div class="info-send-back">
+        <mat-card class="info-send-back">
           <h3>{{ i18n.get('wrongDepartment') }}</h3>
           <p>{{ i18n.get('wrongTriage') }}</p>
 
@@ -507,7 +496,7 @@
           </mat-form-field>
 
           <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
-        </div>
+        </mat-card>
       }
     </mat-tab>
     <mat-tab label="{{ i18n.get('output') }}" [disabled]="isTabDisabled(JournalEntryStatus.AWAITING_COMPLETION)">
@@ -528,29 +517,28 @@
             </tr>
           </table>
         } @else {
-          <div>
+          <mat-card>
             <mat-form-field appearance="outline">
               <mat-label>{{ i18n.get('deliveredFrom') }}</mat-label>
               <input matInput formControlName="decisionSender" />
             </mat-form-field>
-
-            <div class="journal-entry-save-buttons">
-              @if (showPrint) {
-                <button
-                  mat-icon-button
-                  [attr.aria-label]="i18n.get('print')"
-                  [attr.title]="i18n.get('print')"
-                  (click)="print($event)"
-                  type="button"
-                >
-                  <mat-icon>print</mat-icon>
-                </button>
-              }
-              <button mat-flat-button color="primary" type="submit">
-                <mat-icon>check</mat-icon>
-                {{ i18n.get('save') }}
+          </mat-card>
+          <div class="journal-entry-save-buttons">
+            @if (showPrint) {
+              <button
+                mat-icon-button
+                [attr.aria-label]="i18n.get('print')"
+                [attr.title]="i18n.get('print')"
+                (click)="print($event)"
+                type="button"
+              >
+                <mat-icon>print</mat-icon>
               </button>
-            </div>
+            }
+            <button mat-flat-button color="primary" type="submit">
+              <mat-icon>check</mat-icon>
+              {{ i18n.get('save') }}
+            </button>
           </div>
         }
       </div>

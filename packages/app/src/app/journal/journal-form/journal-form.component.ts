@@ -36,6 +36,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { FormSectionComponent } from '../../ui/form-section';
 
 @Component({
   selector: 'app-journal-form',
@@ -51,10 +53,12 @@ import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-to
     ReactiveFormsModule,
     FormsModule,
     MatSelectModule,
+    MatCardModule,
     CommonModule,
     TextAreaWithAddressSearchComponent,
     ReplaceAllAddressTokensPipe,
     A11yModule,
+    FormSectionComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',

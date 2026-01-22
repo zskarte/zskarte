@@ -2,7 +2,7 @@ import { Component, inject, output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { I18NService } from '../state/i18n.service';
+import { I18NService } from '../../state/i18n.service';
 
 @Component({
   selector: 'app-dialog-header',
