@@ -24,6 +24,9 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
     await page.getByLabel('Meldungsnummer manuell').click();
     await page.getByRole('spinbutton', { name: 'Meldungsnummer' }).fill(entry.reportId);
   }
+  const modal = page.locator('app-journal-entry-create-modal');
+  await modal.waitFor({ state: 'visible' });
+
   await page.getByLabel('Absender').fill(entry.deliverer ?? 'Absender');
   await page.getByLabel('Empfänger').fill(entry.receiver ?? 'Empfänger');
   await page.getByLabel('Zeit').fill(entry.time ?? '12:00');
