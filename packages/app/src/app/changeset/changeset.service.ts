@@ -49,6 +49,7 @@ import _ from 'lodash';
 import { Md5 } from 'ts-md5';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
+import { DrawStyle } from '../map-renderer/draw-style';
 
 export const NO_CONFLICT_VALUE = 'NO_CONFLICT_VALUE';
 export const CONFLICT_INDEX_NAME = ['orig', 'there', 'our'];
@@ -1216,8 +1217,11 @@ export class ChangesetService {
           const missing = { orig: origMissing, there: true, our: ourMissing };
           const values = this._mergeConflictValues(origValues, ourValues, {}, missing);
 
+          const imageSrc = Signs.getSignById(origElem?.symbolId)?.src;
           conflicts.push({
             drawElementId: elemId,
+            elementName: origElem?.name,
+            symbolImageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
             missing,
             requiredPrefChangesetId: changeId,
             additionalChangesets: [],
@@ -1277,8 +1281,11 @@ export class ChangesetService {
           const missing = { orig: origMissing, there: thereMissing, our: ourMissing };
           const values = this._mergeConflictValues(origValues, ourValues, thereValues, missing);
 
+          const imageSrc = Signs.getSignById(origElem?.symbolId)?.src;
           conflicts.push({
             drawElementId: elemId,
+            elementName: origElem?.name,
+            symbolImageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
             missing,
             requiredPrefChangesetId: changeId,
             additionalChangesets,

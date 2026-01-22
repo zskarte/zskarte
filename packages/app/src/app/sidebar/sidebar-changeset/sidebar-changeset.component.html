@@ -1,17 +1,20 @@
 <div class="changeset-container">
-  <mat-checkbox [ngModel]="changesetConfig()?.automerge" (change)="updateAutomerge($event.checked)">automerge</mat-checkbox>
+  <mat-checkbox [ngModel]="changesetConfig()?.automerge" (change)="updateAutomerge($event.checked)"
+    >automerge</mat-checkbox
+  >
 
   @if (changesetService.inconsistent()) {
-    <div>{{ changesetService.errorDescription() }}</div>
+    <div class="title">changeset with conflicts</div>
+    <div class="description">{{ changesetService.errorDescription() }}</div>
 
     <div>
-      <span>conflict with changesets:</span>
+      <div class="sub-title">conflict with changesets:</div>
       @for (changeId of changesetService.errorChangeset()?.mergeConflictChangesetIds; track changeId) {
         <span>{{ changeId }}</span>
       }
     </div>
 
-    <mat-checkbox [(ngModel)]="conflictsOnly" (change)="conflictsOnly = $event.checked">
+    <mat-checkbox class="conflicts-only" [(ngModel)]="conflictsOnly" (change)="conflictsOnly = $event.checked">
       show conflicts only
     </mat-checkbox>
 
@@ -57,7 +60,7 @@
       </div>
     }
     <div>
-      <div>show elements of corresponsing state</div>
+      <div class="sub-title">show elements of corresponsing state</div>
       @for (field of CONFLICT_INDEX_NAME; track field) {
         <button
           mat-flat-button
@@ -80,26 +83,31 @@
       >
         merged
       </button>
-
-      <button
-        mat-icon-button
-        (click)="toggleHighlightAll()"
-        class="highlightAll"
-        [title]="i18n.get('highlightAll')"
-        [class]="{ selected: allHighlighted }"
-      >
-        <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
-      </button>
     </div>
+    <button
+      mat-flat-button
+      (click)="toggleHighlightAll()"
+      class="highlightAll"
+      [title]="i18n.get('highlightAll')"
+      [class]="{ selected: allHighlighted }"
+    >
+      <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
+      Highlight changed elements
+    </button>
     @for (element of changesetService.conflictDetails()?.conflicts; track element.drawElementId) {
       @if (element.conflict || !conflictsOnly) {
-        <div [attr.data-elemId]="element.drawElementId">
-          <h3 (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
-            {{ element.drawElementId }}
-          </h3>
-          <button mat-icon-button (click)="zoomToElement()" title="zoomToElement">
-            <mat-icon>zoom_in_map</mat-icon>
-          </button>
+        <div class="merge-element" [attr.data-elemId]="element.drawElementId">
+          <div class="conflict-element" (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
+            @if (element.symbolImageUrl) {
+              <img [src]="element.symbolImageUrl" class="signature-icon" />
+            } @else {
+              <mat-icon class="signature-icon">widgets</mat-icon>
+            }
+            <span class="elem-title">{{ element.elementName }}</span>
+            <button mat-icon-button (click)="zoomToElement()" title="zoomToElement">
+              <mat-icon>zoom_in_map</mat-icon>
+            </button>
+          </div>
           <table>
             <thead>
               <tr>
@@ -145,9 +153,7 @@
         </div>
       }
     }
-    <button mat-icon-button (click)="finish()" title="finish">
-      <mat-icon>checked</mat-icon>
-    </button>
+    <button class="merge-button" mat-flat-button color="primary" (click)="finish()" title="finish">merge changes</button>
   } @else {
     <p>no conflicts, all fine</p>
   }

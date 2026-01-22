@@ -39,13 +39,18 @@
 
 .changeset-state {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   margin-right: 10px;
+  align-self: center;
 }
 
 .changeset-description {
   display: var(--changeset-description-display, block);
   flex-grow: 1;
+  font-size: 0.9em;
+  line-height: 1em;
+  max-height: 48px;
+  overflow-y: scroll;
 }
 
 .changeset-buttons {

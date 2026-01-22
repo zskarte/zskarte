@@ -21,7 +21,11 @@
         >arrow_upward</mat-icon
       >
     </div>
-    <div class="changeset-description">{{ changesetService.changeDescription() }}</div>
+    <div class="changeset-description">
+      @for (desc of changesetService.changeDescription(); track $index) {
+        <div class="changeset-desc">{{ desc }}</div>
+      }
+    </div>
     <div class="changeset-buttons">
       @if (changesetService.inconsistent()) {
         <button
@@ -44,7 +48,7 @@
             (click)="makeManual()"
             [disabled]="changesetService.saving()"
           >
-            <mat-icon>add_circle_outline</mat-icon>
+            <mat-icon>more_time</mat-icon>
           </button>
         }
       } @else {

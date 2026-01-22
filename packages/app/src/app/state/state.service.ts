@@ -203,8 +203,8 @@ export class ZsMapStateService {
       },
       changesetConfig: {
         hiddenMode: true,
-        automerge: true,
-        conflictTakeOur: true,
+        automerge: false,
+        conflictTakeOur: false,
       },
     };
     if (!mapState) {

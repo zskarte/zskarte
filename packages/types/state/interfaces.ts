@@ -6,12 +6,11 @@ import { PermissionType } from '../session/interfaces';
 import { Extent } from 'ol/extent';
 import { Patch } from 'immer';
 
-
 //copied from '@angular/material/sort' as not accessible here
 type SortDirection = 'asc' | 'desc' | '';
 interface Sort {
-    active: string;
-    direction: SortDirection;
+  active: string;
+  direction: SortDirection;
 }
 
 export const INITIAL_CHANGESET_ID = '0';
@@ -83,6 +82,8 @@ export interface IZsChangesetConflictValue {
 
 export interface IZsChangesetConflict {
   drawElementId: string;
+  elementName?: string;
+  symbolImageUrl?: string;
   missing: { orig: boolean; there: boolean; our: boolean };
   requiredPrefChangesetId: string;
   additionalChangesets: string[];
