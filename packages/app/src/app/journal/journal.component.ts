@@ -58,9 +58,6 @@ import { SearchService } from '../search/search.service';
   styleUrl: './journal.component.scss',
 })
 export class JournalComponent implements AfterViewInit {
-focusSignatures() {
-throw new Error('Method not implemented.');
-}
   journalFormComponent = viewChild.required(JournalFormComponent);
   i18n = inject(I18NService);
   journal = inject(JournalService);
