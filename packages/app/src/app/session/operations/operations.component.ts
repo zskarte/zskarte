@@ -18,6 +18,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ImportDialogComponent } from 'src/app/import-dialog/import-dialog.component';
+import { JournalService } from 'src/app/journal/journal.service';
+import { OperationExportFile } from 'src/app/core/entity/operationExportFile';
 
 @Component({
   selector: 'app-operations',
@@ -42,7 +45,9 @@ import { MatDialog } from '@angular/material/dialog';
 export class OperationsComponent implements OnDestroy {
   private _session = inject(SessionService);
   i18n = inject(I18NService);
+  private _dialog = inject(MatDialog);
   operationService = inject(OperationService);
+  journalService = inject(JournalService);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
 
@@ -102,6 +107,19 @@ export class OperationsComponent implements OnDestroy {
 
   public async logout(): Promise<void> {
     await this._session.logout('logout');
+  }
+
+  public importOperation(): void {
+    const importDialog = this._dialog.open(ImportDialogComponent);
+    importDialog.afterClosed().subscribe(async (result: OperationExportFile) => {
+      if (result) {
+        const importedOperation = await this.operationService.importOperation(result);
+        if (importedOperation) {
+          this._session.setOperation(importedOperation);
+        }
+        await this.journalService.importJournal(result);
+      }
+    });
   }
 
   public async showActiveScenarios(): Promise<void> {

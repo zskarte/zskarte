@@ -174,7 +174,7 @@ export class ZsMapStateService {
       hiddenSymbols: [],
       hiddenFeatureTypes: [],
       highlightedFeature: [],
-      enableClustering: true,
+      enableClustering: false,
       journalSort: { active: 'messageNumber', direction: 'desc' },
       journalFilter: {
         department: '',

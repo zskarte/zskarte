@@ -2890,13 +2890,33 @@ export class I18NService {
       en: 'Drawn messages',
       fr: 'Messages dessinés',
     },
+    noEntriesToDraw: {
+      de: 'Keine Einträge zu zeichnen',
+      en: 'No entries to draw',
+      fr: 'Aucune entrée à dessiner',
+    },
+    noEntriesToDrawDescription: {
+      de: 'Es gibt derzeit keine Journaleinträge, die noch gezeichnet werden müssen.',
+      en: 'There are currently no journal entries that need to be drawn yet.',
+      fr: "Il n'y a actuellement aucune entrée de journal à dessiner.",
+    },
+    noEntriesDrawn: {
+      de: 'Keine abgeschlossenen Einträge',
+      en: 'No completed entries',
+      fr: 'Aucune entrée terminée',
+    },
+    noEntriesDrawnDescription: {
+      de: 'Es gibt derzeit keine Journaleinträge, bei denen das Zeichnen abgeschlossen ist.',
+      en: 'There are currently no journal entries where drawing has been completed.',
+      fr: "Il n'y a actuellement aucune entrée de journal où le dessin a été terminé.",
+    },
     startDrawing: {
       de: 'Mit Zeichnen beginnen',
       en: 'Start Drawing',
       fr: 'Commencer à dessiner',
     },
     someoneIsDrawing: {
-      de: 'Jemand hat mit Zeichnen begonnen',
+      de: 'Jemand hat bereits mit Zeichnen begonnen.',
       en: 'Someone started drawing',
       fr: "Quelqu'un a commencé à dessiner",
     },
@@ -3145,6 +3165,11 @@ export class I18NService {
       en: 'Describe what is wrong / needs to be corrected.',
       fr: 'Décrivez ce qui ne va pas/doit être corrigé.',
     },
+    toCorrect: {
+      de: 'Zu korrigieren:',
+      en: 'To correct:',
+      fr: 'À corriger:',
+    },
     backToInput: {
       de: 'Zurück an Eingang senden',
       en: 'Return to input',
@@ -3231,7 +3256,7 @@ export class I18NService {
       fr: 'Cartes',
     },
     responsibility: {
-      de: 'Zuständigkeit',
+      de: 'Verantwortlichkeit',
       en: 'Responsibility',
       fr: 'Responsabilité',
     },
@@ -3242,6 +3267,11 @@ export class I18NService {
     },
     decision: {
       de: 'Entscheidung',
+      en: 'Decision',
+      fr: 'Décision',
+    },
+    entscheid: {
+      de: 'Entscheid',
       en: 'Decision',
       fr: 'Décision',
     },
@@ -3284,6 +3314,41 @@ export class I18NService {
       de: 'Alle gezeichnete Signaturen hervorheben',
       en: 'Highlight all drawn symbols',
       fr: 'Surlignez tous les symboles dessinés',
+    },
+    noSignatureAvailable: {
+      de: 'Keine Signatur vorhanden.',
+      en: 'No signature available.',
+      fr: 'Aucune signature disponible.',
+    },
+    addSignature: {
+      de: 'Signatur hinzufügen',
+      en: 'Add signature',
+      fr: 'Ajouter une signature',
+    },
+    noSignatureNeeded: {
+      de: 'Keine Signatur benötigt',
+      en: 'No signature needed',
+      fr: 'Aucune signature nécessaire',
+    },
+    focusSignatures: {
+      de: 'Signaturen fokussieren',
+      en: 'Focus signatures',
+      fr: 'Mettre en évidence les signatures',
+    },
+    signaturesNotComplete: {
+      de: 'Signaturen nicht komplett',
+      en: 'Signatures not complete',
+      fr: 'Signatures incomplètes',
+    },
+    todo: {
+      de: 'Todo',
+      en: 'Todo',
+      fr: 'À faire',
+    },
+    done: {
+      de: 'Done',
+      en: 'Done',
+      fr: 'Terminé',
     },
     reset: {
       de: 'Zurücksetzen',
@@ -3507,6 +3572,11 @@ export class I18NService {
       de: 'Adressen bereinigen',
       en: 'Clean up addresses',
       fr: 'Nettoyer adresses',
+    },
+    create: {
+      de: 'Erfassen',
+      en: 'create',
+      fr: 'créer',
     },
   };
 
