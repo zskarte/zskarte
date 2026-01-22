@@ -630,6 +630,7 @@ export interface ApiOrganizationOrganization extends Struct.CollectionTypeSchema
     name: Schema.Attribute.String & Schema.Attribute.Required;
     operations: Schema.Attribute.Relation<'oneToMany', 'api::operation.operation'>;
     publishedAt: Schema.Attribute.DateTime;
+    settings: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     url: Schema.Attribute.String;

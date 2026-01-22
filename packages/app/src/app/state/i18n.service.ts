@@ -3502,6 +3502,11 @@ export class I18NService {
       fr: "L'élément est dessiné sur une autre couche et ne peut pas être édité.",
       en: 'Element is drawn on a different layer and cannot be edited.',
     },
+    journalMessageTextTemplate: {
+      de: 'Textvorlage für neue Journal Meldungen',
+      en: 'Text template for new journal entries',
+      fe: 'Modèle de texte pour les nouvelles entrées de journal',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {

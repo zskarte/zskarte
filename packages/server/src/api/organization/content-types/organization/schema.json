@@ -73,6 +73,9 @@
     },
     "journalEntryTemplate": {
       "type": "json"
+    },
+    "settings": {
+      "type": "json"
     }
   }
 }
