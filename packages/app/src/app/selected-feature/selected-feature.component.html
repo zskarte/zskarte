@@ -122,7 +122,7 @@
                   </div>
                 </div>
               }
-              @if ((editMode | async) && hazardSigns.includes((selectedFeature | async)?.get('sig').id)) {
+              @if ((editMode()) && hazardSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('hazardCode') }}</mat-label>
                   <input
@@ -146,7 +146,7 @@
                   />
                 </mat-form-field>
               }
-              @if ((editMode()) && formationSigns.includes((selectedFeature())?.get('sig').id)) {
+              @if ((editMode()) && formationSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('hierarchyLevel') }}</mat-label>
                   <mat-select
@@ -211,7 +211,7 @@
                   />
                 </mat-form-field>
               }
-              @if ((editMode()) && transportSigns.includes((selectedFeature())?.get('sig').id)) {
+              @if ((editMode()) && transportSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('organization') }}</mat-label>
                   <input
@@ -233,7 +233,7 @@
                   />
                 </mat-form-field>
               }
-              @if ((editMode()) && leaderSigns.includes((selectedFeature())?.get('sig').id)) {
+              @if ((editMode()) && leaderSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('organization') }}</mat-label>
                   <input
