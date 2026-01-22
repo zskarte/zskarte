@@ -21,20 +21,3 @@ export class SessionGuard implements CanActivate {
   }
 }
 
-@Injectable({
-  providedIn: 'root',
-})
-export class NoSessionGuard implements CanActivate {
-  private _session = inject(SessionService);
-  private _router = inject(Router);
-
-  async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
-    const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
-    // If authenticated but no operationId in query params, redirect to map
-    // Otherwise let LoginRedirectGuard handle the redirect with operationId
-    if (isAuthenticated && !route.queryParams['operationId']) {
-      return this._router.parseUrl('/main/map');
-    }
-    return true;
-  }
-}

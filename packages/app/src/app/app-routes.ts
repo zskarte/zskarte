@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { OperationsComponent } from './session/operations/operations.component';
 import { OperationGuard } from './session/operations/operation.guard';
-import { SessionGuard, NoSessionGuard } from './session/session.guard';
+import { SessionGuard } from './session/session.guard';
 import { LoginRedirectGuard } from './session/login/login-redirect.guard';
 import { LoginComponent } from './session/login/login.component';
 import { ShareComponent } from './session/share/share.component';
