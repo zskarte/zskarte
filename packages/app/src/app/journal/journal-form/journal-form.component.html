@@ -1,7 +1,7 @@
 <form [formGroup]="journalForm" #formDirective="ngForm" (ngSubmit)="save()">
   <div class="sidebar-header">
     <h1>
-      <span class="message-number">#{{ journalForm.value.messageNumber }}</span>
+      <span class="message-number">#{{ journalForm.getRawValue().messageNumber }}</span>
       {{ journalForm.value.messageSubject ?? '' }}
     </h1>
 
@@ -179,7 +179,7 @@
                   </mat-form-field>
                   <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>{{ i18n.get('time') }}</mat-label>
-                    <input matInput [matTimepicker]="pickerTime" formControlName="dateCreatedTime" />
+                    <input matInput [matTimepicker]="pickerTime" formControlName="dateCreatedTime" (input)="normalizeTimeInput($event)" />
                     <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
                     <mat-timepicker #pickerTime />
                   </mat-form-field>

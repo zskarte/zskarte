@@ -78,7 +78,7 @@
           (click)="sidebar.toggle(SidebarContext.History)"
           [attr.aria-label]="i18n.get('history')"
         >
-          <mat-icon>history</mat-icon>
+          <mat-icon [matBadge]="todoCount()" matBadgePosition="after" aria-hidden="false">menu_book</mat-icon>
         </button>
       }
 
