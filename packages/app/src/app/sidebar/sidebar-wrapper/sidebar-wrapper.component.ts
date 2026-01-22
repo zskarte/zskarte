@@ -1,4 +1,4 @@
-import { Component, effect, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,48 +23,39 @@ export class SidebarWrapperComponent {
 
   SidebarContext = SidebarContext;
 
-  public showLogo = true;
-  public sidebarTitle = '';
   public logo = '';
   public localOperation = false;
+
+  protected sidebarConfig = {
+    [SidebarContext.Layers]: {
+      showLogo: false,
+      title: this.i18n.get('view'),
+    },
+    [SidebarContext.History]: {
+      showLogo: false,
+      title: this.i18n.get('history'),
+    },
+    [SidebarContext.Connections]: {
+      showLogo: false,
+      title: this.i18n.get('connections'),
+    },
+    [SidebarContext.Print]: {
+      showLogo: false,
+      title: this.i18n.get('print'),
+    },
+    [SidebarContext.SelectedFeature]: {
+      showLogo: false,
+      title: this.i18n.get('selectedFeature'),
+    },
+    [SidebarContext.Journal]: {
+      showLogo: false,
+      title: this.i18n.get('journal'),
+    },
+  };
 
   constructor() {
     this.logo = this.session.getLogo() ?? '';
     this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
-
-    effect(() => {
-      const sidebarContext = this.sidebar.context();
-      switch (sidebarContext) {
-        case SidebarContext.Layers:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('view');
-          break;
-        case SidebarContext.History:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('history');
-          break;
-        case SidebarContext.Connections:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('connections');
-          break;
-        case SidebarContext.Print:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('print');
-          break;
-        case SidebarContext.SelectedFeature:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('selectedFeature');
-          break;
-        case SidebarContext.Journal:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('journal');
-          break;
-        default:
-          this.showLogo = true;
-          this.sidebarTitle = this.session.getOperationName() ?? '';
-          break;
-      }
-    });
   }
 
   @HostListener('document:keydown.escape')
