@@ -1,4 +1,4 @@
-@if (!changesetConfig()?.hiddenMode || isChangesetMergeMode()) {
+@if (changesetService.overlayVisible()) {
   <div class="changeset-main mat-elevation-z3" [class.inconsistent]="changesetService.inconsistent()">
     <div class="changeset-state">
       <mat-icon

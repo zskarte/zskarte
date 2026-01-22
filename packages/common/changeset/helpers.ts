@@ -1,7 +1,14 @@
 import { produce, type Patch } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
-import { ChangesetInconsistentError, INITIAL_CHANGESET_ID, type IZsChangeset, type ZsMapState } from '@zskarte/types';
+import {
+  ChangesetInconsistentError,
+  DRAW_ELEMENTS,
+  INITIAL_CHANGESET_ID,
+  ZsMapDrawElementState,
+  type IZsChangeset,
+  type ZsMapState,
+} from '@zskarte/types';
 
 export const createNewChangeset = (
   organisationId: string,
@@ -21,7 +28,7 @@ export const createNewChangeset = (
     drawElementsLastChangeset: {},
     organisationId,
     author,
-    description: new Set(),
+    description: [],
     startAt: new Date().getTime(),
     saved: false,
     patches: [],
@@ -58,7 +65,7 @@ export const verifyChangesetConsistency = (mapState: ZsMapState, changeset: IZsC
       } else {
         if (!mapState.drawElements?.[elemId]) {
           const fistChange = changeset.patches.find(
-            (patch) => patch.path[0] === 'drawElements' && patch.path[1] === elemId,
+            (patch) => patch.path[0] === DRAW_ELEMENTS && patch.path[1] === elemId,
           );
           if (!fistChange || fistChange.path.length !== 2 || (fistChange.op !== 'add' && fistChange.op !== 'replace')) {
             const message = `drawElement ${elemId} to change no longer exist (and first patch does not add it again) on try apply changeset ${changeset.id}`;
@@ -148,10 +155,140 @@ export const updateChangesetIdsAfterUnapply = (mapState: ZsMapState, changeset: 
   });
 };
 
+const isAddElemPatch = (p: Patch) => {
+  return p.op === 'add' && p.path.length === 2;
+};
+
+const isAddElemIdPatch = (p: Patch, elemId: string) => {
+  return isAddElemPatch(p) && p.path[1] === elemId;
+};
+
+export const getElement = (
+  mapState: ZsMapState | undefined,
+  patches: Patch[],
+  inversePatches: Patch[],
+  elemId: string,
+) => {
+  let element = mapState?.drawElements?.[elemId];
+  if (!element) {
+    element = patches.find((p) => isAddElemIdPatch(p, elemId))?.value;
+  }
+  if (!element) {
+    element = inversePatches.find((p) => isAddElemIdPatch(p, elemId))?.value;
+  }
+  return element;
+};
+
+export const updateDescription = (
+  changeset: IZsChangeset | null,
+  mapState: ZsMapState | undefined,
+  getSymbolName: (id: number) => string | null,
+) => {
+  if (!changeset) {
+    return;
+  }
+  const description: string[] = [];
+  if (changeset.messageNumber) {
+    description.push(`Changes for #${changeset.messageNumber}`);
+  }
+  if (changeset.manualDescription) {
+    description.push(`${changeset.manualDescription}`);
+  }
+  changeset.patches
+    .filter((p) => p.path[0] === 'layers')
+    .forEach((patch) => {
+      if (patch.path.length === 2) {
+        description.push(`${patch.op} layer ${patch.value?.name ?? ''}`);
+      } else if (patch.path.length === 3 && patch.path[2] === 'name') {
+        description.push(`rename layer ${patch.value ?? ''}`);
+      }
+    });
+
+  const getElementDescription = (elemId: string) => {
+    const element = getElement(mapState, changeset.patches, changeset.inversePatches, elemId);
+    if (!element) {
+      return 'element';
+    }
+    let type: string;
+    if (element?.symbolId) {
+      type = getSymbolName(element.symbolId) ?? `${element.type}:${element.symbolId}`;
+    } else {
+      type = element.type;
+    }
+    let name = element?.name;
+    const nameChanges = changeset.patches.filter(
+      (p) => p.path.length === 3 && p.path[1] === elemId && p.path[2] === 'name',
+    );
+    if (nameChanges.length > 0) {
+      name = nameChanges[nameChanges.length - 1].value;
+    }
+    if (name) {
+      return `${type} (${name})`;
+    } else {
+      return type;
+    }
+  };
+
+  const changedCount = changeset.changedDrawElements.length;
+  if (changedCount > 0) {
+    if (changedCount <= 3) {
+      for (const elemId of changeset.changedDrawElements) {
+        const desc = getElementDescription(elemId);
+        if (changeset.patches.find((p) => isAddElemIdPatch(p, elemId))) {
+          description.push(`add ${desc}`);
+        } else if (changeset.deletedDrawElements.includes(elemId)) {
+          description.push(`remove ${desc}`);
+        } else {
+          const changedFields = new Set(
+            changeset.patches
+              .filter((p) => p.path[1] === elemId && p.path.length > 2)
+              .map((p) => p.path[p.path.length - 1]),
+          );
+          if (changedFields.size > 4) {
+            if (changedFields.has('coordinates')) {
+              description.push(`update coordinates and properties of ${desc}`);
+            } else {
+              description.push(`update properties of ${desc}`);
+            }
+          } else if (changedFields.size > 0) {
+            description.push(`update ${Array.from(changedFields).join(', ')} of ${desc}`);
+          }
+        }
+      }
+    } else {
+      const changedCoords = new Set<string>();
+      const changedProps = new Set<string>();
+      for (const elemId of changeset.changedDrawElements) {
+        const desc = getElementDescription(elemId);
+        if (changeset.patches.find((p) => isAddElemIdPatch(p, elemId))) {
+          description.push(`add ${desc}`);
+        } else if (changeset.deletedDrawElements.includes(elemId)) {
+          description.push(`remove ${desc}`);
+        } else {
+          const changedFields = new Set(
+            changeset.patches
+              .filter((p) => p.path[1] === elemId && p.path.length > 2)
+              .map((p) => p.path[p.path.length - 1]),
+          );
+          if (changedFields.has('coordinates')) {
+            changedCoords.add(desc);
+          }
+          changedFields.delete('coordinates');
+          if (changedFields.size > 0) {
+            changedProps.add(desc);
+          }
+        }
+        description.push(`update coordinates of ${Array.from(changedCoords).join(', ')}`);
+        description.push(`update properties of ${Array.from(changedProps).join(', ')}`);
+      }
+    }
+  }
+  changeset.description = description;
+};
 
 export const getModifiedDrawElements = (patches: Patch[]) => {
   return patches.reduce<Set<string>>((acc, patch) => {
-    if (patch.path.length > 1 && patch.path[0] === 'drawElements') {
+    if (patch.path.length > 1 && patch.path[0] === DRAW_ELEMENTS) {
       acc.add(patch.path[1] as string);
     }
     return acc;
@@ -164,10 +301,7 @@ export const updateChangesetIdsFromPatches = (changeset: IZsChangeset, mapState:
   changeset.deletedDrawElements = changeset.changedDrawElements.filter((elemId) =>
     changeset.patches.some(
       (patch) =>
-        patch.op === 'remove' &&
-        patch.path.length === 2 &&
-        patch.path[0] === 'drawElements' &&
-        patch.path[1] === elemId,
+        patch.op === 'remove' && patch.path.length === 2 && patch.path[0] === DRAW_ELEMENTS && patch.path[1] === elemId,
     ),
   );
   changeset.drawElementsLastChangeset = changeset.changedDrawElements.reduce(
@@ -288,6 +422,6 @@ export const updateChangesetFromDiff = (
   );
   changeset.patches.push(...patches);
   changeset.inversePatches.push(...inversePatches);
-  updateChangesetIdsFromPatches(changeset, prevMapState)
+  updateChangesetIdsFromPatches(changeset, prevMapState);
   return changeset;
 };

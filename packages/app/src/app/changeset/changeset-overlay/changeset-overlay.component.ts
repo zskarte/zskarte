@@ -16,8 +16,6 @@ export class ChangesetOverlayComponent {
   @ViewChild('progressRing', { static: false }) progressRing!: ElementRef<SVGCircleElement>;
   private _state = inject(ZsMapStateService);
   changesetService = inject(ChangesetService);
-  readonly changesetConfig = toSignal(this._state.observeChangesetConfig());
-  readonly isChangesetMergeMode = toSignal(this._state.observeIsChangesetMergeMode());
 
   private timeoutId: any;
   private progressElement: SVGCircleElement | null = null;
