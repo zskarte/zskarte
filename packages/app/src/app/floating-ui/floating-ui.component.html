@@ -142,7 +142,7 @@
           (click)="sidebar.toggle(SidebarContext.Journal)"
           [attr.aria-label]="i18n.get('journal')"
         >
-          <mat-icon>menu_book</mat-icon>
+          <mat-icon [matBadge]="todoCount()" matBadgePosition="after" aria-hidden="false">menu_book</mat-icon>
         </button>
 
         <div class="button-toggle mat-elevation-z3">
