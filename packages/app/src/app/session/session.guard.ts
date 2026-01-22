@@ -30,7 +30,9 @@ export class NoSessionGuard implements CanActivate {
 
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
     const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
-    if (isAuthenticated) {
+    // If authenticated but no operationId in query params, redirect to map
+    // Otherwise let LoginRedirectGuard handle the redirect with operationId
+    if (isAuthenticated && !route.queryParams['operationId']) {
       return this._router.parseUrl('/main/map');
     }
     return true;

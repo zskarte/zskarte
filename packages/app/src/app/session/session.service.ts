@@ -588,6 +588,7 @@ export class SessionService {
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
     const operationId = decoded.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
+    
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
