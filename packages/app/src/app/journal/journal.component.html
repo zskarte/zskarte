@@ -45,6 +45,14 @@
           >
             <mat-icon>refresh</mat-icon>
           </button>
+          <button
+            mat-icon-button
+            (click)="sidebar.toggle(SidebarContext.Menu)"
+            [attr.aria-label]="i18n.get('docMapMenuTitle')"
+            [title]="i18n.get('docMapMenuTitle')"
+          >
+            <mat-icon>menu</mat-icon>
+          </button>
         </div>
       </div>
     </div>

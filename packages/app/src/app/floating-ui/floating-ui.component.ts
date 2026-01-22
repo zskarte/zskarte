@@ -17,14 +17,6 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatBadge } from '@angular/material/badge';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
-import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
-import { SidebarConnectionsComponent } from '../sidebar/sidebar-connections/sidebar-connections.component';
-import { SidebarMenuComponent } from '../sidebar/sidebar-menu/sidebar-menu.component';
-import { SidebarPrintComponent } from '../sidebar/sidebar-print/sidebar-print.component';
-import { SidebarJournalComponent } from '../sidebar/sidebar-journal/sidebar-journal.component';
-import { SelectedFeatureComponent } from '../selected-feature/selected-feature.component';
 import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
 import { ZsMapStateSource } from '@zskarte/types';
@@ -46,14 +38,6 @@ import { JournalService } from '../journal/journal.service';
     MatButtonModule,
     MatDivider,
     MatBadge,
-    MatSidenavModule,
-    SidebarComponent,
-    SidebarHistoryComponent,
-    SidebarConnectionsComponent,
-    SidebarMenuComponent,
-    SidebarPrintComponent,
-    SidebarJournalComponent,
-    SelectedFeatureComponent,
     GeocoderComponent,
     CoordinatesComponent,
     JournalDrawOverlayComponent,
@@ -88,9 +72,6 @@ export class FloatingUIComponent {
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;
   public canWorkOffline = new BehaviorSubject<boolean>(false);
-  public showLogo = true;
-  public sidebarTitle = '';
-  public logo = '';
   public localOperation = false;
   public todoCount = computed(() => {
     const journalList = this._journal.data();
@@ -103,42 +84,7 @@ export class FloatingUIComponent {
         data: true,
       });
     }
-    this.logo = this.session.getLogo() ?? '';
     this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
-    this.sidebar.observeContext()
-    .pipe(takeUntil(this._ngUnsubscribe))
-    .subscribe(sidebarContext => {
-      switch (sidebarContext) {
-        case SidebarContext.Layers:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('view');
-          break;
-        case SidebarContext.History:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('history');
-          break;
-        case SidebarContext.Connections:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('connections');
-          break;
-        case SidebarContext.Print:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('print');
-          break;
-        case SidebarContext.SelectedFeature:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('selectedFeature');
-          break;
-        case SidebarContext.Journal:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('journal');
-          break;
-        default:
-          this.showLogo = true;
-          this.sidebarTitle = this.session.getOperationName() ?? ''  
-          break;
-      }
-    });
 
     this.state
       .observeHistory()
