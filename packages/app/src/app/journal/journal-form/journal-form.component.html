@@ -2,7 +2,7 @@
   @if (!isCreateModal()) {
     <div class="sidebar-header">
       <h1>
-        <span class="message-number">#{{ journalForm.value.messageNumber }}</span>
+        <span class="message-number">#{{ journalForm.getRawValue().messageNumber }}</span>
         {{ journalForm.value.messageSubject ?? '' }}
       </h1>
 

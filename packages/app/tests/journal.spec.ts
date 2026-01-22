@@ -1,5 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
 import { clickOnMap, login } from './util';
+import { random } from 'lodash';
 
 interface JournalEntry {
   reportId?: string;
@@ -14,6 +15,8 @@ interface JournalEntry {
 }
 
 async function createJournalEntry(entry: JournalEntry, page: Page) {
+  const rowCount = await page.locator('tbody').getByRole('row').count();
+
   await page.getByRole('tab', { name: 'Journal' }).click();
   await page.getByRole('button', { name: 'Add' }).click();
 
@@ -71,15 +74,20 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   const snackbarLabel = page.locator('mat-snack-bar-container .mat-mdc-snack-bar-label');
   await expect(snackbarLabel.last()).toContainText(/Eintrag #\d+ erfasst\./);
   
-  await modal.locator('.modal-header').getByRole('button', { name: 'Schliessen' }).click();
-  await modal.waitFor({ state: 'hidden' });
+  await expect(page.locator('tbody').getByRole('row')).toHaveCount(rowCount + 1);
+  await page.locator('.journal-sidebar').getByRole('button', { name: 'Schliessen' }).click();
+
+  await expect(page.locator('.journal-sidebar')).not.toBeVisible();
 }
 
 test.describe('Journal', () => {
   test.beforeEach(async ({ page }) => {
+    const journalEntriesResponse = page.waitForResponse(/api\/journal-entries/);
     await login(page);
     await page.locator('mat-list-item', { hasText: 'e2e test' }).first().click();
     await page.getByRole('button', { name: 'OK' }).click();
+    await page.getByRole('tab', { name: 'Journal' }).click();
+    await journalEntriesResponse;
   });
 
   test('should add journal entry', async ({ page }) => {
@@ -113,29 +121,17 @@ test.describe('Journal', () => {
     await page.waitForSelector('mat-tab-group', { state: 'visible' });
     await page.waitForSelector('mat-spinner', { state: 'hidden' }).catch(() => {});
     
-    const entryPanel = page.getByTestId('entry-to-draw').filter({ hasText: 'To draw' }).first();
-    await entryPanel.waitFor({ state: 'visible' });
-    await entryPanel.click();
-    
-    const addSignatureButton = page.getByRole('button', { name: 'Signatur hinzufügen' });
-    await addSignatureButton.waitFor({ state: 'visible' });
-    await addSignatureButton.click();
+    await page.getByTestId('entry-to-draw').filter({ hasText: 'To draw' }).first().click();
+    await page.getByRole('button', { name: 'Signatur hinzufügen' }).click();
     
     await page.waitForSelector('.journal-sidebar', { state: 'hidden' }).catch(() => {});
     await page.waitForSelector('app-journal-draw-overlay', { state: 'visible' });
     
-    const addButton = page.getByRole('button', { name: 'Add' });
-    await addButton.waitFor({ state: 'visible' });
-    await expect(addButton).toBeEnabled({ timeout: 10000 });
-    await addButton.click();
-    
+    await page.getByRole('button', { name: 'Add' }).click();
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
     
-    const markAsDrawnButton = page.getByRole('button', { name: 'Als gezeichnet markieren' });
-    await markAsDrawnButton.waitFor({ state: 'visible' });
-    await markAsDrawnButton.click();
-
+    await page.getByRole('button', { name: 'Als done markieren' }).click();
     await page.waitForResponse(/api\/journal-entries/);
   })
 });

@@ -6,12 +6,6 @@ h2 {
   }
 }
 
-.selectedLayer {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem
-}
-
 .newLayerType {
   display: flex;
   flex-direction: column;
@@ -25,11 +19,6 @@ h2 {
 .availableLayers {
   max-height: 20vh;
   overflow: auto;
-}
-
-.selectedLayer .title {
-  flex: 1;
-  font-size: 0.9em;
 }
 
 .selectedLayer i {

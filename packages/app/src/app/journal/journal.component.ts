@@ -35,6 +35,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
 import { SearchService } from '../search/search.service';
 import { BadgeComponent } from '../badge/badge.component';
+import { SidebarService } from '../sidebar/sidebar.service';
+import { SidebarContext } from '../sidebar/sidebar.interfaces';
 
 @Component({
   selector: 'app-journal',
@@ -65,6 +67,7 @@ export class JournalComponent implements AfterViewInit {
   journalFormComponent = viewChild.required(JournalFormComponent);
   i18n = inject(I18NService);
   journal = inject(JournalService);
+  sidebar = inject(SidebarService);
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   private _router = inject(Router);
@@ -73,6 +76,8 @@ export class JournalComponent implements AfterViewInit {
   private _snackBar = inject(MatSnackBar);
   private _search = inject(SearchService);
   private _destroyRef = inject(DestroyRef);
+
+  SidebarContext = SidebarContext;
   readonly isOnline = toSignal(this._session.observeIsOnline());
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
