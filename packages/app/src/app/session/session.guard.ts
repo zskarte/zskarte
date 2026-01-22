@@ -20,3 +20,19 @@ export class SessionGuard implements CanActivate {
     return urlTree;
   }
 }
+
+@Injectable({
+  providedIn: 'root',
+})
+export class NoSessionGuard implements CanActivate {
+  private _session = inject(SessionService);
+  private _router = inject(Router);
+
+  async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
+    const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
+    if (isAuthenticated) {
+      return this._router.parseUrl('/main/map');
+    }
+    return true;
+  }
+}

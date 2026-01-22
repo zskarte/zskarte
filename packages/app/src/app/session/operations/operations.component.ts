@@ -4,7 +4,8 @@ import { SessionService } from '../session.service';
 import { IZsMapOperation, ZsOperationPhase } from '@zskarte/types';
 import { I18NService } from '../../state/i18n.service';
 import { OperationService } from './operation.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SidebarService } from '../../sidebar/sidebar.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -49,6 +50,8 @@ export class OperationsComponent implements OnDestroy {
   operationService = inject(OperationService);
   journalService = inject(JournalService);
   private route = inject(ActivatedRoute);
+  private _router = inject(Router);
+  private _sidebar = inject(SidebarService);
   private dialog = inject(MatDialog);
 
   private _ngUnsubscribe = new Subject<void>();
@@ -90,9 +93,11 @@ export class OperationsComponent implements OnDestroy {
     this._ngUnsubscribe.complete();
   }
 
-  public selectOperation(operation: IZsMapOperation) {
+  public async selectOperation(operation: IZsMapOperation) {
     if (operation.documentId || operation.id) {
-      this._session.setOperation(operation);
+      await this._session.setOperation(operation);
+      this._sidebar.close();
+      await this._router.navigate(['/main/map']);
     }
   }
 

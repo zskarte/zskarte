@@ -83,22 +83,6 @@ export class SessionService {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-          await this._router.navigate(
-            [
-              this._router.url.split('?')[0] === '/main/journal' || queryParams['messageNumber']
-                ? '/main/journal'
-                : '/main/map',
-            ],
-            {
-              queryParams: {
-                center: null, //handled in overrideDisplayStateFromQueryParams
-                size: null, //handled in overrideDisplayStateFromQueryParams
-                operationId: null, //handled in updateJWT / OperationsComponent
-              },
-              queryParamsHandling: 'merge',
-              preserveFragment: true,
-            },
-          );
           await this._state?.refreshMapState();
           let displayState = await db.displayStates.get({
             id: session.operation?.documentId,
@@ -447,6 +431,11 @@ export class SessionService {
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
     if (this._session?.value) {
       const sessionOperation = this._session.value.operation;
+      // Set the operation synchronously first so guards can see it immediately
+      this._session.value.operation = operation;
+      this._session.next(this._session.value);
+      
+      // Then do async cleanup if needed (only when clearing operation)
       if (
         operation === undefined &&
         sessionOperation !== undefined &&
@@ -455,9 +444,7 @@ export class SessionService {
         //backup operation in case offline / no server connection to allow continue work later
         await OperationService.persistLocalOperation(sessionOperation);
       }
-      this._session.value.operation = operation;
     }
-    this._session.next(this._session.value);
   }
 
   public observeOperationId(): Observable<string | undefined> {
