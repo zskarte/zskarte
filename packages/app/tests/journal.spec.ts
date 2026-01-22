@@ -20,25 +20,26 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.getByRole('tab', { name: 'Journal' }).click();
   await page.getByRole('button', { name: 'Add' }).click();
 
-  if (entry.reportId) {
-    await page.getByLabel('Meldungsnummer manuell').click();
-    await page.getByRole('spinbutton', { name: 'Meldungsnummer' }).fill(entry.reportId);
-  }
   const modal = page.locator('app-journal-entry-create-modal');
   await modal.waitFor({ state: 'visible' });
 
-  await page.getByLabel('Absender').fill(entry.deliverer ?? 'Absender');
-  await page.getByLabel('Empfänger').fill(entry.receiver ?? 'Empfänger');
-  await page.getByLabel('Zeit').fill(entry.time ?? '12:00');
-  await page.getByTestId('communicationDevice').click();
-  await page.getByRole('option', { name: entry.communicationDevice ?? 'E-Mail' }).click();
-  await page.getByLabel('Nummer / Kanal').fill(entry.numberOrChannel ?? 'testtest');
-  await page.getByLabel('Betreff').fill(entry.subject ?? 'Betreff');
-  await page.locator('app-text-area-with-address-search .ql-container').click();
-  await page.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
-  await page.getByLabel('Visum').fill(entry.visum ?? 'test');
+  if (entry.reportId) {
+    await modal.getByLabel('Meldungsnummer manuell').click();
+    await modal.getByRole('spinbutton', { name: 'Meldungsnummer' }).fill(entry.reportId);
+  }
 
-  const saveButton = page.getByRole('button', { name: 'Erfassen' });
+  await modal.getByLabel('Absender').fill(entry.deliverer ?? 'Absender');
+  await modal.getByLabel('Empfänger').fill(entry.receiver ?? 'Empfänger');
+  await modal.getByLabel('Zeit').fill(entry.time ?? '12:00');
+  await modal.getByTestId('communicationDevice').click();
+  await modal.getByRole('option', { name: entry.communicationDevice ?? 'E-Mail' }).click();
+  await modal.getByLabel('Nummer / Kanal').fill(entry.numberOrChannel ?? 'testtest');
+  await modal.getByLabel('Betreff').fill(entry.subject ?? 'Betreff');
+  await modal.locator('app-text-area-with-address-search .ql-container').click();
+  await modal.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
+  await modal.getByLabel('Visum').fill(entry.visum ?? 'test');
+
+  const saveButton = modal.getByRole('button', { name: 'Erfassen' });
   await saveButton.waitFor({ state: 'visible' });
   await saveButton.waitFor({ state: 'attached' });
   await page.waitForTimeout(500);
