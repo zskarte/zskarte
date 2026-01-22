@@ -175,6 +175,7 @@ export class ZsMapStateService {
       hiddenFeatureTypes: [],
       highlightedFeature: [],
       enableClustering: false,
+      globalSymbolScale: 1.25,
       journalSort: { active: 'messageNumber', direction: 'desc' },
       journalFilter: {
         department: '',
@@ -324,7 +325,24 @@ export class ZsMapStateService {
 
   public setDisplayState(newState?: IZsMapDisplayState): void {
     this.updateDisplayState(() => {
-      return newState || this._getDefaultDisplayState();
+      if (!newState) {
+        return this._getDefaultDisplayState();
+      }
+      const defaults = this._getDefaultDisplayState();
+      return {
+        ...defaults,
+        ...newState,
+        layerVisibility: newState.layerVisibility ?? defaults.layerVisibility,
+        layerOpacity: newState.layerOpacity ?? defaults.layerOpacity,
+        layerOrder: newState.layerOrder ?? defaults.layerOrder,
+        elementVisibility: newState.elementVisibility ?? defaults.elementVisibility,
+        elementOpacity: newState.elementOpacity ?? defaults.elementOpacity,
+        layers: newState.layers ?? defaults.layers,
+        wmsSources: newState.wmsSources ?? defaults.wmsSources,
+        journalFilter: { ...defaults.journalFilter, ...newState.journalFilter },
+        searchConfig: { ...defaults.searchConfig, ...newState.searchConfig },
+        journalMessageEditConfig: { ...defaults.journalMessageEditConfig, ...newState.journalMessageEditConfig },
+      };
     });
   }
 
@@ -486,6 +504,20 @@ export class ZsMapStateService {
       map((o) => o.enableClustering),
       distinctUntilChanged((x, y) => x === y),
     );
+  }
+
+  public observeGlobalSymbolScale(): Observable<number> {
+    return this._display.pipe(
+      map((o) => o.globalSymbolScale ?? 1),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  public setGlobalSymbolScale(scale: number) {
+    const nextScale = Number.isFinite(scale) ? Math.max(0.1, scale) : 1;
+    this.updateDisplayState((draft) => {
+      draft.globalSymbolScale = nextScale;
+    });
   }
 
   public updateShowCurrentLocation(show: boolean) {

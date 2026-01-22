@@ -4,6 +4,11 @@
   gap: 14px;
 }
 
+.global-scale {
+  display: flex;
+  flex-direction: column;
+}
+
 .filterItem {
   height: 100%;
   width: 100%;
