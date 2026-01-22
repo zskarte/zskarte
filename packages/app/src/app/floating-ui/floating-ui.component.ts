@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, computed } from '@angular/core';
 import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
@@ -34,6 +34,7 @@ import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dia
 import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
 import { SearchService } from '../search/search.service';
 import { CompassButtonComponent } from '../compass-button/compass-button.component';
+import { JournalService } from '../journal/journal.service';
 
 @Component({
   selector: 'app-floating-ui',
@@ -68,6 +69,7 @@ export class FloatingUIComponent {
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
   private _search = inject(SearchService);
+  private _journal = inject(JournalService);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
   snackbar = inject(MatSnackBar);
@@ -90,6 +92,10 @@ export class FloatingUIComponent {
   public sidebarTitle = '';
   public logo = '';
   public localOperation = false;
+  public todoCount = computed(() => {
+    const journalList = this._journal.data();
+    return (journalList || []).filter((entry) => !entry.isDrawnOnMap).length;
+  });
 
   constructor() {
     if (this.isInitialLaunch()) {
