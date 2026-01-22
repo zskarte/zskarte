@@ -4,21 +4,21 @@
       <mat-icon>arrow_back</mat-icon>
     </button>
     <span class="toolbar-title">{{ i18n.get('help') }}</span>
+    <span class="toolbar-spacer"></span>
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>{{ i18n.get('searchHelp') || 'Search help' }}</mat-label>
+      <input
+        matInput
+        [value]="searchQuery()"
+        (input)="onSearchChange($any($event.target).value)"
+        [placeholder]="i18n.get('searchHelp') || 'Search help articles...'"
+      />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
   </mat-toolbar>
   
   <mat-sidenav-container class="help-sidenav-container">
     <mat-sidenav mode="side" opened class="help-sidenav">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>{{ i18n.get('searchHelp') || 'Search help' }}</mat-label>
-        <input
-          matInput
-          [value]="searchQuery()"
-          (input)="onSearchChange($any($event.target).value)"
-          placeholder="{{ i18n.get('searchHelp') || 'Search help articles...' }}"
-        />
-        <mat-icon matPrefix>search</mat-icon>
-      </mat-form-field>
-
       <mat-nav-list>
         @for (article of topLevelArticles(); track article.id) {
           <div>
@@ -26,11 +26,16 @@
               mat-list-item
               [class.active]="selectedArticleId() === article.id"
               [class.parent-article]="getChildArticles(article.id).length > 0"
-              (click)="selectArticle(article.id)"
+              (click)="handleParentClick(article.id)"
             >
               <span matListItemTitle>{{ i18n.get(article.titleKey) }}</span>
+              @if (getChildArticles(article.id).length > 0) {
+                <span matListItemMeta>
+                  <mat-icon class="expand-icon">{{ isExpanded(article.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </span>
+              }
             </a>
-            @if (getChildArticles(article.id).length > 0) {
+            @if (getChildArticles(article.id).length > 0 && isExpanded(article.id)) {
               @for (child of getChildArticles(article.id); track child.id) {
                 <a
                   mat-list-item

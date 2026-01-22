@@ -6,7 +6,8 @@ test.describe('Drawing', () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await page.locator('mat-list-item', { hasText: 'e2e test' }).first().click();
-    await page.getByRole('button', { name: 'OK' }).click();
+    await page.waitForSelector('#map', { state: 'visible' });
+    await page.waitForTimeout(500);
   });
 
   test('add symbol', async ({ page }) => {

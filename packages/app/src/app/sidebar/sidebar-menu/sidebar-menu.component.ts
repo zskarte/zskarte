@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, TemplateRef, inject, viewChild } from '@angular/core';
 import { I18NService } from '../../state/i18n.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { HelpComponent } from '../../help/help.component';
 import { ZsMapStateService } from '../../state/state.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -89,7 +88,7 @@ export class SidebarMenuComponent {
   }
 
   showExpertViewHelp(){
-    this.router.navigate(['/help'], { queryParams: { article: 'expert-view' } });
+    this.router.navigate(['/help', 'expert-view']);
   }
 
   protocolTable(): void {

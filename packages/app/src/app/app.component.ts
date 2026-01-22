@@ -48,11 +48,11 @@ export class AppComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         const url = event.url;
-        this.isHelpPage.set(url === '/help' || url.startsWith('/help'));
+        this.isHelpPage.set(url === '/help' || url.startsWith('/help/'));
       });
     // Check initial route
     const initialUrl = this._router.url;
-    this.isHelpPage.set(initialUrl === '/help' || initialUrl.startsWith('/help'));
+    this.isHelpPage.set(initialUrl === '/help' || initialUrl.startsWith('/help/'));
   }
 
   ngOnInit(): void {

@@ -12,6 +12,8 @@ export const appRoutes: Routes = [
   { path: 'operations', component: OperationsComponent, canActivate: [SessionGuard] },
   { path: 'main/:id', component: MainComponent, canActivate: [SessionGuard, OperationGuard] },
   { path: 'share/:accessToken', component: ShareComponent },
-  { path: 'help', component: HelpPageComponent },
+  { path: 'help', redirectTo: 'help/login', pathMatch: 'full' },
+  { path: 'help/:parentSlug/:childSlug', component: HelpPageComponent },
+  { path: 'help/:slug', component: HelpPageComponent },
   { path: '**', redirectTo: 'main/map' },
 ];

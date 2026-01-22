@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -44,9 +44,11 @@ interface HelpArticle {
 export class HelpPageComponent implements OnInit {
   i18n = inject(I18NService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   
   searchQuery = signal('');
   selectedArticleId = signal<string | null>(null);
+  expandedParents = signal<Set<string>>(new Set());
 
   articles: HelpArticle[] = [
     {
@@ -78,18 +80,21 @@ export class HelpPageComponent implements OnInit {
       imageClass: 'limitHeight',
     },
     {
-      id: 'search',
+      id: 'find-place',
       titleKey: 'findPlace',
       contentKey: 'docSearch',
-      imageKey: 'assets/doc/search.png',
-      imageClass: 'limitHeight',
+      images: [
+        { src: 'assets/doc/search.png', class: 'limitHeight' },
+        { src: 'assets/doc/flag.png', class: 'responsive' },
+      ],
     },
     {
-      id: 'marker',
-      titleKey: 'findPlace',
+      id: 'find-place-marker',
+      titleKey: 'marker',
       contentKey: 'docMarker',
       imageKey: 'assets/doc/flag.png',
       imageClass: 'responsive',
+      parentId: 'find-place',
     },
     {
       id: 'draw',
@@ -205,19 +210,50 @@ export class HelpPageComponent implements OnInit {
   ];
   
   ngOnInit(): void {
-    // Check for article ID in route query params
-    const urlParams = new URLSearchParams(window.location.search);
-    const articleId = urlParams.get('article');
-    if (articleId) {
-      const article = this.articles.find((a) => a.id === articleId);
+    this.route.params.subscribe(params => {
+      const { parentSlug, childSlug, slug } = params;
+      
+      let article: HelpArticle | undefined;
+      
+      if (parentSlug && childSlug) {
+        const parentArticle = this.articles.find((a) => !a.parentId && this.getSlugFromId(a.id) === parentSlug);
+        if (parentArticle) {
+          article = this.articles.find((a) => a.id === `${parentArticle.id}-${childSlug}` && a.parentId === parentArticle.id);
+        }
+      } else if (slug) {
+        article = this.articles.find((a) => this.getSlugFromId(a.id) === slug);
+      }
+      
       if (article) {
-        this.selectedArticleId.set(articleId);
+        this.selectArticle(article.id);
         return;
       }
-    }
-    // Auto-select first article on load
-    if (this.articles.length > 0) {
-      this.selectedArticleId.set(this.articles[0].id);
+      
+      if (this.articles.length > 0) {
+        this.navigateToArticle(this.articles[0].id);
+      }
+    });
+  }
+
+  getSlugFromId(id: string): string {
+    return id;
+  }
+
+  getChildSlugFromId(id: string, parentId: string): string {
+    return id.startsWith(`${parentId}-`) ? id.substring(parentId.length + 1) : id;
+  }
+
+  navigateToArticle(articleId: string): void {
+    const article = this.articles.find(a => a.id === articleId);
+    if (!article) return;
+    
+    if (article.parentId) {
+      const parentArticle = this.articles.find(a => a.id === article.parentId);
+      if (parentArticle) {
+        this.router.navigate(['/help', this.getSlugFromId(parentArticle.id), this.getChildSlugFromId(article.id, article.parentId)]);
+      }
+    } else {
+      this.router.navigate(['/help', this.getSlugFromId(article.id)]);
     }
   }
 
@@ -226,11 +262,24 @@ export class HelpPageComponent implements OnInit {
     if (!query) {
       return this.articles;
     }
-    return this.articles.filter((article) => {
+    
+    const matchingArticles = this.articles.filter((article) => {
       const title = this.i18n.get(article.titleKey).toLowerCase();
       const content = this.i18n.get(article.contentKey).toLowerCase();
       return title.includes(query) || content.includes(query);
     });
+    
+    const parentIds = new Set(matchingArticles.map(a => a.parentId).filter(Boolean) as string[]);
+    const allMatching = [...matchingArticles];
+    
+    parentIds.forEach(parentId => {
+      const parent = this.articles.find(a => a.id === parentId);
+      if (parent && !allMatching.some(a => a.id === parentId)) {
+        allMatching.push(parent);
+      }
+    });
+    
+    return allMatching;
   });
 
   topLevelArticles = computed(() => {
@@ -244,27 +293,76 @@ export class HelpPageComponent implements OnInit {
   onSearchChange(query: string): void {
     this.searchQuery.set(query);
     const filtered = this.filteredArticles();
+    
+    if (query) {
+      const expanded = new Set<string>();
+      filtered.forEach(article => {
+        if (article.parentId) {
+          expanded.add(article.parentId);
+        }
+      });
+      this.expandedParents.set(expanded);
+    }
+    
     if (filtered.length > 0) {
       const currentId = this.selectedArticleId();
-      if (!currentId || !filtered.find(a => a.id === currentId)) {
-        this.selectedArticleId.set(filtered[0].id);
+      if (!currentId || !filtered.some(a => a.id === currentId)) {
+        this.selectArticle(filtered[0].id);
       }
     }
   }
 
-  selectArticle(articleId: string): void {
+  selectArticle(articleId: string, shouldExpand: boolean = true): void {
+    this.navigateToArticle(articleId);
     this.selectedArticleId.set(articleId);
+    
+    const article = this.articles.find(a => a.id === articleId);
+    if (!article) return;
+    
+    const expanded = new Set(this.expandedParents());
+    
+    if (article.parentId) {
+      expanded.add(article.parentId);
+    }
+    
+    if (shouldExpand && this.getChildArticles(article.id).length > 0) {
+      expanded.add(article.id);
+    }
+    
+    this.expandedParents.set(expanded);
   }
 
   getSelectedArticle(): HelpArticle | undefined {
     const selectedId = this.selectedArticleId();
-    if (!selectedId) {
-      return this.filteredArticles()[0];
-    }
-    return this.articles.find((a) => a.id === selectedId);
+    return selectedId 
+      ? this.articles.find((a) => a.id === selectedId)
+      : this.filteredArticles()[0];
   }
 
   navigateToMap(): void {
     this.router.navigate(['/main/map']);
+  }
+
+  toggleExpand(parentId: string): void {
+    const expanded = new Set(this.expandedParents());
+    if (expanded.has(parentId)) {
+      expanded.delete(parentId);
+    } else {
+      expanded.add(parentId);
+    }
+    this.expandedParents.set(expanded);
+  }
+
+  isExpanded(parentId: string): boolean {
+    return this.expandedParents().has(parentId);
+  }
+
+  handleParentClick(articleId: string): void {
+    if (this.getChildArticles(articleId).length > 0) {
+      this.toggleExpand(articleId);
+      this.selectArticle(articleId, false);
+    } else {
+      this.selectArticle(articleId);
+    }
   }
 }

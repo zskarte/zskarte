@@ -1345,6 +1345,11 @@ export class I18NService {
       en: '<p>The <strong>search</strong> can be used to find <strong>addresses and other places</strong> and to highlight the corresponding place on the map using a <strong>location marker</strong> by selecting it.</p>',
     },
 
+    marker: {
+      de: 'Marker',
+      fr: 'Marqueur',
+      en: 'Marker',
+    },
     docMarker: {
       de: '<p>Ein Klick auf den Standortmarker zeigt die beiden Symbole, das <strong>X-Symbol</strong> entfernt den Standortmarker von der Karte. Mit dem <strong>Sternsymbol</strong> wird der Zeichnungsdialog geöffnet und es kann an dem markierten Ort eine Signatur eingefügt werden.</p>',
       fr: "<p>Un clic sur le marqueur de position affiche les deux icônes, l'icône <strong>X</strong> supprime le marqueur de position de la carte. Avec l'icône <strong>étoile</strong>, la boîte de dialogue de dessin s'ouvre et vous pouvez insérer une signature à l'endroit marqué.</p>",

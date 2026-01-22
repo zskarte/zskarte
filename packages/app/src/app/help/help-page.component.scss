@@ -17,7 +17,6 @@
   background: white;
 }
 
-// Hide any floating UI elements globally when on help page
 :host ::ng-deep {
   app-floating-ui,
   app-compass-button {
@@ -31,7 +30,6 @@
     display: none !important;
   }
   
-  // Hide any buttons positioned in bottom left corner
   button[mat-icon-button],
   button[mat-fab],
   .mat-mdc-icon-button {
@@ -42,7 +40,6 @@
   }
 }
 
-// Additional global override for help route
 ::ng-deep {
   body:has(app-help-page) {
     app-floating-ui {
@@ -54,11 +51,32 @@
 .help-toolbar {
   flex-shrink: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  min-height: 72px;
+  height: 72px;
   
   .toolbar-title {
     margin-left: 8px;
     font-size: 20px;
     font-weight: 500;
+  }
+  
+  .toolbar-spacer {
+    flex: 1 1 auto;
+  }
+  
+  .search-field {
+    max-width: 400px;
+    width: 100%;
+    margin-left: 16px;
+    
+    ::ng-deep {
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+    }
   }
 }
 
@@ -74,11 +92,6 @@
   border-radius: 1rem;
 }
 
-.search-field {
-  width: 100%;
-  padding: 16px;
-  box-sizing: border-box;
-}
 
 mat-nav-list {
   padding-top: 0;
@@ -88,7 +101,6 @@ mat-nav-list {
     
     > a {
       min-height: 48px;
-      padding: 0 16px;
       
       &.active {
         background-color: rgba(25, 118, 210, 0.08);
@@ -105,6 +117,34 @@ mat-nav-list {
         font-size: 14px;
         color: rgba(0, 0, 0, 0.87);
         border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        
+        ::ng-deep {
+          .mdc-list-item__content {
+            align-items: center;
+          }
+          
+          .mdc-list-item__end {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+        
+        .expand-icon {
+          color: rgba(0, 0, 0, 0.54);
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+          line-height: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 1px;
+        }
+        
+        &:hover .expand-icon {
+          color: rgba(0, 0, 0, 0.87);
+        }
       }
     }
 
@@ -181,26 +221,29 @@ mat-nav-list {
   width: 100%;
   
   img {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
     margin: 0;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    object-fit: contain;
     
     &.responsive {
-      width: 100%;
-      max-width: 500px;
-      height: auto;
+      max-width: 600px;
     }
     
     &.big {
-      width: 100%;
       max-width: 1000px;
-      height: auto;
+    }
+    
+    &.small {
+      max-width: 400px;
     }
     
     &.limitHeight {
       max-height: 500px;
-      max-width: 100%;
-      height: auto;
+      max-width: 800px;
     }
     
     &.no-rounding {
