@@ -199,6 +199,7 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   cursor: pointer;
   text-wrap: nowrap;
   display: inline-block;
+  text-decoration: underline;
 
   &.edit-active {
     width: 300px;
@@ -207,10 +208,6 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
     .addr-edit {
       display: none;
     }
-  }
-
-  &.addr-search {
-    color: orange;
   }
 
   .material-icons {
@@ -234,24 +231,25 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   }
 
   .addr-edit {
-    -webkit-mask: url(/assets/fonts/material_edit.svg) no-repeat center;
-    mask: url(/assets/fonts/material_edit.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_edit.svg) no-repeat center;
+    mask: url(/assets/img/material_edit.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
   }
 
   .addr-show {
-    -webkit-mask: url(/assets/fonts/material_place.svg) no-repeat center;
-    mask: url(/assets/fonts/material_place.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_place.svg) no-repeat center;
+    mask: url(/assets/img/material_place.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
   }
 
   .addr-show.addr-unknown {
-    -webkit-mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
-    mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_search.svg) no-repeat center;
+    mask: url(/assets/img/material_search.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
+    margin-right: 4px;
   }
 }
 
