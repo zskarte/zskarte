@@ -39,15 +39,15 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await modal.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
   await modal.getByLabel('Visum').fill(entry.visum ?? 'test');
 
-  const saveButton = modal.getByRole('button', { name: 'Erfassen' });
-  await saveButton.waitFor({ state: 'visible' });
-  await saveButton.waitFor({ state: 'attached' });
   await page.waitForTimeout(500);
-  await saveButton.click();
-  await expect(page.locator('tbody').getByRole('row')).toHaveCount(rowCount + 1);
-  await page.locator('.journal-sidebar').getByRole('button', { name: 'Schliessen' }).click();
 
-  await expect(page.locator('.journal-sidebar')).not.toBeVisible();
+  const journalResponse = page.waitForResponse(/api\/journal-entries/);
+  await modal.getByRole('button', { name: 'Erfassen' }).click();
+  await journalResponse;
+  await modal.getByRole('button', { name: 'Schliessen' }).click();
+
+  await expect(page.locator('tbody').getByRole('row')).toHaveCount(rowCount + 1);
+  await expect(modal).not.toBeVisible();
 }
 
 test.describe('Journal', () => {

@@ -122,7 +122,7 @@
             <mat-timepicker-toggle matIconSuffix [for]="pickerTime" />
             <mat-timepicker #pickerTime />
           </mat-form-field>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" data-testid="communicationDevice">
             <mat-label>{{ i18n.get('communicationDevice') }}</mat-label>
             <mat-select matNativeControl formControlName="communicationType" [attr.aria-label]="i18n.get('communicationDevice')">
               <mat-option>{{ i18n.get('noInfo') }}</mat-option>
