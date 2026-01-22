@@ -36,14 +36,7 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     const formComponent = this.journalFormComponent();
-    formComponent.addNew();
     formComponent.saved.subscribe((messageNumber) => this.showSuccessSnackbar(messageNumber));
-    
-    this.dialogRef.afterOpened().subscribe(() => {
-      setTimeout(() => {
-        formComponent.focusSenderInput();
-      }, 100);
-    });
   }
 
   onDirty(dirty: boolean) {
