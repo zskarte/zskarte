@@ -17,7 +17,7 @@
         <div class="buttons">
           @if (!isOnline()) {
             <mat-icon class="offline" [attr.aria-label]="i18n.get('youAreOffline')" [title]="i18n.get('youAreOffline')"
-              >offline_bolt</mat-icon
+              >signal_wifi_off</mat-icon
             >
           }
           <button
@@ -123,14 +123,14 @@
                   class="localChange"
                   [attr.aria-label]="i18n.get('localOnlyJournal')"
                   [title]="i18n.get('localOnlyJournal')"
-                  >offline_bolt</mat-icon
+                  >signal_wifi_off</mat-icon
                 >
               } @else if (element.localPatch) {
                 <mat-icon
                   class="localChange"
                   [attr.aria-label]="i18n.get('localPatchJournal')"
                   [title]="i18n.get('localPatchJournal')"
-                  >offline_bolt</mat-icon
+                  >signal_wifi_off</mat-icon
                 >
               }
             </td>
