@@ -4,7 +4,7 @@ import { MatListModule } from '@angular/material/list';
 import { ZsMapDrawElementState } from '@zskarte/types';
 import { transform } from 'ol/proj';
 import { coordinatesProjection, mercatorProjection } from 'src/app/helper/projections';
-import { JournalEntry } from 'src/app/journal/journal.types';
+import { JournalEntry, JournalEntryStatus } from 'src/app/journal/journal.types';
 import { DrawStyle } from 'src/app/map-renderer/draw-style';
 import { ZsMapBaseDrawElement } from 'src/app/map-renderer/elements/base/base-draw-element';
 import { Signs } from 'src/app/map-renderer/signs';
@@ -278,6 +278,10 @@ export class SidebarJournalEntryComponent implements OnDestroy {
 
   markAsNotDrawn() {
     this.journal.markAsDrawn(this.entry(), false);
+  }
+
+  get JournalEntryStatus() {
+    return JournalEntryStatus;
   }
 
   deleteSignature(element: { id: string; elementState?: ZsMapDrawElementState }) {
