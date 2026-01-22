@@ -488,16 +488,16 @@ export class DrawStyle {
           <circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>
           <circle cx="${circleCenter + dotSpacing}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
         break;
-      case HierarchyLevel.KOMPANIE: // cross with two lines
+      case HierarchyLevel.KOMPANIE: // cross
         hierarchyIndicator = `
-          <rect x="${circleCenter - 3}" y="${padding}" width="6" height="40" fill="${color}"/>
-          <rect x="${circleCenter - 15}" y="${20 + padding}" width="30" height="4" fill="${color}"/>
-          <rect x="${circleCenter - 15}" y="${13 + padding}" width="30" height="4" fill="${color}"/>`;
+          <rect x="${circleCenter - 3}" y="${padding - 5}" width="6" height="40" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${12 + padding}" width="30" height="6" fill="${color}"/>`;
         break;
-      case HierarchyLevel.BATAILLON: // cross
+      case HierarchyLevel.BATAILLON: // cross with two lines
         hierarchyIndicator = `
-          <rect x="${circleCenter - 3}" y="${padding}" width="6" height="40" fill="${color}"/>
-          <rect x="${circleCenter - 15}" y="${15 + padding}" width="30" height="6" fill="${color}"/>`;
+          <rect x="${circleCenter - 3}" y="${padding - 5}" width="6" height="40" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${18 + padding}" width="30" height="6" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${8 + padding}" width="30" height="6" fill="${color}"/>`;
         break;
       default:
         hierarchyIndicator = `<circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
