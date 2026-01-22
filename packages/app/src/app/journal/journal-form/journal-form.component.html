@@ -1,18 +1,10 @@
 <form [formGroup]="journalForm" #formDirective="ngForm" (ngSubmit)="save()">
-<<<<<<< HEAD
   @if (!isCreateModal()) {
     <div class="sidebar-header">
       <h1>
-        <span class="message-number">#{{ journalForm.value.messageNumber }}</span>
+        <span class="message-number">#{{ journalForm.getRawValue().messageNumber }}</span>
         {{ journalForm.value.messageSubject ?? '' }}
       </h1>
-=======
-  <div class="sidebar-header">
-    <h1>
-      <span class="message-number">#{{ journalForm.getRawValue().messageNumber }}</span>
-      {{ journalForm.value.messageSubject ?? '' }}
-    </h1>
->>>>>>> 9113ab96c99f5107442b641388f81bfc20a7aee1
 
       <button type="button" (click)="closeForm()" mat-icon-button [attr.aria-label]="i18n.get('close')">
         <mat-icon>close</mat-icon>
