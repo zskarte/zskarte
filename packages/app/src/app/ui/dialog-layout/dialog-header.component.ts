@@ -9,7 +9,9 @@ import { I18NService } from '../../state/i18n.service';
   standalone: true,
   imports: [MatIconModule, MatButtonModule],
   template: `
-    <ng-content></ng-content>
+    <div class="header-content">
+      <ng-content></ng-content>
+    </div>
     <button
       type="button"
       mat-icon-button
@@ -27,6 +29,7 @@ import { I18NService } from '../../state/i18n.service';
       padding: 1rem 1.5rem;
       border-bottom: 1px solid #dedede;
       background: white;
+      gap: 1rem;
     }
 
     :host ::ng-deep h2 {

@@ -1,14 +1,18 @@
-@if (data.title) {
-<h2 mat-dialog-title [innerText]="data.title"></h2>
-}
-@if (data.html) {
-    <div mat-dialog-content [innerHTML]="data.html"></div>
-} @else if (data.error) {
-    <div mat-dialog-content [innerText]="data.error" class="error"></div>
-} @else {
-    <div mat-dialog-content [innerText]="data.text || data"></div>
-}
-<div mat-dialog-actions align="end">
+<app-dialog-header>
+  @if (data.title) {
+    <h2>{{ data.title }}</h2>
+  }
+</app-dialog-header>
+<app-dialog-body>
+  @if (data.html) {
+    <div [innerHTML]="data.html"></div>
+  } @else if (data.error) {
+    <div [innerText]="data.error" class="error"></div>
+  } @else {
+    <div [innerText]="data.text || data"></div>
+  }
+</app-dialog-body>
+<app-dialog-footer>
   <button
     mat-flat-button
     color="primary"
@@ -17,4 +21,4 @@
     (click)="close()"
     [innerText]="data?.actionLabel || i18n.get('close')"
   ></button>
-</div>
+</app-dialog-footer>

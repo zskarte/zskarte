@@ -9,6 +9,7 @@ import { Component } from '@angular/core';
       display: block;
       overflow-y: auto;
       flex: 1;
+      padding: 1.5rem;
     }
   `,
 })
