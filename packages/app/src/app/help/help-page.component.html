@@ -1,10 +1,6 @@
 <div class="help-container">
   <mat-toolbar class="help-toolbar">
-    <button mat-icon-button (click)="navigateToMap()" [attr.aria-label]="i18n.get('back') || 'Back'">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
     <span class="toolbar-title">{{ i18n.get('help') }}</span>
-    <span class="toolbar-spacer"></span>
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>{{ i18n.get('searchHelp') || 'Search help' }}</mat-label>
       <input
@@ -15,6 +11,9 @@
       />
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
+    <button mat-icon-button (click)="navigateToMap()" [attr.aria-label]="i18n.get('back') || 'Back'">
+      <mat-icon>close</mat-icon>
+    </button>
   </mat-toolbar>
   
   <mat-sidenav-container class="help-sidenav-container">
