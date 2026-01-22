@@ -36,7 +36,6 @@ export class JournalDrawOverlayComponent {
   markPotentialAddresses = signal(false);
 
   constructor() {
-    // Verwenden Sie effect() im Konstruktor
     effect(() => {
       //trigger when entry changes
       this.entry();

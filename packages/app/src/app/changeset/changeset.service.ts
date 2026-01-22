@@ -533,20 +533,6 @@ export class ChangesetService {
     this.upateCurrent({ manualDescription: description });
   }
 
-  private _getMessageNumberFromPatches(patches: Patch[]) {
-    const messageNumberPatch = patches.find(
-      (p) =>
-        p.op !== 'remove' &&
-        p.path[0] === 'drawElements' &&
-        p.path[p.path.length - 1] === 'reportNumber' &&
-        p.value.length > 0,
-    );
-    if (messageNumberPatch) {
-      return messageNumberPatch.value[messageNumberPatch.value.length - 1];
-    }
-    return undefined;
-  }
-
   private async _verifyUsableChangesetActive(
     mapState: ZsMapState,
     patches: Patch[],
@@ -555,9 +541,9 @@ export class ChangesetService {
     const changeset = this._current();
     if (changeset === null) {
       //handle: no changeset
-      return this.newChangeset(this._getMessageNumberFromPatches(patches));
+      return this.newChangeset();
     } else if (changeset.endAt) {
-      return this.newChangeset(this._getMessageNumberFromPatches(patches));
+      return this.newChangeset();
     } else if (changeset.firstChangeAt) {
       if (changeset.messageNumber || changeset.manual) {
         //for message and manual changeset all changes are allowed
@@ -570,7 +556,7 @@ export class ChangesetService {
           )
         ) {
           //only changes for one layer per changeset is allowed
-          return this.newChangeset(this._getMessageNumberFromPatches(patches));
+          return this.newChangeset();
         }
       }
 
@@ -582,7 +568,7 @@ export class ChangesetService {
           changeset.firstChangeAt + this._createMultiElementChangesetDelta < timestamp
         ) {
           //Multi element changeset creation time over
-          return this.newChangeset(this._getMessageNumberFromPatches(patches));
+          return this.newChangeset();
         }
       }
     }

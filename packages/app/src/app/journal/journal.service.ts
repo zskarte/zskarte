@@ -585,6 +585,9 @@ export class JournalService {
   }
 
   public startDrawing(entry: JournalEntry, value: boolean) {
+    if (value) {
+      this._changeset.newChangeset(entry.messageNumber, false, true);
+    }
     this.drawingEntry = value ? entry : null;
   }
 
@@ -623,6 +626,7 @@ export class JournalService {
     } else {
       this.drawingEntrySignal.set(null);
     }
+    this._state.finishCurrentChangeset();
   }
 
   private checkTextBlockSizeAndAdjust(
