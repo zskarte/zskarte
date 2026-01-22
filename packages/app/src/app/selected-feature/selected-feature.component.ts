@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, OnDestroy, inject, input, computed } from '@angular/core';
+import { Component, OnDestroy, inject, input, computed, effect } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
