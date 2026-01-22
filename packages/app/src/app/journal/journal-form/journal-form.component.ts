@@ -73,15 +73,8 @@ export class JournalFormComponent {
   readonly formVisible = signal(false);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
-  @ViewChild('senderInput') private senderInput?: ElementRef<HTMLInputElement>;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
   
-  focusSenderInput() {
-    setTimeout(() => {
-      this.senderInput?.nativeElement?.focus();
-    }, 0);
-  }
-
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
   CommunicationTypeValues = CommunicationTypeValues;
