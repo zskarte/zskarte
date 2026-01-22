@@ -11,6 +11,7 @@ import {
   createNewChangeset,
   updateChangesetIdsAfterApply,
   zsMapStateMigration,
+  updateDescription,
 } from '@zskarte/common';
 import { INITIAL_CHANGESET_ID, IZsChangeset, ZsMapState } from '@zskarte/types';
 
@@ -23,12 +24,12 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
         organization: { fields: ['documentId'] },
       },
     });
-    strapi.log.info(`Found ${operations.length} operations to migrate`);
+    strapi.log.info(`Found ${operations.length} operations to migrate to changesets`);
     const operationCount = operations.length;
     let currentOperation = 1;
     for (const operation of operations) {
       try {
-        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.documentId}`);
+        strapi.log.info(`Migrating changesets of operation (${currentOperation}/${operationCount}) ${operation.documentId}`);
         currentOperation++;
         if (!operation.mapState) continue;
         if (operation.changesets && Object.keys(operation.changesets).length > 0) {
@@ -53,7 +54,7 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
         for (const snapshot of snapshots) {
           try {
             strapi.log.info(
-              `Migrating snapshot (${currentSnapshots}/${snapshotCount})  ${snapshot.documentId} (OP: ${operation.documentId}) `,
+              `Migrating snapshot (${currentSnapshots}/${snapshotCount}) ${snapshot.documentId} (OP: ${operation.documentId}) `,
             );
             currentSnapshots++;
             if (!snapshot.mapState) continue;
@@ -82,6 +83,7 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
                 `Snapshot: ${snapshot.createdAt.toString()} / ${snapshot.documentId}`,
               );
               changeset = updateChangesetFromDiff(prevMapState, mapState, changeset);
+              updateDescription(changeset, mapState, () => null);
               changeset.startAt =
                 changeset.firstChangeAt =
                 changeset.lastChangeAt =

@@ -15,6 +15,7 @@ interface Sort {
 }
 
 export const INITIAL_CHANGESET_ID = '0';
+export const DRAW_ELEMENTS = 'drawElements';
 
 export interface IZsChangeset {
   parentChangesetId: string;
@@ -31,7 +32,7 @@ export interface IZsChangeset {
   serverId?: string;
   serverSavedAt?: number;
   manualDescription?: string;
-  description: Set<string>;
+  description: string[];
   startAt: number;
   firstChangeAt?: number;
   lastChangeAt?: number;

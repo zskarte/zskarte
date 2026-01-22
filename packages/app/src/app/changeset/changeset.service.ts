@@ -7,12 +7,16 @@ import {
   runInInjectionContext,
   Signal,
   signal,
+  untracked,
+  WritableSignal,
 } from '@angular/core';
 import {
   ChangesetInconsistentError,
   ChangesetMissingError,
+  DRAW_ELEMENTS,
   INITIAL_CHANGESET_ID,
   IZsChangeset,
+  IZsChangesetConfig,
   IZsChangesetConflict,
   IZsChangesetConflictDetails,
   IZsChangesetConflictValue,
@@ -31,11 +35,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { I18NService } from '../state/i18n.service';
 import {
   createNewChangeset,
+  getElement,
   getModifiedDrawElements,
   isValidImmerPatch,
   updateChangesetIdsAfterApply,
   updateChangesetIdsAfterUnapply,
   updateChangesetIdsFromPatches,
+  updateDescription,
   verifyChangesetCanUnapply,
   verifyChangesetConsistency,
 } from '@zskarte/common';
@@ -68,7 +74,8 @@ export class ChangesetService {
   readonly unhandledPatchesCount = computed(() => this._unhandledPatches().length);
   private readonly _environmentInjector = inject(EnvironmentInjector);
   private _operationId: Signal<string | undefined> = signal<string | undefined>(undefined);
-
+  readonly changesetConfig = signal<IZsChangesetConfig | undefined>(undefined);
+  readonly isChangesetMergeMode = signal<boolean | undefined>(undefined);
   readonly incommingChangesets = signal<IZsChangeset[]>([]);
   readonly incommingCount = computed(() => {
     return this.incommingChangesets().length;
@@ -86,7 +93,7 @@ export class ChangesetService {
     return !!errorChangeset;
   });
   readonly errorDescription = computed(() => {
-    return this.getDescription(this.errorChangeset());
+    return this.errorChangeset()?.description;
   });
 
   readonly blockFutureChanges = signal<boolean>(false);
@@ -100,8 +107,11 @@ export class ChangesetService {
   readonly isManual = computed(() => {
     return this._current()?.manual === true;
   });
+  readonly overlayVisible = computed(() => {
+    return !this.changesetConfig()?.hiddenMode || this.isChangesetMergeMode();
+  });
   readonly changeDescription = computed(() => {
-    return this.getDescription(this._current());
+    return this._current()?.description;
   });
 
   private _connectionId!: string;
@@ -150,10 +160,30 @@ export class ChangesetService {
         this.openChangesetMergeView();
       }
     });
+
+    effect(() => {
+      if (!this.overlayVisible()) {
+        return;
+      }
+      const changeset = untracked(() => this._current());
+      updateDescription(changeset, changeset?.baseMapState, this._getSymbolName.bind(this));
+    });
   }
 
   public setStateService(state: ZsMapStateService): void {
     this._state = state;
+
+    const changesetConfig = toSignal(this._state.observeChangesetConfig());
+    const isChangesetMergeMode = toSignal(this._state.observeIsChangesetMergeMode());
+    //initialize state based signals
+    runInInjectionContext(this._environmentInjector, () => {
+      effect(() => {
+        this.changesetConfig.set(changesetConfig());
+      });
+      effect(() => {
+        this.isChangesetMergeMode.set(isChangesetMergeMode());
+      });
+    });
   }
 
   public setSidebarService(sidebar: SidebarService): void {
@@ -213,20 +243,10 @@ export class ChangesetService {
     this._connectionId = connectionId;
   }
 
-  public getDescription(changeset: IZsChangeset | null) {
-    //TODO: need optimisation, also on how changeset.description is saved, perhaps create description live based on patches
-    if (!changeset) {
-      return '<none>';
-    }
-    let description = '';
-    if (changeset.messageNumber) {
-      description += `Changes for #${changeset.messageNumber}\n`;
-    }
-    if (changeset.manualDescription) {
-      description += `${changeset.manualDescription}\n`;
-    }
-    description += Array.from(changeset.description).join('\n');
-    return description;
+  private _getSymbolName(symbolId: number) {
+    const sign = Signs.getSignById(symbolId);
+    if (!sign) return null;
+    return this._i18n.getLabelForSign(sign);
   }
 
   private async _unapplyOutgoingAndApplyIncomming() {
@@ -456,6 +476,8 @@ export class ChangesetService {
     if (!changeset.endAt) {
       changeset.endAt = new Date().getTime();
     }
+    updateDescription(changeset, changeset.baseMapState, this._getSymbolName.bind(this));
+
     //save now in outgoing phase / endAt set
     await this.updateOutgoing(changeset);
     this._current.set(null);
@@ -552,7 +574,7 @@ export class ChangesetService {
       if (changeset.layer) {
         if (
           Array.from(modifiedDrawElements).some(
-            (elemId) => this.getElement(mapState, patches, elemId)?.layer !== changeset.layer,
+            (elemId) => getElement(mapState, patches, [], elemId)?.layer !== changeset.layer,
           )
         ) {
           //only changes for one layer per changeset is allowed
@@ -574,14 +596,6 @@ export class ChangesetService {
     }
     //unused changesets are also valid
     return changeset;
-  }
-
-  public getElement(mapState: ZsMapState, patches: Patch[], elemId: string) {
-    let element = mapState.drawElements[elemId];
-    if (!element) {
-      element = patches.find((p) => p.op === 'add' && p.path.length === 2 && p.path[1] === elemId)?.value;
-    }
-    return element;
   }
 
   public async handleUnhandledPatches(mapState: ZsMapState) {
@@ -690,14 +704,15 @@ export class ChangesetService {
 
     //handle change metadata
     patches.forEach((patch) => {
-      if (patch.path[0] === 'drawElements') {
+      if (patch.path[0] === DRAW_ELEMENTS) {
         const elemId = patch.path[1] as string;
-        const element = this.getElement(mapState, patches, elemId);
+        const element = getElement(mapState, patches, inversePatches, elemId);
         //update changedDrawElements list
         if (!changeset.changedDrawElements.includes(elemId)) {
           changeset.changedDrawElements.push(elemId);
           changeset.drawElementsLastChangeset[elemId] =
-            mapState.drawElementChangesetIds[elemId]?.[mapState.drawElementChangesetIds[elemId].length - 1] || INITIAL_CHANGESET_ID;
+            mapState.drawElementChangesetIds[elemId]?.[mapState.drawElementChangesetIds[elemId].length - 1] ||
+            INITIAL_CHANGESET_ID;
           if (changeset.origDrawElements) {
             if (element) {
               changeset.origDrawElements[elemId] = _.cloneDeep(element);
@@ -718,22 +733,11 @@ export class ChangesetService {
             }
           }
         }
-
-        //TODO update description
-        let type: string = element?.type;
-        if (element?.symbolId) {
-          const sign = Signs.getSignById(element.symbolId);
-          if (sign) {
-            type = this._i18n.getLabelForSign(sign);
-          }
-        }
-        changeset.description.add(
-          `${patch.op} ${patch.path[patch.path.length - 1] === 'coordinates' ? 'coordinates' : 'properties'} of ${type}${element?.name ? ' (' + element.name + ')' : ''}`,
-        );
-      } else {
-        changeset.description.add(`${patch.op} ${patch.path[0]} ${patch.path[1]}`);
       }
     });
+    if (this.overlayVisible()) {
+      updateDescription(changeset, changeset.baseMapState, this._getSymbolName.bind(this));
+    }
     this._updateTimeout(changeset);
     this._current.set(changeset);
   }
@@ -1020,7 +1024,7 @@ export class ChangesetService {
       }
     };
     patches
-      .filter((p) => p.path[0] === 'drawElements' && p.path[1] === elemId)
+      .filter((p) => p.path[0] === DRAW_ELEMENTS && p.path[1] === elemId)
       .forEach((patch) => {
         const path = patch.path.slice(2).join('.');
         updateValue(changes, patch.op, path, patch.value);
@@ -1118,7 +1122,7 @@ export class ChangesetService {
       }
     };
     patches
-      .filter((p) => p.path[0] !== 'drawElements')
+      .filter((p) => p.path[0] !== DRAW_ELEMENTS)
       .forEach((patch) => {
         const path = patch.path.join('.');
         updateValue(changes, patch.op, path, patch.value);

@@ -16,12 +16,12 @@ export const migrateOperationMapStates = async (strapi: Core.Strapi) => {
     const operations = (await strapi.documents('api::operation.operation').findMany({
       limit: -1,
     })) as unknown as Operation[];
-    strapi.log.info(`Found ${operations.length} operations to migrate`);
+    strapi.log.info(`Found ${operations.length} operations to migrate mapstate`);
     const operationCount = operations.length;
     let currentOperation = 1;
     for (const operation of operations) {
       try {
-        strapi.log.info(`Migrating operation (${currentOperation}/${operationCount}) ${operation.documentId}`);
+        strapi.log.info(`Migrating mapstate of operation (${currentOperation}/${operationCount}) ${operation.documentId}`);
         currentOperation++;
         if (!operation.mapState) continue;
         if ((operation.mapState as any)?.version >= CURRENT_MIN_VERSION) {
