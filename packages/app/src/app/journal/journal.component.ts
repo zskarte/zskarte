@@ -432,7 +432,6 @@ export class JournalComponent implements AfterViewInit {
     if (event.pageSize !== this.journal.paginationPageSize()) {
       this.journal.setPageSize(event.pageSize);
     }
-    this.journal.reload();
   }
 
   async selectEntry(entry: JournalEntry) {
