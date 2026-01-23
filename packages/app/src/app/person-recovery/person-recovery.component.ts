@@ -19,6 +19,7 @@ import {
   EmptyTitleComponent,
 } from '../ui/empty';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCard } from "@angular/material/card";
 
 type PersonRecoverySign = Partial<Sign> & {
   text?: string;
@@ -63,15 +64,27 @@ async function svg2png(url?: string, width = 100, height = 100) {
     EmptyMediaComponent,
     EmptyTitleComponent,
     MatIconModule,
-  ],
+    MatCard,
+],
   templateUrl: './person-recovery.component.html',
   styles: `
+
+    .recovery-container {
+      display: flex;
+      flex-direction: column;
+
+      > .recovery-row:last-child {
+        border-bottom: none
+      }
+    }
+
     .recovery-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 1rem;
       font-size: 16px;
-      margin-bottom: 10px;
+      padding: 1rem 0;
+      border-bottom: 1px solid #dedede;
     }
 
     .recovery-row .text {
