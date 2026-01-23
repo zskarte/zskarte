@@ -5,12 +5,22 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../../ui/dialog-layout';
 
 @Component({
   selector: 'app-name-entry-dialog',
   templateUrl: './name-entry-dialog.component.html',
   styleUrls: ['./name-entry-dialog.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatDialogModule, ReactiveFormsModule, MatButtonModule],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    DialogHeaderComponent,
+  ],
 })
 export class NameEntryDialogComponent {
   dialogRef = inject<MatDialogRef<NameEntryDialogComponent>>(MatDialogRef);

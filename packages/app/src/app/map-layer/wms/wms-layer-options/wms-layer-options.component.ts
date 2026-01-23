@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../../ui/dialog-layout';
 
 @Component({
   selector: 'app-wms-layer-options',
@@ -28,6 +29,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatIcon,
     MatDialogModule,
     MatButtonModule,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    DialogHeaderComponent,
   ],
 })
 export class WmsLayerOptionsComponent {

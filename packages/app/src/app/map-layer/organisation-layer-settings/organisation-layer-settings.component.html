@@ -1,7 +1,8 @@
-<h1 mat-dialog-title>{{ i18n.get('organisationLayerSettings') }}</h1>
+<app-dialog-header>
+  <h2>{{ i18n.get('organisationLayerSettings') }}</h2>
+</app-dialog-header>
 
-<mat-dialog-content class="content-container">
-
+<app-dialog-body class="content-container">
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>{{ i18n.get('preSelectedWmsSources') }}</mat-panel-title>
@@ -10,10 +11,7 @@
       @if (data.wmsSources.length > 0) {
         <mat-selection-list class="availableSources">
           @for (source of data.wmsSources; track source) {
-            <mat-list-option
-              (click)="toggleSource(source)"
-              [selected]="wms_sources.includes(source.id ?? 0)"
-            >
+            <mat-list-option (click)="toggleSource(source)" [selected]="wms_sources.includes(source.id ?? 0)">
               <div>{{ source.label }}</div>
               <div>{{ source.url }}</div>
             </mat-list-option>
@@ -30,16 +28,14 @@
       }
     </ng-template>
   </mat-expansion-panel>
-  
+
   <section>
     <h2 class="sectionTitle">{{ i18n.get('favoriteLayers') }} ({{ layer_favorites.length }})</h2>
     @if (layer_favorites.length > 0) {
       <mat-selection-list class="favoriteLayers">
         @for (layer of layer_favorites; track layer) {
           <mat-list-option (click)="removeLayer(layer)" [selected]="true">
-            <div matLine="1">
-              {{ layer.label }}{{ changedOptions(layer) ? ' *modified*' : '' }}
-            </div>
+            <div matLine="1">{{ layer.label }}{{ changedOptions(layer) ? ' *modified*' : '' }}</div>
             <div matLine="2">{{ layer.source?.label ?? layer.source?.url }}</div>
           </mat-list-option>
         }
@@ -67,10 +63,17 @@
               mat-list-item
               (click)="selectLayer(item)"
               [title]="
-                item.label + 
-                ' (' + 
-                  (item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin') + 
-                  (item.id ? '; ' + i18n.get(item.owner ? 'ownMapLayersTitleSuffix' : (item.managed ? 'managedMapLayerTitleSuffix' : 'globalMapLayerTitleSuffix')) : '') + 
+                item.label +
+                ' (' +
+                (item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin') +
+                (item.id ?
+                  '; ' +
+                  i18n.get(
+                    item.owner ? 'ownMapLayersTitleSuffix'
+                    : item.managed ? 'managedMapLayerTitleSuffix'
+                    : 'globalMapLayerTitleSuffix'
+                  )
+                : '') +
                 ')'
               "
             >
@@ -115,10 +118,17 @@
               mat-list-item
               (click)="selectLayer(item)"
               [title]="
-                item.label + 
-                ' (' + 
-                  (item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin') + 
-                  (item.id ? '; ' + i18n.get(item.owner ? 'ownMapLayersTitleSuffix' : (item.managed ? 'managedMapLayerTitleSuffix' : 'globalMapLayerTitleSuffix')) : '') + 
+                item.label +
+                ' (' +
+                (item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin') +
+                (item.id ?
+                  '; ' +
+                  i18n.get(
+                    item.owner ? 'ownMapLayersTitleSuffix'
+                    : item.managed ? 'managedMapLayerTitleSuffix'
+                    : 'globalMapLayerTitleSuffix'
+                  )
+                : '') +
                 ')'
               "
             >
@@ -131,10 +141,9 @@
       </mat-action-list>
     </ng-template>
   </mat-expansion-panel>
+</app-dialog-body>
 
-</mat-dialog-content>
-
-<mat-dialog-actions class="footer" align="end">
+<app-dialog-footer>
   <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
   <button mat-flat-button color="primary" (click)="ok()">{{ i18n.get('ok') }}</button>
-</mat-dialog-actions>
+</app-dialog-footer>
