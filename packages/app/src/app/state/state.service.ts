@@ -318,6 +318,13 @@ export class ZsMapStateService {
     return this._map.asObservable();
   }
 
+  public observeMapReady(): Observable<boolean> {
+    // If the version is here, the map state is loaded
+    return this.observeMapState().pipe(
+      map(state => Boolean(state.version))
+    );
+  }
+
   public async toggleDisplayMode() {
     if (!this.isHistoryMode()) {
       //make sure latest live mapState is backedup on session before entering historyMode

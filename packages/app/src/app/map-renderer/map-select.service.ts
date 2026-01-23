@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { SimpleGeometry } from 'ol/geom';
 import { Select } from 'ol/interaction';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, filter, Observable } from 'rxjs';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';
@@ -56,7 +56,10 @@ export class MapSelectService {
       layers: _renderer.getLayers(),
     });
 
-    this._state.observeSelectedFeature$().subscribe((element) => {
+    this._state.observeSelectedFeature$().pipe(
+      combineLatestWith(this._state.observeMapReady()),
+      filter(([, ready]) => ready)
+    ).subscribe(([element]) => {
       if (!element) {
         this._select.getFeatures().clear();
       } else if (this._select.getFeatures().getLength() === 0) {
