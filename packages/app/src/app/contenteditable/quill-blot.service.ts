@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ADDRESS_TRIGGER_CHAR } from '../search/address-trigger';
 import { ADDRESS_TOKEN_REGEX } from '../search/search.service';
 import Quill from 'quill';
 import { Blot } from 'parchment';
@@ -140,17 +141,17 @@ export class QuillBlotService {
     if (cursor >= 1) {
       const prevChar = this.quill.getText(cursor - 1, 1);
       const prevPrevChar = cursor >= 2 ? this.quill.getText(cursor - 2, 1) : '';
-      if (prevChar === '@' && (cursor === 1 || /\s/.test(prevPrevChar))) {
+      if (prevChar === ADDRESS_TRIGGER_CHAR && (cursor === 1 || /\s/.test(prevPrevChar))) {
         this.quill.deleteText(cursor - 1, 1, Quill.sources.USER);
         return { text: '' };
       }
       const currentChar = this.quill.getText(cursor, 1);
-      if (currentChar === '@' && /\s/.test(prevChar)) {
+      if (currentChar === ADDRESS_TRIGGER_CHAR && /\s/.test(prevChar)) {
         this.quill.deleteText(cursor, 1, Quill.sources.USER);
         return { text: '' };
       }
     }
-    if (cursor === 0 && this.quill.getText(0, 1) === '@') {
+    if (cursor === 0 && this.quill.getText(0, 1) === ADDRESS_TRIGGER_CHAR) {
       this.quill.deleteText(0, 1, Quill.sources.USER);
       return { text: '' };
     }
@@ -166,7 +167,7 @@ export class QuillBlotService {
         if (offset >= 1) {
           const prevChar = text.charAt(offset - 1);
           const prevPrevChar = offset >= 2 ? text.charAt(offset - 2) : '';
-          if (prevChar === '@' && (offset === 1 || /\s/.test(prevPrevChar))) {
+          if (prevChar === ADDRESS_TRIGGER_CHAR && (offset === 1 || /\s/.test(prevPrevChar))) {
             const blotStart = blot.offset(this.quill.scroll);
             this.quill.deleteText(blotStart + offset - 1, 1, Quill.sources.USER);
             return { text: '' };

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SessionService } from '../session/session.service';
+import { ADDRESS_TRIGGER_CHAR } from '../search/address-trigger';
 import { LOCALES, Sign } from '@zskarte/types';
 
 @Injectable({
@@ -3644,9 +3645,9 @@ export class I18NService {
       fr: 'Ajouter une adresse',
     },
     searchAddressUsageHint: {
-      de: 'Um Adressinformationen einzufügen, geben Sie "@" ein oder drücken Sie Ctrl+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Ctrl+Leertaste.',
-      en: 'To insert address information, type "@" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',
-      fr: 'Pour insérer une adresse, saisissez "@" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.',
+      de: `Um Adressinformationen einzufügen, geben Sie "${ADDRESS_TRIGGER_CHAR}" ein oder drücken Sie Ctrl+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Ctrl+Leertaste.`,
+      en: `To insert address information, type "${ADDRESS_TRIGGER_CHAR}" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.`,
+      fr: `Pour insérer une adresse, saisissez "${ADDRESS_TRIGGER_CHAR}" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.`,
     },
     showMap: {
       de: 'Map anzeigen',

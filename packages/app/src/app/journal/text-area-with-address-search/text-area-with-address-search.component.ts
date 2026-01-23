@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SearchAutocompleteComponent } from 'src/app/search/search-autocomplete/search-autocomplete.component';
+import { isAddressTriggerAt } from 'src/app/search/address-trigger';
 import { ADDRESS_TOKEN_REGEX, SearchService, getGlobalAddressTokenRegex } from 'src/app/search/search.service';
 import { I18NService } from 'src/app/state/i18n.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
@@ -283,11 +284,7 @@ export class TextAreaWithAddressSearchComponent {
   onInputText() {
     const textarea = this.textContentInput().nativeElement;
     const cursorPosition = textarea.selectionStart || 0;
-    if (
-      cursorPosition >= 2 &&
-      textarea.value.charAt(cursorPosition - 1) === '@' &&
-      /\s/.test(textarea.value.charAt(cursorPosition - 2))
-    ) {
+    if (isAddressTriggerAt(textarea.value, cursorPosition)) {
       textarea.selectionStart = cursorPosition - 1;
       textarea.selectionEnd = cursorPosition;
       this.textContentSelectedArea = [textarea.selectionStart, textarea.selectionEnd];
