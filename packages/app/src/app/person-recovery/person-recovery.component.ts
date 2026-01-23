@@ -17,7 +17,7 @@ import {
   EmptyHeaderComponent,
   EmptyMediaComponent,
   EmptyTitleComponent,
-} from '../empty/empty.component';
+} from '../ui/empty';
 import { MatIconModule } from '@angular/material/icon';
 
 type PersonRecoverySign = Partial<Sign> & {
