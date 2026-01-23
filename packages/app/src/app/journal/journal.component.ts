@@ -229,8 +229,8 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort();
-    this.dataSourceFiltered.paginator = this.paginator();
-    //define special field/value to do the sort
+    // Don't assign paginator to dataSourceFiltered - we use server-side pagination
+    // define special field/value to do the sort
     this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'entryResponsibility':
@@ -263,6 +263,10 @@ export class JournalComponent implements AfterViewInit {
           this.sort().sortChange.emit(sortConf);
           this.dataSourceFiltered.sort.active = sortConf.active;
           this.dataSourceFiltered.sort.direction = sortConf.direction;
+          // Apply persisted sort to server-side sorting
+          if (sortConf.active && sortConf.direction) {
+            this.journal.setSort(sortConf.active, sortConf.direction as 'asc' | 'desc');
+          }
         }
       });
 
@@ -411,7 +415,8 @@ export class JournalComponent implements AfterViewInit {
     }
 
     this._debouncedPersistSort(sort);
-    //the sort logic itself is done by mat-sort, no need for own logic
+    // Trigger server-side sorting
+    this.journal.setSort(sort.active, sort.direction as 'asc' | 'desc');
   }
 
   onPageChange(event: PageEvent) {

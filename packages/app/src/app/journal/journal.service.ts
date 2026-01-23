@@ -37,12 +37,18 @@ export class JournalService {
   readonly paginationTotal = signal(0);
   readonly paginationPageCount = signal(0);
 
+  // Sorting signals
+  readonly sortField = signal<string>('messageNumber');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
   private journalResource = resource({
     params: () => ({
       operationId: this.operationId(),
       organizationId: this.organizationId(),
       page: this.paginationPage(),
       pageSize: this.paginationPageSize(),
+      sortField: this.sortField(),
+      sortDirection: this.sortDirection(),
     }),
     loader: async (params) => {
       if (!params.params.operationId || !params.params.organizationId) {
@@ -54,8 +60,9 @@ export class JournalService {
           .toArray();
       }
       //organization is implicit by session
+      const sortParam = params.params.sortField ? `&sort=${params.params.sortField}:${params.params.sortDirection}` : '';
       const { error, result } = await this._api.get<{ data: JournalEntry[]; meta: { pagination: { page: number; pageSize: number; pageCount: number; total: number } } }>(
-        `/api/journal-entries?operationId=${params.params.operationId}&pagination[page]=${params.params.page}&pagination[pageSize]=${params.params.pageSize}`,
+        `/api/journal-entries?operationId=${params.params.operationId}&pagination[page]=${params.params.page}&pagination[pageSize]=${params.params.pageSize}${sortParam}`,
         { keepMeta: true },
       );
       if (error || !result) {
@@ -86,6 +93,11 @@ export class JournalService {
     this.paginationPageSize.set(pageSize);
     // Reset to first page when page size changes
     this.paginationPage.set(1);
+  }
+
+  setSort(field: string, direction: 'asc' | 'desc') {
+    this.sortField.set(field);
+    this.sortDirection.set(direction);
   }
 
   async fetchAllEntries(): Promise<JournalEntry[]> {
