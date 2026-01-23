@@ -7,26 +7,23 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { I18NService } from '../../state/i18n.service';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { JournalFormComponent } from '../journal-form/journal-form.component';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../../ui/dialog-layout';
 import { JournalEntry } from '../journal.types';
 
 @Component({
-  selector: 'app-journal-entry-create-modal',
+  selector: 'app-journal-entry-modal',
   standalone: true,
-  imports: [MatDialogModule, MatIconModule, MatButtonModule, JournalFormComponent, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
-  templateUrl: './journal-entry-create-modal.component.html',
+  imports: [MatDialogModule, MatIconModule, MatButtonModule, JournalFormComponent],
+  templateUrl: './journal-entry-modal.component.html',
 })
-export class JournalEntryCreateModalComponent implements AfterViewInit {
-  private dialogRef = inject<MatDialogRef<JournalEntryCreateModalComponent>>(MatDialogRef);
+export class JournalEntryModalComponent implements AfterViewInit {
+  private dialogRef = inject<MatDialogRef<JournalEntryModalComponent>>(MatDialogRef);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
   private _destroyRef = inject(DestroyRef);
-  private _data = inject<{ entry?: JournalEntry }>(MAT_DIALOG_DATA, { optional: true });
   i18n = inject(I18NService);
   journalFormComponent = viewChild.required(JournalFormComponent);
   isDirty = signal(false);
-  entry = signal<JournalEntry | null>(this._data?.entry ?? null);
-  isEditMode = signal(!!this._data?.entry);
+  entryToEdit: JournalEntry | null = inject(MAT_DIALOG_DATA, { optional: true }) || null;
 
   constructor() {
     this.dialogRef.disableClose = true;
@@ -40,12 +37,8 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     const formComponent = this.journalFormComponent();
-    formComponent.saved.subscribe((messageNumber) => {
-      if (this.isEditMode()) {
-        this.dialogRef.close();
-      } else {
-        this.showSuccessSnackbar(messageNumber);
-      }
+    formComponent.close.subscribe(() => {
+      this.dialogRef.close();
     });
   }
 
@@ -56,12 +49,7 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
   handleCloseAttempt() {
     if (this.isDirty()) {
       this._dialog.open(ConfirmationDialogComponent, {
-        data: {
-          message: this.i18n.get('discardEntryConfirm'),
-          cancelLabel: this.i18n.get('continueEditingAction'),
-          confirmLabel: this.i18n.get('discardEntry'),
-        },
-        width: '520px',
+        data: this.i18n.get('discardEntryConfirm'),
       }).afterClosed().subscribe((confirmed) => {
         if (confirmed) {
           this.dialogRef.close();
@@ -78,16 +66,5 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
 
   onSave() {
     this.journalFormComponent().save();
-  }
-
-  private showSuccessSnackbar(messageNumber: number) {
-    this._snackBar.open(this.i18n.get('entryCreated').replace('{number}', messageNumber.toString()), undefined, { duration: 3000 });
-  }
-
-  getTitle(): string {
-    if (this.isEditMode() && this.entry()) {
-      return `${this.i18n.get('edit')} ${this.i18n.get('journalEntry_awaiting_message')} #${this.entry()!.messageNumber}`;
-    }
-    return this.i18n.get('createNewEntry');
   }
 }

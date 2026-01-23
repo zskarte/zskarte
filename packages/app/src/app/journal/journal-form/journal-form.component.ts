@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, HostListener, effect, inject, input, output, signal, viewChild, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -88,11 +88,24 @@ export class JournalFormComponent {
   showPrint = false;
   markPotentialAddresses = signal(false);
   manualMessageNumber = signal(false);
+  private viewReady = signal(false);
+  
   constructor() {
-    effect(() => {
+    afterNextRender(() => {
+      this.viewReady.set(true);
       const entry = this.entry();
       if (entry !== null) {
-        this.selectEntry(entry);
+        setTimeout(() => this.selectEntry(entry), 0);
+      }
+    });
+
+    effect(() => {
+      if (!this.viewReady()) {
+        return;
+      }
+      const entry = this.entry();
+      if (entry !== null) {
+        setTimeout(() => this.selectEntry(entry), 0);
       } else if (this.isCreateModal()) {
         this.formVisible.set(true);
       }
@@ -247,19 +260,75 @@ export class JournalFormComponent {
       : 3;
 
     this.journalForm.reset();
-    this.formDirective.resetForm();
+    if (this.formDirective) {
+      this.formDirective.resetForm();
+    }
     this.manualMessageNumber.set(false);
-    this.journalForm.patchValue({
-      ...entry,
-      dateCreatedDate: entry.dateMessage,
-      dateCreatedTime: entry.dateMessage,
-    });
-    // Keep messageNumber disabled when editing existing entry
+    
+    const formValue: any = {
+      sender: entry.sender || '',
+      creator: entry.creator || '',
+      communicationType: entry.communicationType || null,
+      communicationDetails: entry.communicationDetails || '',
+      messageSubject: entry.messageSubject || '',
+      messageContent: entry.messageContent || '',
+      visumMessage: entry.visumMessage || '',
+      dateCreatedDate: entry.dateMessage ? new Date(entry.dateMessage) : new Date(),
+      dateCreatedTime: entry.dateMessage ? new Date(entry.dateMessage) : new Date(),
+      wrongContentInfo: entry.wrongContentInfo || '',
+      department: entry.department || null,
+      isKeyMessage: entry.isKeyMessage || false,
+      visumTriage: entry.visumTriage || '',
+      dateTriage: entry.dateTriage ? new Date(entry.dateTriage) : null,
+      wrongTriageInfo: entry.wrongTriageInfo || '',
+      dateDecision: entry.dateDecision ? new Date(entry.dateDecision) : null,
+      visumDecider: entry.visumDecider || '',
+      decision: entry.decision || '',
+      decisionReceiver: entry.decisionReceiver || '',
+      entryStatus: entry.entryStatus || JournalEntryStatus.AWAITING_MESSAGE,
+      dateDecisionDelivered: entry.dateDecisionDelivered ? new Date(entry.dateDecisionDelivered) : null,
+      decisionSender: entry.decisionSender || '',
+    };
+    
+    this.journalForm.patchValue(formValue);
+    
     if (entry.messageNumber) {
+      this.journalForm.controls.messageNumber.setValue(entry.messageNumber);
       this.journalForm.controls.messageNumber.disable();
     }
     this.showPrint = false;
     this.formVisible.set(true);
+    
+    if (this.isCreateModal() && entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
+      setTimeout(() => {
+        const messageContentComponent = this.messageContentEl();
+        if (messageContentComponent) {
+          try {
+            if (messageContentComponent.showLinkedText()) {
+              const linkedTextContent = messageContentComponent.linkedTextContent();
+              if (linkedTextContent) {
+                linkedTextContent.getFocus();
+              }
+            } else {
+              const textContentInput = messageContentComponent.textContentInput();
+              if (textContentInput) {
+                textContentInput.nativeElement.focus();
+              }
+            }
+          } catch (error) {
+            const quillEditor = document.querySelector('.ql-editor') as HTMLElement;
+            if (quillEditor) {
+              quillEditor.focus();
+            } else {
+              const textarea = document.querySelector('textarea.textContent') as HTMLTextAreaElement;
+              if (textarea) {
+                textarea.focus();
+              }
+            }
+          }
+        }
+      }, 300);
+    }
   }
 
   addNew() {
