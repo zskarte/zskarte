@@ -1,6 +1,7 @@
-.table-container {
-  max-height: calc(100vh - 200px);
-  overflow: auto;
+mat-card {
+  width: 100%;
+  overflow-y: hidden;
+  overflow-x: auto;
 }
 
 .table-container ::ng-deep thead {

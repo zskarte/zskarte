@@ -14,12 +14,14 @@ import { first } from 'rxjs/operators';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { DialogHeaderComponent, DialogBodyComponent } from "../ui/dialog-layout";
+import { MatCard } from "@angular/material/card";
 
 @Component({
   selector: 'app-protocol-table',
   templateUrl: './protocol-table.component.html',
   styleUrls: ['./protocol-table.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatTableModule, ProjectionSelectionComponent, FormsModule],
+  imports: [MatFormFieldModule, MatInputModule, MatTableModule, ProjectionSelectionComponent, FormsModule, DialogHeaderComponent, DialogBodyComponent, MatCard],
 })
 export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit {
   zsMapStateService = inject(ZsMapStateService);
