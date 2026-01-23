@@ -57,8 +57,9 @@ import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-se
     ReplaceAllAddressTokensPipe,
     A11yModule,
     FormSectionComponent,
-    MatDivider
-  ],
+    MatDivider,
+    TextAreaWithAddressSearchComponent
+],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
   styleUrl: './journal-form.component.scss',
