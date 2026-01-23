@@ -137,6 +137,18 @@ export class QuillBlotService {
     }
 
     const cursor = range.index + range.length;
+    if (cursor >= 1) {
+      const prevChar = this.quill.getText(cursor - 1, 1);
+      const prevPrevChar = cursor >= 2 ? this.quill.getText(cursor - 2, 1) : '';
+      if (prevChar === '@' && (cursor === 1 || /\s/.test(prevPrevChar))) {
+        this.quill.deleteText(cursor - 1, 1, Quill.sources.USER);
+        return { text: '' };
+      }
+    }
+    if (cursor === 0 && this.quill.getText(0, 1) === '@') {
+      this.quill.deleteText(0, 1, Quill.sources.USER);
+      return { text: '' };
+    }
     const [blot, offset] = this.quill.getLeaf(cursor);
     if (blot) {
       //check if left of cursor is a AddressToken
@@ -146,10 +158,10 @@ export class QuillBlotService {
       //check if inside text and there stand " @" left of cursor
       if (blot.statics?.blotName === 'text' || (blot as any).constructor?.blotName === 'text') {
         const text = (blot as any).text as string;
-        if (offset >= 2) {
+        if (offset >= 1) {
           const prevChar = text.charAt(offset - 1);
-          const prevPrevChar = text.charAt(offset - 2);
-          if (prevChar === '@' && /\s/.test(prevPrevChar)) {
+          const prevPrevChar = offset >= 2 ? text.charAt(offset - 2) : '';
+          if (prevChar === '@' && (offset === 1 || /\s/.test(prevPrevChar))) {
             const blotStart = blot.offset(this.quill.scroll);
             this.quill.deleteText(blotStart + offset - 1, 1, Quill.sources.USER);
             return { text: '' };
