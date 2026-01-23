@@ -1,12 +1,14 @@
 <app-dialog-header>
-  <div>{{ i18n.get('organisationSettings') }}</div>
+  <h1>{{ i18n.get('organisationSettings') }}</h1>
 </app-dialog-header>
 
 <app-dialog-body class="content-container">
-  <mat-form-field class="text-template" appearance="outline" subscriptSizing="dynamic">
-    <mat-label>{{ i18n.get('journalMessageTextTemplate') }}</mat-label>
-    <textarea matInput rows="5" [(ngModel)]="settings.journalMessageTextTemplate"></textarea>
-  </mat-form-field>
+  <mat-card>
+    <mat-form-field class="text-template" appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18n.get('journalMessageTextTemplate') }}</mat-label>
+      <textarea matInput rows="5" [(ngModel)]="settings.journalMessageTextTemplate"></textarea>
+    </mat-form-field>
+  </mat-card>
 </app-dialog-body>
 
 <app-dialog-footer>
