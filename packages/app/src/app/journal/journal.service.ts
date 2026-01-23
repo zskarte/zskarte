@@ -1,5 +1,5 @@
 import { Injectable, effect, inject, resource, signal } from '@angular/core';
-import { JournalDateFields, JournalEntry } from './journal.types';
+import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
 import { ApiResponse, ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
@@ -13,6 +13,7 @@ import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
 import { SearchService } from '../search/search.service';
+import { OperationExportFile } from '../core/entity/operationExportFile';
 
 @Injectable({
   providedIn: 'root',
@@ -27,39 +28,101 @@ export class JournalService {
   private isOnline = toSignal(this._session.observeIsOnline());
   private _connectionId!: string;
 
-  private operationId = signal<string | null>(null);
-  private organizationId = signal<string | null>(null);
+  private operationId = toSignal(this._session.observeOperationId(), { initialValue: undefined });
+  private organizationId = toSignal(this._session.observeOrganizationId(), { initialValue: undefined });
+
+  // Pagination signals
+  readonly paginationPage = signal(1);
+  readonly paginationPageSize = signal(25);
+  readonly paginationTotal = signal(0);
+  readonly paginationPageCount = signal(0);
+
+  // Sorting signals
+  readonly sortField = signal<string>('messageNumber');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
+
   private journalResource = resource({
-    request: () => ({
+    params: () => ({
       operationId: this.operationId(),
       organizationId: this.organizationId(),
+      page: this.paginationPage(),
+      pageSize: this.paginationPageSize(),
+      sortField: this.sortField(),
+      sortDirection: this.sortDirection(),
     }),
     loader: async (params) => {
-      if (!params.request.operationId || !params.request.organizationId) {
+      if (!params.params.operationId || !params.params.organizationId) {
         return [];
       }
       if (this._session.isWorkLocal()) {
-        return await db.localJournalEntries
-          .where({ operationId: params.request.operationId, organizationId: params.request.organizationId })
+        return db.localJournalEntries
+          .where({ operationId: params.params.operationId, organizationId: params.params.organizationId })
           .toArray();
       }
       //organization is implicit by session
-      const { error, result } = await this._api.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.request.operationId}&pagination[pageSize]=1000`,
+      const sortParam = params.params.sortField ? `&sort=${params.params.sortField}:${params.params.sortDirection}` : '';
+      const { error, result } = await this._api.get<{ data: JournalEntry[]; meta: { pagination: { page: number; pageSize: number; pageCount: number; total: number } } }>(
+        `/api/journal-entries?operationId=${params.params.operationId}&pagination[page]=${params.params.page}&pagination[pageSize]=${params.params.pageSize}${sortParam}`,
+        { keepMeta: true },
       );
       if (error || !result) {
         throw 'error on fetch journal entries';
       }
-      return (result as JournalEntry[]) || [];
+      // Update pagination meta from response
+      if (result.meta?.pagination) {
+        this.paginationTotal.set(result.meta.pagination.total);
+        this.paginationPageCount.set(result.meta.pagination.pageCount);
+      }
+      return result.data || [];
     },
   });
   readonly backendData = this.journalResource.value;
   readonly data = signal<JournalEntry[]>([]);
+  readonly allData = signal<JournalEntry[]>([]); // All entries for sidebar/export
   readonly loading = this.journalResource.isLoading;
   readonly backendError = this.journalResource.error;
   readonly error = signal(false);
   readonly cachedOnly = signal(false);
   readonly reload = () => this.journalResource.reload();
+
+  setPage(page: number) {
+    this.paginationPage.set(page);
+  }
+
+  setPageSize(pageSize: number) {
+    this.paginationPageSize.set(pageSize);
+    // Reset to first page when page size changes
+    this.paginationPage.set(1);
+  }
+
+  setSort(field: string, direction: 'asc' | 'desc') {
+    this.sortField.set(field);
+    this.sortDirection.set(direction);
+  }
+
+  async fetchAllEntries(): Promise<JournalEntry[]> {
+    const operationId = this.operationId();
+    const organizationId = this.organizationId();
+    if (!operationId || !organizationId) {
+      return [];
+    }
+    if (this._session.isWorkLocal()) {
+      const entries = await db.localJournalEntries
+        .where({ operationId, organizationId })
+        .toArray();
+      this.allData.set(entries);
+      return entries;
+    }
+    const { error, result } = await this._api.get<JournalEntry[]>(
+      `/api/journal-entries?operationId=${operationId}&pagination[pageSize]=1000000`,
+    );
+    if (error || !result) {
+      console.error('Error fetching all journal entries:', error);
+      return [];
+    }
+    this.allData.set(result);
+    return result;
+  }
 
   private drawingEntrySignal = signal<JournalEntry | null>(null);
   get drawingEntry() {
@@ -80,25 +143,6 @@ export class JournalService {
   public lastUpdated = signal<{ entry: JournalEntry; change: Partial<JournalEntry> } | null>(null);
 
   constructor() {
-    effect(() => {
-      this._session
-        .observeOperationId()
-        .pipe(
-          tap((operationId) => this.operationId.set(operationId as string)),
-          tap(() => this.journalResource.reload()),
-        )
-        .subscribe();
-    });
-    effect(() => {
-      this._session
-        .observeOrganizationId()
-        .pipe(
-          tap((organizationId) => this.organizationId.set(organizationId as string)),
-          tap(() => this.journalResource.reload()),
-        )
-        .subscribe();
-    });
-
     effect(async () => {
       if (this._session.isWorkLocal()) {
         this.data.set(this.backendData() || []);
@@ -178,6 +222,7 @@ export class JournalService {
     let entry = updatedEntry as JournalEntry;
     this.data.update((currentEntries) => {
       let resultList: JournalEntry[];
+      let oldEntry: JournalEntry | undefined;
       if (!currentEntries) {
         resultList = [entry];
       } else {
@@ -187,7 +232,17 @@ export class JournalService {
             (entry.uuid && entry.uuid === updatedEntry.uuid),
         );
         if (index !== -1) {
-          entry = { ...currentEntries[index], ...updatedEntry };
+          oldEntry = currentEntries[index];
+          entry = { ...oldEntry, ...updatedEntry };
+          
+          if (
+            oldEntry.entryStatus === JournalEntryStatus.AWAITING_DECISION &&
+            entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION &&
+            entry.isDrawnOnMap
+          ) {
+            entry.isDrawnOnMap = false;
+          }
+          
           resultList = [...currentEntries.slice(0, index), entry, ...currentEntries.slice(index + 1)];
         } else {
           resultList = [entry, ...currentEntries];
@@ -234,6 +289,17 @@ export class JournalService {
     return result;
   }
 
+  public static async getJournal(operationId: string) {
+    if (!operationId) {
+      return null;
+    }
+    const journal = await db.localJournalEntries.where({ operationId }).toArray();
+    return journal.map((entry) => {
+      const { id, createdAt, createdBy, publishedAt, updatedAt, updatedBy, operationId, fromCache, organizationId, uuid, documentId, ...rest } = entry;
+      return rest;
+    });
+  }
+
   public async getByNumber(messageNumber: number) {
     const operationId = this.operationId();
     if (!operationId) {
@@ -246,7 +312,7 @@ export class JournalService {
     if (error || !result) {
       console.error(`could not get journalEntry with number ${messageNumber}`, error);
       const organizationId = this.organizationId();
-      return await db.localJournalEntries.where({ operationId, organizationId, messageNumber }).first();
+      return db.localJournalEntries.where({ operationId, organizationId, messageNumber }).first();
     }
     return result;
   }
@@ -273,7 +339,7 @@ export class JournalService {
     return min - 1;
   }
 
-  private async messageNumberAlreadyExist(messageNumber: number, uuid?: string) {
+  public async messageNumberAlreadyExist(messageNumber: number, uuid?: string) {
     const operationId = this.operationId();
     const organizationId = this.organizationId();
     if (!operationId) {
@@ -292,7 +358,7 @@ export class JournalService {
         };
       } else if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
         return {
-          error: { message: `messageNumber ${entry.messageNumber} already exist` },
+          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
           result: undefined,
         };
       }
@@ -337,7 +403,7 @@ export class JournalService {
             }
             if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
               return {
-                error: { message: `messageNumber ${entry.messageNumber} already exist` },
+                error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
                 result: undefined,
               };
             }
@@ -367,11 +433,28 @@ export class JournalService {
         await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)
       ) {
         return {
-          error: { message: `messageNumber ${entry.messageNumber} already exist` },
+          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
           result: undefined,
         };
       }
     }
+    
+    if (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION) {
+      const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
+      const currentEntries = this.data();
+      const currentEntry = currentEntries?.find(
+        (e) =>
+          (e.documentId && e.documentId === cacheUuid) ||
+          (e.uuid && e.uuid === cacheUuid)
+      );
+      if (
+        currentEntry?.entryStatus === JournalEntryStatus.AWAITING_DECISION &&
+        currentEntry.isDrawnOnMap
+      ) {
+        entry.isDrawnOnMap = false;
+      }
+    }
+    
     if (this._session.isWorkLocal()) {
       const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
       const result = this.patchEntry({ ...entry, documentId: documentId || entry.documentId, uuid: cacheUuid }, true);
@@ -419,6 +502,13 @@ export class JournalService {
       }
     }
     return response;
+  }
+
+  public async importJournal(result: OperationExportFile) {
+    const journal = result.journal || []
+    for (const entry of journal) {
+      await this.save(entry);
+    }
   }
 
   public async save(entry: JournalEntry) {
@@ -679,11 +769,17 @@ export class JournalService {
     if (organizationFull?.logo?.provider === 'local') {
       organization.logo_url = `${environment.apiUrl}${organization.logo_url}`;
     }
-    let entryUrl;
+    let fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
+    let entryUrl: string | undefined;
     if (entry.messageNumber && entry.createdAt) {
       entryUrl = `${window.location.origin}/main/journal?operationId=${operation.documentId}&messageNumber=${entry.messageNumber}`;
     } else {
       this.deactivateQRCode(template);
+      if (Object.keys(entry).length === 0) {
+        operation.documentId = '';
+        operation.name = '';
+        fileName = `${organization.name}.pdf`;
+      }
     }
 
     const data = [
@@ -694,7 +790,6 @@ export class JournalService {
         url_entry: entryUrl,
       },
     ];
-    const fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
     await pdfService.downloadPdf(template, data, fileName);
   }
 
@@ -830,5 +925,16 @@ export class JournalService {
         fileName,
       );
     });
+  }
+
+  public getResponsibility(entry: JournalEntry) {
+    switch (entry.entryStatus) {
+      case JournalEntryStatus.AWAITING_MESSAGE:
+        return entry.visumMessage;
+      case JournalEntryStatus.AWAITING_DECISION:
+        return this._i18n.get(entry.department ?? 'allDepartments');
+      default:
+        return this._i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
+    }
   }
 }

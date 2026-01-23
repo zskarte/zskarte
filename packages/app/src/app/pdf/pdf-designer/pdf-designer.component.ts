@@ -20,6 +20,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconButton } from '@angular/material/button';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { PdfServiceFactory } from '../pdf-service.factory';
+import { JournalService } from 'src/app/journal/journal.service';
+import { JournalEntry } from 'src/app/journal/journal.types';
 
 const alignedKeys = ['name', 'position', 'width', 'height', 'type'];
 
@@ -38,11 +40,13 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
   defaultTemplate = input<object>();
   templateName = input<string>();
   save = output<object | null>();
+  print = output<void>();
 
   i18n = inject(I18NService);
   private _dialog = inject(MatDialog);
   private _designer: Designer | undefined;
   private _pdfServiceFactory = inject(PdfServiceFactory);
+  private _journal = inject(JournalService);
 
   currentRow = signal<number>(0);
   currentCol = signal<number>(0);
@@ -155,8 +159,16 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
     this.save.emit(this._designer!.getTemplate());
   }
 
+  printEmptyTemplate() {
+    this.print.emit();
+  }
+
   closeDesigner() {
     this.save.emit(null);
+  }
+
+  generatePdf() {
+    this._journal.print({} as JournalEntry);
   }
 
   download() {

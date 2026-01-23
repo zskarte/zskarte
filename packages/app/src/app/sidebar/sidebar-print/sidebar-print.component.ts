@@ -20,6 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { PermissionType, PaperDimensions, IZsMapPrintState, AccessTokenType } from '@zskarte/types';
+import { MatCard } from "@angular/material/card";
 
 @Component({
   selector: 'app-sidebar-print',
@@ -33,7 +34,8 @@ import { PermissionType, PaperDimensions, IZsMapPrintState, AccessTokenType } fr
     MatRadioModule,
     FormsModule,
     MatCheckboxModule,
-  ],
+    MatCard
+],
 })
 export class SidebarPrintComponent {
   i18n = inject(I18NService);
@@ -215,7 +217,7 @@ export class SidebarPrintComponent {
       if (isWebGLSupported()) {
         //with webGL rendering there are pontential support/memory problems and the image is shrinked if to big
         const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-          data: this.i18n.get('deactivateWebGL'),
+          data: { message: this.i18n.get('deactivateWebGL') },
         });
         confirmation.afterClosed().subscribe((res) => {
           if (res) {

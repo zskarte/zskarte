@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, HostListener, effect, inject, input, output, signal, viewChild, afterNextRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,8 +23,8 @@ import {
   CommunicationType,
 } from '../journal.types';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTabsModule } from '@angular/material/tabs';
-import { ViewChild } from '@angular/core';
+import { ViewChild, ElementRef } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { JournalService } from '../journal.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -32,9 +32,13 @@ import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { SessionService } from 'src/app/session/session.service';
+import { MatCardModule } from '@angular/material/card';
+import { FormSectionComponent } from '../../ui/form-section';
+import { MatDivider } from "@angular/material/divider";
+import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 
 @Component({
   selector: 'app-journal-form',
@@ -46,14 +50,17 @@ import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-to
     MatDatepickerModule,
     MatTimepickerModule,
     MatCheckboxModule,
-    MatTabsModule,
     ReactiveFormsModule,
     FormsModule,
     MatSelectModule,
+    MatCardModule,
     CommonModule,
-    TextAreaWithAddressSearchComponent,
     ReplaceAllAddressTokensPipe,
-  ],
+    A11yModule,
+    FormSectionComponent,
+    MatDivider,
+    TextAreaWithAddressSearchComponent
+],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
   styleUrl: './journal-form.component.scss',
@@ -61,6 +68,7 @@ import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-to
 export class JournalFormComponent {
   private _dialog = inject(MatDialog);
   private _state = inject(ZsMapStateService);
+  private _session = inject(SessionService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   search = inject(SearchService);
@@ -68,29 +76,52 @@ export class JournalFormComponent {
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
-
+  
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
   CommunicationTypeValues = CommunicationTypeValues;
 
   entry = input.required<JournalEntry | null>();
+  isCreateModal = input<boolean>(false);
   dirty = output<boolean>();
   close = output();
+  saved = output<number>();
   selectedIndex = 0;
   showPrint = false;
   markPotentialAddresses = signal(false);
+  manualMessageNumber = signal(false);
+  private viewReady = signal(false);
+  journalMessageTextTemplate: string | undefined;
   constructor() {
+    afterNextRender(() => {
+      this.viewReady.set(true);
+      const entry = this.entry();
+      if (entry !== null) {
+        setTimeout(() => this.selectEntry(entry), 0);
+      }
+    });
+
     effect(() => {
-      this.selectEntry(this.entry());
+      if (!this.viewReady()) {
+        return;
+      }
+      const entry = this.entry();
+      if (entry !== null) {
+        setTimeout(() => this.selectEntry(entry), 0);
+      } else if (this.isCreateModal()) {
+        this.formVisible.set(true);
+      }
     });
 
     this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.dirty.emit(this.journalForm.dirty);
     });
+    const settings = this._session.getOrganizationSettings();
+    this.journalMessageTextTemplate = settings?.journalMessageTextTemplate;
   }
 
   journalForm = new FormGroup({
-    messageNumber: new FormControl<string | number>('', {
+    messageNumber: new FormControl<string | number>({ value: '', disabled: true }, {
       nonNullable: true,
     }),
     sender: new FormControl('', {
@@ -187,6 +218,27 @@ export class JournalFormComponent {
     return newDate;
   }
 
+  normalizeTimeInput(event: Event) {
+    const input = event.target as HTMLInputElement | null;
+    if (!input) {
+      return;
+    }
+    const digits = input.value.replace(/\D/g, '');
+    if (digits.length !== 4) {
+      return;
+    }
+    const hours = Number(digits.slice(0, 2));
+    const minutes = Number(digits.slice(2, 4));
+    if (Number.isNaN(hours) || Number.isNaN(minutes) || hours > 23 || minutes > 59) {
+      return;
+    }
+    const base = this.journalForm.controls.dateCreatedTime.value ?? new Date();
+    const normalized = new Date(base);
+    normalized.setHours(hours, minutes, 0, 0);
+    this.journalForm.controls.dateCreatedTime.setValue(normalized);
+    input.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
   private requiredField(fieldName: keyof JournalEntry): ValidatorFn {
     return (control: AbstractControl) => {
       if (this.journalForm === undefined) return null;
@@ -198,6 +250,7 @@ export class JournalFormComponent {
       return null;
     };
   }
+
 
   async selectEntry(entry: JournalEntry | null) {
     if (!entry) {
@@ -211,31 +264,107 @@ export class JournalFormComponent {
       : 3;
 
     this.journalForm.reset();
-    this.formDirective.resetForm();
-    this.journalForm.patchValue({
-      ...entry,
-      dateCreatedDate: entry.dateMessage,
-      dateCreatedTime: entry.dateMessage,
-    });
+    if (this.formDirective) {
+      this.formDirective.resetForm();
+    }
+    this.manualMessageNumber.set(false);
+    
+    const formValue: any = {
+      sender: entry.sender || '',
+      creator: entry.creator || '',
+      communicationType: entry.communicationType || null,
+      communicationDetails: entry.communicationDetails || '',
+      messageSubject: entry.messageSubject || '',
+      messageContent: entry.messageContent || '',
+      visumMessage: entry.visumMessage || '',
+      dateCreatedDate: entry.dateMessage ? new Date(entry.dateMessage) : new Date(),
+      dateCreatedTime: entry.dateMessage ? new Date(entry.dateMessage) : new Date(),
+      wrongContentInfo: entry.wrongContentInfo || '',
+      department: entry.department || null,
+      isKeyMessage: entry.isKeyMessage || false,
+      visumTriage: entry.visumTriage || '',
+      dateTriage: entry.dateTriage ? new Date(entry.dateTriage) : null,
+      wrongTriageInfo: entry.wrongTriageInfo || '',
+      dateDecision: entry.dateDecision ? new Date(entry.dateDecision) : null,
+      visumDecider: entry.visumDecider || '',
+      decision: entry.decision || '',
+      decisionReceiver: entry.decisionReceiver || '',
+      entryStatus: entry.entryStatus || JournalEntryStatus.AWAITING_MESSAGE,
+      dateDecisionDelivered: entry.dateDecisionDelivered ? new Date(entry.dateDecisionDelivered) : null,
+      decisionSender: entry.decisionSender || '',
+    };
+    
+    this.journalForm.patchValue(formValue);
+    
+    if (entry.messageNumber) {
+      this.journalForm.controls.messageNumber.setValue(entry.messageNumber);
+      this.journalForm.controls.messageNumber.disable();
+    }
     this.showPrint = false;
     this.formVisible.set(true);
+    
+    if (this.isCreateModal() && entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
+      setTimeout(() => {
+        const messageContentComponent = this.messageContentEl();
+        if (messageContentComponent) {
+          try {
+            if (messageContentComponent.showLinkedText()) {
+              const linkedTextContent = messageContentComponent.linkedTextContent();
+              if (linkedTextContent) {
+                linkedTextContent.getFocus();
+              }
+            } else {
+              const textContentInput = messageContentComponent.textContentInput();
+              if (textContentInput) {
+                textContentInput.nativeElement.focus();
+              }
+            }
+          } catch (error) {
+            const quillEditor = document.querySelector('.ql-editor') as HTMLElement;
+            if (quillEditor) {
+              quillEditor.focus();
+            } else {
+              const textarea = document.querySelector('textarea.textContent') as HTMLTextAreaElement;
+              if (textarea) {
+                textarea.focus();
+              }
+            }
+          }
+        }
+      }, 300);
+    }
   }
 
   addNew() {
     this.selectedIndex = 0;
     this.journalForm.reset();
     this.formDirective.resetForm();
+    this.manualMessageNumber.set(false);
+    this.journalForm.controls.messageNumber.disable();
     this.journalForm.patchValue({
       dateCreatedDate: new Date(),
       dateCreatedTime: new Date(),
     });
+    if (this.journalMessageTextTemplate) {
+      this.journalForm.patchValue({
+        messageContent: this.journalMessageTextTemplate,
+      });
+    }
     this.showPrint = false;
     this.formVisible.set(true);
+    
   }
 
-  isTabDisabled(tabStatus: JournalEntryStatus): boolean {
-    const order = Object.values(JournalEntryStatus);
-    return order.indexOf(this.journalForm.controls.entryStatus.value) < order.indexOf(tabStatus);
+  toggleManualMessageNumber(event: boolean) {
+    this.manualMessageNumber.set(event);
+    if (event) {
+      this.journalForm.controls.messageNumber.enable();
+      this.journalForm.controls.messageNumber.updateValueAndValidity();
+    } else {
+      this.journalForm.controls.messageNumber.disable();
+      this.journalForm.controls.messageNumber.setValue('');
+      this.journalForm.controls.messageNumber.setErrors(null);
+    }
   }
 
   onEnterForResetState(event: Event) {
@@ -259,7 +388,12 @@ export class JournalFormComponent {
       });
       requiredField.setErrors({ required: true });
       requiredField.markAsTouched();
-      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('fillAllFields'));
+      InfoDialogComponent.showErrorDialog(
+        this._dialog,
+        this.i18n.get('fillAllFields'),
+        null,
+        this.i18n.get('continueEditingAction'),
+      );
       return;
     }
 
@@ -306,26 +440,60 @@ export class JournalFormComponent {
         control.updateValueAndValidity();
       }
     });
-    //unrequire reset field
     const currentReset = JournalEntryStatusReset[entryStatus];
     if (currentReset) {
       this.journalForm.controls[currentReset.required].markAsUntouched();
       this.journalForm.controls[currentReset.required].setErrors(null);
     }
 
+    if (this.manualMessageNumber() && this.journalForm.controls.messageNumber.value) {
+      const messageNumber = typeof this.journalForm.controls.messageNumber.value === 'string' 
+        ? parseInt(this.journalForm.controls.messageNumber.value, 10) 
+        : this.journalForm.controls.messageNumber.value;
+      
+      if (!isNaN(messageNumber) && messageNumber > 0) {
+        const currentEntry = this.entry();
+        const exists = await this.journal.messageNumberAlreadyExist(
+          messageNumber,
+          currentEntry?.uuid || currentEntry?.documentId,
+        );
+        
+        if (exists) {
+          this.journalForm.controls.messageNumber.setErrors({ messageNumberExists: true });
+          this.journalForm.controls.messageNumber.markAsTouched();
+          InfoDialogComponent.showErrorDialog(
+            this._dialog,
+            this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()),
+            null,
+            this.i18n.get('continueEditingAction'),
+          );
+          return;
+        }
+      }
+    }
+
     if (this.journalForm.invalid || this.journalForm.pending) {
       this.journalForm.markAllAsTouched();
-      InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('fillAllFields'));
+      InfoDialogComponent.showErrorDialog(
+        this._dialog,
+        this.i18n.get('fillAllFields'),
+        null,
+        this.i18n.get('continueEditingAction'),
+      );
       return;
     }
     const newEntryStatus = JournalEntryStatusNext[entryStatus];
     const nextReset = JournalEntryStatusReset[newEntryStatus];
 
     //prepare object with only allowed/changed fields to save
-    const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
+    // Use getRawValue() to include disabled controls (like messageNumber when manually entered)
+    const formRawValue = this.journalForm.getRawValue();
+    const { dateCreatedTime, dateCreatedDate, messageNumber, ...rest } = formRawValue;
     const values: Partial<JournalEntry> = {
       ...(rest as JournalEntry),
       ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
+      // Only include messageNumber if manually entered
+      ...(this.manualMessageNumber() && messageNumber ? { messageNumber: typeof messageNumber === 'string' ? parseInt(messageNumber, 10) : messageNumber } : {}),
     };
     if (nextReset && values[nextReset.required]) {
       //clear reset field of next step, so it's not longer filled
@@ -350,46 +518,45 @@ export class JournalFormComponent {
     }
 
     if (this.entry() === null) {
-      //if in message creating "mode" directly start to add new one, and keep obvious values
-      this.addNew();
-      this.journalForm.patchValue({
-        visumMessage: rest.visumMessage,
-      });
-      if (rest.communicationType === 'funk') {
+      // Get the message number from the saved result
+      const savedMessageNumber = result?.messageNumber;
+      
+      if (this.isCreateModal()) {
+        // In create modal mode, emit saved event and reset form except visa
+        if (savedMessageNumber) {
+          this.saved.emit(savedMessageNumber);
+        }
+        const savedVisa = rest.visumMessage;
+        this.addNew();
         this.journalForm.patchValue({
-          communicationType: rest.communicationType,
-          communicationDetails: rest.communicationDetails,
+          visumMessage: savedVisa,
         });
+        this.dirty.emit(false);
+        this.showPrint = false;
+      } else {
+        //if in message creating "mode" directly start to add new one, and keep obvious values
+        this.addNew();
+        this.journalForm.patchValue({
+          visumMessage: rest.visumMessage,
+        });
+        if (rest.communicationType === 'funk') {
+          this.journalForm.patchValue({
+            communicationType: rest.communicationType,
+            communicationDetails: rest.communicationDetails,
+          });
+        }
+        this.dirty.emit(false);
+        this.showPrint = false;
       }
-      this.dirty.emit(false);
-      this.showPrint = false;
     } else {
       this.doClose();
-    }
-  }
-
-  @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(event: KeyboardEvent): void {
-    const messageContentEl = this.messageContentEl();
-    if (messageContentEl) {
-      if (messageContentEl.abortOnEsc(event)) {
-        return;
-      }
-    } else if (this.search.handleEsc(event)) {
-      return;
-    }
-
-    if (this._dialog.openDialogs.length === 0) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.closeForm();
     }
   }
 
   closeForm() {
     if (this.journalForm.dirty) {
       const confirm = this._dialog.open(ConfirmationDialogComponent, {
-        data: this.i18n.get('closeNotSaved'),
+        data: { message: this.i18n.get('closeNotSaved') },
       });
       confirm.afterClosed().subscribe((response) => {
         if (response) {

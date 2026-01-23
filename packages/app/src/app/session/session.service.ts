@@ -9,6 +9,7 @@ import {
   IZsMapOperation,
   IZsMapOrganization,
   IZsMapOrganizationMapLayerSettings,
+  IZsMapOrganizationSettings,
   IZsMapSession,
   Locale,
   PermissionType,
@@ -83,18 +84,6 @@ export class SessionService {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-          await this._router.navigate(
-            [this._router.url.split('?')[0] === '/main/journal' ? '/main/journal' : '/main/map'],
-            {
-              queryParams: {
-                center: null, //handled in overrideDisplayStateFromQueryParams
-                size: null, //handled in overrideDisplayStateFromQueryParams
-                operationId: null, //handled in updateJWT / OperationsComponent
-              },
-              queryParamsHandling: 'merge',
-              preserveFragment: true,
-            },
-          );
           await this._state?.refreshMapState();
           let displayState = await db.displayStates.get({
             id: session.operation?.documentId,
@@ -215,7 +204,7 @@ export class SessionService {
             });
         } else {
           await this._router.navigate(['operations'], { queryParamsHandling: 'preserve', preserveFragment: true });
-          this._state.setMapState(undefined);
+          this._state.setMapState(undefined, undefined);
           this._state.setDisplayState(undefined);
         }
         return;
@@ -337,6 +326,25 @@ export class SessionService {
     );
   }
 
+  public async saveOrganizationSettings(data: IZsMapOrganizationSettings) {
+    const organization = this.getOrganization();
+    if (organization?.documentId) {
+      await this._api.put(`/api/organizations/${organization.documentId}/settings`, { data });
+
+      organization.settings = data;
+      //update session object
+      const currentSession = this._session.value;
+      if (currentSession) {
+        currentSession.organization = organization;
+        this._session.next(currentSession);
+      }
+    }
+  }
+
+  public getOrganizationSettings() {
+    return this.getOrganization()?.settings;
+  }
+
   public async saveOrganizationMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {
     const organization = this.getOrganization();
     if (organization?.documentId) {
@@ -443,6 +451,11 @@ export class SessionService {
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
     if (this._session?.value) {
       const sessionOperation = this._session.value.operation;
+      // Set the operation synchronously first so guards can see it immediately
+      this._session.value.operation = operation;
+      this._session.next(this._session.value);
+      
+      // Then do async cleanup if needed (only when clearing operation)
       if (
         operation === undefined &&
         sessionOperation !== undefined &&
@@ -451,9 +464,7 @@ export class SessionService {
         //backup operation in case offline / no server connection to allow continue work later
         await OperationService.persistLocalOperation(sessionOperation);
       }
-      this._session.value.operation = operation;
     }
-    this._session.next(this._session.value);
   }
 
   public observeOperationId(): Observable<string | undefined> {
@@ -597,14 +608,39 @@ export class SessionService {
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
     const operationId = decoded.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
+    let operationJustSet = false;
+    
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
+        operationJustSet = !currentSession?.operation?.documentId || currentSession.operation.documentId !== operation.documentId;
         newSession.operation = operation;
       }
     }
 
     this._session.next(newSession);
+
+    const currentUrl = this._router.url;
+    if (currentUrl.startsWith('/login') && queryParams['operationId']) {
+      if (operationJustSet) {
+        const navQueryParams: any = { ...queryParams };
+        Object.keys(navQueryParams).forEach(key => {
+          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
+            delete navQueryParams[key];
+          }
+        });
+        await this._router.navigate(['/operations'], { queryParams: navQueryParams });
+      } else {
+        const navQueryParams: any = { ...queryParams };
+        delete navQueryParams['operationId'];
+        Object.keys(navQueryParams).forEach(key => {
+          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
+            delete navQueryParams[key];
+          }
+        });
+        await this._router.navigate(['/main/map'], { queryParams: navQueryParams });
+      }
+    }
   }
 
   public isWorkLocal() {

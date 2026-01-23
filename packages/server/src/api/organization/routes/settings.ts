@@ -5,6 +5,16 @@ export default {
   routes: [
     {
       method: 'PUT',
+      path: '/organizations/:id/settings',
+      handler: 'organization.updateSettings',
+      config: {
+        middlewares: [
+          CreateAccessControlMiddlewareConfig({ type: 'api::organization.organization', check: AccessControlTypes.UPDATE_BY_ID }),
+        ],
+      },
+    },
+    {
+      method: 'PUT',
       path: '/organizations/:id/layer-settings',
       handler: 'organization.updateLayerSettings',
       config: {

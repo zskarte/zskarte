@@ -150,11 +150,13 @@ export class GeocoderComponent implements OnDestroy {
     this._searchArea.activateAreaEdit();
   }
 
-  stopDefineArea() {
+  public stopDefineArea() {
+    if (!this.drawingArea) return false;
     this._searchArea.deactivateAreaEdit();
     this.drawingArea = false;
     this.searchConfig.area = this._searchArea.getSearchAreaExtent();
     this.configChanged();
+    return true;
   }
 
   toggleSettings(event?: MouseEvent) {

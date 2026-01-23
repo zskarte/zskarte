@@ -2,7 +2,8 @@ const uploadProviders = (env) => {
   const providers = {
     local: {
       config: {
-        sizeLimit: 32 * 1024 * 1024,
+        //100mb
+        sizeLimit: 100 * 1024 * 1024,
         localServer: {
           maxage: 300000,
         },
@@ -28,4 +29,13 @@ const uploadProviders = (env) => {
 
 export default ({ env }) => ({
   upload: uploadProviders(env),
+  'users-permissions': {
+    config: {
+      ratelimit: {
+        enabled: true,
+        interval: { min: 1 },
+        max: 100,
+      },
+    },
+  }
 });

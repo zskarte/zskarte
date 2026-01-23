@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../../state/i18n.service';
-import { CsvMapLayer, WmsSource } from '@zskarte/types';
+import { CsvMapLayer, MapSource } from '@zskarte/types';
 import { ZsMapStateService } from '../../../state/state.service';
 import { GeoJSONService } from '../geojson.service';
 import { Extent } from 'ol/extent';
@@ -13,6 +13,7 @@ import { RegexValidatorDirective } from '../../regex-validator.directive';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../../ui/dialog-layout';
 
 @Component({
   selector: 'app-geojson-layer-options',
@@ -29,6 +30,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatCheckboxModule,
     MatDialogModule,
     MatButtonModule,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    DialogHeaderComponent,
   ],
 })
 export class GeoJSONLayerOptionsComponent {
@@ -39,6 +43,8 @@ export class GeoJSONLayerOptionsComponent {
   private geoJSONService = inject(GeoJSONService);
 
   sourceUrl = '';
+  sourceMediaId = '';
+  useMedia = false;
   lastExtent: Extent = [0, 0, 0, 0];
   constructor() {
     let layer = this.layer;
@@ -63,6 +69,10 @@ export class GeoJSONLayerOptionsComponent {
     if (this.layer.source) {
       this.sourceUrl = this.layer.source.url;
     }
+    if (this.layer.source?.documentId) {
+      this.useMedia = true;
+      this.sourceMediaId = this.layer.source.documentId;
+    }
     if (this.layer.styleSourceType === undefined) {
       this.layer.styleSourceType = 'url';
     }
@@ -71,6 +81,15 @@ export class GeoJSONLayerOptionsComponent {
     }
     if (this.layer.searchable === undefined) {
       this.layer.searchable = false;
+    }
+  }
+
+  toggleMedia(newVal: boolean) {
+    if (newVal && this.layer.source?.url && this.layer.source?.documentId) {
+      this.sourceUrl = this.layer.source.url;
+      this.useMedia = true;
+    } else {
+      this.useMedia = false;
     }
   }
 
@@ -154,7 +173,11 @@ export class GeoJSONLayerOptionsComponent {
     if (!this.layer.searchable) {
       delete this.layer.searchable;
     }
-    this.layer.source = { url: this.sourceUrl } as WmsSource;
+    if (this.useMedia) {
+      //keep prev selected source (Media object) without change
+    } else {
+      this.layer.source = { url: this.sourceUrl } as MapSource;
+    }
     if (this.layer.source?.url) {
       this.geoJSONService.invalidateCache(this.layer.source.url);
     }

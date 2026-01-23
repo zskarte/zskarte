@@ -9,7 +9,17 @@ import { Signs } from '../map-renderer/signs';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogRef } from '@angular/material/dialog';
+import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
 import { getJsPDF } from 'src/app/pdf/jsPDF.factory';
+import {
+  EmptyComponent,
+  EmptyHeaderComponent,
+  EmptyMediaComponent,
+  EmptyTitleComponent,
+} from '../ui/empty';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCard } from "@angular/material/card";
 
 type PersonRecoverySign = Partial<Sign> & {
   text?: string;
@@ -43,27 +53,38 @@ async function svg2png(url?: string, width = 100, height = 100) {
 
 @Component({
   selector: 'app-person-recovery',
-  imports: [AsyncPipe, MatButtonModule],
+  imports: [
+    AsyncPipe,
+    MatButtonModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    EmptyComponent,
+    EmptyHeaderComponent,
+    EmptyMediaComponent,
+    EmptyTitleComponent,
+    MatIconModule,
+    MatCard,
+],
   templateUrl: './person-recovery.component.html',
   styles: `
-    .recovery {
-      min-width: 300px;
+
+    .recovery-container {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-    
-    .recovery .actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 10px;
+
+      > .recovery-row:last-child {
+        border-bottom: none
+      }
     }
 
     .recovery-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 1rem;
       font-size: 16px;
+      padding: 1rem 0;
+      border-bottom: 1px solid #dedede;
     }
 
     .recovery-row .text {
@@ -74,10 +95,6 @@ async function svg2png(url?: string, width = 100, height = 100) {
       height: 30px;
       width: auto;
     }
-    
-    .recovery-empty {
-      color: var(--mdc-dialog-supporting-text-color);
-    }
   `
 })
 export class PersonRecoveryComponent {
@@ -85,6 +102,7 @@ export class PersonRecoveryComponent {
   private session = inject(SessionService);
   private destroyRef = inject(DestroyRef);
   i18n = inject(I18NService);
+  dialogRef = inject(MatDialogRef<PersonRecoveryComponent>);
 
   private printMargin = 10;
   private dimensions = PaperDimensions['A4'];

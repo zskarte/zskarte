@@ -7,12 +7,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogHeaderComponent, DialogBodyComponent } from '../../ui/dialog-layout';
+import { MatCard } from "@angular/material/card";
 
 @Component({
   selector: 'app-revoke-share-dialog',
   templateUrl: './revoke-share-dialog.component.html',
   styleUrl: './revoke-share-dialog.component.scss',
-  imports: [MatTableModule, DatePipe, MatButtonModule],
+  imports: [MatTableModule, DatePipe, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, MatCard],
 })
 export class RevokeShareDialogComponent {
   i18n = inject(I18NService);

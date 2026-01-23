@@ -1,7 +1,16 @@
 @use '@angular/material' as mat;
 @include mat.core();
+@import 'quill/dist/quill.snow.css';
+
+:root {
+  --mat-dialog-container-color: #f1f1f1;
+}
 
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --sidebar-width: min(30rem, 75vw);
+}
+
 html,
 body {
   height: 100%;
@@ -45,6 +54,10 @@ mat-action-list {
   padding: 1rem;
 }
 
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
 .mat-accordion .mat-expansion-panel {
   overflow: visible;
 }
@@ -61,13 +74,29 @@ mat-action-list {
   margin-bottom: 2rem;
 }
 
+.mat-sidenav {
+  margin: .5rem .5rem .5rem 0;
+  background-color: #fff;
+  border-radius: 1rem !important;
+  border: 1px solid #dedede;
+}
+
+.mat-mdc-dialog-panel {
+  max-height: 80vh !important;
+}
+
+.mat-mdc-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0;
+}
+
 .mat-drawer .mat-drawer-inner-container {
   overflow: unset;
 }
 
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .titleCard,
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .ng-star-inserted > .stack,
-.mat-drawer > .mat-drawer-inner-container > .ng-star-inserted > .flex-label {
+.sidebar .titleCard,
+.sidebar .stack,
+.sidebar mat-card-content > div,
+.sidebar .flex-label {
   padding: 1rem;
 }
 
@@ -75,6 +104,11 @@ mat-action-list {
 .mat-mdc-button,
 .mat-mdc-button-base {
   border-radius: 2rem !important;
+}
+
+mat-stroked-button,
+.mat-mdc-stroked-button {
+  background-color: white !important;
 }
 
 .cdk-overlay-pane {
@@ -120,19 +154,32 @@ mat-accordion mat-expansion-panel {
 fieldset.like-mat-form-field-outline {
   margin: 0;
   border-style: solid;
-  border-width: var(--mdc-outlined-text-field-outline-width);
-  border-color: var(--mdc-outlined-text-field-outline-color);
-  border-radius: var(--mdc-outlined-text-field-container-shape);
+  border-width: var(--mat-form-field-outlined-outline-width);
+  border-color: var(--mat-form-field-outlined-outline-color);
+  border-radius: var(--mat-form-field-outlined-container-shape);
+  &:hover {
+    border-color: var(--mdc-outlined-text-field-hover-outline-color, rgba(0, 0, 0, .87));
+  }
+  &:focus-within {
+    border-width: var(--mat-form-field-outlined-focus-outline-width);
+    border-color: var(--mat-form-field-outlined-focus-outline-color);
+  }
 }
 fieldset.like-mat-form-field-outline > legend {
   font-size: calc(
     var(--mat-form-field-outlined-label-text-populated-size) * var(--mat-mdc-form-field-floating-label-scale, 0.75)
   );
-  color: var(--mdc-outlined-text-field-label-text-color);
-  font-family: var(--mdc-outlined-text-field-label-text-font);
-  font-weight: var(--mdc-outlined-text-field-label-text-weight);
-  letter-spacing: var(--mdc-outlined-text-field-label-text-tracking);
+  color: var(--mat-form-field-outlined-label-text-color);
+  font-family: var(--mat-form-field-outlined-label-text-font);
+  font-weight: var(--mat-form-field-outlined-label-text-weight);
+  letter-spacing: var(--mat-form-field-outlined-label-text-tracking);
   white-space: nowrap;
+}
+fieldset.like-mat-form-field-outline:hover > legend {
+  color: var(--mat-form-field-outlined-hover-label-text-color);
+}
+fieldset.like-mat-form-field-outline:focus-within > legend {
+  color: var(--mat-form-field-outlined-focus-label-text-color);
 }
 
 .ol-scale-bar.scale-print {
@@ -171,19 +218,16 @@ fieldset.like-mat-form-field-outline > legend {
 .addr-geo {
   cursor: pointer;
   text-wrap: nowrap;
+  display: inline-block;
+  text-decoration: underline;
 
   &.edit-active {
     width: 300px;
-    display: inline-block;
 
     .addr-show,
     .addr-edit {
       display: none;
     }
-  }
-
-  &.addr-search {
-    color: orange;
   }
 
   .material-icons {
@@ -207,33 +251,39 @@ fieldset.like-mat-form-field-outline > legend {
   }
 
   .addr-edit {
-    -webkit-mask: url(/assets/fonts/material_edit.svg) no-repeat center;
-    mask: url(/assets/fonts/material_edit.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_edit.svg) no-repeat center;
+    mask: url(/assets/img/material_edit.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
   }
 
   .addr-show {
-    -webkit-mask: url(/assets/fonts/material_place.svg) no-repeat center;
-    mask: url(/assets/fonts/material_place.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_place.svg) no-repeat center;
+    mask: url(/assets/img/material_place.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
   }
 
   .addr-show.addr-unknown {
-    -webkit-mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
-    mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_search.svg) no-repeat center;
+    mask: url(/assets/img/material_search.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
+    margin-right: 4px;
   }
 }
 
-.addr-caret {
+.placeholder-blot {
   display: inline-block;
-  width: 300px;
+  vertical-align: middle;
+  background: transparent;
 }
 
-.addr-caret::after {
-  content: '\00A0';
-  visibility: hidden;
+
+.mat-mdc-card {
+  box-shadow: none !important;
+  border: 1px solid #dedede !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
 }
+

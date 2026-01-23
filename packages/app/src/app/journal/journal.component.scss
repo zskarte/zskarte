@@ -6,6 +6,7 @@
 
 .mat-sidenav-container {
   height: 100%;
+  background-color: #f1f1f1;
 }
 
 .journal-main {
@@ -17,7 +18,8 @@
   border-right-width: 1px;
   border-right-style: solid;
   position: sticky;
-  padding: 10px;
+  border-bottom: 1px solid #dedede;
+  padding: 1rem;
   background: white;
 }
 
@@ -25,9 +27,15 @@
   margin-bottom: 0;
 }
 
+.journal-header .notHistory {
+  color: red;
+  font-size: 1.25em;
+}
+
 .journal-sidebar {
   width: 50rem;
   max-width: 75%;
+  background-color: #f1f1f1;
 }
 
 .fab-button {
@@ -39,6 +47,9 @@
 .journal-content {
   padding-bottom: 100px;
   overflow-x: auto;
+  background-color: #fff;
+  border-radius: 1rem;
+  border: 1px solid #dedede;
 
   @media (max-width: 600px) {
     width: 100%;
@@ -46,25 +57,36 @@
   }
 }
 
-.journal-table-row {
-  cursor: pointer;
-
-  &:hover {
-    background-color: lightgray;
-  }
+.journal-filter-section {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background-color: #fff;
+  border: 1px solid #dedede;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .journal-filter {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: start;
+  align-items: start;
+  justify-content: space-between;
   gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+
+  @media (min-width: 1201px) {
+    justify-content: space-between;
+  }
 
   @media (max-width: 1200px) {
     flex-direction: column;
     gap: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0rem;
     align-items: start;
     justify-content: center;
   }
@@ -75,41 +97,102 @@
   flex-direction: row;
   gap: 0.5rem;
   align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 680px;
 
   @media (max-width: 600px) {
     flex-direction: column;
     gap: 0;
     align-items: start;
+    max-width: 100%;
     width: 100%;
   }
 }
 
 .journal-filter-search,
 .journal-filter-department {
-  width: 20rem;
-  margin-top: 22px;
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+}
 
-  @media (max-width: 1200px) {
-    width: 18rem;
-  }
+.journal-filter-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
 
   @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: start;
+    flex: 1 1 auto;
     width: 100%;
   }
 }
 
-.journal-filter-buttons {
+.journal-filter-buttons-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+
   @media (max-width: 600px) {
-    gap: 22px;
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  ::ng-deep mat-button-toggle-group {
+    display: inline-flex;
+    width: max-content;
+  }
+
+  ::ng-deep mat-button-toggle {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+    
+    app-badge {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+    }
+  }
+}
+
+.mdc-evolution-chip--selectable {
+  background-color: #fff;
+  border: 1px solid #dedede;
+}
+
+.journal-table-row {
+  cursor: pointer;
+
+  &:hover {
+    background-color: #dedede;
   }
 }
 
 tr.key-message {
-  background-color: #ffeeee;
+  background-color: #f5f5e7;
 }
 
 tr.journal-table-row.key-message:hover {
-  background-color: #d5c4c4;
+  background-color: #e4e4d4;
+}
+
+.drawn {
+  color: oklch(79.2% 0.209 151.711)
+}
+.drawn:hover {
+  color: oklch(62.7% 0.194 149.214)
 }
 
 .journal-header-content {
@@ -122,6 +205,7 @@ tr.journal-table-row.key-message:hover {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 

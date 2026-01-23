@@ -1,11 +1,13 @@
 import { Component, HostListener, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogContainer } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
 import { DEFAULT_DPI } from '../session/default-map-values';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from "../ui/dialog-layout";
+import { MatCard } from "@angular/material/card";
 
 export type ScaleType = { scale?: number; dpi?: number };
 
@@ -13,7 +15,7 @@ export type ScaleType = { scale?: number; dpi?: number };
   selector: 'app-scale-selection',
   templateUrl: './scale-selection.component.html',
   styleUrl: './scale-selection.component.scss',
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent, MatCard],
 })
 export class ScaleSelectionComponent {
   data = inject<ScaleType>(MAT_DIALOG_DATA);
@@ -65,7 +67,7 @@ export class ScaleSelectionComponent {
     this.dialogRef.close({ scale: this.scale, dpi: this.dpi });
   }
 
-  @HostListener('window:keyup.Enter', ['$event'])
+  @HostListener('window:keyup.Enter')
   onDialogClick(): void {
     this.ok();
   }

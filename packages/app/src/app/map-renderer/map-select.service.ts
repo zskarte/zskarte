@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { SimpleGeometry } from 'ol/geom';
 import { Select } from 'ol/interaction';
-import { BehaviorSubject } from 'rxjs';
-import { Observable } from 'rxjs';
-import { ZsMapDrawElementStateType } from '../../../../types';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ZsMapDrawElementStateType } from '@zskarte/types';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
@@ -60,7 +59,7 @@ export class MapSelectService {
     this._state.observeSelectedFeature$().subscribe((element) => {
       if (!element) {
         this._select.getFeatures().clear();
-      } else if (this._select.getFeatures().getLength() === 0){
+      } else if (this._select.getFeatures().getLength() === 0) {
         this._select.getFeatures().push(this._state.getDrawElement(element).getOlFeature());
       }
     });
@@ -94,7 +93,9 @@ export class MapSelectService {
             !this._state.isReadOnly() &&
             nextElement?.element?.elementState?.type === ZsMapDrawElementStateType.SYMBOL
           ) {
-            this._overlay.toggleEditButtons(true, true);
+            const allowDeleteAndRotation =
+              nextElement?.element?.elementState?.layer === this._state.getActiveLayer()?.getId();
+            this._overlay.toggleEditButtons(allowDeleteAndRotation, allowDeleteAndRotation, true);
           }
         }
       }

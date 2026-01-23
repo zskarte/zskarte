@@ -1,4 +1,8 @@
-mat-sidenav-container {
+:host {
+  --ui-spacing: 12px;
+}
+
+.floating-ui-container {
   position: fixed;
   top: 0;
   left: 0;
@@ -7,29 +11,24 @@ mat-sidenav-container {
   z-index: 10;
   background: none;
   pointer-events: none;
-}
-
-mat-sidenav-content {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: start;
 }
 
-mat-sidenav {
-  background: white;
-  width: 30rem;
-  max-width: 75%;
-  pointer-events: auto;
-}
-
 .action-buttons {
   display: flex;
   flex-direction: column;
-  align-items: end;
+  align-items: end; 
   justify-content: space-between;
   height: calc(100% - 2.5rem);
   margin: 1.25rem 1.25rem 1.25rem 0;
+  transition: transform 0.3s ease-in-out;
+
+  &.sidebar-open {
+    transform: translateX(calc(var(--sidebar-width) * -1));
+  }
 }
 
 .vertical-stack {
@@ -47,6 +46,15 @@ mat-sidenav {
   width: 80%;
   max-width: 400px;
   align-self: flex-start;
+  will-change: width;
+
+  &.sidebar-open {
+    width: calc(100% - 48px - var(--sidebar-width));
+
+    @media (max-width: 800px) {
+      display: none;
+    }
+  }
 }
 
 .limit {
@@ -105,11 +113,6 @@ app-fab-menu {
   margin-top: 1.25rem;
 }
 
-app-sidebar-menu {
-  display: flex;
-  flex-direction: column;
-}
-
 app-journal-draw-overlay {
   position: fixed;
   bottom: 5rem;
@@ -119,8 +122,18 @@ app-journal-draw-overlay {
 }
 
 app-coordinates {
+  position: absolute;
+  bottom: 1.25rem;
+  right: calc(1.25rem + 56px + var(--ui-spacing));
+  width: 287px;
+  z-index: 1;
   pointer-events: auto;
-  margin-right: 1.25rem;
+
+  @media (max-width: 650px) {
+    right: auto;
+    left: 1.25rem;
+    bottom: calc(1.25rem + 48px + var(--ui-spacing));
+  }
 }
 
 app-geocoder {
@@ -129,10 +142,6 @@ app-geocoder {
 }
 
 .main {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  justify-content: space-between;
   height: calc(100% - 2.5rem);
   width: 100%;
   margin: 1.25rem 0 1.25rem 1.25rem;
@@ -140,15 +149,6 @@ app-geocoder {
 }
 
 @media (max-width: 650px) {
-  .main {
-    align-items: start;
-  }
-
-  app-coordinates {
-    margin-right: 0;
-    margin-bottom: 3.25rem;
-  }
-
   app-journal-draw-overlay {
     bottom: 8.5rem;
     width: calc(100vw - 1.25rem - 80px);
@@ -156,72 +156,12 @@ app-geocoder {
 }
 
 @media (max-width: 800px) {
-  .sidebar-open {
+  .sidebar-open.search {
     display: none;
   }
-}
-
-.sidebar-header {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: 0.5rem 1rem 0.5rem 1rem;
-  box-shadow: -6px -11px 20px 3px;
-  background: white;
-  margin-bottom: 1rem;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center; /* Align items vertically */
-  justify-content: space-between; /* Ensure credits and button are spaced apart */
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: white;
-  padding: 0.5rem; /* Optional: Add some padding */
-  overflow: hidden; /* Prevent overflowing children */
-}
-
-.credits {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-}
-
-.credits img {
-  height: 46px;
-  width: auto;
-  margin-right: 1rem;
-  flex-shrink: 0;
-}
-
-.credits mat-icon {
-  margin-right: 1rem;
-  flex-shrink: 0;
-}
-
-.credits h1 {
-  flex: 1;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-button[mat-icon-button] {
-  flex-shrink: 0;
 }
 
 :host-context(.journal-address-preview) {
-  mat-sidenav {
-    display: none;
-  }
   app-journal-draw-overlay {
     display: none;
   }

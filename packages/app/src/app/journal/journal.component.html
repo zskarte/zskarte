@@ -8,13 +8,16 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <div class="journal-header mat-elevation-z3">
+    <div class="journal-header">
       <div class="journal-header-content">
         <h1>{{ i18n.get('journal') }}</h1>
+        @if(isHistoryMode() && !isCurrentMapData()) {
+          <div class="notHistory">{{ i18n.get('journalNotHistory') }}</div>
+        }
         <div class="buttons">
           @if (!isOnline()) {
             <mat-icon class="offline" [attr.aria-label]="i18n.get('youAreOffline')" [title]="i18n.get('youAreOffline')"
-              >offline_bolt</mat-icon
+              >signal_wifi_off</mat-icon
             >
           }
           <button
@@ -23,7 +26,7 @@
             [attr.aria-label]="i18n.get('customizePrintForm')"
             [title]="i18n.get('customizePrintForm')"
           >
-            <mat-icon>settings</mat-icon>
+            <mat-icon>print</mat-icon>
           </button>
           <button
             mat-icon-button
@@ -31,7 +34,7 @@
             [attr.aria-label]="i18n.get('saveAsExcel')"
             [title]="i18n.get('saveAsExcel')"
           >
-            <mat-icon>save</mat-icon>
+            <mat-icon>file_download</mat-icon>
           </button>
           <button
             mat-icon-button
@@ -42,45 +45,63 @@
           >
             <mat-icon>refresh</mat-icon>
           </button>
+          <button
+            mat-icon-button
+            (click)="sidebar.toggle(SidebarContext.Menu)"
+            [attr.aria-label]="i18n.get('docMapMenuTitle')"
+            [title]="i18n.get('docMapMenuTitle')"
+          >
+            <mat-icon>menu</mat-icon>
+          </button>
         </div>
       </div>
     </div>
     <div class="journal-main">
-      <div class="journal-filter">
-        <div class="journal-filter-row">
-          <mat-form-field class="journal-filter-search" appearance="outline">
-            <mat-label>{{ i18n.get('searchText') }}</mat-label>
-            <input matInput type="text" [formControl]="searchControl" />
-          </mat-form-field>
-          <mat-form-field class="journal-filter-department" appearance="outline">
-            <mat-label>{{ i18n.get('department') }}</mat-label>
-            <mat-select [formControl]="departmentControl">
-              <mat-option>{{ i18n.get('allDepartments') }}</mat-option>
-              @for (department of DepartmentValues; track $index) {
-                <mat-option [value]="department">{{ i18n.get(department) }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div class="journal-filter-row journal-filter-buttons">
-          <div class="journal-filter-buttons">
-            <mat-button-toggle-group hideSingleSelectionIndicator multiple>
-              <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
-                {{ i18n.get('triage') }}
-              </mat-button-toggle>
-              <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
-                {{ i18n.get('decision') }}
-              </mat-button-toggle>
-              <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
-                {{ i18n.get('output') }}
-              </mat-button-toggle>
-            </mat-button-toggle-group>
+      <div class="journal-filter-section">
+        <p><strong>{{ i18n.get('filters' )}}</strong></p>
+        <div class="journal-filter">
+          <div class="journal-filter-row">
+            <mat-form-field class="journal-filter-search" appearance="outline">
+              <mat-label>{{ i18n.get('searchText') }}</mat-label>
+              <input matInput type="text" [formControl]="searchControl" />
+            </mat-form-field>
+            <mat-form-field class="journal-filter-department" appearance="outline">
+              <mat-label>{{ i18n.get('department') }}</mat-label>
+              <mat-select [formControl]="departmentControl">
+                <mat-option>{{ i18n.get('allDepartments') }}</mat-option>
+                @for (department of DepartmentValues; track $index) {
+                  <mat-option [value]="department">{{ i18n.get(department) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
-          <mat-chip-listbox>
-            <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
-              {{ i18n.get('keyMessage') }}
-            </mat-chip-option>
-          </mat-chip-listbox>
+          <div class="journal-filter-buttons">
+            <div class="journal-filter-buttons-scroll">
+              <mat-button-toggle-group hideSingleSelectionIndicator multiple>
+                <mat-button-toggle [checked]="eingangFilter" (change)="toggleEingangFilter($event)">
+                  {{ i18n.get('input') }}
+                  <app-badge [count]="eingangCount()"></app-badge>
+                </mat-button-toggle>
+                <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+                  {{ i18n.get('triage') }}
+                  <app-badge [count]="triageCount()"></app-badge>
+                </mat-button-toggle>
+                <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+                  {{ i18n.get('decision') }}
+                  <app-badge [count]="decisionCount()"></app-badge>
+                </mat-button-toggle>
+                <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+                  {{ i18n.get('output') }}
+                  <app-badge [count]="outgoingCount()"></app-badge>
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+            <mat-chip-listbox class="journal-filter-chip">
+              <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
+                {{ i18n.get('keyMessage') }}
+              </mat-chip-option>
+            </mat-chip-listbox>
+          </div>
         </div>
       </div>
 
@@ -98,7 +119,7 @@
             {{ i18n.get('showCachedJournalEntries') }}
           </div>
         }
-        <table
+        <table class="journal-table"
           mat-table
           matSort
           [dataSource]="dataSourceFiltered"
@@ -117,14 +138,14 @@
                   class="localChange"
                   [attr.aria-label]="i18n.get('localOnlyJournal')"
                   [title]="i18n.get('localOnlyJournal')"
-                  >offline_bolt</mat-icon
+                  >signal_wifi_off</mat-icon
                 >
               } @else if (element.localPatch) {
                 <mat-icon
                   class="localChange"
                   [attr.aria-label]="i18n.get('localPatchJournal')"
                   [title]="i18n.get('localPatchJournal')"
-                  >offline_bolt</mat-icon
+                  >signal_wifi_off</mat-icon
                 >
               }
             </td>
@@ -140,7 +161,7 @@
             <td mat-cell *matCellDef="let element">
               <div
                 class="journal-table-message-cell"
-                [innerHTML]="element.messageContent | replaceAllAddressTokens"
+                [innerHTML]="element.messageContent | replaceAllAddressTokens : false"
               ></div>
             </td>
           </ng-container>
@@ -155,7 +176,7 @@
               {{ i18n.get('responsibility') }}
             </th>
             <td mat-cell *matCellDef="let element">
-              {{ getResponsibility(element) }}
+              {{ journal.getResponsibility(element) }}
             </td>
           </ng-container>
 
@@ -173,19 +194,23 @@
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="map">
+            <ng-container matColumnDef="map">
             <th mat-header-cell *matHeaderCellDef>{{ i18n.get('map') }}</th>
             <td mat-cell *matCellDef="let element">
               <button
-                mat-icon-button
-                [attr.aria-label]="i18n.get('showOnMap')"
-                [attr.title]="i18n.get('showOnMap')"
-                (click)="openMapClick($event, element)"
+              mat-icon-button
+              [attr.aria-label]="i18n.get('showOnMap')"
+              [attr.title]="i18n.get('showOnMap')"
+              (click)="openMapClick($event, element)"
               >
-                <mat-icon>map</mat-icon>
+              @if (element.isDrawnOnMap) {
+                <mat-icon>check</mat-icon>
+              } @else {
+                <mat-icon>question_mark</mat-icon>
+              }
               </button>
             </td>
-          </ng-container>
+            </ng-container>
 
           <ng-container matColumnDef="print">
             <th mat-header-cell *matHeaderCellDef>{{ i18n.get('print') }}</th>
@@ -213,6 +238,16 @@
             (click)="!openDisabled && selectEntry(row)"
           ></tr>
         </table>
+        <mat-paginator 
+          [length]="journal.paginationTotal()"
+          [pageSize]="journal.paginationPageSize()"
+          [pageIndex]="journal.paginationPage() - 1"
+          [pageSizeOptions]="[10, 25, 100]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons 
+          aria-label="Select page of journal entries"
+        >
+        </mat-paginator>
 
         @if (!isReadOnly()) {
           <div class="fab-button">

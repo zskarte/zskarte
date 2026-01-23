@@ -33,6 +33,10 @@ export interface AdminApiToken extends Struct.CollectionTypeSchema {
         minLength: 1;
       }> &
       Schema.Attribute.DefaultTo<''>;
+    encryptedKey: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        minLength: 1;
+      }>;
     expiresAt: Schema.Attribute.DateTime;
     lastUsedAt: Schema.Attribute.DateTime;
     lifespan: Schema.Attribute.BigInteger;
@@ -178,6 +182,49 @@ export interface AdminRole extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     users: Schema.Attribute.Relation<'manyToMany', 'admin::user'>;
+  };
+}
+
+export interface AdminSession extends Struct.CollectionTypeSchema {
+  collectionName: 'strapi_sessions';
+  info: {
+    description: 'Session Manager storage';
+    displayName: 'Session';
+    name: 'Session';
+    pluralName: 'sessions';
+    singularName: 'session';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+    i18n: {
+      localized: false;
+    };
+  };
+  attributes: {
+    absoluteExpiresAt: Schema.Attribute.DateTime & Schema.Attribute.Private;
+    childId: Schema.Attribute.String & Schema.Attribute.Private;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    deviceId: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Private;
+    expiresAt: Schema.Attribute.DateTime & Schema.Attribute.Required & Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'admin::session'> & Schema.Attribute.Private;
+    origin: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    sessionId: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Private & Schema.Attribute.Unique;
+    status: Schema.Attribute.String & Schema.Attribute.Private;
+    type: Schema.Attribute.String & Schema.Attribute.Private;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    userId: Schema.Attribute.String & Schema.Attribute.Required & Schema.Attribute.Private;
   };
 }
 
@@ -427,6 +474,47 @@ export interface ApiJournalEntryJournalEntry extends Struct.CollectionTypeSchema
   };
 }
 
+export interface ApiMapLayerGenerationConfigMapLayerGenerationConfig extends Struct.SingleTypeSchema {
+  collectionName: 'map_layer_generation_configs';
+  info: {
+    description: '';
+    displayName: 'Map Layer Generation Config';
+    pluralName: 'map-layer-generation-configs';
+    singularName: 'map-layer-generation-config';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    allwaysCreateDistrict: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    cantons: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    enabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    fields_swissNAMES3D: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'OBJEKTART,OBJEKTKLASSE_TLM,EINWOHNERKATEGORIE,NAME,E,N'>;
+    file_swissNAMES3D: Schema.Attribute.String & Schema.Attribute.DefaultTo<'swissNAMES3D_PLY'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::map-layer-generation-config.map-layer-generation-config'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    style_entrances: Schema.Attribute.Media<'files'>;
+    style_swissBOUNDARIES3D: Schema.Attribute.Media<'files'>;
+    style_swissNAMES3D: Schema.Attribute.Media<'files'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    url_madd: Schema.Attribute.String & Schema.Attribute.DefaultTo<'https://public.madd.bfs.admin.ch/${canton}.zip'>;
+    url_swissBOUNDARIES3D: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_${year}-${month}/swissboundaries3d_${year}-${month}_2056_5728.shp.zip'>;
+    url_swissNAMES3D: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://data.geo.admin.ch/ch.swisstopo.swissnames3d/swissnames3d_${year}/swissnames3d_${year}_2056.csv.zip'>;
+  };
+}
+
 export interface ApiMapLayerMapLayer extends Struct.CollectionTypeSchema {
   collectionName: 'map_layers';
   info: {
@@ -445,12 +533,13 @@ export interface ApiMapLayerMapLayer extends Struct.CollectionTypeSchema {
     label: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::map-layer.map-layer'> & Schema.Attribute.Private;
+    media_source: Schema.Attribute.Media<'files'>;
     options: Schema.Attribute.JSON;
     organization: Schema.Attribute.Relation<'oneToOne', 'api::organization.organization'>;
     public: Schema.Attribute.Boolean;
     publishedAt: Schema.Attribute.DateTime;
     serverLayerName: Schema.Attribute.Text;
-    type: Schema.Attribute.Enumeration<['wms', 'wms_custom', 'wmts', 'aggregate', 'geojson', 'csv']>;
+    type: Schema.Attribute.Enumeration<['wms', 'wms_custom', 'wmts', 'aggregate', 'geojson', 'shape', 'csv']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     wms_source: Schema.Attribute.Relation<'manyToOne', 'api::wms-source.wms-source'>;
@@ -541,6 +630,7 @@ export interface ApiOrganizationOrganization extends Struct.CollectionTypeSchema
     name: Schema.Attribute.String & Schema.Attribute.Required;
     operations: Schema.Attribute.Relation<'oneToMany', 'api::operation.operation'>;
     publishedAt: Schema.Attribute.DateTime;
+    settings: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     url: Schema.Attribute.String;
@@ -782,8 +872,8 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
     };
   };
   attributes: {
-    alternativeText: Schema.Attribute.String;
-    caption: Schema.Attribute.String;
+    alternativeText: Schema.Attribute.Text;
+    caption: Schema.Attribute.Text;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     ext: Schema.Attribute.String;
@@ -801,7 +891,7 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'plugin::upload.file'> & Schema.Attribute.Private;
     mime: Schema.Attribute.String & Schema.Attribute.Required;
     name: Schema.Attribute.String & Schema.Attribute.Required;
-    previewUrl: Schema.Attribute.String;
+    previewUrl: Schema.Attribute.Text;
     provider: Schema.Attribute.String & Schema.Attribute.Required;
     provider_metadata: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
@@ -809,7 +899,7 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
     size: Schema.Attribute.Decimal & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
-    url: Schema.Attribute.String & Schema.Attribute.Required;
+    url: Schema.Attribute.Text & Schema.Attribute.Required;
     width: Schema.Attribute.Integer;
   };
 }
@@ -985,11 +1075,13 @@ declare module '@strapi/strapi' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::permission': AdminPermission;
       'admin::role': AdminRole;
+      'admin::session': AdminSession;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::access.access': ApiAccessAccess;
       'api::journal-entry.journal-entry': ApiJournalEntryJournalEntry;
+      'api::map-layer-generation-config.map-layer-generation-config': ApiMapLayerGenerationConfigMapLayerGenerationConfig;
       'api::map-layer.map-layer': ApiMapLayerMapLayer;
       'api::map-snapshot.map-snapshot': ApiMapSnapshotMapSnapshot;
       'api::operation.operation': ApiOperationOperation;

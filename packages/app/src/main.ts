@@ -5,6 +5,7 @@ import {
   importProvidersFrom,
   provideAppInitializer,
   inject,
+  provideZoneChangeDetection,
 } from '@angular/core';
 import { enablePatches } from 'immer';
 import { appFactory } from './app/app-factory';
@@ -121,5 +122,6 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations(),
     provideRouter(appRoutes),
+    provideZoneChangeDetection(),
   ],
 }).catch((err) => console.error(err));

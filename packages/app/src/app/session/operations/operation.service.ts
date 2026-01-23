@@ -6,16 +6,19 @@ import {
   ZsMapState,
   ZsMapLayerStateType,
   ZsOperationPhase,
+  ZsMapStateSource,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiService, IApiRequestOptions } from '../../api/api.service';
-import { OperationExportFileVersion } from '../../core/entity/operationExportFile';
+import { OperationExportFile, OperationExportFileVersion } from '../../core/entity/operationExportFile';
 import { db } from '../../db/db';
 import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
+import { JournalService } from 'src/app/journal/journal.service';
+import { JournalEntry } from 'src/app/journal/journal.types';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +26,6 @@ import { SessionService } from '../session.service';
 export class OperationService {
   private _api = inject(ApiService);
   _ipc = inject(IpcService);
-  private _dialog = inject(MatDialog);
 
   private _session!: SessionService;
   public operations = new BehaviorSubject<IZsMapOperation[]>([]);
@@ -84,7 +86,7 @@ export class OperationService {
     this.operationToEdit.next(undefined);
   }
 
-  public async insertOperation(operation: IZsMapOperation): Promise<void> {
+  public async insertOperation(operation: IZsMapOperation): Promise<IZsMapOperation | undefined> {
     if (!operation.mapState) {
       operation.mapState = this.createMapstate();
     }
@@ -97,11 +99,15 @@ export class OperationService {
       operation.id = minId - 1;
       operation.documentId = 'local' + operation.id;
       await db.localOperation.add(operation);
-    } else {
-      await this._api.post('/api/operations', {
-        data: { ...operation, organization: this._session.getOrganization()?.documentId },
-      });
+      return operation;
+    } 
+    const { error, result } = await this._api.post<IZsMapOperation>('/api/operations', {
+      data: { ...operation, organization: this._session.getOrganization()?.documentId },
+    });
+    if (!error && result) {
+        return result;
     }
+    return undefined;
   }
 
   public async updateMeta(operation: IZsMapOperation): Promise<void> {
@@ -170,7 +176,7 @@ export class OperationService {
   }
 
   public async updateMapLayers(operationId: string, data: IZSMapOperationMapLayers) {
-    if (parseInt(operationId) < 0) {
+    if (operationId.startsWith('local')) {
       const operation = this._session.getOperation();
       if (operation) {
         operation.mapLayers = data;
@@ -189,25 +195,19 @@ export class OperationService {
     }
   }
 
-  public importOperation(): void {
-    const importDialog = this._dialog.open(ImportDialogComponent);
-    importDialog.afterClosed().subscribe(async (result) => {
-      if (result) {
-        // Prior to V2 the "map" key was used to store the map state.
-        // To keep consistent with our internal naming, use "mapState" from V2 on
-        const mapState = result.version === OperationExportFileVersion.V2 ? result.mapState : result.map;
-        const operation: IZsMapOperation = {
-          name: result.name,
-          description: result.description,
-          phase: 'active',
-          eventStates: result.eventStates,
-          mapState,
-          mapLayers: result.mapLayers,
-        };
-        await this.insertOperation(operation);
-        await this.reload('active');
-      }
-    });
+  public async importOperation(result: OperationExportFile) {
+    const mapState = result.version === OperationExportFileVersion.V2 ? result.mapState : (result as any).map;
+    const operation: IZsMapOperation = {
+      name: result.name,
+      description: result.description,
+      phase: 'active',
+      eventStates: result.eventStates,
+      mapState,
+      mapLayers: result.mapLayers,
+    };
+    const createdOperation = await this.insertOperation(operation);
+    await this.reload('active');
+    return createdOperation;
   }
 
   public async exportOperation(operationId: string | undefined): Promise<void> {
@@ -216,13 +216,15 @@ export class OperationService {
     }
     const fileName = `Ereignis_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const operation = await this.getOperation(operationId);
-    const saveFile = {
-      name: operation?.name,
-      description: operation?.description,
+    const journal = await JournalService.getJournal(operationId);
+    const saveFile: OperationExportFile = {
+      name: operation?.name ?? '',
+      description: operation?.description ?? '',
       version: OperationExportFileVersion.V2,
-      mapState: operation?.mapState,
-      eventStates: operation?.eventStates,
-      mapLayers: operation?.mapLayers,
+      mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
+      eventStates: operation?.eventStates ?? [],
+      mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },
+      journal: journal ?? [],
     };
     await this._ipc.saveFile({
       data: JSON.stringify(saveFile),

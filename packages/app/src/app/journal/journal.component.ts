@@ -1,5 +1,15 @@
-import { ChangeDetectorRef, Component, DestroyRef, HostListener, computed, effect, inject, signal, viewChild } from '@angular/core';
-import { MatTableModule } from '@angular/material/table';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  HostListener,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,33 +24,40 @@ import { DepartmentValues, JournalEntry, JournalEntryStatus } from './journal.ty
 import Fuse from 'fuse.js';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { AfterViewInit } from '@angular/core';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
+import { JournalEntryCreateModalComponent } from './journal-entry-create-modal/journal-entry-create-modal.component';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
-import { IZsJournalFilter } from '../../../../types/state/interfaces';
+import { IZsJournalFilter } from '@zskarte/types';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
+import { ReplaceAllAddressTokensPipe } from '../search/replace-all-address-tokens.pipe';
 import { SearchService } from '../search/search.service';
+import { BadgeComponent } from '../badge/badge.component';
+import { SidebarService } from '../sidebar/sidebar.service';
+import { SidebarContext } from '../sidebar/sidebar.interfaces';
 
 @Component({
   selector: 'app-journal',
+  standalone: true,
   imports: [
     MatTableModule,
     MatIconModule,
     MatSidenavModule,
     MatButtonModule,
     MatSortModule,
+    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
@@ -51,7 +68,8 @@ import { SearchService } from '../search/search.service';
     CommonModule,
     JournalFormComponent,
     NgComponentOutlet,
-    ReplaceAllAddressTokensPipe
+    ReplaceAllAddressTokensPipe,
+  BadgeComponent
 ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -61,6 +79,7 @@ export class JournalComponent implements AfterViewInit {
   journalFormComponent = viewChild.required(JournalFormComponent);
   i18n = inject(I18NService);
   journal = inject(JournalService);
+  sidebar = inject(SidebarService);
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   private _router = inject(Router);
@@ -69,8 +88,12 @@ export class JournalComponent implements AfterViewInit {
   private _snackBar = inject(MatSnackBar);
   private _search = inject(SearchService);
   private _destroyRef = inject(DestroyRef);
+
+  SidebarContext = SidebarContext;
   readonly isOnline = toSignal(this._session.observeIsOnline());
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
+  readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
+  readonly isCurrentMapData = toSignal(this._state.observeIsCurrentMapData());
 
   DepartmentValues = DepartmentValues;
   JournalEntryStatus = JournalEntryStatus;
@@ -89,12 +112,28 @@ export class JournalComponent implements AfterViewInit {
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
   sort = viewChild.required(MatSort);
+
+  // Computed counts for each filter
+  eingangCount = computed(() =>
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE).length
+  );
+  triageCount = computed(() =>
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE).length
+  );
+  decisionCount = computed(() =>
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_DECISION).length
+  );
+  outgoingCount = computed(() =>
+    (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION).length
+  );
   searchControl = new FormControl('');
   departmentControl = new FormControl('');
+  paginator = viewChild.required(MatPaginator);
   triageFilter = false;
   keyMessageFilter = false;
   outgoingFilter = false;
   decisionFilter = false;
+  eingangFilter = false;
   private fuse: Fuse<JournalEntry> = new Fuse([], {
     includeScore: true,
     keys: ['messageSubject', 'messageContent', 'decision'],
@@ -115,9 +154,10 @@ export class JournalComponent implements AfterViewInit {
     defaultTemplate: this.messagePdfDefaultTemplate(),
     templateName: this.i18n.get('journalEntryTemplate'),
   }));
+  private cd = inject(ChangeDetectorRef);
   componentOutlet = viewChild.required(NgComponentOutlet);
 
-  constructor(private cd: ChangeDetectorRef) {
+  constructor() {
     this.initializeSearch();
     this.initializeDepartmentFilter();
 
@@ -145,7 +185,7 @@ export class JournalComponent implements AfterViewInit {
           return;
         }
 
-        if ((this.triageFilter || this.outgoingFilter || this.decisionFilter) && !this.filterByState(entry)) {
+        if ((this.triageFilter || this.outgoingFilter || this.decisionFilter || this.eingangFilter) && !this.filterByState(entry)) {
           return;
         }
 
@@ -189,11 +229,19 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort();
-    //define special field/value to do the sort
+    // define special field/value to do the sort
+
+    // yes it is a little bit hacky, and the official solution is different but it works for now.
+    this.paginator()._intl.itemsPerPageLabel = this.i18n.get('paginationItemsPerPage');
+    this.paginator()._intl.previousPageLabel = this.i18n.get('paginationPrevPage');
+    this.paginator()._intl.nextPageLabel = this.i18n.get('paginationNextPage');
+    this.paginator()._intl.firstPageLabel = this.i18n.get('paginationFirstPage');
+    this.paginator()._intl.lastPageLabel = this.i18n.get('paginationLastPage');
+
     this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'entryResponsibility':
-          return this.getResponsibility(item);
+          return this.journal.getResponsibility(item);
         case 'entryStatus':
           return Object.values(JournalEntryStatus).indexOf(item[property]);
         default:
@@ -214,22 +262,32 @@ export class JournalComponent implements AfterViewInit {
       }
     };
 
-    this._state.observeJournalSort().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((sortConf) => {
-      if (this.dataSourceFiltered?.sort) {
-        this.sort().sortChange.emit(sortConf);
-        this.dataSourceFiltered.sort.active = sortConf.active;
-        this.dataSourceFiltered.sort.direction = sortConf.direction;
-      }
-    });
+    this._state
+      .observeJournalSort()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((sortConf) => {
+        if (this.dataSourceFiltered?.sort) {
+          this.sort().sortChange.emit(sortConf);
+          this.dataSourceFiltered.sort.active = sortConf.active;
+          this.dataSourceFiltered.sort.direction = sortConf.direction;
+          // Apply persisted sort to server-side sorting
+          if (sortConf.active && sortConf.direction) {
+            this.journal.setSort(sortConf.active, sortConf.direction as 'asc' | 'desc');
+          }
+        }
+      });
 
-    this._state.observeJournalFilter().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((filter) => {
-      this.departmentControl.setValue(filter.department);
-      this.triageFilter = filter.triageFilter;
-      this.outgoingFilter = filter.outgoingFilter;
-      this.decisionFilter = filter.decisionFilter;
-      this.keyMessageFilter = filter.keyMessageFilter;
-      this.filterEntries(this.searchControl.value, filter.department);
-    });
+    this._state
+      .observeJournalFilter()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((filter) => {
+        this.departmentControl.setValue(filter.department);
+        this.triageFilter = filter.triageFilter;
+        this.outgoingFilter = filter.outgoingFilter;
+        this.decisionFilter = filter.decisionFilter;
+        this.keyMessageFilter = filter.keyMessageFilter;
+        this.eingangFilter = filter.eingangFilter;this.filterEntries(this.searchControl.value, filter.department);
+      });
   }
 
   private initializeSearch() {
@@ -264,16 +322,20 @@ export class JournalComponent implements AfterViewInit {
     this.filterEntries(this.searchControl.value, this.departmentControl.value);
   }
 
+  toggleEingangFilter(event: any) {
+    this.eingangFilter = event.source.checked;
+    this.filterEntries(this.searchControl.value, this.departmentControl.value);
+  }
+
   private _debouncedPersistFilter = debounce((filter: IZsJournalFilter) => {
     this._state.setJournalFilter(filter);
   }, 5000);
 
   private filterByState(entry: JournalEntry) {
     return (
+      (this.eingangFilter && entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE) ||
       (this.triageFilter && entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE) ||
-      (this.outgoingFilter &&
-        (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
-          entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE)) ||
+      (this.outgoingFilter && entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION) ||
       (this.decisionFilter && entry.entryStatus === JournalEntryStatus.AWAITING_DECISION)
     );
   }
@@ -290,14 +352,14 @@ export class JournalComponent implements AfterViewInit {
           (item) =>
             (!department || item.department === department) &&
             (!this.keyMessageFilter || item.isKeyMessage) &&
-            (!(this.triageFilter || this.outgoingFilter || this.decisionFilter) || this.filterByState(item)),
+            (!(this.triageFilter || this.outgoingFilter || this.decisionFilter || this.eingangFilter) || this.filterByState(item)),
         );
     } else {
       if (department) {
         filtered = filtered.filter((entry) => entry.department === department);
       }
 
-      if (this.triageFilter || this.outgoingFilter || this.decisionFilter) {
+      if (this.triageFilter || this.outgoingFilter || this.decisionFilter || this.eingangFilter) {
         filtered = filtered.filter((entry) => this.filterByState(entry));
       }
 
@@ -312,6 +374,7 @@ export class JournalComponent implements AfterViewInit {
       outgoingFilter: this.outgoingFilter,
       decisionFilter: this.decisionFilter,
       keyMessageFilter: this.keyMessageFilter,
+      eingangFilter: this.eingangFilter,
     });
 
     this.dataSourceFiltered.data = filtered;
@@ -320,17 +383,6 @@ export class JournalComponent implements AfterViewInit {
 
   trackByFn(index: number, row: any): string {
     return row.uuid || row.documentId;
-  }
-
-  getResponsibility(entry: JournalEntry) {
-    switch (entry.entryStatus) {
-      case JournalEntryStatus.AWAITING_MESSAGE:
-        return entry.visumMessage;
-      case JournalEntryStatus.AWAITING_DECISION:
-        return this.i18n.get(entry.department ?? 'allDepartments');
-      default:
-        return this.i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
-    }
   }
 
   close() {
@@ -349,7 +401,10 @@ export class JournalComponent implements AfterViewInit {
     if (button) {
       button.disabled = true;
     }
-    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent, false)});
+    await this.journal.print({
+      ...entry,
+      messageContent: this._search.removeAllAddressTokens(entry.messageContent, false),
+    });
     setTimeout(() => {
       if (button) {
         button.disabled = false;
@@ -367,13 +422,32 @@ export class JournalComponent implements AfterViewInit {
     }
 
     this._debouncedPersistSort(sort);
-    //the sort logic itself is done by mat-sort, no need for own logic
+    // Trigger server-side sorting
+    this.journal.setSort(sort.active, sort.direction as 'asc' | 'desc');
+  }
+
+  onPageChange(event: PageEvent) {
+    // PageEvent uses 0-based pageIndex, API uses 1-based page
+    this.journal.setPage(event.pageIndex + 1);
+    if (event.pageSize !== this.journal.paginationPageSize()) {
+      this.journal.setPageSize(event.pageSize);
+    }
   }
 
   async selectEntry(entry: JournalEntry) {
     if (!this.sidebarOpen || !this.openDisabled) {
-      this.selectedJournalEntry.set(entry);
-      this.sidebarOpen = true;
+      if (entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
+        this.close();
+        this.openJournalAddDialog(entry);
+      } else {
+        firstValueFrom(this.sidebar.observeContext()).then((context) => {
+          if (context === SidebarContext.Menu) {
+            this.sidebar.close();
+          }
+        });
+        this.selectedJournalEntry.set(entry);
+        this.sidebarOpen = true;
+      }
     }
   }
 
@@ -394,11 +468,13 @@ export class JournalComponent implements AfterViewInit {
     }
   }
 
-  openJournalAddDialog() {
+  openJournalAddDialog(entry?: JournalEntry) {
     if (!this.sidebarOpen || !this.openDisabled) {
-      this.selectedJournalEntry.set(null);
-      this.journalFormComponent().addNew();
-      this.sidebarOpen = true;
+      this._dialog.open(JournalEntryCreateModalComponent, {
+        width: '800px',
+        maxWidth: '800px',
+        data: entry ? { entry } : undefined,
+      });
     }
   }
 
@@ -422,6 +498,11 @@ export class JournalComponent implements AfterViewInit {
           if ('save' in instance) {
             instance.save.subscribe((newTemplate: object | null) => {
               this.updateMessagePdfTemplate(newTemplate);
+            });
+          }
+          if ('print' in instance) {
+            instance.print.subscribe(() => {
+              this.journal.print({} as JournalEntry);
             });
           }
         }
@@ -462,7 +543,8 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async export() {
-    await this.journal.exportAsExcel(this.journal.data());
+    const allEntries = await this.journal.fetchAllEntries();
+    await this.journal.exportAsExcel(allEntries);
   }
 }
 

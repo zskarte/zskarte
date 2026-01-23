@@ -9,18 +9,22 @@ mat-form-field {
 .hint-box {
   display: flex;
   align-items: center;
+  padding: 4px 0;
 
   .hint {
     white-space: pre-line;
     flex-grow: 1;
-    margin: 5px 0;
+    padding: 4px 0;
     color: darkgray;
     line-height: 1.1em;
   }
+}
 
-  mat-icon.settings.active {
-    color: #3f51b5;
-  }
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 6px 0 10px;
+  flex-wrap: wrap;
 }
 
 .textContent:read-only {
@@ -32,6 +36,8 @@ mat-form-field {
 .addresSearch {
   display: flex;
   padding: 5px 0;
+  align-items: flex-start;
+  flex-wrap: wrap;
 
   .title {
     margin-right: 10px;
@@ -43,49 +49,32 @@ mat-form-field {
     flex-grow: 1;
     box-sizing: border-box;
   }
+
+  .search-hint {
+    width: 100%;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #6b6b6b;
+  }
+
+  .search-hint-esc {
+    margin-left: 0;
+    color: #8a8a8a;
+  }
 }
 
 .spacer {
   margin-bottom: 1.5em;
 }
 
-.overlay-container {
-  position: relative;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 1rem;
-  padding: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.overlay-arrow-top {
-  position: absolute;
-  top: -10px;
-  right: 1rem;
-}
-
-.arrow-shape-top {
-  fill: white;
-  stroke: #ccc;
-  stroke-width: 1;
-  stroke-dasharray: 15, 20; /* removes bottom line */
-}
-
-.overlay-content {
-  mat-icon {
-    vertical-align: middle;
-  }
-
-  button {
-    margin-top: 5px;
-  }
-}
-
 .linkedText {
   &.addresSearch {
     display: block;
     position: absolute;
-    padding: 0;
+    padding: 2px 4px;
+    border-radius: 6px;
+    transition: background-color 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    z-index: 2;
 
     .title {
       display: none;
@@ -100,6 +89,12 @@ mat-form-field {
 
     input:focus {
       outline: none;
+    }
+
+    &.empty {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
   }
 }

@@ -1,8 +1,6 @@
 import { Injectable, Signal, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { Overlay } from 'ol';
-import OlMap from 'ol/Map';
-import OlView from 'ol/View';
 import { combineLatest, filter, map as rxjsMap, switchMap } from 'rxjs';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';
@@ -93,10 +91,10 @@ export class MapOverlayService {
     return { overlay: this._rotateButton, offset: this._rotateButtonOffset };
   }
 
-  toggleEditButtons(show: boolean, allowRotation = false) {
-    this.toggleButton(show, this._removeButton?.getElement());
+  toggleEditButtons(allowDelete: boolean, allowRotation = false, allowCopy = allowRotation) {
+    this.toggleButton(allowDelete, this._removeButton?.getElement());
     this.toggleButton(allowRotation, this._rotateButton?.getElement());
-    this.toggleButton(allowRotation, this._copyButton?.getElement());
+    this.toggleButton(allowCopy, this._copyButton?.getElement());
   }
 
   toggleFlagButtons(show: boolean) {

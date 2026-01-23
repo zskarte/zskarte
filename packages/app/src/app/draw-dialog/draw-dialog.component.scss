@@ -1,12 +1,53 @@
-.container {
-  padding: 1rem;
+.filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex-grow: 1;
+}
 
-  .no-symbol-buttons {
-    display: flex;
-    flex-direction: row;
+.flexGrow {
+  flex-grow: 1;
+}
 
-    button {
-      margin-right: 1rem;
-    }
+.categoryDot {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.row {
+  cursor: pointer;
+}
+
+.mat-column-symbol {
+  width: 32px;
+  padding-right: 24px;
+  text-align: center;
+}
+
+.mat-mdc-table .mat-mdc-row:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.overflow-auto {
+  overflow-x: auto;
+}
+
+.no-symbol-buttons {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+
+  button {
+    margin-right: 1rem;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .filter {
+    flex-direction: column;
   }
 }

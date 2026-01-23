@@ -30,9 +30,6 @@ export abstract class ZsMapBaseLayer {
   });
   protected _olLayer: VectorLayer<VectorSource> = new VectorLayer({
     source: this._clusterSource,
-    style: (feature: FeatureLike, resolution: number) => {
-      return DrawStyle.styleFunction(feature, resolution);
-    },
   });
 
   constructor(
@@ -65,10 +62,19 @@ export abstract class ZsMapBaseLayer {
         this._olLayer.setOpacity(opacity);
       });
 
+    this._state
+      .observeShowNames()
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((showNames) => {
+        this._olLayer.setStyle((feature: FeatureLike, resolution: number) => {
+          return DrawStyle.styleFunction(feature, resolution, showNames);
+        });
+      });
+
     combineLatest([this.observeMapZoom(), this._state.observeEnableClustering()]).subscribe(
       ([mapZoom, enableClustering]) => {
-        // don't show clustering if zoomed in more than 14
-        const shouldCluster = enableClustering && mapZoom < 14;
+        // don't show clustering if zoomed in more than 12
+        const shouldCluster = enableClustering && mapZoom < 12;
         this._olLayer.setSource(shouldCluster ? this._clusterSource : this._olSource);
       },
     );
@@ -83,6 +89,9 @@ export abstract class ZsMapBaseLayer {
   }
 
   public addOlFeature(feature: Feature): void {
+    if (this._olSource.hasFeature(feature)) {
+      return;
+    }
     this._olSource.addFeature(feature);
   }
 

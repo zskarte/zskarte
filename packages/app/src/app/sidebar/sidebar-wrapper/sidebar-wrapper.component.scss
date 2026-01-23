@@ -1,0 +1,88 @@
+.sidebar {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  width: var(--sidebar-width);
+  background: white;
+  z-index: 100;
+  border: 1px solid var(--mat-sidenav-container-divider-color);
+  transform: translateX(calc(100% + 0.5rem));
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1rem;
+  overflow: hidden;
+  
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  padding: 1rem;
+  border-bottom: 1px solid #dedede;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.credits {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.credits img {
+  height: 46px;
+  width: auto;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.credits mat-icon {
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.credits h1 {
+  flex: 1;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+app-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+app-sidebar-print {
+  background-color: #f1f1f1;
+  display: block; 
+  height: calc(100% - 1rem);
+  padding-top: 1rem;
+}
+
+:host-context(.journal-address-preview) {
+  .sidebar {
+    display: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, computed, ViewChild } from '@angular/core';
 import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
@@ -7,7 +7,6 @@ import { SyncService } from '../sync/sync.service';
 import { SessionService } from '../session/session.service';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { HelpComponent } from '../help/help.component';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { ScaleSelectionComponent } from '../scale-selection/scale-selection.component';
@@ -17,14 +16,6 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatBadge } from '@angular/material/badge';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { SidebarComponent } from '../sidebar/sidebar/sidebar.component';
-import { SidebarHistoryComponent } from '../sidebar/sidebar-history/sidebar-history.component';
-import { SidebarConnectionsComponent } from '../sidebar/sidebar-connections/sidebar-connections.component';
-import { SidebarMenuComponent } from '../sidebar/sidebar-menu/sidebar-menu.component';
-import { SidebarPrintComponent } from '../sidebar/sidebar-print/sidebar-print.component';
-import { SidebarJournalComponent } from '../sidebar/sidebar-journal/sidebar-journal.component';
-import { SelectedFeatureComponent } from '../selected-feature/selected-feature.component';
 import { GeocoderComponent } from '../geocoder/geocoder.component';
 import { CoordinatesComponent } from '../coordinates/coordinates.component';
 import { ZsMapStateSource } from '@zskarte/types';
@@ -33,6 +24,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-draw-overlay.component';
 import { SearchService } from '../search/search.service';
+import { CompassButtonComponent } from '../compass-button/compass-button.component';
+import { JournalService } from '../journal/journal.service';
 
 @Component({
   selector: 'app-floating-ui',
@@ -44,21 +37,15 @@ import { SearchService } from '../search/search.service';
     MatButtonModule,
     MatDivider,
     MatBadge,
-    MatSidenavModule,
-    SidebarComponent,
-    SidebarHistoryComponent,
-    SidebarConnectionsComponent,
-    SidebarMenuComponent,
-    SidebarPrintComponent,
-    SidebarJournalComponent,
-    SelectedFeatureComponent,
     GeocoderComponent,
     CoordinatesComponent,
     JournalDrawOverlayComponent,
     CommonModule,
+    CompassButtonComponent,
   ],
 })
 export class FloatingUIComponent {
+  @ViewChild(GeocoderComponent) geocoder!: GeocoderComponent;
   MAX_DRAW_ELEMENTS_GUEST = MAX_DRAW_ELEMENTS_GUEST;
   i18n = inject(I18NService);
   state = inject(ZsMapStateService);
@@ -66,12 +53,11 @@ export class FloatingUIComponent {
   private _session = inject(SessionService);
   private _dialog = inject(MatDialog);
   private _search = inject(SearchService);
+  private _journal = inject(JournalService);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
   snackbar = inject(MatSnackBar);
   mapState = inject(ZsMapStateService);
-
-  static ONBOARDING_VERSION = '1.0';
 
   SidebarContext = SidebarContext;
 
@@ -84,53 +70,14 @@ export class FloatingUIComponent {
   public canRedo = new BehaviorSubject<boolean>(false);
   public printView = false;
   public canWorkOffline = new BehaviorSubject<boolean>(false);
-  public showLogo = true;
-  public sidebarTitle = '';
-  public logo = '';
   public localOperation = false;
+  public todoCount = computed(() => {
+    const journalList = this._journal.data();
+    return (journalList || []).filter((entry) => !entry.isDrawnOnMap).length;
+  });
 
   constructor() {
-    if (this.isInitialLaunch()) {
-      this._dialog.open(HelpComponent, {
-        data: true,
-      });
-    }
-    this.logo = this.session.getLogo() ?? '';
     this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
-    this.sidebar.observeContext()
-    .pipe(takeUntil(this._ngUnsubscribe))
-    .subscribe(sidebarContext => {
-      switch (sidebarContext) {
-        case SidebarContext.Layers:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('view');
-          break;
-        case SidebarContext.History:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('history');
-          break;
-        case SidebarContext.Connections:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('connections');
-          break;
-        case SidebarContext.Print:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('print');
-          break;
-        case SidebarContext.SelectedFeature:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('selectedFeature');
-          break;
-        case SidebarContext.Journal:
-          this.showLogo = false;
-          this.sidebarTitle = this.i18n.get('journal');
-          break;
-        default:
-          this.showLogo = true;
-          this.sidebarTitle = this.session.getOperationName() ?? ''  
-          break;
-      }
-    });
 
     this.state
       .observeHistory()
@@ -161,7 +108,7 @@ export class FloatingUIComponent {
         .subscribe(async (displayState) => {
           if (displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE) {
             //using local map
-            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
+            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
               //all used layer are offlineAvailable
               if (displayState.source === ZsMapStateSource.LOCAL) {
                 const localMapInfo = await db.localMapInfo.get(displayState.source);
@@ -192,16 +139,6 @@ export class FloatingUIComponent {
       .subscribe((printState) => {
         this.printView = printState.printView;
       });
-  }
-
-  // skipcq:  JS-0105
-  isInitialLaunch(): boolean {
-    const currentOnboardingVersion = localStorage.getItem('onboardingVersion');
-    if (currentOnboardingVersion !== FloatingUIComponent.ONBOARDING_VERSION) {
-      localStorage.setItem('onboardingVersion', FloatingUIComponent.ONBOARDING_VERSION);
-      return true;
-    }
-    return false;
   }
 
   zoomIn() {
@@ -260,13 +197,15 @@ export class FloatingUIComponent {
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(event: KeyboardEvent): void {
+  closeSidebareOnEsc(event: Event): void {
     if (this.state.getActiveView() !== 'map') {
       return;
     }
     if (this._dialog.openDialogs.length === 0) {
-      if (!this._search.handleEsc(event)) {
-        this.sidebar.close();
+      if (!this.geocoder.stopDefineArea()) {
+        if (!this._search.handleEsc(event)) {
+          this.sidebar.close();
+        }
       }
     }
   }

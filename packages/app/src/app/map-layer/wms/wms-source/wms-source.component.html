@@ -1,6 +1,9 @@
-<div mat-dialog-title>{{ i18n.get('editWmsSources') }}</div>
+<app-dialog-header>
+  <h2>{{ i18n.get('editWmsSources') }}</h2>
+</app-dialog-header>
+
 @if (selectGlobalSourceMode) {
-  <div mat-dialog-content>
+  <app-dialog-body>
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('layerSource') }}</mat-label>
       <mat-select [(value)]="globalSource">
@@ -12,12 +15,23 @@
       </mat-select>
     </mat-form-field>
     <div class="buttons">
-      <button class="buttonMargin" mat-flat-button color="primary" (click)="addSource()" [innerText]="i18n.get('addSource')"></button>
-      <button class="buttonMargin" mat-stroked-button (click)="selectGlobalSourceMode = false" [innerText]="i18n.get('cancel')"></button>
+      <button
+        class="buttonMargin"
+        mat-flat-button
+        color="primary"
+        (click)="addSource()"
+        [innerText]="i18n.get('addSource')"
+      ></button>
+      <button
+        class="buttonMargin"
+        mat-stroked-button
+        (click)="selectGlobalSourceMode = false"
+        [innerText]="i18n.get('cancel')"
+      ></button>
     </div>
-  </div>
+  </app-dialog-body>
 } @else {
-  <div mat-dialog-content>
+  <app-dialog-body>
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('layerSource') }}</mat-label>
       <mat-select [value]="selectedSource" (selectionChange)="onSelectionChange($event)">
@@ -50,7 +64,11 @@
         </fieldset>
         <fieldset class="like-mat-form-field-outline">
           <legend>{{ i18n.get('mapLayerType') }}</legend>
-          <mat-radio-group [(ngModel)]="selectedSource.type" (change)="updateFullUrl($event)" [disabled]="!selectedSource.owner">
+          <mat-radio-group
+            [(ngModel)]="selectedSource.type"
+            (change)="updateFullUrl($event)"
+            [disabled]="!selectedSource.owner"
+          >
             <mat-radio-button value="wms">WMS</mat-radio-button>
             <mat-radio-button value="wmts">WMTS</mat-radio-button>
           </mat-radio-group>
@@ -75,7 +93,13 @@
             </div>
             @for (attr of selectedSource.attribution; track attr; let i = $index) {
               <div class="attribution">
-                <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]" [disabled]="!selectedSource.owner" />
+                <input
+                  class="attr-title"
+                  matInput
+                  type="text"
+                  [(ngModel)]="attr[0]"
+                  [disabled]="!selectedSource.owner"
+                />
                 <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]" [disabled]="!selectedSource.owner" />
                 @if (selectedSource.owner) {
                   <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
@@ -100,13 +124,13 @@
         </div>
       </div>
     }
-  </div>
+  </app-dialog-body>
 }
 @if (!selectGlobalSourceMode) {
-  <div mat-dialog-actions align="end">
+  <app-dialog-footer>
     <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
     <button mat-flat-button color="primary" [mat-dialog-close]="sources">
       {{ i18n.get('ok') }}
     </button>
-  </div>
+  </app-dialog-footer>
 }

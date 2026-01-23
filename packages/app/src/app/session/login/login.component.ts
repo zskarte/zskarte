@@ -18,6 +18,7 @@ import { TextDividerComponent } from '../../text-divider/text-divider.component'
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 import { IZso, IZsMapOrganization } from '@zskarte/types';
 
 @Component({
@@ -36,6 +37,7 @@ import { IZso, IZsMapOrganization } from '@zskarte/types';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    RouterLink,
   ],
 })
 export class LoginComponent implements OnDestroy {
@@ -133,7 +135,7 @@ export class LoginComponent implements OnDestroy {
 
   public guestLogin(): void {
     const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('deletionNotification'),
+      data: { message: this.i18n.get('deletionNotification') },
     });
     confirmation.afterClosed().subscribe(async (res) => {
       if (res) {
@@ -144,12 +146,16 @@ export class LoginComponent implements OnDestroy {
 
   public workLocal(): void {
     const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('localNotification'),
+      data: { message: this.i18n.get('localNotification') },
     });
     confirmation.afterClosed().subscribe((res) => {
       if (res) {
         this.session.startWorkLocal();
       }
     });
+  }
+
+  public openHelp(): void {
+    window.open('/help', '_blank');
   }
 }

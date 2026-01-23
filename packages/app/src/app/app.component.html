@@ -1,11 +1,12 @@
-<main [style.height.px]="height" [class.journal-address-preview]="journalAddressPreview()">
-  @if (operationId() && !isHistoryMode()) {
-  <nav class="main-tabs mat-elevation-z3" mat-tab-nav-bar [tabPanel]="tabPanel">
-    <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.link" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
-      {{ i18n.get(link.label) }}
-    </a>
-  </nav>
-}
+<main [style.height.px]="height" [class.journal-address-preview]="journalAddressPreview()" [class.help-page]="isHelpPage()">
+  @if (operationId() && !isHelpPage()) {
+    <nav class="main-tabs mat-elevation-z3" mat-tab-nav-bar [tabPanel]="tabPanel">
+      <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.link" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+        {{ i18n.get(link.label) }}
+      </a>
+    </nav>
+    <app-sidebar-wrapper></app-sidebar-wrapper>
+  }
   <mat-tab-nav-panel #tabPanel>
     <router-outlet></router-outlet>
   </mat-tab-nav-panel>

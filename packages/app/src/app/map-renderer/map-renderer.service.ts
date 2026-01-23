@@ -1,6 +1,6 @@
 import { ElementRef, Injectable, Signal, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { IZsGlobalSearchConfig, IZsMapPrintState, SearchFunction } from '@zskarte/types';
+import { IZsGlobalSearchConfig, IZsMapPrintState, SearchFunction, ShapeMapLayer } from '@zskarte/types';
 import { CsvMapLayer, GeoAdminMapLayer, GeoJSONMapLayer, WMSMapLayer } from '@zskarte/types';
 import { Feature, Geolocation as OlGeolocation } from 'ol';
 import DrawHole from 'ol-ext/interaction/DrawHole';
@@ -29,6 +29,7 @@ import { I18NService } from '../state/i18n.service';
 import { ZsMapSources } from '../state/map-sources';
 import { ZsMapStateService } from '../state/state.service';
 import { SyncService } from '../sync/sync.service';
+import { DrawStyle } from './draw-style';
 import { ZsMapBaseDrawElement } from './elements/base/base-draw-element';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 import { ZsMapBaseLayer } from './layers/base-layer';
@@ -38,6 +39,7 @@ import { MapPrintService } from './map-print.service';
 import { MapSelectService } from './map-select.service';
 import { SearchService } from '../search/search.service';
 import { MapSearchAreaService } from './map-search-area.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export const LAYER_Z_INDEX_SEARCH_AREA_LAYER = 1000000;
 export const LAYER_Z_INDEX_CURRENT_LOCATION = 1000010;
@@ -85,8 +87,9 @@ export class MapRendererService {
 
   private _currentSketch: FeatureLike | undefined;
   private _drawHole!: DrawHole;
-  private _currentSketchSize = new BehaviorSubject<string | null>(null);
+  private _tooltip = new BehaviorSubject<string | null>(null);
   private _mousePosition = new BehaviorSubject<number[]>([0, 0]);
+  private _rotation = new BehaviorSubject<number>(0);
   private existingCurrentLocations: VectorLayer<VectorSource<Feature<Point>>> | undefined;
   public connectionCount = new BehaviorSubject<number>(0);
 
@@ -97,20 +100,36 @@ export class MapRendererService {
   private _searchArea = inject(MapSearchAreaService);
   private _state = inject(ZsMapStateService);
   private _drawElementCache: Record<string, { layer: string | undefined; element: ZsMapBaseDrawElement }> = {};
+  private _globalSymbolScale = 1;
+
+  private showNames = toSignal(this._state.observeShowNames());
 
   public constructor() {
     this._search.setZoomToFit(this.zoomToFit.bind(this));
   }
 
+  private applyGlobalSymbolScale() {
+    const factor = this._globalSymbolScale;
+    DrawStyle.setGlobalScaleFactor(factor);
+    this._allLayers.forEach((layer) => layer.changed());
+    this._map?.render();
+  }
+
   public terminate() {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
+    this._ngUnsubscribe = new Subject<void>();
     //as the service stay alive also if map page is leaved (and this function is callen), need to clear all now invalid caches and lists
-    for (const layer of this._allLayers) {
-      this._map.removeLayer(layer);
-      layer.getSource()?.clear();
-      layer.getRenderer()?.dispose();
-      layer.setSource(null);
+    // Make a copy of the array before clearing to avoid issues during iteration
+    const layersToClean = [...this._allLayers];
+    for (const layer of layersToClean) {
+      if (this._map && layer) {
+        try {
+          this._map.removeLayer(layer);
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
+      }
     }
     this._layerCache = {};
     this._allLayers = [];
@@ -119,6 +138,7 @@ export class MapRendererService {
     this._mapLayer = new Layer({
       zIndex: 0,
     });
+    this._map?.setTarget(undefined);
   }
 
   public initialize({
@@ -266,6 +286,13 @@ export class MapRendererService {
       }).extend(this._mapInteractions),
     });
 
+    // Delay initial render to ensure all layers are ready
+    setTimeout(() => {
+      if (this._map) {
+        this._map.updateSize();
+      }
+    }, 0);
+
     //Layer for highlight/mark a position
     this._geolocation = new OlGeolocation({
       // enableHighAccuracy must be set to true to have the heading value.
@@ -368,18 +395,28 @@ export class MapRendererService {
     this._map.on('pointermove', (event) => {
       this._mousePosition.next(event.pixel);
       this._state.setCoordinates(event.coordinate);
-      let sketchSize: string | null = null;
+      let tooltip: string | null = null;
       this._map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
         if (feature && feature !== this._searchArea.getSearchAreaOverlayFeature()) {
           const geom = feature.getGeometry();
           if (geom instanceof Polygon) {
-            sketchSize = formatArea(geom);
+            tooltip = formatArea(geom);
           } else if (geom instanceof LineString) {
-            sketchSize = formatLength(geom);
+            tooltip = formatLength(geom);
+          }
+
+          if (!this.showNames()) {
+            // Show names as tooltip, if they are not already shown
+            const label = feature.get('sig')?.label;
+            if (tooltip && label) {
+              tooltip = `${label} (${tooltip})`
+            } else if (label) {
+              tooltip = label;
+            }
           }
         }
       });
-      this._currentSketchSize.next(sketchSize);
+      this._tooltip.next(tooltip);
     });
 
     const debouncedZoomSave = debounce(() => {
@@ -389,6 +426,10 @@ export class MapRendererService {
 
     this._view.on('change:resolution', () => {
       debouncedZoomSave();
+    });
+
+    this._view.on('change:rotation', () => {
+      this._rotation.next(this._view.getRotation());
     });
 
     this._state
@@ -416,6 +457,14 @@ export class MapRendererService {
       });
 
     this._state
+      .observeGlobalSymbolScale()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((scale) => {
+        this._globalSymbolScale = scale;
+        this.applyGlobalSymbolScale();
+      });
+
+    this._state
       .observeDPI()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((dpi) => {
@@ -429,6 +478,9 @@ export class MapRendererService {
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((element) => {
         if (element) {
+          if (this._currentDrawInteraction) {
+            this._map.removeInteraction(this._currentDrawInteraction);
+          }
           const interaction = DrawElementHelper.createDrawHandlerForType(element, this._state);
           interaction.on('drawstart', (event) => {
             this._currentSketch = event.feature;
@@ -473,9 +525,24 @@ export class MapRendererService {
         for (const layer of layers) {
           if (!this._layerCache[layer.getId()]) {
             this._layerCache[layer.getId()] = layer;
-            this._allLayers.push(layer.getOlLayer());
-            this._map.addLayer(layer.getOlLayer());
+            const olLayer = layer.getOlLayer();
+            // Ensure layer has a source before adding to map
+            if (olLayer?.getSource()) {
+              this._allLayers.push(olLayer);
+              this._map.addLayer(olLayer);
+            }
           }
+        }
+
+        // remove deleted layers
+        for (const [key, layer] of Object.entries(this._layerCache)) {
+          if (layers.some(l => l.getId() === key)) {
+            continue;
+          }
+
+          this._map.removeLayer(layer.getOlLayer());
+          this._allLayers = this._allLayers.filter(olLayer => olLayer !== layer.getOlLayer());
+          delete this._layerCache[key];
         }
       });
 
@@ -507,6 +574,8 @@ export class MapRendererService {
               olLayers = await this.wmsService.createWMSCustomLayer(mapLayer as WMSMapLayer);
             } else if (mapLayer.type === 'geojson') {
               olLayers = await this.geoJSONService.createGeoJSONLayer(mapLayer as GeoJSONMapLayer);
+            } else if (mapLayer.type === 'shape') {
+              olLayers = await this.geoJSONService.createShapeLayer(mapLayer as ShapeMapLayer);
             } else if (mapLayer.type === 'csv') {
               olLayers = await this.geoJSONService.createCsvLayer(mapLayer as CsvMapLayer);
             } else {
@@ -519,7 +588,7 @@ export class MapRendererService {
               this._mapLayerCache.set(name, olLayer);
               let searchFunc: SearchFunction;
               if (
-                (mapLayer.type === 'geojson' || mapLayer.type === 'csv') &&
+                (mapLayer.type === 'geojson' || mapLayer.type === 'shape' || mapLayer.type === 'csv') &&
                 (mapLayer as GeoJSONMapLayer).searchable
               ) {
                 searchFunc = (
@@ -696,8 +765,19 @@ export class MapRendererService {
     return this._mousePosition.asObservable();
   }
 
-  public observeCurrentSketchSize(): Observable<string | null> {
-    return this._currentSketchSize.asObservable();
+  public observeTooltip(): Observable<string | null> {
+    return this._tooltip.asObservable();
+  }
+
+  public observeRotation(): Observable<number> {
+    return this._rotation.asObservable();
+  }
+
+  public resetRotation(): void {
+    this._view?.animate({
+      rotation: 0,
+      duration: 250,
+    });
   }
 
   public getView(): OlView {

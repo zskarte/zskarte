@@ -1,0 +1,17 @@
+<app-dialog-header (close)="onClose()" [autoClose]="false">
+  <h2>{{ getTitle() }}</h2>
+</app-dialog-header>
+<app-dialog-body>
+  <app-journal-form
+    [entry]="entry()"
+    (close)="onClose()"
+    (dirty)="onDirty($event)"
+    [isCreateModal]="true"
+  ></app-journal-form>
+</app-dialog-body>
+<app-dialog-footer>
+  <button mat-flat-button color="primary" (click)="onSave()">
+    <mat-icon>check</mat-icon>
+    {{ isEditMode() ? i18n.get('save') : i18n.get('create') }}
+  </button>
+</app-dialog-footer>

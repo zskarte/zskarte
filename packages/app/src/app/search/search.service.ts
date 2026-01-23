@@ -1,4 +1,4 @@
-import { HostListener, Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import {
@@ -8,7 +8,7 @@ import {
   IZsMapSearchResult,
   IZsGlobalSearchConfig,
   SearchFunction,
-} from '../../../../types/state/interfaces';
+} from '@zskarte/types';
 import { coordinateFromString } from '../helper/coordinates-extract';
 import { I18NService } from '../state/i18n.service';
 import { GeoJSONFeature, default as GeoJSON } from 'ol/format/GeoJSON';
@@ -26,7 +26,7 @@ import {
 import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { fromLonLat, transformExtent } from 'ol/proj';
 import { ZsMapStateService } from '../state/state.service';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 const FULL_WIDTH_SWISS = 350_000;
@@ -48,7 +48,7 @@ export const ADDRESS_TOKEN_REPLACEMENT_ADDRESS = (p1: string) => p1;
 export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER = (p1: string, p2: string) =>
   `<span data-geo="${p2}" class="addr-geo addr-show"><span class="material-icons">place</span><span class="text addr-search">${p1}</span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER_MISSING = (p1: string) =>
-  `<span class="addr-geo addr-search"><span class="material-icons">location_off</span><span class="text">${p1}</span></span>`;
+  `<span class="addr-geo addr-search"><span class="material-icons">search</span><span class="text">${p1}</span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER = (p1: string, p2: string) =>
   `<span data-geo="${p2}" class="addr-geo"><span class="addr-show"></span><span class="text addr-search">${p1}</span><span class="addr-edit"></span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER_MISSING = (p1: string) =>
@@ -147,7 +147,7 @@ export class SearchService {
     });
   }
 
-  public handleEsc(event: KeyboardEvent) {
+  public handleEsc(event: Event) {
     if (this.addressPreview()) {
       this.addressPreview.set(false);
       event.preventDefault();
@@ -220,6 +220,39 @@ export class SearchService {
       combinedExtent = this.createOrCombineExtent(combinedExtent, distExtent);
     }
     return combinedExtent;
+  }
+
+  private sortSearchResults(
+    results: IZsMapSearchResult[],
+    searchConfig: IZsGlobalSearchConfig,
+    alphabetical = false,
+  ): IZsMapSearchResult[] {
+    const mapExtent = this._state.getMapExtent();
+    const collator = alphabetical ? new Intl.Collator() : undefined;
+
+    return results.sort((a, b) => {
+      if (searchConfig.sortedByDistance) {
+        return (a.internal?.dist ?? Number.MAX_SAFE_INTEGER) - (b.internal?.dist ?? Number.MAX_SAFE_INTEGER);
+      }
+
+      const aCoord = a.mercatorCoordinates || a.internal?.center;
+      const bCoord = b.mercatorCoordinates || b.internal?.center;
+
+      if (aCoord && bCoord) {
+        const aInExtent = mapExtent ? containsCoordinate(mapExtent, aCoord) : false;
+        const bInExtent = mapExtent ? containsCoordinate(mapExtent, bCoord) : false;
+
+        if (aInExtent !== bInExtent) {
+          return aInExtent ? -1 : 1;
+        }
+      }
+
+      if (collator) {
+        return collator.compare(a.label, b.label);
+      }
+
+      return 0; // Maintain existing order
+    });
   }
 
   async coordinateSearch(text: string) {
@@ -316,12 +349,13 @@ export class SearchService {
           mercatorCoordinates,
           internal: {
             id: r.id,
+            dist: refCoord ? squaredDistance(refCoord, mercatorCoordinates) : undefined,
             ...r.attrs,
             addressToken: `addr:(${linkText})[lonLat:${lonLat.join(' ')}]`,
           },
         });
       });
-    return foundLocations;
+    return this.sortSearchResults(foundLocations, searchConfig);
   }
 
   public async geoAdminGeometryByOriginAndId(origin: string, featureId: string) {
@@ -382,10 +416,7 @@ export class SearchService {
           center = geometry.getClosestPoint(center);
         }
         if (!filterArea || containsCoordinate(filterArea, center)) {
-          let dist: number | undefined = undefined;
-          if (searchConfig.sortedByDistance) {
-            dist = squaredDistance(refCoord, center);
-          }
+          const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = `${r.properties?.['stn_label']}, ${r.properties?.['zip_label']}`;
           foundLocations.push({
             label,
@@ -399,13 +430,7 @@ export class SearchService {
           });
         }
       });
-    if (searchConfig.sortedByDistance) {
-      foundLocations.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
-    } else {
-      const collator = new Intl.Collator();
-      foundLocations.sort((a, b) => collator.compare(a.label, b.label));
-    }
-    return foundLocations;
+    return this.sortSearchResults(foundLocations, searchConfig, true);
   }
 
   public async geoAdminStreetGeometryById(id: string) {
@@ -449,10 +474,7 @@ export class SearchService {
           center = geometry.getClosestPoint(center);
         }
         if (!filterArea || containsCoordinate(filterArea, center)) {
-          let dist: number | undefined = undefined;
-          if (searchConfig.sortedByDistance) {
-            dist = squaredDistance(refCoord, center);
-          }
+          const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = r.properties?.['name'];
           foundLocations.push({
             label,
@@ -466,13 +488,7 @@ export class SearchService {
           });
         }
       });
-    if (searchConfig.sortedByDistance) {
-      foundLocations.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
-    } else {
-      const collator = new Intl.Collator();
-      foundLocations.sort((a, b) => collator.compare(a.label, b.label));
-    }
-    return foundLocations;
+    return this.sortSearchResults(foundLocations, searchConfig, true);
   }
 
   public async geoAdminWaterGeometryById(id: string) {
