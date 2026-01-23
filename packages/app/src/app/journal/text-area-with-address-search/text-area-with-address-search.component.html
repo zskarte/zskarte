@@ -44,6 +44,7 @@
 <div
   class="addresSearch"
   [class.linkedText]="showLinkedText()"
+  [class.empty]="!addressSearchTerm()"
   [style.display]="
     addressSelection() ?
       showLinkedText() ? 'block'

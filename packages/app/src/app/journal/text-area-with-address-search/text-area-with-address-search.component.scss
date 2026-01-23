@@ -71,7 +71,10 @@ mat-form-field {
   &.addresSearch {
     display: block;
     position: absolute;
-    padding: 0;
+    padding: 2px 4px;
+    border-radius: 6px;
+    transition: background-color 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    z-index: 2;
 
     .title {
       display: none;
@@ -86,6 +89,12 @@ mat-form-field {
 
     input:focus {
       outline: none;
+    }
+
+    &.empty {
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
   }
 }
