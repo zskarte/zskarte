@@ -23,6 +23,20 @@ export default factories.createCoreController('api::organization.organization', 
     const sanitizedResults = await this.sanitizeOutput(results, ctx);
     return this.transformResponse(sanitizedResults);
   },
+  async updateSettings(ctx) {
+    const { id } = ctx.params;
+    await this.validateQuery(ctx);
+    const data = ctx.request.body?.data;
+    if (!_.isObject(data) && data !== null) {
+      ctx.status = 400;
+      return { message: 'Missing "data" payload in the request body' };
+    }
+    await strapi.service('api::organization.organization').update(id, {
+      data: { settings: data },
+    });
+    ctx.status = 200;
+    return { success: true };
+  },
   async updateLayerSettings(ctx) {
     const { id } = ctx.params;
     await this.validateQuery(ctx);
@@ -64,7 +78,7 @@ export default factories.createCoreController('api::organization.organization', 
       return { message: 'Missing "data" payload in the request body' };
     }
     await strapi.service('api::organization.organization').update(id, {
-      data: {journalEntryTemplate: data},
+      data: { journalEntryTemplate: data },
     });
     ctx.status = 200;
     return { success: true };
