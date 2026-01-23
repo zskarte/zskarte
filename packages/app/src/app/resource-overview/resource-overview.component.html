@@ -1,6 +1,9 @@
-<div class="resource-overview">
-  <h3>{{ i18n.get('resourceOverview') }}</h3>
-  
+<app-dialog-header>
+  <h1>{{ i18n.get('resourceOverview') }}</h1>
+</app-dialog-header>
+
+<app-dialog-body>  
+  <mat-card>
   @if (resources$ | async; as resources) {
     @if (resources.length > 0) {
       <table mat-table [dataSource]="resources" class="resource-table">
@@ -47,4 +50,6 @@
       <p class="no-resources">{{ i18n.get('noResources') }}</p>
     }
   }
-</div>
+  </mat-card>
+</app-dialog-body>
+

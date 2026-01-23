@@ -6,6 +6,8 @@ import { HierarchyLevel, Sign, ZsMapDrawElementState } from '@zskarte/types';
 import { map } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { AsyncPipe } from '@angular/common';
+import { DialogHeaderComponent, DialogBodyComponent } from "../ui/dialog-layout";
+import { MatCard } from "@angular/material/card";
 
 interface ResourceRow {
   id: string;
@@ -19,7 +21,7 @@ interface ResourceRow {
 
 @Component({
   selector: 'app-resource-overview',
-  imports: [MatTableModule, AsyncPipe],
+  imports: [MatTableModule, AsyncPipe, DialogHeaderComponent, DialogBodyComponent, MatCard],
   templateUrl: './resource-overview.component.html',
   styleUrl: './resource-overview.component.scss',
 })
