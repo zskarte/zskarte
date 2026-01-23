@@ -28,6 +28,7 @@ export class DrawStyle {
 
   static textScaleFactor = 1;
 
+  private static globalScaleFactor = 1;
   private static symbolStyleCache = {};
   private static vectorStyleCache = {};
   private static colorFill = {};
@@ -39,8 +40,18 @@ export class DrawStyle {
     return `assets/img/signs/${file}`;
   }
 
-  private static scale(resolution: number, scaleFactor: number, min = 0.1): number {
-    return Math.max(min, (scaleFactor * Math.sqrt(0.5 * resolution)) / resolution);
+  public static setGlobalScaleFactor(scale: number): void {
+    const nextScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+    if (nextScale === DrawStyle.globalScaleFactor) {
+      return;
+    }
+    DrawStyle.globalScaleFactor = nextScale;
+    DrawStyle.clearCaches();
+  }
+
+  private static scale(resolution: number, scaleFactor: number, min = 0.05): number {
+    const baseScale = Math.max(min, (scaleFactor * Math.sqrt(0.5 * resolution)) / resolution);
+    return baseScale * DrawStyle.globalScaleFactor;
   }
 
   private static getDash(lineStyle: string | undefined, resolution: number): number[] {
@@ -352,7 +363,7 @@ export class DrawStyle {
     const symbolAnchorCoordinate = getFirstCoordinate(feature);
     const offsetX = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.x : 0.1;
     const offsetY = signature.iconsOffset && signature.iconsOffset !== undefined ? signature.iconsOffset.y : 0.1;
-    const resolutionFactor = resolution / 10;
+    const resolutionFactor = (resolution / 10) * DrawStyle.globalScaleFactor;
     const symbolCoordinate = [
       symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
       symbolAnchorCoordinate[1] - offsetY * resolutionFactor,
@@ -370,7 +381,7 @@ export class DrawStyle {
     const offsetY = signature.iconsOffset ? 
       (signature.iconsOffset.endHasDifferentOffset && signature.iconsOffset.endY !== undefined ?
       signature.iconsOffset.endY : signature.iconsOffset.y) : 0.1;
-    const resolutionFactor = resolution / 10;
+    const resolutionFactor = (resolution / 10) * DrawStyle.globalScaleFactor;
     const symbolCoordinate = [
       symbolAnchorCoordinate[0] - offsetX * resolutionFactor,
       symbolAnchorCoordinate[1] - offsetY * resolutionFactor,
@@ -496,7 +507,7 @@ export class DrawStyle {
           } as any),
         );
 
-        // Draw a circle below the icon
+        // Draw a circle behind the icon
         const backgroundCircle = new Circle({
           radius: iconRadius,
           fill: this.getColorFill(`rgba(255, 255, 255, ${signature.iconOpacity})`),
@@ -545,21 +556,23 @@ export class DrawStyle {
 
         if (signature.labelShow) {
           iconTextScale = DrawStyle.scale(resolution, DrawStyle.textScaleFactor, 0.4);
+
           iconLabel = new Text({
             text: signature.label,
             font: '20px sans-serif',
             scale: iconTextScale,
             fill: this.getColorFill(signature.color ?? '#535353'),
             backgroundFill: DrawStyle.getColorFill(`rgba(255, 255, 255, ${signature.iconOpacity})`),
-            padding: [5, 5, 5, 5],
+            padding: Array(4).fill(20 * scale),
           });
 
           iconStyles.push(
             new Style({
               text: iconLabel,
               geometry(feature) {
+                const deltaY = iconRadius * resolution + (iconTextScale * 20 * resolution);
                 const coordinates = DrawStyle.getIconCoordinates(feature, resolution)[1];
-                return new Point([coordinates[0], coordinates[1] - (35 / iconTextScale) * Math.max(resolution / 3, 1)]);
+                return new Point([coordinates[0], coordinates[1] - deltaY]);
               },
               zIndex,
             }),

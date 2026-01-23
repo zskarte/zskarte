@@ -1,5 +1,5 @@
 @if (entry()) {
-  <div class="journal-infos" [ngClass]="{ expanded: expanded() }">
+  <div class="journal-infos mat-elevation-z3" [ngClass]="{ expanded: expanded() }">
     <div class="journal-header-content">
       <span class="message-id">#{{ entry()!.messageNumber }}</span>
       <span class="subject">{{ entry()!.messageSubject }}</span>
@@ -12,17 +12,6 @@
       [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()"
       (click)="search.handleMessageContentClick($event)"
     ></p>
-    <div class="message-content-buttons">
-      <button mat-stroked-button (click)="showAllAddresses()">
-        <mat-icon>select_all</mat-icon>
-        {{ i18n.get('showAddresses') }}
-      </button>
-      <div class="message-content-option">
-        <mat-checkbox [ngModel]="markPotentialAddresses()" (ngModelChange)="markPotentialAddresses.set($event)">{{
-          i18n.get('markPotentialAddresses')
-        }}</mat-checkbox>
-      </div>
-    </div>
 
     <div class="buttons">
       <button mat-flat-button (click)="close(false)">{{ i18n.get('cancel') }}</button>

@@ -3,10 +3,11 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
 import { lastValueFrom } from 'rxjs';
+import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
 
 @Component({
   selector: 'app-info-dialog',
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
   templateUrl: './info-dialog.component.html',
   styleUrl: './info-dialog.component.scss',
 })
@@ -33,9 +34,14 @@ export class InfoDialogComponent {
     await lastValueFrom(dialogRef.afterClosed());
   }
 
-  public static async showErrorDialog(dialog: MatDialog, error: string, title: string | null = null) {
+  public static async showErrorDialog(
+    dialog: MatDialog,
+    error: string,
+    title: string | null = null,
+    actionLabel?: string,
+  ) {
     const dialogRef = dialog.open(InfoDialogComponent, {
-      data: { error, title },
+      data: { error, title, actionLabel },
     });
     await lastValueFrom(dialogRef.afterClosed());
   }

@@ -105,7 +105,7 @@ export class OperationsComponent implements OnDestroy {
 
   public deleteOperation(operation: IZsMapOperation) {
     const confirm = this.dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('deleteOperationConfirm'),
+      data: { message: this.i18n.get('deleteOperationConfirm') },
     });
     confirm.afterClosed().subscribe((r) => {
       this.operationService.deleteOperation(operation);

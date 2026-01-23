@@ -21,9 +21,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
+import { JournalEntryCreateModalComponent } from './journal-entry-create-modal/journal-entry-create-modal.component';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
@@ -32,6 +34,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
 import { SearchService } from '../search/search.service';
+import { SidebarService } from '../sidebar/sidebar.service';
+import { SidebarContext } from '../sidebar/sidebar.interfaces';
 
 @Component({
   selector: 'app-journal',
@@ -61,6 +65,7 @@ export class JournalComponent implements AfterViewInit {
   journalFormComponent = viewChild.required(JournalFormComponent);
   i18n = inject(I18NService);
   journal = inject(JournalService);
+  sidebar = inject(SidebarService);
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   private _router = inject(Router);
@@ -69,6 +74,8 @@ export class JournalComponent implements AfterViewInit {
   private _snackBar = inject(MatSnackBar);
   private _search = inject(SearchService);
   private _destroyRef = inject(DestroyRef);
+
+  SidebarContext = SidebarContext;
   readonly isOnline = toSignal(this._session.observeIsOnline());
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   readonly isHistoryMode = toSignal(this._state.observeIsHistoryMode());
@@ -387,9 +394,10 @@ export class JournalComponent implements AfterViewInit {
 
   openJournalAddDialog() {
     if (!this.sidebarOpen || !this.openDisabled) {
-      this.selectedJournalEntry.set(null);
-      this.journalFormComponent().addNew();
-      this.sidebarOpen = true;
+      this._dialog.open(JournalEntryCreateModalComponent, {
+        width: '800px',
+        maxWidth: '800px',
+      });
     }
   }
 

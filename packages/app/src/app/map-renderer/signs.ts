@@ -1616,7 +1616,7 @@ export class Signs {
     },
     {
       id: 177,
-      kat: 'incident',
+      kat: 'damage',
       type: 'Point',
       color: '#FF0000',
       src: 'BABS/Explosionsherd.svg',

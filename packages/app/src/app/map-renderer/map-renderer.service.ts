@@ -29,6 +29,7 @@ import { I18NService } from '../state/i18n.service';
 import { ZsMapSources } from '../state/map-sources';
 import { ZsMapStateService } from '../state/state.service';
 import { SyncService } from '../sync/sync.service';
+import { DrawStyle } from './draw-style';
 import { ZsMapBaseDrawElement } from './elements/base/base-draw-element';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 import { ZsMapBaseLayer } from './layers/base-layer';
@@ -98,9 +99,17 @@ export class MapRendererService {
   private _searchArea = inject(MapSearchAreaService);
   private _state = inject(ZsMapStateService);
   private _drawElementCache: Record<string, { layer: string | undefined; element: ZsMapBaseDrawElement }> = {};
+  private _globalSymbolScale = 1;
 
   public constructor() {
     this._search.setZoomToFit(this.zoomToFit.bind(this));
+  }
+
+  private applyGlobalSymbolScale() {
+    const factor = this._globalSymbolScale;
+    DrawStyle.setGlobalScaleFactor(factor);
+    this._allLayers.forEach((layer) => layer.changed());
+    this._map?.render();
   }
 
   public terminate() {
@@ -421,6 +430,14 @@ export class MapRendererService {
       });
 
     this._state
+      .observeGlobalSymbolScale()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((scale) => {
+        this._globalSymbolScale = scale;
+        this.applyGlobalSymbolScale();
+      });
+
+    this._state
       .observeDPI()
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((dpi) => {
@@ -481,6 +498,17 @@ export class MapRendererService {
             this._allLayers.push(layer.getOlLayer());
             this._map.addLayer(layer.getOlLayer());
           }
+        }
+
+        // remove deleted layers
+        for (const [key, layer] of Object.entries(this._layerCache)) {
+          if (layers.some(l => l.getId() === key)) {
+            continue;
+          }
+
+          this._map.removeLayer(layer.getOlLayer());
+          this._allLayers = this._allLayers.filter(olLayer => olLayer !== layer.getOlLayer());
+          delete this._layerCache[key];
         }
       });
 

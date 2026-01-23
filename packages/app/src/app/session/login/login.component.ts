@@ -133,7 +133,7 @@ export class LoginComponent implements OnDestroy {
 
   public guestLogin(): void {
     const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('deletionNotification'),
+      data: { message: this.i18n.get('deletionNotification') },
     });
     confirmation.afterClosed().subscribe(async (res) => {
       if (res) {
@@ -144,7 +144,7 @@ export class LoginComponent implements OnDestroy {
 
   public workLocal(): void {
     const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('localNotification'),
+      data: { message: this.i18n.get('localNotification') },
     });
     confirmation.afterClosed().subscribe((res) => {
       if (res) {

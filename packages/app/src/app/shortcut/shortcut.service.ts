@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
-import { cloneDeep } from 'lodash';
-import { Coordinate } from 'ol/coordinate';
 import { Observable, firstValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
@@ -14,6 +12,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { I18NService } from '../state/i18n.service';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 import { SearchService } from '../search/search.service';
+import { MapRendererService } from '../map-renderer/map-renderer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +22,7 @@ export class ShortcutService {
   private _state = inject(ZsMapStateService);
   private _search = inject(SearchService);
   private _dialog = inject(MatDialog);
+  private _renderer = inject(MapRendererService);
   public i18n = inject(I18NService);
 
   private _selectedElement: ZsMapBaseDrawElement | undefined = undefined;
@@ -55,8 +55,13 @@ export class ShortcutService {
   public initialize(): void {
     this._listen({ shortcut: 'mod+backspace', drawModeOnly: true }).subscribe(() => {
       if (this._selectedFeatureId) {
+        const feature = this._renderer.getCachedDrawElement(this._selectedFeatureId);
+        if (feature?.layer !== this._state.getActiveLayer()?.getId()) {
+          return;
+        }
+
         const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-          data: this.i18n.get('removeFeatureFromMapConfirm'),
+          data: { message: this.i18n.get('removeFeatureFromMapConfirm') },
         });
         confirmation.afterClosed().subscribe((result) => {
           if (result && this._selectedFeatureId) {
