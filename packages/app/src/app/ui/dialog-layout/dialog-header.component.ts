@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, input } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,9 +41,12 @@ export class DialogHeaderComponent {
   private dialogRef = inject(MatDialogRef);
   i18n = inject(I18NService);
   close = output();
+  autoClose = input(true);
 
   onClose() {
     this.close.emit();
-    this.dialogRef.close();
+    if (this.autoClose()) {
+      this.dialogRef.close();
+    }
   }
 }
