@@ -371,6 +371,7 @@ export class JournalComponent implements AfterViewInit {
   async selectEntry(entry: JournalEntry) {
     if (!this.sidebarOpen || !this.openDisabled) {
       if (entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
+        this.close();
         this.openJournalAddDialog(entry);
       } else {
         this.selectedJournalEntry.set(entry);
