@@ -9,6 +9,8 @@ import { Signs } from '../map-renderer/signs';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogRef } from '@angular/material/dialog';
+import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
 import { getJsPDF } from 'src/app/pdf/jsPDF.factory';
 
 type PersonRecoverySign = Partial<Sign> & {
@@ -43,27 +45,15 @@ async function svg2png(url?: string, width = 100, height = 100) {
 
 @Component({
   selector: 'app-person-recovery',
-  imports: [AsyncPipe, MatButtonModule],
+  imports: [AsyncPipe, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
   templateUrl: './person-recovery.component.html',
   styles: `
-    .recovery {
-      min-width: 300px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .recovery .actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 10px;
-    }
-
     .recovery-row {
       display: flex;
       align-items: center;
       gap: 10px;
       font-size: 16px;
+      margin-bottom: 10px;
     }
 
     .recovery-row .text {
@@ -85,6 +75,7 @@ export class PersonRecoveryComponent {
   private session = inject(SessionService);
   private destroyRef = inject(DestroyRef);
   i18n = inject(I18NService);
+  dialogRef = inject(MatDialogRef<PersonRecoveryComponent>);
 
   private printMargin = 10;
   private dimensions = PaperDimensions['A4'];
