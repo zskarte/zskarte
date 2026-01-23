@@ -3534,7 +3534,7 @@ export class I18NService {
       `,
     },
     fillAllFields: {
-      de: 'Bitte füllen Sie alle benötigten Felder.',
+      de: 'Bitte füllen Sie alle benötigten Felder aus.',
       en: 'Please fill in all required fields.',
       fr: 'Veuillez remplir tous les champs obligatoires.',
     },

@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
 import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
+import { MatCard } from "@angular/material/card";
 
 export interface ConfirmationDialogData {
   message: string;
@@ -13,7 +14,7 @@ export interface ConfirmationDialogData {
 @Component({
   selector: 'app-confirmation-dialog',
   templateUrl: './confirmation-dialog.component.html',
-  imports: [MatDialogModule, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
+  imports: [MatDialogModule, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent, MatCard],
 })
 export class ConfirmationDialogComponent {
   private dialogRef = inject<MatDialogRef<ConfirmationDialogComponent>>(MatDialogRef);
