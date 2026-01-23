@@ -1,0 +1,101 @@
+<div class="help-container">
+  <mat-toolbar class="help-toolbar">
+    <span class="toolbar-title">{{ i18n.get('help') }}</span>
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>{{ i18n.get('searchHelp') || 'Search help' }}</mat-label>
+      <input
+        matInput
+        [value]="searchQuery()"
+        (input)="onSearchChange($any($event.target).value)"
+        [placeholder]="i18n.get('searchHelp') || 'Search help articles...'"
+      />
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+    <button mat-icon-button (click)="navigateToMap()" [attr.aria-label]="i18n.get('back') || 'Back'">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+  
+  <mat-sidenav-container class="help-sidenav-container">
+    <mat-sidenav mode="side" opened class="help-sidenav">
+      <mat-nav-list>
+        @for (article of topLevelArticles(); track article.id) {
+          <div>
+            <a
+              mat-list-item
+              [class.active]="selectedArticleId() === article.id"
+              [class.parent-article]="getChildArticles(article.id).length > 0"
+              (click)="handleParentClick(article.id)"
+            >
+              <span matListItemTitle>{{ i18n.get(article.titleKey) }}</span>
+              @if (getChildArticles(article.id).length > 0) {
+                <span matListItemMeta>
+                  <mat-icon class="expand-icon">{{ isExpanded(article.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </span>
+              }
+            </a>
+            @if (getChildArticles(article.id).length > 0 && isExpanded(article.id)) {
+              @for (child of getChildArticles(article.id); track child.id) {
+                <a
+                  mat-list-item
+                  class="child-article"
+                  [class.active]="selectedArticleId() === child.id"
+                  (click)="selectArticle(child.id)"
+                >
+                  <span matListItemTitle>{{ i18n.get(child.titleKey) }}</span>
+                </a>
+              }
+            }
+          </div>
+        }
+        @empty {
+          <div class="no-results">
+            <p>{{ i18n.get('noResults') || 'No results found' }}</p>
+          </div>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="help-content">
+      @if (getSelectedArticle(); as article) {
+        <mat-card class="article-card">
+          <mat-card-header>
+            <mat-card-title>{{ i18n.get(article.titleKey) }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="article-content">
+              @if (article.images && article.images.length > 0) {
+                @for (img of article.images; track img.src) {
+                  <div class="article-image-container">
+                    <img
+                      [src]="img.src"
+                      [class]="img.class || 'responsive'"
+                      [alt]="img.alt || i18n.get(article.titleKey)"
+                    />
+                  </div>
+                }
+              } @else if (article.imageKey) {
+                <div class="article-image-container">
+                  <img
+                    [src]="article.imageKey"
+                    [class]="article.imageClass || 'responsive'"
+                    [alt]="i18n.get(article.titleKey)"
+                  />
+                </div>
+              }
+              <div
+                class="article-text"
+                [innerHTML]="i18n.get(article.contentKey)"
+              ></div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <div class="no-article-selected">
+          <mat-icon>help_outline</mat-icon>
+          <p>{{ i18n.get('selectArticle') || 'Select an article from the sidebar' }}</p>
+        </div>
+      }
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

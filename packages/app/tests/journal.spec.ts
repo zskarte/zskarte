@@ -58,8 +58,8 @@ test.describe('Journal', () => {
     const nameDialog = page.getByRole('dialog');
     await nameDialog.getByRole('textbox').fill('Guest');
     await nameDialog.getByRole('button', { name: 'OK' }).click();
-    await page.waitForTimeout(100);
-    await page.getByRole('button', { name: 'OK' }).click();
+    await page.waitForSelector('#map', { state: 'visible' });
+    await page.waitForTimeout(500);
     await page.getByRole('tab', { name: 'Journal' }).click();
     await journalEntriesResponse;
   });

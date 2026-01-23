@@ -119,11 +119,19 @@ export class MapRendererService {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
     //as the service stay alive also if map page is leaved (and this function is callen), need to clear all now invalid caches and lists
-    for (const layer of this._allLayers) {
-      this._map.removeLayer(layer);
-      layer.getSource()?.clear();
-      layer.getRenderer()?.dispose();
-      layer.setSource(null);
+    // Make a copy of the array before clearing to avoid issues during iteration
+    const layersToClean = [...this._allLayers];
+    for (const layer of layersToClean) {
+      if (this._map && layer) {
+        try {
+          this._map.removeLayer(layer);
+          layer.getSource()?.clear();
+          layer.getRenderer()?.dispose();
+          layer.setSource(null);
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
+      }
     }
     this._layerCache = {};
     this._allLayers = [];
@@ -278,6 +286,13 @@ export class MapRendererService {
         shiftDragZoom: false,
       }).extend(this._mapInteractions),
     });
+
+    // Delay initial render to ensure all layers are ready
+    setTimeout(() => {
+      if (this._map) {
+        this._map.updateSize();
+      }
+    }, 0);
 
     //Layer for highlight/mark a position
     this._geolocation = new OlGeolocation({
@@ -508,8 +523,12 @@ export class MapRendererService {
         for (const layer of layers) {
           if (!this._layerCache[layer.getId()]) {
             this._layerCache[layer.getId()] = layer;
-            this._allLayers.push(layer.getOlLayer());
-            this._map.addLayer(layer.getOlLayer());
+            const olLayer = layer.getOlLayer();
+            // Ensure layer has a source before adding to map
+            if (olLayer?.getSource()) {
+              this._allLayers.push(olLayer);
+              this._map.addLayer(olLayer);
+            }
           }
         }
 
