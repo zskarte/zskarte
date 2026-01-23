@@ -3,7 +3,7 @@
   box-sizing: border-box;
   border-radius: 2rem;
   background-color: white;
-  padding: 10px;
+  padding: 1rem;
   pointer-events: auto;
   width: 100%;
 }
@@ -31,13 +31,13 @@
 
   .expand {
     --mdc-icon-button-state-layer-size: 30px;
-    padding: 3px;
+    padding: 4px;
   }
 }
 
 .message-content-buttons {
   display: none;
-  margin: 10px 0;
+  margin: 1rem 0;
 }
 
 .message-content-option {
@@ -47,6 +47,9 @@
 
 .buttons {
   display: none;
+  & > :first-child {
+    margin-right: .5rem;
+  }
 }
 
 .preserve-linebreak {
