@@ -374,6 +374,11 @@ export class JournalComponent implements AfterViewInit {
         this.close();
         this.openJournalAddDialog(entry);
       } else {
+        firstValueFrom(this.sidebar.observeContext()).then((context) => {
+          if (context === SidebarContext.Menu) {
+            this.sidebar.close();
+          }
+        });
         this.selectedJournalEntry.set(entry);
         this.sidebarOpen = true;
       }
