@@ -312,7 +312,7 @@ export class HelpPageComponent implements OnInit {
     }
   }
 
-  selectArticle(articleId: string, shouldExpand: boolean = true): void {
+  selectArticle(articleId: string, shouldExpand = true): void {
     this.navigateToArticle(articleId);
     this.selectedArticleId.set(articleId);
     

@@ -512,7 +512,7 @@ export class MapRendererService {
             this._layerCache[layer.getId()] = layer;
             const olLayer = layer.getOlLayer();
             // Ensure layer has a source before adding to map
-            if (olLayer && olLayer.getSource()) {
+            if (olLayer?.getSource()) {
               this._allLayers.push(olLayer);
               this._map.addLayer(olLayer);
             }
