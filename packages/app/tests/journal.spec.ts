@@ -55,6 +55,10 @@ test.describe('Journal', () => {
     const journalEntriesResponse = page.waitForResponse(/api\/journal-entries/);
     await login(page);
     await page.locator('mat-list-item', { hasText: 'e2e test' }).first().click();
+    const nameDialog = page.getByRole('dialog');
+    await nameDialog.getByRole('textbox').fill('Guest');
+    await nameDialog.getByRole('button', { name: 'OK' }).click();
+    await page.waitForTimeout(100);
     await page.getByRole('button', { name: 'OK' }).click();
     await page.getByRole('tab', { name: 'Journal' }).click();
     await journalEntriesResponse;
