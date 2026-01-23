@@ -41,12 +41,10 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
 
   await page.waitForTimeout(500);
 
-  const journalResponse = page.waitForResponse(/api\/journal-entries/);
   await modal.getByRole('button', { name: 'Erfassen' }).click();
-  await journalResponse;
+  await expect(page.locator('tbody tr')).toHaveCount(rowCount + 1);
+  await expect(modal.getByLabel('Absender')).toHaveValue('');
   await modal.getByRole('button', { name: 'Schliessen' }).click();
-
-  await expect(page.locator('tbody').getByRole('row')).toHaveCount(rowCount + 1);
   await expect(modal).not.toBeVisible();
 }
 
