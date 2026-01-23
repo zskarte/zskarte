@@ -19,7 +19,7 @@ import {
   EmptyMediaComponent,
   EmptyTitleComponent,
   EmptyDescriptionComponent,
-} from '../../empty/empty.component';
+} from '../../ui/empty';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
 

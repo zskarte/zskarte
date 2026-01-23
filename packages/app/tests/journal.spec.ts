@@ -97,7 +97,8 @@ test.describe('Journal', () => {
     await page.waitForSelector('.journal-sidebar', { state: 'hidden' }).catch(() => {});
     await page.waitForSelector('app-journal-draw-overlay', { state: 'visible' });
     
-    await page.getByRole('button', { name: 'Add' }).click();
+    // Wait for the draw dialog to appear and select a sign
+    await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).waitFor({ state: 'visible' });
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
     

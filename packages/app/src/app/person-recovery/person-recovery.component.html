@@ -2,16 +2,30 @@
   <h2>{{ i18n.get('personRecoveryOverview') }}</h2>
 </app-dialog-header>
 <app-dialog-body>
+  <mat-card class="recovery-container">
   @let affectedPersons = affectedPersons$ | async;
-  @for (element of affectedPersons; track $index) {
-    <div class="recovery-row">
-      <img [src]="element.sign.src" [alt]="element.sign.text">
-      <span class="text">{{ element.sign.text }}</span>
-      <span>{{ element.affectedPersons }}</span>
-    </div>
-  } @empty {
-    <p class="recovery-empty">{{ i18n.get('noMissingPersons') }}</p>
+  @if (affectedPersons && affectedPersons.length > 0) {
+    @for (element of affectedPersons; track $index) {
+      <div class="recovery-row">
+        <img [src]="element.sign.src" [alt]="element.sign.text">
+        <span class="text">{{ element.sign.text }}</span>
+        <span>{{ element.affectedPersons }}</span>
+      </div>
+    }
+  } @else {
+    <app-empty>
+      
+      <app-empty-header>
+        
+        <app-empty-media variant="icon">
+          <mat-icon>sensor_occupied</mat-icon>
+        </app-empty-media>
+        <app-empty-title>{{ i18n.get('noMissingPersons') }}</app-empty-title>
+        
+      </app-empty-header>
+    </app-empty>
   }
+  </mat-card>
 </app-dialog-body>
 <app-dialog-footer>
   @if (affectedPersons?.length) {
