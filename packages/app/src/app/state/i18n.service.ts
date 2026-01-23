@@ -3534,7 +3534,7 @@ export class I18NService {
       `,
     },
     fillAllFields: {
-      de: 'Bitte füllen Sie alle benötigten Felder.',
+      de: 'Bitte füllen Sie alle benötigten Felder aus.',
       en: 'Please fill in all required fields.',
       fr: 'Veuillez remplir tous les champs obligatoires.',
     },
@@ -3742,6 +3742,11 @@ export class I18NService {
       de: 'Textvorlage für neue Journal Meldungen',
       en: 'Text template for new journal entries',
       fe: 'Modèle de texte pour les nouvelles entrées de journal',
+    },
+    carefull: {
+      de: 'Achtung',
+      en: 'Carefull',
+      fr: 'Attention',
     },
   };
 

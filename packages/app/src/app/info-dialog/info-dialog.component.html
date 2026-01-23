@@ -1,6 +1,8 @@
 <app-dialog-header>
   @if (data.title) {
     <h2>{{ data.title }}</h2>
+  } @else {
+    <h2>{{ i18n.get('carefull') }}</h2>
   }
 </app-dialog-header>
 <app-dialog-body>

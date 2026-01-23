@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { SessionService } from '../session/session.service';
 import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
+import { MatCard } from "@angular/material/card";
 
 @Component({
   selector: 'app-organisation-settings',
@@ -24,7 +25,8 @@ import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } fro
     DialogHeaderComponent,
     DialogBodyComponent,
     DialogFooterComponent,
-  ],
+    MatCard
+],
 })
 export class OrganisationSettings {
   private dialogRef = inject<MatDialogRef<OrganisationSettings>>(MatDialogRef);

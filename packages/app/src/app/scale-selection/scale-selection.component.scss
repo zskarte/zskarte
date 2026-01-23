@@ -1,18 +1,21 @@
-.scaleSelection {
+.content {
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+mat-card {
+  display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  column-gap: 10px;
+  gap: 1rem;
 }
 
-.mat-mdc-dialog-content.scaleSelection {
-  padding: 8px;
-}
-
-.scaleSelection > mat-form-field {
-  width: 200px;
+mat-card > mat-form-field {
+  width: calc(50% - .5rem);
+  min-width: 200px;
   flex-grow: 1;
 }
-
 
 .buttons {
   display: flex;

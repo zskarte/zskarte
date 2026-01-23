@@ -2,7 +2,9 @@
   <h2>{{ i18n.get('confirm') }}</h2>
 </app-dialog-header>
 <app-dialog-body>
-  {{ data.message }}
+  <mat-card>
+    {{ data.message }}
+  </mat-card>
 </app-dialog-body>
 <app-dialog-footer>
   <button mat-stroked-button (click)="cancel()">{{ data.cancelLabel ?? i18n.get('cancel') }}</button>

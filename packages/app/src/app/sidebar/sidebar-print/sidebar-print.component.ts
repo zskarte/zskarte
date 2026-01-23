@@ -20,6 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { PermissionType, PaperDimensions, IZsMapPrintState, AccessTokenType } from '@zskarte/types';
+import { MatCard } from "@angular/material/card";
 
 @Component({
   selector: 'app-sidebar-print',
@@ -33,7 +34,8 @@ import { PermissionType, PaperDimensions, IZsMapPrintState, AccessTokenType } fr
     MatRadioModule,
     FormsModule,
     MatCheckboxModule,
-  ],
+    MatCard
+],
 })
 export class SidebarPrintComponent {
   i18n = inject(I18NService);
