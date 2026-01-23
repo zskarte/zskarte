@@ -1,10 +1,15 @@
-@if (qrCodeDataUrl | async; as qrCode) {
-  <div>
-    @if (qrCode) {
-      <img [src]="qrCode" alt="QR Code" />
-    }
-    @if (qrCode && showJoinCode) {
-      <span>{{ joinCode }}</span>
-    }
-  </div>
-}
+<app-dialog-header>
+  <h2>{{ i18n.get('share') }}</h2>
+</app-dialog-header>
+<app-dialog-body>
+  @if (qrCodeDataUrl | async; as qrCode) {
+    <div>
+      @if (qrCode) {
+        <img [src]="qrCode" alt="QR Code" />
+      }
+      @if (qrCode && showJoinCode) {
+        <span>{{ joinCode }}</span>
+      }
+    </div>
+  }
+</app-dialog-body>

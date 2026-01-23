@@ -402,7 +402,7 @@ export class SelectedFeatureComponent implements OnDestroy {
     }
 
     const confirm = this.dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('removeFeatureFromMapConfirm'),
+      data: { message: this.i18n.get('removeFeatureFromMapConfirm') },
     });
     confirm.afterClosed().subscribe((r) => {
       if (r && drawElement.id) {
