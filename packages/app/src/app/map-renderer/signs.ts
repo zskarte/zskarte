@@ -1,6 +1,28 @@
 import { Sign } from '@zskarte/types';
 
 export class Signs {
+  public static HAZARD_SIGN_ID = 57;
+  public static FORMATION_SIGN_ID = 210;
+  public static TRUCK_SIGN_ID = 190;
+  public static MOTOR_VEHICLE_SIGN_ID = 192;
+  public static TRANSPORT_VEHICLE_SIGN_ID = 201;
+
+  public static TRANSPORT_SIGN_IDS = [
+    Signs.TRUCK_SIGN_ID,
+    Signs.TRANSPORT_VEHICLE_SIGN_ID,
+    Signs.MOTOR_VEHICLE_SIGN_ID,
+  ];
+
+  public static OPERATIONS_COMMANDER_SIGN_ID = 40;
+  public static GROUP_LEADER_SIGN_ID = 60;
+  public static PLATOON_LEADER_SIGN_ID = 84;
+
+  public static LEADER_SIGN_IDS = [
+    Signs.OPERATIONS_COMMANDER_SIGN_ID,
+    Signs.GROUP_LEADER_SIGN_ID,
+    Signs.PLATOON_LEADER_SIGN_ID,
+  ];
+
   public static SIGNS: Sign[] = [
     {
       id: 1,
@@ -388,14 +410,14 @@ export class Signs {
       fr: 'Personnes enfermées ou retranchées',
     },
     {
-      id: 40,
+      id: Signs.OPERATIONS_COMMANDER_SIGN_ID,
       kat: 'formation',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Einsatzleiter.svg',
       de: 'Einsatzleiter',
-      en: 'Einsatzleiter',
-      fr: 'Operations manager',
+      en: 'Head of operations',
+      fr: 'Chef des opérations',
     },
     {
       id: 41,
@@ -413,9 +435,10 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Einsatzzentrale.svg',
-      de: 'Einsatzzentrale',
-      en: 'Operations center',
-      fr: 'Centrale d‘engagement',
+      de: 'Einsatzzentrale (EZ)',
+      en: 'Operations center (OC)',
+      fr: 'Centrale d‘engagement (CE)',
+      deprecated: true,
     },
     {
       id: 43,
@@ -538,7 +561,7 @@ export class Signs {
       fr: "Danger en cas d'extinction avec de l'eau",
     },
     {
-      id: 57,
+      id: Signs.HAZARD_SIGN_ID,
       kat: 'danger',
       type: 'Point',
       color: '#FF9100',
@@ -566,9 +589,10 @@ export class Signs {
       de: 'Gemeindeführungsorgan',
       en: 'Municipality executive body',
       fr: 'Organe de conduite communal',
+      deprecated: true,
     },
     {
-      id: 60,
+      id: Signs.GROUP_LEADER_SIGN_ID,
       kat: 'formation',
       type: 'Point',
       color: '#0000FF',
@@ -586,6 +610,7 @@ export class Signs {
       de: 'Gruppe',
       en: 'Group',
       fr: 'Groupe',
+      deprecated: true,
     },
     {
       id: 62,
@@ -656,6 +681,7 @@ export class Signs {
       de: 'Kantonales Führungsorgan',
       en: 'Cantonal executive body',
       fr: 'Organe de conduite cantonal',
+      deprecated: true,
     },
     {
       id: 69,
@@ -696,6 +722,7 @@ export class Signs {
       de: 'Kommandoposten Front',
       en: 'Command post front',
       fr: 'PC engagement',
+      deprecated: true,
     },
     {
       id: 73,
@@ -706,6 +733,7 @@ export class Signs {
       de: 'Kommandoposten Rückwärtiges',
       en: 'Command post rear',
       fr: 'PC opérations',
+      deprecated: true,
     },
     {
       id: 74,
@@ -726,6 +754,7 @@ export class Signs {
       de: 'Kompanie',
       en: 'Company',
       fr: 'Compagnie',
+      deprecated: true,
     },
     {
       id: 76,
@@ -786,6 +815,7 @@ export class Signs {
       de: 'Mobile Einsatzzentrale',
       en: 'Mobile operations centre',
       fr: 'Centrale d’engagement mobile',
+      deprecated: true,
     },
     {
       id: 82,
@@ -808,12 +838,12 @@ export class Signs {
       fr: 'Pollution aux hydrocarbures',
     },
     {
-      id: 84,
+      id: Signs.PLATOON_LEADER_SIGN_ID,
       kat: 'formation',
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Offizier-Zugfuehrer.svg',
-      de: 'Offizier - Zugführer',
+      de: 'Zugführer',
       en: 'Officer',
       fr: 'Officier',
     },
@@ -877,6 +907,7 @@ export class Signs {
       de: 'Regionales Führungsorgan',
       en: 'Regional executive body',
       fr: 'Organe de conduite régional',
+      deprecated: true,
     },
     {
       id: 91,
@@ -1116,6 +1147,7 @@ export class Signs {
       de: 'Trupp',
       en: 'Patrol',
       fr: 'Patrouille',
+      deprecated: true,
     },
     {
       id: 115,
@@ -1263,6 +1295,7 @@ export class Signs {
       de: 'Zug',
       en: 'Section',
       fr: 'Section',
+      deprecated: true,
     },
     {
       id: 129,
@@ -1343,6 +1376,7 @@ export class Signs {
       de: 'Personenbergungsübersicht',
       en: 'Passenger recovery overview',
       fr: "Vue d'ensemble de sauvetage",
+      deprecated: true,
     },
     {
       id: 148,
@@ -1543,6 +1577,7 @@ export class Signs {
       de: 'Bataillon',
       en: 'Battalion',
       fr: 'Bataillon',
+      deprecated: true,
     },
     {
       id: 170,
@@ -1560,9 +1595,9 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/EZ.svg',
-      de: 'EZ',
-      en: 'EZ',
-      fr: 'EZ',
+      de: 'Einsatzzentrale',
+      en: 'Operations center',
+      fr: 'Centrale d‘engagement',
     },
     {
       id: 172,
@@ -1583,6 +1618,7 @@ export class Signs {
       de: 'Einsatzleiter FW',
       en: 'Fire department commander',
       fr: "Chef d'intervention pompiers",
+      deprecated: true,
     },
     {
       id: 174,
@@ -1593,6 +1629,7 @@ export class Signs {
       de: 'Einsatzleiter P',
       en: 'Police commander',
       fr: "Chef d'intervention police",
+      deprecated: true,
     },
     {
       id: 175,
@@ -1640,9 +1677,9 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Front.svg',
-      de: 'Front',
-      en: 'Front',
-      fr: 'Front',
+      de: 'Kommandoposten Front',
+      en: 'Command post front',
+      fr: 'PC engagement',
     },
     {
       id: 180,
@@ -1650,9 +1687,9 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/GFO.svg',
-      de: 'GFO',
-      en: 'GFO',
-      fr: 'GFO',
+      de: 'Gemeindeführungsorgan (GFO)',
+      en: 'Municipality executive body (GFO)',
+      fr: 'Organe de conduite communal (GFO)',
     },
     {
       id: 181,
@@ -1663,6 +1700,7 @@ export class Signs {
       de: 'Gruppe-p FW',
       en: 'Fire department group',
       fr: 'Groupe pompiers',
+      deprecated: true,
     },
     {
       id: 182,
@@ -1673,6 +1711,7 @@ export class Signs {
       de: 'Gruppe-p P',
       en: 'Police group',
       fr: 'Groupe police',
+      deprecated: true,
     },
     {
       id: 183,
@@ -1683,6 +1722,7 @@ export class Signs {
       de: 'Gruppe-p San',
       en: 'Medical group',
       fr: 'Groupe sanitaire',
+      deprecated: true,
     },
     {
       id: 184,
@@ -1693,6 +1733,7 @@ export class Signs {
       de: 'Gruppe-p',
       en: 'Group',
       fr: 'Groupe',
+      deprecated: true,
     },
     {
       id: 185,
@@ -1703,6 +1744,7 @@ export class Signs {
       de: 'Gruppenführer FW',
       en: 'Fire department group leader',
       fr: 'Chef de groupe pompiers',
+      deprecated: true,
     },
     {
       id: 186,
@@ -1713,6 +1755,7 @@ export class Signs {
       de: 'Gruppenführer P',
       en: 'Police group leader',
       fr: 'Chef de groupe police',
+      deprecated: true,
     },
     {
       id: 187,
@@ -1740,12 +1783,12 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/KFO.svg',
-      de: 'KFO',
-      en: 'KFO',
-      fr: 'KFO',
+      de: 'Kantonales Führungsorgan (KFO)',
+      en: 'Cantonal executive body (KFO)',
+      fr: 'Organe de conduite cantonal (KFO)',
     },
     {
-      id: 190,
+      id: Signs.TRUCK_SIGN_ID,
       kat: 'action',
       type: 'Point',
       color: '#0000FF',
@@ -1760,12 +1803,12 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/MEZ.svg',
-      de: 'MEZ',
-      en: 'MEZ',
-      fr: 'MEZ',
+      de: 'Mobile Einsatzzentrale (MEZ)',
+      en: 'Mobile operations centre (MEZ)',
+      fr: 'Centrale d’engagement mobile (MEZ)',
     },
     {
-      id: 192,
+      id: Signs.MOTOR_VEHICLE_SIGN_ID,
       kat: 'action',
       type: 'Point',
       color: '#0000FF',
@@ -1793,6 +1836,7 @@ export class Signs {
       de: 'Offizier Zugführer FW',
       en: 'Fire department platoon leader',
       fr: 'Chef de section pompiers',
+      deprecated: true,
     },
     {
       id: 195,
@@ -1803,6 +1847,7 @@ export class Signs {
       de: 'Offizier Zugführer P',
       en: 'Police platoon leader',
       fr: 'Chef de section police',
+      deprecated: true,
     },
     {
       id: 196,
@@ -1810,9 +1855,9 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/RFO.svg',
-      de: 'RFO',
-      en: 'RFO',
-      fr: 'RFO',
+      de: 'Regionales Führungsorgan (RFO)',
+      en: 'Regional executive body (RFO)',
+      fr: 'Organe de conduite régional (RFO)',
     },
     {
       id: 197,
@@ -1820,9 +1865,9 @@ export class Signs {
       type: 'Point',
       color: '#0000FF',
       src: 'BABS/Rueck.svg',
-      de: 'Rück',
-      en: 'Rear',
-      fr: 'Arrière',
+      de: 'Kommandoposten Rück (KP Rück)',
+      en: 'Command post rear',
+      fr: 'PC opérations',
     },
     {
       id: 198,
@@ -1855,7 +1900,7 @@ export class Signs {
       fr: 'Unité technique',
     },
     {
-      id: 201,
+      id: Signs.TRANSPORT_VEHICLE_SIGN_ID,
       kat: 'action',
       type: 'Point',
       color: '#0000FF',
@@ -1873,6 +1918,7 @@ export class Signs {
       de: 'Trupp-p FW',
       en: 'Fire department squad',
       fr: 'Équipe pompiers',
+      deprecated: true,
     },
     {
       id: 203,
@@ -1883,6 +1929,7 @@ export class Signs {
       de: 'Trupp-p P',
       en: 'Police squad',
       fr: 'Équipe police',
+      deprecated: true,
     },
     {
       id: 204,
@@ -1893,6 +1940,7 @@ export class Signs {
       de: 'Trupp-p San',
       en: 'Medical squad',
       fr: 'Équipe sanitaire',
+      deprecated: true,
     },
     {
       id: 205,
@@ -1903,6 +1951,7 @@ export class Signs {
       de: 'Trupp-p',
       en: 'Squad',
       fr: 'Équipe',
+      deprecated: true,
     },
     {
       id: 206,
@@ -1915,16 +1964,6 @@ export class Signs {
       fr: 'Zone de survol interdite',
     },
     {
-      id: 207,
-      kat: 'formation',
-      type: 'Point',
-      color: '#0000FF',
-      src: 'BABS/Zug-p-FW.svg',
-      de: 'Zug-p FW',
-      en: 'Fire department platoon',
-      fr: 'Section pompiers',
-    },
-    {
       id: 208,
       kat: 'formation',
       type: 'Point',
@@ -1933,6 +1972,7 @@ export class Signs {
       de: 'Zug-p P',
       en: 'Police platoon',
       fr: 'Section police',
+      deprecated: true,
     },
     {
       id: 209,
@@ -1943,6 +1983,17 @@ export class Signs {
       de: 'Zug-p',
       en: 'Platoon',
       fr: 'Section',
+      deprecated: true,
+    },
+    {
+      id: Signs.FORMATION_SIGN_ID,
+      kat: 'formation',
+      type: 'Point',
+      color: '#0000FF',
+      src: 'BABS/Bataillon.svg',
+      de: 'Formation (Trupp, Gruppe, Zug, Kompanie, Bataillon)',
+      en: 'Formation (Squad, Group, Platoon, Company, Battalion)',
+      fr: 'Formation (Équipe, Groupe, Section, Compagnie, Bataillon)',
     },
   ];
 
