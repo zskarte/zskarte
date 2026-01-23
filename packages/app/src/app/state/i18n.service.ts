@@ -3629,9 +3629,9 @@ export class I18NService {
       fr: 'Rechercher une adresse',
     },
     searchAddressUsageHint: {
-      de: 'Um Adressinformationen einzufügen, geben Sie "addr:" ein oder drücken Sie Ctrl+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Ctrl+Leertaste.',
-      en: 'To insert address information, type "addr:" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',
-      fr: 'Pour insérer une adresse, saisissez "addr:" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.',
+      de: 'Um Adressinformationen einzufügen, geben Sie "@" ein oder drücken Sie Ctrl+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Ctrl+Leertaste.',
+      en: 'To insert address information, type "@" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',
+      fr: 'Pour insérer une adresse, saisissez "@" ou appuyez sur Ctrl+Espace.\nPour la modifier, double-cliquez dans la zone ou appuyez sur Ctrl+Espace.',
     },
     showMap: {
       de: 'Map anzeigen',

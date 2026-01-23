@@ -283,8 +283,12 @@ export class TextAreaWithAddressSearchComponent {
   onInputText() {
     const textarea = this.textContentInput().nativeElement;
     const cursorPosition = textarea.selectionStart || 0;
-    if (cursorPosition >= 5 && textarea.value.slice(cursorPosition - 5, cursorPosition) === 'addr:') {
-      textarea.selectionStart = cursorPosition - 5;
+    if (
+      cursorPosition >= 2 &&
+      textarea.value.charAt(cursorPosition - 1) === '@' &&
+      /\s/.test(textarea.value.charAt(cursorPosition - 2))
+    ) {
+      textarea.selectionStart = cursorPosition - 1;
       textarea.selectionEnd = cursorPosition;
       this.textContentSelectedArea = [textarea.selectionStart, textarea.selectionEnd];
       this.startEdit('');

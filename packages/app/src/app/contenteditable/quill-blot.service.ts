@@ -143,15 +143,15 @@ export class QuillBlotService {
       if (!onlyAddrKeyword && this.isAddressBlot(blot)) {
         return { text: (blot.domNode as HTMLElement).innerText, blotElem: blot.domNode as HTMLElement };
       }
-      //check if inside text and there stand "addr:" left of cursor
+      //check if inside text and there stand " @" left of cursor
       if (blot.statics?.blotName === 'text' || (blot as any).constructor?.blotName === 'text') {
         const text = (blot as any).text as string;
-        const lookbehind = 5;
-        if (offset >= lookbehind) {
-          const prevText = text.substring(offset - lookbehind, offset);
-          if (prevText === 'addr:') {
+        if (offset >= 2) {
+          const prevChar = text.charAt(offset - 1);
+          const prevPrevChar = text.charAt(offset - 2);
+          if (prevChar === '@' && /\s/.test(prevPrevChar)) {
             const blotStart = blot.offset(this.quill.scroll);
-            this.quill.deleteText(blotStart + offset - lookbehind, lookbehind, Quill.sources.USER);
+            this.quill.deleteText(blotStart + offset - 1, 1, Quill.sources.USER);
             return { text: '' };
           }
         }
