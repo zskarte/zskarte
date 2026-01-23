@@ -183,6 +183,7 @@ export class ZsMapStateService {
         outgoingFilter: false,
         decisionFilter: false,
         keyMessageFilter: false,
+        eingangFilter: false,
       },
       searchConfig: {
         filterMapSection: false,
