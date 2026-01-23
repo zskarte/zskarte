@@ -1,5 +1,7 @@
-<div class="recovery">
+<app-dialog-header>
   <h2>{{ i18n.get('personRecoveryOverview') }}</h2>
+</app-dialog-header>
+<app-dialog-body>
   @let affectedPersons = affectedPersons$ | async;
   @for (element of affectedPersons; track $index) {
     <div class="recovery-row">
@@ -10,12 +12,11 @@
   } @empty {
     <p class="recovery-empty">{{ i18n.get('noMissingPersons') }}</p>
   }
-
+</app-dialog-body>
+<app-dialog-footer>
   @if (affectedPersons?.length) {
-    <div class="actions">
-      <button mat-flat-button color="primary" (click)="print(affectedPersons ?? [])">
-        {{i18n.get('print')}}
-      </button>
-    </div>
+    <button mat-flat-button color="primary" (click)="print(affectedPersons ?? [])">
+      {{i18n.get('print')}}
+    </button>
   }
-</div>
+</app-dialog-footer>

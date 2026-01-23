@@ -39,6 +39,7 @@ import { MapPrintService } from './map-print.service';
 import { MapSelectService } from './map-select.service';
 import { SearchService } from '../search/search.service';
 import { MapSearchAreaService } from './map-search-area.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export const LAYER_Z_INDEX_SEARCH_AREA_LAYER = 1000000;
 export const LAYER_Z_INDEX_CURRENT_LOCATION = 1000010;
@@ -86,7 +87,7 @@ export class MapRendererService {
 
   private _currentSketch: FeatureLike | undefined;
   private _drawHole!: DrawHole;
-  private _currentSketchSize = new BehaviorSubject<string | null>(null);
+  private _tooltip = new BehaviorSubject<string | null>(null);
   private _mousePosition = new BehaviorSubject<number[]>([0, 0]);
   private _rotation = new BehaviorSubject<number>(0);
   private existingCurrentLocations: VectorLayer<VectorSource<Feature<Point>>> | undefined;
@@ -100,6 +101,8 @@ export class MapRendererService {
   private _state = inject(ZsMapStateService);
   private _drawElementCache: Record<string, { layer: string | undefined; element: ZsMapBaseDrawElement }> = {};
   private _globalSymbolScale = 1;
+
+  private showNames = toSignal(this._state.observeShowNames());
 
   public constructor() {
     this._search.setZoomToFit(this.zoomToFit.bind(this));
@@ -393,18 +396,28 @@ export class MapRendererService {
     this._map.on('pointermove', (event) => {
       this._mousePosition.next(event.pixel);
       this._state.setCoordinates(event.coordinate);
-      let sketchSize: string | null = null;
+      let tooltip: string | null = null;
       this._map.forEachFeatureAtPixel(event.pixel, (feature, layer) => {
         if (feature && feature !== this._searchArea.getSearchAreaOverlayFeature()) {
           const geom = feature.getGeometry();
           if (geom instanceof Polygon) {
-            sketchSize = formatArea(geom);
+            tooltip = formatArea(geom);
           } else if (geom instanceof LineString) {
-            sketchSize = formatLength(geom);
+            tooltip = formatLength(geom);
+          }
+
+          if (!this.showNames()) {
+            // Show names as tooltip, if they are not already shown
+            const label = feature.get('sig')?.label;
+            if (tooltip && label) {
+              tooltip = `${label} (${tooltip})`
+            } else if (label) {
+              tooltip = label;
+            }
           }
         }
       });
-      this._currentSketchSize.next(sketchSize);
+      this._tooltip.next(tooltip);
     });
 
     const debouncedZoomSave = debounce(() => {
@@ -750,8 +763,8 @@ export class MapRendererService {
     return this._mousePosition.asObservable();
   }
 
-  public observeCurrentSketchSize(): Observable<string | null> {
-    return this._currentSketchSize.asObservable();
+  public observeTooltip(): Observable<string | null> {
+    return this._tooltip.asObservable();
   }
 
   public observeRotation(): Observable<number> {

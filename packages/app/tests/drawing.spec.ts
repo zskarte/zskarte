@@ -96,7 +96,7 @@ test.describe('Drawing', () => {
     // Filter should be visible
     await expect(page.getByRole('button', { name: 'ABC Dekontaminationsstelle' })).toBeVisible();
 
-    await page.getByRole('radio', { name: 'Layer 1' }).check();
+    await page.getByRole('radio', { name: layerName }).check();
     await page.getByRole('button', { name: 'Ebene löschen' }).click();
     await page.getByRole('button', { name: 'Bestätigen' }).click();
 

@@ -2861,7 +2861,7 @@ export class I18NService {
       fr: 'Aucune ressource disponible',
     },
     noMissingPersons: {
-      de: 'Keine auswirkungen auf Personen gefunden',
+      de: 'Keine Auswirkungen auf Personen gefunden',
       en: 'No impacts on persons found',
       fr: 'Aucun effet sur les personnes',
     },
@@ -3737,6 +3737,11 @@ export class I18NService {
       de: 'Element ist auf einer anderen Ebene eingezeichnet und kann nicht editiert werden.',
       fr: "L'élément est dessiné sur une autre couche et ne peut pas être édité.",
       en: 'Element is drawn on a different layer and cannot be edited.',
+    },
+    journalMessageTextTemplate: {
+      de: 'Textvorlage für neue Journal Meldungen',
+      en: 'Text template for new journal entries',
+      fe: 'Modèle de texte pour les nouvelles entrées de journal',
     },
   };
 

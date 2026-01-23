@@ -9,6 +9,7 @@ import {
   IZsMapOperation,
   IZsMapOrganization,
   IZsMapOrganizationMapLayerSettings,
+  IZsMapOrganizationSettings,
   IZsMapSession,
   Locale,
   PermissionType,
@@ -323,6 +324,25 @@ export class SessionService {
           (this.isWorkLocal() ? (await MapLayerService.loadLocalMapLayerSettings())?.map_layer_favorites : undefined),
       ),
     );
+  }
+
+  public async saveOrganizationSettings(data: IZsMapOrganizationSettings) {
+    const organization = this.getOrganization();
+    if (organization?.documentId) {
+      await this._api.put(`/api/organizations/${organization.documentId}/settings`, { data });
+
+      organization.settings = data;
+      //update session object
+      const currentSession = this._session.value;
+      if (currentSession) {
+        currentSession.organization = organization;
+        this._session.next(currentSession);
+      }
+    }
+  }
+
+  public getOrganizationSettings() {
+    return this.getOrganization()?.settings;
   }
 
   public async saveOrganizationMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {

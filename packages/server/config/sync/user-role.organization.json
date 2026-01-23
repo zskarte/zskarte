@@ -176,6 +176,11 @@
       "locale": null
     },
     {
+      "action": "api::organization.organization.updateSettings",
+      "documentId": "qj5abnokgbx2uoi84xdenn4o",
+      "locale": null
+    },
+    {
       "action": "api::wms-source.wms-source.create",
       "documentId": "aygbzsq5oyjllfql9ltx6lg2",
       "locale": null
