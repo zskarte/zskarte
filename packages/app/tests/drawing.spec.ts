@@ -43,6 +43,7 @@ test.describe('Drawing', () => {
   test('add text', async ({ page }) => {
     await page.getByRole('button', { name: 'Add' }).click();
     await page.getByRole('button', { name: 'Text' }).click();
+    await page.waitForSelector('app-text-dialog', { state: 'visible' });
     await page.getByPlaceholder('Ihr Text').fill('A TEST');
     await page.getByRole('button', { name: 'OK' }).click();
     await clickOnMap(page, { x: 700, y: 400 });
