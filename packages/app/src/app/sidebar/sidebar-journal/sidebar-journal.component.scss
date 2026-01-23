@@ -28,6 +28,7 @@ mat-panel-title {
 
 :host ::ng-deep {
   .mat-expansion-panel {
+    overflow: hidden;
     background: transparent;
 
     &.mat-expanded {
@@ -79,6 +80,10 @@ mat-panel-title {
     .mat-mdc-tab-header,
     .mat-tab-header-container {
       border-bottom: 1px solid #dedede !important;
+      position: absolute;
+      width: 100%;
+      z-index: 2;
+      background-color: white;
     }
 
     .mat-tab-group {
@@ -86,6 +91,10 @@ mat-panel-title {
       flex-direction: column;
       flex: 1;
       height: 100%;
+    }
+
+    .mat-mdc-tab-body-wrapper {
+      margin-top: 48px;
     }
 
     .mat-tab-body-wrapper {
@@ -110,7 +119,7 @@ mat-panel-title {
       justify-content: center;
       flex: 1;
       min-height: 0;
-      overflow: visible;
+      overflow: auto;
       box-sizing: border-box;
     }
   }
