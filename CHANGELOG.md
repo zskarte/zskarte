@@ -1,5 +1,30 @@
 # Changelog
 
+## 6.0.1
+- Revert journal pagination logic
+
+## 6.0.0
+- Many UI/UX optimisations
+- Additional draw layers
+- Import export of journal together with map data
+- Separate searchable help section
+- Enter name directly after open operation
+- Auto focus feature search when clicking add
+- Add rectangle and circle drawing tools
+- Global icon zoom & hide names
+- Gefahrentafel symbol with UN number visible on symbol
+- Customizable formation/transport/leader symbols
+- Resource overview
+- Message template (expert view - organization settings)
+- Militatry time format for message time
+- Auto increment messagenumber selectable(default)
+- After decision message goes back to be drawn on map
+- Add support for Shape-file layers
+- Add autogenerate offline searchable layers for addresses/places
+- Compass / Orientation on map
+- Preparation for work offline (download required data)
+- Diverse small bugfixes
+
 ## 5.1.0
 - Offline Mode for journal (temporarly/Work offline)
 - Search for street or water(section) goemetry
