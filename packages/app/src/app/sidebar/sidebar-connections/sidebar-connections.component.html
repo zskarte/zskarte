@@ -2,7 +2,7 @@
   @if (labelEdit) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('myName') }}</mat-label>
-      <input type="text" matInput [ngModel]="session.getLabel()" (ngModelChange)="label$.next($event)" maxlength="40" />
+      <input type="text" matInput [ngModel]="session.getLabel()" (ngModelChange)="label.set($event)" maxlength="40" />
     </mat-form-field>
   } @else {
     <span class="label-span">{{ session.getLabel() }}</span>
@@ -16,11 +16,11 @@
   </button>
 </div>
 <hr />
-@if (!localOperation && (isOnline | async)) {
+@if (!offlineService.localOperation() && offlineService.isOnline()) {
   <div class="connections-container">
     <mat-slide-toggle
       color="primary"
-      [ngModel]="showCurrentLocation$ | async"
+      [ngModel]="showCurrentLocation()"
       (change)="state.updateShowCurrentLocation($any($event).checked)"
     >
       <mat-label>{{ i18n.get('shareLocation') }}</mat-label>
@@ -28,7 +28,7 @@
     <hr />
     <mat-label class="font-semibold">{{ i18n.get('online') }}</mat-label>
     <mat-list>
-      @for (connection of connections$ | async; track connection) {
+      @for (connection of connections(); track connection) {
         <mat-list-item class="flex-container">
           <div class="flex-container-connection">
             <div class="flex-container-connection-label">
@@ -46,50 +46,74 @@
     </mat-list>
   </div>
 }
-@if (!(isOnline | async)) {
+@if (!offlineService.isOnline()) {
   <div class="offline-container">
     <mat-icon>signal_wifi_off</mat-icon>
     <mat-label class="font-gray">{{ i18n.get('youAreOffline') }}</mat-label>
   </div>
 }
-@if (localOperation) {
+<ng-template #workOfflineContent>
   <div class="local-container">
     <p>{{ i18n.get('localAvailabilityStepsIntro') }}</p>
-      <mat-checkbox [checked]="useLocalBaseMap" [disabled]="useLocalBaseMap" (click)="changeToLocalMap()">{{
-        i18n.get('useLocalBaseMap')
-      }}</mat-checkbox>
-      <div class="checkbox-container" [class.active]="isLoadingBaseMap || downloadLocalBaseMap" (click)="downloadLocalMap()">
-        @if (!isLoadingBaseMap) {
-          <mat-checkbox 
-            [checked]="downloadLocalBaseMap" 
-            [disabled]="isLoadingBaseMap || downloadLocalBaseMap"
-            (click)="$event.stopPropagation()">
-          </mat-checkbox>
-        } @else {
-          <mat-spinner diameter="20"></mat-spinner>
-        }
-        <span class="checkbox-label">{{ i18n.get('downloadLocalBaseMap') }}</span>
-      </div>
-      @if (isLoadingBaseMap) {
-        <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
+    <button mat-flat-button color="primary" type="button" (click)="prepareLocalAvailability()">
+      {{ i18n.get('prepareLocalAvailability') }}
+    </button>
+    <div class="task">
+      @if (offlineService.downloadLocalBaseMap()) {
+        <mat-icon>done</mat-icon>
+      } @else {
+        <mat-icon>report_problem</mat-icon>
       }
-      <mat-checkbox [checked]="hideUnavailableLayers" [disabled]="hideUnavailableLayers" (click)="hideUnavailable()">{{
-        i18n.get('hideUnavailableLayers')
-      }}</mat-checkbox>
-      <div class="checkbox-container" [class.active]="isLoadingMapLayers || downloadAvailableLayers" (click)="downloadAvailable()">
-        @if (!isLoadingMapLayers) {
-          <mat-checkbox 
-            [checked]="downloadAvailableLayers" 
-            [disabled]="isLoadingMapLayers || downloadAvailableLayers"
-            (click)="$event.stopPropagation()">
-          </mat-checkbox>
-        } @else {
-          <mat-spinner diameter="20"></mat-spinner>
-        }
-        <span class="checkbox-label">{{ i18n.get('downloadAvailableLayers') }}</span>
-      </div>
-      <mat-checkbox [checked]="haveSearchCapability" [disabled]="haveSearchCapability" (click)="showSearchInfo($event)">{{
-        i18n.get('haveSearchCapability')
-      }}</mat-checkbox>
+      <span class="task-text">{{ i18n.get('downloadLocalBaseMap') }}</span>
+    </div>
+    @if (offlineService.isLoadingBaseMap()) {
+      <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
+    }
+    <div class="task">
+      @if (offlineService.useLocalBaseMap()) {
+        <mat-icon>done</mat-icon>
+      } @else {
+        <mat-icon>report_problem</mat-icon>
+      }
+      <span class="task-text">{{ i18n.get('useLocalBaseMap') }}</span>
+    </div>
+    <div class="task">
+      @if (offlineService.hideUnavailableLayers()) {
+        <mat-icon>done</mat-icon>
+      } @else {
+        <mat-icon>report_problem</mat-icon>
+      }
+      <span class="task-text">{{ i18n.get('hideUnavailableLayers') }}</span>
+    </div>
+    <div class="task">
+      @if (offlineService.downloadAvailableLayers()) {
+        <mat-icon>done</mat-icon>
+      } @else {
+        <mat-icon>report_problem</mat-icon>
+      }
+      <span class="task-text">{{ i18n.get('downloadAvailableLayers') }}</span>
+    </div>
+    <div class="task">
+      @if (offlineService.haveSearchCapability()) {
+        <mat-icon>done</mat-icon>
+      } @else {
+        <mat-icon>report_problem</mat-icon>
+      }
+      <span class="task-text">{{ i18n.get('haveSearchCapability') }}</span>
+      <mat-icon (click)="showSearchInfo($event)">info</mat-icon>
+    </div>
   </div>
+</ng-template>
+
+@if (offlineService.localOperation()) {
+  <ng-container>
+    <ng-container [ngTemplateOutlet]="workOfflineContent"></ng-container>
+  </ng-container>
+} @else {
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>{{ i18n.get('offlineData') }}</mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-container [ngTemplateOutlet]="workOfflineContent"></ng-container>
+  </mat-expansion-panel>
 }

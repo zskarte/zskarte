@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, TemplateRef, viewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapLegendDisplayComponent } from '../map-legend-display/map-legend-display.component';
 import { ZsMapStateService } from '../../state/state.service';
@@ -6,8 +6,8 @@ import { GeoadminService } from '../../map-layer/geoadmin/geoadmin.service';
 import { catchError, combineLatest, firstValueFrom, map, mergeMap, Observable, of, share, startWith, tap } from 'rxjs';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { I18NService } from '../../state/i18n.service';
-import { db, LocalBlobMeta, LocalBlobState, LocalMapInfo } from '../../db/db';
-import { BlobEventType, BlobOperation, BlobService } from '../../db/blob.service';
+import { db, LocalBlobState, LocalMapInfo } from '../../db/db';
+import { BlobEventType, BlobOperation } from '../../db/blob.service';
 import { WmsService } from '../../map-layer/wms/wms.service';
 import { WmsSourceComponent } from '../../map-layer/wms/wms-source/wms-source.component';
 import { WmsLayerOptionsComponent } from '../../map-layer/wms/wms-layer-options/wms-layer-options.component';
@@ -18,7 +18,6 @@ import { OperationService } from '../../session/operations/operation.service';
 import { OrganisationLayerSettingsComponent } from '../../map-layer/organisation-layer-settings/organisation-layer-settings.component';
 import { MapLayerService } from '../../map-layer/map-layer.service';
 import { BlobMetaOptionsComponent } from '../../map-layer/blob-meta-options/blob-meta-options.component';
-import { LOCAL_MAP_STYLE_PATH } from '../../session/default-map-values';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatActionList, MatListModule } from '@angular/material/list';
@@ -45,6 +44,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SidebarDrawLayers } from '../sidebar-draw-layers/sidebar-draw-layers';
 import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
+import { OfflineService } from '../../db/offline-service';
 
 @Component({
   selector: 'app-sidebar',
@@ -75,14 +75,14 @@ import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } fro
     DialogHeaderComponent,
   ],
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnDestroy {
   mapState = inject(ZsMapStateService);
   wmsService = inject(WmsService);
   private operationService = inject(OperationService);
   private _session = inject(SessionService);
   i18n = inject(I18NService);
   dialog = inject(MatDialog);
-  private _blobService = inject(BlobService);
+  offlineService = inject(OfflineService);
   private cdRef = inject(ChangeDetectorRef);
   private _mapLayerService = inject(MapLayerService);
   private _snackBar = inject(MatSnackBar);
@@ -256,6 +256,19 @@ export class SidebarComponent {
         }),
       )
       .subscribe();
+    this.mapSources.forEach((map) => {
+      if (this.isDownloadableMap(map.key)) {
+        this.offlineService.setUpdateMapCallbacks(map.key, this.updateMapCallback(map.key));
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.mapSources.forEach((map) => {
+      if (this.isDownloadableMap(map.key)) {
+        this.offlineService.setUpdateMapCallbacks(map.key, null);
+      }
+    });
   }
 
   switchMapSource(layer: ZsMapStateSource) {
@@ -442,12 +455,40 @@ export class SidebarComponent {
     );
   }
 
+  async uploadMap(event: Event, map: ZsMapStateSource) {
+    await this.offlineService.uploadMap(event, map);
+    this.mapDownloadStates[map] = 'loading';
+  }
+
+  async removeLocalMap(map: ZsMapStateSource): Promise<void> {
+    await this.offlineService.removeLocalMap(map);
+    this.mapDownloadStates[map] = 'missing';
+    const mapSource = this.mapSources.find((m) => m.key === map);
+    if (mapSource) {
+      mapSource.offlineAvailable = false;
+    }
+    this.mapProgress = 0;
+    this.cdRef.detectChanges();
+    this.reloadSourceIfLocal();
+  }
+
   private updateMapCallback(map: ZsMapStateSource) {
     // skipcq: JS-0116
     return async (eventType: BlobEventType, infos: BlobOperation) => {
       this.mapDownloadStates[map] = infos.localBlobMeta.blobState;
       this.mapProgress = infos.mapProgress;
       this.cdRef.detectChanges();
+      if (eventType !== 'mapProgress') {
+        const mapSource = this.mapSources.find((m) => m.key === map);
+        if (eventType === 'done') {
+          this.reloadSourceIfLocal();
+          if (mapSource) {
+            mapSource.offlineAvailable = true;
+          }
+        } else if (mapSource) {
+          mapSource.offlineAvailable = false;
+        }
+      }
     };
   }
 
@@ -457,80 +498,5 @@ export class SidebarComponent {
       this.mapState.setMapSource(ZsMapStateSource.OPEN_STREET_MAP);
       this.mapState.setMapSource(ZsMapStateSource.LOCAL);
     }
-  }
-
-  async downloadMap(map: ZsMapStateSource) {
-    const downloadUrl = zsMapStateSourceToDownloadUrl[map];
-    const localMapInfo = (await db.localMapInfo.get(map)) || { map };
-
-    const localBlobMeta = await this._blobService.downloadBlob(
-      downloadUrl,
-      localMapInfo.mapBlobId,
-      this.updateMapCallback(map),
-    );
-    this.handleBlobOperationResult(localBlobMeta, localMapInfo);
-  }
-
-  async cancelDownloadMap(map: ZsMapStateSource) {
-    const downloadUrl = zsMapStateSourceToDownloadUrl[map];
-    await this._blobService.cancelDownload(downloadUrl);
-  }
-
-  async uploadMap(event: Event, map: ZsMapStateSource) {
-    if (!event.target) return;
-
-    this.mapDownloadStates[map] = 'loading';
-    const downloadUrl = zsMapStateSourceToDownloadUrl[map];
-    const localMapInfo = (await db.localMapInfo.get(map)) || { map };
-
-    const localBlobMeta = await this._blobService.uploadBlob(event, downloadUrl, this.updateMapCallback(map));
-    if (localBlobMeta) {
-      this.handleBlobOperationResult(localBlobMeta, localMapInfo);
-    }
-  }
-
-  async handleBlobOperationResult(localBlobMeta: LocalBlobMeta, localMapInfo: LocalMapInfo) {
-    localMapInfo.mapBlobId = localBlobMeta.id;
-    localMapInfo.offlineAvailable = localBlobMeta.blobState === 'downloaded';
-    await db.localMapInfo.put(localMapInfo);
-
-    if (localMapInfo.offlineAvailable) {
-      localBlobMeta = await this._blobService.downloadBlob(LOCAL_MAP_STYLE_PATH, localMapInfo.styleBlobId);
-      localMapInfo.styleBlobId = localBlobMeta.id;
-      localMapInfo.offlineAvailable = localBlobMeta.blobState === 'downloaded';
-      await db.localMapInfo.put(localMapInfo);
-
-      if (localMapInfo.offlineAvailable) {
-        this.reloadSourceIfLocal();
-      }
-    }
-    const mapSource = this.mapSources.find((m) => m.key === localMapInfo.map);
-    if (mapSource) {
-      mapSource.offlineAvailable = localMapInfo.offlineAvailable;
-    }
-  }
-
-  async removeLocalMap(map: ZsMapStateSource): Promise<void> {
-    const blobMeta = await db.localMapInfo.get(map);
-    if (!blobMeta || (!blobMeta.mapBlobId && !blobMeta.styleBlobId)) return;
-    blobMeta.offlineAvailable = false;
-    if (blobMeta.mapBlobId) {
-      await BlobService.removeBlob(blobMeta.mapBlobId);
-      blobMeta.mapBlobId = undefined;
-      await db.localMapInfo.put(blobMeta);
-    }
-    if (blobMeta.styleBlobId) {
-      await BlobService.removeBlob(blobMeta.styleBlobId);
-      blobMeta.styleBlobId = undefined;
-      await db.localMapInfo.put(blobMeta);
-    }
-    this.mapDownloadStates[map] = 'missing';
-    const mapSource = this.mapSources.find((m) => m.key === map);
-    if (mapSource) {
-      mapSource.offlineAvailable = false;
-    }
-    this.mapProgress = 0;
-    this.cdRef.detectChanges();
-    this.reloadSourceIfLocal();
   }
 }

@@ -1,7 +1,7 @@
 h2 {
   padding: 0 1rem;
   margin-top: 2rem;
-  :first-child{
+  :first-child {
     margin-top: 0;
   }
 }
@@ -9,7 +9,7 @@ h2 {
 .newLayerType {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .titleRow {
@@ -90,7 +90,7 @@ mat-slider {
 }
 
 .expertButton {
-  margin: 0 .5rem .5rem 0;
+  margin: 0 0.5rem 0.5rem 0;
 }
 
 .expertInfo {
@@ -99,6 +99,11 @@ mat-slider {
 
 .mapSourceAvailable i {
   vertical-align: middle;
+  margin-left: 5px;
+}
+
+.offline-state i {
+  cursor: pointer;
 }
 
 .availableLayers button mat-icon {
@@ -187,5 +192,3 @@ mat-checkbox.categoryCheckbox {
     }
   }
 }
-
-

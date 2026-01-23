@@ -29,8 +29,8 @@
               {{ mapSource.translation }}
             </mat-radio-button>
           </mat-radio-group>
-          @if (workLocal && mapSource.key !== 'noBaseMap') {
-            <span class="mapSourceAvailable" (click)="showLocalInfoMap(mapSource.key, index)">
+          @if ((workLocal || offlineService.attempToWorkOffline()) && mapSource.key !== 'noBaseMap') {
+            <span class="mapSourceAvailable offline-state" (click)="showLocalInfoMap(mapSource.key, index)">
               @if (isDownloadableMap(mapSource.key)) {
                 @if (mapSource.offlineAvailable) {
                   <i class="material-icons">file_download_done</i>
@@ -47,7 +47,12 @@
             <div class="buttons">
               @switch (mapDownloadStates[mapSource.key]) {
                 @case ('loading') {
-                  <button mat-flat-button color="warn" class="button-cancel" (click)="cancelDownloadMap(mapSource.key)">
+                  <button
+                    mat-flat-button
+                    color="warn"
+                    class="button-cancel"
+                    (click)="offlineService.cancelDownloadMap(mapSource.key)"
+                  >
                     {{ i18n.get('cancel') }}
                   </button>
                   <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
@@ -59,7 +64,11 @@
                   </button>
                 }
                 @default {
-                  <button mat-stroked-button class="button-download" (click)="downloadMap(mapSource.key)">
+                  <button
+                    mat-stroked-button
+                    class="button-download"
+                    (click)="offlineService.downloadMap(mapSource.key)"
+                  >
                     <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
                   </button>
                   <button mat-stroked-button class="button-upload" (click)="mapUpload.click()">
@@ -118,8 +127,8 @@
                   @if (!last) {
                     <i (click)="mapState.sortMapLayerDown(index)" class="material-icons">arrow_downward</i>
                   }
-                  @if (workLocal) {
-                    <div (click)="showLocalInfo(item, index)">
+                  @if (workLocal || offlineService.attempToWorkOffline()) {
+                    <div class="offline-state" (click)="showLocalInfo(item, index)">
                       @if (item.type === 'geojson' || item.type === 'shape' || item.type === 'csv') {
                         @if (item.offlineAvailable) {
                           <i class="material-icons">file_download_done</i>
