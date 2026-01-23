@@ -13,6 +13,7 @@
 
   mat-icon {
     flex-shrink: 0;
+    align-self: center;
   }
   span {
     overflow: hidden;
@@ -117,4 +118,17 @@ hr {
 
 mat-spinner {
   margin: 10px;
+}
+
+.task {
+  display: flex;
+  gap: 5px;
+
+  .mat-icon {
+    align-self: center;
+  }
+}
+
+.local-container button {
+  margin-bottom: 15px;
 }

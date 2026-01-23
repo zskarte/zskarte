@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, inject, signal } from '@angular/core';
 import { takeUntil } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { I18NService } from 'src/app/state/i18n.service';
@@ -16,7 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +24,9 @@ import { ZsMapStateSource, GeoJSONMapLayer, zsMapStateSourceToDownloadUrl, MapLa
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { OfflineService } from '../../db/offline-service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-connections',
@@ -37,10 +40,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     FormsModule,
     MatIconModule,
     MatListModule,
-    AsyncPipe,
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
+    MatExpansionModule,
+    CommonModule,
   ],
 })
 export class SidebarConnectionsComponent implements OnDestroy {
@@ -49,157 +53,43 @@ export class SidebarConnectionsComponent implements OnDestroy {
   session = inject(SessionService);
   state = inject(ZsMapStateService);
   private _dialog = inject(MatDialog);
-  private _blobService = inject(BlobService);
-  private _mapLayerService = inject(MapLayerService);
   private cdRef = inject(ChangeDetectorRef);
+  offlineService = inject(OfflineService);
 
-  connections$: Observable<{ label?: string; currentLocation?: { long: number; lat: number } }[]> | undefined;
-  label$: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  showCurrentLocation$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  readonly connections = toSignal(this.syncService.observeConnections());
+  readonly label = signal('');
+  showCurrentLocation = toSignal(this.state.observeShowCurrentLocation$());
   labelEdit = false;
   public isOnline = new BehaviorSubject<boolean>(true);
-  private _ngUnsubscribe = new Subject<void>();
-
-  localOperation: boolean;
-  useLocalBaseMap = false;
-  downloadLocalBaseMap = false;
-  hideUnavailableLayers = false;
-  downloadAvailableLayers = false;
-  haveSearchCapability = false;
-  isLoadingBaseMap = false;
-  isLoadingMapLayers = false;
   mapProgress = 0;
 
   constructor() {
-    this.connections$ = this.syncService.observeConnections().pipe(takeUntil(this._ngUnsubscribe));
-    this.label$?.next(this.session.getLabel() ?? '');
-    this.state
-      .observeShowCurrentLocation$()
-      .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe((showCurrentLocation) => {
-        this.showCurrentLocation$.next(showCurrentLocation);
-      });
-    this.session
-      .observeIsOnline()
-      .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe((isOnline) => {
-        this.isOnline.next(isOnline);
-      });
-    this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
-    if (this.localOperation) {
-      this.updateOfflineInfos();
-    }
+    this.label.set(this.session.getLabel() ?? '');
+
+    this.offlineService.setUpdateMapCallbacks('sidebar', this.updateMapCallback.bind(this));
   }
 
   ngOnDestroy(): void {
-    this._ngUnsubscribe.next();
-    this._ngUnsubscribe.complete();
+    this.offlineService.setUpdateMapCallbacks('sidebar', null);
   }
 
   public toggleEditLabel(): void {
     this.labelEdit = !this.labelEdit;
     if (this.labelEdit) return;
-    this.session.setLabel(this.label$.value);
+    this.session.setLabel(this.label());
   }
 
   public centerMap(location: { long: number; lat: number }): void {
     this.state.updateCurrentMapCenter$([location.long, location.lat]);
   }
 
-  updateOfflineInfos() {
-    firstValueFrom(this.state.observeDisplayState()).then(async (displayState) => {
-      this.useLocalBaseMap =
-        displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE;
-      this.downloadLocalBaseMap = (await db.localMapInfo.get(ZsMapStateSource.LOCAL))?.offlineAvailable ?? false;
-      this.hideUnavailableLayers =
-        displayState.layers.filter((l) => l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv' && !l.hidden).length === 0;
-      this.downloadAvailableLayers =
-        displayState.layers.filter((l) => (l.type === 'geojson' || l.type === 'shape' || l.type === 'csv') && !l.offlineAvailable).length ===
-        0;
-      this.haveSearchCapability =
-        displayState.layers.filter(
-          (l) => (l.type === 'geojson' || l.type === 'shape' || l.type === 'csv') && (l as GeoJSONMapLayer).searchable,
-        ).length > 0;
-    });
-  }
-
-  changeToLocalMap() {
-    this.state.setMapSource(ZsMapStateSource.LOCAL);
-    this.useLocalBaseMap = true;
-  }
-
   private async updateMapCallback(eventType: BlobEventType, infos: BlobOperation) {
     this.mapProgress = infos.mapProgress;
     this.cdRef.detectChanges();
   }
-  async downloadLocalMap() {
-    if (!this.downloadLocalBaseMap && !this.isLoadingBaseMap) {
-      this.isLoadingBaseMap = true;
-      const localMapInfo = (await db.localMapInfo.get(ZsMapStateSource.LOCAL)) || {
-        map: ZsMapStateSource.LOCAL,
-        styleSourceName: LOCAL_MAP_STYLE_SOURCE,
-      };
-      let mapDownloaded = false;
-      if (await BlobService.isDownloaded(localMapInfo.mapBlobId)) {
-        mapDownloaded = true;
-      } else {
-        if (zsMapStateSourceToDownloadUrl[ZsMapStateSource.LOCAL]) {
-          const localBlobMeta = await this._blobService.downloadBlob(
-            zsMapStateSourceToDownloadUrl[ZsMapStateSource.LOCAL],
-            localMapInfo.mapBlobId,
-            this.updateMapCallback.bind(this),
-          );
-          localMapInfo.mapBlobId = localBlobMeta.id;
-          mapDownloaded = localBlobMeta.blobState === 'downloaded';
-        }
-      }
-      let styleDownloaded = false;
-      if (await BlobService.isDownloaded(localMapInfo.styleBlobId)) {
-        styleDownloaded = true;
-      } else {
-        const localBlobMeta = await this._blobService.downloadBlob(LOCAL_MAP_STYLE_PATH, localMapInfo.styleBlobId);
-        localMapInfo.styleBlobId = localBlobMeta.id;
-        styleDownloaded = localBlobMeta.blobState === 'downloaded';
-      }
-      localMapInfo.offlineAvailable = mapDownloaded && styleDownloaded;
-      await db.localMapInfo.put(localMapInfo);
-      this.downloadLocalBaseMap = localMapInfo.offlineAvailable;
-      this.isLoadingBaseMap = false;
-    }
-  }
 
-  hideUnavailable() {
-    this.state.updateDisplayState((draft) => {
-      draft.layers.forEach((l) => {
-        if (l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv') {
-          l.hidden = true;
-        }
-      });
-    });
-    this.hideUnavailableLayers = true;
-  }
-
-  async downloadAvailable() {
-    if (!this.isLoadingMapLayers) {
-      const displayState = await firstValueFrom(this.state.observeDisplayState());
-      this.isLoadingMapLayers = true;
-      const layers: MapLayer[] = [];
-      for (const layerRO of displayState.layers) {
-        const layer = { ...layerRO };
-        if (layer.type === 'geojson' || layer.type === 'shape' || layer.type === 'csv') {
-          if (!layer.offlineAvailable) {
-            await this._mapLayerService.saveLocalMapLayer(layer);
-          }
-        }
-        layers.push(layer);
-      }
-      this.state.updateDisplayState((draft) => {
-        draft.layers = layers;
-      });
-      this.downloadAvailableLayers =
-        layers.filter((l) => (l.type === 'geojson' || l.type === 'shape' || l.type === 'csv') && !l.offlineAvailable).length === 0;
-      this.isLoadingMapLayers = false;
-    }
+  async prepareLocalAvailability() {
+    await this.offlineService.prepareLocalAvailability();
   }
 
   showSearchInfo(event) {

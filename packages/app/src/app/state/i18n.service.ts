@@ -2796,14 +2796,19 @@ export class I18NService {
       fr: 'Cette carte de base ne peut pas être rendue accessible hors ligne.',
     },
     localAvailabilityStepsIntro: {
-      de: 'Um vollständig offline arbeiten zu können, müssen folgende Dinge überprüft werden:',
-      en: 'The following things have to be verified to allow working offline:',
-      fr: 'Pour permettre de travailler entièrement hors ligne, les éléments suivants doivent être vérifiés:',
+      de: 'Um offline arbeiten zu können, müssen diverse Dinge überprüft/vorbereitet werden.',
+      en: 'To be able to work offline, various things need to be checked/prepared:',
+      fr: 'Pour pouvoir travailler hors ligne, plusieurs éléments doivent être vérifiés/préparés.',
     },
-    localAvailabilitySteps: {
-      de: 'Schritte zum Offline-Arbeiten.',
-      en: 'Steps to work offline.',
-      fr: 'Étapes pour travailler hors ligne.',
+    prepareLocalAvailability: {
+      de: 'Offline arbeiten vorbereiten',
+      en: 'Prepare work offline',
+      fr: 'Préparer le travail hors ligne',
+    },
+    offlineData: {
+      de: 'Offline Daten',
+      en: 'Offline data',
+      fr: 'Données hors ligne',
     },
     useLocalBaseMap: {
       de: '"Lokal" Basiskarte vewenden.',
@@ -2831,9 +2836,9 @@ export class I18NService {
       fr: 'Utilisez des couches de carte avec une fonctionnalité de recherche hors ligne.',
     },
     howtoFindSearchCapability: {
-      de: 'Kartenebene(n) mit Offline-Suchfunktion zeigen in der Liste der „Verfügbaren Ebenen“ ein Lupensymbol an und gehören zur Ebenen Quelle „Geteilte Ebenen“.',
-      en: 'Map layer(s) with offline search capability show a Magnifying glass symbol on the list of "Available layers" and they are of "Shared layers" Layer Source.',
-      fr: 'Les couches de carte avec capacité de recherche hors ligne affichent un symbole de loupe sur la liste des "Couches cartographiques disponibles" et elles appartiennent à la source de couche "Couches partagées".',
+      de: 'Kartenebene(n) mit Offline-Suchfunktion zeigen in der Liste der „Verfügbaren Ebenen“ ein Lupensymbol an und gehören zur Ebenen Quelle "ZSKarte verwaltete Ebenen" oder "Geteilte Ebenen".',
+      en: 'Map layer(s) with offline search capability show a Magnifying glass symbol on the list of "Available layers" and they are of "ZSKarte managed layers" or "Shared layers" Layer Source.',
+      fr: 'Les couches de carte avec capacité de recherche hors ligne affichent un symbole de loupe sur la liste des "Couches cartographiques disponibles" et elles appartiennent à la source de couche "Couches gérées par ZSKarte" ou "Couches partagées".',
     },
     offlineDialogTitle: {
       de: 'Offline-Warnung',
