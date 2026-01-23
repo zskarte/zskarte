@@ -10,8 +10,8 @@ test.describe('Drawing', () => {
     const nameDialog = page.getByRole('dialog');
     await nameDialog.getByRole('textbox').fill('Guest');
     await nameDialog.getByRole('button', { name: 'OK' }).click();
-    await page.waitForTimeout(100);
-    await page.getByRole('button', { name: 'OK' }).click();
+    await page.waitForSelector('#map', { state: 'visible' });
+    await page.waitForTimeout(500);
   });
 
   test('add symbol', async ({ page }) => {

@@ -7,7 +7,6 @@ import { SyncService } from '../sync/sync.service';
 import { SessionService } from '../session/session.service';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { HelpComponent } from '../help/help.component';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { ScaleSelectionComponent } from '../scale-selection/scale-selection.component';
@@ -60,8 +59,6 @@ export class FloatingUIComponent {
   snackbar = inject(MatSnackBar);
   mapState = inject(ZsMapStateService);
 
-  static ONBOARDING_VERSION = '1.0';
-
   SidebarContext = SidebarContext;
 
   private _ngUnsubscribe = new Subject<void>();
@@ -80,11 +77,6 @@ export class FloatingUIComponent {
   });
 
   constructor() {
-    if (this.isInitialLaunch()) {
-      this._dialog.open(HelpComponent, {
-        data: true,
-      });
-    }
     this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
 
     this.state
@@ -147,16 +139,6 @@ export class FloatingUIComponent {
       .subscribe((printState) => {
         this.printView = printState.printView;
       });
-  }
-
-  // skipcq:  JS-0105
-  isInitialLaunch(): boolean {
-    const currentOnboardingVersion = localStorage.getItem('onboardingVersion');
-    if (currentOnboardingVersion !== FloatingUIComponent.ONBOARDING_VERSION) {
-      localStorage.setItem('onboardingVersion', FloatingUIComponent.ONBOARDING_VERSION);
-      return true;
-    }
-    return false;
   }
 
   zoomIn() {

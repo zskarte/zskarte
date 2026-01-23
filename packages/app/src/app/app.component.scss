@@ -20,3 +20,13 @@ main {
 .journal-address-preview .main-tabs {
   display: none;
 }
+
+.help-page .main-tabs {
+  display: none !important;
+}
+
+.help-page {
+  ::ng-deep app-floating-ui {
+    display: none !important;
+  }
+}
