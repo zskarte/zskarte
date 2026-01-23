@@ -3743,6 +3743,11 @@ export class I18NService {
       en: 'Text template for new journal entries',
       fe: 'Modèle de texte pour les nouvelles entrées de journal',
     },
+    carefull: {
+      de: 'Achtung',
+      en: 'Carefull',
+      fr: 'Attention',
+    },
   };
 
   public getLabelForSign(sign: Sign): string {
