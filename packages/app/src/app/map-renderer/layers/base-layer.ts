@@ -30,9 +30,6 @@ export abstract class ZsMapBaseLayer {
   });
   protected _olLayer: VectorLayer<VectorSource> = new VectorLayer({
     source: this._clusterSource,
-    style: (feature: FeatureLike, resolution: number) => {
-      return DrawStyle.styleFunction(feature, resolution);
-    },
   });
 
   constructor(
@@ -63,6 +60,15 @@ export abstract class ZsMapBaseLayer {
       .pipe(takeUntil(this._unsubscribe))
       .subscribe((opacity) => {
         this._olLayer.setOpacity(opacity);
+      });
+
+    this._state
+      .observeShowNames()
+      .pipe(takeUntil(this._unsubscribe))
+      .subscribe((showNames) => {
+        this._olLayer.setStyle((feature: FeatureLike, resolution: number) => {
+          return DrawStyle.styleFunction(feature, resolution, showNames);
+        });
       });
 
     combineLatest([this.observeMapZoom(), this._state.observeEnableClustering()]).subscribe(
