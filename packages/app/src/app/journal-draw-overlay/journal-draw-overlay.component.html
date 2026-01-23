@@ -9,7 +9,7 @@
     </div>
     <p
       class="preserve-linebreak"
-      [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()"
+      [innerHTML]="entry()!.messageContent | replaceAllAddressTokens : true"
       (click)="search.handleMessageContentClick($event)"
     ></p>
     <div class="message-content-buttons">

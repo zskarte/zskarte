@@ -154,7 +154,7 @@
             <td mat-cell *matCellDef="let element">
               <div
                 class="journal-table-message-cell"
-                [innerHTML]="element.messageContent | replaceAllAddressTokens"
+                [innerHTML]="element.messageContent | replaceAllAddressTokens : false"
               ></div>
             </td>
           </ng-container>

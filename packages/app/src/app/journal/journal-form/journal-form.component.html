@@ -124,7 +124,7 @@
       <p><strong>{{ i18n.get('messageContent') }}</strong></p>
       <div
         class="preserve-linebreak"
-        [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens: true : markPotentialAddresses()"
+        [innerHTML]="journalForm.value.messageContent | replaceAllAddressTokens : true"
         (click)="search.handleMessageContentClick($event)"
       ></div>
     </div>
