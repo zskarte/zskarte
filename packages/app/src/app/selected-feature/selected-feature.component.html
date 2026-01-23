@@ -362,7 +362,6 @@
                         <input type="text" matInput hidden value="-" />
                       </div>
                     }
-
                     @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
                         <mat-label>{{ i18n.get('symbolOffset') }} X</mat-label>
@@ -386,36 +385,38 @@
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
                       </div>
-                      <div>
-                        <mat-checkbox
-                          [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
-                          (ngModelChange)="updateIconsOffset(drawElement, 'endHasDifferentOffset', $event)"
-                          >{{ i18n.get('endHasDifferentOffset') }}</mat-checkbox
-                        >
-                      </div>
-                      @if (drawElement.iconsOffset?.endHasDifferentOffset) {
+                      @if (selectedSignature.type === 'LineString') {
                         <div>
-                          <mat-label>{{ i18n.get('symbolOffsetEnd') }} X</mat-label>
-                          <mat-slider [max]="3000" [min]="-3000" [step]="250">
-                            <input
-                              matSliderThumb
-                              [ngModel]="drawElement.iconsOffset?.endX"
-                              (ngModelChange)="updateIconsOffset(drawElement, 'endX', $event)"
-                            />
-                          </mat-slider>
-                          <input type="text" matInput hidden value="-" />
+                          <mat-checkbox
+                            [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
+                            (ngModelChange)="updateIconsOffset(drawElement, 'endHasDifferentOffset', $event)"
+                            >{{ i18n.get('endHasDifferentOffset') }}</mat-checkbox
+                          >
                         </div>
-                        <div>
-                          <mat-label>{{ i18n.get('symbolOffsetEnd') }} Y</mat-label>
-                          <mat-slider [max]="3000" [min]="-3000" [step]="250">
-                            <input
-                              matSliderThumb
-                              [ngModel]="drawElement.iconsOffset?.endY"
-                              (ngModelChange)="updateIconsOffset(drawElement, 'endY', $event)"
-                            />
-                          </mat-slider>
-                          <input type="text" matInput hidden value="-" />
-                        </div>
+                        @if (drawElement.iconsOffset?.endHasDifferentOffset) {
+                          <div>
+                            <mat-label>{{ i18n.get('symbolOffsetEnd') }} X</mat-label>
+                            <mat-slider [max]="3000" [min]="-3000" [step]="250">
+                              <input
+                                matSliderThumb
+                                [ngModel]="drawElement.iconsOffset?.endX"
+                                (ngModelChange)="updateIconsOffset(drawElement, 'endX', $event)"
+                              />
+                            </mat-slider>
+                            <input type="text" matInput hidden value="-" />
+                          </div>
+                          <div>
+                            <mat-label>{{ i18n.get('symbolOffsetEnd') }} Y</mat-label>
+                            <mat-slider [max]="3000" [min]="-3000" [step]="250">
+                              <input
+                                matSliderThumb
+                                [ngModel]="drawElement.iconsOffset?.endY"
+                                (ngModelChange)="updateIconsOffset(drawElement, 'endY', $event)"
+                              />
+                            </mat-slider>
+                            <input type="text" matInput hidden value="-" />
+                          </div>
+                        }
                       }
                     }
 
