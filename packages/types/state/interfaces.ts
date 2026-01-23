@@ -1,6 +1,6 @@
 import { Coordinate } from 'ol/coordinate';
 import { MapLayer, WmsSource } from '../map-layer/interfaces';
-import { FillStyle, IconsOffset } from '../sign/interfaces';
+import { FillStyle, HierarchyLevel, IconsOffset } from '../sign/interfaces';
 import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
 import { Sort } from '@angular/material/sort';
@@ -218,6 +218,15 @@ export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
   zindex?: number;
   reportNumber?: number | number[];
   affectedPersons?: number;
+  hazardCode?: string;
+  unNumber?: string;
+  // Formation signature fields
+  hierarchyLevel?: HierarchyLevel;
+  organization?: string;
+  formationDetail?: string;
+  additionalInfo?: string;
+  formationNumber?: string;
+  formationLocation?: string;
 }
 
 export interface ZsMapTextDrawElementState extends IZsMapBaseDrawElementState {

@@ -56,25 +56,41 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   refreshTrigger = signal<number>(0);
 
   elements = toSignal(this._state.observeDrawElements());
-  
+
   entryElements = computed(
     () => {
       this.refreshTrigger();
       const elements = this.elements();
       if (!elements) return [];
-      
+
       return elements
         .filter(this.containsNumber(this.entry().messageNumber))
         .map((el) => {
           const elementId = el.getId();
           const elementState = this._state.getDrawElementState(elementId) || el.elementState;
           const coordinates = this.mapCoordinates(elementState?.coordinates);
-          const imageSrc = Signs.getSignById(elementState?.symbolId)?.src;
+          const sign = Signs.getSignById(el.elementState?.symbolId);
+          let imageUrl: string | undefined;
+          if (sign) {
+            const mergedSign = {
+              ...sign,
+              hazardCode: el.elementState?.hazardCode,
+              unNumber: el.elementState?.unNumber,
+              color: el.elementState?.color ?? sign.color,
+              hierarchyLevel: el.elementState?.hierarchyLevel,
+              organization: el.elementState?.organization,
+              formationDetail: el.elementState?.formationDetail,
+              additionalInfo: el.elementState?.additionalInfo,
+              formationNumber: el.elementState?.formationNumber,
+              formationLocation: el.elementState?.formationLocation,
+            };
+            imageUrl = DrawStyle.getSignatureURI(mergedSign);
+          }
           return {
             ...el,
             id: elementId,
             elementState: elementState,
-            imageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
+            imageUrl: imageUrl,
             coordinates,
             coordinatesStr: coordinates ? this.transformCoordinates(coordinates) : '',
           };
@@ -182,7 +198,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   startEditing(element: { id: string; elementState?: ZsMapDrawElementState }) {
     this.editingValue.set(element.elementState?.name || '');
     this.editingElementId.set(element.id);
-    
+
     setTimeout(() => {
       const input = document.querySelector('.signature-name-input') as HTMLInputElement;
       if (input) {
@@ -196,15 +212,15 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     if (!element.id || this.editingElementId() !== element.id) {
       return;
     }
-    
+
     const valueToSave = newName !== undefined ? newName : this.editingValue();
     const trimmedValue = valueToSave.trim();
-    
+
     this.editingElementId.set(null);
     this.editingValue.set('');
-    
+
     this._state.updateDrawElementState(element.id, 'name', trimmedValue);
-    
+
     const el = this._state.getDrawElement(element.id);
     if (el) {
       const feature = el.getOlFeature();
@@ -219,7 +235,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         draft.name = trimmedValue;
       });
     }
-    
+
     this.refreshTrigger.set(this.refreshTrigger() + 1);
   }
 
