@@ -5,8 +5,8 @@ import { MapLayerService } from '../map-layer.service';
 import { IZsMapOrganization, IZsMapOrganizationMapLayerSettings, MapLayer, WmsSource } from '@zskarte/types';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, combineLatest, map, startWith } from 'rxjs';
-import { getPropertyDifferences } from 'src/app/helper/diff';
-import { LocalMapLayer } from 'src/app/db/db';
+import { getPropertyDifferences } from '../../helper/diff';
+import { LocalMapLayer } from '../../db/db';
 import { MatActionList, MatListModule, MatListOption, MatSelectionList } from '@angular/material/list';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AsyncPipe } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-organisation-layer-settings',
@@ -34,6 +35,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatListModule,
     MatExpansionModule,
     MatDialogModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
   ],
 })
 export class OrganisationLayerSettingsComponent {
@@ -61,10 +65,14 @@ export class OrganisationLayerSettingsComponent {
 
     if (data.organization) {
       this.wms_sources = [...data.organization.wms_sources];
-      this.layer_favorites = data.allLayers.filter((f) => f.id && data.organization?.map_layer_favorites.includes(f.id));
+      this.layer_favorites = data.allLayers.filter(
+        (f) => f.id && data.organization?.map_layer_favorites.includes(f.id),
+      );
     } else if (data.localMapLayerSettings) {
       this.wms_sources = [...(data.localMapLayerSettings.wms_sources ?? [])];
-      this.layer_favorites = data.allLayers.filter((f) => f.id && data.localMapLayerSettings?.map_layer_favorites?.includes(f.id));
+      this.layer_favorites = data.allLayers.filter(
+        (f) => f.id && data.localMapLayerSettings?.map_layer_favorites?.includes(f.id),
+      );
     } else {
       this.wms_sources = [];
       this.layer_favorites = [];
@@ -88,7 +96,9 @@ export class OrganisationLayerSettingsComponent {
             layers = layers.filter((f) => f.source?.url === sourceFilter);
           }
         }
-        return filter === '' ? layers : layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''));
+        return filter === ''
+          ? layers
+          : layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''));
       }),
     );
   }
@@ -185,7 +195,13 @@ export class OrganisationLayerSettingsComponent {
       if (layer.id) {
         const defaultLayer = this.data.allLayers.find((g) => g.fullId === layer.fullId);
         if (defaultLayer) {
-          if (OrganisationLayerSettingsComponent.sameOptions(defaultLayer, layer, ['sourceBlobId', 'styleBlobId', 'offlineAvailable'])) {
+          if (
+            OrganisationLayerSettingsComponent.sameOptions(defaultLayer, layer, [
+              'sourceBlobId',
+              'styleBlobId',
+              'offlineAvailable',
+            ])
+          ) {
             // unchaged existing globalMapLayer, add it
             map_layer_favorites.push(layer.id);
             if (!this.data.organization) {
@@ -198,7 +214,9 @@ export class OrganisationLayerSettingsComponent {
             // layer settings are changed
             if (layer.owner) {
               // skipcq: JS-0052
-              const override = window.confirm(this.i18n.get('askReplaceExistingLayerSettings').replace('{0}', layer.label));
+              const override = window.confirm(
+                this.i18n.get('askReplaceExistingLayerSettings').replace('{0}', layer.label),
+              );
               if (!override) {
                 // keep old, create new
                 delete layer.id;

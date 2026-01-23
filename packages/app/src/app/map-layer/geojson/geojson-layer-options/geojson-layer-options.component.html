@@ -1,5 +1,8 @@
-<div mat-dialog-title>{{ i18n.get('geojsonLayerSettings') }}</div>
-<div mat-dialog-content>
+<app-dialog-header>
+  <h2>{{ i18n.get('geojsonLayerSettings') }}</h2>
+</app-dialog-header>
+
+<app-dialog-body>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('mapLayerType') }}</legend>
     <mat-radio-group [(ngModel)]="layer.type">
@@ -276,9 +279,9 @@
     }
     <mat-icon class="attr-add" (click)="addAttribution()">add</mat-icon>
   </fieldset>
-</div>
-<div mat-dialog-actions align="end">
+</app-dialog-body>
+<app-dialog-footer>
   <button mat-flat-button color="primary" (click)="ok()">
     {{ i18n.get('ok') }}
   </button>
-</div>
+</app-dialog-footer>
