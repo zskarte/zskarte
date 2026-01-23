@@ -1,13 +1,15 @@
-<div mat-dialog-title>{{ i18n.get('organisationSettings') }}</div>
+<app-dialog-header>
+  <div>{{ i18n.get('organisationSettings') }}</div>
+</app-dialog-header>
 
-<mat-dialog-content class="content-container">
+<app-dialog-body class="content-container">
   <mat-form-field class="text-template" appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('journalMessageTextTemplate') }}</mat-label>
     <textarea matInput rows="5" [(ngModel)]="settings.journalMessageTextTemplate"></textarea>
   </mat-form-field>
-</mat-dialog-content>
+</app-dialog-body>
 
-<mat-dialog-actions class="footer" align="end">
+<app-dialog-footer class="footer" align="end">
   <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
   <button mat-flat-button color="primary" (click)="ok()">{{ i18n.get('ok') }}</button>
-</mat-dialog-actions>
+</app-dialog-footer>

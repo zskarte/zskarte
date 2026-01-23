@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogClose, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogClose, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
 import { IZsMapOrganizationSettings } from '@zskarte/types';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { SessionService } from '../session/session.service';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 
 @Component({
   selector: 'app-organisation-settings',
@@ -20,6 +21,9 @@ import { SessionService } from '../session/session.service';
     MatDialogModule,
     MatDialogClose,
     MatButtonModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
   ],
 })
 export class OrganisationSettings {
