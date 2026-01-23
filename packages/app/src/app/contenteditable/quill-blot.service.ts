@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ADDRESS_TRIGGER_CHAR } from '../search/address-trigger';
 import { ADDRESS_TOKEN_REGEX } from '../search/search.service';
 import Quill from 'quill';
 import { Blot } from 'parchment';
@@ -137,21 +138,38 @@ export class QuillBlotService {
     }
 
     const cursor = range.index + range.length;
+    if (cursor >= 1) {
+      const prevChar = this.quill.getText(cursor - 1, 1);
+      const prevPrevChar = cursor >= 2 ? this.quill.getText(cursor - 2, 1) : '';
+      if (prevChar === ADDRESS_TRIGGER_CHAR && (cursor === 1 || /\s/.test(prevPrevChar))) {
+        this.quill.deleteText(cursor - 1, 1, Quill.sources.USER);
+        return { text: '' };
+      }
+      const currentChar = this.quill.getText(cursor, 1);
+      if (currentChar === ADDRESS_TRIGGER_CHAR && /\s/.test(prevChar)) {
+        this.quill.deleteText(cursor, 1, Quill.sources.USER);
+        return { text: '' };
+      }
+    }
+    if (cursor === 0 && this.quill.getText(0, 1) === ADDRESS_TRIGGER_CHAR) {
+      this.quill.deleteText(0, 1, Quill.sources.USER);
+      return { text: '' };
+    }
     const [blot, offset] = this.quill.getLeaf(cursor);
     if (blot) {
       //check if left of cursor is a AddressToken
       if (!onlyAddrKeyword && this.isAddressBlot(blot)) {
         return { text: (blot.domNode as HTMLElement).innerText, blotElem: blot.domNode as HTMLElement };
       }
-      //check if inside text and there stand "addr:" left of cursor
+      //check if inside text and there stand " @" left of cursor
       if (blot.statics?.blotName === 'text' || (blot as any).constructor?.blotName === 'text') {
         const text = (blot as any).text as string;
-        const lookbehind = 5;
-        if (offset >= lookbehind) {
-          const prevText = text.substring(offset - lookbehind, offset);
-          if (prevText === 'addr:') {
+        if (offset >= 1) {
+          const prevChar = text.charAt(offset - 1);
+          const prevPrevChar = offset >= 2 ? text.charAt(offset - 2) : '';
+          if (prevChar === ADDRESS_TRIGGER_CHAR && (offset === 1 || /\s/.test(prevPrevChar))) {
             const blotStart = blot.offset(this.quill.scroll);
-            this.quill.deleteText(blotStart + offset - lookbehind, lookbehind, Quill.sources.USER);
+            this.quill.deleteText(blotStart + offset - 1, 1, Quill.sources.USER);
             return { text: '' };
           }
         }

@@ -393,8 +393,18 @@ export class JournalComponent implements AfterViewInit {
 
   async selectEntry(entry: JournalEntry) {
     if (!this.sidebarOpen || !this.openDisabled) {
-      this.selectedJournalEntry.set(entry);
-      this.sidebarOpen = true;
+      if (entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE) {
+        this.close();
+        this.openJournalAddDialog(entry);
+      } else {
+        firstValueFrom(this.sidebar.observeContext()).then((context) => {
+          if (context === SidebarContext.Menu) {
+            this.sidebar.close();
+          }
+        });
+        this.selectedJournalEntry.set(entry);
+        this.sidebarOpen = true;
+      }
     }
   }
 
@@ -415,11 +425,12 @@ export class JournalComponent implements AfterViewInit {
     }
   }
 
-  openJournalAddDialog() {
+  openJournalAddDialog(entry?: JournalEntry) {
     if (!this.sidebarOpen || !this.openDisabled) {
       this._dialog.open(JournalEntryCreateModalComponent, {
         width: '800px',
         maxWidth: '800px',
+        data: entry ? { entry } : undefined,
       });
     }
   }

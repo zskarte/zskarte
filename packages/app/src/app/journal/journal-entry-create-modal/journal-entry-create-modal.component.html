@@ -1,9 +1,9 @@
 <app-dialog-header (close)="onClose()" [autoClose]="false">
-  <h2>{{ i18n.get('createNewEntry') }}</h2>
+  <h2>{{ getTitle() }}</h2>
 </app-dialog-header>
 <app-dialog-body>
   <app-journal-form
-    [entry]="null"
+    [entry]="entry()"
     (close)="onClose()"
     (dirty)="onDirty($event)"
     [isCreateModal]="true"
@@ -12,6 +12,6 @@
 <app-dialog-footer>
   <button mat-flat-button color="primary" (click)="onSave()">
     <mat-icon>check</mat-icon>
-    {{ i18n.get('create') }}
+    {{ isEditMode() ? i18n.get('save') : i18n.get('create') }}
   </button>
 </app-dialog-footer>

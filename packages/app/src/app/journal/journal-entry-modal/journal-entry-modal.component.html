@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>{{ entryToEdit ? (i18n.get('editEntry') + ' #' + entryToEdit.messageNumber) : i18n.get('createNewEntry') }}</h2>
+<mat-dialog-content>
+  <app-journal-form
+    [entry]="entryToEdit"
+    (close)="onClose()"
+    (dirty)="onDirty($event)"
+  ></app-journal-form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" (click)="onSave()">
+    <mat-icon>check</mat-icon>
+    {{ entryToEdit ? i18n.get('save') : i18n.get('create') }}
+  </button>
+</mat-dialog-actions>

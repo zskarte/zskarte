@@ -20,7 +20,7 @@
   <div class="content-section">
     <div class="section-title">{{ i18n.get('description') }}</div>
     <div class="section-content">
-      <p class="preserve-linebreak" [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true : true"
+      <p class="preserve-linebreak" [innerHTML]="entry()!.messageContent | replaceAllAddressTokens : true"
         (click)="search.handleMessageContentClick($event)"></p>
     </div>
   </div>

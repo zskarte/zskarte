@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SearchAutocompleteComponent } from 'src/app/search/search-autocomplete/search-autocomplete.component';
+import { isAddressTriggerAt } from 'src/app/search/address-trigger';
 import { ADDRESS_TOKEN_REGEX, SearchService, getGlobalAddressTokenRegex } from 'src/app/search/search.service';
 import { I18NService } from 'src/app/state/i18n.service';
 import { ZsMapStateService } from 'src/app/state/state.service';
@@ -283,8 +284,8 @@ export class TextAreaWithAddressSearchComponent {
   onInputText() {
     const textarea = this.textContentInput().nativeElement;
     const cursorPosition = textarea.selectionStart || 0;
-    if (cursorPosition >= 5 && textarea.value.slice(cursorPosition - 5, cursorPosition) === 'addr:') {
-      textarea.selectionStart = cursorPosition - 5;
+    if (isAddressTriggerAt(textarea.value, cursorPosition)) {
+      textarea.selectionStart = cursorPosition - 1;
       textarea.selectionEnd = cursorPosition;
       this.textContentSelectedArea = [textarea.selectionStart, textarea.selectionEnd];
       this.startEdit('');
@@ -297,6 +298,30 @@ export class TextAreaWithAddressSearchComponent {
     if (this.showMap()) {
       this._search.highlightResult(element, false);
     }
+  }
+
+  openAddressSearch() {
+    if (this.showLinkedText()) {
+      const result = this.quillBlotService.getAddressEdit(false);
+      if (result) {
+        if (result.blotElem) {
+          this.editAddr(result.blotElem);
+          return;
+        }
+        this.startEdit(result.text);
+        return;
+      }
+      this.startEdit('');
+      return;
+    }
+
+    const textarea = this.textContentInput().nativeElement;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+    this.textContentSelectedArea = [start, end];
+    this.startEdit(selectedText);
   }
 
   useResult(value: IZsMapSearchResult) {
@@ -425,6 +450,9 @@ export class TextAreaWithAddressSearchComponent {
         this.editAddr(addrElem);
         return;
       } else if (target.closest('.addr-show')) {
+        if (!this.messageContentControl().disabled) {
+          return;
+        }
         const geo = addrElem.dataset['geo'];
         const feature = await this._search.showFeature(geo);
         if (feature) {
