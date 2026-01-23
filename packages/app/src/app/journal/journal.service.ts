@@ -179,6 +179,7 @@ export class JournalService {
     let entry = updatedEntry as JournalEntry;
     this.data.update((currentEntries) => {
       let resultList: JournalEntry[];
+      let oldEntry: JournalEntry | undefined;
       if (!currentEntries) {
         resultList = [entry];
       } else {
@@ -188,7 +189,17 @@ export class JournalService {
             (entry.uuid && entry.uuid === updatedEntry.uuid),
         );
         if (index !== -1) {
-          entry = { ...currentEntries[index], ...updatedEntry };
+          oldEntry = currentEntries[index];
+          entry = { ...oldEntry, ...updatedEntry };
+          
+          if (
+            oldEntry.entryStatus === JournalEntryStatus.AWAITING_DECISION &&
+            entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION &&
+            entry.isDrawnOnMap
+          ) {
+            entry.isDrawnOnMap = false;
+          }
+          
           resultList = [...currentEntries.slice(0, index), entry, ...currentEntries.slice(index + 1)];
         } else {
           resultList = [entry, ...currentEntries];
@@ -384,6 +395,23 @@ export class JournalService {
         };
       }
     }
+    
+    if (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION) {
+      const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
+      const currentEntries = this.data();
+      const currentEntry = currentEntries?.find(
+        (e) =>
+          (e.documentId && e.documentId === cacheUuid) ||
+          (e.uuid && e.uuid === cacheUuid)
+      );
+      if (
+        currentEntry?.entryStatus === JournalEntryStatus.AWAITING_DECISION &&
+        currentEntry.isDrawnOnMap
+      ) {
+        entry.isDrawnOnMap = false;
+      }
+    }
+    
     if (this._session.isWorkLocal()) {
       const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
       const result = this.patchEntry({ ...entry, documentId: documentId || entry.documentId, uuid: cacheUuid }, true);
