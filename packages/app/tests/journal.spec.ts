@@ -20,30 +20,34 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
   await page.getByRole('tab', { name: 'Journal' }).click();
   await page.getByRole('button', { name: 'Add' }).click();
 
+  const modal = page.locator('app-journal-entry-create-modal');
+  await modal.waitFor({ state: 'visible' });
+
   if (entry.reportId) {
-    await page.getByLabel('Meldungsnummer manuell').click();
-    await page.getByRole('spinbutton', { name: 'Meldungsnummer' }).fill(entry.reportId);
+    await modal.getByLabel('Meldungsnummer manuell').click();
+    await modal.getByRole('spinbutton', { name: 'Meldungsnummer' }).fill(entry.reportId);
   }
-  await page.getByLabel('Absender').fill(entry.deliverer ?? 'Absender');
-  await page.getByLabel('Empfänger').fill(entry.receiver ?? 'Empfänger');
-  await page.getByLabel('Zeit').fill(entry.time ?? '12:00');
-  await page.getByTestId('communicationDevice').click();
-  await page.getByRole('option', { name: entry.communicationDevice ?? 'E-Mail' }).click();
-  await page.getByLabel('Nummer / Kanal').fill(entry.numberOrChannel ?? 'testtest');
-  await page.getByLabel('Betreff').fill(entry.subject ?? 'Betreff');
-  await page.locator('app-text-area-with-address-search .ql-container').click();
-  await page.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
-  await page.getByLabel('Visum').fill(entry.visum ?? 'test');
 
-  const saveButton = page.getByRole('button', { name: 'Erfassen' });
-  await saveButton.waitFor({ state: 'visible' });
-  await saveButton.waitFor({ state: 'attached' });
+  await modal.getByLabel('Absender').fill(entry.deliverer ?? 'Absender');
+  await modal.getByLabel('Empfänger').fill(entry.receiver ?? 'Empfänger');
+  await modal.getByLabel('Zeit').fill(entry.time ?? '12:00');
+  await modal.getByTestId('communicationDevice').click();
+  await modal.getByRole('option', { name: entry.communicationDevice ?? 'E-Mail' }).click();
+  await modal.getByLabel('Nummer / Kanal').fill(entry.numberOrChannel ?? 'testtest');
+  await modal.getByLabel('Betreff').fill(entry.subject ?? 'Betreff');
+  await modal.locator('app-text-area-with-address-search .ql-container').click();
+  await modal.locator('app-text-area-with-address-search .ql-editor').fill(entry.content ?? 'Inhalt');
+  await modal.getByLabel('Visum').fill(entry.visum ?? 'test');
+
   await page.waitForTimeout(500);
-  await saveButton.click();
-  await expect(page.locator('tbody').getByRole('row')).toHaveCount(rowCount + 1);
-  await page.locator('.journal-sidebar').getByRole('button', { name: 'Schliessen' }).click();
 
-  await expect(page.locator('.journal-sidebar')).not.toBeVisible();
+  const journalResponse = page.waitForResponse(/api\/journal-entries/);
+  await modal.getByRole('button', { name: 'Erfassen' }).click();
+  await journalResponse;
+  await modal.getByRole('button', { name: 'Schliessen' }).click();
+
+  await expect(page.locator('tbody').getByRole('row')).toHaveCount(rowCount + 1);
+  await expect(modal).not.toBeVisible();
 }
 
 test.describe('Journal', () => {

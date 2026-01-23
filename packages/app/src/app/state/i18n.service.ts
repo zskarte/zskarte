@@ -3387,6 +3387,31 @@ export class I18NService {
       en: 'create',
       fr: 'créer',
     },
+    createNewEntry: {
+      de: 'Neuer Eintrag erfassen',
+      en: 'Create new entry',
+      fr: 'Créer une nouvelle entrée',
+    },
+    discardEntryConfirm: {
+      de: 'Möchtest du den Eintrag wirklich verwerfen?',
+      en: 'Do you really want to discard the entry?',
+      fr: 'Voulez-vous vraiment rejeter l\'entrée?',
+    },
+    continueEditingAction: {
+      de: 'Bearbeiten fortsetzen',
+      en: 'Continue editing',
+      fr: 'Continuer à modifier',
+    },
+    discardEntry: {
+      de: 'Eintrag verwerfen',
+      en: 'Discard entry',
+      fr: 'Rejeter l\'entrée',
+    },
+    entryCreated: {
+      de: 'Eintrag #{number} erfasst.',
+      en: 'Entry #{number} created.',
+      fr: 'Entrée #{number} créée.',
+    },
     renameLayer: {
       de: 'Ebene umbenennen',
       fr: 'Renommer la couche',

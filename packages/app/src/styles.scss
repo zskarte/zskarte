@@ -2,6 +2,10 @@
 @include mat.core();
 @import 'quill/dist/quill.snow.css';
 
+:root {
+  --mat-dialog-container-color: #f1f1f1;
+}
+
 /* You can add global styles to this file, and also import other style files */
 :root {
   --sidebar-width: min(30rem, 75vw);
@@ -50,6 +54,10 @@ mat-action-list {
   padding: 1rem;
 }
 
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
 .mat-accordion .mat-expansion-panel {
   overflow: visible;
 }
@@ -71,6 +79,14 @@ mat-action-list {
   background-color: #fff;
   border-radius: 1rem !important;
   border: 1px solid #dedede;
+}
+
+.mat-mdc-dialog-panel {
+  max-height: 80vh !important;
+}
+
+.mat-mdc-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0;
 }
 
 .mat-drawer .mat-drawer-inner-container {
@@ -261,5 +277,13 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   display: inline-block;
   vertical-align: middle;
   background: transparent;
+}
+
+
+.mat-mdc-card {
+  box-shadow: none !important;
+  border: 1px solid #dedede !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
 }
 
