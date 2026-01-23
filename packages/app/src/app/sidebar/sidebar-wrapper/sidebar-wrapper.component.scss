@@ -73,6 +73,13 @@ app-sidebar-menu {
   flex-direction: column;
 }
 
+app-sidebar-print {
+  background-color: #f1f1f1;
+  display: block; 
+  height: calc(100% - 1rem);
+  padding-top: 1rem;
+}
+
 :host-context(.journal-address-preview) {
   .sidebar {
     display: none;

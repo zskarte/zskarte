@@ -1,4 +1,5 @@
 <div class="printingOptions">
+  <mat-card>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('paperFormat') }}</mat-label>
     <mat-select [(value)]="format" (selectionChange)="updateDimension()">
@@ -88,6 +89,8 @@
   @if (generating) {
     <div class="progress" [style.width]="generatingProgress" #progress></div>
   }
+
+  </mat-card> 
 
   <button mat-flat-button color="primary" (click)="generate()">
     {{ i18n.get('generatePdf') }}
