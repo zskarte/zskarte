@@ -6,6 +6,11 @@ test.describe('Drawing', () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await page.locator('mat-list-item', { hasText: 'e2e test' }).first().click();
+    // type guest name and click ok
+    const nameDialog = page.getByRole('dialog');
+    await nameDialog.getByRole('textbox').fill('Guest');
+    await nameDialog.getByRole('button', { name: 'OK' }).click();
+    await page.waitForTimeout(100);
     await page.getByRole('button', { name: 'OK' }).click();
   });
 
@@ -91,7 +96,7 @@ test.describe('Drawing', () => {
     // Filter should be visible
     await expect(page.getByRole('button', { name: 'ABC Dekontaminationsstelle' })).toBeVisible();
 
-    await page.getByRole('radio', { name: 'Layer 1' }).check();
+    await page.getByRole('radio', { name: layerName }).check();
     await page.getByRole('button', { name: 'Ebene löschen' }).click();
     await page.getByRole('button', { name: 'Bestätigen' }).click();
 
@@ -99,4 +104,3 @@ test.describe('Drawing', () => {
     await expect(page.getByRole('button', { name: 'ABC Dekontaminationsstelle' })).not.toBeVisible();
   });
 });
-

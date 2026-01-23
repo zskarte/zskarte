@@ -25,7 +25,7 @@
     </div>
   </div>
   @if (entry().decision && entry().decision.trim()) {
-  <div class="content-section">
+  <div class="content-section" [class.entscheid-awaiting-completion]="entry().entryStatus === JournalEntryStatus.AWAITING_COMPLETION || entry().entryStatus === JournalEntryStatus.COMPLETED">
     <div class="section-title">{{ i18n.get('entscheid') }}</div>
     <div class="section-content">
       <p class="preserve-linebreak">{{ entry().decision }}</p>
@@ -39,7 +39,7 @@
       <div class="signatures-empty">
         <p>{{ i18n.get('noSignatureAvailable') }}</p>
         <div class="signature-buttons">
-          <button mat-flat-button color="primary" (click)="addSignature()">
+          <button mat-stroked-button (click)="addSignature()">
             <mat-icon>add</mat-icon>
             {{ i18n.get('addSignature') }}
           </button>
@@ -102,17 +102,10 @@
         }
       </div>
       <div class="signature-buttons">
-        @if (!entry().isDrawnOnMap) {
-        <button mat-flat-button color="primary" (click)="addSignature()">
-          <mat-icon>add</mat-icon>
-          {{ i18n.get('addSignature') }}
-        </button>
-        } @else {
         <button mat-stroked-button (click)="addSignature()">
           <mat-icon>add</mat-icon>
           {{ i18n.get('addSignature') }}
         </button>
-        }
         <button mat-stroked-button (click)="focusSignatures()">
           <mat-icon>my_location</mat-icon>
           {{ i18n.get('focusSignatures') }}

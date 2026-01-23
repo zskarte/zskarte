@@ -6,7 +6,6 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
-import { Signs } from '../map-renderer/signs';
 import { DrawStyle } from '../map-renderer/draw-style';
 import { combineLatestWith, EMPTY, firstValueFrom, Observable, Subject } from 'rxjs';
 import { Feature } from 'ol';
@@ -40,6 +39,7 @@ import {
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Signs } from '../map-renderer/signs';
 
 @Component({
   selector: 'app-selected-feature',
@@ -79,6 +79,10 @@ export class SelectedFeatureComponent implements OnDestroy {
   useColorPicker = false;
   // we only show the affected persons for Dead, Trapped, Missing, Homeless and Injured
   personSigns = [39, 82, 112, 122, 123];
+  hazardSigns = [Signs.HAZARD_SIGN_ID];
+  formationSigns = [Signs.FORMATION_SIGN_ID];
+  transportSigns = Signs.TRANSPORT_SIGN_IDS; // Lastwagen, Motorfahrzeug, Transportfahrzeug
+  leaderSigns = Signs.LEADER_SIGN_IDS; // Leaders
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _ngUnsubscribe = new Subject<void>();
 
@@ -146,9 +150,7 @@ export class SelectedFeatureComponent implements OnDestroy {
         const drawElement = this._drawElementCache[element?.id ?? ''];
         const sig = drawElement?.getOlFeature()?.get('sig');
         if (!sig) return undefined;
-        const signById = sig.id ? Signs.getSignById(sig.id) : { ...sig };
-        signById.createdBy = drawElement?.elementState?.createdBy;
-        return signById;
+        return sig;
       }),
     );
 
@@ -319,6 +321,20 @@ export class SelectedFeatureComponent implements OnDestroy {
     input.value = (negativ ? '-' : '') + input.value.replace(/[^0-9]/g, '');
   }
 
+  validateHazardCode(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.toUpperCase();
+    const startsWithX = value.startsWith('X');
+    const rest = startsWithX ? value.substring(1) : value;
+    const digits = rest.replace(/[^0-9]/g, '');
+    input.value = (startsWithX ? 'X' : '') + digits.slice(0, 4);
+  }
+
+  validateUnNumber(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '').slice(0, 4);
+  }
+
   static getUpdatedFillStyle<T extends keyof FillStyle>(
     element: ZsMapDrawElementState,
     field: T,
@@ -413,12 +429,8 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   // skipcq: JS-0105
-  getImageUrl(file: string) {
-    // const imageFromStore = CustomImageStoreService.getImageDataUrl(file);
-    // if (imageFromStore) {
-    //   return imageFromStore;
-    // }
-    return DrawStyle.getImageUrl(file);
+  getImageUrl(sig: Sign) {
+    return DrawStyle.getSignatureURI(sig);
   }
 
   drawHole() {

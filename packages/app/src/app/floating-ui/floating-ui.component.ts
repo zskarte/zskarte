@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, computed } from '@angular/core';
+import { Component, HostListener, inject, computed, ViewChild } from '@angular/core';
 import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
@@ -46,6 +46,7 @@ import { JournalService } from '../journal/journal.service';
   ],
 })
 export class FloatingUIComponent {
+  @ViewChild(GeocoderComponent) geocoder!: GeocoderComponent;
   MAX_DRAW_ELEMENTS_GUEST = MAX_DRAW_ELEMENTS_GUEST;
   i18n = inject(I18NService);
   state = inject(ZsMapStateService);
@@ -219,8 +220,10 @@ export class FloatingUIComponent {
       return;
     }
     if (this._dialog.openDialogs.length === 0) {
-      if (!this._search.handleEsc(event)) {
-        this.sidebar.close();
+      if (!this.geocoder.stopDefineArea()) {
+        if (!this._search.handleEsc(event)) {
+          this.sidebar.close();
+        }
       }
     }
   }

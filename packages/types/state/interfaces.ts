@@ -1,6 +1,6 @@
 import { Coordinate } from 'ol/coordinate';
 import { MapLayer, WmsSource } from '../map-layer/interfaces';
-import { FillStyle, IconsOffset } from '../sign/interfaces';
+import { FillStyle, HierarchyLevel, IconsOffset } from '../sign/interfaces';
 import { Feature } from 'ol';
 import { PermissionType } from '../session/interfaces';
 import { Sort } from '@angular/material/sort';
@@ -80,6 +80,7 @@ export interface IZsMapDisplayState {
   hiddenFeatureTypes: string[];
   highlightedFeature: string[];
   enableClustering: boolean;
+  showNames: boolean;
   globalSymbolScale: number;
   journalSort: Sort;
   journalFilter: IZsJournalFilter;
@@ -93,6 +94,7 @@ export interface IZsJournalFilter {
   outgoingFilter: boolean;
   decisionFilter: boolean;
   keyMessageFilter: boolean;
+  eingangFilter: boolean;
 }
 
 export interface IZsGlobalSearchConfig {
@@ -218,6 +220,15 @@ export interface IZsMapBaseDrawElementState extends IZsMapBaseElementState {
   zindex?: number;
   reportNumber?: number | number[];
   affectedPersons?: number;
+  hazardCode?: string;
+  unNumber?: string;
+  // Formation signature fields
+  hierarchyLevel?: HierarchyLevel;
+  organization?: string;
+  formationDetail?: string;
+  additionalInfo?: string;
+  formationNumber?: string;
+  formationLocation?: string;
 }
 
 export interface ZsMapTextDrawElementState extends IZsMapBaseDrawElementState {

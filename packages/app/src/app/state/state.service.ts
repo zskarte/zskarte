@@ -175,6 +175,7 @@ export class ZsMapStateService {
       hiddenFeatureTypes: [],
       highlightedFeature: [],
       enableClustering: false,
+      showNames: true,
       globalSymbolScale: 1.25,
       journalSort: { active: 'messageNumber', direction: 'desc' },
       journalFilter: {
@@ -183,6 +184,7 @@ export class ZsMapStateService {
         outgoingFilter: false,
         decisionFilter: false,
         keyMessageFilter: false,
+        eingangFilter: false,
       },
       searchConfig: {
         filterMapSection: false,
@@ -502,6 +504,13 @@ export class ZsMapStateService {
   public observeEnableClustering(): Observable<boolean> {
     return this._display.pipe(
       map((o) => o.enableClustering),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  public observeShowNames(): Observable<boolean> {
+    return this._display.pipe(
+      map((o) => o.showNames),
       distinctUntilChanged((x, y) => x === y),
     );
   }
@@ -902,7 +911,7 @@ export class ZsMapStateService {
 
   public activateDrawLayer(id: string) {
     this.assertLayerExists(id);
-    this.updateDisplayState(draft => {
+    this.updateDisplayState((draft) => {
       draft.activeLayer = id;
       Object.keys(draft.layerOpacity).forEach((key) => {
         draft.layerOpacity[key] = 0.5;
@@ -913,7 +922,7 @@ export class ZsMapStateService {
 
   public toggleDrawLayerVisibility(id: string, visible: boolean) {
     this.assertLayerExists(id);
-    this.updateDisplayState(draft => {
+    this.updateDisplayState((draft) => {
       draft.layerVisibility[id] = visible;
     });
   }
@@ -1328,6 +1337,12 @@ export class ZsMapStateService {
   public toggleClustering() {
     this.updateDisplayState((draft) => {
       draft.enableClustering = !draft.enableClustering;
+    });
+  }
+
+  public toggleShowNames() {
+    this.updateDisplayState((draft) => {
+      draft.showNames = !draft.showNames;
     });
   }
 

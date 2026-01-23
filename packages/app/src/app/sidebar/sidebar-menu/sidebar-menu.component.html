@@ -36,6 +36,10 @@
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('personRecoveryOverview')">sensor_occupied</mat-icon>
   {{ i18n.get('personRecoveryOverview') }}
 </button>
+<button mat-menu-item class="tools-menu-item" (click)="openResourceOverviewWindow()">
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('resourceOverview')">list_alt</mat-icon>
+    {{ i18n.get('resourceOverview') }}
+</button>
 <button mat-menu-item (click)="help()">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon>
   {{ i18n.get('help') }}
@@ -44,7 +48,7 @@
 <div class="mat-menu-item-with-info">
   <button mat-menu-item (click)="zsMapStateService.toggleExpertView()">
     @if (!(zsMapStateService.observeIsExpertView() | async)) {
-      <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('exportSession')">manage_accounts</mat-icon>
+      <mat-icon aria-hidden="false">manage_accounts</mat-icon>
     }
     @if (zsMapStateService.observeIsExpertView() | async) {
       <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('defaultView')">person</mat-icon>
@@ -56,7 +60,15 @@
   </button>
 </div>
 <mat-divider></mat-divider>
-@if (session.observeHasWritePermission() | async) {
+@if (zsMapStateService.observeIsExpertView() | async) {
+  @if (hasWritePermission && !localOperation) {
+    <button mat-menu-item (click)="organisationSettings()">
+      <mat-icon aria-hidden="false">settings</mat-icon>
+      {{ i18n.get('organisationSettings') }}
+    </button>
+  }
+}
+@if (hasWritePermission) {
   @if (!localOperation) {
     <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="shareOptions">
       <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('share')">share</mat-icon>
@@ -68,8 +80,7 @@
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('navigateOperations')">logout</mat-icon>
     {{ i18n.get('navigateOperations') }}
   </button>
-}
-@if (!(session.observeHasWritePermission() | async)) {
+} @else {
   <button mat-menu-item class="tools-menu-item" (click)="session.logout('logout')">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon>
     {{ i18n.get('logout') }}

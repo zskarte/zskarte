@@ -33,6 +33,10 @@ export interface IZsMapOrganizationMapLayerSettings {
   map_layer_favorites: number[];
 }
 
+export interface IZsMapOrganizationSettings {
+  journalMessageTextTemplate?: string;
+}
+
 export interface IZsMapOrganization extends IZsMapOrganizationMapLayerSettings {
   id: number;
   documentId: string;
@@ -46,6 +50,7 @@ export interface IZsMapOrganization extends IZsMapOrganizationMapLayerSettings {
   operations: IZsMapOperation[];
   users: IZsMapUser[];
   journalEntryTemplate: object | null;
+  settings: IZsMapOrganizationSettings;
 }
 
 export interface IZsMapUser {

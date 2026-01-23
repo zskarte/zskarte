@@ -61,6 +61,10 @@
   border-radius: 8px;
   padding: 16px;
   border: 1px solid #E0E0E0;
+
+  &.entscheid-awaiting-completion {
+    border-color: black;
+  }
 }
 
 .section-title {

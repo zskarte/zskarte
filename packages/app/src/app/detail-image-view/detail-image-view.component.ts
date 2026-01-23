@@ -21,6 +21,6 @@ export class DetailImageViewComponent {
     const i18n = this.i18n;
 
     this.title = i18n.getLabelForSign(data);
-    this.imageSrc = DrawStyle.getImageUrl(data.src);
+    this.imageSrc = DrawStyle.getSignatureURI(data);
   }
 }

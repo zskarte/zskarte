@@ -34,6 +34,7 @@ import { ZsMapStateService } from 'src/app/state/state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { SessionService } from 'src/app/session/session.service';
 import { MatCardModule } from '@angular/material/card';
 import { FormSectionComponent } from '../../ui/form-section';
 import { MatDivider } from "@angular/material/divider";
@@ -67,6 +68,7 @@ import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-se
 export class JournalFormComponent {
   private _dialog = inject(MatDialog);
   private _state = inject(ZsMapStateService);
+  private _session = inject(SessionService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   search = inject(SearchService);
@@ -89,7 +91,7 @@ export class JournalFormComponent {
   markPotentialAddresses = signal(false);
   manualMessageNumber = signal(false);
   private viewReady = signal(false);
-  
+  journalMessageTextTemplate: string | undefined;
   constructor() {
     afterNextRender(() => {
       this.viewReady.set(true);
@@ -114,6 +116,8 @@ export class JournalFormComponent {
     this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.dirty.emit(this.journalForm.dirty);
     });
+    const settings = this._session.getOrganizationSettings();
+    this.journalMessageTextTemplate = settings?.journalMessageTextTemplate;
   }
 
   journalForm = new FormGroup({
@@ -341,6 +345,11 @@ export class JournalFormComponent {
       dateCreatedDate: new Date(),
       dateCreatedTime: new Date(),
     });
+    if (this.journalMessageTextTemplate) {
+      this.journalForm.patchValue({
+        messageContent: this.journalMessageTextTemplate,
+      });
+    }
     this.showPrint = false;
     this.formVisible.set(true);
     
