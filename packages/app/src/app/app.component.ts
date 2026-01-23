@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject, signal } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
-import { RouterModule, RouterOutlet, NavigationEnd, Router } from '@angular/router';
+import { RouterModule, RouterOutlet, NavigationEnd, Router, PRIMARY_OUTLET } from '@angular/router';
 import { MatTabsModule } from "@angular/material/tabs";
 import {NgFor} from "@angular/common";
 import { SessionService } from './session/session.service';
@@ -29,15 +29,14 @@ export class AppComponent implements OnInit {
 
   navLinks = [
     {
-
       label: 'map',
-      link: '/main/map',
-    }, {
+      link: [{ outlets: { [PRIMARY_OUTLET]: ['main', 'map'], sidebar: null } }],
+    },
+    {
       label: 'journal',
-      link: '/main/journal'
-    }
+      link: [{ outlets: { [PRIMARY_OUTLET]: ['main', 'journal'], sidebar: null } }],
+    },
   ];
-
 
   height = window.innerHeight;
   width = window.innerWidth;
@@ -45,12 +44,10 @@ export class AppComponent implements OnInit {
   constructor() {
     this._shortcut.initialize();
     // Track if we're on the help page
-    this._router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        const url = event.url;
-        this.isHelpPage.set(url === '/help' || url.startsWith('/help/'));
-      });
+    this._router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      const url = event.url;
+      this.isHelpPage.set(url === '/help' || url.startsWith('/help/'));
+    });
     // Check initial route
     const initialUrl = this._router.url;
     this.isHelpPage.set(initialUrl === '/help' || initialUrl.startsWith('/help/'));

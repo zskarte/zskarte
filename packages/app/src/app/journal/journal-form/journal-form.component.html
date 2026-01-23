@@ -5,10 +5,6 @@
         <span class="message-number">#{{ journalForm.getRawValue().messageNumber }}</span>
         {{ journalForm.value.messageSubject ?? '' }}
       </h1>
-
-      <button type="button" (click)="closeForm()" mat-icon-button [attr.aria-label]="i18n.get('close')">
-        <mat-icon>close</mat-icon>
-      </button>
     </div>
     <div style="padding: 14px">
       <table class="details-table">

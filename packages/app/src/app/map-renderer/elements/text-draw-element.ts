@@ -35,6 +35,6 @@ export class ZsMapTextDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElem
       text: element.text,
       coordinates: feature.getGeometry()?.getCoordinates(),
     });
-    state.setSelectedFeature(drawElement?.id);
+    state.selectFeature(drawElement?.id);
   }
 }

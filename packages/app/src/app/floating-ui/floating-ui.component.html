@@ -1,6 +1,6 @@
 <div class="floating-ui-container">
   <div class="main noprint">
-    <div class="search" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
+    <div class="search" [ngClass]="{ 'sidebar-open': sidebar.isOpen() }">
       <app-geocoder />
       @if (session.isGuest()) {
         @let limitReached = session.observeIsGuestElementLimitReached() | async;
@@ -14,15 +14,15 @@
         </button>
       }
     </div>
-    <app-journal-draw-overlay [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
-    <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
+    <app-journal-draw-overlay [ngClass]="{ 'sidebar-open': sidebar.isOpen() }" />
+    <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.isOpen() }" />
   </div>
-  <div class="action-buttons noprint" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
+  <div class="action-buttons noprint" [ngClass]="{ 'sidebar-open': sidebar.isOpen() }">
     <div class="vertical-stack">
       <button
         class="sidebar-button mat-elevation-z3"
         mat-icon-button
-        [color]="(sidebar.observeContext() | async) === SidebarContext.Menu ? 'primary' : 'basic'"
+        [color]="sidebar.context() === SidebarContext.Menu ? 'primary' : 'basic'"
         (click)="sidebar.toggle(SidebarContext.Menu)"
         [attr.aria-label]="i18n.get('docMapMenuTitle')"
       >
@@ -32,7 +32,7 @@
       <button
         class="sidebar-button mat-elevation-z3"
         mat-icon-button
-        [color]="(sidebar.observeContext() | async) === SidebarContext.Connections ? 'primary' : 'basic'"
+        [color]="sidebar.context() === SidebarContext.Connections ? 'primary' : 'basic'"
         (click)="sidebar.toggle(SidebarContext.Connections)"
         [attr.aria-label]="i18n.get('connections')"
       >
@@ -63,7 +63,7 @@
       <button
         class="sidebar-button mat-elevation-z3"
         mat-icon-button
-        [color]="(sidebar.observeContext() | async) === SidebarContext.Layers ? 'primary' : 'basic'"
+        [color]="sidebar.context() === SidebarContext.Layers ? 'primary' : 'basic'"
         (click)="sidebar.toggle(SidebarContext.Layers)"
         [attr.aria-label]="i18n.get('layers')"
       >
@@ -74,7 +74,7 @@
         <button
           class="sidebar-button mat-elevation-z3"
           mat-icon-button
-          [color]="(sidebar.observeContext() | async) === SidebarContext.History ? 'primary' : 'basic'"
+          [color]="sidebar.context() === SidebarContext.History ? 'primary' : 'basic'"
           (click)="sidebar.toggle(SidebarContext.History)"
           [attr.aria-label]="i18n.get('history')"
         >
@@ -85,7 +85,7 @@
       <button
         class="sidebar-button mat-elevation-z3"
         mat-icon-button
-        [color]="(sidebar.observeContext() | async) === SidebarContext.Journal ? 'primary' : 'basic'"
+        [color]="sidebar.context() === SidebarContext.Journal ? 'primary' : 'basic'"
         (click)="sidebar.toggle(SidebarContext.Journal)"
         [attr.aria-label]="i18n.get('journal')"
       >

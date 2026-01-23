@@ -1,61 +1,91 @@
-import { Injectable, effect, inject } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { SidebarContext } from './sidebar.interfaces';
-import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, map, startWith } from 'rxjs';
 import { ZsMapStateService } from '../state/state.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs/operators';
+import { NavigationEnd, PRIMARY_OUTLET, Router } from '@angular/router';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { I18NService } from '../state/i18n.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SidebarService {
   private _state = inject(ZsMapStateService);
+  private _router = inject(Router);
+  private _i18n = inject(I18NService);
+  private _dialog = inject(MatDialog);
 
   private _context = new BehaviorSubject<SidebarContext | undefined>(undefined);
-  private _preventDeselect = false;
-  private _preventClose = false;
 
-  constructor() {
-    effect(() => {
-      const fragment = this._state.urlFragment();
-      if (fragment?.startsWith('message=')) {
-        this.open(SidebarContext.Journal);
-      }
-    });
-    combineLatest([this._state.observeSelectedFeature$(), this._state.observeHideSelectedFeature$()]).subscribe(
-      ([element, hide]) => {
-        this._preventDeselect = true;
-        if (element && !hide) {
-          this.open(SidebarContext.SelectedFeature);
-        } else if (!this._preventClose) {
-          this.close();
-        }
-        this._preventClose = false;
-      },
-    );
+  public context = toSignal(
+    this._router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      startWith(null),
+      map(() => {
+        const route = this._router.routerState.snapshot.root;
+        const outletNode = route.children.find((child) => child.outlet === 'sidebar');
+        return outletNode?.routeConfig?.path?.split('/')[0] as SidebarContext | null;
+      }),
+    ),
+  );
+  public isOpen = computed(() => Boolean(this.context()));
+  public formDirty = signal(false);
+
+  private async canChange() {
+    if (this.formDirty()) {
+      const confirm = this._dialog.open(ConfirmationDialogComponent, {
+        data: {
+          message: this._i18n.get('discardEntryConfirm'),
+          cancelLabel: this._i18n.get('continueEditingAction'),
+          confirmLabel: this._i18n.get('discardEntry'),
+        },
+        width: '520px',
+      });
+      return await firstValueFrom(confirm.afterClosed());
+    }
+
+    return true;
   }
 
-  close(): void {
-    if (!this._context.value) {
+  async close() {
+    const canChange = await this.canChange();
+    if (!canChange) {
       return;
     }
-    this._context.next(undefined);
-    if (!this._preventDeselect) {
-      this._state.resetSelectedFeature();
-    }
-    this._preventDeselect = false;
-    this._state.removeUrlFragment('message=');
+
+    this._state.resetSelectedFeature();
+    return this._router.navigate([
+      {
+        outlets: {
+          sidebar: null,
+        },
+      },
+    ]);
   }
 
-  open(context: SidebarContext): void {
-    if (this._context.value !== context && !this._preventDeselect) {
-      //deselect element if switched to other sidebar
-      this._preventClose = true;
-      this._state.resetSelectedFeature();
+  async openWithPrimary(path: any[], primary?: any[]) {
+    const canChange = await this.canChange();
+    if (!canChange) {
+      return;
     }
-    if (context !== SidebarContext.Journal) {
-      this._state.removeUrlFragment('message=');
+
+    const outlets = { sidebar: path };
+    if (primary) {
+      outlets[PRIMARY_OUTLET] = primary;
     }
-    this._context.next(context);
-    this._preventDeselect = false;
+
+    void this._router.navigate([{ outlets }]);
+  }
+
+  async open(context: SidebarContext, additional?: string) {
+    const path: string[] = [context];
+    if (additional) {
+      path.push(additional);
+    }
+    return this.openWithPrimary(path);
   }
 
   toggle(context: SidebarContext): void {
@@ -64,13 +94,5 @@ export class SidebarService {
     } else {
       this.open(context);
     }
-  }
-
-  observeIsOpen(): Observable<boolean> {
-    return this._context.pipe(map((context) => context !== undefined));
-  }
-
-  observeContext(): Observable<SidebarContext | undefined> {
-    return this._context.asObservable();
   }
 }

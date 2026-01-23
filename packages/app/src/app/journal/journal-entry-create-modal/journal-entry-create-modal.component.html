@@ -3,7 +3,7 @@
 </app-dialog-header>
 <app-dialog-body>
   <app-journal-form
-    [entry]="null"
+    [currentMessage]="null"
     (close)="onClose()"
     (dirty)="onDirty($event)"
     [isCreateModal]="true"

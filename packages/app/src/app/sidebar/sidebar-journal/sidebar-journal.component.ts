@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, input, computed, linkedSignal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -22,6 +22,7 @@ import {
 } from '../../empty/empty.component';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
+import { SidebarContext } from '../sidebar.interfaces';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -55,8 +56,28 @@ export class SidebarJournalComponent {
   readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
-  currentMessageNumber: number | undefined;
-  selectedIndex = 0;
+
+  currentMessage = input<string>();
+  protected currentMessageNumber = computed(() => {
+    const param = this.currentMessage();
+    return param && !isNaN(+param) ? +param : undefined;
+  });
+
+  readonly selectedTabIndex = linkedSignal({
+    source: this.currentMessageNumber,
+    computation: (next, prev) => {
+      // don't change on deselection
+      if (next === undefined) {
+        return prev?.value;
+      }
+
+      const drawn = this.journalEntriesDrawn();
+      if (drawn.some((t) => t.messageNumber === next)) {
+        return 1;
+      }
+      return 0;
+    },
+  });
 
   constructor(private elementRef: ElementRef) {
     effect(() => {
@@ -69,27 +90,9 @@ export class SidebarJournalComponent {
       const alreadyDrawn = (journalList || []).filter((entry) => entry.isDrawnOnMap);
       alreadyDrawn.sort((a, b) => a.messageNumber - b.messageNumber);
       this.journalEntriesDrawn.set(alreadyDrawn);
-
-      if (this.currentMessageNumber) {
-        this.scrollToMessage(this.currentMessageNumber);
-      }
-    });
-    effect(() => {
-      const fragment = this._state.urlFragment();
-      if (fragment?.startsWith('message=')) {
-        const messageId = fragment.split('=')[1];
-        const messageNumber = Number.parseInt(messageId);
-        this.currentMessageNumber = messageNumber;
-
-        const journalList = this.journal.data();
-        const entry = (journalList || []).find((e) => e.messageNumber === messageNumber);
-        if (entry) {
-          this.selectedIndex = entry.isDrawnOnMap ? 1 : 0;
-        }
-
+      const messageNumber = this.currentMessageNumber();
+      if (messageNumber) {
         this.scrollToMessage(messageNumber);
-      } else {
-        this.currentMessageNumber = undefined;
       }
     });
   }
@@ -108,11 +111,11 @@ export class SidebarJournalComponent {
     this.journal.startDrawing(entry, true);
   }
 
-  onPanelOpened(messageNumber: number) {
-    this.currentMessageNumber = messageNumber;
+  onPanelOpened(messageNumber: number | undefined) {
+    void this._sidebar.open(SidebarContext.Journal, messageNumber?.toString());
   }
 
   onPanelClosed() {
-    this.currentMessageNumber = undefined;
+    void this._sidebar.open(SidebarContext.Journal, 'null');
   }
 }

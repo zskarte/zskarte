@@ -35,6 +35,6 @@ export class ZsMapLineDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElem
       coordinates: feature.getGeometry()?.getCoordinates() || [],
       layer: element.layer,
     });
-    state.setSelectedFeature(drawElement?.id);
+    state.selectFeature(drawElement?.id);
   }
 }

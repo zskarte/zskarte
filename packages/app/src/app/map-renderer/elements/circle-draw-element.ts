@@ -74,7 +74,7 @@ export class ZsMapCircleDrawElement extends ZsMapBaseDrawElement<ZsMapCircleDraw
       radius,
       layer: element.layer,
     });
-    state.setSelectedFeature(drawElement?.id);
+    state.selectFeature(drawElement?.id);
   }
 
   public static override getOlDrawHandler(state: ZsMapStateService, element: ZsMapElementToDraw): Draw {

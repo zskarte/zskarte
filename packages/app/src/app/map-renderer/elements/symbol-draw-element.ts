@@ -55,6 +55,6 @@ export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapSymbolDraw
       layer: element.layer,
       symbolId: element.symbolId,
     });
-    state.setSelectedFeature(drawElement?.id);
+    state.selectFeature(drawElement?.id);
   }
 }

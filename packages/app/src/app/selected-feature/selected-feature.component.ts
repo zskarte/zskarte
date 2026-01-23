@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, computed, inject, OnDestroy } from '@angular/core';
+import { Component, computed, effect, inject, input, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
@@ -37,9 +37,10 @@ import {
   ZsMapDrawElementStateType,
 } from '@zskarte/types';
 import { MatDividerModule } from '@angular/material/divider';
-import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Signs } from '../map-renderer/signs';
+import { SidebarService } from '../sidebar/sidebar.service';
+import { SidebarContext } from '../sidebar/sidebar.interfaces';
 
 @Component({
   selector: 'app-selected-feature',
@@ -67,7 +68,9 @@ export class SelectedFeatureComponent implements OnDestroy {
   dialog = inject(MatDialog);
   i18n = inject(I18NService);
   zsMapStateService = inject(ZsMapStateService);
-  private router = inject(Router);
+  private sidebar = inject(SidebarService);
+
+  protected selectedFeatureId = input<string>();
 
   groupedFeatures = null;
   selectedFeature: Observable<Feature<SimpleGeometry> | undefined>;
@@ -136,6 +139,12 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   constructor() {
+    effect(() => {
+      console.log('hello', this.selectedFeatureId());
+      // Select feature when param changes
+      this.zsMapStateService.setSelectedFeature(this.selectedFeatureId());
+    });
+
     this.selectedFeature = this.zsMapStateService.observeSelectedElement$().pipe(
       takeUntil(this._ngUnsubscribe),
       map((element) => element?.getOlFeature() as Feature<SimpleGeometry> | undefined),
@@ -283,7 +292,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   openMessage(reportNumber: string) {
-    this.router.navigate([], { fragment: `message=${reportNumber}` });
+    void this.sidebar.open(SidebarContext.Journal, reportNumber);
   }
 
   addReportNumber(event: MatChipInputEvent | FocusEvent, element: ZsMapDrawElementState) {
