@@ -36,6 +36,8 @@ mat-form-field {
 .addresSearch {
   display: flex;
   padding: 5px 0;
+  align-items: flex-start;
+  flex-wrap: wrap;
 
   .title {
     margin-right: 10px;
@@ -46,6 +48,18 @@ mat-form-field {
   input {
     flex-grow: 1;
     box-sizing: border-box;
+  }
+
+  .search-hint {
+    width: 100%;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #6b6b6b;
+  }
+
+  .search-hint-esc {
+    margin-left: 0;
+    color: #8a8a8a;
   }
 }
 

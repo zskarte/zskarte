@@ -56,9 +56,15 @@
     [matAutocomplete]="autocomplete.autocompleteRef"
     [ngModelOptions]="{ standalone: true }"
     [ngModel]="addressSearchTerm()"
+    [placeholder]="i18n.get('searchAddressTypeToSearch')"
     (ngModelChange)="addressSearchTerm.set($event)"
     (keydown)="onKeydownAddressSearch($event)"
   />
+  @if (!addressSearchTerm()) {
+    <div class="search-hint">
+      <span class="search-hint-esc">{{ i18n.get('searchAddressEscToExit') }}</span>
+    </div>
+  }
   <app-search-autocomplete
     #autocomplete
     [searchTerm]="addressSearchTerm()"
