@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { SimpleGeometry } from 'ol/geom';
 import { Select } from 'ol/interaction';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, Observable } from 'rxjs';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';
@@ -10,6 +10,7 @@ import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
 import { MapModifyService } from './map-modify.service';
 import { MapOverlayService } from './map-overlay.service';
 import { MapRendererService } from './map-renderer.service';
+import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -56,7 +57,10 @@ export class MapSelectService {
       layers: _renderer.getLayers(),
     });
 
-    this._state.observeSelectedFeature$().subscribe((element) => {
+    this._state.observeSelectedFeature$().pipe(
+      combineLatestWith(this._state.observeMapReady()),
+      filter(([, ready]) => ready)
+    ).subscribe(([element]) => {
       if (!element) {
         this._select.getFeatures().clear();
       } else if (this._select.getFeatures().getLength() === 0) {
@@ -84,7 +88,7 @@ export class MapSelectService {
               this._modify.addToCache(cluster);
             }
           }
-          this._state.setSelectedFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
+          this._state.selectFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
           // reset selectedVertexPoint, since we selected a whole feature.
           this._vertexPoint.next(DrawStyle.getIconCoordinates(feature, _renderer.getView().getResolution() ?? 1)[1]);
 

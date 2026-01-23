@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild, AfterViewInit, DestroyRef } from '@angular/core';
+import { Component, inject, signal, viewChild, AfterViewInit, DestroyRef, HostListener } from '@angular/core';
 import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,15 @@ import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } fro
 @Component({
   selector: 'app-journal-entry-create-modal',
   standalone: true,
-  imports: [MatDialogModule, MatIconModule, MatButtonModule, JournalFormComponent, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
+  imports: [
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule,
+    JournalFormComponent,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+  ],
   templateUrl: './journal-entry-create-modal.component.html',
 })
 export class JournalEntryCreateModalComponent implements AfterViewInit {
@@ -27,11 +35,12 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
   constructor() {
     this.dialogRef.disableClose = true;
     this.dialogRef.backdropClick().pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => this.handleCloseAttempt());
-    this.dialogRef.keydownEvents().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((event) => {
-      if (event.key === 'Escape') {
-        this.handleCloseAttempt();
-      }
-    });
+  }
+
+  @HostListener('keydown.Escape', ['$event'])
+  closeOnEsc(event: Event) {
+    event.stopPropagation();
+    this.handleCloseAttempt();
   }
 
   ngAfterViewInit() {
@@ -45,18 +54,21 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
 
   handleCloseAttempt() {
     if (this.isDirty()) {
-      this._dialog.open(ConfirmationDialogComponent, {
-        data: {
-          message: this.i18n.get('discardEntryConfirm'),
-          cancelLabel: this.i18n.get('continueEditingAction'),
-          confirmLabel: this.i18n.get('discardEntry'),
-        },
-        width: '520px',
-      }).afterClosed().subscribe((confirmed) => {
-        if (confirmed) {
-          this.dialogRef.close();
-        }
-      });
+      this._dialog
+        .open(ConfirmationDialogComponent, {
+          data: {
+            message: this.i18n.get('discardEntryConfirm'),
+            cancelLabel: this.i18n.get('continueEditingAction'),
+            confirmLabel: this.i18n.get('discardEntry'),
+          },
+          width: '520px',
+        })
+        .afterClosed()
+        .subscribe((confirmed) => {
+          if (confirmed) {
+            this.dialogRef.close();
+          }
+        });
     } else {
       this.dialogRef.close();
     }
@@ -71,6 +83,8 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
   }
 
   private showSuccessSnackbar(messageNumber: number) {
-    this._snackBar.open(this.i18n.get('entryCreated').replace('{number}', messageNumber.toString()), undefined, { duration: 3000 });
+    this._snackBar.open(this.i18n.get('entryCreated').replace('{number}', messageNumber.toString()), undefined, {
+      duration: 3000,
+    });
   }
 }

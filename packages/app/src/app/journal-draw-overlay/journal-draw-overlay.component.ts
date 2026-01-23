@@ -55,7 +55,7 @@ export class JournalDrawOverlayComponent {
     } else {
       await this.journal.startDrawing(this.entry()!, false);
     }
-    this._sidebar.open(SidebarContext.Journal);
+    await this._sidebar.open(SidebarContext.Journal, this.entry()?.messageNumber?.toString());
   }
 
   async showAllAddresses() {

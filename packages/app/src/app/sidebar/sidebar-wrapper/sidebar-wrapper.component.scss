@@ -16,6 +16,10 @@
   &.open {
     transform: translateX(0);
   }
+
+  &[data-size="large"] {
+    --sidebar-width: min(50rem, 75vw);
+  }
 }
 
 .sidebar-header {
@@ -66,11 +70,6 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-app-sidebar-menu {
-  display: flex;
-  flex-direction: column;
 }
 
 :host-context(.journal-address-preview) {

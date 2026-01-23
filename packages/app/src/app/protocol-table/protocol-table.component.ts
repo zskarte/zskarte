@@ -78,7 +78,7 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
   ];
 
   navigateTo(element: ProtocolEntry) {
-    this.zsMapStateService.setSelectedFeature(element.id);
+    this.zsMapStateService.selectFeature(element.id);
     const extent = this.zsMapStateService.getDrawElement(element.id)?.getOlFeature()?.getGeometry()?.getExtent();
     if (extent) {
       this.zsMapStateService.setMapCenter(getCenter(extent));

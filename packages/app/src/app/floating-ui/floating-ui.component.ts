@@ -204,7 +204,7 @@ export class FloatingUIComponent {
     if (this._dialog.openDialogs.length === 0) {
       if (!this.geocoder.stopDefineArea()) {
         if (!this._search.handleEsc(event)) {
-          this.sidebar.close();
+          void this.sidebar.close();
         }
       }
     }

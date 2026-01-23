@@ -37,7 +37,7 @@ export class ZsMapFreehandDrawElement extends ZsMapBaseDrawElement<ZsMapFreehand
       coordinates: feature.getGeometry()?.getCoordinates() || [],
       layer: element.layer,
     });
-    state.setSelectedFeature(drawElement?.id);
+    state.selectFeature(drawElement?.id);
   }
 
   public static override getOlDrawHandler(state: ZsMapStateService, element: ZsMapElementToDraw): Draw {
