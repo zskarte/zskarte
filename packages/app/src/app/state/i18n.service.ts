@@ -2625,7 +2625,7 @@ export class I18NService {
       fr: 'Aucune ressource disponible',
     },
     noMissingPersons: {
-      de: 'Keine auswirkungen auf Personen gefunden',
+      de: 'Keine Auswirkungen auf Personen gefunden',
       en: 'No impacts on persons found',
       fr: 'Aucun effet sur les personnes',
     },
