@@ -144,6 +144,11 @@ export class QuillBlotService {
         this.quill.deleteText(cursor - 1, 1, Quill.sources.USER);
         return { text: '' };
       }
+      const currentChar = this.quill.getText(cursor, 1);
+      if (currentChar === '@' && /\s/.test(prevChar)) {
+        this.quill.deleteText(cursor, 1, Quill.sources.USER);
+        return { text: '' };
+      }
     }
     if (cursor === 0 && this.quill.getText(0, 1) === '@') {
       this.quill.deleteText(0, 1, Quill.sources.USER);
