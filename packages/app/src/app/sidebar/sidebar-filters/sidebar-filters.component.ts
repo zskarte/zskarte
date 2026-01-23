@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
-import { Observable } from 'rxjs/internal/Observable';
-import { combineLatest, Subject } from 'rxjs';
+import { Component, inject } from '@angular/core';
+import { combineLatest } from 'rxjs';
 import { I18NService } from 'src/app/state/i18n.service';
 import capitalizeFirstLetter from 'src/app/helper/capitalizeFirstLetter';
 import { Sign, signCategories, SignCategory } from '@zskarte/types';
@@ -19,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
@@ -37,47 +36,32 @@ import { MatSliderModule } from '@angular/material/slider';
     MatButtonModule,
     MatCheckboxModule,
     MatSliderModule,
-    FormsModule
+    FormsModule,
+    MatCheckboxModule,
   ],
 })
-export class SidebarFiltersComponent implements OnInit, OnDestroy {
+export class SidebarFiltersComponent {
   i18n = inject(I18NService);
   private mapState = inject(ZsMapStateService);
 
   filterSymbols: any[] = [];
   signCategories: any[] = [...signCategories.values()];
-  hiddenSymbols$: Observable<number[]>;
-  hiddenFeatureTypes$: Observable<string[]>;
-  enableClustering$: Observable<boolean>;
-  globalSymbolScale$: Observable<number>;
-  filtersOpenState = false;
-  filtersGeneralOpenState = false;
+  enableClustering$ = this.mapState.observeEnableClustering();
+  showNames$ = this.mapState.observeShowNames();
+  globalSymbolScale$ = this.mapState.observeGlobalSymbolScale();
   capitalizeFirstLetter = capitalizeFirstLetter;
-  private _ngUnsubscribe = new Subject<void>();
+
 
   constructor() {
-    this.hiddenSymbols$ = this.mapState.observeHiddenSymbols().pipe(takeUntil(this._ngUnsubscribe));
-    this.hiddenFeatureTypes$ = this.mapState.observeHiddenFeatureTypes().pipe(takeUntil(this._ngUnsubscribe));
-    this.enableClustering$ = this.mapState.observeEnableClustering().pipe(takeUntil(this._ngUnsubscribe));
-    this.globalSymbolScale$ = this.mapState.observeGlobalSymbolScale().pipe(takeUntil(this._ngUnsubscribe));
-  }
-
-  ngOnInit(): void {
     combineLatest([
       this.mapState.observeDrawElements(),
       this.mapState.observeHiddenSymbols(),
       this.mapState.observeHiddenFeatureTypes(),
     ])
-      .pipe(takeUntil(this._ngUnsubscribe))
+      .pipe(takeUntilDestroyed())
       .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
         this.updateFilterSymbolsAndFeatureTypes(drawElements, hiddenSymbols, hiddenFeatureTypes);
       });
-
-  }
-
-  ngOnDestroy(): void {
-    this._ngUnsubscribe.next();
-    this._ngUnsubscribe.complete();
   }
 
   updateFilterSymbolsAndFeatureTypes(
@@ -88,15 +72,18 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     const symbols = {};
     if (elements && elements.length > 0) {
       elements.forEach((element) => {
-        this.extractSymbol(element.getOlFeature(), symbols)
+        this.extractSymbol(element.getOlFeature(), symbols);
       });
     }
     this.filterSymbols = Object.values(symbols)
       .sort((a: any, b: any) => a.label.localeCompare(b.label))
-      .map((symbol: any) => ({ ...symbol, hidden: hiddenSymbols.includes(symbol.id) || hiddenFeatureTypes.includes(symbol.filterValue) }));
+      .map((symbol: any) => ({
+        ...symbol,
+        hidden: hiddenSymbols.includes(symbol.id) || hiddenFeatureTypes.includes(symbol.filterValue),
+      }));
 
-    const availableKats = Object.values(symbols).map((s:any) => s.kat)
-    const catObjects = [...signCategories.values()].filter(s => availableKats.includes(s.name));
+    const availableKats = Object.values(symbols).map((s: any) => s.kat);
+    const catObjects = [...signCategories.values()].filter((s) => availableKats.includes(s.name));
     catObjects.forEach((category: any) => {
       const categorySymbols = this.filterSymbols.filter((symbol: any) => symbol.kat === category.name);
 
@@ -106,7 +93,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
       category.isVisible = !allHidden && !someHidden;
       category.isPartiallyVisible = !allHidden && someHidden;
     });
-    this.signCategories = catObjects
+    this.signCategories = catObjects;
   }
 
   extractSymbol(f: FeatureLike, symbols: Record<string, any>) {
@@ -165,28 +152,26 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   public toggleSymbolOrFeatureFilter(symbol: Sign) {
     if (symbol.type === '' || symbol.type === undefined) {
       this.mapState.toggleSymbol(symbol.id);
-    } else {
-      if (symbol.filterValue !== '' || symbol.filterValue !== undefined) this.mapState.toggleFeatureType(symbol.filterValue as string);
+    } else if (symbol.filterValue) {
+      this.mapState.toggleFeatureType(symbol.filterValue);
     }
   }
 
   public toggleCategoryFilter($event: MatCheckboxChange, category: SignCategory) {
-    const categorySymbols = this.filterSymbols.filter(
-      (symbol: Sign) => symbol.kat === category.name
-    );
+    const categorySymbols = this.filterSymbols.filter((symbol: Sign) => symbol.kat === category.name);
 
-    if($event.checked) {
+    if ($event.checked) {
       categorySymbols.forEach((symbol: any) => {
         if (symbol.hidden) {
           this.toggleSymbolOrFeatureFilter(symbol);
         }
-      })
+      });
     } else {
       categorySymbols.forEach((symbol: any) => {
         if (!symbol.hidden) {
           this.toggleSymbolOrFeatureFilter(symbol);
         }
-      })
+      });
     }
   }
 
@@ -194,8 +179,11 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     this.mapState.toggleClustering();
   }
 
+  public toggleShowNames() {
+    this.mapState.toggleShowNames();
+  }
+
   public setGlobalSymbolScale(scale: number) {
     this.mapState.setGlobalSymbolScale(scale);
   }
-
 }

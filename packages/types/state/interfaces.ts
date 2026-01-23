@@ -80,6 +80,7 @@ export interface IZsMapDisplayState {
   hiddenFeatureTypes: string[];
   highlightedFeature: string[];
   enableClustering: boolean;
+  showNames: boolean;
   globalSymbolScale: number;
   journalSort: Sort;
   journalFilter: IZsJournalFilter;
