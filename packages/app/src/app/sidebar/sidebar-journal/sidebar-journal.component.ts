@@ -1,4 +1,13 @@
-import { Component, ElementRef, computed, effect, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -22,7 +31,7 @@ import {
 } from '../../ui/empty';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-sidebar-journal',
@@ -49,12 +58,13 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
   templateUrl: './sidebar-journal.component.html',
   styleUrl: './sidebar-journal.component.scss',
 })
-export class SidebarJournalComponent {
+export class SidebarJournalComponent implements AfterViewInit {
   private _sidebar = inject(SidebarService);
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
   private elementRef = inject(ElementRef);
+  readonly paginator = viewChild.required(MatPaginator);
   readonly journalEntries = this.journal.allData;
   readonly journalEntriesToDraw = computed(() => (this.journalEntries() || []).filter((entry) => !entry.isDrawnOnMap).sort((a, b) => a.messageNumber - b.messageNumber));
   readonly journalEntriesDrawn = computed(() => (this.journalEntries() || []).filter((entry) => entry.isDrawnOnMap).sort((a, b) => a.messageNumber - b.messageNumber));
@@ -103,6 +113,15 @@ export class SidebarJournalComponent {
         this.currentMessageNumber = undefined;
       }
     });
+  }
+
+  ngAfterViewInit() {
+    // yes it is a little bit hacky, and the official solution is different but it works for now.
+    this.paginator()._intl.itemsPerPageLabel = this.i18n.get('paginationItemsPerPage');
+    this.paginator()._intl.previousPageLabel = this.i18n.get('paginationPrevPage');
+    this.paginator()._intl.nextPageLabel = this.i18n.get('paginationNextPage');
+    this.paginator()._intl.firstPageLabel = this.i18n.get('paginationFirstPage');
+    this.paginator()._intl.lastPageLabel = this.i18n.get('paginationLastPage');
   }
 
   onTodoPageChange(event: PageEvent) {

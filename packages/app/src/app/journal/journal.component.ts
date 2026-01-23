@@ -229,8 +229,15 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort();
-    // Don't assign paginator to dataSourceFiltered - we use server-side pagination
     // define special field/value to do the sort
+
+    // yes it is a little bit hacky, and the official solution is different but it works for now.
+    this.paginator()._intl.itemsPerPageLabel = this.i18n.get('paginationItemsPerPage');
+    this.paginator()._intl.previousPageLabel = this.i18n.get('paginationPrevPage');
+    this.paginator()._intl.nextPageLabel = this.i18n.get('paginationNextPage');
+    this.paginator()._intl.firstPageLabel = this.i18n.get('paginationFirstPage');
+    this.paginator()._intl.lastPageLabel = this.i18n.get('paginationLastPage');
+
     this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'entryResponsibility':

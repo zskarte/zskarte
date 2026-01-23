@@ -38,7 +38,7 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
   numerical = false;
 
   readonly sort = viewChild(MatSort);
-  readonly paginator = viewChild(MatPaginator);
+  readonly paginator = viewChild.required(MatPaginator);
 
   ngOnInit(): void {
     this.zsMapStateService.observeDrawElements().pipe(takeUntilDestroyed(this._destroyRef)).subscribe(this.updateTable.bind(this));
@@ -47,6 +47,13 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
   ngAfterViewInit() {
     this.protocolTableDataSource.sort = this.sort() ?? null;
     this.protocolTableDataSource.paginator = this.paginator() ?? null;
+
+    // yes it is a little bit hacky, and the official solution is different but it works for now.
+    this.paginator()._intl.itemsPerPageLabel = this.i18n.get('paginationItemsPerPage');
+    this.paginator()._intl.previousPageLabel = this.i18n.get('paginationPrevPage');
+    this.paginator()._intl.nextPageLabel = this.i18n.get('paginationNextPage');
+    this.paginator()._intl.firstPageLabel = this.i18n.get('paginationFirstPage');
+    this.paginator()._intl.lastPageLabel = this.i18n.get('paginationLastPage');
   }
 
   updateTable(elements: ZsMapBaseDrawElement[]) {
