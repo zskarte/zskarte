@@ -15,7 +15,7 @@ import { Coordinate } from 'ol/coordinate';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { filter, skip, take } from 'rxjs';
+import { filter, firstValueFrom, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { SearchService } from 'src/app/search/search.service';
@@ -25,6 +25,7 @@ import { Router } from '@angular/router';
 import { SidebarService } from '../sidebar.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { DrawDialogComponent } from 'src/app/draw-dialog/draw-dialog.component';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
@@ -272,9 +273,16 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     this.navigateTo(element);
   }
 
-  addSignature() {
+  async addSignature() {
     this._sidebar.close();
     this.journal.startDrawing(this.entry(), true);
+    await this.openDrawDialog();
+  }
+
+  private async openDrawDialog(): Promise<void> {
+    const layer = await firstValueFrom(this._state.observeActiveLayer());
+    const ref = this._dialog.open(DrawDialogComponent);
+    ref.componentRef?.instance.setLayer(layer);
   }
 
   noSignatureNeeded() {

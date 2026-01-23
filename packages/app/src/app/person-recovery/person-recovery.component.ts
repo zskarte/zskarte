@@ -12,6 +12,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
 import { getJsPDF } from 'src/app/pdf/jsPDF.factory';
+import {
+  EmptyComponent,
+  EmptyHeaderComponent,
+  EmptyMediaComponent,
+  EmptyTitleComponent,
+} from '../empty/empty.component';
+import { MatIconModule } from '@angular/material/icon';
 
 type PersonRecoverySign = Partial<Sign> & {
   text?: string;
@@ -45,7 +52,18 @@ async function svg2png(url?: string, width = 100, height = 100) {
 
 @Component({
   selector: 'app-person-recovery',
-  imports: [AsyncPipe, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
+  imports: [
+    AsyncPipe,
+    MatButtonModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    EmptyComponent,
+    EmptyHeaderComponent,
+    EmptyMediaComponent,
+    EmptyTitleComponent,
+    MatIconModule,
+  ],
   templateUrl: './person-recovery.component.html',
   styles: `
     .recovery-row {
@@ -63,10 +81,6 @@ async function svg2png(url?: string, width = 100, height = 100) {
     .recovery-row img {
       height: 30px;
       width: auto;
-    }
-    
-    .recovery-empty {
-      color: var(--mdc-dialog-supporting-text-color);
     }
   `
 })
