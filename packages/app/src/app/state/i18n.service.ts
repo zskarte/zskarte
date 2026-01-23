@@ -3638,6 +3638,11 @@ export class I18NService {
       en: 'Esc to exit',
       fr: 'Échap pour quitter',
     },
+    addAddress: {
+      de: 'Adresse hinzufügen',
+      en: 'Add address',
+      fr: 'Ajouter une adresse',
+    },
     searchAddressUsageHint: {
       de: 'Um Adressinformationen einzufügen, geben Sie "@" ein oder drücken Sie Ctrl+Leertaste.\nZum Bearbeiten doppelklicken Sie in den Bereich oder drücken Sie Ctrl+Leertaste.',
       en: 'To insert address information, type "@" or press Ctrl+Space.\nTo edit, double-click in the area or press Ctrl+Space.',

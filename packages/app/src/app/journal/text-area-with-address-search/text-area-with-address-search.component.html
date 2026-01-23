@@ -28,6 +28,10 @@
   }
 </mat-form-field>
 <div class="actions">
+  <button mat-stroked-button type="button" (click)="openAddressSearch()">
+    <mat-icon>add</mat-icon>
+    {{ i18n.get('addAddress') }}
+  </button>
   <button mat-stroked-button type="button" (click)="markPotentialAddresses()">
     <mat-icon>search</mat-icon>
     {{ i18n.get('markPotentialAddresses') }}

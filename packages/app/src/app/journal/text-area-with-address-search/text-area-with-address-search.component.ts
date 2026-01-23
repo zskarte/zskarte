@@ -303,6 +303,30 @@ export class TextAreaWithAddressSearchComponent {
     }
   }
 
+  openAddressSearch() {
+    if (this.showLinkedText()) {
+      const result = this.quillBlotService.getAddressEdit(false);
+      if (result) {
+        if (result.blotElem) {
+          this.editAddr(result.blotElem);
+          return;
+        }
+        this.startEdit(result.text);
+        return;
+      }
+      this.startEdit('');
+      return;
+    }
+
+    const textarea = this.textContentInput().nativeElement;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+    this.textContentSelectedArea = [start, end];
+    this.startEdit(selectedText);
+  }
+
   useResult(value: IZsMapSearchResult) {
     const addressToken = value.internal?.addressToken;
     if (this.showLinkedText()) {
