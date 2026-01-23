@@ -59,6 +59,11 @@ export class I18NService {
       en: 'My name',
       fr: 'Mon nom',
     },
+    enterYourName: {
+      de: 'Bitte geben Sie Ihren Namen ein',
+      en: 'Please enter your name',
+      fr: 'Veuillez entrer votre nom',
+    },
     shareLocation: {
       de: 'Standort teilen',
       en: 'Share location',
@@ -2004,6 +2009,71 @@ export class I18NService {
       en: 'Affected Persons',
       fr: 'Persones affectés',
     },
+    hazardCode: {
+      de: 'Gefahrennummer',
+      en: 'Hazard code',
+      fr: 'Numéro de danger',
+    },
+    unNumber: {
+      de: 'UN-Nummer',
+      en: 'UN number',
+      fr: 'Numéro ONU',
+    },
+    hierarchyLevel: {
+      de: 'Hierarchiestufe',
+      en: 'Hierarchy level',
+      fr: 'Niveau hiérarchique',
+    },
+    hierarchyTrupp: {
+      de: 'Trupp',
+      en: 'Squad',
+      fr: 'Équipe',
+    },
+    hierarchyGruppe: {
+      de: 'Gruppe',
+      en: 'Group',
+      fr: 'Groupe',
+    },
+    hierarchyZug: {
+      de: 'Zug',
+      en: 'Platoon',
+      fr: 'Section',
+    },
+    hierarchyKompanie: {
+      de: 'Kompanie',
+      en: 'Company',
+      fr: 'Compagnie',
+    },
+    hierarchyBataillon: {
+      de: 'Bataillon',
+      en: 'Battalion',
+      fr: 'Bataillon',
+    },
+    organization: {
+      de: 'Organisation',
+      en: 'Organization',
+      fr: 'Organisation',
+    },
+    formationDetail: {
+      de: 'Nähere Kennzeichnung',
+      en: 'Formation detail',
+      fr: 'Détail de la formation',
+    },
+    additionalInfo: {
+      de: 'Zusatzangaben',
+      en: 'Additional info',
+      fr: 'Informations supplémentaires',
+    },
+    formationNumber: {
+      de: 'Nummerierung',
+      en: 'Number',
+      fr: 'Numéro',
+    },
+    formationLocation: {
+      de: 'Einsatzort',
+      en: 'Site of operation',
+      fr: 'Lieu d\'intervention',
+    },
     addNewLayer: {
       de: 'Neue Ebene erstellen',
       en: 'Create new layer',
@@ -2543,6 +2613,16 @@ export class I18NService {
       de: 'Personenbergungsübersicht',
       en: 'Person recovery overview',
       fr: 'Aperçu des personnes hébergées',
+    },
+    resourceOverview: {
+      de: 'Mittelübersicht',
+      en: 'Resource overview',
+      fr: 'Aperçu des ressources',
+    },
+    noResources: {
+      de: 'Keine Ressourcen vorhanden',
+      en: 'No resources available',
+      fr: 'Aucune ressource disponible',
     },
     noMissingPersons: {
       de: 'Keine auswirkungen auf Personen gefunden',

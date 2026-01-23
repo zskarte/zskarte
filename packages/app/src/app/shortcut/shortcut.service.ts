@@ -61,7 +61,7 @@ export class ShortcutService {
         }
 
         const confirmation = this._dialog.open(ConfirmationDialogComponent, {
-          data: this.i18n.get('removeFeatureFromMapConfirm'),
+          data: { message: this.i18n.get('removeFeatureFromMapConfirm') },
         });
         confirmation.afterClosed().subscribe((result) => {
           if (result && this._selectedFeatureId) {

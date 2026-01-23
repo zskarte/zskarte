@@ -2,10 +2,13 @@ import { Component, OnDestroy, OnInit, inject, input, output } from '@angular/co
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from '../map-renderer/draw-style';
-import { SelectSignDialog } from '../select-sign-dialog/select-sign-dialog.component';
 import { Subject, takeUntil } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { Sign, ZsMapDrawElementState } from '@zskarte/types';
+
+interface SignDialogInterface {
+  allSigns: Sign[];
+}
 
 @Component({
   selector: 'app-recently-used-signs',
@@ -43,7 +46,7 @@ export class RecentlyUsedSignsComponent implements OnInit, OnDestroy {
     this._ngUnsubscribe.complete();
   }
 
-  readonly dialog = input.required<SelectSignDialog>();
+  readonly dialog = input.required<SignDialogInterface>();
   readonly selectSign = output<Sign>();
 
   private signsSource: Sign[] = [];

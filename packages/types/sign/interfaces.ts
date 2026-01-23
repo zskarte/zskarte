@@ -1,6 +1,14 @@
 import { FeatureLike } from "ol/Feature";
 import { Circle, LineString, MultiPolygon, Point, Polygon } from "ol/geom";
 
+export enum HierarchyLevel {
+  TRUPP = 'trupp',
+  GRUPPE = 'gruppe',
+  ZUG = 'zug',
+  KOMPANIE = 'kompanie',
+  BATAILLON = 'bataillon',
+}
+
 export interface FillStyle {
   name: string;
   size?: number;
@@ -52,7 +60,16 @@ export interface Sign {
   createdAt?: Date;
   reportNumber?: number;
   affectedPersons?: number;
+  hazardCode?: string;
+  unNumber?: string;
   deprecated?: boolean;
+  // Formation signature fields
+  hierarchyLevel?: HierarchyLevel;
+  organization?: string; // Text inside the circle (P, FW, San, ZS, A, etc.)
+  formationDetail?: string; // Left text (Ustü, Lösch, Rttg, OD, etc.)
+  additionalInfo?: string; // Right text (2 Z, 3 Gr, etc.)
+  formationNumber?: string; // Bottom number
+  formationLocation?: string; // Bottom location name
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -151,6 +168,14 @@ export const signatureDefaultValues: SignatureDefaultValues = {
   images: [],
   hideIcon: false,
   affectedPersons: undefined,
+  hazardCode: undefined,
+  unNumber: undefined,
+  hierarchyLevel: undefined,
+  organization: undefined,
+  formationDetail: undefined,
+  additionalInfo: undefined,
+  formationNumber: undefined,
+  formationLocation: undefined,
 };
 
 export function defineDefaultValuesForSignature(signature: Sign) {
@@ -187,6 +212,10 @@ export function defineDefaultValuesForSignature(signature: Sign) {
   signature.images = signature.images ?? signatureDefaultValues.images;
   signature.affectedPersons =
     signature.affectedPersons ?? signatureDefaultValues.affectedPersons;
+  signature.hazardCode =
+    signature.hazardCode ?? signatureDefaultValues.hazardCode;
+  signature.unNumber =
+    signature.unNumber ?? signatureDefaultValues.unNumber;
 }
 
 export interface SignatureDefaultValues {
@@ -210,4 +239,12 @@ export interface SignatureDefaultValues {
   images: string[];
   hideIcon: boolean;
   affectedPersons: number | undefined;
+  hazardCode: string | undefined;
+  unNumber: string | undefined;
+  hierarchyLevel: string | undefined;
+  organization: string | undefined;
+  formationDetail: string | undefined;
+  additionalInfo: string | undefined;
+  formationNumber: string | undefined;
+  formationLocation: string | undefined;
 }

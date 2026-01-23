@@ -15,12 +15,14 @@ import {
   FillStyle,
   getFirstCoordinate,
   getLastCoordinate,
+  HierarchyLevel,
   Sign,
   signatureDefaultValues,
 } from '@zskarte/types';
 import { Geometry, MultiPolygon } from 'ol/geom';
 import { FeatureLike } from 'ol/Feature';
 import { ZsMapOLFeatureProps } from './elements/base/ol-feature-props';
+import { Signs } from './signs';
 
 // skipcq: JS-0327
 export class DrawStyle {
@@ -35,6 +37,24 @@ export class DrawStyle {
   private static clusterStyleCache = {};
 
   private static lastResolution = 0;
+
+  public static getSignatureURI(signature: Sign): string {
+    if (signature.id === Signs.HAZARD_SIGN_ID) {
+      // The gefahrentafel is generated on the fly
+      return DrawStyle.getHazardSignSvg(signature);
+    } else if (signature.id === Signs.FORMATION_SIGN_ID) {
+      // The formation sign is generated on the fly
+      return DrawStyle.getFormationSvg(signature);
+    } else if (Signs.TRANSPORT_SIGN_IDS.includes(signature.id ?? 0)) {
+      // The transport sign is generated on the fly
+      return DrawStyle.getTransportSvg(signature);
+    } else if (Signs.LEADER_SIGN_IDS.includes(signature.id ?? 0)) {
+      // The leader sign is generated on the fly
+      return DrawStyle.getLeaderSignSvg(signature);
+    } else {
+      return DrawStyle.getImageUrl(signature.src);
+    }
+  }
 
   public static getImageUrl(file: string): string {
     return `assets/img/signs/${file}`;
@@ -293,6 +313,253 @@ export class DrawStyle {
     ).toString();
   }
 
+  private static asDataImageSvg(svg: string): string {
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  public static getHazardSignSvg(signature: Sign): string {
+    const color = '#FF9100';
+    const hazardCode = signature.hazardCode ?? '';
+    const unNumber = signature.unNumber ?? '';
+    const svg = `
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 156 156" width="156px" height="156px" style="enable-background:new 0 0 156 156;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:${color};}
+	.st2{font-family:'Arial'; font-weight: 600; font-size: 36px; text-anchor: middle;}
+</style>
+<g>
+	<path class="st0" d="M149.2,125.6H2.8V34.6h146.4L149.2,125.6L149.2,125.6z M10.2,118.1h131.5v-76H10.2V118.1z"/>
+	<text x="78" y="72" class="st0 st2">${hazardCode}</text>
+	<text x="78" y="115" class="st0 st2">${unNumber}</text>
+	<rect x="6.5" y="76.2" class="st0" width="139.1" height="7.4"/>
+</g>
+</svg>`.trim();
+    return this.asDataImageSvg(svg)
+  }
+
+  public static getTransportSvg(signature: Sign): string {
+    const color = signature.color ?? '#0000FF';
+    const organization = signature.organization ?? '';
+    const formationDetail = signature.formationDetail ?? '';
+    const signId = signature.id;
+
+    // Use larger viewBox with padding to prevent clipping
+    const padding = 40;
+    const viewBoxWidth = 156 + padding * 2;
+    const viewBoxHeight = 156 + padding * 2;
+
+    // Generate wheels based on sign ID
+    // 192 = Motorfahrzeug (2 wheels)
+    // 201 = Transportfahrzeug (3 wheels)
+    // 190 = Lastwagen (3 wheels in 1/2 pattern)
+    let wheelsHtml = '';
+    const wheelRadius = 16.5;
+    const wheelStroke = 6.5;
+    const wheelY = 135;
+
+    if (signId === Signs.MOTOR_VEHICLE_SIGN_ID) {
+      // Motorfahrzeug: 2 wheels
+      wheelsHtml = `
+        <circle cx="${padding + 45}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 111}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>`;
+    } else if (signId === Signs.TRANSPORT_VEHICLE_SIGN_ID) {
+      // Transportfahrzeug: 3 wheels
+      wheelsHtml = `
+        <circle cx="${padding + 33}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 78}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 123}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>`;
+    } else {
+      // Lastwagen (190): 3 wheels, one in front, two in the back
+      wheelsHtml = `
+        <circle cx="${padding + 20}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 95}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>
+        <circle cx="${padding + 135}" cy="${wheelY}" r="${wheelRadius}" fill="white" stroke="${color}" stroke-width="${wheelStroke}"/>`;
+    }
+
+    // Calculate font size for organization text based on length
+    let orgFontSize = 32;
+    if (organization.length > 3) {
+      orgFontSize = Math.max(18, 32 - (organization.length - 3) * 4);
+    }
+
+    // Truck body path
+    const bodyPath = `M${padding + 3.8},${68.5 + padding} L${padding + 3.8},${3.8 + padding} L${padding + 41.5},${15 + padding} L${padding + 78},${17.3 + padding} L${padding + 114.5},${15 + padding} L${padding + 152.2},${3.8 + padding} L${padding + 152.2},${68.5 + padding} Z`;
+
+    const svg = `
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" width="${viewBoxWidth}px" height="${viewBoxHeight}px">
+  <!-- Truck body -->
+  <path d="${bodyPath}" fill="white" stroke="${color}" stroke-width="7"/>
+  
+  <!-- Organization text in body -->
+  <text x="${padding + 78}" y="${55 + padding}" fill="${color}" font-family="Arial" font-weight="700" font-size="${orgFontSize}" text-anchor="middle">${organization}</text>
+  
+  <!-- Formation detail text above body -->
+  <text x="${padding + 78}" y="${padding - 5}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationDetail}</text>
+  
+  <!-- Wheels -->
+  ${wheelsHtml}
+</svg>`.trim();
+
+    return this.asDataImageSvg(svg);
+  }
+
+  public static getLeaderSignSvg(signature: Sign): string {
+    const color = signature.color ?? '#0000FF';
+    const organization = signature.organization ?? '';
+    const signId = signature.id;
+
+    // Use larger viewBox with padding to prevent clipping
+    const padding = 20;
+    const viewBoxWidth = 156 + padding * 2;
+    const viewBoxHeight = 156 + padding * 2;
+
+    // Center coordinates
+    const centerX = 78 + padding;
+    const circleY = 129 + padding;
+    const circleRadius = 37;
+
+    // Pole dimensions
+    const poleX = centerX;
+    const poleTop = padding;
+    const poleBottom = circleY - circleRadius;
+    const poleWidth = 8;
+    const barWidth = 32;
+    const barHeight = 8;
+
+    // Generate the horizontal bar(s) at top
+    let barsHtml = `<rect x="${poleX}" y="${poleTop}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+    if (signId === 84) {
+      // Second bar for platoon leader
+      barsHtml += `<rect x="${poleX}" y="${poleTop + 22}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+    }
+    if (signId === 40) {
+      // Third bar for head of operations
+      barsHtml += `<rect x="${poleX}" y="${poleTop + 22}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+      barsHtml += `<rect x="${poleX}" y="${poleTop + 44}" width="${barWidth}" height="${barHeight}" fill="${color}"/>`;
+    }
+
+    // Calculate font size for organization text based on length
+    let orgFontSize = 40;
+    if (organization.length > 1) {
+      orgFontSize = Math.max(20, 40 - (organization.length - 1) * 8);
+    }
+
+    const svg = `
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" width="${viewBoxWidth}px" height="${viewBoxHeight}px">
+  <!-- Vertical pole -->
+  <rect x="${poleX - poleWidth/2}" y="${poleTop}" width="${poleWidth}" height="${poleBottom - poleTop}" fill="${color}"/>
+  
+  <!-- Horizontal bar(s) at top -->
+  ${barsHtml}
+  
+  <!-- Circle with white fill -->
+  <circle cx="${centerX}" cy="${circleY}" r="${circleRadius}" fill="white" stroke="${color}" stroke-width="9"/>
+  
+  <!-- Organization text inside circle -->
+  <text x="${centerX}" y="${circleY + 8}" fill="${color}" font-family="Arial" font-weight="700" font-size="${orgFontSize}" text-anchor="middle">${organization}</text>
+</svg>`.trim();
+
+    return this.asDataImageSvg(svg);
+  }
+
+  public static getFormationSvg(signature: Sign): string {
+    const color = signature.color ?? '#0000FF';
+    const hierarchyLevel = signature.hierarchyLevel ?? HierarchyLevel.TRUPP;
+    const organization = signature.organization ?? '';
+    const formationDetail = signature.formationDetail ?? '';
+    const additionalInfo = signature.additionalInfo ?? '';
+    const formationNumber = signature.formationNumber ?? '';
+    const formationLocation = signature.formationLocation ?? '';
+
+    // Use larger viewBox with padding to prevent clipping
+    const padding = 40;
+    const radius = 78;
+    const viewBoxSize = (radius * 2) + padding * 2;
+    const circleCenter = radius + padding; // Center of the main circle, offset by padding
+
+    // Generate hierarchy indicator (dots or bars)
+    let hierarchyIndicator = '';
+    const dotRadius = 8;
+    const dotY = 15 + padding;
+    const dotSpacing = 25;
+
+    switch (hierarchyLevel) {
+      case HierarchyLevel.TRUPP: // 1 dot
+        hierarchyIndicator = `<circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.GRUPPE: // 2 dots
+        hierarchyIndicator = `
+          <circle cx="${circleCenter - dotSpacing/2}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>
+          <circle cx="${circleCenter + dotSpacing/2}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.ZUG: // 3 dots
+        hierarchyIndicator = `
+          <circle cx="${circleCenter - dotSpacing}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>
+          <circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>
+          <circle cx="${circleCenter + dotSpacing}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.KOMPANIE: // cross
+        hierarchyIndicator = `
+          <rect x="${circleCenter - 3}" y="${padding - 5}" width="6" height="40" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${12 + padding}" width="30" height="6" fill="${color}"/>`;
+        break;
+      case HierarchyLevel.BATAILLON: // cross with two lines
+        hierarchyIndicator = `
+          <rect x="${circleCenter - 3}" y="${padding - 5}" width="6" height="40" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${18 + padding}" width="30" height="6" fill="${color}"/>
+          <rect x="${circleCenter - 15}" y="${8 + padding}" width="30" height="6" fill="${color}"/>`;
+        break;
+      default:
+        hierarchyIndicator = `<circle cx="${circleCenter}" cy="${dotY}" r="${dotRadius}" fill="${color}"/>`;
+    }
+
+    // Calculate font size for organization text based on length
+    let orgFontSize = 28;
+    if (organization.length > 3) {
+      orgFontSize = Math.max(16, 28 - (organization.length - 3) * 4);
+    }
+
+    // Bottom text (number and location)
+    let bottomText = '';
+    if (formationNumber || formationLocation) {
+      const bottomY1 = 150 + padding;
+      const bottomY2 = 170 + padding;
+      if (formationNumber && formationLocation) {
+        bottomText = `
+          <text x="${circleCenter}" y="${bottomY1}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationNumber}</text>
+          <text x="${circleCenter}" y="${bottomY2}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationLocation}</text>`;
+      } else if (formationNumber) {
+        bottomText = `<text x="${circleCenter}" y="${bottomY1}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationNumber}</text>`;
+      } else {
+        bottomText = `<text x="${circleCenter}" y="${bottomY1}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="middle">${formationLocation}</text>`;
+      }
+    }
+
+    const svg = `
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxSize} ${viewBoxSize}" width="${viewBoxSize}px" height="${viewBoxSize}px">
+  <!-- Hierarchy indicator (dots or bars) -->
+  ${hierarchyIndicator}
+  
+  <!-- Main circle with white fill -->
+  <circle cx="${circleCenter}" cy="${78 + padding}" r="40" fill="white" stroke="${color}" stroke-width="8"/>
+  
+  <!-- Organization text inside circle -->
+  <text x="${circleCenter}" y="${85 + padding}" fill="${color}" font-family="Arial" font-weight="700" font-size="${orgFontSize}" text-anchor="middle">${organization}</text>
+  
+  <!-- Left text (formation detail) -->
+  <text x="${25 + padding}" y="${85 + padding}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="end">${formationDetail}</text>
+  
+  <!-- Right text (additional info) -->
+  <text x="${131 + padding}" y="${85 + padding}" fill="${color}" font-family="Arial" font-weight="600" font-size="22" text-anchor="start">${additionalInfo}</text>
+  
+  <!-- Bottom text -->
+  ${bottomText}
+</svg>`.trim();
+
+    return this.asDataImageSvg(svg);
+  }
+
   private static calculateCacheHashForSymbol(signature: Sign, feature: FeatureLike, resolution: number, selected: boolean, highlighted: boolean, hidden: boolean): string {
     feature = DrawStyle.getSubFeature(feature);
     return Md5.hashStr(
@@ -313,6 +580,14 @@ export class DrawStyle {
         iconOpacity: signature.iconOpacity,
         zindex: this.getZIndex(feature),
         affectedPersons: signature.affectedPersons,
+        hazardCode: signature.hazardCode,
+        unNumber: signature.unNumber,
+        hierarchyLevel: signature.hierarchyLevel,
+        organization: signature.organization,
+        formationDetail: signature.formationDetail,
+        additionalInfo: signature.additionalInfo,
+        formationNumber: signature.formationNumber,
+        formationLocation: signature.formationLocation,
       }),
     ).toString();
   }
@@ -579,30 +854,17 @@ export class DrawStyle {
           );
         }
 
-        let imageFromMemory;
-        let scaledSize;
-        // let naturalDim = null;
-        // const imageFromMemoryDataUrl = CustomImageStoreService.getImageDataUrl(signature.src);
-        // if (imageFromMemoryDataUrl) {
-        //   imageFromMemory = this.imageCache[featureId];
-        //   if (!imageFromMemory) {
-        //     imageFromMemory = this.imageCache[featureId] = new Image();
-        //   }
-        //   imageFromMemory.src = imageFromMemoryDataUrl;
-        //   naturalDim = Math.min.apply(null, CustomImageStoreService.getDimensions(signature.src));
-        //   scaledSize = (492 / naturalDim) * scale * signature.iconSize;
-        // }
         const icon = new Icon({
           anchor: [0.5, 0.5],
           anchorXUnits: 'fraction',
           anchorYUnits: 'fraction',
-          scale: scaledSize ? scaledSize : scale * 2 * (signature.iconSize ?? 1),
+          scale: scale * 2 * (signature.iconSize ?? 1),
           rotation: signature.rotation !== undefined ? (signature.rotation * Math.PI) / 180 : 0,
           // rotationWithView: false,
-          src: imageFromMemory ? undefined : this.getImageUrl(signature.src),
-          img: imageFromMemory ? imageFromMemory : undefined,
+          src: this.getSignatureURI(signature),
+          img: undefined,
           // imgSize: scaledSize ? [naturalDim, naturalDim] : undefined,
-          opacity: showIcon && !hidden ? 1 : 0.5
+          opacity: showIcon && !hidden ? 1 : 0.5,
         });
 
         // Draw the icon

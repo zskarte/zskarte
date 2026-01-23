@@ -7,13 +7,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { I18NService } from '../../state/i18n.service';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { JournalFormComponent } from '../journal-form/journal-form.component';
+import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-journal-entry-create-modal',
   standalone: true,
-  imports: [MatDialogModule, MatIconModule, MatButtonModule, JournalFormComponent],
+  imports: [MatDialogModule, MatIconModule, MatButtonModule, JournalFormComponent, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
   templateUrl: './journal-entry-create-modal.component.html',
-  styleUrl: './journal-entry-create-modal.component.scss',
 })
 export class JournalEntryCreateModalComponent implements AfterViewInit {
   private dialogRef = inject<MatDialogRef<JournalEntryCreateModalComponent>>(MatDialogRef);
@@ -36,14 +36,7 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     const formComponent = this.journalFormComponent();
-    formComponent.addNew();
     formComponent.saved.subscribe((messageNumber) => this.showSuccessSnackbar(messageNumber));
-    
-    this.dialogRef.afterOpened().subscribe(() => {
-      setTimeout(() => {
-        formComponent.focusSenderInput();
-      }, 100);
-    });
   }
 
   onDirty(dirty: boolean) {
@@ -71,6 +64,10 @@ export class JournalEntryCreateModalComponent implements AfterViewInit {
 
   onClose() {
     this.handleCloseAttempt();
+  }
+
+  onSave() {
+    this.journalFormComponent().save();
   }
 
   private showSuccessSnackbar(messageNumber: number) {

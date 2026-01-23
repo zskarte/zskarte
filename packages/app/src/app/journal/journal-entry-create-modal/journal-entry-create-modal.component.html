@@ -1,21 +1,17 @@
-<div class="journal-entry-modal">
-  <div class="modal-header">
-    <h2>{{ i18n.get('createNewEntry') }}</h2>
-    <button
-      type="button"
-      mat-icon-button
-      (click)="onClose()"
-      [attr.aria-label]="i18n.get('close')"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-  <div class="modal-content">
-    <app-journal-form
-      [entry]="null"
-      (close)="onClose()"
-      (dirty)="onDirty($event)"
-      [isCreateModal]="true"
-    ></app-journal-form>
-  </div>
-</div>
+<app-dialog-header (close)="onClose()" [autoClose]="false">
+  <h2>{{ i18n.get('createNewEntry') }}</h2>
+</app-dialog-header>
+<app-dialog-body>
+  <app-journal-form
+    [entry]="null"
+    (close)="onClose()"
+    (dirty)="onDirty($event)"
+    [isCreateModal]="true"
+  ></app-journal-form>
+</app-dialog-body>
+<app-dialog-footer>
+  <button mat-flat-button color="primary" (click)="onSave()">
+    <mat-icon>check</mat-icon>
+    {{ i18n.get('create') }}
+  </button>
+</app-dialog-footer>

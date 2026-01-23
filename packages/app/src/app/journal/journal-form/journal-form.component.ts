@@ -36,6 +36,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { MatCardModule } from '@angular/material/card';
+import { FormSectionComponent } from '../../ui/form-section';
 
 @Component({
   selector: 'app-journal-form',
@@ -51,10 +53,12 @@ import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-to
     ReactiveFormsModule,
     FormsModule,
     MatSelectModule,
+    MatCardModule,
     CommonModule,
     TextAreaWithAddressSearchComponent,
     ReplaceAllAddressTokensPipe,
     A11yModule,
+    FormSectionComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal-form.component.html',
@@ -69,15 +73,8 @@ export class JournalFormComponent {
   readonly formVisible = signal(false);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
-  @ViewChild('senderInput') private senderInput?: ElementRef<HTMLInputElement>;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
   
-  focusSenderInput() {
-    setTimeout(() => {
-      this.senderInput?.nativeElement?.focus();
-    }, 0);
-  }
-
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
   CommunicationTypeValues = CommunicationTypeValues;
@@ -504,7 +501,7 @@ export class JournalFormComponent {
   closeForm() {
     if (this.journalForm.dirty) {
       const confirm = this._dialog.open(ConfirmationDialogComponent, {
-        data: this.i18n.get('closeNotSaved'),
+        data: { message: this.i18n.get('closeNotSaved') },
       });
       confirm.afterClosed().subscribe((response) => {
         if (response) {
