@@ -4,12 +4,13 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import QRCode from 'qrcode';
 import { I18NService } from 'src/app/state/i18n.service';
+import { DialogHeaderComponent, DialogBodyComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-share-dialog',
   templateUrl: './share-dialog.component.html',
   styleUrls: ['./share-dialog.component.scss'],
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, DialogHeaderComponent, DialogBodyComponent],
 })
 export class ShareDialogComponent {
   joinCode = inject(MAT_DIALOG_DATA);

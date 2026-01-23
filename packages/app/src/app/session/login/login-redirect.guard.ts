@@ -20,26 +20,36 @@ export class LoginRedirectGuard implements CanActivate {
     const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
     
     if (!isAuthenticated) {
-      return true; // Allow access to login/share page if not authenticated
+      return true;
     }
 
     const operationId = route.queryParams['operationId'];
     if (operationId) {
-      // Load the operation if not already set
       const currentOperation = this._session.getOperation();
+      let operationJustSet = false;
       if (!currentOperation?.documentId || currentOperation.documentId !== operationId) {
         const operation = await this._operationService.getOperation(operationId, { 
           token: this._session.getToken() 
         });
         if (operation) {
           await this._session.setOperation(operation);
+          operationJustSet = true;
         }
       }
 
-      // Redirect to map with preserved query params (except operationId)
+      const currentLabel = this._session.getLabel();
+      if (!currentLabel && operationJustSet) {
+        const queryParams: any = { ...route.queryParams };
+        Object.keys(queryParams).forEach(key => {
+          if (queryParams[key] === null || queryParams[key] === undefined) {
+            delete queryParams[key];
+          }
+        });
+        return this._router.createUrlTree(['/operations'], { queryParams });
+      }
+
       const queryParams: any = { ...route.queryParams };
       delete queryParams['operationId'];
-      // Remove null/undefined values
       Object.keys(queryParams).forEach(key => {
         if (queryParams[key] === null || queryParams[key] === undefined) {
           delete queryParams[key];
@@ -49,7 +59,6 @@ export class LoginRedirectGuard implements CanActivate {
       return this._router.createUrlTree(['/main/map'], { queryParams });
     }
 
-    // If authenticated but no operationId, redirect to map
     return this._router.parseUrl('/main/map');
   }
 }

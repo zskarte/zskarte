@@ -71,6 +71,14 @@ export abstract class ZsMapBaseDrawElement<
       zindex: state.zindex,
       reportNumber: state.reportNumber,
       affectedPersons: state.affectedPersons,
+      hazardCode: state.hazardCode,
+      unNumber: state.unNumber,
+      hierarchyLevel: state.hierarchyLevel,
+      organization: state.organization,
+      formationDetail: state.formationDetail,
+      additionalInfo: state.additionalInfo,
+      formationNumber: state.formationNumber,
+      formationLocation: state.formationLocation,
     });
   }
 

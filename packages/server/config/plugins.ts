@@ -29,4 +29,13 @@ const uploadProviders = (env) => {
 
 export default ({ env }) => ({
   upload: uploadProviders(env),
+  'users-permissions': {
+    config: {
+      ratelimit: {
+        enabled: true,
+        interval: { min: 1 },
+        max: 100,
+      },
+    },
+  }
 });

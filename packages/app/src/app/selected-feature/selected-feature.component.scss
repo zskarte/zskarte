@@ -15,6 +15,11 @@ mat-card.selection {
   margin-bottom: 1rem;
 }
 
+.other-layer {
+  color: var(--mat-form-field-error-text-color);
+  text-align: center;
+}
+
 .colorPicker {
   display: flex;
   flex-direction: column;

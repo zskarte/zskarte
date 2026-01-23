@@ -83,7 +83,7 @@ export class ZsMapStateService {
   private _location = inject(Location);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
-  private _mapHistoryDate = new BehaviorSubject<Date|null|undefined>(undefined);
+  private _mapHistoryDate = new BehaviorSubject<Date | null | undefined>(undefined);
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
   private _mapInversePatches = new BehaviorSubject<Patch[]>([]);
   private _undoStackPointer = new BehaviorSubject<number>(0);
@@ -175,6 +175,7 @@ export class ZsMapStateService {
       hiddenFeatureTypes: [],
       highlightedFeature: [],
       enableClustering: false,
+      globalSymbolScale: 1.25,
       journalSort: { active: 'messageNumber', direction: 'desc' },
       journalFilter: {
         department: '',
@@ -298,7 +299,7 @@ export class ZsMapStateService {
     return this._elementToDraw.asObservable();
   }
 
-  public setMapState(newState?: ZsMapState, mapHistoryDate:Date|null|undefined = undefined): void {
+  public setMapState(newState?: ZsMapState, mapHistoryDate: Date | null | undefined = undefined): void {
     newState = zsMapStateMigration(newState);
 
     const cached = Object.keys(this._layerCache);
@@ -324,7 +325,24 @@ export class ZsMapStateService {
 
   public setDisplayState(newState?: IZsMapDisplayState): void {
     this.updateDisplayState(() => {
-      return newState || this._getDefaultDisplayState();
+      if (!newState) {
+        return this._getDefaultDisplayState();
+      }
+      const defaults = this._getDefaultDisplayState();
+      return {
+        ...defaults,
+        ...newState,
+        layerVisibility: newState.layerVisibility ?? defaults.layerVisibility,
+        layerOpacity: newState.layerOpacity ?? defaults.layerOpacity,
+        layerOrder: newState.layerOrder ?? defaults.layerOrder,
+        elementVisibility: newState.elementVisibility ?? defaults.elementVisibility,
+        elementOpacity: newState.elementOpacity ?? defaults.elementOpacity,
+        layers: newState.layers ?? defaults.layers,
+        wmsSources: newState.wmsSources ?? defaults.wmsSources,
+        journalFilter: { ...defaults.journalFilter, ...newState.journalFilter },
+        searchConfig: { ...defaults.searchConfig, ...newState.searchConfig },
+        journalMessageEditConfig: { ...defaults.journalMessageEditConfig, ...newState.journalMessageEditConfig },
+      };
     });
   }
 
@@ -369,7 +387,7 @@ export class ZsMapStateService {
     return this._display.value?.displayMode === ZsMapDisplayMode.HISTORY;
   }
 
-  public observeHistoryDate(){
+  public observeHistoryDate() {
     return this._mapHistoryDate.asObservable();
   }
 
@@ -486,6 +504,20 @@ export class ZsMapStateService {
       map((o) => o.enableClustering),
       distinctUntilChanged((x, y) => x === y),
     );
+  }
+
+  public observeGlobalSymbolScale(): Observable<number> {
+    return this._display.pipe(
+      map((o) => o.globalSymbolScale ?? 1),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  public setGlobalSymbolScale(scale: number) {
+    const nextScale = Number.isFinite(scale) ? Math.max(0.1, scale) : 1;
+    this.updateDisplayState((draft) => {
+      draft.globalSymbolScale = nextScale;
+    });
   }
 
   public updateShowCurrentLocation(show: boolean) {
@@ -840,6 +872,58 @@ export class ZsMapStateService {
     });
   }
 
+  public addDrawLayer(name: string) {
+    this.updateMapState((draft) => {
+      const id = uuidv4();
+      draft.layers![id] = { id, name, type: ZsMapLayerStateType.DRAW };
+    });
+  }
+
+  public renameDrawLayer(id: string, name: string) {
+    this.assertLayerExists(id);
+    this.updateMapState((draft) => {
+      draft.layers![id].name = name;
+    });
+  }
+
+  public removeDrawLayer(id: string) {
+    this.assertLayerExists(id);
+
+    this.updateMapState((draft) => {
+      Object.entries(draft.drawElements ?? [])
+        .filter(([, element]) => element.layer === id)
+        .forEach(([id]) => {
+          delete draft.drawElements![id];
+        });
+
+      delete draft.layers![id];
+    });
+  }
+
+  public activateDrawLayer(id: string) {
+    this.assertLayerExists(id);
+    this.updateDisplayState(draft => {
+      draft.activeLayer = id;
+      Object.keys(draft.layerOpacity).forEach((key) => {
+        draft.layerOpacity[key] = 0.5;
+      });
+      draft.layerOpacity[id] = 1;
+    });
+  }
+
+  public toggleDrawLayerVisibility(id: string, visible: boolean) {
+    this.assertLayerExists(id);
+    this.updateDisplayState(draft => {
+      draft.layerVisibility[id] = visible;
+    });
+  }
+
+  private assertLayerExists(id: string) {
+    if (!this._layerCache[id]) {
+      throw new Error(`Cannot find layer with id: ${id}`);
+    }
+  }
+
   public sortMapLayerUp(index: number) {
     this.updateDisplayState((draft) => {
       const layer = draft.layers[index];
@@ -1182,7 +1266,7 @@ export class ZsMapStateService {
       }
       this._mapPatches.value.push(...patches);
       this._mapPatches.next(this._mapPatches.value);
-      this._mapInversePatches.value.push(...inversePatches);
+      this._mapInversePatches.value.push(...inversePatches.reverse());
       this._mapInversePatches.next(this._mapInversePatches.value);
       this._undoStackPointer.next(0);
 

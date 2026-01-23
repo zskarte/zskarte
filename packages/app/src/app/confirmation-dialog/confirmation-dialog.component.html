@@ -1,12 +1,15 @@
-<div mat-dialog-content>{{ data }}</div>
-<div mat-dialog-actions align="end">
-  <button mat-stroked-button [mat-dialog-close]="true" (click)="cancel()" [innerText]="i18n.get('cancel')"></button>
+<app-dialog-header>
+  <h2>{{ i18n.get('confirm') }}</h2>
+</app-dialog-header>
+<app-dialog-body>
+  {{ data.message }}
+</app-dialog-body>
+<app-dialog-footer>
+  <button mat-stroked-button (click)="cancel()">{{ data.cancelLabel ?? i18n.get('cancel') }}</button>
   <button
     mat-flat-button
     color="primary"
-    [mat-dialog-close]="true"
     cdkFocusInitial
     (click)="ok()"
-    [innerText]="i18n.get('confirm')"
-  ></button>
-</div>
+  >{{ data.confirmLabel ?? i18n.get('confirm') }}</button>
+</app-dialog-footer>

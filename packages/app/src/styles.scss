@@ -2,7 +2,15 @@
 @include mat.core();
 @import 'quill/dist/quill.snow.css';
 
+:root {
+  --mat-dialog-container-color: #f1f1f1;
+}
+
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --sidebar-width: min(30rem, 75vw);
+}
+
 html,
 body {
   height: 100%;
@@ -46,6 +54,10 @@ mat-action-list {
   padding: 1rem;
 }
 
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
 .mat-accordion .mat-expansion-panel {
   overflow: visible;
 }
@@ -69,14 +81,22 @@ mat-action-list {
   border: 1px solid #dedede;
 }
 
+.mat-mdc-dialog-panel {
+  max-height: 80vh !important;
+}
+
+.mat-mdc-dialog-panel .mat-mdc-dialog-surface {
+  padding: 0;
+}
+
 .mat-drawer .mat-drawer-inner-container {
   overflow: unset;
 }
 
-.mat-drawer > .mat-drawer-inner-container > * > * > .titleCard,
-.mat-drawer > .mat-drawer-inner-container > * > * > .stack,
-.mat-drawer > .mat-drawer-inner-container > * > mat-card-content > div,
-.mat-drawer > .mat-drawer-inner-container > * > .flex-label {
+.sidebar .titleCard,
+.sidebar .stack,
+.sidebar mat-card-content > div,
+.sidebar .flex-label {
   padding: 1rem;
 }
 
@@ -199,6 +219,7 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   cursor: pointer;
   text-wrap: nowrap;
   display: inline-block;
+  text-decoration: underline;
 
   &.edit-active {
     width: 300px;
@@ -207,10 +228,6 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
     .addr-edit {
       display: none;
     }
-  }
-
-  &.addr-search {
-    color: orange;
   }
 
   .material-icons {
@@ -234,24 +251,25 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   }
 
   .addr-edit {
-    -webkit-mask: url(/assets/fonts/material_edit.svg) no-repeat center;
-    mask: url(/assets/fonts/material_edit.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_edit.svg) no-repeat center;
+    mask: url(/assets/img/material_edit.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
   }
 
   .addr-show {
-    -webkit-mask: url(/assets/fonts/material_place.svg) no-repeat center;
-    mask: url(/assets/fonts/material_place.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_place.svg) no-repeat center;
+    mask: url(/assets/img/material_place.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
   }
 
   .addr-show.addr-unknown {
-    -webkit-mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
-    mask: url(/assets/fonts/material_location_off.svg) no-repeat center;
+    -webkit-mask: url(/assets/img/material_search.svg) no-repeat center;
+    mask: url(/assets/img/material_search.svg) no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
+    margin-right: 4px;
   }
 }
 
@@ -259,5 +277,13 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   display: inline-block;
   vertical-align: middle;
   background: transparent;
+}
+
+
+.mat-mdc-card {
+  box-shadow: none !important;
+  border: 1px solid #dedede !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
 }
 

@@ -8,6 +8,11 @@
       [ngModel]="inputText()"
       (ngModelChange)="inputText.set($event)"
     />
+    @if (drawingArea) {
+      <mat-icon matSuffix [title]="i18n.get('endDefineArea')" class="settings" (click)="stopDefineArea()"
+        >done</mat-icon
+      >
+    }
     <mat-icon
       matSuffix
       [ngClass]="{
@@ -16,12 +21,13 @@
           searchConfig.filterByDistance ||
           searchConfig.filterByArea ||
           searchConfig.sortedByDistance,
+          hidden: drawingArea,
       }"
       class="settings"
       cdkOverlayOrigin
       #trigger="cdkOverlayOrigin"
       (click)="toggleSettings($event)"
-      >settings</mat-icon
+      >filter_list</mat-icon
     >
     <mat-icon aria-hidden="false" aria-label="Search" matSuffix>search</mat-icon>
   </mat-form-field>
@@ -66,7 +72,7 @@
         }
         <div>
           <mat-icon class="filter">filter_list</mat-icon>
-          <mat-checkbox [(ngModel)]="searchConfig.filterByArea" (change)="configChanged()">{{
+          <mat-checkbox [(ngModel)]="searchConfig.filterByArea" (change)="stopDefineArea() || configChanged()">{{
             i18n.get('filterByArea')
           }}</mat-checkbox>
         </div>

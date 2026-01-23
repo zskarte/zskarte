@@ -59,6 +59,11 @@ export class I18NService {
       en: 'My name',
       fr: 'Mon nom',
     },
+    enterYourName: {
+      de: 'Bitte geben Sie Ihren Namen ein',
+      en: 'Please enter your name',
+      fr: 'Veuillez entrer votre nom',
+    },
     shareLocation: {
       de: 'Standort teilen',
       en: 'Share location',
@@ -1073,6 +1078,11 @@ export class I18NService {
       de: 'Globale Filter',
       en: 'Global filters',
       fr: 'Filtre globale',
+    },
+    globalSymbolScale: {
+      de: 'Globale Symbolgrösse',
+      en: 'Global symbol scale',
+      fr: 'Échelle globale des symboles',
     },
     showAllElements: {
       de: 'Alle Elemente anzeigen',
@@ -2235,6 +2245,71 @@ export class I18NService {
       en: 'Affected Persons',
       fr: 'Persones affectés',
     },
+    hazardCode: {
+      de: 'Gefahrennummer',
+      en: 'Hazard code',
+      fr: 'Numéro de danger',
+    },
+    unNumber: {
+      de: 'UN-Nummer',
+      en: 'UN number',
+      fr: 'Numéro ONU',
+    },
+    hierarchyLevel: {
+      de: 'Hierarchiestufe',
+      en: 'Hierarchy level',
+      fr: 'Niveau hiérarchique',
+    },
+    hierarchyTrupp: {
+      de: 'Trupp',
+      en: 'Squad',
+      fr: 'Équipe',
+    },
+    hierarchyGruppe: {
+      de: 'Gruppe',
+      en: 'Group',
+      fr: 'Groupe',
+    },
+    hierarchyZug: {
+      de: 'Zug',
+      en: 'Platoon',
+      fr: 'Section',
+    },
+    hierarchyKompanie: {
+      de: 'Kompanie',
+      en: 'Company',
+      fr: 'Compagnie',
+    },
+    hierarchyBataillon: {
+      de: 'Bataillon',
+      en: 'Battalion',
+      fr: 'Bataillon',
+    },
+    organization: {
+      de: 'Organisation',
+      en: 'Organization',
+      fr: 'Organisation',
+    },
+    formationDetail: {
+      de: 'Nähere Kennzeichnung',
+      en: 'Formation detail',
+      fr: 'Détail de la formation',
+    },
+    additionalInfo: {
+      de: 'Zusatzangaben',
+      en: 'Additional info',
+      fr: 'Informations supplémentaires',
+    },
+    formationNumber: {
+      de: 'Nummerierung',
+      en: 'Number',
+      fr: 'Numéro',
+    },
+    formationLocation: {
+      de: 'Einsatzort',
+      en: 'Site of operation',
+      fr: 'Lieu d\'intervention',
+    },
     addNewLayer: {
       de: 'Neue Ebene erstellen',
       en: 'Create new layer',
@@ -2775,6 +2850,16 @@ export class I18NService {
       en: 'Person recovery overview',
       fr: 'Aperçu des personnes hébergées',
     },
+    resourceOverview: {
+      de: 'Mittelübersicht',
+      en: 'Resource overview',
+      fr: 'Aperçu des ressources',
+    },
+    noResources: {
+      de: 'Keine Ressourcen vorhanden',
+      en: 'No resources available',
+      fr: 'Aucune ressource disponible',
+    },
     noMissingPersons: {
       de: 'Keine auswirkungen auf Personen gefunden',
       en: 'No impacts on persons found',
@@ -2926,9 +3011,9 @@ export class I18NService {
       fr: "Quelqu'un a commencé à dessiner",
     },
     markAsDrawn: {
-      de: 'Als gezeichnet markieren',
-      en: 'Mark as drawn',
-      fr: 'Marquer comme dessiné',
+      de: 'Als done markieren',
+      en: 'Mark as done',
+      fr: 'Marquer comme done',
     },
     markAsNotDrawn: {
       de: 'Als nicht gezeichnet markieren',
@@ -3578,10 +3663,80 @@ export class I18NService {
       en: 'Clean up addresses',
       fr: 'Nettoyer adresses',
     },
+    addDrawLayer: {
+      de: 'Zeichnungsebene hinzufügen',
+      fr: 'Ajouter une couche de dessin',
+      en: 'Add drawing layer',
+    },
+    fieldRequired: {
+      de: 'Bitte füllen Sie dieses Feld aus.',
+      fr: 'Veuillez remplir ce champ.',
+      en: 'Please fill out this field.',
+    },
+    nameExists: {
+      de: 'Name existiert bereits.',
+      fr: 'Ce nom existe déjà.',
+      en: 'Name already exists.',
+    },
+    deleteLayer: {
+      de: 'Ebene löschen',
+      fr: 'Supprimer la couche',
+      en: 'Delete layer',
+    },
+    show: {
+      de: 'Anzeigen',
+      fr: 'Afficher',
+      en: 'Show',
+    },
+    hide: {
+      de: 'Ausblenden',
+      fr: 'Masquer',
+      en: 'Hide',
+    },
+    deleteLayerConfirm: {
+      de: 'Wollen sie diese Ebene wirklich löschen? Alle Elemente werden gelöscht.',
+      fr: 'Voulez-vous vraiment supprimer cette couche ? Tous les éléments seront supprimés.',
+      en: 'Do you really want to delete this layer? All elements will be deleted.',
+    },
     create: {
       de: 'Erfassen',
       en: 'create',
       fr: 'créer',
+    },
+    createNewEntry: {
+      de: 'Neuer Eintrag erfassen',
+      en: 'Create new entry',
+      fr: 'Créer une nouvelle entrée',
+    },
+    discardEntryConfirm: {
+      de: 'Möchtest du den Eintrag wirklich verwerfen?',
+      en: 'Do you really want to discard the entry?',
+      fr: 'Voulez-vous vraiment rejeter l\'entrée?',
+    },
+    continueEditingAction: {
+      de: 'Bearbeiten fortsetzen',
+      en: 'Continue editing',
+      fr: 'Continuer à modifier',
+    },
+    discardEntry: {
+      de: 'Eintrag verwerfen',
+      en: 'Discard entry',
+      fr: 'Rejeter l\'entrée',
+    },
+    entryCreated: {
+      de: 'Eintrag #{number} erfasst.',
+      en: 'Entry #{number} created.',
+      fr: 'Entrée #{number} créée.',
+    },
+    renameLayer: {
+      de: 'Ebene umbenennen',
+      fr: 'Renommer la couche',
+      en: 'Rename layer',
+    },
+    elementOnOtherLayer: {
+      de: 'Element ist auf einer anderen Ebene eingezeichnet und kann nicht editiert werden.',
+      fr: "L'élément est dessiné sur une autre couche et ne peut pas être édité.",
+      en: 'Element is drawn on a different layer and cannot be edited.',
     },
   };
 

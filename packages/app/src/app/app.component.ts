@@ -8,13 +8,14 @@ import { I18NService } from './state/i18n.service';
 import { ZsMapStateService } from './state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
+import { SidebarWrapperComponent } from './sidebar/sidebar-wrapper/sidebar-wrapper.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterModule, MatTabsModule, NgFor],
+  imports: [RouterOutlet, RouterModule, MatTabsModule, NgFor, SidebarWrapperComponent],
 })
 export class AppComponent implements OnInit {
   i18n = inject(I18NService);

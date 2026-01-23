@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, computed, inject, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
-import { Signs } from '../map-renderer/signs';
 import { DrawStyle } from '../map-renderer/draw-style';
-import { BehaviorSubject, EMPTY, firstValueFrom, Observable, Subject } from 'rxjs';
+import { combineLatestWith, EMPTY, firstValueFrom, Observable, Subject } from 'rxjs';
 import { Feature } from 'ol';
 import { SimpleGeometry } from 'ol/geom';
 import { map, switchMap, takeUntil } from 'rxjs/operators';
@@ -29,16 +28,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
-  Sign,
-  ZsMapDrawElementState,
-  getColorForCategory,
-  ZsMapDrawElementStateType,
   FillStyle,
-  signatureDefaultValues,
+  getColorForCategory,
   IconsOffset,
+  Sign,
+  signatureDefaultValues,
+  ZsMapDrawElementState,
+  ZsMapDrawElementStateType,
 } from '@zskarte/types';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Signs } from '../map-renderer/signs';
 
 @Component({
   selector: 'app-selected-feature',
@@ -69,7 +70,6 @@ export class SelectedFeatureComponent implements OnDestroy {
   private router = inject(Router);
 
   groupedFeatures = null;
-  editMode = new BehaviorSubject(true);
   selectedFeature: Observable<Feature<SimpleGeometry> | undefined>;
   selectedSignature: Observable<Sign | undefined>;
   selectedDrawElement: Observable<ZsMapDrawElementState | undefined>;
@@ -79,8 +79,34 @@ export class SelectedFeatureComponent implements OnDestroy {
   useColorPicker = false;
   // we only show the affected persons for Dead, Trapped, Missing, Homeless and Injured
   personSigns = [39, 82, 112, 122, 123];
+  hazardSigns = [Signs.HAZARD_SIGN_ID];
+  formationSigns = [Signs.FORMATION_SIGN_ID];
+  transportSigns = Signs.TRANSPORT_SIGN_IDS; // Lastwagen, Motorfahrzeug, Transportfahrzeug
+  leaderSigns = Signs.LEADER_SIGN_IDS; // Leaders
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _ngUnsubscribe = new Subject<void>();
+
+  protected selectedLayerId$ = this.zsMapStateService
+    .observeSelectedElement$()
+    .pipe(switchMap((el) => el?.observeLayer() ?? EMPTY));
+  protected selectedElementLayer$ = this.zsMapStateService.observeLayers().pipe(
+    combineLatestWith(this.selectedLayerId$),
+    map(([layers, layerId]) => layers?.find((l) => l.getId() === layerId)),
+  );
+
+  private isReadonly = toSignal(this.zsMapStateService.observeIsReadOnly());
+  protected activeLayer = toSignal(this.zsMapStateService.observeActiveLayer());
+  protected selectedElementLayer = toSignal(this.selectedElementLayer$);
+  protected selectedElementLayerName = toSignal(
+    this.selectedElementLayer$.pipe(switchMap((layer) => layer?.observeName() ?? EMPTY)),
+  );
+
+  protected editMode = computed(() => {
+    const activeLayer = this.activeLayer();
+    const selectedElementLayer = this.selectedElementLayer();
+    const readOnly = this.isReadonly();
+    return !readOnly && activeLayer?.getId() === selectedElementLayer?.getId();
+  });
 
   quickColors = [
     {
@@ -124,9 +150,7 @@ export class SelectedFeatureComponent implements OnDestroy {
         const drawElement = this._drawElementCache[element?.id ?? ''];
         const sig = drawElement?.getOlFeature()?.get('sig');
         if (!sig) return undefined;
-        const signById = sig.id ? Signs.getSignById(sig.id) : { ...sig };
-        signById.createdBy = drawElement?.elementState?.createdBy;
-        return signById;
+        return sig;
       }),
     );
 
@@ -143,13 +167,6 @@ export class SelectedFeatureComponent implements OnDestroy {
         this.featureType = feature?.getGeometry()?.getType();
       }
     });
-
-    this.zsMapStateService
-      .observeIsReadOnly()
-      .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe((isReadOnly) => {
-        this.editMode.next(!isReadOnly);
-      });
 
     this.zsMapStateService
       .observeDrawElements()
@@ -172,8 +189,8 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   get featureGroups() {
-    return this.groupedFeatures
-      ? Object.values(this.groupedFeatures).sort((a: any, b: any) => a.label.localeCompare(b.label))
+    return this.groupedFeatures ?
+        Object.values(this.groupedFeatures).sort((a: any, b: any) => a.label.localeCompare(b.label))
       : null;
   }
 
@@ -304,6 +321,20 @@ export class SelectedFeatureComponent implements OnDestroy {
     input.value = (negativ ? '-' : '') + input.value.replace(/[^0-9]/g, '');
   }
 
+  validateHazardCode(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.toUpperCase();
+    const startsWithX = value.startsWith('X');
+    const rest = startsWithX ? value.substring(1) : value;
+    const digits = rest.replace(/[^0-9]/g, '');
+    input.value = (startsWithX ? 'X' : '') + digits.slice(0, 4);
+  }
+
+  validateUnNumber(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '').slice(0, 4);
+  }
+
   static getUpdatedFillStyle<T extends keyof FillStyle>(
     element: ZsMapDrawElementState,
     field: T,
@@ -387,7 +418,7 @@ export class SelectedFeatureComponent implements OnDestroy {
     }
 
     const confirm = this.dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('removeFeatureFromMapConfirm'),
+      data: { message: this.i18n.get('removeFeatureFromMapConfirm') },
     });
     confirm.afterClosed().subscribe((r) => {
       if (r && drawElement.id) {
@@ -398,12 +429,8 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   // skipcq: JS-0105
-  getImageUrl(file: string) {
-    // const imageFromStore = CustomImageStoreService.getImageDataUrl(file);
-    // if (imageFromStore) {
-    //   return imageFromStore;
-    // }
-    return DrawStyle.getImageUrl(file);
+  getImageUrl(sig: Sign) {
+    return DrawStyle.getSignatureURI(sig);
   }
 
   drawHole() {

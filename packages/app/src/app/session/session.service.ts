@@ -588,15 +588,39 @@ export class SessionService {
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
     const operationId = decoded.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
+    let operationJustSet = false;
     
     if (operationId) {
       const operation = await this._operationService.getOperation(operationId, { token: jwt });
       if (operation) {
+        operationJustSet = !currentSession?.operation?.documentId || currentSession.operation.documentId !== operation.documentId;
         newSession.operation = operation;
       }
     }
 
     this._session.next(newSession);
+
+    const currentUrl = this._router.url;
+    if (currentUrl.startsWith('/login') && queryParams['operationId']) {
+      if (operationJustSet) {
+        const navQueryParams: any = { ...queryParams };
+        Object.keys(navQueryParams).forEach(key => {
+          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
+            delete navQueryParams[key];
+          }
+        });
+        await this._router.navigate(['/operations'], { queryParams: navQueryParams });
+      } else {
+        const navQueryParams: any = { ...queryParams };
+        delete navQueryParams['operationId'];
+        Object.keys(navQueryParams).forEach(key => {
+          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
+            delete navQueryParams[key];
+          }
+        });
+        await this._router.navigate(['/main/map'], { queryParams: navQueryParams });
+      }
+    }
   }
 
   public isWorkLocal() {

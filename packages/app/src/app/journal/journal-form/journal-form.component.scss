@@ -34,13 +34,6 @@
   }
 }
 
-.journal-entry-save-buttons {
-  display: flex;
-  justify-content: end;
-  gap: 6px;
-  align-items: center;
-}
-
 .message-number {
   color: #666;
   font-size: 1rem;
@@ -90,27 +83,9 @@
   background-color: #f1f1f1;
 }
 
-.journal-section {
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-  gap: 1.5rem;
-  padding: 1rem;
-  border-radius: 1rem;
-  border: 1px solid #dedede;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  column-gap: 1rem;
-  row-gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.row > * {
-  flex: 1;
-  min-width: 200px;
+app-text-area-with-address-search {
+  grid-column: span 2;
+  width: 100%;
 }
 
 .end {
@@ -124,22 +99,6 @@
   > .visa{
     width: 200px;
   }
-
-  > .journal-entry-save-buttons {
-    width: 200px;
-
-    > button {
-      width: 100%;
-    }
-  }
-}
-
-.entry-message-number {
-  gap: 0;
-}
-
-.message-content-buttons {
-  margin-top: .5rem;
 }
 
 .message-content-option {
@@ -163,4 +122,10 @@
     margin-top: 0;
     overflow: hidden;
   }
+}
+
+.journal-entry-details-create {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }

@@ -19,6 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { NameEntryDialogComponent } from './name-entry-dialog/name-entry-dialog.component';
 import { ImportDialogComponent } from 'src/app/import-dialog/import-dialog.component';
 import { JournalService } from 'src/app/journal/journal.service';
 import { OperationExportFile } from 'src/app/core/entity/operationExportFile';
@@ -95,15 +96,31 @@ export class OperationsComponent implements OnDestroy {
 
   public async selectOperation(operation: IZsMapOperation) {
     if (operation.documentId || operation.id) {
-      await this._session.setOperation(operation);
-      this._sidebar.close();
-      await this._router.navigate(['/main/map']);
+      const dialogRef = this.dialog.open(NameEntryDialogComponent);
+      dialogRef.afterClosed().subscribe(async (name: string | null) => {
+        if (name) {
+          this._session.setLabel(name);
+          await this._session.setOperation(operation);
+          this._sidebar.close();
+          
+          const queryParams = await firstValueFrom(this.route.queryParams);
+          const navQueryParams: any = { ...queryParams };
+          delete navQueryParams['operationId'];
+          Object.keys(navQueryParams).forEach(key => {
+            if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
+              delete navQueryParams[key];
+            }
+          });
+          
+          await this._router.navigate(['/main/map'], { queryParams: navQueryParams });
+        }
+      });
     }
   }
 
   public deleteOperation(operation: IZsMapOperation) {
     const confirm = this.dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('deleteOperationConfirm'),
+      data: { message: this.i18n.get('deleteOperationConfirm') },
     });
     confirm.afterClosed().subscribe((r) => {
       this.operationService.deleteOperation(operation);

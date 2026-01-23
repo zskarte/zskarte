@@ -13,11 +13,13 @@ import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { AsyncPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-sidebar-filters',
@@ -33,7 +35,9 @@ import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox
     MatIconModule,
     MatListModule,
     MatButtonModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatSliderModule,
+    FormsModule
   ],
 })
 export class SidebarFiltersComponent implements OnInit, OnDestroy {
@@ -45,6 +49,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   hiddenSymbols$: Observable<number[]>;
   hiddenFeatureTypes$: Observable<string[]>;
   enableClustering$: Observable<boolean>;
+  globalSymbolScale$: Observable<number>;
   filtersOpenState = false;
   filtersGeneralOpenState = false;
   capitalizeFirstLetter = capitalizeFirstLetter;
@@ -54,6 +59,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
     this.hiddenSymbols$ = this.mapState.observeHiddenSymbols().pipe(takeUntil(this._ngUnsubscribe));
     this.hiddenFeatureTypes$ = this.mapState.observeHiddenFeatureTypes().pipe(takeUntil(this._ngUnsubscribe));
     this.enableClustering$ = this.mapState.observeEnableClustering().pipe(takeUntil(this._ngUnsubscribe));
+    this.globalSymbolScale$ = this.mapState.observeGlobalSymbolScale().pipe(takeUntil(this._ngUnsubscribe));
   }
 
   ngOnInit(): void {
@@ -66,6 +72,7 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
       .subscribe(([drawElements, hiddenSymbols, hiddenFeatureTypes]) => {
         this.updateFilterSymbolsAndFeatureTypes(drawElements, hiddenSymbols, hiddenFeatureTypes);
       });
+
   }
 
   ngOnDestroy(): void {
@@ -186,4 +193,9 @@ export class SidebarFiltersComponent implements OnInit, OnDestroy {
   public toggleClustering() {
     this.mapState.toggleClustering();
   }
+
+  public setGlobalSymbolScale(scale: number) {
+    this.mapState.setGlobalSymbolScale(scale);
+  }
+
 }
