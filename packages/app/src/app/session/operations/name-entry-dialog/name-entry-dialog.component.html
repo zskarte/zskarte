@@ -1,17 +1,26 @@
-<h2 mat-dialog-title>{{ i18n.get('enterYourName') }}</h2>
+<app-dialog-header>
+  <h2>{{ i18n.get('enterYourName') }}</h2>
+</app-dialog-header>
+
 <form (submit)="submit($event)">
-  <div mat-dialog-content>
+  <app-dialog-body>
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ i18n.get('myName') }}</mat-label>
       <input matInput [formControl]="nameControl" maxlength="40" cdkFocusInitial />
     </mat-form-field>
-  </div>
-  <mat-dialog-actions align="end">
+  </app-dialog-body>
+
+  <app-dialog-footer>
     <button mat-stroked-button type="button" (click)="cancel()">
       {{ i18n.get('cancel') }}
     </button>
-    <button mat-flat-button color="primary" type="submit" [disabled]="nameControl.invalid || !nameControl.value?.trim()">
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="nameControl.invalid || !nameControl.value?.trim()"
+    >
       {{ i18n.get('ok') }}
     </button>
-  </mat-dialog-actions>
+  </app-dialog-footer>
 </form>

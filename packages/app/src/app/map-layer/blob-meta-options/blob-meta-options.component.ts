@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { BlobService } from 'src/app/db/blob.service';
-import { LocalBlobMeta, LocalMapInfo, LocalMapLayer, db } from 'src/app/db/db';
-import { I18NService } from 'src/app/state/i18n.service';
-import { LOCAL_MAP_STYLE_PATH } from 'src/app/session/default-map-values';
+import { BlobService } from '../../db/blob.service';
+import { LocalBlobMeta, LocalMapInfo, LocalMapLayer, db } from '../../db/db';
+import { I18NService } from '../../state/i18n.service';
+import { LOCAL_MAP_STYLE_PATH } from '../../session/default-map-values';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { GeoJSONMapLayer, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-blob-meta-options',
@@ -24,6 +25,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatIcon,
     MatButtonModule,
     MatDialogModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
   ],
 })
 export class BlobMetaOptionsComponent {

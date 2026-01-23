@@ -1,5 +1,8 @@
-<div mat-dialog-title>{{ i18n.get('wmsLayerSettings') }}</div>
-<div mat-dialog-content>
+<app-dialog-header>
+  <h2>{{ i18n.get('wmsLayerSettings') }}</h2>
+</app-dialog-header>
+
+<app-dialog-body>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('mapLayerType') }}</legend>
     <mat-radio-group [ngModel]="layer.type" (change)="changeType($event)">
@@ -10,7 +13,11 @@
   </fieldset>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('layerSource') }}</mat-label>
-    <mat-select [value]="layer.source" (selectionChange)="onSelectionChange($event)" [disabled]="layer.type !== 'wms_custom'">
+    <mat-select
+      [value]="layer.source"
+      (selectionChange)="onSelectionChange($event)"
+      [disabled]="layer.type !== 'wms_custom'"
+    >
       <mat-option value="_GeoAdmin_" disabled>GeoAdmin</mat-option>
       <mat-option value="_CUSTOM_">custom</mat-option>
       @for (item of sources; track item) {
@@ -32,7 +39,9 @@
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('publicSource') }}</legend>
-    <mat-checkbox [checked]="layer.public" (change)="layer.public = $event.checked">{{ i18n.get('publicSourceInfo') }}</mat-checkbox>
+    <mat-checkbox [checked]="layer.public" (change)="layer.public = $event.checked">{{
+      i18n.get('publicSourceInfo')
+    }}</mat-checkbox>
   </fieldset>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('label') }}</mat-label>
@@ -114,9 +123,10 @@
     }
     <mat-icon class="attr-add" (click)="addAttribution()">add</mat-icon>
   </fieldset>
-</div>
-<div mat-dialog-actions align="end">
+</app-dialog-body>
+
+<app-dialog-footer>
   <button mat-flat-button color="primary" (click)="ok()">
     {{ i18n.get('ok') }}
   </button>
-</div>
+</app-dialog-footer>

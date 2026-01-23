@@ -1,8 +1,12 @@
 <form class="login-form">
   <mat-card>
+    <button type="button" class="help-button" mat-icon-button (click)="openHelp()" [attr.aria-label]="i18n.get('help')" [title]="i18n.get('help')">
+      <mat-icon>help</mat-icon>
+    </button>
     <mat-card-header class="title">
-      <mat-card-title><h1>Login</h1></mat-card-title>
-      <img style="border-radius: 10px" mat-card-sm-image src="/assets/img/favicon/zskarte-logo.png" />
+      <img class="header-logo" mat-card-sm-image src="/assets/img/favicon/zskarte-logo.png" />
+      <h1>Login</h1>
+      <div class="header-spacer"></div>
     </mat-card-header>
 
     @if (isOnline) {

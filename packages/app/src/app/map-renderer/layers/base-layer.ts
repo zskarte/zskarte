@@ -89,6 +89,9 @@ export abstract class ZsMapBaseLayer {
   }
 
   public addOlFeature(feature: Feature): void {
+    if (this._olSource.hasFeature(feature)) {
+      return;
+    }
     this._olSource.addFeature(feature);
   }
 

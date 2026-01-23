@@ -1,11 +1,13 @@
-<div mat-dialog-title>{{ i18n.get('blobMetaTitle') }}</div>
+<app-dialog-header>
+  <h2>{{ i18n.get('blobMetaTitle') }}</h2>
+</app-dialog-header>
 @if (noOfflineText) {
-  <div mat-dialog-content>
+  <app-dialog-body>
     <div class="layerLabel">{{ label }}</div>
     <div class="noOfflineText">{{ noOfflineText }}</div>
-  </div>
+  </app-dialog-body>
 } @else {
-  <div mat-dialog-content>
+  <app-dialog-body>
     <div class="layerLabel">{{ label }}</div>
     <div class="sectionTitle">{{ i18n.get('blobMetaDataTitle') }}</div>
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -102,10 +104,10 @@
         </div>
       }
     }
-  </div>
+  </app-dialog-body>
 }
-<div mat-dialog-actions align="end">
+<app-dialog-footer>
   <button mat-flat-button color="primary" (click)="ok()">
     {{ i18n.get('ok') }}
   </button>
-</div>
+</app-dialog-footer>

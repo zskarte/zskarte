@@ -7,7 +7,7 @@ import { catchError, combineLatest, firstValueFrom, map, mergeMap, Observable, o
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { I18NService } from '../../state/i18n.service';
 import { db, LocalBlobMeta, LocalBlobState, LocalMapInfo } from '../../db/db';
-import { BlobEventType, BlobOperation, BlobService } from 'src/app/db/blob.service';
+import { BlobEventType, BlobOperation, BlobService } from '../../db/blob.service';
 import { WmsService } from '../../map-layer/wms/wms.service';
 import { WmsSourceComponent } from '../../map-layer/wms/wms-source/wms-source.component';
 import { WmsLayerOptionsComponent } from '../../map-layer/wms/wms-layer-options/wms-layer-options.component';
@@ -16,9 +16,9 @@ import { SessionService } from '../../session/session.service';
 import { isEqual } from 'lodash';
 import { OperationService } from '../../session/operations/operation.service';
 import { OrganisationLayerSettingsComponent } from '../../map-layer/organisation-layer-settings/organisation-layer-settings.component';
-import { MapLayerService } from 'src/app/map-layer/map-layer.service';
-import { BlobMetaOptionsComponent } from 'src/app/map-layer/blob-meta-options/blob-meta-options.component';
-import { LOCAL_MAP_STYLE_PATH } from 'src/app/session/default-map-values';
+import { MapLayerService } from '../../map-layer/map-layer.service';
+import { BlobMetaOptionsComponent } from '../../map-layer/blob-meta-options/blob-meta-options.component';
+import { LOCAL_MAP_STYLE_PATH } from '../../session/default-map-values';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatActionList, MatListModule } from '@angular/material/list';
@@ -44,6 +44,7 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SidebarDrawLayers } from '../sidebar-draw-layers/sidebar-draw-layers';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-sidebar',
@@ -69,6 +70,9 @@ import { SidebarDrawLayers } from '../sidebar-draw-layers/sidebar-draw-layers';
     MatListModule,
     SidebarFiltersComponent,
     SidebarDrawLayers,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    DialogHeaderComponent,
   ],
 })
 export class SidebarComponent {
@@ -196,9 +200,9 @@ export class SidebarComponent {
             layers = layers.filter((f) => f.source?.url === sourceFilter);
           }
         }
-        return filter === '' ? layers : (
-            layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''))
-          );
+        return filter === ''
+          ? layers
+          : layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''));
       }),
     );
 

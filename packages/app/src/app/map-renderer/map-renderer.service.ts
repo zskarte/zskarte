@@ -118,6 +118,7 @@ export class MapRendererService {
   public terminate() {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
+    this._ngUnsubscribe = new Subject<void>();
     //as the service stay alive also if map page is leaved (and this function is callen), need to clear all now invalid caches and lists
     // Make a copy of the array before clearing to avoid issues during iteration
     const layersToClean = [...this._allLayers];
@@ -125,9 +126,6 @@ export class MapRendererService {
       if (this._map && layer) {
         try {
           this._map.removeLayer(layer);
-          layer.getSource()?.clear();
-          layer.getRenderer()?.dispose();
-          layer.setSource(null);
         } catch (e) {
           // Ignore errors during cleanup
         }
@@ -140,6 +138,7 @@ export class MapRendererService {
     this._mapLayer = new Layer({
       zIndex: 0,
     });
+    this._map?.setTarget(undefined);
   }
 
   public initialize({

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ZsMapStateService } from 'src/app/state/state.service';
+import { ZsMapStateService } from '../../../state/state.service';
 import { I18NService } from '../../../state/i18n.service';
 import { WmsSource } from '@zskarte/types';
 import { WmsService } from '../wms.service';
@@ -14,6 +14,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../../ui/dialog-layout';
 
 @Component({
   selector: 'app-wms-source',
@@ -31,6 +32,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatDialogClose,
     MatDialogModule,
     MatButtonModule,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    DialogHeaderComponent,
   ],
 })
 export class WmsSourceComponent {

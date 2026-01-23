@@ -10,9 +10,31 @@
 }
 
 .title {
-  padding-bottom: 1.5em;
+  position: relative;
+  display: flex;
   align-items: center;
-  justify-content: space-between;
+  padding-bottom: 1.5em;
+  padding-right: 2.5rem; // Make room for help button
+
+  .header-logo {
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    margin-right: 1rem; // Add spacing between logo and text
+  }
+
+  h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    width: auto;
+  }
+
+  .header-spacer {
+    width: 2.5rem; // Same width as help button area to balance layout
+    flex-shrink: 0;
+    margin-left: auto; // Push to the right
+  }
 }
 
 .login-form {
@@ -25,6 +47,14 @@
 
   mat-card {
     width: 100%;
+    position: relative;
+  }
+
+  .help-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 1;
   }
 
   .full-width {

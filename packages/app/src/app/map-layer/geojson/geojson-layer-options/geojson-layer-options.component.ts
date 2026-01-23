@@ -13,6 +13,7 @@ import { RegexValidatorDirective } from '../../regex-validator.directive';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../../ui/dialog-layout';
 
 @Component({
   selector: 'app-geojson-layer-options',
@@ -29,6 +30,9 @@ import { MatButtonModule } from '@angular/material/button';
     MatCheckboxModule,
     MatDialogModule,
     MatButtonModule,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    DialogHeaderComponent,
   ],
 })
 export class GeoJSONLayerOptionsComponent {
