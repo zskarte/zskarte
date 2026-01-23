@@ -1,15 +1,5 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  HostListener,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, HostListener, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { MatTableModule } from '@angular/material/table';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,9 +14,9 @@ import { DepartmentValues, JournalEntry, JournalEntryStatus } from './journal.ty
 import Fuse from 'fuse.js';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { JournalService } from './journal.service';
@@ -39,10 +29,10 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
-import { IZsJournalFilter } from '@zskarte/types';
+import { IZsJournalFilter } from '../../../../types/state/interfaces';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ReplaceAllAddressTokensPipe } from '../search/replace-all-address-tokens.pipe';
+import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
 import { SearchService } from '../search/search.service';
 import { BadgeComponent } from '../badge/badge.component';
 import { SidebarService } from '../sidebar/sidebar.service';
@@ -50,14 +40,12 @@ import { SidebarContext } from '../sidebar/sidebar.interfaces';
 
 @Component({
   selector: 'app-journal',
-  standalone: true,
   imports: [
     MatTableModule,
     MatIconModule,
     MatSidenavModule,
     MatButtonModule,
     MatSortModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
@@ -69,7 +57,7 @@ import { SidebarContext } from '../sidebar/sidebar.interfaces';
     JournalFormComponent,
     NgComponentOutlet,
     ReplaceAllAddressTokensPipe,
-  BadgeComponent
+    BadgeComponent
 ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
@@ -112,23 +100,22 @@ export class JournalComponent implements AfterViewInit {
   dataSource: JournalEntry[] = [];
   dataSourceFiltered: MatTableDataSource<JournalEntry> = new MatTableDataSource();
   sort = viewChild.required(MatSort);
-
+  
   // Computed counts for each filter
-  eingangCount = computed(() =>
+  eingangCount = computed(() => 
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_MESSAGE).length
   );
-  triageCount = computed(() =>
+  triageCount = computed(() => 
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_TRIAGE).length
   );
-  decisionCount = computed(() =>
+  decisionCount = computed(() => 
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_DECISION).length
   );
-  outgoingCount = computed(() =>
+  outgoingCount = computed(() => 
     (this.journal.data() || []).filter(entry => entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION).length
   );
   searchControl = new FormControl('');
   departmentControl = new FormControl('');
-  paginator = viewChild.required(MatPaginator);
   triageFilter = false;
   keyMessageFilter = false;
   outgoingFilter = false;
@@ -154,10 +141,9 @@ export class JournalComponent implements AfterViewInit {
     defaultTemplate: this.messagePdfDefaultTemplate(),
     templateName: this.i18n.get('journalEntryTemplate'),
   }));
-  private cd = inject(ChangeDetectorRef);
   componentOutlet = viewChild.required(NgComponentOutlet);
 
-  constructor() {
+  constructor(private cd: ChangeDetectorRef) {
     this.initializeSearch();
     this.initializeDepartmentFilter();
 
@@ -229,15 +215,7 @@ export class JournalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSourceFiltered.sort = this.sort();
-    // define special field/value to do the sort
-
-    // yes it is a little bit hacky, and the official solution is different but it works for now.
-    this.paginator()._intl.itemsPerPageLabel = this.i18n.get('paginationItemsPerPage');
-    this.paginator()._intl.previousPageLabel = this.i18n.get('paginationPrevPage');
-    this.paginator()._intl.nextPageLabel = this.i18n.get('paginationNextPage');
-    this.paginator()._intl.firstPageLabel = this.i18n.get('paginationFirstPage');
-    this.paginator()._intl.lastPageLabel = this.i18n.get('paginationLastPage');
-
+    //define special field/value to do the sort
     this.dataSourceFiltered.sortingDataAccessor = (item, property) => {
       switch (property) {
         case 'entryResponsibility':
@@ -262,32 +240,23 @@ export class JournalComponent implements AfterViewInit {
       }
     };
 
-    this._state
-      .observeJournalSort()
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe((sortConf) => {
-        if (this.dataSourceFiltered?.sort) {
-          this.sort().sortChange.emit(sortConf);
-          this.dataSourceFiltered.sort.active = sortConf.active;
-          this.dataSourceFiltered.sort.direction = sortConf.direction;
-          // Apply persisted sort to server-side sorting
-          if (sortConf.active && sortConf.direction) {
-            this.journal.setSort(sortConf.active, sortConf.direction as 'asc' | 'desc');
-          }
-        }
-      });
+    this._state.observeJournalSort().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((sortConf) => {
+      if (this.dataSourceFiltered?.sort) {
+        this.sort().sortChange.emit(sortConf);
+        this.dataSourceFiltered.sort.active = sortConf.active;
+        this.dataSourceFiltered.sort.direction = sortConf.direction;
+      }
+    });
 
-    this._state
-      .observeJournalFilter()
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe((filter) => {
-        this.departmentControl.setValue(filter.department);
-        this.triageFilter = filter.triageFilter;
-        this.outgoingFilter = filter.outgoingFilter;
-        this.decisionFilter = filter.decisionFilter;
-        this.keyMessageFilter = filter.keyMessageFilter;
-        this.eingangFilter = filter.eingangFilter;this.filterEntries(this.searchControl.value, filter.department);
-      });
+    this._state.observeJournalFilter().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((filter) => {
+      this.departmentControl.setValue(filter.department);
+      this.triageFilter = filter.triageFilter;
+      this.outgoingFilter = filter.outgoingFilter;
+      this.decisionFilter = filter.decisionFilter;
+      this.keyMessageFilter = filter.keyMessageFilter;
+      this.eingangFilter = filter.eingangFilter;
+      this.filterEntries(this.searchControl.value, filter.department);
+    });
   }
 
   private initializeSearch() {
@@ -401,10 +370,7 @@ export class JournalComponent implements AfterViewInit {
     if (button) {
       button.disabled = true;
     }
-    await this.journal.print({
-      ...entry,
-      messageContent: this._search.removeAllAddressTokens(entry.messageContent, false),
-    });
+    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent, false)});
     setTimeout(() => {
       if (button) {
         button.disabled = false;
@@ -422,16 +388,7 @@ export class JournalComponent implements AfterViewInit {
     }
 
     this._debouncedPersistSort(sort);
-    // Trigger server-side sorting
-    this.journal.setSort(sort.active, sort.direction as 'asc' | 'desc');
-  }
-
-  onPageChange(event: PageEvent) {
-    // PageEvent uses 0-based pageIndex, API uses 1-based page
-    this.journal.setPage(event.pageIndex + 1);
-    if (event.pageSize !== this.journal.paginationPageSize()) {
-      this.journal.setPageSize(event.pageSize);
-    }
+    //the sort logic itself is done by mat-sort, no need for own logic
   }
 
   async selectEntry(entry: JournalEntry) {
@@ -543,8 +500,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async export() {
-    const allEntries = await this.journal.fetchAllEntries();
-    await this.journal.exportAsExcel(allEntries);
+    await this.journal.exportAsExcel(this.journal.data());
   }
 }
 
