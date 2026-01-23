@@ -83,7 +83,7 @@ export class ZsMapStateService {
   private _location = inject(Location);
 
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
-  private _mapHistoryDate = new BehaviorSubject<Date|null|undefined>(undefined);
+  private _mapHistoryDate = new BehaviorSubject<Date | null | undefined>(undefined);
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
   private _mapInversePatches = new BehaviorSubject<Patch[]>([]);
   private _undoStackPointer = new BehaviorSubject<number>(0);
@@ -299,7 +299,7 @@ export class ZsMapStateService {
     return this._elementToDraw.asObservable();
   }
 
-  public setMapState(newState?: ZsMapState, mapHistoryDate:Date|null|undefined = undefined): void {
+  public setMapState(newState?: ZsMapState, mapHistoryDate: Date | null | undefined = undefined): void {
     newState = zsMapStateMigration(newState);
 
     const cached = Object.keys(this._layerCache);
@@ -387,7 +387,7 @@ export class ZsMapStateService {
     return this._display.value?.displayMode === ZsMapDisplayMode.HISTORY;
   }
 
-  public observeHistoryDate(){
+  public observeHistoryDate() {
     return this._mapHistoryDate.asObservable();
   }
 
@@ -872,6 +872,58 @@ export class ZsMapStateService {
     });
   }
 
+  public addDrawLayer(name: string) {
+    this.updateMapState((draft) => {
+      const id = uuidv4();
+      draft.layers![id] = { id, name, type: ZsMapLayerStateType.DRAW };
+    });
+  }
+
+  public renameDrawLayer(id: string, name: string) {
+    this.assertLayerExists(id);
+    this.updateMapState((draft) => {
+      draft.layers![id].name = name;
+    });
+  }
+
+  public removeDrawLayer(id: string) {
+    this.assertLayerExists(id);
+
+    this.updateMapState((draft) => {
+      Object.entries(draft.drawElements ?? [])
+        .filter(([, element]) => element.layer === id)
+        .forEach(([id]) => {
+          delete draft.drawElements![id];
+        });
+
+      delete draft.layers![id];
+    });
+  }
+
+  public activateDrawLayer(id: string) {
+    this.assertLayerExists(id);
+    this.updateDisplayState(draft => {
+      draft.activeLayer = id;
+      Object.keys(draft.layerOpacity).forEach((key) => {
+        draft.layerOpacity[key] = 0.5;
+      });
+      draft.layerOpacity[id] = 1;
+    });
+  }
+
+  public toggleDrawLayerVisibility(id: string, visible: boolean) {
+    this.assertLayerExists(id);
+    this.updateDisplayState(draft => {
+      draft.layerVisibility[id] = visible;
+    });
+  }
+
+  private assertLayerExists(id: string) {
+    if (!this._layerCache[id]) {
+      throw new Error(`Cannot find layer with id: ${id}`);
+    }
+  }
+
   public sortMapLayerUp(index: number) {
     this.updateDisplayState((draft) => {
       const layer = draft.layers[index];
@@ -1214,7 +1266,7 @@ export class ZsMapStateService {
       }
       this._mapPatches.value.push(...patches);
       this._mapPatches.next(this._mapPatches.value);
-      this._mapInversePatches.value.push(...inversePatches);
+      this._mapInversePatches.value.push(...inversePatches.reverse());
       this._mapInversePatches.next(this._mapInversePatches.value);
       this._undoStackPointer.next(0);
 

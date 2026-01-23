@@ -48,7 +48,7 @@ export const ADDRESS_TOKEN_REPLACEMENT_ADDRESS = (p1: string) => p1;
 export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER = (p1: string, p2: string) =>
   `<span data-geo="${p2}" class="addr-geo addr-show"><span class="material-icons">place</span><span class="text addr-search">${p1}</span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_SHOW_MARKER_MISSING = (p1: string) =>
-  `<span class="addr-geo addr-search"><span class="material-icons">place</span><span class="text">${p1}</span></span>`;
+  `<span class="addr-geo addr-search"><span class="material-icons">search</span><span class="text">${p1}</span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER = (p1: string, p2: string) =>
   `<span data-geo="${p2}" class="addr-geo"><span class="addr-show"></span><span class="text addr-search">${p1}</span><span class="addr-edit"></span></span>`;
 export const ADDRESS_TOKEN_REPLACEMENT_EDIT_MARKER_MISSING = (p1: string) =>

@@ -499,6 +499,17 @@ export class MapRendererService {
             this._map.addLayer(layer.getOlLayer());
           }
         }
+
+        // remove deleted layers
+        for (const [key, layer] of Object.entries(this._layerCache)) {
+          if (layers.some(l => l.getId() === key)) {
+            continue;
+          }
+
+          this._map.removeLayer(layer.getOlLayer());
+          this._allLayers = this._allLayers.filter(olLayer => olLayer !== layer.getOlLayer());
+          delete this._layerCache[key];
+        }
       });
 
     this._map.getLayers().on(['add', 'remove'], () => {

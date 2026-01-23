@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ChangeDetectorRef, inject, viewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, TemplateRef, viewChild } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapLegendDisplayComponent } from '../map-legend-display/map-legend-display.component';
 import { ZsMapStateService } from '../../state/state.service';
 import { GeoadminService } from '../../map-layer/geoadmin/geoadmin.service';
-import { combineLatest, Subject, firstValueFrom, map, mergeMap, Observable, of, share, startWith, catchError, tap } from 'rxjs';
+import { catchError, combineLatest, firstValueFrom, map, mergeMap, Observable, of, share, startWith, tap } from 'rxjs';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { I18NService } from '../../state/i18n.service';
 import { db, LocalBlobMeta, LocalBlobState, LocalMapInfo } from '../../db/db';
@@ -33,16 +33,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { SidebarFiltersComponent } from '../sidebar-filters/sidebar-filters.component';
 import {
-  ZsMapStateSource,
-  MapLayer,
-  WmsSource,
-  IZsMapOrganizationMapLayerSettings,
-  WMSMapLayer,
   GeoJSONMapLayer,
+  IZsMapOrganizationMapLayerSettings,
+  MapLayer,
+  WMSMapLayer,
+  WmsSource,
+  ZsMapStateSource,
   zsMapStateSourceToDownloadUrl,
 } from '@zskarte/types';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SidebarDrawLayers } from '../sidebar-draw-layers/sidebar-draw-layers';
 
 @Component({
   selector: 'app-sidebar',
@@ -66,12 +67,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ReactiveFormsModule,
     MatButtonModule,
     MatListModule,
-    SidebarFiltersComponent
+    SidebarFiltersComponent,
+    SidebarDrawLayers,
   ],
 })
-
 export class SidebarComponent {
-
   mapState = inject(ZsMapStateService);
   wmsService = inject(WmsService);
   private operationService = inject(OperationService);
@@ -169,7 +169,10 @@ export class SidebarComponent {
       }),
     );
 
-    const availableLayers$: Observable<MapLayer[]> = combineLatest([this.allLayers$, mapState.observeSelectedMapLayers$()]).pipe(
+    const availableLayers$: Observable<MapLayer[]> = combineLatest([
+      this.allLayers$,
+      mapState.observeSelectedMapLayers$(),
+    ]).pipe(
       map(([source, selected]) => {
         const selectedNames = selected.map((f) => f.fullId);
         return source.filter((s) => !selectedNames.includes(s.fullId));
@@ -193,11 +196,17 @@ export class SidebarComponent {
             layers = layers.filter((f) => f.source?.url === sourceFilter);
           }
         }
-        return filter === '' ? layers : layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''));
+        return filter === '' ? layers : (
+            layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''))
+          );
       }),
     );
 
-    this.favouriteLayers$ = combineLatest([_session.observeFavoriteLayers$(), mapState.observeSelectedMapLayers$(), availableLayers$]).pipe(
+    this.favouriteLayers$ = combineLatest([
+      _session.observeFavoriteLayers$(),
+      mapState.observeSelectedMapLayers$(),
+      availableLayers$,
+    ]).pipe(
       map(([favoriteLayers, selectedLayers, availableLayers]) => {
         if (favoriteLayers?.length) {
           const selectedIds = selectedLayers.map((l: MapLayer) => l.id);
@@ -268,7 +277,15 @@ export class SidebarComponent {
     const organization = this._session.getOrganization();
     const localMapLayerSettings = await MapLayerService.loadLocalMapLayerSettings();
     const settingsDialog = this.dialog.open(OrganisationLayerSettingsComponent, {
-      data: { wmsSources, globalMapLayers, allLayers, selectedLayers, selectedSources, organization, localMapLayerSettings },
+      data: {
+        wmsSources,
+        globalMapLayers,
+        allLayers,
+        selectedLayers,
+        selectedSources,
+        organization,
+        localMapLayerSettings,
+      },
     });
     settingsDialog.afterClosed().subscribe((result: IZsMapOrganizationMapLayerSettings) => {
       if (result) {
@@ -415,7 +432,10 @@ export class SidebarComponent {
 
   // skipcq: JS-0105
   isSearchable(item: MapLayer) {
-    return (item.type === 'geojson' || item.type === 'shape' || item.type === 'csv') && ((item as GeoJSONMapLayer)?.searchable || false);
+    return (
+      (item.type === 'geojson' || item.type === 'shape' || item.type === 'csv') &&
+      ((item as GeoJSONMapLayer)?.searchable || false)
+    );
   }
 
   private updateMapCallback(map: ZsMapStateSource) {
@@ -439,7 +459,11 @@ export class SidebarComponent {
     const downloadUrl = zsMapStateSourceToDownloadUrl[map];
     const localMapInfo = (await db.localMapInfo.get(map)) || { map };
 
-    const localBlobMeta = await this._blobService.downloadBlob(downloadUrl, localMapInfo.mapBlobId, this.updateMapCallback(map));
+    const localBlobMeta = await this._blobService.downloadBlob(
+      downloadUrl,
+      localMapInfo.mapBlobId,
+      this.updateMapCallback(map),
+    );
     this.handleBlobOperationResult(localBlobMeta, localMapInfo);
   }
 
