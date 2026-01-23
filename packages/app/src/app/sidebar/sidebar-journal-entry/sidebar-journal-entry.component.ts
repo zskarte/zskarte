@@ -21,10 +21,10 @@ import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
 import { JournalService } from 'src/app/journal/journal.service';
-import { PRIMARY_OUTLET, Router } from '@angular/router';
-import { SidebarService } from '../sidebar.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { SidebarContext } from '../sidebar.interfaces';
+import { SidebarService } from '../sidebar.service';
 
 const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
@@ -36,11 +36,10 @@ const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100,
 export class SidebarJournalEntryComponent implements OnDestroy {
   private _state = inject(ZsMapStateService);
   private _renderer = inject(MapRendererService);
+  private _sidebar = inject(SidebarService);
   i18n = inject(I18NService);
   search = inject(SearchService);
   journal = inject(JournalService);
-  private _router = inject(Router);
-  private _sidebar = inject(SidebarService);
   private _dialog = inject(MatDialog);
   entry = input.required<JournalEntry>();
   allHighlighted = false;
@@ -143,9 +142,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
 
   openJournalClick(event: Event) {
     event.stopPropagation();
-    void this._router.navigate([{ outlets: { [PRIMARY_OUTLET]: ['main', 'journal'], sidebar: null } }], {
-      queryParams: { messageNumber: this.entry().messageNumber },
-    });
+    void this._sidebar.openWithPrimary([SidebarContext.JournalForm, this.entry().messageNumber], ['main', 'journal']);
   }
 
   getElementName(element: { id?: string; elementState?: ZsMapDrawElementState }): string {

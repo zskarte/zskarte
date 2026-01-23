@@ -14,6 +14,7 @@ import { SidebarPrintComponent } from './sidebar/sidebar-print/sidebar-print.com
 import { SidebarContext } from './sidebar/sidebar.interfaces';
 import { SidebarMenuComponent } from './sidebar/sidebar-menu/sidebar-menu.component';
 import { SidebarJournalComponent } from './sidebar/sidebar-journal/sidebar-journal.component';
+import { JournalFormComponent } from './journal/journal-form/journal-form.component';
 
 const sidebarRoutes: Routes = [
   {
@@ -65,6 +66,22 @@ const sidebarRoutes: Routes = [
     path: `${SidebarContext.Journal}/:currentMessage`,
     outlet: 'sidebar',
     component: SidebarJournalComponent,
+  },
+  {
+    path: `${SidebarContext.JournalForm}`,
+    outlet: 'sidebar',
+    data: {
+      size: 'large',
+    },
+    component: JournalFormComponent,
+  },
+  {
+    path: `${SidebarContext.JournalForm}/:currentMessage`,
+    outlet: 'sidebar',
+    data: {
+      size: 'large',
+    },
+    component: JournalFormComponent,
   },
 ];
 

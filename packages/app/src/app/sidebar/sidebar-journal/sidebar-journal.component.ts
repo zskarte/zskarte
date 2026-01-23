@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, signal, input, computed, linkedSignal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, linkedSignal, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -15,14 +15,13 @@ import { ZsMapStateService } from 'src/app/state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   EmptyComponent,
+  EmptyDescriptionComponent,
   EmptyHeaderComponent,
   EmptyMediaComponent,
   EmptyTitleComponent,
-  EmptyDescriptionComponent,
 } from '../../empty/empty.component';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
-import { Router } from '@angular/router';
 import { SidebarContext } from '../sidebar.interfaces';
 
 @Component({
@@ -54,7 +53,6 @@ export class SidebarJournalComponent {
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   private _state = inject(ZsMapStateService);
-  private _router = inject(Router);
 
   currentMessage = input<string>();
   protected currentMessageNumber = computed(() => {
@@ -79,7 +77,7 @@ export class SidebarJournalComponent {
         return 1;
       }
       return 0;
-    }
+    },
   });
 
   constructor(private elementRef: ElementRef) {
@@ -116,10 +114,10 @@ export class SidebarJournalComponent {
   }
 
   onPanelOpened(messageNumber: number | undefined) {
-    void this._router.navigate([{ outlets: { sidebar: [SidebarContext.Journal, messageNumber] } }]);
+    void this._sidebar.open(SidebarContext.Journal, messageNumber?.toString());
   }
 
   onPanelClosed() {
-    void this._router.navigate([{ outlets: { sidebar: [SidebarContext.Journal, 'null'] } }]);
+    void this._sidebar.open(SidebarContext.Journal, 'null');
   }
 }

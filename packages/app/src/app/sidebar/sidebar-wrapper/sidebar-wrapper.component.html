@@ -1,7 +1,8 @@
 @let context = sidebar.context();
 @let showLogo = context && (sidebarConfig[context]?.showLogo ?? true);
 @let title = context && (sidebarConfig[context]?.title ?? session.getOperationName());
-<aside class="sidebar noprint" [class.open]="sidebar.isOpen()">
+@let size = context && (sidebarConfig[context]?.size ?? 'small');
+<aside class="sidebar noprint" [attr.data-size]="size" [class.open]="sidebar.isOpen()">
   <div class="sidebar-header">
     <div class="credits">
       @if (showLogo && logo) {

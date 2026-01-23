@@ -1,245 +1,233 @@
-<mat-sidenav-container hasBackdrop="false" autoFocus="false">
-  <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen" disableClose>
-    <app-journal-form
-      [entry]="selectedJournalEntry()"
-      (close)="close()"
-      (dirty)="openDisabled = $event"
-    ></app-journal-form>
-  </mat-sidenav>
+<div class="journal-header">
+  <div class="journal-header-content">
+    <h1>{{ i18n.get('journal') }}</h1>
+    @if(isHistoryMode() && !isCurrentMapData()) {
+      <div class="notHistory">{{ i18n.get('journalNotHistory') }}</div>
+    }
+    <div class="buttons">
+      @if (!isOnline()) {
+        <mat-icon class="offline" [attr.aria-label]="i18n.get('youAreOffline')" [title]="i18n.get('youAreOffline')"
+          >offline_bolt</mat-icon
+        >
+      }
+      <button
+        mat-icon-button
+        (click)="showPdfDesigner()"
+        [attr.aria-label]="i18n.get('customizePrintForm')"
+        [title]="i18n.get('customizePrintForm')"
+      >
+        <mat-icon>settings</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="export()"
+        [attr.aria-label]="i18n.get('saveAsExcel')"
+        [title]="i18n.get('saveAsExcel')"
+      >
+        <mat-icon>save</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="journal.reload()"
+        [attr.aria-label]="i18n.get('reloadFromServer')"
+        [title]="i18n.get('reloadFromServer')"
+        [disabled]="!isOnline()"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="sidebar.toggle(SidebarContext.Menu)"
+        [attr.aria-label]="i18n.get('docMapMenuTitle')"
+        [title]="i18n.get('docMapMenuTitle')"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="journal-main">
+  <div class="journal-filter-section">
+    <p><strong>{{ i18n.get('filters' )}}</strong></p>
+    <div class="journal-filter">
+      <div class="journal-filter-row">
+        <mat-form-field class="journal-filter-search" appearance="outline">
+          <mat-label>{{ i18n.get('searchText') }}</mat-label>
+          <input matInput type="text" [formControl]="searchControl" />
+        </mat-form-field>
+        <mat-form-field class="journal-filter-department" appearance="outline">
+          <mat-label>{{ i18n.get('department') }}</mat-label>
+          <mat-select [formControl]="departmentControl">
+            <mat-option>{{ i18n.get('allDepartments') }}</mat-option>
+            @for (department of DepartmentValues; track $index) {
+              <mat-option [value]="department">{{ i18n.get(department) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="journal-filter-buttons">
+        <div class="journal-filter-buttons">
+          <mat-button-toggle-group hideSingleSelectionIndicator multiple>
+            <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+              {{ i18n.get('triage') }}
+            </mat-button-toggle>
+            <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+              {{ i18n.get('decision') }}
+            </mat-button-toggle>
+            <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+              {{ i18n.get('output') }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        <mat-chip-listbox class="journal-filter-chip">
+          <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
+            {{ i18n.get('keyMessage') }}
+          </mat-chip-option>
+        </mat-chip-listbox>
+      </div>
+    </div>
+  </div>
 
-  <mat-sidenav-content>
-    <div class="journal-header">
-      <div class="journal-header-content">
-        <h1>{{ i18n.get('journal') }}</h1>
-        @if(isHistoryMode() && !isCurrentMapData()) {
-          <div class="notHistory">{{ i18n.get('journalNotHistory') }}</div>
-        }
-        <div class="buttons">
-          @if (!isOnline()) {
-            <mat-icon class="offline" [attr.aria-label]="i18n.get('youAreOffline')" [title]="i18n.get('youAreOffline')"
+  <div class="journal-content">
+    <div class="loading-spinner" [hidden]="!journal.loading()">
+      <mat-spinner></mat-spinner>
+    </div>
+    @if (journal.error()) {
+      <div class="error">
+        {{ i18n.get('errorLoadingJournalEntries') }}
+      </div>
+    }
+    @if (journal.cachedOnly()) {
+      <div class="error">
+        {{ i18n.get('showCachedJournalEntries') }}
+      </div>
+    }
+    <table class="journal-table"
+      mat-table
+      matSort
+      [dataSource]="dataSourceFiltered"
+      (matSortChange)="sortData($event)"
+      [hidden]="journal.loading() || journal.error()"
+      [trackBy]="trackByFn"
+    >
+      <ng-container matColumnDef="messageNumber">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="messageNumber">
+          {{ i18n.get('messageNumberShort') }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.messageNumber }}
+          @if (element.localOnly) {
+            <mat-icon
+              class="localChange"
+              [attr.aria-label]="i18n.get('localOnlyJournal')"
+              [title]="i18n.get('localOnlyJournal')"
+              >offline_bolt</mat-icon
+            >
+          } @else if (element.localPatch) {
+            <mat-icon
+              class="localChange"
+              [attr.aria-label]="i18n.get('localPatchJournal')"
+              [title]="i18n.get('localPatchJournal')"
               >offline_bolt</mat-icon
             >
           }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="messageSubject">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="messageSubject">{{ i18n.get('messageSubject') }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.messageSubject }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="messageContent">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="messageContent">{{ i18n.get('messageContent') }}</th>
+        <td mat-cell *matCellDef="let element">
+          <div
+            class="journal-table-message-cell"
+            [innerHTML]="element.messageContent | replaceAllAddressTokens"
+          ></div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="dateMessage">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="dateMessage">{{ i18n.get('dateCreated') }}</th>
+        <td mat-cell *matCellDef="let element">{{ element.dateMessage.toLocaleString('de-CH') }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="entryResponsibility">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="entryResponsibility">
+          {{ i18n.get('responsibility') }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ journal.getResponsibility(element) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="entryStatus">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="entryStatus">{{ i18n.get('status') }}</th>
+        <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="isKeyMessage">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="isKeyMessage">{{ i18n.get('keyMessage') }}</th>
+        <td mat-cell *matCellDef="let element">
+          @if (element.isKeyMessage) {
+            <mat-icon>key</mat-icon>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="map">
+        <th mat-header-cell *matHeaderCellDef>{{ i18n.get('map') }}</th>
+        <td mat-cell *matCellDef="let element">
           <button
             mat-icon-button
-            (click)="showPdfDesigner()"
-            [attr.aria-label]="i18n.get('customizePrintForm')"
-            [title]="i18n.get('customizePrintForm')"
+            [attr.aria-label]="i18n.get('showOnMap')"
+            [attr.title]="i18n.get('showOnMap')"
+            (click)="openMapClick($event, element)"
+            [class.drawn]="element.isDrawnOnMap"
           >
-            <mat-icon>settings</mat-icon>
+            <mat-icon>map</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            (click)="export()"
-            [attr.aria-label]="i18n.get('saveAsExcel')"
-            [title]="i18n.get('saveAsExcel')"
-          >
-            <mat-icon>save</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            (click)="journal.reload()"
-            [attr.aria-label]="i18n.get('reloadFromServer')"
-            [title]="i18n.get('reloadFromServer')"
-            [disabled]="!isOnline()"
-          >
-            <mat-icon>refresh</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            (click)="sidebar.toggle(SidebarContext.Menu)"
-            [attr.aria-label]="i18n.get('docMapMenuTitle')"
-            [title]="i18n.get('docMapMenuTitle')"
-          >
-            <mat-icon>menu</mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="journal-main">
-      <div class="journal-filter-section">
-        <p><strong>{{ i18n.get('filters' )}}</strong></p>
-        <div class="journal-filter">
-          <div class="journal-filter-row">
-            <mat-form-field class="journal-filter-search" appearance="outline">
-              <mat-label>{{ i18n.get('searchText') }}</mat-label>
-              <input matInput type="text" [formControl]="searchControl" />
-            </mat-form-field>
-            <mat-form-field class="journal-filter-department" appearance="outline">
-              <mat-label>{{ i18n.get('department') }}</mat-label>
-              <mat-select [formControl]="departmentControl">
-                <mat-option>{{ i18n.get('allDepartments') }}</mat-option>
-                @for (department of DepartmentValues; track $index) {
-                  <mat-option [value]="department">{{ i18n.get(department) }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="journal-filter-buttons">
-            <div class="journal-filter-buttons">
-              <mat-button-toggle-group hideSingleSelectionIndicator multiple>
-                <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
-                  {{ i18n.get('triage') }}
-                </mat-button-toggle>
-                <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
-                  {{ i18n.get('decision') }}
-                </mat-button-toggle>
-                <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
-                  {{ i18n.get('output') }}
-                </mat-button-toggle>
-              </mat-button-toggle-group>
-            </div>
-            <mat-chip-listbox class="journal-filter-chip">
-              <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
-                {{ i18n.get('keyMessage') }}
-              </mat-chip-option>
-            </mat-chip-listbox>
-          </div>
-        </div>
-      </div>
+        </td>
+      </ng-container>
 
-      <div class="journal-content">
-        <div class="loading-spinner" [hidden]="!journal.loading()">
-          <mat-spinner></mat-spinner>
-        </div>
-        @if (journal.error()) {
-          <div class="error">
-            {{ i18n.get('errorLoadingJournalEntries') }}
-          </div>
-        }
-        @if (journal.cachedOnly()) {
-          <div class="error">
-            {{ i18n.get('showCachedJournalEntries') }}
-          </div>
-        }
-        <table class="journal-table"
-          mat-table
-          matSort
-          [dataSource]="dataSourceFiltered"
-          (matSortChange)="sortData($event)"
-          [hidden]="journal.loading() || journal.error()"
-          [trackBy]="trackByFn"
-        >
-          <ng-container matColumnDef="messageNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageNumber">
-              {{ i18n.get('messageNumberShort') }}
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.messageNumber }}
-              @if (element.localOnly) {
-                <mat-icon
-                  class="localChange"
-                  [attr.aria-label]="i18n.get('localOnlyJournal')"
-                  [title]="i18n.get('localOnlyJournal')"
-                  >offline_bolt</mat-icon
-                >
-              } @else if (element.localPatch) {
-                <mat-icon
-                  class="localChange"
-                  [attr.aria-label]="i18n.get('localPatchJournal')"
-                  [title]="i18n.get('localPatchJournal')"
-                  >offline_bolt</mat-icon
-                >
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="messageSubject">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageSubject">{{ i18n.get('messageSubject') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.messageSubject }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="messageContent">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageContent">{{ i18n.get('messageContent') }}</th>
-            <td mat-cell *matCellDef="let element">
-              <div
-                class="journal-table-message-cell"
-                [innerHTML]="element.messageContent | replaceAllAddressTokens"
-              ></div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="dateMessage">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="dateMessage">{{ i18n.get('dateCreated') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.dateMessage.toLocaleString('de-CH') }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="entryResponsibility">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="entryResponsibility">
-              {{ i18n.get('responsibility') }}
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ journal.getResponsibility(element) }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="entryStatus">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="entryStatus">{{ i18n.get('status') }}</th>
-            <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="isKeyMessage">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="isKeyMessage">{{ i18n.get('keyMessage') }}</th>
-            <td mat-cell *matCellDef="let element">
-              @if (element.isKeyMessage) {
-                <mat-icon>key</mat-icon>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="map">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('map') }}</th>
-            <td mat-cell *matCellDef="let element">
-              <button
-                mat-icon-button
-                [attr.aria-label]="i18n.get('showOnMap')"
-                [attr.title]="i18n.get('showOnMap')"
-                (click)="openMapClick($event, element)"
-                [class.drawn]="element.isDrawnOnMap"
-              >
-                <mat-icon>map</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="print">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('print') }}</th>
-            <td mat-cell *matCellDef="let element">
-              @if (element.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE) {
-                <button
-                  mat-icon-button
-                  [attr.aria-label]="i18n.get('print')"
-                  [attr.title]="i18n.get('print')"
-                  (click)="print($event, element)"
-                >
-                  <mat-icon>print</mat-icon>
-                </button>
-              }
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr
-            mat-row
-            [class.key-message]="row.isKeyMessage"
-            class="journal-table-row"
-            [class.disabled-row]="openDisabled"
-            *matRowDef="let row; columns: displayedColumns"
-            (click)="!openDisabled && selectEntry(row)"
-          ></tr>
-        </table>
-
-        @if (!isReadOnly()) {
-          <div class="fab-button">
-            <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
-              <mat-icon>add</mat-icon>
+      <ng-container matColumnDef="print">
+        <th mat-header-cell *matHeaderCellDef>{{ i18n.get('print') }}</th>
+        <td mat-cell *matCellDef="let element">
+          @if (element.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE) {
+            <button
+              mat-icon-button
+              [attr.aria-label]="i18n.get('print')"
+              [attr.title]="i18n.get('print')"
+              (click)="print($event, element)"
+            >
+              <mat-icon>print</mat-icon>
             </button>
-          </div>
-        }
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        [class.key-message]="row.isKeyMessage"
+        class="journal-table-row"
+        [class.disabled-row]="openDisabled"
+        *matRowDef="let row; columns: displayedColumns"
+        (click)="!openDisabled && selectEntry(row)"
+      ></tr>
+    </table>
+
+    @if (!isReadOnly()) {
+      <div class="fab-button">
+        <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    }
+  </div>
+</div>
 @if (designerActive() && messagePdfDefaultTemplate() && pdfDesignerComponent()) {
   <ng-container *ngComponentOutlet="pdfDesignerComponent(); inputs: pdfDesignerInputs()"> </ng-container>
 }

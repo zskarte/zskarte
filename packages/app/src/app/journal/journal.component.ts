@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, DestroyRef, HostListener, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,10 +17,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ActivatedRoute, PRIMARY_OUTLET, Router } from '@angular/router';
 import { JournalService } from './journal.service';
 import { JournalFormComponent } from './journal-form/journal-form.component';
-import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -40,7 +37,6 @@ import { SidebarContext } from '../sidebar/sidebar.interfaces';
   imports: [
     MatTableModule,
     MatIconModule,
-    MatSidenavModule,
     MatButtonModule,
     MatSortModule,
     MatFormFieldModule,
@@ -51,10 +47,9 @@ import { SidebarContext } from '../sidebar/sidebar.interfaces';
     MatButtonToggleModule,
     MatProgressSpinnerModule,
     CommonModule,
-    JournalFormComponent,
     NgComponentOutlet,
-    ReplaceAllAddressTokensPipe
-],
+    ReplaceAllAddressTokensPipe,
+  ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './journal.component.html',
   styleUrl: './journal.component.scss',
@@ -66,8 +61,6 @@ export class JournalComponent implements AfterViewInit {
   sidebar = inject(SidebarService);
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
-  private _router = inject(Router);
-  private _route = inject(ActivatedRoute);
   private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
   private _search = inject(SearchService);
@@ -176,22 +169,6 @@ export class JournalComponent implements AfterViewInit {
         }
       }
     });
-
-    //open journal entry by url messageNumber param
-    firstValueFrom(this._route.queryParams).then(async (queryParams) => {
-      if (queryParams['messageNumber']) {
-        try {
-          const messageNumber = queryParams['messageNumber'];
-          const messageNumberInt = parseInt(messageNumber);
-          const entry = await this.journal.getByNumber(messageNumberInt);
-          if (entry) {
-            this.selectEntry(entry);
-          }
-        } catch {
-          //ignore invalid operationId param
-        }
-      }
-    });
   }
 
   ngAfterViewInit() {
@@ -221,22 +198,28 @@ export class JournalComponent implements AfterViewInit {
       }
     };
 
-    this._state.observeJournalSort().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((sortConf) => {
-      if (this.dataSourceFiltered?.sort) {
-        this.sort().sortChange.emit(sortConf);
-        this.dataSourceFiltered.sort.active = sortConf.active;
-        this.dataSourceFiltered.sort.direction = sortConf.direction;
-      }
-    });
+    this._state
+      .observeJournalSort()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((sortConf) => {
+        if (this.dataSourceFiltered?.sort) {
+          this.sort().sortChange.emit(sortConf);
+          this.dataSourceFiltered.sort.active = sortConf.active;
+          this.dataSourceFiltered.sort.direction = sortConf.direction;
+        }
+      });
 
-    this._state.observeJournalFilter().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((filter) => {
-      this.departmentControl.setValue(filter.department);
-      this.triageFilter = filter.triageFilter;
-      this.outgoingFilter = filter.outgoingFilter;
-      this.decisionFilter = filter.decisionFilter;
-      this.keyMessageFilter = filter.keyMessageFilter;
-      this.filterEntries(this.searchControl.value, filter.department);
-    });
+    this._state
+      .observeJournalFilter()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((filter) => {
+        this.departmentControl.setValue(filter.department);
+        this.triageFilter = filter.triageFilter;
+        this.outgoingFilter = filter.outgoingFilter;
+        this.decisionFilter = filter.decisionFilter;
+        this.keyMessageFilter = filter.keyMessageFilter;
+        this.filterEntries(this.searchControl.value, filter.department);
+      });
   }
 
   private initializeSearch() {
@@ -336,14 +319,7 @@ export class JournalComponent implements AfterViewInit {
 
   openMapClick(event: Event, entry: JournalEntry) {
     event.stopPropagation();
-    void this._router.navigate([
-      {
-        outlets: {
-          [PRIMARY_OUTLET]: ['main', 'map'],
-          sidebar: [SidebarContext.Journal, entry.messageNumber],
-        },
-      },
-    ]);
+    void this.sidebar.openWithPrimary([SidebarContext.Journal, entry.messageNumber],  ['main', 'map']);
   }
 
   async print(event: Event, entry: JournalEntry) {
@@ -352,7 +328,10 @@ export class JournalComponent implements AfterViewInit {
     if (button) {
       button.disabled = true;
     }
-    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent, false)});
+    await this.journal.print({
+      ...entry,
+      messageContent: this._search.removeAllAddressTokens(entry.messageContent, false),
+    });
     setTimeout(() => {
       if (button) {
         button.disabled = false;
@@ -374,10 +353,10 @@ export class JournalComponent implements AfterViewInit {
   }
 
   async selectEntry(entry: JournalEntry) {
-    if (!this.sidebarOpen || !this.openDisabled) {
-      this.selectedJournalEntry.set(entry);
-      this.sidebarOpen = true;
+    if (this.openDisabled) {
+      return;
     }
+    void this.sidebar.open(SidebarContext.JournalForm, entry.messageNumber?.toString());
   }
 
   @HostListener('window:keydown', ['$event'])

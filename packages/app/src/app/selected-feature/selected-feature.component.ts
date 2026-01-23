@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, OnDestroy, inject, input, computed, effect } from '@angular/core';
+import { Component, computed, effect, inject, input, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { DetailImageViewComponent } from '../detail-image-view/detail-image-view.component';
@@ -38,9 +38,9 @@ import {
   ZsMapDrawElementStateType,
 } from '@zskarte/types';
 import { MatDividerModule } from '@angular/material/divider';
-import { Router } from '@angular/router';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { SidebarService } from '../sidebar/sidebar.service';
 
 @Component({
   selector: 'app-selected-feature',
@@ -68,7 +68,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   dialog = inject(MatDialog);
   i18n = inject(I18NService);
   zsMapStateService = inject(ZsMapStateService);
-  private router = inject(Router);
+  private sidebar = inject(SidebarService);
 
   protected selectedFeatureId = input<string>();
 
@@ -289,13 +289,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   }
 
   openMessage(reportNumber: string) {
-    void this.router.navigate([
-      {
-        outlets: {
-          sidebar: [SidebarContext.Journal, reportNumber],
-        },
-      },
-    ]);
+    void this.sidebar.open(SidebarContext.Journal, reportNumber);
   }
 
   addReportNumber(event: MatChipInputEvent | FocusEvent, element: ZsMapDrawElementState) {

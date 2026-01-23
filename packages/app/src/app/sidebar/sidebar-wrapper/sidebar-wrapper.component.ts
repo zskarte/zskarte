@@ -51,6 +51,11 @@ export class SidebarWrapperComponent {
       showLogo: false,
       title: this.i18n.get('journal'),
     },
+    [SidebarContext.JournalForm]: {
+      showLogo: false,
+      title: this.i18n.get('journal'),
+      size: 'large'
+    },
   };
 
   constructor() {

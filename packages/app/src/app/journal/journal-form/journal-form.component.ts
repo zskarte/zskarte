@@ -1,4 +1,4 @@
-import { Component, HostListener, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, effect, inject, input, OnDestroy, resource, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,32 +9,38 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { FormControl, FormGroup, FormGroupDirective, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  FormGroupDirective,
+  FormsModule,
+  ReactiveFormsModule,
+  ValidatorFn,
+} from '@angular/forms';
+import {
+  CommunicationType,
+  CommunicationTypeValues,
   Department,
   DepartmentValues,
   JournalEntry,
   JournalEntryStatus,
   JournalEntryStatusDateField,
-  JournalEntryStatusNext,
   JournalEntryStatusFields,
+  JournalEntryStatusNext,
   JournalEntryStatusReset,
-  CommunicationTypeValues,
-  CommunicationType,
 } from '../journal.types';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ViewChild } from '@angular/core';
-import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { JournalService } from '../journal.service';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
-import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { ZsMapStateService } from 'src/app/state/state.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-search/text-area-with-address-search.component';
 import { SearchService } from 'src/app/search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
+import { SidebarService } from '../../sidebar/sidebar.service';
 
 @Component({
   selector: 'app-journal-form',
@@ -58,42 +64,54 @@ import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-to
   templateUrl: './journal-form.component.html',
   styleUrl: './journal-form.component.scss',
 })
-export class JournalFormComponent {
+export class JournalFormComponent implements OnDestroy {
   private _dialog = inject(MatDialog);
   private _state = inject(ZsMapStateService);
+  private _sidebar = inject(SidebarService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   search = inject(SearchService);
   readonly formVisible = signal(false);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
-  messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
 
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
   CommunicationTypeValues = CommunicationTypeValues;
 
-  entry = input.required<JournalEntry | null>();
-  dirty = output<boolean>();
-  close = output();
+  currentMessage = input.required<number | null>();
   selectedIndex = 0;
   showPrint = false;
   markPotentialAddresses = signal(false);
   manualMessageNumber = signal(false);
+
+  entry = resource({
+    params: this.currentMessage,
+    loader: ({ params }) => {
+      if (params) {
+        return this.journal.getByNumber(params);
+      }
+      return Promise.resolve(undefined);
+    },
+  });
+
   constructor() {
     effect(() => {
-      this.selectEntry(this.entry());
+      void this.selectEntry(this.entry.value() ?? null);
     });
 
     this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.dirty.emit(this.journalForm.dirty);
+      this._sidebar.formDirty.set(this.journalForm.dirty);
     });
   }
 
   journalForm = new FormGroup({
-    messageNumber: new FormControl<string | number>({ value: '', disabled: true }, {
-      nonNullable: true,
-    }),
+    messageNumber: new FormControl<string | number>(
+      { value: '', disabled: true },
+      {
+        nonNullable: true,
+      },
+    ),
     sender: new FormControl('', {
       nonNullable: true,
       validators: [this.requiredField('sender')],
@@ -221,7 +239,6 @@ export class JournalFormComponent {
     };
   }
 
-
   async selectEntry(entry: JournalEntry | null) {
     if (!entry) {
       return;
@@ -282,7 +299,7 @@ export class JournalFormComponent {
 
   onEnterForResetState(event: Event) {
     event.preventDefault();
-    this.resetState(); 
+    this.resetState();
   }
 
   async resetState() {
@@ -310,18 +327,16 @@ export class JournalFormComponent {
         entryStatus,
         [required]: requiredField.value,
       },
-      this.entry()?.documentId,
-      this.entry()?.uuid,
+      this.entry.value()?.documentId,
+      this.entry.value()?.uuid,
     );
     if (error || !result) {
-      console.error(`could not update state of journalEntry ${this.entry()?.documentId}`, error);
+      console.error(`could not update state of journalEntry ${this.entry.value()?.documentId}`, error);
       InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
       if (!(typeof error === 'object' && 'localOnly' in error && error.localOnly)) {
         return;
       }
     }
-
-    this.doClose();
   }
 
   filterObject<T>(obj: Partial<T>, allowedKeys: (keyof T)[]): Partial<T> {
@@ -355,21 +370,25 @@ export class JournalFormComponent {
     }
 
     if (this.manualMessageNumber() && this.journalForm.controls.messageNumber.value) {
-      const messageNumber = typeof this.journalForm.controls.messageNumber.value === 'string' 
-        ? parseInt(this.journalForm.controls.messageNumber.value, 10) 
+      const messageNumber =
+        typeof this.journalForm.controls.messageNumber.value === 'string' ?
+          parseInt(this.journalForm.controls.messageNumber.value, 10)
         : this.journalForm.controls.messageNumber.value;
-      
+
       if (!isNaN(messageNumber) && messageNumber > 0) {
-        const currentEntry = this.entry();
+        const currentEntry = this.entry.value();
         const exists = await this.journal.messageNumberAlreadyExist(
           messageNumber,
           currentEntry?.uuid || currentEntry?.documentId,
         );
-        
+
         if (exists) {
           this.journalForm.controls.messageNumber.setErrors({ messageNumberExists: true });
           this.journalForm.controls.messageNumber.markAsTouched();
-          InfoDialogComponent.showErrorDialog(this._dialog, this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()));
+          InfoDialogComponent.showErrorDialog(
+            this._dialog,
+            this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()),
+          );
           return;
         }
       }
@@ -389,9 +408,13 @@ export class JournalFormComponent {
     const { dateCreatedTime, dateCreatedDate, messageNumber, ...rest } = formRawValue;
     const values: Partial<JournalEntry> = {
       ...(rest as JournalEntry),
-      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
+      ...(dateCreatedDate && dateCreatedTime ?
+        { dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime) }
+      : {}),
       // Only include messageNumber if manually entered
-      ...(this.manualMessageNumber() && messageNumber ? { messageNumber: typeof messageNumber === 'string' ? parseInt(messageNumber, 10) : messageNumber } : {}),
+      ...(this.manualMessageNumber() && messageNumber ?
+        { messageNumber: typeof messageNumber === 'string' ? parseInt(messageNumber, 10) : messageNumber }
+      : {}),
     };
     if (nextReset && values[nextReset.required]) {
       //clear reset field of next step, so it's not longer filled
@@ -402,8 +425,8 @@ export class JournalFormComponent {
     const { result, error } = await this.journal.save({
       ...this.filterObject(values, allowedFields),
       entryStatus: newEntryStatus,
-      documentId: this.entry()?.documentId,
-      uuid: this.entry()?.uuid,
+      documentId: this.entry.value()?.documentId,
+      uuid: this.entry.value()?.uuid,
     } as JournalEntry);
 
     if (error || !result) {
@@ -415,7 +438,7 @@ export class JournalFormComponent {
       }
     }
 
-    if (this.entry() === null) {
+    if (!this.entry.value()) {
       //if in message creating "mode" directly start to add new one, and keep obvious values
       this.addNew();
       this.journalForm.patchValue({
@@ -427,51 +450,11 @@ export class JournalFormComponent {
           communicationDetails: rest.communicationDetails,
         });
       }
-      this.dirty.emit(false);
+      this._sidebar.formDirty.set(false);
       this.showPrint = false;
     } else {
-      this.doClose();
+      void this._sidebar.close();
     }
-  }
-
-  @HostListener('window:keydown.Escape', ['$event'])
-  closeSidebareOnEsc(event: Event): void {
-    const messageContentEl = this.messageContentEl();
-    if (messageContentEl) {
-      if (messageContentEl.abortOnEsc(event)) {
-        return;
-      }
-    } else if (this.search.handleEsc(event)) {
-      return;
-    }
-
-    if (this._dialog.openDialogs.length === 0) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.closeForm();
-    }
-  }
-
-  closeForm() {
-    if (this.journalForm.dirty) {
-      const confirm = this._dialog.open(ConfirmationDialogComponent, {
-        data: this.i18n.get('closeNotSaved'),
-      });
-      confirm.afterClosed().subscribe((response) => {
-        if (response) {
-          this.doClose();
-        }
-      });
-    } else {
-      this.doClose();
-    }
-  }
-
-  doClose() {
-    this.formVisible.set(false);
-    this.search.addressPreview.set(false);
-    this.dirty.emit(false);
-    this.close.emit();
   }
 
   async print(event: Event) {
@@ -484,8 +467,10 @@ export class JournalFormComponent {
     const { dateCreatedTime, dateCreatedDate, ...rest } = this.journalForm.value;
     const entry: JournalEntry = {
       ...(rest as JournalEntry),
-      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
-      documentId: this.entry()?.documentId,
+      ...(dateCreatedDate && dateCreatedTime ?
+        { dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime) }
+      : {}),
+      documentId: this.entry.value()?.documentId,
     };
 
     await this.journal.print({
@@ -503,5 +488,9 @@ export class JournalFormComponent {
   async showAllAddresses() {
     await this.search.showAllFeature(this.messageContentControl.value, true);
     this.search.addressPreview.set(true);
+  }
+
+  ngOnDestroy() {
+    this._sidebar.formDirty.set(false);
   }
 }

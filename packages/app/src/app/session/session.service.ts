@@ -83,9 +83,10 @@ export class SessionService {
         await db.sessions.put(session);
         if (session.operation?.documentId || session.operation?.id) {
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
+          console.log(this._router.url, queryParams);
           await this._router.navigate(
             [
-              this._router.url.split('?')[0] === '/main/journal' || queryParams['messageNumber']
+              this._router.url.split('?')[0].startsWith('/main/journal')
                 ? '/main/journal'
                 : '/main/map',
             ],

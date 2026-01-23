@@ -208,7 +208,7 @@ export class FloatingUIComponent {
     }
     event.preventDefault();
     event.stopImmediatePropagation();
-    this.sidebar.open(SidebarContext.Print);
+    void this.sidebar.open(SidebarContext.Print);
   }
 
   @HostListener('window:keydown.Escape', ['$event'])
