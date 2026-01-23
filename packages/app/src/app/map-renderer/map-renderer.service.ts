@@ -478,6 +478,9 @@ export class MapRendererService {
       .pipe(takeUntil(this._ngUnsubscribe))
       .subscribe((element) => {
         if (element) {
+          if (this._currentDrawInteraction) {
+            this._map.removeInteraction(this._currentDrawInteraction);
+          }
           const interaction = DrawElementHelper.createDrawHandlerForType(element, this._state);
           interaction.on('drawstart', (event) => {
             this._currentSketch = event.feature;
