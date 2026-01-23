@@ -22,7 +22,7 @@
         </app-empty>
       } @else {
         <mat-accordion [multi]="false" displayMode="flat">
-          @for (entry of paginatedToDraw(); track entry.documentId || entry.uuid) {
+          @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
             <mat-expansion-panel
               class="mat-elevation-z0"
               [expanded]="entry.messageNumber === currentMessageNumber"
@@ -54,15 +54,6 @@
             <mat-divider></mat-divider>
           }
         </mat-accordion>
-        <mat-paginator
-          [length]="journalEntriesToDraw().length"
-          [pageSize]="pageSize()"
-          [pageIndex]="todoPageIndex()"
-          [pageSizeOptions]="[5, 10, 25]"
-          (page)="onTodoPageChange($event)"
-          aria-label="Select page of todo entries"
-        >
-        </mat-paginator>
       }
     </mat-tab>
 
@@ -83,7 +74,7 @@
         </app-empty>
       } @else {
         <mat-accordion [multi]="false" displayMode="flat">
-          @for (entry of paginatedDrawn(); track entry.documentId || entry.uuid) {
+          @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
             <mat-expansion-panel
               class="mat-elevation-z0"
               [expanded]="entry.messageNumber === currentMessageNumber"
@@ -108,15 +99,6 @@
             <mat-divider></mat-divider>
           }
         </mat-accordion>
-        <mat-paginator
-          [length]="journalEntriesDrawn().length"
-          [pageSize]="pageSize()"
-          [pageIndex]="donePageIndex()"
-          [pageSizeOptions]="[5, 10, 25]"
-          (page)="onDonePageChange($event)"
-          aria-label="Select page of drawn entries"
-        >
-        </mat-paginator>
       }
     </mat-tab>
   </mat-tab-group>

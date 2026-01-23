@@ -3769,31 +3769,6 @@ export class I18NService {
       en: 'Carefull',
       fr: 'Attention',
     },
-    paginationItemsPerPage: {
-      de: 'Einträge pro Seite',
-      en: 'Items per page',
-      fr: 'Éléments par page',
-    },
-    paginationNextPage: {
-      de: 'Nächste Seite',
-      en: 'Next page',
-      fr: 'Page suivante',
-    },
-    paginationPrevPage: {
-      de: 'Vorherige Seite',
-      en: 'Previous page',
-      fr: 'Page précédente',
-    },
-    paginationFirstPage: {
-      de: 'Erste Seite',
-      en: 'First page',
-      fr: 'Première page',
-    },
-    paginationLastPage: {
-      de: 'Letzte Seite',
-      en: 'Last page',
-      fr: 'Dernière page',
-    }
   };
 
   public getLabelForSign(sign: Sign): string {
