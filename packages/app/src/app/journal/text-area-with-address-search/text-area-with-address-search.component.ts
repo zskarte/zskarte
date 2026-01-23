@@ -425,6 +425,9 @@ export class TextAreaWithAddressSearchComponent {
         this.editAddr(addrElem);
         return;
       } else if (target.closest('.addr-show')) {
+        if (!this.messageContentControl().disabled) {
+          return;
+        }
         const geo = addrElem.dataset['geo'];
         const feature = await this._search.showFeature(geo);
         if (feature) {
