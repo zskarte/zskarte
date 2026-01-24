@@ -27,6 +27,7 @@ import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expe
 import { ResourceOverviewComponent } from '../../resource-overview/resource-overview.component';
 import { OrganisationSettings } from 'src/app/organisation-settings/organisation-settings';
 import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from 'src/app/ui/dialog-layout';
+import { projectionByIndex } from 'src/app/helper/projections';
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -133,7 +134,7 @@ export class SidebarMenuComponent {
               this.datePipe,
               this.i18n,
               this.session.getLocale() === undefined ? 'de' : this.session.getLocale(),
-              result.projectionFormatIndex ?? 0,
+              projectionByIndex(result.projectionFormatIndex ?? 0),
               result.numerical ?? true,
             );
             await exportProtocolExcel(this.protocolEntries, this.i18n);
