@@ -10,7 +10,7 @@
   ></app-journal-form>
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-flat-button color="primary" (click)="onSave()">
+  <button mat-flat-button color="primary" (click)="onSave()" [disabled]="journalFormComponent().submitting()">
     <mat-icon>check</mat-icon>
     {{ isEditMode() ? i18n.get('save') : i18n.get('create') }}
   </button>
