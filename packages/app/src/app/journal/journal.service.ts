@@ -594,6 +594,8 @@ export class JournalService {
     );
     if (error || !result) {
       console.error('Error updating journal entry:', error);
+    } else {
+      entry.isDrawingOnMap = value;
     }
   }
 
