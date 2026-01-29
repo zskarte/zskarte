@@ -377,7 +377,7 @@ export class WmsService {
       let sourceOptionAddons = {};
       if (tileSize && mercatorProjection) {
         const defaultTileGrid = getForProjection(mercatorProjection);
-        const gutter = Math.min(50, Math.ceil(tileSize * 0.05));
+        const gutter = Math.min(50, Math.ceil(tileSize * 0.1));
         const scaling = (tileSize - gutter - gutter) / 256;
         const gridParams = WmsService._getScaledTileGridInfos(defaultTileGrid, scaling);
         if (gridParams) {

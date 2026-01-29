@@ -2171,6 +2171,16 @@ export class I18NService {
       fr: 'Carte pixelisée en gris',
       en: 'Gray pixel map',
     },
+    geodiensteAV: {
+      de: 'geodienste Amtliche Vermessung farbig',
+      en: 'geodienste official measurement colored',
+      fr: 'geodienste Mensuration officielle en couleur',
+    },
+    geodiensteAVSituation: {
+      de: 'geodienste Amtliche Vermessung Situationsplan',
+      en: 'geodienste official measurement situation map',
+      fr: 'geodienste Mensuration officielle Plan de situation',
+    },
     noBaseMap: {
       de: 'keine Basiskarte',
       fr: 'pas de carte de base',

@@ -1,4 +1,5 @@
-import { ZsMapStateSource, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
+import { inject, Injectable } from '@angular/core';
+import { WMSMapLayer, ZsMapStateSource, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
 import OlTileXYZ from 'ol/source/XYZ';
 import { PMTilesVectorSource } from 'ol-pmtiles';
 import OlTileLayer from '../map-renderer/utils';
@@ -8,15 +9,20 @@ import { stylefunction } from 'ol-mapbox-style';
 import { db } from '../db/db';
 import { BlobService } from '../db/blob.service';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
+import { WmsService } from '../map-layer/wms/wms.service';
 
-export const ZsMapSources = {
+@Injectable({
+  providedIn: 'root',
+})
+export class MapSourcesService {
+  private wmsService = inject(WmsService);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getOlTileLayer(source: any) {
     return new OlTileLayer({
       zIndex: 0,
       source,
     });
-  },
+  }
   async get(source: ZsMapStateSource): Promise<Layer> {
     switch (source) {
       case ZsMapStateSource.GEO_ADMIN_SWISS_IMAGE:
@@ -46,6 +52,40 @@ export const ZsMapSources = {
             crossOrigin: 'anonymous',
           }),
         );
+      case ZsMapStateSource.GEODIENSTE_AV:
+        return (
+          await this.wmsService.createWMSCustomLayer({
+            label: 'geodienste Amtliche Vermessung farbig',
+            opacity: 1,
+            serverLayerName: 'daten',
+            type: 'wms',
+            tileSize: 512,
+            source: {
+              url: 'https://geodienste.ch/db/avc_0/deu',
+              label: 'geodienste AV farbig',
+              type: 'wms',
+              attribution: [['geodienste', 'https://geodienste.ch/terms-of-use']],
+            },
+            fullId: 'https://geodienste.ch/db/avc_0/deu|daten',
+          } as WMSMapLayer)
+        )[0];
+      case ZsMapStateSource.GEODIENSTE_AV_SITUATION:
+        return (
+          await this.wmsService.createWMSCustomLayer({
+            label: 'geodienste Amtliche Vermessung Situationsplan',
+            opacity: 1,
+            serverLayerName: 'daten',
+            type: 'wms',
+            tileSize: 512,
+            source: {
+              url: 'https://geodienste.ch/db/av_situationsplan_0/deu',
+              label: 'geodienste AV grau',
+              type: 'wms',
+              attribution: [['geodienste', 'https://geodienste.ch/terms-of-use']],
+            },
+            fullId: 'https://geodienste.ch/db/av_situationsplan_0/deu|daten',
+          } as WMSMapLayer)
+        )[0];
       case ZsMapStateSource.LOCAL: {
         const downloadUrl = zsMapStateSourceToDownloadUrl[source];
         const mapMeta = await db.localMapInfo.get(source);
@@ -74,7 +114,9 @@ export const ZsMapSources = {
       case undefined:
         return this.getOlTileLayer(
           new OlTileXYZ({
-            attributions: ['© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'],
+            attributions: [
+              '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+            ],
             url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             maxZoom: 19,
             crossOrigin: 'anonymous',
@@ -84,12 +126,14 @@ export const ZsMapSources = {
         console.error(`Map source ${source} is not implemented`);
         return this.getOlTileLayer(
           new OlTileXYZ({
-            attributions: ['© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'],
+            attributions: [
+              '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+            ],
             url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             maxZoom: 19,
             crossOrigin: 'anonymous',
           }),
         );
     }
-  },
-};
+  }
+}
