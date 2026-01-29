@@ -309,7 +309,8 @@ export class WmsService {
       return [];
     }
     options.attributions =
-      this._sourceAttributionCache.get(mapLayer.source.url) ?? this._capabilitiesAttributionCache.get(mapLayer.source.url);
+      this._sourceAttributionCache.get(mapLayer.source.url) ??
+      this._capabilitiesAttributionCache.get(mapLayer.source.url);
 
     /*
     const scaling = 0.5;
@@ -351,6 +352,7 @@ export class WmsService {
     MaxScaleDenominator: number | undefined,
     tileSize: number | undefined,
     tileFormat: string | undefined,
+    gutter: number | undefined,
   ) {
     const sourceParams: { [key: string]: unknown } = {
       LAYERS: layers,
@@ -377,7 +379,7 @@ export class WmsService {
       let sourceOptionAddons = {};
       if (tileSize && mercatorProjection) {
         const defaultTileGrid = getForProjection(mercatorProjection);
-        const gutter = Math.min(50, Math.ceil(tileSize * 0.1));
+        gutter = gutter ?? Math.min(50, Math.ceil(tileSize * 0.1));
         const scaling = (tileSize - gutter - gutter) / 256;
         const gridParams = WmsService._getScaledTileGridInfos(defaultTileGrid, scaling);
         if (gridParams) {
@@ -388,6 +390,8 @@ export class WmsService {
             gutter,
           };
         }
+      } else {
+        gutter = gutter ?? 12;
       }
       sourceParams['TILED'] = true;
       return new OlTileLayer({
@@ -395,7 +399,7 @@ export class WmsService {
         source: new TileWMS({
           ...sourceOptions,
           transition: 0,
-          gutter: 12, //prevent cutted features on image boundaries => need to use same projection for tile as for view!
+          gutter, //prevent cutted features on image boundaries => need to use same projection for tile as for view!
           ...sourceOptionAddons,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }) as any,
@@ -414,11 +418,18 @@ export class WmsService {
     if (!mapLayer.source) {
       return [];
     }
-    const capa = await this.getWMSCapa(mapLayer.source as WmsSource);
+    let capa: any;
+    try {
+      capa = await this.getWMSCapa(mapLayer.source as WmsSource);
+    } catch (error) {
+      console.error(error, mapLayer);
+    }
     if (!capa) {
       return [];
     }
-    const capaInfos = capa['Capability']['Layer']['Layer'].find((capaLayer) => capaLayer.Name === mapLayer.serverLayerName);
+    const capaInfos = capa['Capability']['Layer']['Layer'].find(
+      (capaLayer) => capaLayer.Name === mapLayer.serverLayerName,
+    );
     if (!capaInfos) {
       return [];
     }
@@ -428,7 +439,9 @@ export class WmsService {
       this._mapLayerService.createAttributionFromArray(mapLayer.attribution) ??
       this.getAttribution(
         capaInfos['Attribution'],
-        this._sourceAttributionCache.get(mapLayer.source.url) ?? this._capabilitiesAttributionCache.get(mapLayer.source.url) ?? '',
+        this._sourceAttributionCache.get(mapLayer.source.url) ??
+          this._capabilitiesAttributionCache.get(mapLayer.source.url) ??
+          '',
       );
 
     let layerInfos = [capaInfos];
@@ -453,17 +466,18 @@ export class WmsService {
         capa['version'],
         wmsUrl,
         this.getAttribution(info['Attribution'], attributionHtml),
-        mapLayer.opacity,
         mapLayer.zIndex,
+        mapLayer.opacity,
         //use layer based value as fallback or as default based on splitIntoSubLayers value
-        mapLayer.splitIntoSubLayers ?
-          info.MinScaleDenominator ?? mapLayer.MinScaleDenominator
-        : mapLayer.MinScaleDenominator ?? info.MinScaleDenominator,
-        mapLayer.splitIntoSubLayers ?
-          info.MaxScaleDenominator ?? mapLayer.MaxScaleDenominator
-        : mapLayer.MaxScaleDenominator ?? info.MaxScaleDenominator,
+        mapLayer.splitIntoSubLayers
+          ? (info.MinScaleDenominator ?? mapLayer.MinScaleDenominator)
+          : (mapLayer.MinScaleDenominator ?? info.MinScaleDenominator),
+        mapLayer.splitIntoSubLayers
+          ? (info.MaxScaleDenominator ?? mapLayer.MaxScaleDenominator)
+          : (mapLayer.MaxScaleDenominator ?? info.MaxScaleDenominator),
         mapLayer.tileSize,
         mapLayer.tileFormat,
+        mapLayer.gutter,
       ),
     );
   }
@@ -474,7 +488,7 @@ export class WmsService {
     }
 
     let capa;
-    let wmsUrl = new URL(mapLayer.source.url).origin;
+    let wmsUrl = mapLayer.source.url;
     try {
       capa = await this.getWMSCapa(mapLayer.source as WmsSource);
       wmsUrl = capa['Capability']['Request']['GetMap']['DCPType'][0]['HTTP']['Get']['OnlineResource'];
@@ -495,12 +509,13 @@ export class WmsService {
         capa?.version ?? WMS_DEFAULT_VERSION,
         wmsUrl,
         attributionHtml,
-        mapLayer.opacity,
         mapLayer.zIndex,
+        mapLayer.opacity,
         mapLayer.MinScaleDenominator,
         mapLayer.MaxScaleDenominator,
         mapLayer.tileSize,
         mapLayer.tileFormat,
+        mapLayer.gutter,
       ),
     ];
   }
@@ -539,7 +554,7 @@ export class WmsService {
       console.error('saveGlobalWMSSource', error);
     } else if (result) {
       //on save the referenced organisation is no returned
-      result.organization = { documentId: organizationId }
+      result.organization = { documentId: organizationId };
       return WmsService.mapWmsSourceResponse(result, organizationId);
     }
     return null;

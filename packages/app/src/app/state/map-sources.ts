@@ -10,12 +10,14 @@ import { db } from '../db/db';
 import { BlobService } from '../db/blob.service';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
 import { WmsService } from '../map-layer/wms/wms.service';
+import { GeodiensteService } from '../map-layer/geodienste/geodienste.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MapSourcesService {
   private wmsService = inject(WmsService);
+  private geodiensteService = inject(GeodiensteService);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getOlTileLayer(source: any) {
     return new OlTileLayer({
@@ -52,40 +54,26 @@ export class MapSourcesService {
             crossOrigin: 'anonymous',
           }),
         );
-      case ZsMapStateSource.GEODIENSTE_AV:
-        return (
-          await this.wmsService.createWMSCustomLayer({
-            label: 'geodienste Amtliche Vermessung farbig',
-            opacity: 1,
-            serverLayerName: 'daten',
-            type: 'wms',
-            tileSize: 512,
-            source: {
-              url: 'https://geodienste.ch/db/avc_0/deu',
-              label: 'geodienste AV farbig',
-              type: 'wms',
-              attribution: [['geodienste', 'https://geodienste.ch/terms-of-use']],
-            },
-            fullId: 'https://geodienste.ch/db/avc_0/deu|daten',
-          } as WMSMapLayer)
-        )[0];
-      case ZsMapStateSource.GEODIENSTE_AV_SITUATION:
-        return (
-          await this.wmsService.createWMSCustomLayer({
-            label: 'geodienste Amtliche Vermessung Situationsplan',
-            opacity: 1,
-            serverLayerName: 'daten',
-            type: 'wms',
-            tileSize: 512,
-            source: {
-              url: 'https://geodienste.ch/db/av_situationsplan_0/deu',
-              label: 'geodienste AV grau',
-              type: 'wms',
-              attribution: [['geodienste', 'https://geodienste.ch/terms-of-use']],
-            },
-            fullId: 'https://geodienste.ch/db/av_situationsplan_0/deu|daten',
-          } as WMSMapLayer)
-        )[0];
+      case ZsMapStateSource.GEODIENSTE_AV: {
+        const layerConfig = await this.geodiensteService.getLayer('avc_0', 1);
+        if (layerConfig) {
+          return (await this.wmsService.createWMSCustomLayer(layerConfig))[0];
+        } else {
+          return new OlTileLayer({
+            zIndex: 0,
+          });
+        }
+      }
+      case ZsMapStateSource.GEODIENSTE_AV_SITUATION: {
+        const layerConfig = await this.geodiensteService.getLayer('av_situationsplan_0', 1);
+        if (layerConfig) {
+          return (await this.wmsService.createWMSCustomLayer(layerConfig))[0];
+        } else {
+          return new OlTileLayer({
+            zIndex: 0,
+          });
+        }
+      }
       case ZsMapStateSource.LOCAL: {
         const downloadUrl = zsMapStateSourceToDownloadUrl[source];
         const mapMeta = await db.localMapInfo.get(source);

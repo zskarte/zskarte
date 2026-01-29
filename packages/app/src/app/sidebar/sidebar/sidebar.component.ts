@@ -32,6 +32,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { SidebarFiltersComponent } from '../sidebar-filters/sidebar-filters.component';
 import {
+  GeoAdminMapLayer,
   GeoJSONMapLayer,
   IZsMapOrganizationMapLayerSettings,
   MapLayer,
@@ -45,6 +46,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SidebarDrawLayers } from '../sidebar-draw-layers/sidebar-draw-layers';
 import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 import { OfflineService } from '../../db/offline-service';
+import { GeodiensteService } from 'src/app/map-layer/geodienste/geodienste.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -111,6 +113,11 @@ export class SidebarComponent implements OnDestroy {
     'undefined|ch.swisstopo.swisstlm3d-strassen',
     'undefined|ch.babs.kulturgueter',
     'undefined|ch.kantone.cadastralwebmap-farbe',
+    'geodienste|gefahrenkarten_v1_3_0',
+    'geodienste|naturereigniskataster_v1_0_0',
+    'geodienste|stromversorgungssicherheit_netzgebiete_v1_2_0',
+    'geodienste|waldreservate_v2_0_0',
+    'geodienste|wildruhezonen_v2_1_1',
   ];
 
   layerFilter = new FormControl('');
@@ -125,6 +132,7 @@ export class SidebarComponent implements OnDestroy {
   constructor() {
     const mapState = this.mapState;
     const geoAdminService = inject(GeoadminService);
+    const geodiensteService = inject(GeodiensteService);
     const wmsService = this.wmsService;
     const _session = this._session;
 
@@ -138,10 +146,11 @@ export class SidebarComponent implements OnDestroy {
       catchError((err) => {
         console.error('get geoAdminLayers failed with error', err);
         this.geoAdminLayerError = err.message;
-        return of([]);
+        return of([] as GeoAdminMapLayer[]);
       }),
       share(),
     );
+    const geodiensteLayers = geodiensteService.getLayers();
 
     function flatten<T>(arr: T[][]): T[] {
       return ([] as T[]).concat(...arr);
@@ -167,9 +176,9 @@ export class SidebarComponent implements OnDestroy {
 
     const globalMapLayers$ = mapState.observeGlobalMapLayers$();
 
-    this.allLayers$ = combineLatest([geoAdminLayers$, wmsLayers$, globalMapLayers$]).pipe(
-      map(([geo, wms, globalMapLayers]) => {
-        return [...geo, ...wms, ...globalMapLayers];
+    this.allLayers$ = combineLatest([geoAdminLayers$, geodiensteLayers, wmsLayers$, globalMapLayers$]).pipe(
+      map(([geo, geodienste, wms, globalMapLayers]) => {
+        return [...geo, ...geodienste, ...wms, ...globalMapLayers];
       }),
     );
 
@@ -195,6 +204,8 @@ export class SidebarComponent implements OnDestroy {
             layers = layers.filter((f) => f.id !== undefined && !f.owner && !f.managed);
           } else if (source === '_ManagedMapLayers_') {
             layers = layers.filter((f) => f.id !== undefined && f.managed);
+          } else if (source === '_geodienste_') {
+            layers = layers.filter((f) => f.fullId.startsWith('geodienste|'));
           } else {
             const sourceFilter = source === '_GeoAdmin_' ? undefined : source;
             layers = layers.filter((f) => f.source?.url === sourceFilter);

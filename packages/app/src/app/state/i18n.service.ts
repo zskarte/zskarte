@@ -2416,6 +2416,11 @@ export class I18NService {
       en: 'source URL',
       fr: 'URL source',
     },
+    geodiensteLayerId: {
+      de: 'Geodienste Ebenen Id',
+      en: 'Geodienste layer id',
+      fr: 'Id de couche geodienste',
+    },
     mapLayerType: {
       de: 'Ebenentyp',
       en: 'Layer type',

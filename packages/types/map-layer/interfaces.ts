@@ -78,6 +78,8 @@ export interface WMSMapLayer extends MapLayer, GenericOptionalMapLayerOptions {
   originalServerLayerName?: string;
   tileSize?: number;
   tileFormat?: string;
+  gutter?: number;
+  geodiensteSourceLayerId?: string;
 }
 
 export interface GeoJSONMapLayer extends MapLayer, GenericOptionalMapLayerOptions {
