@@ -9,7 +9,7 @@ export default factories.createCoreService(
   'api::map-layer-generation-config.map-layer-generation-config',
   ({ strapi }) => ({
     async updateMapLayerMedias() {
-      return await updateMapLayerMedias(strapi);
+      return updateMapLayerMedias(strapi);
     },
   }),
 );
