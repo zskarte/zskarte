@@ -18,6 +18,16 @@ mat-card.selection {
 .other-layer {
   color: var(--mat-form-field-error-text-color);
   text-align: center;
+  margin-bottom: 10px;
+}
+
+.reportNumber {
+  display: flex;
+  gap: 10px;
+
+  div {
+    align-self: center;
+  }
 }
 
 .colorPicker {
@@ -93,12 +103,12 @@ mat-slider {
   transform: scale(0.6);
 }
 
-
 mat-expansion-panel .noPadding {
   padding: 0;
 }
 
-mat-expansion-panel button, .matexpansion-panel-body button {
+mat-expansion-panel button,
+.matexpansion-panel-body button {
   display: block;
   text-align: left;
   width: fit-content;
