@@ -31,7 +31,7 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
     } @else {
-      <div class="margin-2">Es sind keine Links für diese Operation vorhanden.</div>
+      <div class="margin-2">{{ i18n.get('noShareLinks') }}</div>
     }
   </mat-card>
 </app-dialog-body>

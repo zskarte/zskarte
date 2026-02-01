@@ -285,10 +285,6 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     ref.componentRef?.instance.setLayer(layer);
   }
 
-  noSignatureNeeded() {
-    this.journal.markAsDrawn(this.entry(), true);
-  }
-
   focusSignatures() {
     this.zoomToAll();
     if (!this.allHighlighted) {

@@ -1,10 +1,10 @@
 <mat-accordion multi displayMode="flat">
-  <h2>{{ i18n.get('layers') }} & {{ i18n.get('currentMap') }}</h2>
+  <h2>{{ i18n.get('layers') }} & {{ i18n.get('baseMap') }}</h2>
   <mat-divider></mat-divider>
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>
-        {{ i18n.get('currentMap') }}
+        {{ i18n.get('baseMap') }}
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-template matExpansionPanelContent>
@@ -60,7 +60,7 @@
                 @case ('downloaded') {
                   <button mat-flat-button color="warn" class="button-remove" (click)="removeLocalMap(mapSource.key)">
                     <mat-icon>file_download</mat-icon>
-                    {{ i18n.get('removeSymbol') }}
+                    {{ i18n.get('remove') }}
                   </button>
                 }
                 @default {
