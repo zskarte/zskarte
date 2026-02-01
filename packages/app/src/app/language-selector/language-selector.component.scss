@@ -5,6 +5,10 @@
   z-index: 1000;
 }
 
+:host-context(.onHelpPage) .language-selector-container {
+  right: 80px;
+}
+
 .language-button {
   background: rgba(255, 255, 255, 0.9) !important;
   border-radius: 20px !important;
@@ -15,7 +19,7 @@
   justify-content: center;
   gap: 8px;
   min-width: auto;
-  
+
   mat-icon {
     font-size: 20px;
     width: 20px;
@@ -23,7 +27,7 @@
     line-height: 20px;
     text-align: center;
   }
-  
+
   .language-text {
     font-size: 14px;
     font-weight: 500;

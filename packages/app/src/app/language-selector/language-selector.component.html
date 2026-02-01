@@ -6,7 +6,7 @@
     class="language-button"
   >
       <mat-icon>language</mat-icon>
-      <span class="language-text">{{ i18n.get((currentLocale$ | async) || 'de') }}</span>
+      <span class="language-text">{{ i18n.get(currentLocale()) }}</span>
   </button>
 </div>
 
@@ -15,12 +15,12 @@
     <button 
       mat-menu-item 
       (click)="setLocale(locale)" 
-      [ngClass]="{ 'active-language': locale === (currentLocale$ | async) }"
+      [ngClass]="{ 'active-language': locale === currentLocale() }"
     >
-      @if (locale === (currentLocale$ | async)) {
+      @if (locale === currentLocale()) {
         <mat-icon>check</mat-icon>
       }
-      <span [ngClass]="{ 'selected-text': locale === (currentLocale$ | async) }">
+      <span [ngClass]="{ 'selected-text': locale === currentLocale() }">
         {{ i18n.get(locale) }}
       </span>
     </button>

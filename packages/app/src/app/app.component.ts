@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { MatTabsModule } from "@angular/material/tabs";
+import { MatTabsModule } from '@angular/material/tabs';
 import { SessionService } from './session/session.service';
 import { I18NService } from './state/i18n.service';
 import { ZsMapStateService } from './state/state.service';
@@ -30,15 +30,14 @@ export class AppComponent implements OnInit {
 
   navLinks = [
     {
-
       label: 'map',
       link: '/main/map',
-    }, {
+    },
+    {
       label: 'journal',
-      link: '/main/journal'
-    }
+      link: '/main/journal',
+    },
   ];
-
 
   height = window.innerHeight;
   width = window.innerWidth;
@@ -56,11 +55,5 @@ export class AppComponent implements OnInit {
   setSize(): void {
     this.height = document.documentElement?.clientHeight || window.innerHeight;
     this.width = window.innerWidth;
-  }
-
-  showLanguageSelector(): boolean {
-    const currentUrl = this._router.url;
-    // Show language selector on login and operations pages, but not on main pages
-    return currentUrl.includes('/login') || currentUrl.includes('/operations') || currentUrl.includes('/share/');
   }
 }

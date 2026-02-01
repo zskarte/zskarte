@@ -1,5 +1,5 @@
-@if (showLanguageSelector()) {
-  <app-language-selector></app-language-selector>
+@if (navigation.showLanguageSelector()) {
+  <app-language-selector [class.onHelpPage]="navigation.isHelpPage()"></app-language-selector>
 }
 <main
   [style.height.px]="height"

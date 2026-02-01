@@ -292,6 +292,11 @@ export class I18NService {
       en: 'Last modified:',
       fr: 'Dernière modification:',
     },
+    renameOperation: {
+      de: 'Ereignis umbenennen',
+      en: 'Rename event',
+      fr: 'Renommer événement',
+    },
     exportOperation: {
       de: 'Ereignis exportieren',
       en: 'Export event',

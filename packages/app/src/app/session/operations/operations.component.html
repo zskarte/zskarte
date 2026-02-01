@@ -88,7 +88,7 @@
                 @if (o.phase == 'active') {
                   <button mat-menu-item (click)="operationService.operationToEdit.next(o)">
                     <mat-icon aria-hidden="false">edit_note</mat-icon>
-                    Ereignis umbenennen
+                    {{ i18n.get('renameOperation') }}
                   </button>
                 }
                 <button mat-menu-item (click)="operationService.exportOperation(o.documentId)">

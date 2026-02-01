@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule, AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { I18NService } from '../state/i18n.service';
 import { SessionService } from '../session/session.service';
-import { Locale, LOCALES } from '@zskarte/types';
-import { Observable } from 'rxjs';
+import { DEFAULT_LOCALE, Locale, LOCALES } from '@zskarte/types';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-language-selector',
@@ -15,7 +15,6 @@ import { Observable } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule,
-    AsyncPipe,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
@@ -26,19 +25,9 @@ export class LanguageSelectorComponent {
   session = inject(SessionService);
 
   locales: Locale[] = LOCALES;
-  currentLocale$: Observable<Locale>;
-
-  constructor() {
-    // Create an observable that tracks locale changes
-    this.currentLocale$ = this.session.observeLocale();
-  }
+  currentLocale = toSignal(this.session.observeLocale(), {initialValue: DEFAULT_LOCALE});
 
   setLocale(locale: Locale): void {
     this.session.setLocale(locale);
-    console.log('Language changed to:', locale); // Debug log
-  }
-
-  getCurrentLocale(): Locale {
-    return this.session.getLocale();
   }
 }
