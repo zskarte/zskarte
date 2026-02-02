@@ -1,6 +1,6 @@
 {
   "name": "@zskarte/server",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "private": true,
   "description": "Backend for zskarte",
   "license": "MIT",
