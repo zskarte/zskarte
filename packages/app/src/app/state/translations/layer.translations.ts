@@ -25,6 +25,16 @@ export const LAYER_TRANSLATIONS = {
     en: 'Gray pixel map',
     fr: 'Carte pixelisée en gris',
   },
+  geodiensteAV: {
+    de: 'geodienste Amtliche Vermessung farbig',
+    en: 'geodienste official measurement colored',
+    fr: 'geodienste Mensuration officielle en couleur',
+  },
+  geodiensteAVSituation: {
+    de: 'geodienste Amtliche Vermessung Situationsplan',
+    en: 'geodienste official measurement situation map',
+    fr: 'geodienste Mensuration officielle Plan de situation',
+  },
   noBaseMap: {
     de: 'keine Basiskarte',
     en: 'no base Map',
@@ -108,6 +118,11 @@ export const LAYER_TRANSLATIONS = {
     de: 'Quell-URL',
     en: 'source URL',
     fr: 'URL source',
+  },
+  geodiensteLayerId: {
+    de: 'Geodienste Ebenen Id',
+    en: 'Geodienste layer id',
+    fr: 'Id de couche geodienste',
   },
   mapLayerType: {
     de: 'Ebenentyp',
