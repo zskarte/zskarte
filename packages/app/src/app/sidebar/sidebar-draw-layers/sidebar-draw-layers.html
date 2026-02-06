@@ -28,23 +28,21 @@
 
 <ng-template #dialog>
   <form (submit)="submit($event)">
-    <div mat-dialog-content>
+    <app-dialog-header>
+      <h2>{{ i18n.get('drawLayer') }}</h2>
+    </app-dialog-header>
+    <app-dialog-body>
       <mat-form-field appearance="outline">
         <mat-label>{{ i18n.get('name') }}</mat-label>
         <input matInput [formField]="layerNameForm.name" />
         @if (layerNameForm.name().touched() && layerNameForm.name().invalid() && layerNameForm.name().errors().length) {
-          <mat-error>{{layerNameForm.name().errors()[0].message}}</mat-error>
+        <mat-error>{{layerNameForm.name().errors()[0].message}}</mat-error>
         }
       </mat-form-field>
-    </div>
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button mat-dialog-close>
-        {{ i18n.get('cancel') }}
-      </button>
-      <button mat-flat-button color="primary" type="submit">
-        {{ i18n.get('ok') }}
-      </button>
-    </mat-dialog-actions>
+    </app-dialog-body>
+    <app-dialog-footer>
+      <button mat-stroked-button mat-dialog-close>{{ i18n.get('cancel') }}</button>
+      <button mat-flat-button color="primary" type="submit">{{ i18n.get('ok') }}</button>
+    </app-dialog-footer>
   </form>
-
 </ng-template>

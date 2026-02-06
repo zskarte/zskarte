@@ -9,12 +9,13 @@ import { ChangeType, ProjectionSelectionComponent } from '../projection-selectio
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 
 @Component({
   selector: 'app-edit-coordinates',
   templateUrl: './edit-coordinates.component.html',
   styleUrls: ['./edit-coordinates.component.scss'],
-  imports: [ProjectionSelectionComponent, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule],
+  imports: [ProjectionSelectionComponent, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
 })
 export class EditCoordinatesComponent {
   data = inject<{
