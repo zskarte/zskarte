@@ -4,7 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ZsMapStateService } from 'src/app/state/state.service';
-import { mapProtocolEntry, ProtocolEntry } from '../helper/protocolEntry';
+import { mapListViewEntry, ListViewEntry } from '../helper/listViewEntry';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
@@ -19,12 +19,12 @@ import { MatCard } from "@angular/material/card";
 import { projectionByIndex } from '../helper/projections';
 
 @Component({
-  selector: 'app-protocol-table',
-  templateUrl: './protocol-table.component.html',
-  styleUrls: ['./protocol-table.component.scss'],
+  selector: 'app-list-view-table',
+  templateUrl: './list-view-table.component.html',
+  styleUrls: ['./list-view-table.component.scss'],
   imports: [MatFormFieldModule, MatInputModule, MatTableModule, ProjectionSelectionComponent, FormsModule, DialogHeaderComponent, DialogBodyComponent, MatCard],
 })
-export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ListViewTableComponent implements OnInit, OnDestroy, AfterViewInit {
   zsMapStateService = inject(ZsMapStateService);
   i18n = inject(I18NService);
   private datePipe = inject(DatePipe);
@@ -48,7 +48,7 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   updateTable(elements: ZsMapBaseDrawElement[]) {
-    this.data = mapProtocolEntry(elements, this.datePipe, this.i18n, this.session.getLocale(), projectionByIndex(this.projectionFormatIndex), this.numerical);
+    this.data = mapListViewEntry(elements, this.datePipe, this.i18n, this.session.getLocale(), projectionByIndex(this.projectionFormatIndex), this.numerical);
     this.protocolTableDataSource.data = this.data;
   }
 
@@ -63,9 +63,9 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
     this.zsMapStateService.observeDrawElements().pipe(first()).subscribe(this.updateTable.bind(this));
   }
 
-  public data: ProtocolEntry[] = [];
+  public data: ListViewEntry[] = [];
 
-  public protocolTableDataSource = new MatTableDataSource([] as ProtocolEntry[]);
+  public protocolTableDataSource = new MatTableDataSource([] as ListViewEntry[]);
 
   displayedColumns: string[] = [
     //'id',
@@ -80,7 +80,7 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
     'description',
   ];
 
-  navigateTo(element: ProtocolEntry) {
+  navigateTo(element: ListViewEntry) {
     this.zsMapStateService.setSelectedFeature(element.id);
     const extent = this.zsMapStateService.getDrawElement(element.id)?.getOlFeature()?.getGeometry()?.getExtent();
     if (extent) {

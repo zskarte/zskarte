@@ -8,14 +8,14 @@ import saveAs from 'file-saver';
 import { convertTo, ZsKarteProjection } from './projections';
 import { SimpleGeometry } from 'ol/geom';
 
-export function mapProtocolEntry(
+export function mapListViewEntry(
   elements: ZsMapBaseDrawElement[],
   datePipe: DatePipe,
   i18n: I18NService,
   currentLocale: string,
   projection: ZsKarteProjection,
   numerical: boolean,
-): ProtocolEntry[] {
+): ListViewEntry[] {
   return elements.map((element) => {
     const olFeature = element.getOlFeature();
     const sig = olFeature.get('sig');
@@ -44,11 +44,11 @@ export function mapProtocolEntry(
       // However, the "name" is stored inside the "text" attribute
       label: element.elementState?.name || (element.elementState as ZsMapTextDrawElementState)?.text,
       description: element.elementState?.description,
-    } as ProtocolEntry;
+    } as ListViewEntry;
   });
 }
 
-export interface ProtocolEntry {
+export interface ListViewEntry {
   id: string;
   date?: string;
   group: string;
@@ -61,7 +61,7 @@ export interface ProtocolEntry {
   description: string;
 }
 
-export async function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n: I18NService) {
+export async function exportListViewExcel(protocolEntries: ListViewEntry[], i18n: I18NService) {
   const exceljs = await import('exceljs');
   const { Workbook } = exceljs.default ? exceljs.default : exceljs;
   const workbook = new Workbook();
