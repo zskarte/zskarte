@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ZsMapStateService } from 'src/app/state/state.service';
@@ -22,7 +22,7 @@ import { projectionByIndex } from '../helper/projections';
   selector: 'app-list-view-table',
   templateUrl: './list-view-table.component.html',
   styleUrls: ['./list-view-table.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatTableModule, ProjectionSelectionComponent, FormsModule, DialogHeaderComponent, DialogBodyComponent, MatCard],
+  imports: [MatFormFieldModule, MatInputModule, MatTableModule, ProjectionSelectionComponent, FormsModule, DialogHeaderComponent, DialogBodyComponent, MatCard, MatSortModule],
 })
 export class ListViewTableComponent implements OnInit, OnDestroy, AfterViewInit {
   zsMapStateService = inject(ZsMapStateService);
@@ -42,14 +42,31 @@ export class ListViewTableComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngAfterViewInit() {
     const sort = this.sort();
-    if (this.protocolTableDataSource && sort) {
-      this.protocolTableDataSource.sort = sort;
+    if (this.listViewTableDataSource && sort) {
+      this.listViewTableDataSource.sort = sort;
     }
+    this.listViewTableDataSource.sortingDataAccessor = (item: any, property: string) => {
+      switch(property) {
+        case 'date': {
+          return item.dateNumeric;
+        }
+        case 'reportNumber': {
+          const value = item.reportNumber;
+          if (value){
+            return parseInt(value.split(', ')[0])
+          } else {
+            return value;
+          }
+        }
+        default:
+          return (item[property] as string)?.toLowerCase();
+      }
+    };
   }
 
   updateTable(elements: ZsMapBaseDrawElement[]) {
     this.data = mapListViewEntry(elements, this.datePipe, this.i18n, this.session.getLocale(), projectionByIndex(this.projectionFormatIndex), this.numerical);
-    this.protocolTableDataSource.data = this.data;
+    this.listViewTableDataSource.data = this.data;
   }
 
   ngOnDestroy(): void {
@@ -65,7 +82,7 @@ export class ListViewTableComponent implements OnInit, OnDestroy, AfterViewInit 
 
   public data: ListViewEntry[] = [];
 
-  public protocolTableDataSource = new MatTableDataSource([] as ListViewEntry[]);
+  public listViewTableDataSource = new MatTableDataSource([] as ListViewEntry[]);
 
   displayedColumns: string[] = [
     //'id',

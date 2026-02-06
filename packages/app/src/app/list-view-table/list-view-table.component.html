@@ -1,5 +1,5 @@
 <app-dialog-header>
-  <h2>{{ i18n.get('protocolTable') }}</h2>
+  <h2>{{ i18n.get('listViewTitle') }}</h2>
 </app-dialog-header>
 
 <app-dialog-body>
@@ -8,9 +8,9 @@
         <mat-form-field appearance="outline">
           <input
             matInput
-            name="protocolFilterString"
-            [(ngModel)]="protocolTableDataSource.filter"
-            #protocolFilterString="ngModel"
+            name="listViewFilterString"
+            [(ngModel)]="listViewTableDataSource.filter"
+            #listViewFilterString="ngModel"
             [placeholder]="i18n.get('csvSearchFor')"
           />
         </mat-form-field>
@@ -20,7 +20,7 @@
           (projectionChanged)="updateProjection($event)"
         ></app-projection-selection>
       </div>
-      <table mat-table [dataSource]="protocolTableDataSource" class="protocol-table" matSort>
+      <table mat-table [dataSource]="listViewTableDataSource" class="listView-table" matSort matSortActive="dateNumeric" matSortDirection="desc">
         <ng-container matColumnDef="id">
           <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by id">{{ i18n.get('csvID') }}</th>
           <td mat-cell *matCellDef="let element">{{ element.id }}</td>

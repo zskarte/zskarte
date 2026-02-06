@@ -102,7 +102,7 @@ export class SidebarMenuComponent {
     this.router.navigate(['/help', 'expert-view']);
   }
 
-  protocolTable(): void {
+  listViewTable(): void {
     this.dialog.open(ListViewTableComponent, { data: false });
   }
 
@@ -118,7 +118,7 @@ export class SidebarMenuComponent {
     this.dialog.open(OrganisationSettings);
   }
 
-  protocolExcelExport(): void {
+  listViewExcelExport(): void {
     const projectionDialog = this.dialog.open(this.projectionSelectionTemplate(), {
       width: '450px',
       data: {
