@@ -495,6 +495,8 @@ export interface ApiMapLayerGenerationConfigMapLayerGenerationConfig extends Str
     fields_swissNAMES3D: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'OBJEKTART,OBJEKTKLASSE_TLM,EINWOHNERKATEGORIE,NAME,E,N'>;
     file_swissNAMES3D: Schema.Attribute.String & Schema.Attribute.DefaultTo<'swissNAMES3D_PLY'>;
+    lastEndDate: Schema.Attribute.DateTime;
+    lastStartDate: Schema.Attribute.DateTime;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
