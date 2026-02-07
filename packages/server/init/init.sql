@@ -3332,8 +3332,8 @@ COPY public.operations_organization_lnk (id, operation_id, organization_id, oper
 --
 
 COPY public.organizations (id, name, map_longitude, map_latitude, map_zoom_level, default_locale, url, created_at, updated_at, created_by_id, updated_by_id, document_id, locale, published_at, journal_entry_template, settings) FROM stdin;
-4	ZSO Gast (1h)	7.44297	46.94635	16.00	de-CH	\N	2025-01-14 18:06:29.541	2025-01-14 18:06:29.541	\N	\N	an92vebwaeo4srt2i2n9aote	\N	2025-01-22 13:42:13.672	\N	\N
 3	ZSO Development	7.44297	46.94635	16.00	de-CH	\N	2025-01-14 18:04:02.567	2025-01-21 10:43:33.61	\N	\N	fb4s0f6iyhhp5lcpg0zfwjdz	\N	2025-01-22 13:42:13.672	\N	\N
+4	ZSO Gast	7.44297	46.94635	16.00	de-CH	\N	2025-01-14 18:06:29.541	2026-01-24 17:26:06.765	\N	1	an92vebwaeo4srt2i2n9aote	\N	2026-01-24 17:26:06.749	\N	\N
 \.
 
 
@@ -3502,6 +3502,8 @@ COPY public.strapi_releases (id, name, released_at, scheduled_at, timezone, stat
 COPY public.strapi_sessions (id, document_id, user_id, session_id, child_id, device_id, origin, expires_at, absolute_expires_at, status, type, created_at, updated_at, published_at, created_by_id, updated_by_id, locale) FROM stdin;
 1	rspbxgtro1d6mpgrd0isnnkx	1	ba65f21c232c431df6dfcabd0d254147	\N	2b8c3965-c625-4b41-bf08-b91b0155cdce	admin	2026-01-20 17:50:08.949	2026-02-19 15:50:08.949	active	session	2026-01-20 15:50:08.949	2026-01-20 15:50:08.949	2026-01-20 15:50:08.949	\N	\N	\N
 2	nqhksx6rkfzea3f6pi0nd7ja	1	9ebdc806ad2f65b33ec5913d8f5421b8	\N	2b8c3965-c625-4b41-bf08-b91b0155cdce	admin	2026-01-22 22:57:02.891	2026-02-21 20:57:02.891	active	session	2026-01-22 20:57:02.891	2026-01-22 20:57:02.891	2026-01-22 20:57:02.892	\N	\N	\N
+3	y8g7608c4654whkcdovjm1bf	1	1b6656c38c17c323034bac0a507210f7	\N	2b8c3965-c625-4b41-bf08-b91b0155cdce	admin	2026-01-24 19:25:55.472	2026-02-23 17:25:55.472	active	session	2026-01-24 17:25:55.472	2026-01-24 17:25:55.472	2026-01-24 17:25:55.472	\N	\N	\N
+4	z1l7xj70zu5rgx93hl05or76	1	a6c9f2ebfec891fb033da8c00f1fcedc	\N	2b8c3965-c625-4b41-bf08-b91b0155cdce	admin	2026-01-24 21:40:55.957	2026-02-23 19:40:55.957	active	session	2026-01-24 19:40:55.957	2026-01-24 19:40:55.957	2026-01-24 19:40:55.957	\N	\N	\N
 \.
 
 
@@ -3702,6 +3704,10 @@ COPY public.up_permissions (id, document_id, action, created_at, updated_at, pub
 104	uxv8fiu6zo93elaw2uvahpxo	api::wms-source.wms-source.create	2026-01-20 16:00:42.051	2026-01-20 16:00:42.051	2026-01-20 16:00:42.053	\N	\N	\N
 106	a2q07wbqjf2gwq454zz2j626	api::wms-source.wms-source.findOne	2026-01-20 16:00:42.051	2026-01-20 16:00:42.051	2026-01-20 16:00:42.052	\N	\N	\N
 125	qj5abnokgbx2uoi84xdenn4o	api::organization.organization.updateSettings	2026-01-22 20:57:21.618	2026-01-22 20:57:21.618	2026-01-22 20:57:21.618	\N	\N	\N
+126	k2hdw4d4645t4locrbn0st1w	api::organization.organization.updateSettings	2026-01-24 17:26:23.799	2026-01-24 17:26:23.799	2026-01-24 17:26:23.799	\N	\N	\N
+127	iel7tb32cbojwgnhb5xil6dz	api::organization.organization.updateLayerSettings	2026-01-24 17:26:23.799	2026-01-24 17:26:23.799	2026-01-24 17:26:23.799	\N	\N	\N
+128	x0qar918w1ueht2k5r5rdmtq	api::organization.organization.updateJournalEntryTemplate	2026-01-24 17:26:23.799	2026-01-24 17:26:23.799	2026-01-24 17:26:23.799	\N	\N	\N
+129	ynx5pd0jv0ggom24m0s660r0	api::access.access.refresh	2026-01-24 19:41:09.105	2026-01-24 19:41:09.105	2026-01-24 19:41:09.105	\N	\N	\N
 \.
 
 
@@ -3827,6 +3833,10 @@ COPY public.up_permissions_role_lnk (id, permission_id, role_id, permission_ord)
 123	120	6	3
 124	121	6	3
 125	125	4	8
+126	126	3	6
+127	128	3	6
+128	127	3	6
+129	129	3	7
 \.
 
 
@@ -3837,10 +3847,10 @@ COPY public.up_permissions_role_lnk (id, permission_id, role_id, permission_ord)
 COPY public.up_roles (id, document_id, name, description, type, created_at, updated_at, published_at, created_by_id, updated_by_id, locale) FROM stdin;
 1	jcdmegsh6v94vsgnttdmof8l	Authenticated	Default role given to authenticated user.	authenticated	2026-01-20 15:49:53.39	2026-01-20 15:51:39.552	2026-01-20 15:49:53.39	\N	\N	\N
 2	gscxdv3e48cvug78qe12md7c	Public	Default role given to unauthenticated user.	public	2026-01-20 15:49:53.392	2026-01-20 15:53:56.054	2026-01-20 15:49:53.392	\N	\N	\N
-3	bc9w6rugr529vu1qraop3zu0	guest	role given to guest  user.	guest	2026-01-20 15:56:29.185	2026-01-20 15:56:29.185	2026-01-20 15:56:29.185	\N	\N	\N
 5	n3604tbouw180lxq2p7mgizi	OperationWrite	The role for the default operation_write user.	operationwrite	2026-01-20 16:00:42.048	2026-01-20 16:00:42.048	2026-01-20 16:00:42.048	\N	\N	\N
 6	vdhj0gph9gy8jh5wj4237yo9	OperationRead	The role for the default operation_read user.	operationread	2026-01-20 16:01:53.434	2026-01-20 16:01:53.434	2026-01-20 16:01:53.434	\N	\N	\N
 4	bjx2paxgqji3r8kvldczjqrz	Organization	Main Organization Users	organization	2026-01-20 15:58:52.585	2026-01-22 20:57:21.604	2026-01-20 15:58:52.586	\N	\N	\N
+3	bc9w6rugr529vu1qraop3zu0	guest	role given to guest  user.	guest	2026-01-20 15:56:29.185	2026-01-24 19:41:09.093	2026-01-20 15:56:29.185	\N	\N	\N
 \.
 
 
@@ -4183,7 +4193,7 @@ SELECT pg_catalog.setval('public.strapi_releases_id_seq', 1, false);
 -- Name: strapi_sessions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.strapi_sessions_id_seq', 2, true);
+SELECT pg_catalog.setval('public.strapi_sessions_id_seq', 4, true);
 
 
 --
@@ -4253,14 +4263,14 @@ SELECT pg_catalog.setval('public.strapi_workflows_stages_workflow_lnk_id_seq', 1
 -- Name: up_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.up_permissions_id_seq', 125, true);
+SELECT pg_catalog.setval('public.up_permissions_id_seq', 129, true);
 
 
 --
 -- Name: up_permissions_role_lnk_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.up_permissions_role_lnk_id_seq', 125, true);
+SELECT pg_catalog.setval('public.up_permissions_role_lnk_id_seq', 129, true);
 
 
 --
