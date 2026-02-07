@@ -113,6 +113,7 @@ export const SIDEBAR_TRANSLATIONS = {
     fr: 'Modèle de texte pour les nouvelles entrées de journal',
   },
 
+  //share
   share: {
     de: 'Freigeben',
     en: 'Share',
@@ -241,6 +242,28 @@ export const SIDEBAR_TRANSLATIONS = {
     fr: 'ExportationProtocole',
   },
 
+  //version info
+  version: {
+    de: 'Version',
+    en: 'Version',
+    fr: 'Version',
+  },
+  buildDate: {
+    de: 'Build Datum',
+    en: 'Build date',
+    fr: 'Date de construction',
+  },
+  newVersion: {
+    de: 'Neue UI Version verfügbar {0}, aktive Version {1}',
+    en: 'New UI version available {0}, active version {1}',
+    fr: "Nouvelle version de l'interface utilisateur disponible {0}, version active {1}",
+  },
+  reloadPage: {
+    de: 'Seite neu laden',
+    en: 'Reload page',
+    fr: 'Recharger la page',
+  },
+  
   //user / offline data sidebar
   connections: {
     de: 'Verbindungen',

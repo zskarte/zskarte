@@ -86,6 +86,13 @@
     {{ i18n.get('logout') }}
   </button>
 }
+<mat-divider></mat-divider>
+<div class="version">
+  {{ i18n.get('version') }}: <span>{{ appVersion() }}</span>
+  @if (appDate()) {
+    | {{ i18n.get('buildDate') }}: <span>{{ appDate() }}</span>
+  }
+</div>
 
 <mat-menu #languageOptions="matMenu">
   @for (locale of locales; track locale) {

@@ -8,6 +8,7 @@ import { ZsMapStateService } from './state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SidebarWrapperComponent } from './sidebar/sidebar-wrapper/sidebar-wrapper.component';
 import { NavigationService } from './navigation/navigation.service';
+import { VersionService } from 'src/version/version.service';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +23,7 @@ export class AppComponent implements OnInit {
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   navigation = inject(NavigationService);
+  private _version = inject(VersionService);
   readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
   readonly operationId = toSignal(this._session.observeOperationId());
 
@@ -41,6 +43,7 @@ export class AppComponent implements OnInit {
   width = window.innerWidth;
 
   constructor() {
+    this._version.initialize();
     this._shortcut.initialize();
   }
 
