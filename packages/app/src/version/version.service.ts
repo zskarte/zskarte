@@ -4,7 +4,9 @@ import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from 'src/app/state/i18n.service';
 import { version } from '../../package.json';
+import { ApiService } from 'src/app/api/api.service';
 import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
+import { CompatibilityResponse } from '@zskarte/types';
 
 export interface VersionInfos {
   version: string;
@@ -19,9 +21,11 @@ export class VersionService {
   private _swUpdate = inject(SwUpdate);
   private _dialog = inject(MatDialog);
   private _i18n = inject(I18NService);
+  private _api = inject(ApiService);
   private notCompatibleDialogRef: MatDialogRef<InfoDialogComponent, any> | undefined;
   private newVersionDialogRef: MatDialogRef<ConfirmationDialogComponent, any> | undefined;
   readonly versionInfos = signal<VersionInfos>({ version: version as string });
+  readonly compatibleWithBackend = signal<boolean | undefined>(undefined);
 
   public initialize() {
     if (this._swUpdate.isEnabled) {
@@ -43,6 +47,30 @@ export class VersionService {
 
   public checkForUpdate() {
     return this._swUpdate.checkForUpdate();
+  }
+
+  public checkVersionCompatible() {
+    if (this.compatibleWithBackend() === undefined) {
+      this._api.get<CompatibilityResponse>(`/api/version/compatibility?version=${version}`).then((response) => {
+        const { result, error } = response;
+        if (error || !result?.success) {
+          console.error(error);
+        } else {
+          this.compatibleWithBackend.set(result.isCompatible);
+          if (!result.isCompatible) {
+            this.showNotCompatible();
+          }
+        }
+      });
+    }
+  }
+
+  showNotCompatible() {
+    if (!this.newVersionDialogRef) {
+      this.notCompatibleDialogRef = this._dialog.open(InfoDialogComponent, {
+        data: { error: this._i18n.get('versionNotCompatible') },
+      });
+    }
   }
 
   onNewVersionReady(event: VersionReadyEvent) {

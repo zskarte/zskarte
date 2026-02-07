@@ -253,6 +253,11 @@ export const SIDEBAR_TRANSLATIONS = {
     en: 'Changelog',
     fr: 'Journal des modifications',
   },
+  versionNotCompatible: {
+    de: 'Die UI Version ist nicht mit dem Server kompatibel. Mache einen hard refresh (Ctrl+F5 oder cmd+option+r) um das UI neu zu laden.',
+    en: 'The UI version is not compatible with the server. Perform a hard refresh (Ctrl+F5 or cmd+option+r) to reload the UI.',
+    fr: "La version de l'interface utilisateur n'est pas compatible avec le serveur. Effectuez une actualisation forcée (Ctrl+F5 ou cmd+option+r) pour recharger l'interface utilisateur.",
+  },
   newVersion: {
     de: 'Neue UI Version verfügbar {0}, aktive Version {1}',
     en: 'New UI version available {0}, active version {1}',

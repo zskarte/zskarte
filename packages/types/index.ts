@@ -4,3 +4,4 @@ export * from "./operation/interfaces";
 export * from "./session/interfaces";
 export * from "./sign/interfaces";
 export * from "./state/interfaces";
+export * from './general/interfaces';
