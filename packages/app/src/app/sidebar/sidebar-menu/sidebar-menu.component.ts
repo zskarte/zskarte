@@ -63,7 +63,6 @@ export class SidebarMenuComponent {
   private router = inject(Router);
   version = inject(VersionService);
   appVersion = computed(()=>this.version.versionInfos()?.version);
-  appDate = computed(()=>this.version.versionInfos()?.buildDate);
 
   readonly projectionSelectionTemplate = viewChild.required<TemplateRef<unknown>>('projectionSelectionTemplate');
 

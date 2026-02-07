@@ -248,10 +248,10 @@ export const SIDEBAR_TRANSLATIONS = {
     en: 'Version',
     fr: 'Version',
   },
-  buildDate: {
-    de: 'Build Datum',
-    en: 'Build date',
-    fr: 'Date de construction',
+  changelog: {
+    de: 'Änderungsprotokoll',
+    en: 'Changelog',
+    fr: 'Journal des modifications',
   },
   newVersion: {
     de: 'Neue UI Version verfügbar {0}, aktive Version {1}',
@@ -262,6 +262,11 @@ export const SIDEBAR_TRANSLATIONS = {
     de: 'Seite neu laden',
     en: 'Reload page',
     fr: 'Recharger la page',
+  },
+  noChangeLogAvaliable: {
+    de: 'Kein Änderungsprotokoll verfügbar.',
+    en: 'No change log available.',
+    fr: 'Aucun journal des modifications disponible.',
   },
   
   //user / offline data sidebar
