@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Feature, { FeatureLike } from 'ol/Feature';
-import { SimpleGeometry } from 'ol/geom';
+import { Geometry, SimpleGeometry } from 'ol/geom';
 import { Select } from 'ol/interaction';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
@@ -39,15 +39,6 @@ export class MapSelectService {
     this._overlay = _overlay;
     this._renderer = _renderer;
 
-    this._state.observeSelectedElement$().subscribe((element) => {
-      if (element) {
-        this.selectedFeature.next(element.getOlFeature() as Feature<SimpleGeometry>);
-      } else {
-        this.selectedFeature.next(undefined);
-        this._overlay.toggleEditButtons(false);
-      }
-    });
-
     this._select = new Select({
       hitTolerance: 10,
       style: (feature: FeatureLike, resolution: number) => {
@@ -56,13 +47,6 @@ export class MapSelectService {
       layers: _renderer.getLayers(),
     });
 
-    this._state.observeSelectedFeature$().subscribe((element) => {
-      if (!element) {
-        this._select.getFeatures().clear();
-      } else if (this._select.getFeatures().getLength() === 0) {
-        this._select.getFeatures().push(this._state.getDrawElement(element).getOlFeature());
-      }
-    });
     this._select.on('select', (event) => {
       this._modify.clearCache();
       this._overlay.toggleEditButtons(false);
@@ -85,23 +69,37 @@ export class MapSelectService {
             }
           }
           this._state.setSelectedFeature(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
-          // reset selectedVertexPoint, since we selected a whole feature.
-          this._vertexPoint.next(DrawStyle.getIconCoordinates(feature, _renderer.getView().getResolution() ?? 1)[1]);
-
-          // only show buttons on select for Symbols
-          if (
-            !this._state.isReadOnly() &&
-            nextElement?.element?.elementState?.type === ZsMapDrawElementStateType.SYMBOL
-          ) {
-            const allowDeleteAndRotation =
-              nextElement?.element?.elementState?.layer === this._state.getActiveLayer()?.getId();
-            this._overlay.toggleEditButtons(allowDeleteAndRotation, allowDeleteAndRotation, true);
-          }
         }
       }
 
       if (event.selected.length === 0) {
         this._state.resetSelectedFeature();
+      }
+    });
+
+    this._state.observeSelectedElement$().subscribe((element) => {
+      //this is callen on select by user, select with different UI elements or by add a new one
+      if (element) {
+        const feature = element.getOlFeature() as Feature<SimpleGeometry>;
+        if (this._select.getFeatures().getLength() === 0) {
+          this._select.getFeatures().push(feature);
+        }
+        this.selectedFeature.next(feature);
+        if (feature && !feature.get('sig')?.protected) {
+          this._modify.addToCache(feature);
+        }
+        // reset selectedVertexPoint, since we selected a whole feature.
+        this._vertexPoint.next(DrawStyle.getIconCoordinates(feature, _renderer.getView().getResolution() ?? 1)[1]);
+
+        // only show buttons on select for Symbols
+        if (!this._state.isReadOnly() && element.elementState?.type === ZsMapDrawElementStateType.SYMBOL) {
+          const allowDeleteAndRotation = element?.elementState?.layer === this._state.getActiveLayer()?.getId();
+          this._overlay.toggleEditButtons(allowDeleteAndRotation, allowDeleteAndRotation, true);
+        }
+      } else {
+        this._select.getFeatures().clear();
+        this.selectedFeature.next(undefined);
+        this._overlay.toggleEditButtons(false);
       }
     });
 
