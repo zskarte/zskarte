@@ -106,7 +106,10 @@
   </button>
 </mat-menu>
 <ng-template #projectionSelectionTemplate let-data>
-  <div mat-dialog-content>
+  <app-dialog-header>
+    <h2>{{ i18n.get('saveAsExcel') }}</h2>
+  </app-dialog-header>
+  <app-dialog-body>
     <app-projection-selection
       [projectionFormatIndex]="data.projectionFormatIndex"
       [numerical]="data.numerical"
@@ -115,11 +118,11 @@
         data.projectionFormatIndex = $event.projectionFormatIndex ?? data.projectionFormatIndex
       "
     ></app-projection-selection>
-  </div>
-  <div mat-dialog-actions align="end">
+  </app-dialog-body>
+  <app-dialog-footer>
     <button mat-stroked-button [mat-dialog-close]="null">{{ i18n.get('cancel') }}</button>
     <button mat-flat-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>{{ i18n.get('ok') }}</button>
-  </div>
+  </app-dialog-footer>
 </ng-template>
 
 <mat-menu #shareOptions="matMenu">
