@@ -83,6 +83,8 @@
           </mat-form-field>
         </app-form-section>
       </mat-card>
+      <!-- allow to submit with enter on modal form -->
+      <button type="submit" style="display:none" [disabled]="submitting()"></button>
     </div>
   } @else {
   
@@ -203,7 +205,7 @@
                 <mat-icon>print</mat-icon>
               </button>
             }
-            <button mat-flat-button color="primary" type="submit">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
               <mat-icon>check</mat-icon>
               {{ i18n.get('save') }}
             </button>
@@ -218,7 +220,7 @@
               <input matInput formControlName="wrongContentInfo" (keydown.enter)="onEnterForResetState($event)" />
             </mat-form-field>
         
-            <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
+            <button mat-button type="button" (click)="resetState()" [disabled]="submitting()">{{ i18n.get('backToInput') }}</button>
           </div>
         </div>
       }
@@ -283,7 +285,7 @@
                 <mat-icon>print</mat-icon>
               </button>
             }
-            <button mat-flat-button color="primary" type="submit">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
               <mat-icon>check</mat-icon>
               {{ i18n.get('save') }}
             </button>
@@ -299,7 +301,7 @@
             <input matInput formControlName="wrongTriageInfo" (keydown.enter)="onEnterForResetState($event)" />
           </mat-form-field>
     
-          <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
+          <button mat-button type="button" (click)="resetState()" [disabled]="submitting()">{{ i18n.get('backToTriage') }}</button>
         </div>
       </div>
     }
@@ -341,7 +343,7 @@
                 <mat-icon>print</mat-icon>
               </button>
             }
-            <button mat-flat-button color="primary" type="submit">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
               <mat-icon>check</mat-icon>
               {{ i18n.get('save') }}
             </button>
