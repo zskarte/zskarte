@@ -113,6 +113,7 @@ export const SIDEBAR_TRANSLATIONS = {
     fr: 'Modèle de texte pour les nouvelles entrées de journal',
   },
 
+  //share
   share: {
     de: 'Freigeben',
     en: 'Share',
@@ -241,6 +242,38 @@ export const SIDEBAR_TRANSLATIONS = {
     fr: 'ExportationProtocole',
   },
 
+  //version info
+  version: {
+    de: 'Version',
+    en: 'Version',
+    fr: 'Version',
+  },
+  changelog: {
+    de: 'Änderungsprotokoll',
+    en: 'Changelog',
+    fr: 'Journal des modifications',
+  },
+  versionNotCompatible: {
+    de: 'Die UI Version ist nicht mit dem Server kompatibel. Mache einen hard refresh (Ctrl+F5 oder cmd+option+r) um das UI neu zu laden.',
+    en: 'The UI version is not compatible with the server. Perform a hard refresh (Ctrl+F5 or cmd+option+r) to reload the UI.',
+    fr: "La version de l'interface utilisateur n'est pas compatible avec le serveur. Effectuez une actualisation forcée (Ctrl+F5 ou cmd+option+r) pour recharger l'interface utilisateur.",
+  },
+  newVersion: {
+    de: 'Neue UI Version verfügbar {0}, aktive Version {1}',
+    en: 'New UI version available {0}, active version {1}',
+    fr: "Nouvelle version de l'interface utilisateur disponible {0}, version active {1}",
+  },
+  reloadPage: {
+    de: 'Seite neu laden',
+    en: 'Reload page',
+    fr: 'Recharger la page',
+  },
+  noChangeLogAvaliable: {
+    de: 'Kein Änderungsprotokoll verfügbar.',
+    en: 'No change log available.',
+    fr: 'Aucun journal des modifications disponible.',
+  },
+  
   //user / offline data sidebar
   connections: {
     de: 'Verbindungen',

@@ -1,17 +1,18 @@
 <app-dialog-header>
-  <h2>{{ i18n.get('confirm') }}</h2>
+  <h2>{{ data.title ??i18n.get('confirm') }}</h2>
 </app-dialog-header>
 <app-dialog-body>
-  <mat-card>
-    {{ data.message }}
-  </mat-card>
+  @if (data.html) {
+    <div [innerHTML]="data.html"></div>
+  } @else {
+    <mat-card>
+      {{ data.message }}
+    </mat-card>
+  }
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-stroked-button (click)="cancel()">{{ data.cancelLabel ?? i18n.get('cancel') }}</button>
-  <button
-    mat-flat-button
-    color="primary"
-    cdkFocusInitial
-    (click)="ok()"
-  >{{ data.confirmLabel ?? i18n.get('confirm') }}</button>
+  <button mat-stroked-button [mat-dialog-close]="false">{{ data.cancelLabel ?? i18n.get('cancel') }}</button>
+  <button mat-flat-button color="primary" cdkFocusInitial [mat-dialog-close]="true">
+    {{ data.confirmLabel ?? i18n.get('confirm') }}
+  </button>
 </app-dialog-footer>

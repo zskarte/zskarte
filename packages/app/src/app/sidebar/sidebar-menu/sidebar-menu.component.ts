@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, TemplateRef, inject, viewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { I18NService } from '../../state/i18n.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ZsMapStateService } from '../../state/state.service';
@@ -26,6 +26,7 @@ import { PersonRecoveryComponent } from '../../person-recovery/person-recovery.c
 import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expert-view-help.component';
 import { ResourceOverviewComponent } from '../../resource-overview/resource-overview.component';
 import { OrganisationSettings } from 'src/app/organisation-settings/organisation-settings';
+import { VersionService } from 'src/version/version.service';
 import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from 'src/app/ui/dialog-layout';
 import { projectionByIndex } from 'src/app/helper/projections';
 
@@ -60,6 +61,8 @@ export class SidebarMenuComponent {
   private _operation = inject(OperationService);
   sidebar = inject(SidebarService);
   private router = inject(Router);
+  version = inject(VersionService);
+  appVersion = computed(()=>this.version.versionInfos()?.version);
 
   readonly projectionSelectionTemplate = viewChild.required<TemplateRef<unknown>>('projectionSelectionTemplate');
 

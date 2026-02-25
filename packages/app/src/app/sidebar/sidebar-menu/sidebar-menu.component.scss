@@ -15,3 +15,11 @@ app-incident-select {
 .mat-menu-item-with-info .mat-mdc-menu-item {
   max-width: calc(100% - 48px);
 }
+
+.version {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  gap: 5px;
+  padding: 10px 20px;
+}

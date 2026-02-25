@@ -23,6 +23,7 @@ import { NameEntryDialogComponent } from './name-entry-dialog/name-entry-dialog.
 import { ImportDialogComponent } from 'src/app/import-dialog/import-dialog.component';
 import { JournalService } from 'src/app/journal/journal.service';
 import { OperationExportFile } from 'src/app/core/entity/operationExportFile';
+import { VersionService } from 'src/version/version.service';
 
 @Component({
   selector: 'app-operations',
@@ -54,6 +55,7 @@ export class OperationsComponent implements OnDestroy {
   private _router = inject(Router);
   private _sidebar = inject(SidebarService);
   private dialog = inject(MatDialog);
+  private _version = inject(VersionService);
 
   private _ngUnsubscribe = new Subject<void>();
   public showOpPhase: ZsOperationPhase = 'active';
@@ -87,6 +89,7 @@ export class OperationsComponent implements OnDestroy {
         }
       }
     });
+    this._version.checkVersionCompatible();
   }
 
   ngOnDestroy(): void {
@@ -102,16 +105,16 @@ export class OperationsComponent implements OnDestroy {
           this._session.setLabel(name);
           await this._session.setOperation(operation);
           this._sidebar.close();
-          
+
           const queryParams = await firstValueFrom(this.route.queryParams);
           const navQueryParams: any = { ...queryParams };
           delete navQueryParams['operationId'];
-          Object.keys(navQueryParams).forEach(key => {
+          Object.keys(navQueryParams).forEach((key) => {
             if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
               delete navQueryParams[key];
             }
           });
-          
+
           await this._router.navigate(['/main/map'], { queryParams: navQueryParams });
         }
       });

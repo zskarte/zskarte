@@ -86,6 +86,13 @@
     {{ i18n.get('logout') }}
   </button>
 }
+<mat-divider></mat-divider>
+<div class="version">
+  {{ i18n.get('version') }}: <span>{{ appVersion() }}</span>
+  <button mat-flat-button class="tools-menu-item" (click)="version.showChangelog()">
+    {{ i18n.get('changelog') }}
+  </button>
+</div>
 
 <mat-menu #languageOptions="matMenu">
   @for (locale of locales; track locale) {
