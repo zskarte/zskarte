@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import {
   IZSMapOperationMapLayers,
   IZsMapOperation,
@@ -14,11 +13,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { ApiService, IApiRequestOptions } from '../../api/api.service';
 import { OperationExportFile, OperationExportFileVersion } from '../../core/entity/operationExportFile';
 import { db } from '../../db/db';
-import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
 import { JournalService } from 'src/app/journal/journal.service';
-import { JournalEntry } from 'src/app/journal/journal.types';
 
 @Injectable({
   providedIn: 'root',
@@ -28,11 +25,16 @@ export class OperationService {
   _ipc = inject(IpcService);
 
   private _session!: SessionService;
+  private _journalService!: JournalService;
   public operations = new BehaviorSubject<IZsMapOperation[]>([]);
   public operationToEdit = new BehaviorSubject<IZsMapOperation | undefined>(undefined);
 
   public setSessionService(sessionService: SessionService): void {
     this._session = sessionService;
+  }
+
+  public setJournalService(journalService: JournalService): void {
+    this._journalService = journalService;
   }
 
   public async archiveOperation(operation: IZsMapOperation): Promise<void> {
@@ -214,9 +216,9 @@ export class OperationService {
     if (!operationId) {
       return;
     }
-    const fileName = `Ereignis_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const operation = await this.getOperation(operationId);
-    const journal = await JournalService.getJournal(operationId);
+    const journal = await this._journalService.getJournalForExport(operationId);
+    const fileName = `Ereignis_${operation?.name.replaceAll(/[^a-zA-Z0-9-]/g, '_')}_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const saveFile: OperationExportFile = {
       name: operation?.name ?? '',
       description: operation?.description ?? '',

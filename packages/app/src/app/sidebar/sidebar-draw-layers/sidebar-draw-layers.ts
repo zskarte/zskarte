@@ -3,7 +3,7 @@ import { ZsMapStateService } from '../../state/state.service';
 import { MatRadioButton, MatRadioChange, MatRadioGroup } from '@angular/material/radio';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { I18NService } from '../../state/i18n.service';
-import { MatDialog, MatDialogActions, MatDialogClose, MatDialogContent } from '@angular/material/dialog';
+import { MatDialog, MatDialogClose } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { form, FormField, required, validate } from '@angular/forms/signals';
@@ -14,6 +14,7 @@ import { MatIcon } from '@angular/material/icon';
 import { ZsMapBaseLayer } from '../../map-renderer/layers/base-layer';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from 'src/app/ui/dialog-layout';
 
 @Component({
   selector: 'app-sidebar-draw-layers',
@@ -21,8 +22,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatRadioButton,
     MatRadioGroup,
     MatButton,
-    MatDialogActions,
-    MatDialogContent,
     ReactiveFormsModule,
     FormField,
     MatDialogClose,
@@ -30,6 +29,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatInputModule,
     MatIcon,
     MatIconButton,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
   ],
   templateUrl: './sidebar-draw-layers.html',
   styleUrl: './sidebar-draw-layers.scss',
@@ -81,7 +83,7 @@ export class SidebarDrawLayers {
       });
   }
 
-  protected async renameLayer(layer: { id: string, name?: string }) {
+  protected async renameLayer(layer: { id: string; name?: string }) {
     this.layerNameForm().reset({ id: layer.id, name: layer.name ?? '' });
     this.addDrawLayer();
   }
@@ -94,7 +96,7 @@ export class SidebarDrawLayers {
 
     const value = this.layerNameForm().value();
     if (value.id) {
-      this.stateService.renameDrawLayer(value.id, value.name)
+      this.stateService.renameDrawLayer(value.id, value.name);
     } else {
       this.stateService.addDrawLayer(value.name);
     }

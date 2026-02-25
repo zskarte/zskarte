@@ -156,6 +156,6 @@ export class LoginComponent implements OnDestroy {
   }
 
   public openHelp(): void {
-    window.open('/help', '_blank');
+    this.router.navigate(['/help/login']);
   }
 }

@@ -2,19 +2,20 @@ import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Coordinate } from 'ol/coordinate';
 import { I18NService } from '../state/i18n.service';
-import { convertTo, convertFrom } from '../helper/projections';
+import { convertTo, convertFrom, projectionByIndex } from '../helper/projections';
 import { FormControl, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { of, delay, switchMap, Observable } from 'rxjs';
 import { ChangeType, ProjectionSelectionComponent } from '../projection-selection/projection-selection.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 
 @Component({
   selector: 'app-edit-coordinates',
   templateUrl: './edit-coordinates.component.html',
   styleUrls: ['./edit-coordinates.component.scss'],
-  imports: [ProjectionSelectionComponent, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule],
+  imports: [ProjectionSelectionComponent, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
 })
 export class EditCoordinatesComponent {
   data = inject<{
@@ -53,7 +54,7 @@ export class EditCoordinatesComponent {
   }
 
   updateFormatedCoordinates() {
-    const converted = convertTo(this.coordinates, this.projectionFormatIndex, this.numerical);
+    const converted = convertTo(this.coordinates, projectionByIndex(this.projectionFormatIndex), this.numerical);
     const formatedCoordinates = JSON.stringify(converted, null, '\t');
     this.lastProjectionFormatIndex = this.projectionFormatIndex;
     this.lastNumerical = this.numerical;
@@ -74,7 +75,7 @@ export class EditCoordinatesComponent {
   transformInput(value: string) {
     try {
       const parsedCoordinates = JSON.parse(value);
-      return convertFrom(parsedCoordinates, this.projectionFormatIndex, this.numerical);
+      return convertFrom(parsedCoordinates, projectionByIndex(this.projectionFormatIndex), this.numerical);
     } catch {
       this.error = 'Invalid JSON payload';
       return undefined;

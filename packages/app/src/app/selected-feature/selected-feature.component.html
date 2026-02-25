@@ -4,99 +4,118 @@
       <div>
         @if (!featureGroups) {
           <div class="titleCard">
-            <div>
-              @if (selectedSignature.src) {
-                <div class="imgwrapper" (click)="openImageDetail(selectedSignature)">
-                  <img [src]="getImageUrl(selectedSignature)" alt="" />
-                </div>
-              }
-              @if (i18n.getLabelForSign(selectedSignature)) {
-                <div class="label">
-                  {{ i18n.getLabelForSign(selectedSignature) }}
-                </div>
-              }
-              @if (selectedSignature.createdBy || drawElement.createdAt) {
-                <div class="label label-gray">
-                  @if (selectedSignature.createdBy) {
-                    <div class="createdBy-container">
-                      <span>{{ i18n.get('createdBy') }}</span>
-                      <span class="createdBy-container-span"> {{ selectedSignature.createdBy }}</span>
-                    </div>
-                  }
-                  @if (drawElement.createdAt) {
-                    <div>
-                      {{ drawElement.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
-                    </div>
-                  }
-                  <div>
-                    {{ i18n.get('drawLayer') }}: {{ selectedElementLayerName() }}
+            @if (selectedSignature.src) {
+              <div class="imgwrapper" (click)="openImageDetail(selectedSignature)">
+                <img [src]="getImageUrl(selectedSignature)" alt="" />
+              </div>
+            }
+            @if (i18n.getLabelForSign(selectedSignature)) {
+              <div class="label">
+                {{ i18n.getLabelForSign(selectedSignature) }}
+              </div>
+            }
+            @if (selectedSignature.createdBy || drawElement.createdAt) {
+              <div class="label label-gray">
+                @if (selectedSignature.createdBy) {
+                  <div class="createdBy-container">
+                    <span>{{ i18n.get('createdBy') }}</span>
+                    <span class="createdBy-container-span"> {{ selectedSignature.createdBy }}</span>
                   </div>
-                </div>
+                }
+                @if (drawElement.createdAt) {
+                  <div>
+                    {{ drawElement.createdAt | date: 'dd.MM.yyyy, HH:mm' }}
+                  </div>
+                }
+                <div>{{ i18n.get('drawLayer') }}: {{ selectedElementLayerName() }}</div>
+              </div>
+            }
+            @if (selectedElementLayer()?.getId() !== activeLayer()?.getId()) {
+              <div class="other-layer">{{ i18n.get('elementOnOtherLayer') }}</div>
+            }
+            @if (!editMode()) {
+              <div class="title">
+                @if (!isText(drawElement)) {
+                  <div>
+                    {{ drawElement.name }}
+                  </div>
+                } @else {
+                  <div>
+                    {{ drawElement['text'] }}
+                  </div>
+                }
+              </div>
+              @if (drawElement.description) {
+                <div class="description" [innerHTML]="drawElement.description"></div>
               }
-              @if (selectedElementLayer()?.getId() !== activeLayer()?.getId()) {
-                <div class="other-layer">{{ i18n.get('elementOnOtherLayer') }}</div>
-              }
-              @if (editMode()) {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ i18n.get('name') }}</mat-label>
-                  @if (!isText(drawElement)) {
-                    <input
-                      type="text"
-                      matInput
-                      [ngModel]="drawElement.name"
-                      (ngModelChange)="updateProperty(drawElement, 'name', $event)"
-                    />
-                  }
-                  @if (isText(drawElement)) {
-                    <textarea
-                      matInput
-                      [ngModel]="drawElement['text']"
-                      (ngModelChange)="updateProperty(drawElement, 'text', $event)"
-                    ></textarea>
-                  }
-                </mat-form-field>
-              }
-              @if (!(editMode())) {
-                <div class="title">
-                  @if (!isText(drawElement)) {
-                    <div>
-                      {{ drawElement.name }}
-                    </div>
-                  }
-                  @if (isText(drawElement)) {
-                    <div>
-                      {{ drawElement['text'] }}
-                    </div>
-                  }
-                </div>
-              }
-              @if (editMode()) {
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
+              @if (drawElement.reportNumber?.['length'] > 0) {
+                <div class="reportNumber">
+                  <div>{{ i18n.get('reportNumber') }}</div>
                   <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
                     @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
-                      <mat-chip-row
-                        (removed)="removeReportNumber(reportNumber, drawElement)"
-                        (click)="openMessage(reportNumber)"
-                        class="report-number-chip"
-                      >
+                      <mat-chip-row (click)="openMessage(reportNumber)" class="report-number-chip">
                         {{ reportNumber }}
-                        <mat-icon matChipRemove (click)="$event.stopPropagation()">cancel</mat-icon>
                       </mat-chip-row>
                     }
                   </mat-chip-grid>
-                  <input
-                    matInput
-                    type="text"
-                    [placeholder]="i18n.get('pressEnter')"
-                    [matChipInputFor]="reportNumberChips"
-                    (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
-                    (blur)="addReportNumber($event, drawElement)"
-                    (input)="validateNumberInput($event)"
-                  />
-                </mat-form-field>
+                </div>
               }
-              @if ((editMode()) && personSigns.includes((selectedFeature | async)?.get('sig').id)) {
+            } @else {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('name') }}</mat-label>
+                @if (!isText(drawElement)) {
+                  <input
+                    type="text"
+                    matInput
+                    [ngModel]="drawElement.name"
+                    (ngModelChange)="updateProperty(drawElement, 'name', $event)"
+                  />
+                } @else {
+                  <textarea
+                    matInput
+                    [ngModel]="drawElement['text']"
+                    (ngModelChange)="updateProperty(drawElement, 'text', $event)"
+                  ></textarea>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
+                <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
+                  @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
+                    <mat-chip-row
+                      (removed)="removeReportNumber(reportNumber, drawElement)"
+                      (click)="openMessage(reportNumber)"
+                      class="report-number-chip"
+                    >
+                      {{ reportNumber }}
+                      <mat-icon matChipRemove (click)="$event.stopPropagation()">cancel</mat-icon>
+                    </mat-chip-row>
+                  }
+                </mat-chip-grid>
+                <input
+                  matInput
+                  type="text"
+                  [placeholder]="i18n.get('pressEnter')"
+                  [matChipInputFor]="reportNumberChips"
+                  (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
+                  (blur)="addReportNumber($event, drawElement)"
+                  (input)="validateNumberInput($event)"
+                />
+              </mat-form-field>
+              <div class="markdown">
+                <div class="markdownEditor">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ i18n.get('description') }}</mat-label>
+                    <textarea
+                      matInput
+                      [ngModel]="drawElement.description"
+                      (ngModelChange)="updateProperty(drawElement, 'description', $event)"
+                    ></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              @if (personSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('affectedPersons') }}</mat-label>
                   <input
@@ -107,22 +126,7 @@
                     (ngModelChange)="updateProperty(drawElement, 'affectedPersons', $event)"
                   />
                 </mat-form-field>
-              }
-              @if (editMode()) {
-                <div class="markdown">
-                  <div class="markdownEditor">
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ i18n.get('description') }}</mat-label>
-                      <textarea
-                        matInput
-                        [ngModel]="drawElement.description"
-                        (ngModelChange)="updateProperty(drawElement, 'description', $event)"
-                      ></textarea>
-                    </mat-form-field>
-                  </div>
-                </div>
-              }
-              @if ((editMode()) && hazardSigns.includes((selectedFeature | async)?.get('sig').id)) {
+              } @else if (hazardSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('hazardCode') }}</mat-label>
                   <input
@@ -145,8 +149,7 @@
                     (input)="validateUnNumber($event)"
                   />
                 </mat-form-field>
-              }
-              @if ((editMode()) && formationSigns.includes((selectedFeature | async)?.get('sig').id)) {
+              } @else if (formationSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('hierarchyLevel') }}</mat-label>
                   <mat-select
@@ -210,8 +213,7 @@
                     (ngModelChange)="updateProperty(drawElement, 'formationLocation', $event)"
                   />
                 </mat-form-field>
-              }
-              @if ((editMode()) && transportSigns.includes((selectedFeature | async)?.get('sig').id)) {
+              } @else if (transportSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('organization') }}</mat-label>
                   <input
@@ -232,8 +234,7 @@
                     (ngModelChange)="updateProperty(drawElement, 'formationDetail', $event)"
                   />
                 </mat-form-field>
-              }
-              @if ((editMode()) && leaderSigns.includes((selectedFeature | async)?.get('sig').id)) {
+              } @else if (leaderSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('organization') }}</mat-label>
                   <input
@@ -245,11 +246,7 @@
                   />
                 </mat-form-field>
               }
-              @if (!editMode() && drawElement.description) {
-                <div class="description" [innerHTML]="drawElement.description"></div>
-              }
-
-            </div>
+            }
           </div>
           <mat-divider></mat-divider>
         }
@@ -276,49 +273,42 @@
                     <mat-divider class="section-divider"></mat-divider>
 
                     <div class="colorPicker">
-                      @if (editMode()) {
-                        <mat-form-field class="color-picker" appearance="outline" floatLabel="always">
-                          <mat-label>{{ i18n.get('color') }}</mat-label>
-                          @if (useColorPicker) {
-                            <input
-                              matInput
-                              type="color"
-                              name="color"
-                              [ngModel]="drawElement.color"
-                              (ngModelChange)="updateProperty(drawElement, 'color', $event)"
-                            />
-                          } @else {
-                            <mat-select
-                              [ngModel]="drawElement.color"
-                              (ngModelChange)="updateProperty(drawElement, 'color', $event)"
-                            >
-                              @for (color of quickColors; track color) {
-                                <mat-option class="color-option" [value]="color.value">
-                                  <div class="categoryDot" [style.background-color]="color.value"></div>
-                                  {{ i18n.get(color.viewValue) }}
-                                </mat-option>
-                              }
-                            </mat-select>
-                          }
-                        </mat-form-field>
-
-                      }
-                      @if (editMode()) {
-                        <mat-checkbox [(ngModel)]="useColorPicker" class="color-mode-toggle">
-                          {{ i18n.get('colorPickerMode') }}
-                        </mat-checkbox>
-                      }
+                      <mat-form-field class="color-picker" appearance="outline" floatLabel="always">
+                        <mat-label>{{ i18n.get('color') }}</mat-label>
+                        @if (useColorPicker) {
+                          <input
+                            matInput
+                            type="color"
+                            name="color"
+                            [ngModel]="drawElement.color"
+                            (ngModelChange)="updateProperty(drawElement, 'color', $event)"
+                          />
+                        } @else {
+                          <mat-select
+                            [ngModel]="drawElement.color"
+                            (ngModelChange)="updateProperty(drawElement, 'color', $event)"
+                          >
+                            @for (color of quickColors; track color) {
+                              <mat-option class="color-option" [value]="color.value">
+                                <div class="categoryDot" [style.background-color]="color.value"></div>
+                                {{ i18n.get(color.viewValue) }}
+                              </mat-option>
+                            }
+                          </mat-select>
+                        }
+                      </mat-form-field>
+                      <mat-checkbox [(ngModel)]="useColorPicker" class="color-mode-toggle">
+                        {{ i18n.get('colorPickerMode') }}
+                      </mat-checkbox>
                       <mat-divider class="section-divider"></mat-divider>
                     </div>
-                    @if (editMode()) {
-                      <mat-checkbox
-                        [ngModel]="drawElement.protected"
-                        (ngModelChange)="updateProperty(drawElement, 'protected', $event)"
-                        >{{ i18n.get('lockFeature') }}</mat-checkbox
-                      >
-                    }
+                    <mat-checkbox
+                      [ngModel]="drawElement.protected"
+                      (ngModelChange)="updateProperty(drawElement, 'protected', $event)"
+                      >{{ i18n.get('lockFeature') }}</mat-checkbox
+                    >
                     <br />
-                    @if ((editMode()) && (selectedSignature.type === 'Point' || selectedSignature.src)) {
+                    @if (selectedSignature.type === 'Point' || selectedSignature.src) {
                       <mat-checkbox
                         [ngModel]="drawElement.nameShow"
                         (ngModelChange)="updateProperty(drawElement, 'nameShow', $event)"
@@ -346,8 +336,6 @@
                       }
                     </div>
 
-
-
                     @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
                         <mat-label>{{ i18n.get('symbolSize') }}</mat-label>
@@ -361,8 +349,6 @@
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
                       </div>
-                    }
-                    @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
                         <mat-label>{{ i18n.get('symbolOffset') }} X</mat-label>
                         <mat-slider [max]="3000" [min]="-3000" [step]="250">
@@ -418,9 +404,6 @@
                           </div>
                         }
                       }
-                    }
-
-                    @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
                         <mat-label>{{ i18n.get('rotate') }}</mat-label>
                         <mat-slider [max]="180" [min]="-180" [step]="1">
@@ -432,9 +415,6 @@
                         </mat-slider>
                         <input type="text" matInput hidden value="-" />
                       </div>
-                    }
-
-                    @if (drawElement.symbolId && !drawElement.hideIcon) {
                       <div>
                         <mat-label>{{ i18n.get('opacity') }}</mat-label>
                         <mat-slider [max]="1" [min]="0.0" [step]="0.05">
@@ -550,8 +530,6 @@
                       </mat-slider>
                       <input type="text" matInput hidden value="-" />
                     </div>
-                  }
-                  @if (drawElement.fillStyle?.name && drawElement.fillStyle?.name !== 'filled') {
                     <div>
                       <mat-label>{{ i18n.get('spacing') }}</mat-label>
                       <mat-slider [max]="20" [min]="5" [step]="0.1">
@@ -631,8 +609,6 @@
                     <mat-icon>call_merge</mat-icon>
                     {{ i18n.get('group') }}
                   </button>
-                }
-                @if (isPolygon()) {
                   <button mat-stroked-button (click)="drawHole()">
                     <mat-icon>vignette</mat-icon>
                     {{ i18n.get('drawHole') }}
@@ -647,9 +623,9 @@
           </mat-accordion>
         }
       </div>
-      <mat-divider></mat-divider>
-      <stack>
-        @if (editMode()) {
+      @if (editMode()) {
+        <mat-divider></mat-divider>
+        <stack>
           <button class="primarybutton" mat-stroked-button (click)="copy(drawElement)">
             <mat-icon>content_copy</mat-icon>
             {{ i18n.get('copy') }}
@@ -658,10 +634,10 @@
             <mat-icon>delete</mat-icon>
             {{ i18n.get('delete') }}
           </button>
-        }
-      </stack>
+        </stack>
+      }
     }
-    @if ((editMode()) && (mergeMode | async)) {
+    @if (editMode() && (mergeMode | async)) {
       <mat-card-content>
         <div>
           <div>{{ i18n.get('chooseGroupingArea') }}</div>

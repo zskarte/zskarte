@@ -1,4 +1,12 @@
-<div mat-dialog-content>
+<app-dialog-header>
+  <h2>{{ i18n.get('symbol') }}</h2>
+</app-dialog-header>
+<app-dialog-body>
   <div class="title">{{ title }}</div>
   <img [src]="imageSrc" [alt]="title" />
-</div>
+</app-dialog-body>
+<app-dialog-footer>
+  <button mat-flat-button color="primary" mat-dialog-close>
+    {{ i18n.get('ok') }}
+  </button>
+</app-dialog-footer>

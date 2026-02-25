@@ -5,7 +5,7 @@ import { I18NService } from '../state/i18n.service';
 import capitalizeFirstLetter from './capitalizeFirstLetter';
 import { getCenter } from 'ol/extent';
 import saveAs from 'file-saver';
-import { convertTo } from './projections';
+import { convertTo, ZsKarteProjection } from './projections';
 import { SimpleGeometry } from 'ol/geom';
 
 export function mapProtocolEntry(
@@ -13,7 +13,7 @@ export function mapProtocolEntry(
   datePipe: DatePipe,
   i18n: I18NService,
   currentLocale: string,
-  projectionFormatIndex: number,
+  projection: ZsKarteProjection,
   numerical: boolean,
 ): ProtocolEntry[] {
   return elements.map((element) => {
@@ -21,9 +21,9 @@ export function mapProtocolEntry(
     const sig = olFeature.get('sig');
     const sk: string = sig.kat ? 'sign' + capitalizeFirstLetter(sig.kat) : 'csvGroupArea';
     const geometry = element.getOlFeature().getGeometry() as SimpleGeometry;
-    const location = JSON.stringify(convertTo(geometry.getCoordinates() || [], projectionFormatIndex, numerical));
+    const location = JSON.stringify(convertTo(geometry.getCoordinates() || [], projection, numerical));
     const extent = geometry?.getExtent();
-    const centroid = convertTo(extent ? getCenter(extent) : [], projectionFormatIndex, numerical);
+    const centroid = convertTo(extent ? getCenter(extent) : [], projection, numerical);
     const reportNumber = (
       Array.isArray(element.elementState?.reportNumber)
         ? element.elementState?.reportNumber

@@ -15,11 +15,11 @@ export default {
     await deleteExpiredAccessTokens(strapi);
   },
   // Every fifteen seconds
-  '*/15 * * * * *': async ({ strapi }: { strapi: Core.Strapi }) => await persistMapStates(strapi),
+  '*/15 * * * * *': async ({ strapi }: { strapi: Core.Strapi }) => persistMapStates(strapi),
   // Every midnight delete the guest operations
-  '0 0 * * *': async ({ strapi }: { strapi: Core.Strapi }) => await deleteGuestOperations(strapi),
+  '0 0 * * *': async ({ strapi }: { strapi: Core.Strapi }) => deleteGuestOperations(strapi),
   // Every 5 minutes
-  '*/5 * * * *': async ({ strapi }: { strapi: Core.Strapi }) => await createMapStateSnapshots(strapi),
+  '*/5 * * * *': async ({ strapi }: { strapi: Core.Strapi }) => createMapStateSnapshots(strapi),
   // Every 1st and 15th of month update mapLayers
-  '0 0 1,15 * *': async ({ strapi }: { strapi: Core.Strapi }) => await updateMapLayerMedias(strapi),
+  '0 0 1,15 * *': async ({ strapi }: { strapi: Core.Strapi }) => updateMapLayerMedias(strapi),
 };

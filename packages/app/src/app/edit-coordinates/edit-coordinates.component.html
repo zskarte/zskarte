@@ -1,4 +1,8 @@
-<div mat-dialog-content>
+<app-dialog-header>
+  <h2>{{ i18n.get('defineCoordinates') }}</h2>
+</app-dialog-header>
+
+<app-dialog-body>
   <div class="format">
     <app-projection-selection
       [projectionFormatIndex]="projectionFormatIndex"
@@ -12,8 +16,8 @@
     <textarea matInput [formControl]="formatedCoordinatesControl"></textarea>
     <mat-error>{{ error }}</mat-error>
   </mat-form-field>
-</div>
-<div mat-dialog-actions align="end">
+</app-dialog-body>
+<app-dialog-footer>
   <button mat-stroked-button (click)="cancel()">{{ i18n.get('cancel') }}</button>
   <button
     mat-flat-button
@@ -23,4 +27,4 @@
   >
     {{ i18n.get('ok') }}
   </button>
-</div>
+</app-dialog-footer>

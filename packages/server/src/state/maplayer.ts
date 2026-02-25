@@ -12,6 +12,8 @@ import type { FeatureCollection, Feature, Polygon, MultiPolygon } from 'geojson'
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { inferSchema, initParser } from 'udsv';
 import { writeToString } from '@fast-csv/format';
+import { Worker } from 'node:worker_threads';
+import { existsSync } from 'node:fs';
 
 proj4.defs(
   'EPSG:2056',
@@ -69,7 +71,7 @@ interface Media {
   updatedAt?: DateTimeValue;
 }
 
-interface SwissNamesRow {
+export interface SwissNamesRow {
   coord?: number[];
   [key: string]: string | number | number[];
 }
@@ -339,11 +341,46 @@ async function insertOrUpdateBoundariesMapLayer(
   }
 }
 
+export async function downloadAndExtractSwissBoundaries(params: {
+  url: string;
+  lastModified: string;
+  tmpDir: string;
+  cantonFile: string;
+  districtFile: string;
+}) {
+  const response = await downloadIfChanged(params.url, params.lastModified);
+  if (response.buffer) {
+    //extract corresponding files from zip and save temporarly (required for upload Service)
+    const zip = new AdmZip(response.buffer);
+
+    let cantonSuccess = false;
+    let districtSuccess = false;
+
+    //extract canton shape files
+    let fullTmpPath = join(params.tmpDir, params.cantonFile);
+    const cantonAreas = await extractFilesToNewZip(zip, 'swissBOUNDARIES3D_1_5_TLM_KANTONSGEBIET', fullTmpPath);
+    if (cantonAreas) {
+      cantonSuccess = true;
+    }
+
+    //extract district shape files
+    fullTmpPath = join(params.tmpDir, params.districtFile);
+    const districtAreas = await extractFilesToNewZip(zip, 'swissBOUNDARIES3D_1_5_TLM_BEZIRKSGEBIET', fullTmpPath);
+    if (districtAreas) {
+      districtSuccess = true;
+    }
+    return { cantonSuccess, districtSuccess, downloaded: true };
+  } else {
+    return response;
+  }
+}
+
 async function updateSwissBoundaries(
   strapi: Core.Strapi,
   url_template: string,
   boundariesFolder: Folder,
   styleMedia: Media,
+  callWorker: <T>(func: string, params: any) => Promise<T>,
 ) {
   try {
     const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
@@ -380,17 +417,21 @@ async function updateSwissBoundaries(
       ));
       lastModified = lastModified || formatForIfModifiedSince(cantonAreasMedia?.updatedAt);
 
-      const response = await downloadIfChanged(url, lastModified);
-      if (response.buffer) {
-        //extract corresponding files from zip and save temporarly (required for upload Service)
-        const zip = new AdmZip(response.buffer);
-
-        //extract canton shape files
-        let uniqueFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameCanton}`;
-        let fullTmpPath = join(tmpDir, uniqueFileName);
+      const cantonFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameCanton}`;
+      const districtFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameDistrict}`;
+      const response = await callWorker<{
+        status?: number;
+        lastModified?: string;
+        age?: string;
+        cantonSuccess?: boolean;
+        districtSuccess?: boolean;
+        downloaded?: boolean;
+      }>('downloadAndExtractSwissBoundaries', { url, lastModified, tmpDir, cantonFile, districtFile });
+      if (response.downloaded) {
+        strapi.log.info(`updateSwissBoundaries: new data loaded from ${url}`);
+        let fullTmpPath = join(tmpDir, cantonFile);
         try {
-          const cantonAreas = await extractFilesToNewZip(zip, 'swissBOUNDARIES3D_1_5_TLM_KANTONSGEBIET', fullTmpPath);
-          if (cantonAreas) {
+          if (response.cantonSuccess) {
             cantonAreasMedia = await updateOrCreateMedia(strapi, boundariesFolder, fileNameCanton, fullTmpPath);
             strapi.log.info(`updateSwissBoundaries: media ${fileNameCanton} saved: ${cantonAreasMedia.id}`);
           }
@@ -401,13 +442,11 @@ async function updateSwissBoundaries(
         }
 
         //extract district shape files
-        uniqueFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameDistrict}`;
-        fullTmpPath = join(tmpDir, uniqueFileName);
+        fullTmpPath = join(tmpDir, districtFile);
         try {
-          const districtAreas = await extractFilesToNewZip(zip, 'swissBOUNDARIES3D_1_5_TLM_BEZIRKSGEBIET', fullTmpPath);
-          if (districtAreas) {
+          if (response.districtSuccess) {
             districtAreasMedia = await updateOrCreateMedia(strapi, boundariesFolder, fileNameDistrict, fullTmpPath);
-            strapi.log.info(`updateSwissBoundaries media ${fileNameDistrict} saved: ${districtAreasMedia.id}`);
+            strapi.log.info(`updateSwissBoundaries: media ${fileNameDistrict} saved: ${districtAreasMedia.id}`);
           }
         } finally {
           await unlink(fullTmpPath).catch((err) => {
@@ -481,6 +520,47 @@ function getDistrictFeatures(cantonFeature: Feature, districtAreasGeoJSON: Featu
   >[];
 }
 
+export async function extractEntranceDistrict(
+  params: { district: Feature<Polygon | MultiPolygon>; cantonFile: string; tmpDir: string; districtFile: string },
+  fileCache: Map<string, FeatureCollection>,
+) {
+  let coordConverter: proj4.Converter;
+  let geojson: FeatureCollectionWithCRS = fileCache.get(params.cantonFile);
+  if (!geojson) {
+    if (!params.cantonFile.startsWith('http')) {
+      throw new Error("cantonFile is a local one but it's not in cache");
+    }
+    const response = await fetch(params.cantonFile);
+    geojson = (await response.json()) as FeatureCollection;
+  }
+  const match = geojson.crs?.properties?.name?.match(/(\d+)\s*$/);
+  if (match) {
+    coordConverter = proj4('EPSG:' + match[1], 'EPSG:4326');
+  } else {
+    //default in new RFC‑7946 is no crs and data in EPSG:4326 -> no conversion required
+    coordConverter = { forward: (c) => c, inverse: (c) => c };
+  }
+
+  const newCollection: FeatureCollectionWithCRS = {
+    type: 'FeatureCollection',
+    features: geojson.features.filter(
+      (feature) =>
+        feature.geometry.type === 'Point' &&
+        booleanPointInPolygon(coordConverter.forward(feature.geometry.coordinates), params.district),
+    ),
+  };
+  if (geojson.crs) {
+    newCollection.crs = geojson.crs;
+  }
+  let districtSuccess = false;
+  if (newCollection.features.length > 0) {
+    const fullTmpPath = join(params.tmpDir, params.districtFile);
+    await writeFile(fullTmpPath, JSON.stringify(newCollection), 'utf8');
+    districtSuccess = true;
+  }
+  return { districtSuccess };
+}
+
 async function updateEntranceDistrict(
   strapi: Core.Strapi,
   canton: string,
@@ -490,7 +570,8 @@ async function updateEntranceDistrict(
   districtFeaures: Feature<Polygon | MultiPolygon>[],
   mediaUpdatedAt: DateTimeValue | undefined,
   dataSize: number,
-  geojsonFunc: () => Promise<FeatureCollection>,
+  cantonFile: string,
+  callWorker: <T>(func: string, params: any) => Promise<T>,
 ) {
   const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
   const fileNeedSplit = dataSize > ENTRANCE_NEED_SPLIT_SIZE;
@@ -502,8 +583,7 @@ async function updateEntranceDistrict(
       return;
     }
     strapi.log.info(`updateEntranceDistrict for ${canton}: start`);
-    let geojson: FeatureCollectionWithCRS;
-    let coordConverter: proj4.Converter;
+
     for (const district of districtFeaures) {
       try {
         const districtName = district.properties.NAME;
@@ -517,33 +597,16 @@ async function updateEntranceDistrict(
           mediaFolder,
         );
         if (!districtMedia || !mediaUpdatedAt || districtMedia.updatedAt < mediaUpdatedAt) {
-          if (!geojson) {
-            geojson = await geojsonFunc();
-            const match = geojson.crs?.properties?.name?.match(/(\d+)\s*$/);
-            if (match) {
-              coordConverter = proj4('EPSG:' + match[1], 'EPSG:4326');
-            } else {
-              //default in new RFC‑7946 is no crs and data in EPSG:4326 -> no conversion required
-              coordConverter = { forward: (c) => c, inverse: (c) => c };
-            }
-          }
-          const newCollection: FeatureCollectionWithCRS = {
-            type: 'FeatureCollection',
-            features: geojson.features.filter(
-              (feature) =>
-                feature.geometry.type === 'Point' &&
-                booleanPointInPolygon(coordConverter.forward(feature.geometry.coordinates), district),
-            ),
-          };
-          if (geojson.crs) {
-            newCollection.crs = geojson.crs;
-          }
-          if (newCollection.features.length > 0) {
-            const uniqueFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${districtFileName}`;
-            const fullTmpPath = join(tmpDir, uniqueFileName);
+          const districtFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${districtFileName}`;
+          const response = await callWorker<{ districtSuccess?: boolean }>('extractEntranceDistrict', {
+            district,
+            cantonFile,
+            tmpDir,
+            districtFile,
+          });
+          if (response.districtSuccess) {
+            const fullTmpPath = join(tmpDir, districtFile);
             try {
-              await writeFile(fullTmpPath, JSON.stringify(newCollection), 'utf8');
-
               districtMedia = await updateOrCreateMedia(strapi, mediaFolder, districtFileName, fullTmpPath);
               strapi.log.info(
                 `updateEntranceDistrict for ${canton} / ${districtName}: media ${districtFileName} saved: ${districtMedia.id}`,
@@ -580,6 +643,50 @@ async function updateEntranceDistrict(
   } else {
     strapi.log.info(`updateEntranceDistrict for ${canton}: no district splitting required`);
   }
+  callWorker('extractEntranceDistrictEnd', cantonFile);
+}
+
+export async function downloadAndExtractEntrance(
+  params: {
+    url: string;
+    lastModified: string;
+    tmpDir: string;
+    canton: string;
+    cantonFile: string;
+    allwaysCreateDistrict: boolean;
+    districtFile: string;
+  },
+  fileCache: Map<string, FeatureCollection>,
+) {
+  const response = await downloadIfChanged(params.url, params.lastModified);
+  if (response.buffer) {
+    //extract corresponding file from zip and save temporarly (required for upload Service)
+    const zip = new AdmZip(response.buffer);
+    const targetEntry = zip.getEntry('entrances.geojson');
+    if (!targetEntry) {
+      throw new Error(`updateEntrance for ${params.canton}: MADD zip have no entrances.geojson`);
+    }
+
+    let cantonSuccess = false;
+    const fileToBig = targetEntry.header.size > ENTRANCE_TO_BIG_SIZE;
+    if (!fileToBig) {
+      //only save full canton file as media & layer if not to big
+      const success = zip.extractEntryTo(targetEntry, params.tmpDir, false, true, false, params.cantonFile);
+      if (success) {
+        cantonSuccess = true;
+      }
+    }
+    const fileNeedSplit = targetEntry.header.size > ENTRANCE_NEED_SPLIT_SIZE;
+    if (params.allwaysCreateDistrict || fileNeedSplit) {
+      const geojsonText = targetEntry.getData().toString('utf8');
+      const fullTmpPath = join(params.tmpDir, params.cantonFile);
+      fileCache.set(fullTmpPath, JSON.parse(geojsonText) as FeatureCollection);
+    }
+
+    return { fileToBig, cantonSuccess, fileSize: targetEntry.header.size };
+  } else {
+    return response;
+  }
 }
 
 async function updateEntrance(
@@ -590,6 +697,7 @@ async function updateEntrance(
   styleMedia: Media,
   allwaysCreateDistrict: boolean,
   districtFeaures: Feature<Polygon | MultiPolygon>[],
+  callWorker: <T>(func: string, params: any) => Promise<T>,
 ) {
   try {
     const entrancesLayerName = `Hausnummern / Addressuche (${canton})`;
@@ -600,17 +708,21 @@ async function updateEntrance(
     //But as the MADD data changes daily in normal case it's loaded anyway.
 
     const url = renderUrlTemplate(url_template, { canton: canton.toLowerCase() });
-    const response = await downloadIfChanged(url, lastModified);
+    const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
+    const cantonFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileName}`;
+    const fullTmpPath = join(tmpDir, cantonFile);
     let districtUpdated = false;
-    if (response.buffer) {
+    const response = await callWorker<{
+      status?: number;
+      lastModified?: string;
+      age?: string;
+      fileToBig: boolean;
+      cantonSuccess?: boolean;
+      fileSize?: number;
+    }>('downloadAndExtractEntrance', { url, lastModified, tmpDir, canton, cantonFile });
+    if (response.fileSize) {
       strapi.log.info(`updateEntrance for ${canton}: new media loaded from ${url}`);
       //extract corresponding file from zip and save temporarly (required for upload Service)
-      const zip = new AdmZip(response.buffer);
-      const targetEntry = zip.getEntry('entrances.geojson');
-      if (!targetEntry) {
-        strapi.log.error(`updateEntrance for ${canton}: MADD zip have no entrances.geojson`);
-        return;
-      }
       await updateEntranceDistrict(
         strapi,
         canton,
@@ -619,29 +731,21 @@ async function updateEntrance(
         allwaysCreateDistrict,
         districtFeaures,
         media?.updatedAt || (response.lastModified ? new Date(response.lastModified) : null),
-        targetEntry.header.size,
-        async () => {
-          const geojsonText = targetEntry.getData().toString('utf8');
-          return JSON.parse(geojsonText) as FeatureCollection;
-        },
+        response.fileSize,
+        fullTmpPath,
+        callWorker,
       );
-      districtUpdated = true;
-      const fileToBig = targetEntry.header.size > ENTRANCE_TO_BIG_SIZE;
-      if (!fileToBig) {
-        //only save full canton file as media & layer if not to big
-        const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
-        const uniqueFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileName}`;
-        const fullTmpPath = join(tmpDir, uniqueFileName);
 
+      districtUpdated = true;
+      if (!response.fileToBig) {
         try {
-          const success = zip.extractEntryTo(targetEntry, tmpDir, false, true, false, uniqueFileName);
-          if (!success) {
+          if (!response.cantonSuccess) {
             strapi.log.error(`updateEntrance for ${canton}: extract entrances.geojson to "${fullTmpPath}" failed`);
             return;
           }
           strapi.log.info(`updateEntrance for ${canton}: entrances.geojson extracted`);
 
-          media = await updateOrCreateMedia(strapi, mediaFolder, fileName, fullTmpPath, targetEntry.header.size);
+          media = await updateOrCreateMedia(strapi, mediaFolder, fileName, fullTmpPath, response.fileSize);
           strapi.log.info(`updateEntrance for ${canton}: media ${fileName} saved: ${media.id}`);
         } finally {
           await unlink(fullTmpPath).catch((err) => {
@@ -665,10 +769,8 @@ async function updateEntrance(
           districtFeaures,
           media?.updatedAt,
           media.size * 1000,
-          async () => {
-            const response = await fetch(getMediaFetchUrl(media));
-            return (await response.json()) as FeatureCollection;
-          },
+          getMediaFetchUrl(media),
+          callWorker,
         );
       }
 
@@ -682,12 +784,37 @@ async function updateEntrance(
   }
 }
 
+export async function downloadAndExtractSwissNamesNational(params: {
+  url: string;
+  lastModified: string;
+  tmpDir: string;
+  namesFileName: string;
+  nationalFileName: string;
+}) {
+  let success = false;
+  const response = await downloadIfChanged(params.url, params.lastModified);
+  if (response.buffer) {
+    //extract corresponding file from zip and save temporarly (required for upload Service)
+    const zip = new AdmZip(response.buffer);
+    const targetEntry = zip.getEntry(`${params.namesFileName}.csv`);
+    if (!targetEntry) {
+      throw new Error(`updateSwissNamesNational: swissNAMES3D zip have no "${params.namesFileName}.csv"`);
+    }
+    const fileSize = targetEntry.header.size;
+    success = zip.extractEntryTo(targetEntry, params.tmpDir, false, true, false, params.nationalFileName);
+    return { success, fileSize };
+  } else {
+    return response;
+  }
+}
+
 async function updateSwissNamesNational(
   strapi: Core.Strapi,
   url_template: string,
   namesFolder: Folder,
   namesFileName: string,
   styleMedia: Media,
+  callWorker: <T>(func: string, params: any) => Promise<T>,
 ) {
   try {
     const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
@@ -701,27 +828,22 @@ async function updateSwissNamesNational(
       let mapLayer: Partial<MapLayer>;
       ({ mapLayer, media } = await findLayerAndMedia(namesLayerName, MapLayerTypes.CSV, fileName, namesFolder));
       const lastModified = formatForIfModifiedSince(media?.updatedAt);
-
-      const response = await downloadIfChanged(url, lastModified);
-      if (response.buffer) {
-        //extract corresponding file from zip and save temporarly (required for upload Service)
-        const zip = new AdmZip(response.buffer);
-        const targetEntry = zip.getEntry(`${namesFileName}.csv`);
-        if (!targetEntry) {
-          strapi.log.error(`updateSwissNamesNational: swissNAMES3D zip have no "${namesFileName}.csv"`);
+      const nationalFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileName}`;
+      const response = await callWorker<{
+        status?: number;
+        lastModified?: string;
+        age?: string;
+        success?: boolean;
+        fileSize?: number;
+      }>('downloadAndExtractSwissNamesNational', { url, lastModified, tmpDir, namesFileName, nationalFileName });
+      if (response.fileSize) {
+        const fullTmpPath = join(tmpDir, nationalFileName);
+        if (!response.success) {
+          strapi.log.error(`updateSwissNamesNational: extract "${namesFileName}.csv" to "${fullTmpPath}" failed`);
           return;
         }
-
-        const uniqueFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileName}`;
-        const fullTmpPath = join(tmpDir, uniqueFileName);
         try {
-          const success = zip.extractEntryTo(targetEntry, tmpDir, false, true, false, uniqueFileName);
-          if (!success) {
-            strapi.log.error(`updateSwissNamesNational: extract "${namesFileName}.csv" to "${fullTmpPath}" failed`);
-            return;
-          }
-
-          media = await updateOrCreateMedia(strapi, namesFolder, fileName, fullTmpPath, targetEntry.header.size);
+          media = await updateOrCreateMedia(strapi, namesFolder, fileName, fullTmpPath, response.fileSize);
           strapi.log.info(`updateSwissNamesNational: media "${fileName}" saved: ${media.id}`);
         } finally {
           await unlink(fullTmpPath).catch((err) => {
@@ -754,9 +876,11 @@ async function updateSwissNamesNational(
   }
 }
 
-async function prepareSwissNamesContent(namesMedia: Media, fieldsToKeep: string[]): Promise<SwissNamesRow[]> {
+export async function prepareSwissNamesContent(params: { namesMediaUrl: string; fieldsToKeep: string[] }): Promise<
+  SwissNamesRow[]
+> {
   const coordConverter = proj4('EPSG:2056', 'EPSG:4326');
-  return fetch(getMediaFetchUrl(namesMedia))
+  return fetch(params.namesMediaUrl)
     .then((response) => response.text())
     .then((csvContent) => {
       const schema = inferSchema(csvContent);
@@ -774,7 +898,7 @@ async function prepareSwissNamesContent(namesMedia: Media, fieldsToKeep: string[
           const x = parseFloat(row[swissNAMES3D_fieldX]);
           const y = parseFloat(row[swissNAMES3D_fieldY]);
           const newRow: SwissNamesRow = {};
-          for (const field of fieldsToKeep) {
+          for (const field of params.fieldsToKeep) {
             newRow[field] = row[field];
           }
           //shpjs does a automatic reprojection to EPSG:4326 - WGS84, the original was EPSG:2056 – CH1903+ / LV95 (as defined in prj file)
@@ -838,16 +962,45 @@ async function insertOrUpdateSwissNamesMapLayer(
   }
 }
 
+export async function extractSwissNamesCanton(
+  params: {
+    tmpDir: string;
+    cantonFileName: string;
+    fieldsToKeep: string[];
+    namesMediaUrl: string;
+    cantonFeature: Feature<Polygon | MultiPolygon>;
+  },
+  nameCache: { names: SwissNamesRow[] },
+) {
+  let success = false;
+  const fullTmpPath = join(params.tmpDir, params.cantonFileName);
+
+  let names = nameCache.names;
+  if (!names) {
+    names = await prepareSwissNamesContent(params);
+    nameCache.names = names;
+  }
+
+  const filtered = names.filter((obj) => booleanPointInPolygon(obj.coord, params.cantonFeature));
+  if (filtered.length > 0) {
+    await exportToCSV(params.fieldsToKeep, filtered, fullTmpPath);
+    success = true;
+  }
+
+  return { success };
+}
+
 async function updateSwissNames(
   strapi: Core.Strapi,
   canton: string,
   mediaFolder: Folder,
   styleMedia: Media,
   namesMediaUpdatedAt: DateTimeValue,
-  names: { content: SwissNamesRow[]; prepareFunc: () => Promise<SwissNamesRow[]> },
+  namesMedia: Media,
   cantonFeature: Feature<Polygon | MultiPolygon>,
   filePrefix: string,
   fieldsToKeep: string[],
+  callWorker: <T>(func: string, params: any) => Promise<T>,
 ) {
   try {
     const namesLayerName = `${filePrefix} Siedlungsgebiete (${canton})`;
@@ -856,16 +1009,20 @@ async function updateSwissNames(
     const lastModified = media?.updatedAt;
 
     if (!lastModified || lastModified < namesMediaUpdatedAt) {
-      if (!names.content) {
-        names.content = await names.prepareFunc();
-      }
-      const filtered = names.content.filter((obj) => booleanPointInPolygon(obj.coord, cantonFeature));
-      if (filtered.length > 0) {
-        const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
-        const uniqueFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileName}`;
-        const fullTmpPath = join(tmpDir, uniqueFileName);
+      const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
+      const cantonFileName = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileName}`;
+      const namesMediaUrl = getMediaFetchUrl(namesMedia);
+
+      const response = await callWorker<{ success: boolean }>('extractSwissNamesCanton', {
+        tmpDir,
+        cantonFileName,
+        fieldsToKeep,
+        namesMediaUrl,
+        cantonFeature,
+      });
+      if (response.success) {
+        const fullTmpPath = join(tmpDir, cantonFileName);
         try {
-          await exportToCSV(fieldsToKeep, filtered, fullTmpPath);
           media = await updateOrCreateMedia(strapi, mediaFolder, fileName, fullTmpPath);
           strapi.log.info(`updateSwissNames for ${canton}: media ${fileName} saved: ${media.id}`);
         } finally {
@@ -890,7 +1047,85 @@ async function updateSwissNames(
   }
 }
 
-export const getAndVerifyMapLayerGenerationConfig = async (strapi: Core.Strapi) => {
+async function prepareMediaFolders(strapi: Core.Strapi) {
+  const parentFolder = await findOrCreateFolder(strapi, 'MapLayer');
+  const entrancesFolder = await findOrCreateFolder(strapi, 'entrances', parentFolder);
+  const boundariesFolder = await findOrCreateFolder(strapi, 'swissBOUNDARIES3D', parentFolder);
+  const namesFolder = await findOrCreateFolder(strapi, 'swissNAMES3D', parentFolder);
+  return { entrancesFolder, boundariesFolder, namesFolder };
+}
+
+async function uploadStyleIfMissing(strapi: Core.Strapi, folder: Folder, fileLocation: string) {
+  const mediaFileName = basename(fileLocation);
+  let media = await strapi.documents('plugin::upload.file').findFirst({
+    filters: { name: mediaFileName, folder: { documentId: { $eq: folder.documentId } } },
+  });
+  if (!media) {
+    if (existsSync(fileLocation)) {
+      media = await updateOrCreateMedia(strapi, folder, mediaFileName, fileLocation);
+    }
+  }
+  return media;
+}
+
+async function prepareStyleMedias(
+  strapi: Core.Strapi,
+  entrancesFolder: Folder,
+  boundariesFolder: Folder,
+  namesFolder: Folder,
+) {
+  const entrancesStyle = await uploadStyleIfMissing(strapi, entrancesFolder, './init/entrances-mapboxstyle.json');
+  const boundariesStyle = await uploadStyleIfMissing(
+    strapi,
+    boundariesFolder,
+    './init/swissBOUNDARIES3D-mapboxstyle.json',
+  );
+  const namesStyle = await uploadStyleIfMissing(strapi, namesFolder, './init/swissNAMES3D_PLY-mapboxstyle.json');
+  return { entrancesStyle, boundariesStyle, namesStyle };
+}
+
+async function configureDefaultStyleMedias(strapi: Core.Strapi, config: any) {
+  const { entrancesFolder, boundariesFolder, namesFolder } = await prepareMediaFolders(strapi);
+  const { entrancesStyle, boundariesStyle, namesStyle } = await prepareStyleMedias(
+    strapi,
+    entrancesFolder,
+    boundariesFolder,
+    namesFolder,
+  );
+  let allMediasAvailable = true;
+  const configUpdate: any = {};
+  if (!config.style_entrances) {
+    if (entrancesStyle) {
+      configUpdate.style_entrances = entrancesStyle.id;
+      config.style_entrances = entrancesStyle;
+    } else {
+      allMediasAvailable = false;
+    }
+  }
+  if (!config.style_swissBOUNDARIES3D) {
+    if (boundariesStyle) {
+      configUpdate.style_swissBOUNDARIES3D = boundariesStyle.id;
+      config.style_swissBOUNDARIES3D = boundariesStyle;
+    } else {
+      allMediasAvailable = false;
+    }
+  }
+  if (!config.style_swissNAMES3D) {
+    if (namesStyle) {
+      configUpdate.style_swissNAMES3D = namesStyle.id;
+      config.style_swissNAMES3D = namesStyle;
+    } else {
+      allMediasAvailable = false;
+    }
+  }
+  await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').update({
+    documentId: config.documentId,
+    data: configUpdate,
+  });
+  return allMediasAvailable;
+}
+
+export async function getAndVerifyMapLayerGenerationConfig(strapi: Core.Strapi) {
   //read and verify config
   const config = await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').findFirst({
     populate: ['style_entrances', 'style_swissBOUNDARIES3D', 'style_swissNAMES3D'],
@@ -904,24 +1139,40 @@ export const getAndVerifyMapLayerGenerationConfig = async (strapi: Core.Strapi) 
   if (!config.cantons?.trim()) {
     throw new Error('updateMapLayerMedias failed: cantons to update is empty');
   }
+  if (config.cantons.split(',')[0].includes(' ')) {
+    throw new Error('updateMapLayerMedias failed: cantons need to be splited by ","');
+  }
+
   if (!config.style_entrances || !config.style_swissBOUNDARIES3D || !config.style_swissNAMES3D) {
-    throw new Error(
-      'updateMapLayerMedias failed: style_entrances or style_swissBOUNDARIES3D or style_swissNAMES3D not set',
-    );
+    //try to autofix and continue
+    const allMediasAvailable = await configureDefaultStyleMedias(strapi, config);
+    if (!allMediasAvailable) {
+      throw new Error(
+        'updateMapLayerMedias failed: style_entrances or style_swissBOUNDARIES3D or style_swissNAMES3D not set',
+      );
+    }
   }
   return config;
-};
+}
 
-export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
+export async function loadShpFile(mediaUrl: string): Promise<FeatureCollection> {
+  return shp(mediaUrl);
+}
+
+export async function updateMapLayerMedias(strapi: Core.Strapi) {
+  const { callWorker, stopWorker } = startWorker(strapi);
+  let configId: string;
   try {
     const config = await getAndVerifyMapLayerGenerationConfig(strapi);
+    configId = config.documentId;
+    await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').update({
+      documentId: configId,
+      data: { lastStartDate: new Date(), lastEndDate: null },
+    });
+
     const cantonsToUpdate = config.cantons.trim().toUpperCase().split(',');
 
-    //prepare media folders
-    const parentFolder = await findOrCreateFolder(strapi, 'MapLayer');
-    const entrancesFolder = await findOrCreateFolder(strapi, 'entrances', parentFolder);
-    const boundariesFolder = await findOrCreateFolder(strapi, 'swissBOUNDARIES3D', parentFolder);
-    const namesFolder = await findOrCreateFolder(strapi, 'swissNAMES3D', parentFolder);
+    const { entrancesFolder, boundariesFolder, namesFolder } = await prepareMediaFolders(strapi);
 
     //updateSwissBoundaries
     strapi.log.info('updateMapLayerMedias: start update boundaries');
@@ -930,6 +1181,7 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
       config.url_swissBOUNDARIES3D,
       boundariesFolder,
       config.style_swissBOUNDARIES3D,
+      callWorker,
     );
     strapi.log.info('updateMapLayerMedias: finished update boundaries');
 
@@ -937,8 +1189,8 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
     let districtAreasGeoJSON: FeatureCollection;
     if (boundaries) {
       const { cantonAreasMedia, districtAreasMedia } = boundaries;
-      cantonAreasGeoJSON = await shp(getMediaFetchUrl(cantonAreasMedia));
-      districtAreasGeoJSON = await shp(getMediaFetchUrl(districtAreasMedia));
+      cantonAreasGeoJSON = await callWorker('loadShpFile', getMediaFetchUrl(cantonAreasMedia));
+      districtAreasGeoJSON = await callWorker('loadShpFile', getMediaFetchUrl(districtAreasMedia));
     }
 
     //updateEntrance
@@ -956,6 +1208,7 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
           config.style_entrances,
           config.allwaysCreateDistrict,
           districtFeaures,
+          callWorker,
         );
         strapi.log.info(`updateMapLayerMedias: finished updateEntrance ${canton}`);
       } catch (error) {
@@ -972,6 +1225,7 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
       namesFolder,
       config.file_swissNAMES3D,
       config.style_swissNAMES3D,
+      callWorker,
     );
     strapi.log.info('updateMapLayerMedias: finished updateSwissNamesNational');
 
@@ -980,10 +1234,6 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
       if (namesMedia?.url) {
         strapi.log.info('updateMapLayerMedias: start updateSwissNames');
         const fieldsToKeep = config.fields_swissNAMES3D.trim().split(',');
-        const namesContent = {
-          content: undefined,
-          prepareFunc: async () => await prepareSwissNamesContent(namesMedia, fieldsToKeep),
-        };
 
         for (const canton of cantonsToUpdate) {
           try {
@@ -995,10 +1245,11 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
               namesFolder,
               config.style_swissNAMES3D,
               namesMedia.updatedAt,
-              namesContent,
+              namesMedia,
               cantonFeature,
               config.file_swissNAMES3D,
               fieldsToKeep,
+              callWorker,
             );
             strapi.log.info(`updateMapLayerMedias: finished updateSwissNames ${canton}`);
           } catch (error) {
@@ -1016,4 +1267,86 @@ export const updateMapLayerMedias = async (strapi: Core.Strapi) => {
   } catch (error) {
     strapi.log.error(error);
   }
-};
+  if (configId) {
+    await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').update({
+      documentId: configId,
+      data: { lastEndDate: new Date() },
+    });
+  }
+  await stopWorker();
+}
+
+function startWorker(strapi: Core.Strapi) {
+  const worker = new Worker('./dist/src/workers/map-layer-processor.js');
+
+  const pendingRequests = new Map<
+    number,
+    { resolve: (value: any | PromiseLike<any>) => void; reject: (reason?: any) => void; func: string }
+  >();
+  let requestId = 0;
+
+  worker.on('message', (msg) => {
+    if (!msg.id) {
+      strapi.log.error('Worker message without id:' + JSON.stringify(msg));
+      return;
+    }
+    const request = pendingRequests.get(msg.id);
+    if (!request) {
+      strapi.log.error(`Worker message id ${msg.id} (func:${msg.func}) not found in pending requests.`);
+      return;
+    }
+    pendingRequests.delete(msg.id);
+    const { resolve, reject } = request;
+    if (msg.type === 'RESULT') {
+      strapi.log.info(`Worker response for id ${msg.id} (func:${msg.func}) recived.`);
+      resolve(msg.value);
+    } else if (msg.type === 'ERROR') {
+      strapi.log.error(`Worker returned error for id ${msg.id} (func:${msg.func}):` + JSON.stringify(msg.value));
+      if (msg.value.stack) {
+        reject(msg.value.stack);
+      } else if (msg.value.error) {
+        reject(msg.value.error);
+      } else {
+        reject(msg.value);
+      }
+    }
+  });
+
+  worker.on('error', (error) => {
+    strapi.log.error('Worker Error:' + JSON.stringify(error));
+  });
+
+  const callWorker = <T>(func: string, params: any) => {
+    const id = ++requestId;
+    return new Promise<T>((resolve, reject) => {
+      pendingRequests.set(id, { resolve, reject, func });
+
+      worker.postMessage({
+        id,
+        func: func,
+        params: params,
+      });
+
+      // 5min Timeout
+      setTimeout(() => {
+        const req = pendingRequests.get(id);
+        if (req) {
+          pendingRequests.delete(id);
+          strapi.log.error(`Worker timeout for id ${id} (func:${func})`);
+          req.reject(new Error('worker call timeout'));
+        }
+      }, 300000);
+    });
+  };
+
+  const stopWorker = async () => {
+    await callWorker('shutdown', null);
+    pendingRequests.forEach((req, id) => {
+      strapi.log.warn(`Worker shutdown but there was pendingRequests ${id}, func: ${req.func}`);
+      req.reject(new Error('worker terminated'));
+    });
+    await worker.terminate();
+  };
+
+  return { callWorker, stopWorker };
+}

@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { DialogHeaderComponent, DialogBodyComponent } from "../ui/dialog-layout";
 import { MatCard } from "@angular/material/card";
+import { projectionByIndex } from '../helper/projections';
 
 @Component({
   selector: 'app-protocol-table',
@@ -47,7 +48,7 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   updateTable(elements: ZsMapBaseDrawElement[]) {
-    this.data = mapProtocolEntry(elements, this.datePipe, this.i18n, this.session.getLocale(), this.projectionFormatIndex, this.numerical);
+    this.data = mapProtocolEntry(elements, this.datePipe, this.i18n, this.session.getLocale(), projectionByIndex(this.projectionFormatIndex), this.numerical);
     this.protocolTableDataSource.data = this.data;
   }
 

@@ -22,10 +22,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types';
-import { PersonRecoveryComponent } from "../../person-recovery/person-recovery.component";
+import { PersonRecoveryComponent } from '../../person-recovery/person-recovery.component';
 import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expert-view-help.component';
 import { ResourceOverviewComponent } from '../../resource-overview/resource-overview.component';
 import { OrganisationSettings } from 'src/app/organisation-settings/organisation-settings';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from 'src/app/ui/dialog-layout';
+import { projectionByIndex } from 'src/app/helper/projections';
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -42,7 +44,10 @@ import { OrganisationSettings } from 'src/app/organisation-settings/organisation
     MatDialogModule,
     ProjectionSelectionComponent,
     MatButtonModule,
-],
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+  ],
 })
 export class SidebarMenuComponent {
   i18n = inject(I18NService);
@@ -90,7 +95,7 @@ export class SidebarMenuComponent {
     this.router.navigate(['/help']);
   }
 
-  showExpertViewHelp(){
+  showExpertViewHelp() {
     this.router.navigate(['/help', 'expert-view']);
   }
 
@@ -123,13 +128,13 @@ export class SidebarMenuComponent {
         this.zsMapStateService
           .observeDrawElements()
           .pipe(first())
-          .subscribe(async(elements: ZsMapBaseDrawElement[]) => {
+          .subscribe(async (elements: ZsMapBaseDrawElement[]) => {
             this.protocolEntries = mapProtocolEntry(
               elements,
               this.datePipe,
               this.i18n,
               this.session.getLocale() === undefined ? 'de' : this.session.getLocale(),
-              result.projectionFormatIndex ?? 0,
+              projectionByIndex(result.projectionFormatIndex ?? 0),
               result.numerical ?? true,
             );
             await exportProtocolExcel(this.protocolEntries, this.i18n);

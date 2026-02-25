@@ -6,7 +6,7 @@ import { tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IPdfService, PdfServiceFactory } from '../pdf/pdf-service.factory';
 import { v4 as uuidv4 } from 'uuid';
-import { PatchJournalEntry, db } from '../db/db';
+import { LocalJournalEntry, PatchJournalEntry, db } from '../db/db';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { groupBy } from 'lodash';
 import { ZsMapStateService } from '../state/state.service';
@@ -14,6 +14,8 @@ import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
 import { SearchService } from '../search/search.service';
 import { OperationExportFile } from '../core/entity/operationExportFile';
+import { StrapiApiResponseList } from '../helper/strapi-utils';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -35,23 +37,8 @@ export class JournalService {
       operationId: this.operationId(),
       organizationId: this.organizationId(),
     }),
-    loader: async (params) => {
-      if (!params.params.operationId || !params.params.organizationId) {
-        return [];
-      }
-      if (this._session.isWorkLocal()) {
-        return await db.localJournalEntries
-          .where({ operationId: params.params.operationId, organizationId: params.params.organizationId })
-          .toArray();
-      }
-      //organization is implicit by session
-      const { error, result } = await this._api.get<JournalEntry[]>(
-        `/api/journal-entries?operationId=${params.params.operationId}&pagination[pageSize]=1000`,
-      );
-      if (error || !result) {
-        throw 'error on fetch journal entries';
-      }
-      return (result as JournalEntry[]) || [];
+    loader: async (request) => {
+      return await this.loadJournal(request.params.operationId, request.params.organizationId);
     },
   });
   readonly backendData = this.journalResource.value;
@@ -175,6 +162,34 @@ export class JournalService {
     this._connectionId = _connectionId;
   }
 
+  public async loadJournal(operationId: string | null, organizationId: string | null, loadAll = false) {
+    if (!operationId || !organizationId) {
+      return [];
+    }
+    if (this._session.isWorkLocal() || operationId.startsWith('local-')) {
+      return await db.localJournalEntries.where({ operationId: operationId, organizationId: organizationId }).toArray();
+    }
+
+    const journal: JournalEntry[] = [];
+    let page = 0;
+    const pageSize = 1000;
+    let error: HttpErrorResponse | undefined;
+    let result: StrapiApiResponseList<JournalEntry> | undefined;
+    do {
+      page++;
+      //organization is implicit by session
+      ({ error, result } = await this._api.get<StrapiApiResponseList<JournalEntry>>(
+        `/api/journal-entries?operationId=${operationId}&pagination[pageSize]=${pageSize}&pagination[page]=${page}`,
+        { keepMeta: true },
+      ));
+      if (error || !result) {
+        throw 'error on fetch journal entries';
+      }
+      journal.push(...result.data);
+    } while (loadAll && page < result.meta.pagination.pageCount);
+    return journal;
+  }
+
   public patchEntry(updatedEntry: Partial<JournalEntry>, internal = false) {
     let entry = updatedEntry as JournalEntry;
     this.data.update((currentEntries) => {
@@ -246,15 +261,34 @@ export class JournalService {
     return result;
   }
 
-  public static async getJournal(operationId: string) {
+  public async getJournalForExport(operationId: string) {
     if (!operationId) {
       return null;
     }
-    const journal = await db.localJournalEntries.where({ operationId }).toArray();
-    return journal.map((entry) => {
-      const { id, createdAt, createdBy, publishedAt, updatedAt, updatedBy, operationId, fromCache, organizationId, uuid, documentId, ...rest } = entry;
+    const organizationId = this._session.getOrganization()?.documentId ?? null;
+    const journal = (await this.loadJournal(operationId, organizationId, true)) as LocalJournalEntry[];
+    const cleanedJournal = journal.map((entry) => {
+      const {
+        id,
+        documentId,
+        uuid,
+        createdAt,
+        createdBy,
+        publishedAt,
+        updatedAt,
+        updatedBy,
+        operation,
+        organization,
+        fromCache,
+        localOnly,
+        localPatch,
+        operationId,
+        organizationId,
+        ...rest
+      } = entry;
       return rest;
     });
+    return cleanedJournal.sort((a, b) => a.messageNumber - b.messageNumber);
   }
 
   public async getByNumber(messageNumber: number) {
@@ -461,8 +495,9 @@ export class JournalService {
     return response;
   }
 
-  public async importJournal(result: OperationExportFile) {
-    const journal = result.journal || []
+  public async importJournal(result: OperationExportFile, operationId: string) {
+    const journal = result.journal || [];
+    this.operationId.set(operationId);
     for (const entry of journal) {
       await this.save(entry);
     }
@@ -594,6 +629,8 @@ export class JournalService {
     );
     if (error || !result) {
       console.error('Error updating journal entry:', error);
+    } else {
+      entry.isDrawingOnMap = value;
     }
   }
 

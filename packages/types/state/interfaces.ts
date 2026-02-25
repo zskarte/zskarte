@@ -338,5 +338,6 @@ export interface IFoundLocationAttrs {
   objectclass?: string;
   origin?: string;
   featureId?: string;
+  layer?: string;
   geom_st_box2d: string;
 }

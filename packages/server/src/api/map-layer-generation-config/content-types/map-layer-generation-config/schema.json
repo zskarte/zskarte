@@ -41,11 +41,11 @@
       "default": "https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_${year}-${month}/swissboundaries3d_${year}-${month}_2056_5728.shp.zip"
     },
     "style_swissBOUNDARIES3D": {
+      "type": "media",
+      "multiple": false,
       "allowedTypes": [
         "files"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
     },
     "url_swissNAMES3D": {
       "type": "string",
@@ -66,6 +66,12 @@
     "file_swissNAMES3D": {
       "type": "string",
       "default": "swissNAMES3D_PLY"
+    },
+    "lastStartDate": {
+      "type": "datetime"
+    },
+    "lastEndDate": {
+      "type": "datetime"
     }
   }
 }

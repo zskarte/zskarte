@@ -78,7 +78,7 @@
                   <div matListItemLine>{{ o.description }}</div>
                 }
                 @if (showOpPhase != 'active') {
-                  <div matListItemLine>{{ i18n.get('lastModified') }} {{ o.updatedAt | date: 'dd.MM.YYYY HH:mm' }}</div>
+                  <div matListItemLine>{{ i18n.get('lastModified') }} {{ o.updatedAt | date: 'dd.MM.yyyy HH:mm' }}</div>
                 }
               </mat-list-item>
               <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">

@@ -35,6 +35,10 @@
       "resources": {
         "files": [
           "/*.(otf|ttf|woff|woff2)"
+        ],
+        "urls": [
+          "https://fonts.googleapis.com/**",
+          "https://fonts.gstatic.com/**"
         ]
       }
     }

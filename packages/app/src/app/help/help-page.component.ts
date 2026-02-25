@@ -11,6 +11,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { I18NService } from '../state/i18n.service';
+import { NavigationService } from '../navigation/navigation.service';
 
 interface HelpArticle {
   id: string;
@@ -45,6 +46,7 @@ export class HelpPageComponent implements OnInit {
   i18n = inject(I18NService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private navigation = inject(NavigationService)
   
   searchQuery = signal('');
   selectedArticleId = signal<string | null>(null);
@@ -339,8 +341,8 @@ export class HelpPageComponent implements OnInit {
       : this.filteredArticles()[0];
   }
 
-  navigateToMap(): void {
-    this.router.navigate(['/main/map']);
+  navigateBack(): void {
+    this.navigation.goBackToHelpOrigin();
   }
 
   toggleExpand(parentId: string): void {
