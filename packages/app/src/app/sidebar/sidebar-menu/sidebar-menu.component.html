@@ -28,9 +28,9 @@
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('print')">local_printshop</mat-icon>
   {{ i18n.get('print') }}
 </button>
-<button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="protocolOptions">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('protocol')">list_alt</mat-icon>
-  {{ i18n.get('protocol') }}
+<button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="listViewOptions">
+  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listView')">list_alt</mat-icon>
+  {{ i18n.get('listView') }}
 </button>
 <button mat-menu-item class="tools-menu-item" (click)="personRecovery()">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('personRecoveryOverview')">sensor_occupied</mat-icon>
@@ -102,12 +102,12 @@
   }
 </mat-menu>
 
-<mat-menu #protocolOptions="matMenu">
-  <button mat-menu-item class="tools-menu-item" (click)="protocolTable()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('protocolTable')">table_chart</mat-icon>
-    {{ i18n.get('protocolTable') }}
+<mat-menu #listViewOptions="matMenu">
+  <button mat-menu-item class="tools-menu-item" (click)="listViewTable()">
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listViewTable')">table_chart</mat-icon>
+    {{ i18n.get('listViewTable') }}
   </button>
-  <button mat-menu-item class="tools-menu-item" (click)="protocolExcelExport()">
+  <button mat-menu-item class="tools-menu-item" (click)="listViewExcelExport()">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('saveAsExcel')">save</mat-icon>
     {{ i18n.get('saveAsExcel') }}
   </button>

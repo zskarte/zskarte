@@ -7,8 +7,8 @@ import { BehaviorSubject } from 'rxjs';
 import { SessionService } from '../../session/session.service';
 import { ZsMapBaseDrawElement } from '../../map-renderer/elements/base/base-draw-element';
 import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
-import { exportProtocolExcel, mapProtocolEntry, ProtocolEntry } from '../../helper/protocolEntry';
-import { ProtocolTableComponent } from '../../protocol-table/protocol-table.component';
+import { exportListViewExcel, mapListViewEntry, ListViewEntry } from '../../helper/listViewEntry';
+import { ListViewTableComponent } from '../../list-view-table/list-view-table.component';
 import { ShareDialogComponent } from '../../session/share-dialog/share-dialog.component';
 import { RevokeShareDialogComponent } from '../../session/revoke-share-dialog/revoke-share-dialog.component';
 import { OperationService } from '../../session/operations/operation.service';
@@ -67,7 +67,7 @@ export class SidebarMenuComponent {
   readonly projectionSelectionTemplate = viewChild.required<TemplateRef<unknown>>('projectionSelectionTemplate');
 
   locales: Locale[] = LOCALES;
-  protocolEntries: ProtocolEntry[] = [];
+  listViewEntries: ListViewEntry[] = [];
   public incidents = new BehaviorSubject<number[]>([]);
   public hasWritePermission = false;
   public isArchived = true;
@@ -102,8 +102,8 @@ export class SidebarMenuComponent {
     this.router.navigate(['/help', 'expert-view']);
   }
 
-  protocolTable(): void {
-    this.dialog.open(ProtocolTableComponent, { data: false });
+  listViewTable(): void {
+    this.dialog.open(ListViewTableComponent, { data: false });
   }
 
   personRecovery(): void {
@@ -118,7 +118,7 @@ export class SidebarMenuComponent {
     this.dialog.open(OrganisationSettings);
   }
 
-  protocolExcelExport(): void {
+  listViewExcelExport(): void {
     const projectionDialog = this.dialog.open(this.projectionSelectionTemplate(), {
       width: '450px',
       data: {
@@ -132,7 +132,7 @@ export class SidebarMenuComponent {
           .observeDrawElements()
           .pipe(first())
           .subscribe(async (elements: ZsMapBaseDrawElement[]) => {
-            this.protocolEntries = mapProtocolEntry(
+            this.listViewEntries = mapListViewEntry(
               elements,
               this.datePipe,
               this.i18n,
@@ -140,7 +140,7 @@ export class SidebarMenuComponent {
               projectionByIndex(result.projectionFormatIndex ?? 0),
               result.numerical ?? true,
             );
-            await exportProtocolExcel(this.protocolEntries, this.i18n);
+            await exportListViewExcel(this.listViewEntries, this.i18n);
           });
       }
     });

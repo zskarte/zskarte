@@ -52,12 +52,12 @@ export const SIDEBAR_TRANSLATIONS = {
     en: 'English',
     fr: 'Anglais',
   },
-  protocol: {
-    de: 'Protokoll',
-    en: 'Protocol',
-    fr: 'Protocole',
+  listView: {
+    de: 'Listenansicht',
+    en: 'List view',
+    fr: 'Vue liste',
   },
-  protocolTable: {
+  listViewTable: {
     de: 'Tabelle anzeigen',
     en: 'Show Table',
     fr: 'Afficher Tableau',
@@ -175,7 +175,12 @@ export const SIDEBAR_TRANSLATIONS = {
     fr: 'Logout',
   },
 
-  //protocol / drawn element export
+  //listView / drawn element export
+  listViewTitle: {
+    de: 'Listenansicht aller aktuellen Kartenelemente',
+    en: 'List view of all current map elements',
+    fr: 'Vue de liste de tous les éléments de carte actuels',
+  },
   csvSearchFor: {
     de: 'Suche nach ...',
     en: 'Search for ...',
@@ -236,10 +241,10 @@ export const SIDEBAR_TRANSLATIONS = {
     en: 'Description',
     fr: 'Description',
   },
-  protocolExport: {
-    de: 'ProtokollExport',
-    en: 'ProtocolExport',
-    fr: 'ExportationProtocole',
+  listViewExport: {
+    de: 'ListenansichtExport',
+    en: 'ListViewExport',
+    fr: 'ExporterVueListe',
   },
 
   //version info
