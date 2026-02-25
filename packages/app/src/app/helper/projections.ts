@@ -233,26 +233,29 @@ export const projectionByName = (formatName: string) => {
   return availableProjections.find((p) => p.name === formatName);
 };
 
+export const projection_LV95 = projectionByName('LV95');
+export const projection_GPS = projectionByName('GPS');
+export const projection_GPS2 = projectionByName('GPS°\'"');
+export const projection_Mercator = projectionByName('Mercator');
+
 interface IOverloadedConvertFunction<T, U> {
-  (coordinates: T, projectionFormatIndex: number, numerical?: boolean): U;
-  (coordinates: Array<T>, projectionFormatIndex: number, numerical?: boolean): Array<U>;
-  (coordinates: Array<Array<T>>, projectionFormatIndex: number, numerical?: boolean): Array<Array<U>>;
+  (coordinates: T, projection: ZsKarteProjection, numerical?: boolean): U;
+  (coordinates: Array<T>, projection: ZsKarteProjection, numerical?: boolean): Array<U>;
+  (coordinates: Array<Array<T>>, projection: ZsKarteProjection, numerical?: boolean): Array<Array<U>>;
 }
 
 export const convertTo: IOverloadedConvertFunction<Coordinate, Coordinate | string> = <U>(
   coordinates,
-  projectionFormatIndex: number,
+  projection: ZsKarteProjection,
   numerical = true,
 ): U => {
-  const proj = projectionByIndex(projectionFormatIndex);
-  return numerical ? (proj.transformTo(coordinates) as U) : (proj.asString(coordinates) as U);
+  return numerical ? (projection.transformTo(coordinates) as U) : (projection.asString(coordinates) as U);
 };
 
 export const convertFrom: IOverloadedConvertFunction<Coordinate | string, Coordinate> = <U>(
   coordinates,
-  projectionFormatIndex: number,
+  projection: ZsKarteProjection,
   numerical = true,
 ): U => {
-  const proj = projectionByIndex(projectionFormatIndex);
-  return numerical ? (proj.transformFrom(coordinates) as U) : (proj.fromString(coordinates) as U);
+  return numerical ? (projection.transformFrom(coordinates) as U) : (projection.fromString(coordinates) as U);
 };
