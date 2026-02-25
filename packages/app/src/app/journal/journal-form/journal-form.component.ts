@@ -234,7 +234,7 @@ export class JournalFormComponent {
       return;
     }
     const base = this.journalForm.controls.dateCreatedTime.value ?? new Date();
-    const normalized = new Date(base);
+    const normalized = Number.isNaN(base.getTime()) ? new Date() : new Date(base);
     normalized.setHours(hours, minutes, 0, 0);
     this.journalForm.controls.dateCreatedTime.setValue(normalized);
     input.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
