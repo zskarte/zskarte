@@ -91,6 +91,8 @@ export class OrganisationLayerSettingsComponent {
             layers = layers.filter((f) => f.id !== undefined && !f.owner && !f.managed);
           } else if (source === '_ManagedMapLayers_') {
             layers = layers.filter((f) => f.id !== undefined && f.managed);
+          } else if (source === '_geodienste_') {
+            layers = layers.filter((f) => f.fullId.startsWith('geodienste|'));
           } else {
             const sourceFilter = source === '_GeoAdmin_' ? undefined : source;
             layers = layers.filter((f) => f.source?.url === sourceFilter);

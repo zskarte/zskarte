@@ -36,6 +36,7 @@
       <mat-label>{{ i18n.get('layerSource') }}</mat-label>
       <mat-select [value]="selectedSource" (selectionChange)="onSelectionChange($event)">
         <mat-option value="_GeoAdmin_" disabled>GeoAdmin</mat-option>
+        <mat-option value="_geodienste_" disabled>geodienste</mat-option>
         @if (this.filteredGlobalSources$.value.length > 0) {
           <mat-option value="__SELECT__">{{ i18n.get('selectLayerSource') }}</mat-option>
         }

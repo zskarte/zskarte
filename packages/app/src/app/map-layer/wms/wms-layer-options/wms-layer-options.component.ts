@@ -14,6 +14,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../../ui/dialog-layout';
+import { GEODIENSTE_DOMAIN, GeodiensteService } from '../../geodienste/geodienste.service';
 
 @Component({
   selector: 'app-wms-layer-options',
@@ -40,12 +41,14 @@ export class WmsLayerOptionsComponent {
   i18n = inject(I18NService);
   mapState = inject(ZsMapStateService);
   private wmsService = inject(WmsService);
+  private geodiensteService = inject(GeodiensteService);
 
   hasSublayers = false;
   sublayerHidden: { name: string; hidden: boolean }[] = [];
   sources: WmsSource[] = [];
   tileFormats: string[] = ['image/png'];
   custom_source?: MapSource;
+  geodienste_source?: WmsSource;
   constructor() {
     let layer = this.layer;
     const mapState = this.mapState;
@@ -73,12 +76,21 @@ export class WmsLayerOptionsComponent {
     firstValueFrom(mapState.observeWmsSources$()).then((val) => {
       if (val) {
         this.sources = val;
-        if (this.layer.type === 'wms_custom' && !this.sources.find((s) => s === layer.source)) {
-          this.custom_source = layer.source;
+        if (!this.sources.find((s) => s === layer.source)) {
+          if (layer.geodiensteSourceLayerId) {
+            this.geodienste_source = layer.source as WmsSource;
+            layer.source = '_geodienste_' as any;
+          } else {
+            this.custom_source = layer.source ? { ...layer.source } : { url: '' };
+            layer.source = '_CUSTOM_' as any;
+            if (this.custom_source?.url.startsWith(GEODIENSTE_DOMAIN)) {
+              layer.geodiensteSourceLayerId = this.custom_source.url.substring(GEODIENSTE_DOMAIN.length).split('/')[0];
+            }
+          }
         }
       }
     });
-    if (layer.source) {
+    if (typeof layer.source !== 'string') {
       wmsService.getTileFormats(layer.source as WmsSource).then((formats) => (this.tileFormats = formats));
     }
   }
@@ -121,18 +133,36 @@ export class WmsLayerOptionsComponent {
         this.layer.source = this.sources.find((s) => s.url === this.custom_source?.url);
         this.custom_source = undefined;
       }
+      if (!this.layer.source && this.layer.geodiensteSourceLayerId) {
+        this.layer.source = '_geodienste_' as any;
+        this.geodienste_source = this.geodiensteService.getSource(this.layer.geodiensteSourceLayerId);
+        this.layer.serverLayerName = this.geodiensteService.getServerLayerName();
+      }
     }
     this.layer.type = event.value;
   }
 
   async onSelectionChange($event: MatSelectChange) {
     if ($event.value === '_CUSTOM_') {
-      if (this.layer.source) {
+      if (this.layer.geodiensteSourceLayerId) {
+        this.custom_source = this.geodiensteService.getSource(this.layer.geodiensteSourceLayerId);
+      } else if (this.layer.source && this.layer.source !== ('_geodienste_' as any)) {
         this.custom_source = { url: this.layer.source?.url };
-        this.layer.source = $event.value;
+      } else {
+        this.custom_source = { url: '' };
       }
+      this.layer.source = $event.value;
+      this.geodienste_source = undefined;
+    } else if ($event.value === '_geodienste_') {
+      this.custom_source = undefined;
+      const source = this.geodiensteService.getSource(this.layer.geodiensteSourceLayerId ?? '');
+      this.geodienste_source = source;
+      this.layer.source = $event.value;
+      this.layer.serverLayerName = this.geodiensteService.getServerLayerName();
+      this.tileFormats = await this.wmsService.getTileFormats(source);
     } else if ($event.value) {
       this.custom_source = undefined;
+      this.geodienste_source = undefined;
       this.layer.source = $event.value;
       this.tileFormats = await this.wmsService.getTileFormats($event.value);
     }
@@ -149,6 +179,10 @@ export class WmsLayerOptionsComponent {
         }
       }
       delete this.layer.originalServerLayerName;
+      if (this.geodienste_source && this.layer.geodiensteSourceLayerId) {
+        this.layer.source = this.geodiensteService.getSource(this.layer.geodiensteSourceLayerId);
+        this.layer.serverLayerName = this.geodiensteService.getServerLayerName();
+      }
     } else if (this.layer.type === 'wms_custom') {
       if (this.hasSublayers) {
         const visibleLayers = this.layer.serverLayerName.split(',');
@@ -161,6 +195,11 @@ export class WmsLayerOptionsComponent {
       }
       if (this.custom_source) {
         this.layer.source = this.custom_source;
+        this.layer.geodiensteSourceLayerId = undefined;
+      } else if (this.geodienste_source && this.layer.geodiensteSourceLayerId) {
+        this.layer.source = this.geodiensteService.getSource(this.layer.geodiensteSourceLayerId);
+      } else {
+        console.error('no valid source could be set', this.layer, this.custom_source, this.geodienste_source);
       }
     }
     if (!this.layer.noneTiled) {

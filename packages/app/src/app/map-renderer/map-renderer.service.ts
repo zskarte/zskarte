@@ -26,7 +26,7 @@ import { GeoJSONService } from '../map-layer/geojson/geojson.service';
 import { WmsService } from '../map-layer/wms/wms.service';
 import { DEFAULT_COORDINATES, DEFAULT_ZOOM } from '../session/default-map-values';
 import { I18NService } from '../state/i18n.service';
-import { ZsMapSources } from '../state/map-sources';
+import { MapSourcesService } from '../state/map-sources';
 import { ZsMapStateService } from '../state/state.service';
 import { SyncService } from '../sync/sync.service';
 import { DrawStyle } from './draw-style';
@@ -58,6 +58,7 @@ export class MapRendererService {
   private wmsService = inject(WmsService);
   private geoJSONService = inject(GeoJSONService);
   private _search = inject(SearchService);
+  private mapSources = inject(MapSourcesService);
 
   private _ngUnsubscribe = new Subject<void>();
   private _map!: OlMap;
@@ -409,7 +410,7 @@ export class MapRendererService {
             // Show names as tooltip, if they are not already shown
             const label = feature.get('sig')?.label;
             if (tooltip && label) {
-              tooltip = `${label} (${tooltip})`
+              tooltip = `${label} (${tooltip})`;
             } else if (label) {
               tooltip = label;
             }
@@ -505,7 +506,7 @@ export class MapRendererService {
         takeUntil(this._ngUnsubscribe),
         concatMap(async (source) => {
           this._map.removeLayer(this._mapLayer);
-          this._mapLayer = await ZsMapSources.get(source);
+          this._mapLayer = await this.mapSources.get(source);
           this._map.getLayers().insertAt(0, this._mapLayer);
         }),
       )
@@ -536,12 +537,12 @@ export class MapRendererService {
 
         // remove deleted layers
         for (const [key, layer] of Object.entries(this._layerCache)) {
-          if (layers.some(l => l.getId() === key)) {
+          if (layers.some((l) => l.getId() === key)) {
             continue;
           }
 
           this._map.removeLayer(layer.getOlLayer());
-          this._allLayers = this._allLayers.filter(olLayer => olLayer !== layer.getOlLayer());
+          this._allLayers = this._allLayers.filter((olLayer) => olLayer !== layer.getOlLayer());
           delete this._layerCache[key];
         }
       });
