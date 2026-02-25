@@ -22,6 +22,8 @@ import {
   getIntersection,
   createEmpty,
   extendCoordinate,
+  intersects,
+  approximatelyEquals,
 } from 'ol/extent';
 import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { fromLonLat, transformExtent } from 'ol/proj';
@@ -42,6 +44,8 @@ const GEOCODE_ORIGIN_TO_LAYER = {
   //'gazetteer':['ch.swisstopo.swissnames3d','ch.bav.haltestellen-oev'],
   //'address':'ch.bfs.gebaeude_wohnungs_register',
 } as const;
+const LAYER_STREET = 'ch.swisstopo.amtliches-strassenverzeichnis';
+const LAYER_WATER = 'ch.swisstopo.swisstlm3d-gewaessernetz';
 
 export const ADDRESS_TOKEN_REGEX = /addr:\(((?:[^()]|\([^)]*\))*)\)(?:\[(.*?)\])?/;
 export const ADDRESS_TOKEN_REPLACEMENT_ADDRESS = (p1: string) => p1;
@@ -59,16 +63,17 @@ export function getGlobalAddressTokenRegex() {
 }
 
 const STREET_START_WORD_REGEX =
-  /(?:(?:ob|unt|vor|hint)ere|(?:via|val|voa)(?: da(?:l|lla|ls)?| val)(?: las?| l| di | d)?|(?:chemin|ch.|route|rue|place|avenue|sentier|promenade|pont|parc|passage|escaliers|galerie|allée|boulevard|quartier|passerelle|quai|impasse|vy|tunnel)(?: du| de(?: la| l)?| des| d)?|\b\p{L}*schul(?:e|haus(?:es)?|gebäude|anlage)|(?:industrie|sport)(?:zone|gebiet|zentrum)|bahnhof|bhf|flughafen|(?:turn|sport)halle)/giu;
+  /(?:(?:ob|unt|vor|hint)ere|(?:alte|neue)|(?:via|val|voa)(?: da(?:l|lla|ls)?| val)(?: las?| l| di | d)?|(?:chemin|ch.|route|rue|place|avenue|sentier|promenade|pont|parc|passage|escaliers|galerie|allée|boulevard|quartier|passerelle|quai|impasse|vy|tunnel)(?: du| de(?: la| l)?| des| d)?|\b\p{L}*schul(?:e|haus(?:es)?|gebäude|anlage)|(?:industrie|sport)(?:zone|gebiet|zentrum)|bahnhof|bhf|flughafen|(?:turn|sport)halle)/giu;
 const STREET_WITH_NAME_SUFFIX_REGEX =
   /\p{L}+(?:strass?e?|str\.?|(?:weg|gäss|mätte?)(?:li|lein)?|gass[ea]?|matt(?:e|en)?|ac[hk]er|rain|feld|dorf|hag|ried|halde|graben|allee|(?<!h)alle|ring|platz|pl\.?|tunnel|berg|hof|loch|bach|egg|viadukt|damm|wil|hubel|holz|wald|weid|park|stutz|promenade|steg|rank|brücke|quai|garten|reben|gut|bühl|moos|rue|schule)/giu;
 
 const NOT_PLACE_WORD =
   /(?:ab|auf|am|im|in|bei|zu|von|um|zur|als|der|die|dass?|mit|ist|ca|bis|ein(?:e|en)?|und|für|wie|sind|daneben|entlang|wurde|steht|nicht|über|alle|Kreisel)\b/giu;
-const STREET_WITH_NUMBER = new RegExp(
-  `(?:\\b${STREET_START_WORD_REGEX.source}\\b[ ']\\b(?!${NOT_PLACE_WORD.source})\\p{L}+\\b|\\b${STREET_WITH_NAME_SUFFIX_REGEX.source})(?: \\d{1,3}(?: ?[a-z])?)?\\b`,
+const STREET_NAME = new RegExp(
+  `(?:\\b${STREET_START_WORD_REGEX.source}\\b[ ']\\b(?!${NOT_PLACE_WORD.source})\\p{L}+\\b|\\b${STREET_WITH_NAME_SUFFIX_REGEX.source})`,
   'gui',
 );
+const STREET_WITH_NUMBER = new RegExp(`${STREET_NAME.source}(?: \\d{1,3}(?: ?[a-z])?)?\\b`, 'gui');
 const PLACE_WITH_PLZ = /(?:,| in)? (\d{4} \p{L}+\b)/giu;
 const PLACE_AFTER_IN = new RegExp(` in (?!${NOT_PLACE_WORD.source})(\\p{L}+\\b)`, 'gui');
 const PLACE_AFTER_COMMA = new RegExp(
@@ -100,17 +105,20 @@ export class SearchService {
   private formatGeoJSON = new GeoJSON();
   private globalSearchInputText?: WritableSignal<string>;
 
-  geocoderUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer?type=locations&searchText=';
-  geocoderGeometryUrlPrefix = 'https://api3.geo.admin.ch/rest/services/api/MapServer/';
-  geocoderGeometryUrlSuffix = '?geometryFormat=geojson&sr=3857';
-  streetGeometryUrl =
-    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.amtliches-strassenverzeichnis&searchField=stn_label&geometryFormat=geojson&sr=3857&searchText=';
-  streetGeometryByIdUrl =
-    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.amtliches-strassenverzeichnis&searchField=str_esid&geometryFormat=geojson&sr=3857&contains=false&searchText=';
-  waterGeometryUrl =
-    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.swisstlm3d-gewaessernetz&searchField=name&geometryFormat=geojson&sr=3857&searchText=';
-  waterGeometryByIdUrl =
-    'https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.swisstopo.swisstlm3d-gewaessernetz&searchField=id&geometryFormat=geojson&sr=3857&contains=false&searchText=';
+  searchServiceUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer';
+  mapServiceUrl = 'https://api3.geo.admin.ch/rest/services/api/MapServer';
+  searchParam = '&searchText=';
+  geomentryParams = 'geometryFormat=geojson&sr=3857';
+  geocoderUrl = `${this.searchServiceUrl}?type=locations${this.searchParam}`;
+  mapServiceFindUrlPrefix = `${this.mapServiceUrl}/find?${this.geomentryParams}&layer=`;
+  searchServerFeatureUrlPrefix = `${this.searchServiceUrl}?type=featuresearch&features=`;
+
+  streetGeometryUrl = `${this.mapServiceFindUrlPrefix}${LAYER_STREET}&searchField=stn_label${this.searchParam}`;
+  streetGeometryByIdUrl = `${this.mapServiceFindUrlPrefix}${LAYER_STREET}&searchField=str_esid${this.searchParam}`;
+  streetSearchUrl = `${this.searchServerFeatureUrlPrefix}${LAYER_STREET}${this.searchParam}`;
+
+  waterGeometryUrl = `${this.mapServiceFindUrlPrefix}${LAYER_WATER}&searchField=name${this.searchParam}`;
+  waterGeometryByIdUrl = `${this.mapServiceFindUrlPrefix}${LAYER_WATER}&searchField=id${this.searchParam}`;
 
   constructor() {
     this.addSearch(this.coordinateSearch.bind(this), this._i18n.get('coordinates'), undefined, -1);
@@ -178,14 +186,15 @@ export class SearchService {
     const distanceRight = maxX - refCoord[0];
     const distanceTop = maxY - refCoord[1];
     const distanceBottom = refCoord[1] - minY;
-    const maxDistance = Math.max(distanceLeft, distanceRight, distanceTop, distanceBottom);
+    const maxDistanceX = Math.max(distanceLeft, distanceRight);
+    const maxDistanceY = Math.max(distanceTop, distanceBottom);
 
-    return this.getExtentByCoordAndDist(refCoord, maxDistance);
+    return this.getExtentByCoordAndDist(refCoord, maxDistanceX, maxDistanceY);
   }
 
-  public getExtentByCoordAndDist(center: Coordinate, dist: number) {
+  public getExtentByCoordAndDist(center: Coordinate, distX: number, distY: number) {
     //web mercator / EPSG:3857 is a metric system so can calucate directly.
-    return [center[0] - dist, center[1] - dist, center[0] + dist, center[1] + dist];
+    return [center[0] - distX, center[1] - distY, center[0] + distX, center[1] + distY];
   }
 
   private createOrCombineExtent(combinedExtent: Extent | null, newExtent: Extent) {
@@ -198,7 +207,14 @@ export class SearchService {
     return combinedExtent;
   }
 
-  public getSearchFilterArea(searchConfig: IZsGlobalSearchConfig) {
+  private inflateExtent(extent, factor) {
+    const [minX, minY, maxX, maxY] = extent;
+    const dx = ((maxX - minX) * factor) / 2;
+    const dy = ((maxY - minY) * factor) / 2;
+    return [minX - dx, minY - dy, maxX + dx, maxY + dy];
+  }
+
+  public getSearchFilterArea(searchConfig: IZsGlobalSearchConfig, inflatedMapSectionExtent?: number) {
     let combinedExtent: Extent | null = null;
     if (searchConfig.filterByArea) {
       const areaExtent = searchConfig.area;
@@ -208,13 +224,17 @@ export class SearchService {
     }
 
     if (searchConfig.filterMapSection) {
-      const mapExtent = this._state.getMapExtent();
+      let mapExtent = this._state.getMapExtent();
+      if (inflatedMapSectionExtent) {
+        mapExtent = this.inflateExtent(mapExtent, inflatedMapSectionExtent);
+      }
       combinedExtent = this.createOrCombineExtent(combinedExtent, mapExtent);
     }
 
     if (searchConfig.filterByDistance) {
       const distExtent = this.getExtentByCoordAndDist(
         this.getDistanceReferenceCoordinate(searchConfig),
+        searchConfig.maxDistance,
         searchConfig.maxDistance,
       );
       combinedExtent = this.createOrCombineExtent(combinedExtent, distExtent);
@@ -265,113 +285,161 @@ export class SearchService {
     return [];
   }
 
-  async geoAdminLocationSearch(
-    text: string,
-    abortController: AbortController,
-    searchConfig: IZsGlobalSearchConfig,
-    maxResultCount?: number,
-  ) {
-    if (!navigator.onLine) {
-      return [];
+  private additionalFilterGeoAdminLocationSearch(r: IFoundLocation) {
+    if (
+      r.attrs.objectclass === 'TLM_GEBIETSNAME' &&
+      (r.attrs.label.indexOf('Grossregion') !== -1 || r.attrs.label.indexOf('Landschaftsname') !== -1)
+    ) {
+      return false;
     }
-    let url = this.geocoderUrl + encodeURIComponent(text);
-    if (maxResultCount !== undefined) {
-      url = `${url}&limit=${maxResultCount}`;
-    }
+    return true;
+  }
+  geoAdminLocationSearch = this.searchServerFunc(this.geocoderUrl, this.additionalFilterGeoAdminLocationSearch);
 
-    const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
-    const filterArea = this.getSearchFilterArea(searchConfig);
-    let boxArea = filterArea;
-    let boxAreaManipulated = false;
-    if (searchConfig.sortedByDistance) {
-      if (!boxArea) {
-        //on geoadmin search the result can only be sorted by distance of center if there is an extent to get center from.
-        //so create an extent from refCoord that always includes at least the whole swiss.
-        boxArea = [
-          refCoord[0] - FULL_WIDTH_SWISS,
-          refCoord[1] - FULL_HEIGHT_SWISS,
-          refCoord[0] + FULL_WIDTH_SWISS,
-          refCoord[1] + FULL_HEIGHT_SWISS,
-        ];
-        boxAreaManipulated = true;
-      } else {
-        //if there is an filterArea, it's not guaranted that the center of the extend is refCoord
-        //so create a new on that is at least filterArea but have refCoord as center
-        if (containsCoordinate(boxArea, refCoord)) {
-          //if the refCoord is not in allowed area keep area as is
-          boxArea = this.extendExtentAroundPoint(boxArea, refCoord);
+  private updateSearchResultEntryForStreetSearch(entry: IZsMapSearchResult, r: IFoundLocation): IZsMapSearchResult {
+    return {
+      ...entry,
+      internal: { ...entry.internal, addressToken: `addr:(${entry.label})[str_esid:${r.attrs?.['featureId']}]` },
+    };
+  }
+  geoAdminStreetSearch = this.searchServerFunc(
+    this.streetSearchUrl,
+    undefined,
+    this.updateSearchResultEntryForStreetSearch,
+    true,
+  );
+
+  searchServerFunc(
+    searchUrl: string,
+    additionalFilter?: (r: IFoundLocation) => boolean,
+    updateSearchResultEntry?: (entry: IZsMapSearchResult, r: IFoundLocation) => IZsMapSearchResult,
+    inflatedMapSectionBbox?: boolean,
+  ) {
+    return async (
+      text: string,
+      abortController: AbortController,
+      searchConfig: IZsGlobalSearchConfig,
+      maxResultCount?: number,
+    ) => {
+      if (!navigator.onLine) {
+        return [];
+      }
+      let url = searchUrl + encodeURIComponent(text);
+      if (maxResultCount !== undefined) {
+        url = `${url}&limit=${maxResultCount}`;
+      }
+
+      const refCoord = this.getDistanceReferenceCoordinate(searchConfig);
+      const filterArea = this.getSearchFilterArea(searchConfig);
+      let boxArea = filterArea;
+      let boxAreaManipulated = false;
+      if (filterArea && inflatedMapSectionBbox && searchConfig.filterMapSection) {
+        //to find line/polygon features where the center is not on map inflate the extent by 20%
+        boxArea = this.getSearchFilterArea(searchConfig, 0.5);
+        if (boxArea && !approximatelyEquals(filterArea, boxArea, 0.01)) {
           boxAreaManipulated = true;
         }
       }
-    }
-    if (boxArea) {
-      boxArea = transformExtent(boxArea, 'EPSG:3857', 'EPSG:21781');
-      url = `${url}&bbox=${boxArea?.join(',')}&sortbbox=${searchConfig.sortedByDistance}`;
-    }
-    if (abortController.signal.aborted) {
-      // if there is already a new search query skip request
-      return [];
-    }
-
-    const result: { results: IFoundLocation[] } = await fetch(url).then((response) => response.json());
-    if (abortController.signal.aborted) {
-      // if there is already a new search query skip map results as they are not displayed.
-      return [];
-    }
-
-    const foundLocations: IZsMapSearchResult[] = [];
-    result.results
-      .filter((r) => r?.attrs?.label)
-      .forEach((r) => {
-        const lonLat = [r.attrs.lon, r.attrs.lat];
-        const mercatorCoordinates = fromLonLat(lonLat);
-        //if bbox is manipulated for sort order need to redo the area check
-        if (boxAreaManipulated && filterArea && !containsCoordinate(filterArea, mercatorCoordinates)) {
-          return;
-        }
-        if (
-          r.attrs.objectclass === 'TLM_GEBIETSNAME' &&
-          (r.attrs.label.indexOf('Grossregion') !== -1 || r.attrs.label.indexOf('Landschaftsname') !== -1)
-        ) {
-          return;
-        }
-        let linkText = r.attrs.label.replace(/<[^>]*>/g, '');
-        if (r.attrs.label.indexOf('<i>') !== -1) {
-          //if there is an "result type" extract the bold text
-          const match = r.attrs.label.match(/<b>(.*?)<\/b>/);
-          if (match) {
-            linkText = match[1].replace(/<[^>]*>/g, '');
+      if (searchConfig.sortedByDistance) {
+        if (!boxArea) {
+          //on geoadmin search the result can only be sorted by distance of center if there is an extent to get center from.
+          //so create an extent from refCoord that always includes at least the whole swiss.
+          boxArea = [
+            refCoord[0] - FULL_WIDTH_SWISS,
+            refCoord[1] - FULL_HEIGHT_SWISS,
+            refCoord[0] + FULL_WIDTH_SWISS,
+            refCoord[1] + FULL_HEIGHT_SWISS,
+          ];
+          boxAreaManipulated = true;
+        } else {
+          //if there is an filterArea, it's not guaranted that the center of the extent is refCoord
+          //so create a new on that is at least filterArea but have refCoord as center
+          if (containsCoordinate(boxArea, refCoord)) {
+            //if the refCoord is not in allowed area keep area as is
+            boxArea = this.extendExtentAroundPoint(boxArea, refCoord);
+            boxAreaManipulated = true;
           }
         }
-        foundLocations.push({
-          label: r.attrs.label,
-          lonLat,
-          mercatorCoordinates,
-          internal: {
-            id: r.id,
-            dist: refCoord ? squaredDistance(refCoord, mercatorCoordinates) : undefined,
-            ...r.attrs,
-            addressToken: `addr:(${linkText})[lonLat:${lonLat.join(' ')}]`,
-          },
+      }
+      if (boxArea) {
+        boxArea = transformExtent(boxArea, 'EPSG:3857', 'EPSG:21781');
+        url = `${url}&bbox=${boxArea?.join(',')}&sortbbox=${searchConfig.sortedByDistance}`;
+      }
+      if (abortController.signal.aborted) {
+        // if there is already a new search query skip request
+        return [];
+      }
+
+      const result: { results: IFoundLocation[] } = await fetch(url).then((response) => response.json());
+      if (abortController.signal.aborted) {
+        // if there is already a new search query skip map results as they are not displayed.
+        return [];
+      }
+
+      const foundLocations: IZsMapSearchResult[] = [];
+      result.results
+        .filter((r) => r?.attrs?.label)
+        .forEach((r) => {
+          const lonLat = [r.attrs.lon, r.attrs.lat];
+          const mercatorCoordinates = fromLonLat(lonLat);
+          //if bbox is manipulated for sort order need to redo the area check
+          if (boxAreaManipulated && filterArea && !containsCoordinate(filterArea, mercatorCoordinates)) {
+            //if it's a feature result (potential line/polygon) check the extent/bbox and only skip if no intersection
+            if (r.attrs.origin === 'feature' && r.attrs.geom_st_box2d) {
+              const extent = this.extentFromGeomStBox2d(r.attrs.geom_st_box2d);
+              if (!extent || !intersects(filterArea, extent)) {
+                return;
+              }
+            } else {
+              return;
+            }
+          }
+          if (additionalFilter && !additionalFilter(r)) {
+            return;
+          }
+          let linkText = r.attrs.label.replace(/<[^>]*>/g, '');
+          if (r.attrs.label.indexOf('<i>') !== -1) {
+            //if there is an "result type" extract the bold text
+            const match = r.attrs.label.match(/<b>(.*?)<\/b>/);
+            if (match) {
+              linkText = match[1].replace(/<[^>]*>/g, '');
+            }
+          }
+
+          let searchResultEntry: IZsMapSearchResult = {
+            label: r.attrs.label,
+            lonLat,
+            mercatorCoordinates,
+            internal: {
+              id: r.id,
+              dist: refCoord ? squaredDistance(refCoord, mercatorCoordinates) : undefined,
+              ...r.attrs,
+              addressToken: `addr:(${linkText})[lonLat:${lonLat.join(' ')}]`,
+            },
+          };
+          if (updateSearchResultEntry) {
+            searchResultEntry = updateSearchResultEntry(searchResultEntry, r);
+          }
+          foundLocations.push(searchResultEntry);
         });
-      });
-    return this.sortSearchResults(foundLocations, searchConfig);
+
+      return this.sortSearchResults(foundLocations, searchConfig);
+    };
   }
 
-  public async geoAdminGeometryByOriginAndId(origin: string, featureId: string) {
+  public async geoAdminGeometryByOriginAndId(origin: string, featureId: string, layer?: string) {
     if (!navigator.onLine) {
       return null;
     }
 
     if (origin && featureId) {
-      const detailLayerId = GEOCODE_ORIGIN_TO_LAYER[origin];
+      let detailLayerId = GEOCODE_ORIGIN_TO_LAYER[origin];
+      if (!detailLayerId && origin === 'feature') {
+        detailLayerId = layer;
+      }
+
       if (detailLayerId) {
-        const url =
-          this.geocoderGeometryUrlPrefix +
-          encodeURIComponent(detailLayerId) +
-          '/' +
-          encodeURIComponent(featureId) +
-          this.geocoderGeometryUrlSuffix;
+        const url = `${this.mapServiceUrl}/${encodeURIComponent(detailLayerId)}/${encodeURIComponent(featureId)}?${this.geomentryParams}`;
         const result: { feature: GeoJSONFeature } = await fetch(url).then((response) => response.json());
         if (result?.feature) {
           return this.formatGeoJSON.readFeature(result.feature) as Feature<Geometry>;
@@ -381,6 +449,8 @@ export class SearchService {
     return null;
   }
 
+  // the 'MapServer/find' endpoint only allow to search on single field and don't have any filter, sorting, paging options:
+  // for street names with many occurences only first 200 are returned and the desired one may not be contained.
   async geoAdminStreetGeometrySearch(
     text: string,
     abortController: AbortController,
@@ -410,12 +480,12 @@ export class SearchService {
           }
         }
         const feature = this.formatGeoJSON.readFeature(r) as Feature<Geometry>;
-        let center = getCenter(r.bbox as Extent);
+        let center = getCenter(r.bbox as number[]);
         const geometry = feature.getGeometry();
         if (geometry && 'getClosestPoint' in geometry) {
           center = geometry.getClosestPoint(center);
         }
-        if (!filterArea || containsCoordinate(filterArea, center)) {
+        if (!filterArea || containsCoordinate(filterArea, center) || intersects(filterArea, this.bboxToExtent(r.bbox as number[]))) {
           const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = `${r.properties?.['stn_label']}, ${r.properties?.['zip_label']}`;
           foundLocations.push({
@@ -430,6 +500,20 @@ export class SearchService {
           });
         }
       });
+
+    //if the results are truncated by hard limit or there are limited result count(and input is considered as a street name): also try the searchService
+    if (result.results.length >= 200 || (foundLocations.length < 20 && STREET_NAME.test(text))) {
+      const searchResult = await this.geoAdminStreetSearch(text, abortController, searchConfig);
+      searchResult.forEach((entry) => {
+        if (entry.internal?.featureId) {
+          const featureId = parseInt(entry.internal?.featureId);
+          if (!foundLocations.find((e) => e.internal?.id === featureId)) {
+            foundLocations.push(entry);
+          }
+        }
+      });
+    }
+
     return this.sortSearchResults(foundLocations, searchConfig, true);
   }
 
@@ -468,12 +552,12 @@ export class SearchService {
       .filter((r) => r?.properties?.['name'])
       .forEach((r) => {
         const feature = this.formatGeoJSON.readFeature(r) as Feature<Geometry>;
-        let center = getCenter(r.bbox as Extent);
+        let center = getCenter(r.bbox as number[]);
         const geometry = feature.getGeometry();
         if (geometry && 'getClosestPoint' in geometry) {
           center = geometry.getClosestPoint(center);
         }
-        if (!filterArea || containsCoordinate(filterArea, center)) {
+        if (!filterArea || containsCoordinate(filterArea, center) || intersects(filterArea, this.bboxToExtent(r.bbox as number[]))) {
           const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = r.properties?.['name'];
           foundLocations.push({
@@ -612,6 +696,29 @@ export class SearchService {
     return resultSets;
   }
 
+  bboxToExtent(box2d: number[]) {
+    //[upper_left_x, upper_left_y, lower_right_x, lower_right_y] → [minX, minY, maxX, maxY]
+    return [
+      Math.min(box2d[0], box2d[2]), // minX
+      Math.min(box2d[1], box2d[3]), // minY
+      Math.max(box2d[0], box2d[2]), // maxX
+      Math.max(box2d[1], box2d[3]), // maxY
+    ];
+  }
+
+  extentFromGeomStBox2d(geom_st_box2d: string): Extent | null {
+    const coords = geom_st_box2d.match(/BOX\(([^ ]+) ([^,]+),([^ ]+) ([^)]+)\)/);
+    if (coords) {
+      const upper_left_x = parseFloat(coords[1]);
+      const upper_left_y = parseFloat(coords[2]);
+      const lower_right_x = parseFloat(coords[3]);
+      const lower_right_y = parseFloat(coords[4]);
+      const box2d = [upper_left_x, upper_left_y, lower_right_x, lower_right_y];
+      return transformExtent(this.bboxToExtent(box2d), 'EPSG:21781', 'EPSG:3857');
+    }
+    return null;
+  }
+
   public async highlightResult(element: IZsMapSearchResult | null, focus: boolean) {
     if (element) {
       let coordinates: Coordinate | undefined;
@@ -626,8 +733,11 @@ export class SearchService {
         if (element.internal?.origin && element.internal?.featureId) {
           if (!element.feature) {
             element.feature =
-              (await this.geoAdminGeometryByOriginAndId(element.internal.origin, element.internal.featureId)) ??
-              undefined;
+              (await this.geoAdminGeometryByOriginAndId(
+                element.internal.origin,
+                element.internal.featureId,
+                element.internal.layer,
+              )) ?? undefined;
           }
           if (element.feature) {
             this.addressPreview.set(true);
@@ -636,14 +746,8 @@ export class SearchService {
         }
         if (focus) {
           if (this.zoomToFit && element.internal?.geom_st_box2d) {
-            const coords = element.internal.geom_st_box2d.match(/BOX\(([^ ]+) ([^,]+),([^ ]+) ([^)]+)\)/);
-            if (coords) {
-              const minX = parseFloat(coords[1]);
-              const minY = parseFloat(coords[2]);
-              const maxX = parseFloat(coords[3]);
-              const maxY = parseFloat(coords[4]);
-              let extent: Extent = [minX, minY, maxX, maxY];
-              extent = transformExtent(extent, 'EPSG:21781', 'EPSG:3857');
+            const extent = this.extentFromGeomStBox2d(element.internal.geom_st_box2d);
+            if (extent) {
               this.zoomToFit(extent);
               return;
             }
@@ -805,7 +909,6 @@ export class SearchService {
       return text;
     }
     return text.replace(ADDRESS_TOKEN_OR_NEW_REGEX, (match) => (match.startsWith('addr:') ? match : `addr:(${match})`));
-    
   }
 
   public removeAllPotentialAddresses(text?: string) {
