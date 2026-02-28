@@ -223,7 +223,7 @@ export class JournalComponent implements AfterViewInit {
         case 'entryStatus':
           return Object.values(JournalEntryStatus).indexOf(item[property]);
         default:
-          return item[property];
+          return item[property].toString().toLocaleLowerCase();
       }
     };
 

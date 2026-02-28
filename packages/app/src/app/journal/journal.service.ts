@@ -812,7 +812,7 @@ export class JournalService {
     const workbook = new Workbook();
     const sheet = workbook.addWorksheet('Journal Entries');
     const defaultStyleTextTop = { alignment: { vertical: 'top' } } as any;
-    const defaultStyleDate = { alignment: { vertical: 'top' }, numFmt: 'dd.mm.yyyy hh:mm' } as any;
+    const defaultStyleDate = { alignment: { vertical: 'top' }, numFmt: 'dd.MM.yyyy hh:mm' } as any;
 
     sheet.columns = [
       { header: this._i18n.get('messageNumberShort2'), key: 'messageNumber', width: 5, style: defaultStyleTextTop },
