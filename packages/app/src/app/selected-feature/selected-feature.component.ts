@@ -28,6 +28,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
+  defineDefaultValuesForSignature,
   FillStyle,
   getColorForCategory,
   IconsOffset,
@@ -465,26 +466,29 @@ export class SelectedFeatureComponent implements OnDestroy {
 
   resetSignature(element: ZsMapDrawElementState) {
     if (!element.id) return;
-    this.zsMapStateService.updateDrawElementState(element.id, 'iconSize', signatureDefaultValues.iconSize);
-    this.updateIconsOffset(element, 'x', signatureDefaultValues.iconsOffset.x);
-    this.updateIconsOffset(element, 'y', signatureDefaultValues.iconsOffset.y);
-    this.updateIconsOffset(element, 'endHasDifferentOffset', signatureDefaultValues.iconsOffset.endHasDifferentOffset);
-    this.updateIconsOffset(element, 'endX', signatureDefaultValues.iconsOffset.endX);
-    this.updateIconsOffset(element, 'endY', signatureDefaultValues.iconsOffset.endY);
-    this.zsMapStateService.updateDrawElementState(element.id, 'rotation', signatureDefaultValues.rotation);
-    this.zsMapStateService.updateDrawElementState(element.id, 'iconOpacity', signatureDefaultValues.iconOpacity);
-    this.zsMapStateService.updateDrawElementState(element.id, 'hideIcon', signatureDefaultValues.hideIcon);
+    const sign = Signs.getSignById(element.symbolId) ?? ({} as Sign);
+    defineDefaultValuesForSignature(sign);
+    this.zsMapStateService.updateDrawElementState(element.id, 'iconSize', sign.iconSize);
+    this.zsMapStateService.updateDrawElementState(element.id, 'iconsOffset', {...sign.iconsOffset as IconsOffset});
+    this.zsMapStateService.updateDrawElementState(element.id, 'rotation', sign.rotation);
+    this.zsMapStateService.updateDrawElementState(element.id, 'iconOpacity', sign.iconOpacity);
+    this.zsMapStateService.updateDrawElementState(element.id, 'hideIcon', sign.hideIcon);
   }
 
   resetLine(element: ZsMapDrawElementState) {
     if (!element.id) return;
-    this.zsMapStateService.updateDrawElementState(element.id, 'style', signatureDefaultValues.style);
-    this.zsMapStateService.updateDrawElementState(element.id, 'strokeWidth', signatureDefaultValues.strokeWidth);
-    this.zsMapStateService.updateDrawElementState(element.id, 'arrow', signatureDefaultValues.arrow);
+    const sign = Signs.getSignById(element.symbolId) ?? ({} as Sign);
+    defineDefaultValuesForSignature(sign);
+    this.zsMapStateService.updateDrawElementState(element.id, 'style', sign.style);
+    this.zsMapStateService.updateDrawElementState(element.id, 'strokeWidth', sign.strokeWidth);
+    this.zsMapStateService.updateDrawElementState(element.id, 'arrow', sign.arrow);
   }
 
   resetPolygon(element: ZsMapDrawElementState) {
     if (!element.id) return;
-    this.updateFillStyle(element, 'name', signatureDefaultValues.fillStyle.name);
+    const sign = Signs.getSignById(element.symbolId) ?? ({} as Sign);
+    defineDefaultValuesForSignature(sign);
+    this.zsMapStateService.updateDrawElementState(element.id, 'fillOpacity', sign.fillOpacity);
+    this.zsMapStateService.updateDrawElementState(element.id, 'fillStyle', {...sign.fillStyle as FillStyle});
   }
 }
