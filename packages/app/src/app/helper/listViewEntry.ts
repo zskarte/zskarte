@@ -63,7 +63,7 @@ export interface ListViewEntry {
   description: string;
 }
 
-export async function exportListViewExcel(listViewEntries: ListViewEntry[], i18n: I18NService) {
+export async function exportListViewExcel(listViewEntries: ListViewEntry[], i18n: I18NService, operationName: string) {
   const exceljs = await import('exceljs');
   const { Workbook } = exceljs.default ? exceljs.default : exceljs;
   const workbook = new Workbook();
@@ -78,10 +78,12 @@ export async function exportListViewExcel(listViewEntries: ListViewEntry[], i18n
     { header: i18n.get('csvDescription'), key: 'description', width: 30 },
   ];
   sheet.addRows(listViewEntries);
-  return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
-    saveAs(
-      new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-      `${i18n.get('listViewExport')}_${new Date().toISOString().slice(0, 10)}.xlsx`,
+  const fileName =
+    `${i18n.get('listViewExport')}_${operationName}_${new Date().toISOString().slice(0, 16)}.xlsx`.replaceAll(
+      /[^a-zA-Z0-9._-]/g,
+      '_',
     );
+  return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+    saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), fileName);
   });
 }

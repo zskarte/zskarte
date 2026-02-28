@@ -140,7 +140,7 @@ export class SidebarMenuComponent {
               projectionByIndex(result.projectionFormatIndex ?? 0),
               result.numerical ?? true,
             );
-            await exportListViewExcel(this.listViewEntries, this.i18n);
+            await exportListViewExcel(this.listViewEntries, this.i18n, this.session.getOperationName() ?? "");
           });
       }
     });

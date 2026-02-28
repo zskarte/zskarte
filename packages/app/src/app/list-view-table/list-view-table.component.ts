@@ -59,7 +59,7 @@ export class ListViewTableComponent implements OnInit, OnDestroy, AfterViewInit 
           }
         }
         default:
-          return (item[property] as string)?.toLowerCase();
+          return item[property]?.toString().toLowerCase();
       }
     };
   }
