@@ -110,6 +110,11 @@ export class JournalFormComponent {
       if (entry !== null) {
         setTimeout(() => this.selectEntry(entry), 0);
       } else if (this.isCreateModal()) {
+        if (this.journalMessageTextTemplate) {
+          this.journalForm.patchValue({
+            messageContent: this.journalMessageTextTemplate,
+          });
+        }
         this.formVisible.set(true);
       }
     });
