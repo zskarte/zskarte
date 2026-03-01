@@ -419,6 +419,9 @@ export class JournalComponent implements AfterViewInit {
       if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
         return;
       }
+      if (this.isReadOnly()) {
+        return;
+      }
       event.preventDefault();
       event.stopImmediatePropagation();
       this.openJournalAddDialog();
