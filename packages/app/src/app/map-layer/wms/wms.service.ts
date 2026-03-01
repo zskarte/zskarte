@@ -191,8 +191,15 @@ export class WmsService {
   }
 
   getLegendImgFromCapa(capaInfos) {
-    const url = this._mapLayerService.sanitizeURLAttribute(capaInfos.Style[0]?.LegendURL[0]?.OnlineResource);
-    return `<img class="legend-img" src="${url}"/>`;
+    if (!capaInfos.Style){
+      if (!capaInfos.Layer){
+        return '';
+      }
+      return capaInfos.Layer.map((infos) => this.getLegendImgFromCapa(infos)).join('');
+    } else {
+      const url = this._mapLayerService.sanitizeURLAttribute(capaInfos.Style[0]?.LegendURL[0]?.OnlineResource);
+      return `<img class="legend-img" src="${url}"/>`;
+    }
   }
 
   getLegendImgTagForLayer(source: string, layerId: string) {
