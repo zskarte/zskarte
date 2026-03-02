@@ -133,7 +133,7 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
   }
 
   help() {
-    InfoDialogComponent.showHtmlDialog(this._dialog, this.i18n.get('pdfDesignerHelp'));
+    InfoDialogComponent.showHtmlDialog(this._dialog, this.i18n.get('pdfDesignerHelp'), this.i18n.get('info'));
   }
 
   reset() {
