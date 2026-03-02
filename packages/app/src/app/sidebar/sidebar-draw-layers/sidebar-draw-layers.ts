@@ -115,7 +115,7 @@ export class SidebarDrawLayers {
 
   protected async deleteLayer(id: string) {
     const confirmation = this.dialog.open(ConfirmationDialogComponent, {
-      data: this.i18n.get('deleteLayerConfirm'),
+      data: { message: this.i18n.get('deleteLayerConfirm') },
     });
 
     const result = await lastValueFrom(confirmation.afterClosed());
