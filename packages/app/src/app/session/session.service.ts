@@ -575,14 +575,14 @@ export class SessionService {
         currentSession &&
         !currentSession.workLocal &&
         currentSession.jwt === jwt &&
-        ((error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') || !this._isOnline.value)
+        ((error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') || error?.message?.startsWith('JSON.parse') || !this._isOnline.value)
       ) {
         //session is not expired but there seams to be a network problem, keep current session
         this._session.next(currentSession);
         return;
       }
       await this.logout(
-        (error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') ? 'networkError' : 'noToken',
+        (error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') || error?.message?.startsWith('JSON.parse') ? 'networkError' : 'noToken',
       );
       return;
     }
@@ -698,6 +698,7 @@ export class SessionService {
       } else if (
         (authError?.status ?? 0) >= 500 ||
         authError?.message?.startsWith('NetworkError') ||
+        authError?.message?.startsWith('JSON.parse') ||
         !this._isOnline.value
       ) {
         //await this.logout('networkError');
