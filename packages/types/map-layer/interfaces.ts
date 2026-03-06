@@ -149,7 +149,7 @@ export interface Media extends DocumentApi {
 
 export interface MapLayerSourceApi {
   wms_source?: WmsSource | RelationUpdateApi;
-  media_source?: Media | RelationUpdateApi;
+  media_source?: Media | number; //Media fields required direct id not relationApi
   custom_source?: string;
 }
 

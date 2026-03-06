@@ -109,6 +109,7 @@ export class MapLayerService {
     const source = this.getMapSource(mapLayerApi, sources);
     const layer: Partial<MapLayerAllFields> = {
       id: mapLayerApi.id,
+      documentId: mapLayerApi.documentId,
       label: mapLayerApi.label,
       serverLayerName: mapLayerApi.serverLayerName,
       type: mapLayerApi.type,
@@ -164,13 +165,12 @@ export class MapLayerService {
       options.styleUrl = options.styleUrl.substring(this._api.getUrl().length);
     }
     return {
-      id: mapLayer.id,
       public: mapLayer.public,
       label: mapLayer.label,
       serverLayerName: mapLayer.serverLayerName,
       type: mapLayer.type,
       wms_source: mapLayer.source?.documentId && mapLayer.source?.type ? objectToRelationUpdateApi(mapLayer.source as DocumentApi) : undefined,
-      media_source: mapLayer.source?.documentId && !mapLayer.source?.type ? objectToRelationUpdateApi(mapLayer.source as DocumentApi, true) : undefined,
+      media_source: mapLayer.source?.documentId && !mapLayer.source?.type ? mapLayer.source.id : undefined,
       custom_source: !mapLayer.source?.documentId ? mapLayer.source?.url : undefined,
       options,
     };
@@ -185,8 +185,8 @@ export class MapLayerService {
     }
     let response: ApiResponse<MapLayerApi>;
     const layerApi = this.convertMapLayerToApi(mapLayer);
-    if (mapLayer.id) {
-      response = await this._api.put(`/api/map-layers/${mapLayer.id}`, {
+    if (mapLayer.documentId) {
+      response = await this._api.put(`/api/map-layers/${mapLayer.documentId}`, {
         data: { ...layerApi, organization: organizationId },
       });
     } else {
