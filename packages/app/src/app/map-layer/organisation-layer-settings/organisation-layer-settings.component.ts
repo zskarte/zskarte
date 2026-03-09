@@ -158,6 +158,7 @@ export class OrganisationLayerSettingsComponent {
     const diff = getPropertyDifferences(oldLayer, newLayer);
     delete diff.deleted;
     delete diff.zIndex;
+    delete diff.hidden;
     delete diff.fullId;
     delete diff.owner;
     delete diff.managed;
@@ -173,6 +174,7 @@ export class OrganisationLayerSettingsComponent {
       selectedLayer = {
         ...selectedLayer,
         id: savedLayer.id,
+        documentId: savedLayer.documentId,
         fullId: savedLayer.fullId,
         owner: savedLayer.owner,
         managed: savedLayer.managed,
@@ -222,16 +224,19 @@ export class OrganisationLayerSettingsComponent {
               if (!override) {
                 // keep old, create new
                 delete layer.id;
+                delete layer.documentId;
               }
             } else {
               // not owner, create new
               layer.public = false;
               delete layer.id;
+              delete layer.documentId;
             }
           }
         } else {
           // unknown old values, create new
           delete layer.id;
+          delete layer.documentId;
         }
       }
       // for the new generated layer you'r the owner
@@ -241,8 +246,10 @@ export class OrganisationLayerSettingsComponent {
       const savedLayer = await this._mapLayerService.saveGlobalMapLayer(layer, this.data.organization?.documentId);
       if (savedLayer?.id) {
         this.layer_favorites[i] = savedLayer;
-        // add new added layer
-        map_layer_favorites.push(savedLayer.id);
+        // add new added/updated layer
+        if(!map_layer_favorites.includes(savedLayer.id)){
+          map_layer_favorites.push(savedLayer.id);
+        }
         this.updateSelectedLayer(selectedLayer, savedLayer);
       } else {
         errors.push(`Error on persist ${layer.label}`);

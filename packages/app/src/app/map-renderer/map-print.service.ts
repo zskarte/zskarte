@@ -162,9 +162,11 @@ export class MapPrintService {
             features: new Collection([this._printDimensionArea]),
           });
           this._printAreaModifyInteraction.on('modifyrectangleend', (event: ModifyRectangleEvent) => {
-            const geometry = event.modifyFeature.getGeometry();
-            if (geometry) {
-              this._updatePrintArea(geometry.getExtent());
+            if (event.modifyFeature) {
+              const geometry = event.modifyFeature.getGeometry();
+              if (geometry) {
+                this._updatePrintArea(geometry.getExtent());
+              }
             }
           });
           this._renderer.getMap().addInteraction(this._printAreaModifyInteraction);

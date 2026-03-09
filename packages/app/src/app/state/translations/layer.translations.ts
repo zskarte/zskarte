@@ -5,6 +5,11 @@ export const LAYER_TRANSLATIONS = {
     en: 'Base map',
     fr: 'Carte de base',
   },
+  local: {
+    de: 'Lokal',
+    end: 'Local',
+    fr: 'Local',
+  },
   openStreetMap: {
     de: 'OpenStreetMap',
     en: 'OpenStreetMap',

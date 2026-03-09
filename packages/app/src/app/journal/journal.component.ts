@@ -223,7 +223,7 @@ export class JournalComponent implements AfterViewInit {
         case 'entryStatus':
           return Object.values(JournalEntryStatus).indexOf(item[property]);
         default:
-          return item[property];
+          return item[property].toString().toLocaleLowerCase();
       }
     };
 
@@ -417,6 +417,9 @@ export class JournalComponent implements AfterViewInit {
       }
       // While writing into a input, don't allow shortcuts
       if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
+        return;
+      }
+      if (this.isReadOnly()) {
         return;
       }
       event.preventDefault();

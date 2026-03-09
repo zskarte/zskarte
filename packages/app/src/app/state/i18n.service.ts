@@ -106,6 +106,11 @@ export class I18NService {
       en: 'Carefull',
       fr: 'Attention',
     },
+    info: {
+      de: 'Information',
+      en: 'Information',
+      fr: 'Information',
+    },
     ok: {
       de: 'OK',
       en: 'OK',

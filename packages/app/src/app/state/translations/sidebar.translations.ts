@@ -149,6 +149,11 @@ export const SIDEBAR_TRANSLATIONS = {
     en: 'Write',
     fr: 'Ecrire',
   },
+  shareLinks: {
+    de: 'Freigabelinks Übersicht',
+    en: 'Overview of sharing links',
+    fr: 'Aperçu des liens de partage',
+  },
   noShareLinks: {
     de: 'Es sind keine Links für diese Operation vorhanden.',
     en: 'There are no links available for this operation.',
