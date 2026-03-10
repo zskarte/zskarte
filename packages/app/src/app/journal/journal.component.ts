@@ -25,7 +25,6 @@ import { JournalEntryCreateModalComponent } from './journal-entry-create-modal/j
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../session/session.service';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
@@ -222,6 +221,10 @@ export class JournalComponent implements AfterViewInit {
           return this.journal.getResponsibility(item);
         case 'entryStatus':
           return Object.values(JournalEntryStatus).indexOf(item[property]);
+        case 'dateMessage':
+          return new Date(item[property]).getTime();
+        case 'isKeyMessage':
+          return item[property];
         default:
           return item[property].toString().toLocaleLowerCase();
       }
