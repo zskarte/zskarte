@@ -4,14 +4,14 @@
 <app-dialog-body>
   <mat-card>
     @if (shareLinks.length > 0) {
-      <table mat-table [dataSource]="shareLinks" class="protocol-table">
+      <table mat-table [dataSource]="shareLinks">
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>Id</th>
           <td mat-cell *matCellDef="let element">{{ element.id }}</td>
         </ng-container>
         <ng-container matColumnDef="createdAt">
           <th mat-header-cell *matHeaderCellDef>{{ i18n.get('createdAt') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.createdAt | date: 'dd.mm.yyyy hh:mm' }}</td>
+          <td mat-cell *matCellDef="let element">{{ element.createdAt | date: 'dd.MM.yyyy hh:mm' }}</td>
         </ng-container>
         <ng-container matColumnDef="type">
           <th mat-header-cell *matHeaderCellDef>{{ i18n.get('type') }}</th>
@@ -19,7 +19,7 @@
         </ng-container>
         <ng-container matColumnDef="expiresOn">
           <th mat-header-cell *matHeaderCellDef>{{ i18n.get('expiresOn') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.expiresOn | date }}</td>
+          <td mat-cell *matCellDef="let element">{{ element.expiresOn | date: 'dd.MM.yyyy hh:mm' }}</td>
         </ng-container>
         <ng-component matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef></th>
@@ -31,7 +31,7 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
     } @else {
-      <div class="margin-2">Es sind keine Links für diese Operation vorhanden.</div>
+      <div class="margin-2">{{ i18n.get('noShareLinks') }}</div>
     }
   </mat-card>
 </app-dialog-body>

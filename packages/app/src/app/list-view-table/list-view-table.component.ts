@@ -1,10 +1,10 @@
 import { DatePipe } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ZsMapStateService } from 'src/app/state/state.service';
-import { mapProtocolEntry, ProtocolEntry } from '../helper/protocolEntry';
+import { mapListViewEntry, ListViewEntry } from '../helper/listViewEntry';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
 import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
@@ -16,14 +16,15 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { DialogHeaderComponent, DialogBodyComponent } from "../ui/dialog-layout";
 import { MatCard } from "@angular/material/card";
+import { projectionByIndex } from '../helper/projections';
 
 @Component({
-  selector: 'app-protocol-table',
-  templateUrl: './protocol-table.component.html',
-  styleUrls: ['./protocol-table.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatTableModule, ProjectionSelectionComponent, FormsModule, DialogHeaderComponent, DialogBodyComponent, MatCard],
+  selector: 'app-list-view-table',
+  templateUrl: './list-view-table.component.html',
+  styleUrls: ['./list-view-table.component.scss'],
+  imports: [MatFormFieldModule, MatInputModule, MatTableModule, ProjectionSelectionComponent, FormsModule, DialogHeaderComponent, DialogBodyComponent, MatCard, MatSortModule],
 })
-export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ListViewTableComponent implements OnInit, OnDestroy, AfterViewInit {
   zsMapStateService = inject(ZsMapStateService);
   i18n = inject(I18NService);
   private datePipe = inject(DatePipe);
@@ -41,14 +42,31 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngAfterViewInit() {
     const sort = this.sort();
-    if (this.protocolTableDataSource && sort) {
-      this.protocolTableDataSource.sort = sort;
+    if (this.listViewTableDataSource && sort) {
+      this.listViewTableDataSource.sort = sort;
     }
+    this.listViewTableDataSource.sortingDataAccessor = (item: any, property: string) => {
+      switch(property) {
+        case 'date': {
+          return item.dateNumeric;
+        }
+        case 'reportNumber': {
+          const value = item.reportNumber;
+          if (value){
+            return parseInt(value.split(', ')[0])
+          } else {
+            return value;
+          }
+        }
+        default:
+          return item[property]?.toString().toLowerCase();
+      }
+    };
   }
 
   updateTable(elements: ZsMapBaseDrawElement[]) {
-    this.data = mapProtocolEntry(elements, this.datePipe, this.i18n, this.session.getLocale(), this.projectionFormatIndex, this.numerical);
-    this.protocolTableDataSource.data = this.data;
+    this.data = mapListViewEntry(elements, this.datePipe, this.i18n, this.session.getLocale(), projectionByIndex(this.projectionFormatIndex), this.numerical);
+    this.listViewTableDataSource.data = this.data;
   }
 
   ngOnDestroy(): void {
@@ -62,9 +80,9 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
     this.zsMapStateService.observeDrawElements().pipe(first()).subscribe(this.updateTable.bind(this));
   }
 
-  public data: ProtocolEntry[] = [];
+  public data: ListViewEntry[] = [];
 
-  public protocolTableDataSource = new MatTableDataSource([] as ProtocolEntry[]);
+  public listViewTableDataSource = new MatTableDataSource([] as ListViewEntry[]);
 
   displayedColumns: string[] = [
     //'id',
@@ -79,7 +97,7 @@ export class ProtocolTableComponent implements OnInit, OnDestroy, AfterViewInit 
     'description',
   ];
 
-  navigateTo(element: ProtocolEntry) {
+  navigateTo(element: ListViewEntry) {
     this.zsMapStateService.setSelectedFeature(element.id);
     const extent = this.zsMapStateService.getDrawElement(element.id)?.getOlFeature()?.getGeometry()?.getExtent();
     if (extent) {

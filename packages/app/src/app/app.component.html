@@ -1,9 +1,18 @@
-<main [style.height.px]="height" [class.journal-address-preview]="journalAddressPreview()" [class.help-page]="isHelpPage()">
-  @if (operationId() && !isHelpPage()) {
+@if (navigation.showLanguageSelector()) {
+  <app-language-selector [class.onHelpPage]="navigation.isHelpPage()"></app-language-selector>
+}
+<main
+  [style.height.px]="height"
+  [class.journal-address-preview]="journalAddressPreview()"
+  [class.help-page]="navigation.isHelpPage()"
+>
+  @if (operationId() && !navigation.isHelpPage()) {
     <nav class="main-tabs mat-elevation-z3" mat-tab-nav-bar [tabPanel]="tabPanel">
-      <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.link" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
-        {{ i18n.get(link.label) }}
-      </a>
+      @for (link of navLinks; track link.link) {
+        <a mat-tab-link [routerLink]="link.link" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+          {{ i18n.get(link.label) }}
+        </a>
+      }
     </nav>
     <app-sidebar-wrapper></app-sidebar-wrapper>
   }

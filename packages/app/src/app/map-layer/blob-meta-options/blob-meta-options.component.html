@@ -27,7 +27,7 @@
         @case ('downloaded') {
           <button mat-stroked-button color="warn" class="button-remove" (click)="removeData()">
             
-            {{ i18n.get('removeSymbol') }}
+            {{ i18n.get('remove') }}
           </button>
           <div class="source">{{ i18n.get('blobMetaBlobSource') }} {{ dataBlobMeta?.source }}</div>
         }
@@ -63,7 +63,7 @@
           @case ('downloaded') {
             <button mat-stroked-button color="warn" class="button-remove" (click)="removeStyle()">
               <mat-icon>file_download</mat-icon>
-              {{ i18n.get('removeSymbol') }}
+              {{ i18n.get('remove') }}
             </button>
             @if (styleText === null) {
               <button mat-flat-button color="primary" class="button-editStyle" (click)="startEditStyle()">

@@ -94,6 +94,6 @@ export class SidebarConnectionsComponent implements OnDestroy {
 
   showSearchInfo(event) {
     event.preventDefault();
-    InfoDialogComponent.showTextDialog(this._dialog, this.i18n.get('howtoFindSearchCapability'));
+    InfoDialogComponent.showTextDialog(this._dialog, this.i18n.get('howtoFindSearchCapability'), this.i18n.get('info'));
   }
 }

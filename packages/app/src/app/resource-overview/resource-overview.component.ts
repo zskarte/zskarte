@@ -6,8 +6,12 @@ import { HierarchyLevel, Sign, ZsMapDrawElementState } from '@zskarte/types';
 import { map } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { AsyncPipe } from '@angular/common';
-import { DialogHeaderComponent, DialogBodyComponent } from "../ui/dialog-layout";
-import { MatCard } from "@angular/material/card";
+import { DialogHeaderComponent, DialogBodyComponent } from '../ui/dialog-layout';
+import { MatCard } from '@angular/material/card';
+import { convertTo, projection_LV95 } from '../helper/projections';
+import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
+import { SimpleGeometry } from 'ol/geom';
+import { getCenter } from 'ol/extent';
 
 interface ResourceRow {
   id: string;
@@ -17,6 +21,7 @@ interface ResourceRow {
   formationNumber: string;
   formationDetail: string;
   additionalInfo: string;
+  location: string;
 }
 
 @Component({
@@ -39,6 +44,7 @@ export class ResourceOverviewComponent {
     'formationNumber',
     'formationDetail',
     'additionalInfo',
+    'location',
   ];
 
   resources$ = this.state.observeDrawElements().pipe(
@@ -46,11 +52,13 @@ export class ResourceOverviewComponent {
     map((elements) =>
       elements
         .filter((e) => this.RESOURCE_SIGN_ID.includes(e.elementState?.symbolId as number))
-        .map((e) => this.mapToResourceRow(e.elementState as ZsMapDrawElementState)),
+        .map((e) => this.mapToResourceRow(e)),
     ),
   );
 
-  private mapToResourceRow(state: ZsMapDrawElementState): ResourceRow {
+  private mapToResourceRow(element: ZsMapBaseDrawElement): ResourceRow {
+    const state = element.elementState as ZsMapDrawElementState;
+    const geometry = element.getOlFeature().getGeometry() as SimpleGeometry;
     return {
       id: state.id ?? '',
       organization: state.organization ?? '',
@@ -59,6 +67,7 @@ export class ResourceOverviewComponent {
       formationNumber: state.formationNumber ?? '',
       formationDetail: state.formationDetail ?? '',
       additionalInfo: state.additionalInfo ?? '',
+      location: convertTo(geometry.getCoordinates() || [], projection_LV95!, false) as string
     };
   }
 
@@ -77,6 +86,16 @@ export class ResourceOverviewComponent {
         return this.i18n.get('hierarchyBataillon');
       default:
         return '';
+    }
+  }
+
+  navigateTo(element: ZsMapDrawElementState) {
+    if (element.id) {
+      this.state.setSelectedFeature(element.id);
+      const extent = this.state.getDrawElement(element.id)?.getOlFeature()?.getGeometry()?.getExtent();
+      if (extent) {
+        this.state.setMapCenter(getCenter(extent));
+      }
     }
   }
 }

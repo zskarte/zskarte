@@ -73,6 +73,7 @@ export class JournalFormComponent {
   journal = inject(JournalService);
   search = inject(SearchService);
   readonly formVisible = signal(false);
+  readonly submitting = signal(false);
   readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   @ViewChild('formDirective') private formDirective!: FormGroupDirective;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
@@ -109,6 +110,11 @@ export class JournalFormComponent {
       if (entry !== null) {
         setTimeout(() => this.selectEntry(entry), 0);
       } else if (this.isCreateModal()) {
+        if (this.journalMessageTextTemplate) {
+          this.journalForm.patchValue({
+            messageContent: this.journalMessageTextTemplate,
+          });
+        }
         this.formVisible.set(true);
       }
     });
@@ -233,7 +239,7 @@ export class JournalFormComponent {
       return;
     }
     const base = this.journalForm.controls.dateCreatedTime.value ?? new Date();
-    const normalized = new Date(base);
+    const normalized = Number.isNaN(base.getTime()) ? new Date() : new Date(base);
     normalized.setHours(hours, minutes, 0, 0);
     this.journalForm.controls.dateCreatedTime.setValue(normalized);
     input.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
@@ -369,51 +375,57 @@ export class JournalFormComponent {
 
   onEnterForResetState(event: Event) {
     event.preventDefault();
-    this.resetState(); 
+    this.resetState();
   }
 
   async resetState() {
-    const reset = JournalEntryStatusReset[this.journalForm.controls.entryStatus.value];
-    if (!reset) {
-      return;
-    }
-    const { entryStatus, required } = reset;
-    const requiredField = this.journalForm.get(required);
-    if (!requiredField) {
-      return;
-    }
-    if (!requiredField.value) {
-      Object.values(this.journalForm.controls).forEach((control) => {
-        control.setErrors(null);
-      });
-      requiredField.setErrors({ required: true });
-      requiredField.markAsTouched();
-      InfoDialogComponent.showErrorDialog(
-        this._dialog,
-        this.i18n.get('fillAllFields'),
-        null,
-        this.i18n.get('continueEditingAction'),
-      );
-      return;
-    }
-
-    const { error, result } = await this.journal.update(
-      {
-        entryStatus,
-        [required]: requiredField.value,
-      },
-      this.entry()?.documentId,
-      this.entry()?.uuid,
-    );
-    if (error || !result) {
-      console.error(`could not update state of journalEntry ${this.entry()?.documentId}`, error);
-      InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
-      if (!(typeof error === 'object' && 'localOnly' in error && error.localOnly)) {
+    if (this.submitting()) return;
+    this.submitting.set(true);
+    try {
+      const reset = JournalEntryStatusReset[this.journalForm.controls.entryStatus.value];
+      if (!reset) {
         return;
       }
-    }
+      const { entryStatus, required } = reset;
+      const requiredField = this.journalForm.get(required);
+      if (!requiredField) {
+        return;
+      }
+      if (!requiredField.value) {
+        Object.values(this.journalForm.controls).forEach((control) => {
+          control.setErrors(null);
+        });
+        requiredField.setErrors({ required: true });
+        requiredField.markAsTouched();
+        InfoDialogComponent.showErrorDialog(
+          this._dialog,
+          this.i18n.get('fillAllFields'),
+          null,
+          this.i18n.get('continueEditingAction'),
+        );
+        return;
+      }
 
-    this.doClose();
+      const { error, result } = await this.journal.update(
+        {
+          entryStatus,
+          [required]: requiredField.value,
+        },
+        this.entry()?.documentId,
+        this.entry()?.uuid,
+      );
+      if (error || !result) {
+        console.error(`could not update state of journalEntry ${this.entry()?.documentId}`, error);
+        InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
+        if (!(typeof error === 'object' && 'localOnly' in error && error.localOnly)) {
+          return;
+        }
+      }
+
+      this.doClose();
+    } finally {
+      this.submitting.set(false);
+    }
   }
 
   filterObject<T>(obj: Partial<T>, allowedKeys: (keyof T)[]): Partial<T> {
@@ -427,129 +439,140 @@ export class JournalFormComponent {
   }
 
   async save() {
-    const entryStatus = this.journalForm.controls.entryStatus.value;
-    const dateField = JournalEntryStatusDateField[entryStatus];
-    if (dateField) {
-      this.journalForm.patchValue({ [dateField]: new Date() });
-    }
-
-    //active verify all required fields
-    let allowedFields = JournalEntryStatusFields[entryStatus];
-    Object.entries(this.journalForm.controls).forEach(([fieldName, control]) => {
-      if (allowedFields.includes(fieldName as keyof JournalEntry)) {
-        control.updateValueAndValidity();
+    if (this.submitting()) return;
+    this.submitting.set(true);
+    try {
+      const entryStatus = this.journalForm.controls.entryStatus.value;
+      const dateField = JournalEntryStatusDateField[entryStatus];
+      if (dateField) {
+        this.journalForm.patchValue({ [dateField]: new Date() });
       }
-    });
-    const currentReset = JournalEntryStatusReset[entryStatus];
-    if (currentReset) {
-      this.journalForm.controls[currentReset.required].markAsUntouched();
-      this.journalForm.controls[currentReset.required].setErrors(null);
-    }
 
-    if (this.manualMessageNumber() && this.journalForm.controls.messageNumber.value) {
-      const messageNumber = typeof this.journalForm.controls.messageNumber.value === 'string' 
-        ? parseInt(this.journalForm.controls.messageNumber.value, 10) 
-        : this.journalForm.controls.messageNumber.value;
-      
-      if (!isNaN(messageNumber) && messageNumber > 0) {
-        const currentEntry = this.entry();
-        const exists = await this.journal.messageNumberAlreadyExist(
-          messageNumber,
-          currentEntry?.uuid || currentEntry?.documentId,
-        );
-        
-        if (exists) {
-          this.journalForm.controls.messageNumber.setErrors({ messageNumberExists: true });
-          this.journalForm.controls.messageNumber.markAsTouched();
-          InfoDialogComponent.showErrorDialog(
-            this._dialog,
-            this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()),
-            null,
-            this.i18n.get('continueEditingAction'),
+      //active verify all required fields
+      let allowedFields = JournalEntryStatusFields[entryStatus];
+      Object.entries(this.journalForm.controls).forEach(([fieldName, control]) => {
+        if (allowedFields.includes(fieldName as keyof JournalEntry)) {
+          control.updateValueAndValidity();
+        }
+      });
+      const currentReset = JournalEntryStatusReset[entryStatus];
+      if (currentReset) {
+        this.journalForm.controls[currentReset.required].markAsUntouched();
+        this.journalForm.controls[currentReset.required].setErrors(null);
+      }
+
+      if (this.manualMessageNumber() && this.journalForm.controls.messageNumber.value) {
+        const messageNumber =
+          typeof this.journalForm.controls.messageNumber.value === 'string'
+            ? parseInt(this.journalForm.controls.messageNumber.value, 10)
+            : this.journalForm.controls.messageNumber.value;
+
+        if (!isNaN(messageNumber) && messageNumber > 0) {
+          const currentEntry = this.entry();
+          const exists = await this.journal.messageNumberAlreadyExist(
+            messageNumber,
+            currentEntry?.uuid || currentEntry?.documentId,
           );
+
+          if (exists) {
+            this.journalForm.controls.messageNumber.setErrors({ messageNumberExists: true });
+            this.journalForm.controls.messageNumber.markAsTouched();
+            InfoDialogComponent.showErrorDialog(
+              this._dialog,
+              this.i18n.get('messageNumberAlreadyExists').replace('{number}', messageNumber.toString()),
+              null,
+              this.i18n.get('continueEditingAction'),
+            );
+            return;
+          }
+        }
+      }
+
+      if (this.journalForm.invalid || this.journalForm.pending) {
+        this.journalForm.markAllAsTouched();
+        InfoDialogComponent.showErrorDialog(
+          this._dialog,
+          this.i18n.get('fillAllFields'),
+          null,
+          this.i18n.get('continueEditingAction'),
+        );
+        return;
+      }
+      const newEntryStatus = JournalEntryStatusNext[entryStatus];
+      const nextReset = JournalEntryStatusReset[newEntryStatus];
+
+      //prepare object with only allowed/changed fields to save
+      // Use getRawValue() to include disabled controls (like messageNumber when manually entered)
+      const formRawValue = this.journalForm.getRawValue();
+      const { dateCreatedTime, dateCreatedDate, messageNumber, ...rest } = formRawValue;
+      const values: Partial<JournalEntry> = {
+        ...(rest as JournalEntry),
+        ...(dateCreatedDate && dateCreatedTime
+          ? { dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime) }
+          : {}),
+        // Only include messageNumber if manually entered
+        ...(this.manualMessageNumber() && messageNumber
+          ? { messageNumber: typeof messageNumber === 'string' ? parseInt(messageNumber, 10) : messageNumber }
+          : {}),
+      };
+      if (nextReset && values[nextReset.required]) {
+        //clear reset field of next step, so it's not longer filled
+        values[nextReset.required] = null as any;
+        allowedFields = [...allowedFields, nextReset.required];
+      }
+
+      const { result, error } = await this.journal.save({
+        ...this.filterObject(values, allowedFields),
+        entryStatus: newEntryStatus,
+        documentId: this.entry()?.documentId,
+        uuid: this.entry()?.uuid,
+      } as JournalEntry);
+
+      if (error || !result) {
+        console.error('Error saving journal entry', error);
+        InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
+        if (!(typeof error === 'object' && 'localOnly' in error && error.localOnly)) {
+          this.showPrint = true;
           return;
         }
       }
-    }
 
-    if (this.journalForm.invalid || this.journalForm.pending) {
-      this.journalForm.markAllAsTouched();
-      InfoDialogComponent.showErrorDialog(
-        this._dialog,
-        this.i18n.get('fillAllFields'),
-        null,
-        this.i18n.get('continueEditingAction'),
-      );
-      return;
-    }
-    const newEntryStatus = JournalEntryStatusNext[entryStatus];
-    const nextReset = JournalEntryStatusReset[newEntryStatus];
+      if (this.entry() === null) {
+        // Get the message number from the saved result
+        const savedMessageNumber = result?.messageNumber;
 
-    //prepare object with only allowed/changed fields to save
-    // Use getRawValue() to include disabled controls (like messageNumber when manually entered)
-    const formRawValue = this.journalForm.getRawValue();
-    const { dateCreatedTime, dateCreatedDate, messageNumber, ...rest } = formRawValue;
-    const values: Partial<JournalEntry> = {
-      ...(rest as JournalEntry),
-      ...(dateCreatedDate && dateCreatedTime ? {dateMessage: this.combineDateAndTime(dateCreatedDate, dateCreatedTime)} : {}),
-      // Only include messageNumber if manually entered
-      ...(this.manualMessageNumber() && messageNumber ? { messageNumber: typeof messageNumber === 'string' ? parseInt(messageNumber, 10) : messageNumber } : {}),
-    };
-    if (nextReset && values[nextReset.required]) {
-      //clear reset field of next step, so it's not longer filled
-      values[nextReset.required] = null as any;
-      allowedFields = [...allowedFields, nextReset.required];
-    }
-
-    const { result, error } = await this.journal.save({
-      ...this.filterObject(values, allowedFields),
-      entryStatus: newEntryStatus,
-      documentId: this.entry()?.documentId,
-      uuid: this.entry()?.uuid,
-    } as JournalEntry);
-
-    if (error || !result) {
-      console.error('Error saving journal entry', error);
-      InfoDialogComponent.showSaveErrorDialog(this._dialog, this.i18n, error);
-      if (!(typeof error === 'object' && 'localOnly' in error && error.localOnly)) {
-        this.showPrint = true;
-        return;
-      }
-    }
-
-    if (this.entry() === null) {
-      // Get the message number from the saved result
-      const savedMessageNumber = result?.messageNumber;
-      
-      if (this.isCreateModal()) {
-        // In create modal mode, emit saved event and reset form except visa
-        if (savedMessageNumber) {
-          this.saved.emit(savedMessageNumber);
-        }
-        const savedVisa = rest.visumMessage;
-        this.addNew();
-        this.journalForm.patchValue({
-          visumMessage: savedVisa,
-        });
-        this.dirty.emit(false);
-        this.showPrint = false;
-      } else {
-        //if in message creating "mode" directly start to add new one, and keep obvious values
-        this.addNew();
-        this.journalForm.patchValue({
-          visumMessage: rest.visumMessage,
-        });
-        if (rest.communicationType === 'funk') {
+        if (this.isCreateModal()) {
+          // In create modal mode, emit saved event and reset form except visa
+          if (savedMessageNumber) {
+            this.saved.emit(savedMessageNumber);
+          }
+          const savedVisa = rest.visumMessage;
+          this.addNew();
           this.journalForm.patchValue({
-            communicationType: rest.communicationType,
-            communicationDetails: rest.communicationDetails,
+            visumMessage: savedVisa,
           });
+          this.dirty.emit(false);
+          this.showPrint = false;
+        } else {
+          //if in message creating "mode" directly start to add new one, and keep obvious values
+          this.addNew();
+          this.journalForm.patchValue({
+            visumMessage: rest.visumMessage,
+          });
+          if (rest.communicationType === 'funk') {
+            this.journalForm.patchValue({
+              communicationType: rest.communicationType,
+              communicationDetails: rest.communicationDetails,
+            });
+          }
+          this.dirty.emit(false);
+          this.showPrint = false;
         }
-        this.dirty.emit(false);
-        this.showPrint = false;
+      } else {
+        this.doClose();
       }
-    } else {
-      this.doClose();
+    } finally {
+      this.submitting.set(false);
     }
   }
 

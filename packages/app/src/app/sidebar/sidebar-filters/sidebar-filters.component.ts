@@ -127,7 +127,7 @@ export class SidebarFiltersComponent {
       } else if (sig.type === undefined && f?.getGeometry()?.getType() === 'LineString' && sig.freehand) {
         symbols['free_hand_element'] = {
           type: 'LineString',
-          label: this.i18n.get('freeHand'),
+          label: this.i18n.get('freehand'),
           filterValue: 'line',
           icon: 'gesture',
         };

@@ -19,6 +19,7 @@
       [disabled]="layer.type !== 'wms_custom'"
     >
       <mat-option value="_GeoAdmin_" disabled>GeoAdmin</mat-option>
+      <mat-option value="_geodienste_" [disabled]="!layer.geodiensteSourceLayerId">geodienste</mat-option>
       <mat-option value="_CUSTOM_">custom</mat-option>
       @for (item of sources; track item) {
         <mat-option [value]="item" [disabled]="item.type !== 'wms'">
@@ -27,6 +28,12 @@
       }
     </mat-select>
   </mat-form-field>
+  @if (geodienste_source) {
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ i18n.get('geodiensteLayerId') }}</mat-label>
+      <input matInput type="url" [(ngModel)]="layer.geodiensteSourceLayerId" [disabled]="layer.type !== 'wms_custom'"/>
+    </mat-form-field>
+  }
   @if (custom_source) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>

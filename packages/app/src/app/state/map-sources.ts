@@ -1,4 +1,5 @@
-import { ZsMapStateSource, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
+import { inject, Injectable } from '@angular/core';
+import { WMSMapLayer, ZsMapStateSource, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
 import OlTileXYZ from 'ol/source/XYZ';
 import { PMTilesVectorSource } from 'ol-pmtiles';
 import OlTileLayer from '../map-renderer/utils';
@@ -8,15 +9,22 @@ import { stylefunction } from 'ol-mapbox-style';
 import { db } from '../db/db';
 import { BlobService } from '../db/blob.service';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
+import { WmsService } from '../map-layer/wms/wms.service';
+import { GeodiensteService } from '../map-layer/geodienste/geodienste.service';
 
-export const ZsMapSources = {
+@Injectable({
+  providedIn: 'root',
+})
+export class MapSourcesService {
+  private wmsService = inject(WmsService);
+  private geodiensteService = inject(GeodiensteService);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getOlTileLayer(source: any) {
     return new OlTileLayer({
       zIndex: 0,
       source,
     });
-  },
+  }
   async get(source: ZsMapStateSource): Promise<Layer> {
     switch (source) {
       case ZsMapStateSource.GEO_ADMIN_SWISS_IMAGE:
@@ -46,6 +54,26 @@ export const ZsMapSources = {
             crossOrigin: 'anonymous',
           }),
         );
+      case ZsMapStateSource.GEODIENSTE_AV: {
+        const layerConfig = await this.geodiensteService.getLayer('avc_0', 1);
+        if (layerConfig) {
+          return (await this.wmsService.createWMSCustomLayer(layerConfig))[0];
+        } else {
+          return new OlTileLayer({
+            zIndex: 0,
+          });
+        }
+      }
+      case ZsMapStateSource.GEODIENSTE_AV_SITUATION: {
+        const layerConfig = await this.geodiensteService.getLayer('av_situationsplan_0', 1);
+        if (layerConfig) {
+          return (await this.wmsService.createWMSCustomLayer(layerConfig))[0];
+        } else {
+          return new OlTileLayer({
+            zIndex: 0,
+          });
+        }
+      }
       case ZsMapStateSource.LOCAL: {
         const downloadUrl = zsMapStateSourceToDownloadUrl[source];
         const mapMeta = await db.localMapInfo.get(source);
@@ -74,7 +102,9 @@ export const ZsMapSources = {
       case undefined:
         return this.getOlTileLayer(
           new OlTileXYZ({
-            attributions: ['© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'],
+            attributions: [
+              '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+            ],
             url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             maxZoom: 19,
             crossOrigin: 'anonymous',
@@ -84,12 +114,14 @@ export const ZsMapSources = {
         console.error(`Map source ${source} is not implemented`);
         return this.getOlTileLayer(
           new OlTileXYZ({
-            attributions: ['© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'],
+            attributions: [
+              '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+            ],
             url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             maxZoom: 19,
             crossOrigin: 'anonymous',
           }),
         );
     }
-  },
-};
+  }
+}

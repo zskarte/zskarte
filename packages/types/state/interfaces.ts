@@ -11,6 +11,8 @@ export enum ZsMapStateSource {
   GEO_ADMIN_SWISS_IMAGE = 'geoAdminSwissImage',
   GEO_ADMIN_PIXEL = 'geoAdminPixel',
   GEO_ADMIN_PIXEL_BW = 'geoAdminPixelBW',
+  GEODIENSTE_AV = 'geodiensteAV',
+  GEODIENSTE_AV_SITUATION = 'geodiensteAVSituation',
   LOCAL = 'local',
   NONE = 'noBaseMap',
 }
@@ -336,5 +338,6 @@ export interface IFoundLocationAttrs {
   objectclass?: string;
   origin?: string;
   featureId?: string;
+  layer?: string;
   geom_st_box2d: string;
 }

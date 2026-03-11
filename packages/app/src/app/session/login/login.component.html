@@ -5,7 +5,7 @@
     </button>
     <mat-card-header class="title">
       <img class="header-logo" mat-card-sm-image src="/assets/img/favicon/zskarte-logo.png" />
-      <h1>Login</h1>
+      <h1>{{ i18n.get('loginTitle') }}</h1>
       <div class="header-spacer"></div>
     </mat-card-header>
 
@@ -13,14 +13,14 @@
       <mat-card-content>
         @if (!isLoginWithCodeEnabled) {
           <mat-form-field class="full-width" appearance="outline">
-            <mat-label>ZSO</mat-label>
+            <mat-label>{{ i18n.get('loginOrganization') }}</mat-label>
             <input
               matInput
               [formControl]="filterControl"
               (input)="filterOrganizations()"
               [value]="selectedOrganization?.name"
               [matAutocomplete]="auto"
-              placeholder="Organisation eingeben"
+              [placeholder]="i18n.get('enterOrganization')"
             />
             <mat-icon matSuffix>arrow_drop_down</mat-icon>
             <mat-autocomplete
@@ -43,11 +43,12 @@
             </mat-autocomplete>
           </mat-form-field>
           <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Passwort</mat-label>
-            <input matInput type="password" placeholder="Passwort eingeben" [(ngModel)]="password" name="password" />
+            <mat-label>{{ i18n.get('password') }}</mat-label>
+            <input matInput type="password" [placeholder]="i18n.get('enterPassword')" [(ngModel)]="password" name="password" />
           </mat-form-field>
           @if (session.observeAuthError() | async; as authError) {
             <mat-error>{{
+              authError?.error?.message === 'Internal Server Error' ? i18n.get('wrongPassword') :
               authError?.error?.details?.errors?.[0]?.message ||
                 authError?.error?.message ||
                 authError?.statusText ||
@@ -57,12 +58,12 @@
         } @else {
           <!-- Login with code dialog-->
           <mat-form-field class="full-width" appearance="outline">
-            <mat-label>Login-Code</mat-label>
-            <input matInput type="text" placeholder="Login-Code eingeben" [(ngModel)]="joinCode" name="joinCode" />
+            <mat-label>{{ i18n.get('loginCode') }}</mat-label>
+            <input matInput type="text" [placeholder]="i18n.get('enterLoginCode')" [(ngModel)]="joinCode" name="joinCode" />
           </mat-form-field>
         }
         <stack [spacing]="5">
-          <button class="login-button" mat-flat-button color="primary" (click)="login()">Login</button>
+          <button class="login-button" mat-flat-button color="primary" (click)="login()">{{ i18n.get('login') }}</button>
           @if (isLoginWithCodeEnabled) {
             <button
               class="login-button"

@@ -63,7 +63,7 @@
       <mat-card>
         <app-form-section>
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>{{ i18n.get('messageTitle') }}</mat-label>
+            <mat-label>{{ i18n.get('messageSubject') }}</mat-label>
             <input matInput formControlName="messageSubject" />
           </mat-form-field>
           <app-text-area-with-address-search
@@ -83,6 +83,8 @@
           </mat-form-field>
         </app-form-section>
       </mat-card>
+      <!-- allow to submit with enter on modal form -->
+      <button type="submit" style="display:none" [disabled]="submitting()"></button>
     </div>
   } @else {
   
@@ -113,7 +115,7 @@
       </div>
       <div class="journal-section ">
         <p><strong>{{ i18n.get('receiver') }}</strong></p>
-        <p>{{ journalForm.value.sender }}</p>
+        <p>{{ journalForm.value.creator }}</p>
       </div>
       <div class="journal-section">
         <p><strong>{{ i18n.get('visa') }}</strong></p>
@@ -203,7 +205,7 @@
                 <mat-icon>print</mat-icon>
               </button>
             }
-            <button mat-flat-button color="primary" type="submit">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
               <mat-icon>check</mat-icon>
               {{ i18n.get('save') }}
             </button>
@@ -218,7 +220,7 @@
               <input matInput formControlName="wrongContentInfo" (keydown.enter)="onEnterForResetState($event)" />
             </mat-form-field>
         
-            <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToInput') }}</button>
+            <button mat-button type="button" (click)="resetState()" [disabled]="submitting()">{{ i18n.get('backToInput') }}</button>
           </div>
         </div>
       }
@@ -283,7 +285,7 @@
                 <mat-icon>print</mat-icon>
               </button>
             }
-            <button mat-flat-button color="primary" type="submit">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
               <mat-icon>check</mat-icon>
               {{ i18n.get('save') }}
             </button>
@@ -299,7 +301,7 @@
             <input matInput formControlName="wrongTriageInfo" (keydown.enter)="onEnterForResetState($event)" />
           </mat-form-field>
     
-          <button mat-button type="button" (click)="resetState()">{{ i18n.get('backToTriage') }}</button>
+          <button mat-button type="button" (click)="resetState()" [disabled]="submitting()">{{ i18n.get('backToTriage') }}</button>
         </div>
       </div>
     }
@@ -341,7 +343,7 @@
                 <mat-icon>print</mat-icon>
               </button>
             }
-            <button mat-flat-button color="primary" type="submit">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
               <mat-icon>check</mat-icon>
               {{ i18n.get('save') }}
             </button>

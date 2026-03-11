@@ -18,7 +18,6 @@ import { TextDividerComponent } from '../../text-divider/text-divider.component'
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
 import { IZso, IZsMapOrganization } from '@zskarte/types';
 
 @Component({
@@ -37,7 +36,6 @@ import { IZso, IZsMapOrganization } from '@zskarte/types';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
-    RouterLink,
   ],
 })
 export class LoginComponent implements OnDestroy {
@@ -156,6 +154,6 @@ export class LoginComponent implements OnDestroy {
   }
 
   public openHelp(): void {
-    window.open('/help', '_blank');
+    this.router.navigate(['/help/login']);
   }
 }

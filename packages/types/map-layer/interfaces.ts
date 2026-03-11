@@ -78,6 +78,8 @@ export interface WMSMapLayer extends MapLayer, GenericOptionalMapLayerOptions {
   originalServerLayerName?: string;
   tileSize?: number;
   tileFormat?: string;
+  gutter?: number;
+  geodiensteSourceLayerId?: string;
 }
 
 export interface GeoJSONMapLayer extends MapLayer, GenericOptionalMapLayerOptions {
@@ -147,7 +149,7 @@ export interface Media extends DocumentApi {
 
 export interface MapLayerSourceApi {
   wms_source?: WmsSource | RelationUpdateApi;
-  media_source?: Media | RelationUpdateApi;
+  media_source?: Media | number; //Media fields required direct id not relationApi
   custom_source?: string;
 }
 

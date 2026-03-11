@@ -188,7 +188,7 @@ export function defineDefaultValuesForSignature(signature: Sign) {
   signature.strokeWidth =
     signature.strokeWidth ?? signatureDefaultValues.strokeWidth;
   signature.fontSize = signature.fontSize ?? signatureDefaultValues.fontSize;
-  signature.fillStyle = signature.fillStyle ?? signatureDefaultValues.fillStyle;
+  signature.fillStyle = signature.fillStyle ?? { ...signatureDefaultValues.fillStyle };
   signature.fillStyle.angle =
     signature.fillStyle.angle ?? signatureDefaultValues.fillStyleAngle;
   signature.fillStyle.size =

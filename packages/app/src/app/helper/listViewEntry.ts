@@ -5,25 +5,25 @@ import { I18NService } from '../state/i18n.service';
 import capitalizeFirstLetter from './capitalizeFirstLetter';
 import { getCenter } from 'ol/extent';
 import saveAs from 'file-saver';
-import { convertTo } from './projections';
+import { convertTo, ZsKarteProjection } from './projections';
 import { SimpleGeometry } from 'ol/geom';
 
-export function mapProtocolEntry(
+export function mapListViewEntry(
   elements: ZsMapBaseDrawElement[],
   datePipe: DatePipe,
   i18n: I18NService,
   currentLocale: string,
-  projectionFormatIndex: number,
+  projection: ZsKarteProjection,
   numerical: boolean,
-): ProtocolEntry[] {
+): ListViewEntry[] {
   return elements.map((element) => {
     const olFeature = element.getOlFeature();
     const sig = olFeature.get('sig');
     const sk: string = sig.kat ? 'sign' + capitalizeFirstLetter(sig.kat) : 'csvGroupArea';
     const geometry = element.getOlFeature().getGeometry() as SimpleGeometry;
-    const location = JSON.stringify(convertTo(geometry.getCoordinates() || [], projectionFormatIndex, numerical));
+    const location = JSON.stringify(convertTo(geometry.getCoordinates() || [], projection, numerical));
     const extent = geometry?.getExtent();
-    const centroid = convertTo(extent ? getCenter(extent) : [], projectionFormatIndex, numerical);
+    const centroid = convertTo(extent ? getCenter(extent) : [], projection, numerical);
     const reportNumber = (
       Array.isArray(element.elementState?.reportNumber)
         ? element.elementState?.reportNumber
@@ -32,6 +32,7 @@ export function mapProtocolEntry(
     return {
       id: element.getId(),
       date: datePipe.transform(element.elementState?.createdAt, 'dd.MM.yyyy HH:mm'),
+      dateNumeric: element.elementState?.createdAt,
       group: sk && i18n.has(sk) ? i18n.get(sk) : '',
       sign: currentLocale === 'fr' ? sig.fr : currentLocale === 'en' ? sig.en : sig.de,
       location,
@@ -44,13 +45,14 @@ export function mapProtocolEntry(
       // However, the "name" is stored inside the "text" attribute
       label: element.elementState?.name || (element.elementState as ZsMapTextDrawElementState)?.text,
       description: element.elementState?.description,
-    } as ProtocolEntry;
+    } as ListViewEntry;
   });
 }
 
-export interface ProtocolEntry {
+export interface ListViewEntry {
   id: string;
   date?: string;
+  dateNumeric: number;
   group: string;
   sign: string;
   location: string;
@@ -61,11 +63,11 @@ export interface ProtocolEntry {
   description: string;
 }
 
-export async function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n: I18NService) {
+export async function exportListViewExcel(listViewEntries: ListViewEntry[], i18n: I18NService, operationName: string) {
   const exceljs = await import('exceljs');
   const { Workbook } = exceljs.default ? exceljs.default : exceljs;
   const workbook = new Workbook();
-  const sheet = workbook.addWorksheet('Protocol Entries');
+  const sheet = workbook.addWorksheet('List view entries');
   sheet.columns = [
     { header: i18n.get('csvDate'), key: 'date', width: 15 },
     { header: i18n.get('csvGroup'), key: 'group', width: 15 },
@@ -75,11 +77,13 @@ export async function exportProtocolExcel(protocolEntries: ProtocolEntry[], i18n
     { header: i18n.get('csvLabel'), key: 'label', width: 15 },
     { header: i18n.get('csvDescription'), key: 'description', width: 30 },
   ];
-  sheet.addRows(protocolEntries);
-  return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
-    saveAs(
-      new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-      `${i18n.get('protocolExport')}_${new Date().toISOString().slice(0, 10)}.xlsx`,
+  sheet.addRows(listViewEntries);
+  const fileName =
+    `${i18n.get('listViewExport')}_${operationName}_${new Date().toISOString().slice(0, 16)}.xlsx`.replaceAll(
+      /[^a-zA-Z0-9._-]/g,
+      '_',
     );
+  return workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+    saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), fileName);
   });
 }

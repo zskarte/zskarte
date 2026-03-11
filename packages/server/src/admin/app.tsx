@@ -12,6 +12,7 @@ const handleClickUpdateMapLayer = async () => {
     if (response.ok) {
       const data = await response.json();
       alert(`Erfolg: ${data.json.message}`);
+      window.location.reload();
     } else {
       if (response.status === 401){
         alert('Fehler: Nur Admins können triggern.');

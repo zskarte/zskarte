@@ -58,7 +58,7 @@
     </div>
     <div class="journal-main">
       <div class="journal-filter-section">
-        <p><strong>{{ i18n.get('filters' )}}</strong></p>
+        <p><strong>{{ i18n.get('filter' )}}</strong></p>
         <div class="journal-filter">
           <div class="journal-filter-row">
             <mat-form-field class="journal-filter-search" appearance="outline">
@@ -168,7 +168,7 @@
 
           <ng-container matColumnDef="dateMessage">
             <th mat-header-cell *matHeaderCellDef mat-sort-header="dateMessage">{{ i18n.get('dateCreated') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.dateMessage.toLocaleString('de-CH') }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.dateMessage?.toLocaleString('de-CH') }}</td>
           </ng-container>
 
           <ng-container matColumnDef="entryResponsibility">

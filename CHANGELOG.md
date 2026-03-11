@@ -1,5 +1,47 @@
 # Changelog
 
+## 6.0.2
+- Add Geodienste layers
+- Optimize address search map layer generation
+- Optimize street search results
+- Resource table clickable
+- Rename protocol to list view
+- Translation file cleanup / modularize
+- Language change on login/operation/help page
+- Show message number on readonly view
+- Prevent multi submit on journal, allow submit with return
+- Show current UI version & changelog
+- Diverse small bugfixes
+
+## 6.0.1
+- Revert journal pagination logic
+
+## 6.0.0
+- Many UI/UX optimisations
+- Additional draw layers
+- Import export of journal together with map data
+- Separate searchable help section
+- Enter name directly after open operation
+- Auto focus feature search when clicking add
+- Add rectangle and circle drawing tools
+- Global icon zoom & hide names
+- Gefahrentafel symbol with UN number visible on symbol
+- Customizable formation/transport/leader symbols
+- Resource overview
+- Message template (expert view - organization settings)
+- Fix message address handling & optimize UI/controll
+- Militatry time format for message time
+- Auto increment messagenumber selectable(default)
+- After decision message goes back to be drawn on map
+- Add support for Shape-file layers
+- Add autogenerate offline searchable layers for addresses/places
+- Compass / Orientation on map
+- Preparation for work offline (download required data)
+- Diverse small bugfixes
+
+## 5.1.1
+- Diverse small bugfixes
+
 ## 5.1.0
 - Offline Mode for journal (temporarly/Work offline)
 - Search for street or water(section) goemetry
@@ -19,7 +61,6 @@
 - Different other small fixes and features
 
 ## 5.0.0
-
 - Merge Frontent and Server part to one Monorepo
 - Add Message / Journal support
 - Add support for additional map layers (WMS, WMTS, GeoJSON, CSV), see expert view
@@ -36,7 +77,6 @@
 - Upgrade used frameworks
 
 ## 4.0.0
-
 - Implement new floating design
 - Add undo/redo
 - Set scenario on map level

@@ -854,7 +854,7 @@ export class ZsMapStateService {
   }
 
   public observeSelectedFeature$(): Observable<string | undefined> {
-    return this._selectedFeature.asObservable();
+    return this._selectedFeature.asObservable().pipe(distinctUntilChanged((x, y) => x === y));
   }
 
   public observeHideSelectedFeature$(): Observable<boolean> {
@@ -864,6 +864,7 @@ export class ZsMapStateService {
   public observeSelectedElement$(): Observable<ZsMapBaseDrawElement | undefined> {
     return combineLatest([this.observeSelectedFeature$(), this.observeDrawElements()]).pipe(
       map(([featureId, elements]) => elements.find((e) => e.getId() === featureId)),
+      distinctUntilChanged((x, y) => x === y)
     );
   }
 
