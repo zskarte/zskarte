@@ -19,16 +19,6 @@
     "description": {
       "type": "richtext"
     },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "active",
-        "archived",
-        "deleted"
-      ],
-      "default": "active",
-      "required": false
-    },
     "organization": {
       "type": "relation",
       "relation": "manyToOne",
