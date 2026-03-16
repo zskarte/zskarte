@@ -205,7 +205,8 @@ export class ZsMapStateService {
         showLinkedText: true,
       },
       changesetConfig: {
-        hiddenMode: true,
+        applyOnExpertViewOnly: true,
+        hiddenMode: false,
         automerge: true,
         conflictTakeOur: true,
       },
@@ -441,8 +442,6 @@ export class ZsMapStateService {
   public toggleExpertView() {
     this.updateDisplayState((draft) => {
       draft.expertView = !draft.expertView;
-      //TODO: optimize this shortcut / make it configurable!
-      draft.changesetConfig.hiddenMode = !draft.expertView;
       if (draft.expertView) {
         this._snackBar.open(this.i18n.get('toastExpertView'), 'OK', {
           duration: 2000,
@@ -916,7 +915,7 @@ export class ZsMapStateService {
   public observeSelectedElement$(): Observable<ZsMapBaseDrawElement | undefined> {
     return combineLatest([this.observeSelectedFeature$(), this.observeDrawElements()]).pipe(
       map(([featureId, elements]) => elements.find((e) => e.getId() === featureId)),
-      distinctUntilChanged((x, y) => x === y)
+      distinctUntilChanged((x, y) => x === y),
     );
   }
 
@@ -1391,7 +1390,7 @@ export class ZsMapStateService {
     changeset.applied = false;
     if (
       !this.isChangesetMergeMode() &&
-      (!this._changeset.hasChanges() || this.getChangesetConfig().hiddenMode) &&
+      (!this._changeset.hasChanges() || this._changeset.changesetConfig().hiddenMode) &&
       (!this.isHistoryMode() || this.isCurrentMapData())
     ) {
       this.applyChangesets([changeset]);

@@ -30,17 +30,10 @@ export class SidebarChangesetComponent {
   readonly changesetService = inject(ChangesetService);
   private _snackBar = inject(MatSnackBar);
   readonly i18n = inject(I18NService);
-  readonly changesetConfig = toSignal(this._state.observeChangesetConfig());
   private _activeLayer = this._state.getActiveLayer()?.getId();
   conflictsOnly = true;
   allHighlighted = false;
   allPreviewIndex = 3;
-
-  updateAutomerge(val: boolean) {
-    this._state.updateChangesetConfig((draft) => {
-      draft.automerge = val;
-    });
-  }
 
   toggleHighlightAll() {
     this.allHighlighted = !this.allHighlighted;

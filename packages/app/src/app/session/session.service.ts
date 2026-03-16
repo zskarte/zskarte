@@ -101,7 +101,7 @@ export class SessionService {
             displayState = undefined;
           }
           this._state.setDisplayState(displayState);
-          if (queryParams) {
+          if (queryParams && Object.keys(queryParams).length > 0) {
             this._state.updateDisplayState((draft) =>
               SessionService.overrideDisplayStateFromQueryParams(draft, queryParams),
             );
@@ -335,6 +335,7 @@ export class SessionService {
   }
 
   public async saveOrganizationSettings(data: IZsMapOrganizationSettings) {
+    this._state.updateChangesetConfig((draft) => Object.assign(draft, data.changeset));
     const organization = this.getOrganization();
     if (organization?.documentId) {
       await this._api.put(`/api/organizations/${organization.documentId}/settings`, { data });

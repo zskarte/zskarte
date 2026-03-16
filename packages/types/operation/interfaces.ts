@@ -1,5 +1,5 @@
 import { MapLayer } from '../map-layer/interfaces';
-import { IZsChangeset, ZsMapState, ZsMapStateSource } from '../state/interfaces';
+import { IZsChangeset, IZsChangesetConfig, ZsMapState, ZsMapStateSource } from '../state/interfaces';
 
 export interface IZSMapOperationMapLayers {
   baseLayer: ZsMapStateSource;
@@ -34,6 +34,7 @@ export interface IZsMapOrganizationMapLayerSettings {
 
 export interface IZsMapOrganizationSettings {
   journalMessageTextTemplate?: string;
+  changeset: IZsChangesetConfig;
 }
 
 export interface IZsMapOrganization extends IZsMapOrganizationMapLayerSettings {

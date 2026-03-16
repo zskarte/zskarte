@@ -4,10 +4,62 @@
 
 <app-dialog-body class="content-container">
   <mat-card>
+    <h2>Journal</h2>
     <mat-form-field class="text-template" appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('journalMessageTextTemplate') }}</mat-label>
       <textarea matInput rows="5" [(ngModel)]="settings.journalMessageTextTemplate"></textarea>
     </mat-form-field>
+  </mat-card>
+  <mat-card>
+    <h2>changeset</h2>
+    <div class="infoText">
+        All changes on elements you do are packed into a changeset and submitted after start to edit a other element or
+        stop editing for a defined amount of time.
+    </div>
+    <fieldset class="like-mat-form-field-outline">
+      <legend>applyOnExpertViewOnly</legend>
+      <div class="infoText">
+        If activated the following settings only apply to expertView, and default view is always hidden/automerged.
+      </div>
+      <mat-checkbox [checked]="settings.changeset.applyOnExpertViewOnly" (change)="settings.changeset.applyOnExpertViewOnly = $event.checked">
+        only expert view
+      </mat-checkbox>
+    </fieldset>
+    <fieldset class="like-mat-form-field-outline">
+      <legend>hiddenMode</legend>
+      <div class="infoText">
+        If you deactivate the hiddenMode, you see an UI that show current
+        change infos and the submit timeout. (on expert mode it's always visible.)
+      </div>
+      <mat-checkbox [checked]="settings.changeset.hiddenMode" (change)="settings.changeset.hiddenMode = $event.checked">
+        hide changeset UI
+      </mat-checkbox>
+    </fieldset>
+    <fieldset class="like-mat-form-field-outline" [disabled]="settings.changeset.hiddenMode">
+      <legend>automerge</legend>
+      <div class="infoText">
+        If you are currently editing something and an other user also changed something there change are automatically
+        applied if there are no conflicts (changed other elements only).<br>
+        If active the merge resolving UI is only shown on conflicts.
+      </div>
+      <mat-checkbox [checked]="settings.changeset.hiddenMode || settings.changeset.automerge" (change)="settings.changeset.automerge = $event.checked">
+        automatically merge non conflicting changes
+      </mat-checkbox>
+    </fieldset>
+    <fieldset class="like-mat-form-field-outline" [disabled]="settings.changeset.hiddenMode || !settings.changeset.automerge">
+      <legend>conflictTakeOur</legend>
+      <div class="infoText">
+        If the change from other user have conflict with you current change, resolve conflict on automerge by keep/take
+        your current value.<br>
+        If activated the merge view is also not shown on conflicts.
+      </div>
+      <mat-checkbox
+        [checked]="settings.changeset.hiddenMode || (settings.changeset.conflictTakeOur && settings.changeset.automerge)"
+        (change)="settings.changeset.conflictTakeOur = $event.checked"
+      >
+        take own value on merge conflicting changes
+      </mat-checkbox>
+    </fieldset>
   </mat-card>
 </app-dialog-body>
 

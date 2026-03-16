@@ -237,6 +237,7 @@ export interface IZsJournalMessageEditConfig {
 }
 
 export interface IZsChangesetConfig {
+  applyOnExpertViewOnly: boolean;
   hiddenMode: boolean;
   automerge: boolean;
   conflictTakeOur: boolean;

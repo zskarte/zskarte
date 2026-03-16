@@ -75,7 +75,7 @@ export class ChangesetService {
   readonly unhandledPatchesCount = computed(() => this._unhandledPatches().length);
   private readonly _environmentInjector = inject(EnvironmentInjector);
   private _operationId: Signal<string | undefined> = signal<string | undefined>(undefined);
-  readonly changesetConfig = signal<IZsChangesetConfig | undefined>(undefined);
+  readonly changesetConfig = signal<IZsChangesetConfig>({applyOnExpertViewOnly:false, hiddenMode: true, automerge: true, conflictTakeOur: true});
   readonly isChangesetMergeMode = signal<boolean | undefined>(undefined);
   readonly incommingChangesets = signal<IZsChangeset[]>([]);
   readonly incommingCount = computed(() => {
@@ -109,7 +109,7 @@ export class ChangesetService {
     return this._current()?.manual === true;
   });
   readonly overlayVisible = computed(() => {
-    return !this.changesetConfig()?.hiddenMode || this.isChangesetMergeMode();
+    return !this.changesetConfig().hiddenMode || this.isChangesetMergeMode();
   });
   readonly changeDescription = computed(() => {
     return this._current()?.description;
@@ -176,10 +176,21 @@ export class ChangesetService {
 
     const changesetConfig = toSignal(this._state.observeChangesetConfig());
     const isChangesetMergeMode = toSignal(this._state.observeIsChangesetMergeMode());
+    const isExpertView = toSignal(this._state.observeIsExpertView());
     //initialize state based signals
     runInInjectionContext(this._environmentInjector, () => {
       effect(() => {
-        this.changesetConfig.set(changesetConfig());
+        const config = changesetConfig();
+        if (config) {
+          const expertView = isExpertView();
+          const evaluatedConfig: IZsChangesetConfig = {...config};
+          if (config.applyOnExpertViewOnly && !expertView){
+            evaluatedConfig.hiddenMode = true;
+            evaluatedConfig.automerge = true;
+            evaluatedConfig.conflictTakeOur = true;
+          }
+          this.changesetConfig.set(evaluatedConfig);
+        }
       });
       effect(() => {
         this.isChangesetMergeMode.set(isChangesetMergeMode());
@@ -587,7 +598,7 @@ export class ChangesetService {
         //new drawElement is changed
         const timestamp = new Date().getTime();
         if (
-          this._state.getChangesetConfig().hiddenMode ||
+          this.changesetConfig().hiddenMode ||
           changeset.firstChangeAt + this._createMultiElementChangesetDelta < timestamp
         ) {
           //Multi element changeset creation time over
@@ -696,8 +707,8 @@ export class ChangesetService {
       changeset.firstChangeAt = timestamp;
     }
     if (!changeset.layer) {
-      const elemId = Array.from(modifiedDrawElements).find((id) => mapState.drawElements[id]?.layer);
-      changeset.layer = elemId ? mapState.drawElements[elemId].layer : undefined;
+      const layers = Array.from(modifiedDrawElements).map((elemId) => getElement(mapState, patches, [], elemId)?.layer);
+      changeset.layer = layers.length > 0 ? layers[0] : undefined;
     }
     changeset.lastChangeAt = timestamp;
     changeset.patches.push(...patches);
@@ -785,7 +796,7 @@ export class ChangesetService {
       }
 
       //update current changest if in hiddenMode (remove patches for things overridden by applied changeset)
-      if (this._state.getChangesetConfig().hiddenMode && this.hasChanges()) {
+      if (this.changesetConfig().hiddenMode && this.hasChanges()) {
         const currentChangeset = this._current();
         if (currentChangeset) {
           const conflictPatches = changeset.patches.filter(
@@ -940,11 +951,12 @@ export class ChangesetService {
     }
 
     if (conflictDetails) {
+      const changesetConfig = this.changesetConfig();
       const automerge =
-        this._state.getChangesetConfig().automerge &&
-        (!conflictDetails.hasConflicts || this._state.getChangesetConfig().conflictTakeOur);
+        changesetConfig.automerge &&
+        (!conflictDetails.hasConflicts || changesetConfig.conflictTakeOur);
       if (automerge && oldConflictDetails?.changeset.id !== conflictDetails.changeset.id) {
-        this.replaceErrorChangesetByMerge(conflictDetails, this._state.getChangesetConfig().conflictTakeOur);
+        this.replaceErrorChangesetByMerge(conflictDetails, changesetConfig.conflictTakeOur);
       } else {
         this.conflictDetails.set(conflictDetails);
       }

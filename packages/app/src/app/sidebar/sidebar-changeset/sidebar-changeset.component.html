@@ -1,8 +1,4 @@
 <div class="changeset-container">
-  <mat-checkbox [ngModel]="changesetConfig()?.automerge" (change)="updateAutomerge($event.checked)"
-    >automerge</mat-checkbox
-  >
-
   @if (changesetService.inconsistent()) {
     <div class="title">changeset with conflicts</div>
     <div class="description">{{ changesetService.errorDescription() }}</div>
