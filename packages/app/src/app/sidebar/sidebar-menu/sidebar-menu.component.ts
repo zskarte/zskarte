@@ -23,16 +23,15 @@ import { IncidentSelectComponent } from '../../incident-select/incident-select.c
 import { MatMenuModule } from '@angular/material/menu';
 import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types';
 import { PersonRecoveryComponent } from '../../person-recovery/person-recovery.component';
-import { ExpertViewHelpComponent } from 'src/app/map-layer/expert-view-help/expert-view-help.component';
 import { ResourceOverviewComponent } from '../../resource-overview/resource-overview.component';
-import { OrganisationSettings } from 'src/app/organisation-settings/organisation-settings';
-import { VersionService } from 'src/version/version.service';
-import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from 'src/app/ui/dialog-layout';
-import { projectionByIndex } from 'src/app/helper/projections';
-import { ChangeTableComponent } from 'src/app/changeset/change-table/change-table.component';
-import { ChangesetService } from 'src/app/changeset/changeset.service';
-import { exportChangeExcel, mapChangeEntry } from 'src/app/helper/changeEntry';
-import { SigningService } from 'src/app/changeset/signing.service';
+import { OrganisationSettings } from '../../organisation-settings/organisation-settings';
+import { VersionService } from '../../version/version.service';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
+import { projectionByIndex } from '../../helper/projections';
+import { ChangeTableComponent } from '../../changeset/change-table/change-table.component';
+import { ChangesetService } from '../../changeset/changeset.service';
+import { exportChangeExcel, mapChangeEntry } from '../../helper/changeEntry';
+import { SigningService } from '../../changeset/signing.service';
 
 @Component({
   selector: 'app-sidebar-menu',

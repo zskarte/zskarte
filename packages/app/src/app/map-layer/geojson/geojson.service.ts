@@ -12,10 +12,10 @@ import { stylefunction } from 'ol-mapbox-style';
 import { StyleLike } from 'ol/style/Style';
 import { transformExtent, transform, toLonLat } from 'ol/proj';
 import { inferSchema, initParser } from 'udsv';
-import { LocalMapLayerMeta } from 'src/app/db/db';
-import { BlobService } from 'src/app/db/blob.service';
+import { LocalMapLayerMeta } from '../../db/db';
+import { BlobService } from '../../db/blob.service';
 import { GeoJSONMapLayer, CsvMapLayer, IZsMapSearchResult, IZsGlobalSearchConfig, ShapeMapLayer } from '@zskarte/types';
-import { SearchService } from 'src/app/search/search.service';
+import { SearchService } from '../../search/search.service';
 import shp from 'shpjs';
 
 const NumberSortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });

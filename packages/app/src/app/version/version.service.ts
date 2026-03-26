@@ -1,11 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
-import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
-import { I18NService } from 'src/app/state/i18n.service';
-import { version } from '../../package.json';
-import { ApiService } from 'src/app/api/api.service';
-import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { I18NService } from '../state/i18n.service';
+import { version } from '../../../package.json';
+import { ApiService } from '../api/api.service';
+import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 import { CompatibilityResponse } from '@zskarte/types';
 
 export interface VersionInfos {

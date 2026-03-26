@@ -11,7 +11,7 @@ import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
-import { getJsPDF } from 'src/app/pdf/jsPDF.factory';
+import { getJsPDF } from '../pdf/jsPDF.factory';
 import {
   EmptyComponent,
   EmptyHeaderComponent,

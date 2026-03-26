@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject } from '@angular/core';
 import { combineLatest } from 'rxjs';
-import { I18NService } from 'src/app/state/i18n.service';
-import capitalizeFirstLetter from 'src/app/helper/capitalizeFirstLetter';
+import { I18NService } from '../../state/i18n.service';
+import capitalizeFirstLetter from '../../helper/capitalizeFirstLetter';
 import { Sign, signCategories, SignCategory } from '@zskarte/types';
-import { ZsMapStateService } from 'src/app/state/state.service';
-import { ZsMapBaseDrawElement } from 'src/app/map-renderer/elements/base/base-draw-element';
+import { ZsMapStateService } from '../../state/state.service';
+import { ZsMapBaseDrawElement } from '../../map-renderer/elements/base/base-draw-element';
 import { FeatureLike } from 'ol/Feature';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';

@@ -46,7 +46,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SidebarDrawLayers } from '../sidebar-draw-layers/sidebar-draw-layers';
 import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 import { OfflineService } from '../../db/offline-service';
-import { GeodiensteService } from 'src/app/map-layer/geodienste/geodienste.service';
+import { GeodiensteService } from '../../map-layer/geodienste/geodienste.service';
 
 @Component({
   selector: 'app-sidebar',

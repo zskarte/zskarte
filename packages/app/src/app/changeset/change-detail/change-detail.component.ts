@@ -7,7 +7,7 @@ import { I18NService } from '../../state/i18n.service';
 import { ZsMapStateService } from '../../state/state.service';
 import { IZsChangeInfos, IZsChangeset, IZsMapOperation, IZsMapSnapshot, ZsMapState } from '@zskarte/types';
 import { MatIconModule } from '@angular/material/icon';
-import { ChangesetService, NO_CONFLICT_VALUE } from 'src/app/changeset/changeset.service';
+import { ChangesetService, NO_CONFLICT_VALUE } from '../changeset.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { applyPatches } from 'immer';
 

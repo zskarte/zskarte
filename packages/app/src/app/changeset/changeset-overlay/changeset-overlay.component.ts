@@ -3,8 +3,7 @@ import { ChangesetService } from '../changeset.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadge } from '@angular/material/badge';
-import { ZsMapStateService } from 'src/app/state/state.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ZsMapStateService } from '../../state/state.service';
 
 @Component({
   selector: 'app-changeset-overlay',

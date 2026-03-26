@@ -1,6 +1,6 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
-import { getResponsiveImageSource } from 'src/app/helper/strapi-utils';
+import { getResponsiveImageSource } from '../../helper/strapi-utils';
 import { ApiService } from '../../api/api.service';
 import { SessionService } from '../session.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';

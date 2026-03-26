@@ -1,16 +1,15 @@
 import { Component, computed, inject } from '@angular/core';
-import { ZsMapStateService } from 'src/app/state/state.service';
-import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
-import { ChangesetService, CONFLICT_INDEX_NAME, NO_CONFLICT_VALUE } from 'src/app/changeset/changeset.service';
+import { ZsMapStateService } from '../../state/state.service';
+import { MapRendererService } from '../../map-renderer/map-renderer.service';
+import { ChangesetService, CONFLICT_INDEX_NAME, NO_CONFLICT_VALUE } from '../../changeset/changeset.service';
 import { MatIcon } from '@angular/material/icon';
-import { I18NService } from 'src/app/state/i18n.service';
+import { I18NService } from '../../state/i18n.service';
 import { filter, skip, take } from 'rxjs';
 import { IZsChangesetConflict, IZsChangesetConflictValue } from '@zskarte/types';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sidebar-changeset',

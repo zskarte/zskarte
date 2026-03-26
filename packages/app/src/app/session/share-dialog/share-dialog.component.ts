@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import QRCode from 'qrcode';
-import { I18NService } from 'src/app/state/i18n.service';
+import { I18NService } from '../../state/i18n.service';
 import { DialogHeaderComponent, DialogBodyComponent } from '../../ui/dialog-layout';
 
 @Component({

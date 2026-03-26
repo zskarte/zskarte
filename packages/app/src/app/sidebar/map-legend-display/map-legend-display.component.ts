@@ -6,7 +6,7 @@ import { WmsService } from '../../map-layer/wms/wms.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MapLayer, WMSMapLayer } from '@zskarte/types';
 import { MatButtonModule } from '@angular/material/button';
-import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from 'src/app/ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-map-legend-display',

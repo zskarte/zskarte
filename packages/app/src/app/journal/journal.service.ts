@@ -3,7 +3,7 @@ import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.t
 import { ApiResponse, ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 import { IPdfService, PdfServiceFactory } from '../pdf/pdf-service.factory';
 import { v4 as uuidv4 } from 'uuid';
 import { LocalJournalEntry, PatchJournalEntry, db } from '../db/db';

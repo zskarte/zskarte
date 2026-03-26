@@ -10,7 +10,7 @@ import {
   output,
   AfterViewInit,
 } from '@angular/core';
-import { I18NService } from 'src/app/state/i18n.service';
+import { I18NService } from '../../state/i18n.service';
 import { Designer } from '@pdfme/ui';
 import { debounce } from '../../helper/debounce';
 import { SplitComponent, SplitAreaComponent } from 'angular-split';
@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconButton } from '@angular/material/button';
-import { InfoDialogComponent } from 'src/app/info-dialog/info-dialog.component';
+import { InfoDialogComponent } from '../../info-dialog/info-dialog.component';
 import { PdfServiceFactory } from '../pdf-service.factory';
 
 const alignedKeys = ['name', 'position', 'width', 'height', 'type'];

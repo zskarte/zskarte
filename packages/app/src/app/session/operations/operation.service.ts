@@ -17,7 +17,7 @@ import { OperationExportFile, OperationExportFileVersion } from '../../core/enti
 import { db } from '../../db/db';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
-import { JournalService } from 'src/app/journal/journal.service';
+import { JournalService } from '../../journal/journal.service';
 
 @Injectable({
   providedIn: 'root',

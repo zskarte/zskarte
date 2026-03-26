@@ -4,7 +4,7 @@
 swerder: WILL BE DELETED/REFACTORED shortly
 
 */
-import { Operation } from 'src/definitions';
+import { Operation } from '../definitions';
 import { Core } from '@strapi/strapi';
 import { zsMapStateMigration } from '@zskarte/common';
 

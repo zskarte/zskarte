@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { filter, startWith, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, filter, startWith, switchMap, tap } from 'rxjs';
 import { ApiService } from '../../api/api.service';
 import { SessionService } from '../../session/session.service';
 import { I18NService } from '../../state/i18n.service';
@@ -13,8 +13,8 @@ import { IZsChangeset, IZsMapOperation, IZsMapSnapshot } from '@zskarte/types';
 import { StrapiApiResponseList } from '../../helper/strapi-utils';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
-import { ChangeDetailComponent } from 'src/app/changeset/change-detail/change-detail.component';
+import { MapRendererService } from '../../map-renderer/map-renderer.service';
+import { ChangeDetailComponent } from '../../changeset/change-detail/change-detail.component';
 
 interface IZsMapSnapshotExtended extends IZsMapSnapshot {
   changesets: IZsChangeset[];

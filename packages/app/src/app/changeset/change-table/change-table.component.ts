@@ -19,7 +19,7 @@ import { ChangesetService } from '../changeset.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { mapChangeEntry } from 'src/app/helper/changeEntry';
+import { mapChangeEntry } from '../../helper/changeEntry';
 import { SigningService } from '../signing.service';
 
 @Component({

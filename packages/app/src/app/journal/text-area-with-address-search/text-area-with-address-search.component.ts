@@ -5,11 +5,11 @@ import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { SearchAutocompleteComponent } from 'src/app/search/search-autocomplete/search-autocomplete.component';
-import { isAddressTriggerAt } from 'src/app/search/address-trigger';
-import { ADDRESS_TOKEN_REGEX, SearchService, getGlobalAddressTokenRegex } from 'src/app/search/search.service';
-import { I18NService } from 'src/app/state/i18n.service';
-import { ZsMapStateService } from 'src/app/state/state.service';
+import { SearchAutocompleteComponent } from '../../search/search-autocomplete/search-autocomplete.component';
+import { isAddressTriggerAt } from '../../search/address-trigger';
+import { ADDRESS_TOKEN_REGEX, SearchService, getGlobalAddressTokenRegex } from '../../search/search.service';
+import { I18NService } from '../../state/i18n.service';
+import { ZsMapStateService } from '../../state/state.service';
 import {
   IResultSet,
   IZsGlobalSearchConfig,
@@ -18,11 +18,11 @@ import {
 } from '../../../../../types/state/interfaces';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { ContenteditableComponent } from 'src/app/contenteditable/contenteditable.component';
-import { debounceLeading } from 'src/app/helper/debounce';
+import { ContenteditableComponent } from '../../contenteditable/contenteditable.component';
+import { debounceLeading } from '../../helper/debounce';
 import { MatButtonModule } from '@angular/material/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { QuillBlotService } from 'src/app/contenteditable/quill-blot.service';
+import { QuillBlotService } from '../../contenteditable/quill-blot.service';
 
 @Component({
   selector: 'app-text-area-with-address-search',

@@ -11,7 +11,7 @@ import { I18NService } from '../../state/i18n.service';
 import { SidebarJournalEntryComponent } from '../sidebar-journal-entry/sidebar-journal-entry.component';
 import { JournalService } from '../../journal/journal.service';
 import { SidebarService } from '../sidebar.service';
-import { ZsMapStateService } from 'src/app/state/state.service';
+import { ZsMapStateService } from '../../state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   EmptyComponent,

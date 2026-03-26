@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { WMSMapLayer, WmsSource } from '@zskarte/types';
 import { WmsService } from '../wms/wms.service';
-import { SessionService } from 'src/app/session/session.service';
+import { SessionService } from '../../session/session.service';
 
 export const GEODIENSTE_DOMAIN = 'https://geodienste.ch/db/';
 const GEODIENSTE_ATTRIBUTION: [string, string][] = [['geodienste', 'https://geodienste.ch/terms-of-use']];

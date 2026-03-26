@@ -3,7 +3,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { ZsMapStateService } from 'src/app/state/state.service';
+import { ZsMapStateService } from '../state/state.service';
 import { mapListViewEntry, ListViewEntry } from '../helper/listViewEntry';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
 import { SessionService } from '../session/session.service';
