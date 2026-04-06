@@ -728,7 +728,7 @@ export class SearchService {
         coordinates = element.mercatorCoordinates = fromLonLat(element.lonLat);
       }
       if (coordinates) {
-        this._state.updateSearchResultFeatures([]);
+        let resultList: Feature[] = [];
         this._state.updatePositionFlag({ isVisible: true, coordinates });
         if (element.internal?.origin && element.internal?.featureId) {
           if (!element.feature) {
@@ -739,14 +739,25 @@ export class SearchService {
                 element.internal.layer,
               )) ?? undefined;
           }
-          if (element.feature) {
-            this.addressPreview.set(true);
-            this._state.updateSearchResultFeatures([element.feature]);
-          }
         }
+        if (element.feature) {
+          this.addressPreview.set(true);
+          resultList = [element.feature];
+        }
+        this._state.updateSearchResultFeatures(resultList);
         if (focus) {
-          if (this.zoomToFit && element.internal?.geom_st_box2d) {
-            const extent = this.extentFromGeomStBox2d(element.internal.geom_st_box2d);
+          if (this.zoomToFit) {
+            let extent: Extent | null | undefined;
+            if (element.internal?.geom_st_box2d) {
+              extent = this.extentFromGeomStBox2d(element.internal.geom_st_box2d);
+              if (extent && extent[0] === extent[2] && extent[1] === extent[3]) {
+                //ignore point extent
+                extent = null;
+              }
+            }
+            if (element.feature && element.feature.getGeometry()?.getType() !== 'Point') {
+              extent = element.feature.getGeometry()?.getExtent();
+            }
             if (extent) {
               this.zoomToFit(extent);
               return;

@@ -32,7 +32,7 @@
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
-        "text-color": ["case", ["get", "ZsMapSearchResult"], "#ff0000", "#000000"],
+        "text-color": ["case", ["get", "ZsMapSearchResult"], "#ae0000", "#000000"],
         "text-halo-color": "#ffffff",
         "text-halo-width": [
           "interpolate",

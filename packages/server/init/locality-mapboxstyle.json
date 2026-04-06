@@ -1,10 +1,10 @@
 {
   "version": 8,
-  "name": "swissBOUNDARIES3D",
+  "name": "locality",
   "sources": {
-    "swissBOUNDARIES3D": {
+    "locality": {
       "type": "geojson",
-      "data": "./swissBOUNDARIES3D.geojson"
+      "data": "./locality.geojson"
 
     }
   },
@@ -17,21 +17,17 @@
       }
     },
     {
-      "id": "municipality",
+      "id": "zip",
       "type": "line",
-      "source": "swissBOUNDARIES3D",
+      "source": "locality",
       "minzoom": 8.5,
       "filter": ["all",
-        ["any",
-            ["==", "Gemeindegebiet", ["get", "OBJEKTART"]],
-            ["==", "Kantonsgebiet", ["get", "OBJEKTART"]],
-            ["==", "Kommunanz", ["get", "OBJEKTART"]]
-        ],
+        ["has", "ZIP4"],
         ["==", null, ["get", "ZsMapSearchResult"]]
       ],
       "layout": {},
       "paint": {
-        "line-color": "#000000",
+        "line-color": "#0000ff",
         "line-width": [
           "interpolate",
           ["linear"],
@@ -45,53 +41,26 @@
         "line-opacity": 1
       }
     },
-
     {
-      "id": "district",
+      "id": "locality",
       "type": "line",
-      "source": "swissBOUNDARIES3D",
-      "minzoom": 7,
+      "source": "locality",
+      "minzoom": 8,
       "filter": ["all",
-        ["==", "Bezirk", ["get", "OBJEKTART"]],
+        ["has", "LOCALITYID"],
         ["==", null, ["get", "ZsMapSearchResult"]]
       ],
       "layout": {},
       "paint": {
-        "line-color": "#9747e6",
+        "line-color": "#000000",
         "line-width": [
           "interpolate",
           ["linear"],
           ["zoom"],
           8, 0.5,
-          12, 2,
-          16, 5.5,
-          22, 8.5
-        ],
-        "line-gap-width": 0,
-        "line-opacity": 1
-      }
-    },
-    {
-      "id": "canton",
-      "type": "line",
-      "source": "swissBOUNDARIES3D",
-      "minzoom": 5,
-      "filter": ["all",
-        ["==", "Kanton", ["get", "OBJEKTART"]],
-        ["==", null, ["get", "ZsMapSearchResult"]]
-      ],
-      "layout": {},
-      "paint": {
-        "line-color": "#cb99fc",
-        "line-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0, 0.5, 
-          8, 2,
-          12, 4,
-          16, 7,
-          22, 10
+          12, 1.5,
+          16, 4,
+          22, 7
         ],
         "line-gap-width": 0,
         "line-opacity": 1
@@ -100,7 +69,7 @@
     {
       "id": "searchResult",
       "type": "line",
-      "source": "swissBOUNDARIES3D",
+      "source": "locality",
       "minzoom": 4,
       "filter": ["get", "ZsMapSearchResult"],
       "layout": {},
@@ -111,10 +80,10 @@
           ["linear"],
           ["zoom"],
           0, 0.5, 
-          8, 2,
-          12, 3,
-          16, 6,
-          22, 9
+          8, 0.5,
+          12, 2,
+          16, 3,
+          22, 6
         ],
         "line-gap-width": 0,
         "line-opacity": 1

@@ -488,7 +488,10 @@ export interface ApiMapLayerGenerationConfigMapLayerGenerationConfig extends Str
   attributes: {
     allwaysCreateDistrict: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     cantons: Schema.Attribute.String &
-      Schema.Attribute.DefaultTo<'AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH'>;
+      Schema.Attribute.DefaultTo<'AG,AI,AR,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH,BE'>;
+    create_locality: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    create_locality_zip: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    create_swissBOUNDARIES3D_municipality: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     enabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -505,10 +508,13 @@ export interface ApiMapLayerGenerationConfigMapLayerGenerationConfig extends Str
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     style_entrances: Schema.Attribute.Media<'files'>;
+    style_locality: Schema.Attribute.Media<'files'>;
     style_swissBOUNDARIES3D: Schema.Attribute.Media<'files'>;
     style_swissNAMES3D: Schema.Attribute.Media<'files'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    url_locality: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://data.geo.admin.ch/ch.swisstopo-vd.ortschaftenverzeichnis_plz/ortschaftenverzeichnis_plz/ortschaftenverzeichnis_plz_2056.shp.zip'>;
     url_madd: Schema.Attribute.String & Schema.Attribute.DefaultTo<'https://public.madd.bfs.admin.ch/${canton}.zip'>;
     url_swissBOUNDARIES3D: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_${year}-${month}/swissboundaries3d_${year}-${month}_2056_5728.shp.zip'>;

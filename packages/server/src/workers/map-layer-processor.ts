@@ -1,8 +1,11 @@
 import {
   downloadAndExtractEntrance,
+  downloadAndExtractLocality,
   downloadAndExtractSwissBoundaries,
   downloadAndExtractSwissNamesNational,
   extractEntranceDistrict,
+  extractLocality,
+  extractMunicipality,
   extractSwissNamesCanton,
   loadShpFile,
   prepareSwissNamesContent,
@@ -15,8 +18,16 @@ if (isMainThread) {
   throw new Error('MapLayerProcessor need to run as worker');
 }
 
-const cantonFileCache = new Map<string, FeatureCollection>();
+const featureCollectionFileCache = new Map<string, FeatureCollection>();
 const nameCache: { names: SwissNamesRow[] } = { names: null };
+
+const postLog = (message:string, level = 'info') => {
+  parentPort.postMessage({
+    type: 'LOG',
+    message,
+    level
+  });
+}
 
 parentPort.on('message', async (data) => {
   try {
@@ -26,11 +37,17 @@ parentPort.on('message', async (data) => {
     } else if (data.func === 'loadShpFile') {
       result = await loadShpFile(data.params);
     } else if (data.func === 'downloadAndExtractEntrance') {
-      result = await downloadAndExtractEntrance(data.params, cantonFileCache);
+      result = await downloadAndExtractEntrance(data.params, featureCollectionFileCache);
     } else if (data.func === 'extractEntranceDistrict') {
-      result = await extractEntranceDistrict(data.params, cantonFileCache);
-    } else if (data.func === 'extractEntranceDistrictEnd') {
-      result = cantonFileCache.delete(data.params);
+      result = await extractEntranceDistrict(data.params, featureCollectionFileCache);
+    } else if (data.func === 'removeFileCache') {
+      result = featureCollectionFileCache.delete(data.params);
+    } else if (data.func === 'extractMunicipality') {
+      result = await extractMunicipality(data.params, featureCollectionFileCache);
+    } else if (data.func === 'downloadAndExtractLocality') {
+      result = await downloadAndExtractLocality(data.params);
+    } else if (data.func === 'extractLocality') {
+      result = await extractLocality(data.params, featureCollectionFileCache);
     } else if (data.func === 'downloadAndExtractSwissNamesNational') {
       result = await downloadAndExtractSwissNamesNational(data.params);
     } else if (data.func === 'extractSwissNamesCanton') {

@@ -305,7 +305,7 @@
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
-        "text-color": "#ff0000",
+        "text-color": "#ae0000",
         "text-halo-color": "#ffffff",
         "text-halo-width": [
           "interpolate",
