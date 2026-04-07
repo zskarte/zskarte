@@ -59,6 +59,7 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
             currentSnapshots++;
             if (!snapshot.mapState) continue;
             let mapState = zsMapStateMigration(snapshot.mapState as any);
+            const newChangesetIds:string[] = [];
             if (prevMapState) {
               if (
                 !mapState.changesetIds ||
@@ -98,12 +99,14 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
 
               changesets[changeset.id] = changeset;
               mapState = updateChangesetIdsAfterApply(mapState, changeset);
+              newChangesetIds.push(changeset.id);
             }
 
             await strapi.documents('api::map-snapshot.map-snapshot').update({
               documentId: snapshot.documentId,
               data: {
                 mapState: mapState as any,
+                changesetIds: newChangesetIds,
               },
             });
             prevMapState = mapState;

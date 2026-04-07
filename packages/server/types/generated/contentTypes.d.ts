@@ -560,6 +560,7 @@ export interface ApiMapSnapshotMapSnapshot extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    changesetIds: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;

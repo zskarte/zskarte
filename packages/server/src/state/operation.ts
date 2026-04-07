@@ -353,10 +353,23 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
 
       strapi.log.debug(`Creating snapshot for operation [${operation.documentId}] ${operation.name}`);
 
+      const lastSnapshot = await strapi.documents('api::map-snapshot.map-snapshot').findFirst({
+        filters: { operation: { documentId: operation.documentId } },
+        sort: { createdAt: 'desc' },
+      });
+      let changesetIds: string[] = operation.mapState['changesetIds'];
+      if (lastSnapshot) {
+        const lastChangesetIds: string[] = lastSnapshot.mapState['changesetIds'];
+        if (lastChangesetIds) {
+          changesetIds = changesetIds.filter((c) => !lastChangesetIds.includes(c));
+        }
+      }
+
       await strapi.documents('api::map-snapshot.map-snapshot').create({
         data: {
           operation,
           mapState: operation.mapState as any,
+          changesetIds,
           publishedAt: Date.now(),
         },
       });
