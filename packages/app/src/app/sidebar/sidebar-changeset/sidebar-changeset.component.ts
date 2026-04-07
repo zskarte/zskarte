@@ -5,15 +5,12 @@ import { ChangesetService, CONFLICT_INDEX_NAME, NO_CONFLICT_VALUE } from 'src/ap
 import { MatIcon } from '@angular/material/icon';
 import { I18NService } from 'src/app/state/i18n.service';
 import { filter, skip, take } from 'rxjs';
-import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { IZsChangesetConflict, IZsChangesetConflictValue } from '@zskarte/types';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-
-const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 
 @Component({
   selector: 'app-sidebar-changeset',
@@ -109,21 +106,9 @@ export class SidebarChangesetComponent {
   }
 
   zoomToElement() {
-    const extent = createEmptyExtent();
     const details = this.changesetService.conflictDetails();
     if (!details) return;
-    details.conflicts.forEach((conflict) => {
-      const featureExtent = this._state
-        .getDrawElement(conflict.drawElementId)
-        ?.getOlFeature()
-        ?.getGeometry()
-        ?.getExtent();
-      if (featureExtent) {
-        extendExtent(extent, featureExtent);
-      }
-    });
-    const currentZoom = this._renderer.getCurrentZoom();
-    this._renderer.zoomToFit(extent, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING, (currentZoom ?? 0) >= 13 ? currentZoom : 15);
+    this._renderer.zoomToAll(details.conflicts.map((c) => c.drawElementId));
   }
 
   selectMeta(value: IZsChangesetConflictValue, index: number) {

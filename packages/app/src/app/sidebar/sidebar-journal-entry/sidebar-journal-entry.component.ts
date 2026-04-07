@@ -27,7 +27,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
 import { DrawDialogComponent } from 'src/app/draw-dialog/draw-dialog.component';
 
-const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
   selector: 'app-sidebar-journal-entry',
   imports: [
@@ -44,6 +43,7 @@ const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100,
 export class SidebarJournalEntryComponent implements OnDestroy {
   private _state = inject(ZsMapStateService);
   private _renderer = inject(MapRendererService);
+  
   i18n = inject(I18NService);
   search = inject(SearchService);
   journal = inject(JournalService);
@@ -107,14 +107,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   }
 
   zoomToAll() {
-    const extent = createEmptyExtent();
-    this.entryElements().forEach((feature) => {
-      const featureExtent = this._state.getDrawElement(feature.id)?.getOlFeature()?.getGeometry()?.getExtent();
-      if (featureExtent) {
-        extendExtent(extent, featureExtent);
-      }
-    });
-    this._renderer.zoomToFit(extent, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
+    this._renderer.zoomToAll(this.entryElements().map((e)=>e.id));
   }
 
   toggleHighlightAll() {

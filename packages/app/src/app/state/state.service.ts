@@ -399,6 +399,10 @@ export class ZsMapStateService {
     return this._display.value?.displayMode === ZsMapDisplayMode.HISTORY;
   }
 
+  public getHistoryDate() {
+    return this._mapHistoryDate.value;
+  }
+
   public observeHistoryDate() {
     return this._mapHistoryDate.asObservable();
   }

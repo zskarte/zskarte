@@ -26,6 +26,8 @@ export interface IZsMapOperation {
 export interface IZsMapSnapshot {
   id: number;
   documentId: string;
+  changesetIds: string[];
+  mapState: ZsMapState;
   createdAt: Date;
 }
 
