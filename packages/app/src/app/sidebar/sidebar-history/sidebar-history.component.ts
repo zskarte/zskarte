@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { AfterViewInit, Component, DestroyRef, inject, OnDestroy, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, effect, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,9 +11,10 @@ import { I18NService } from '../../state/i18n.service';
 import { ZsMapStateService } from '../../state/state.service';
 import { IZsChangeset, IZsMapOperation, IZsMapSnapshot } from '@zskarte/types';
 import { StrapiApiResponseList } from '../../helper/strapi-utils';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
+import { ChangeDetailComponent } from 'src/app/changeset/change-detail/change-detail.component';
 
 interface IZsMapSnapshotExtended extends IZsMapSnapshot {
   changesets: IZsChangeset[];
@@ -24,7 +25,7 @@ export type IZsMapSnapshots = StrapiApiResponseList<IZsMapSnapshotExtended>;
   selector: 'app-sidebar-history',
   templateUrl: './sidebar-history.component.html',
   styleUrls: ['./sidebar-history.component.scss'],
-  imports: [MatTableModule, MatPaginatorModule, DatePipe, MatButtonModule, MatIconModule],
+  imports: [MatTableModule, MatPaginatorModule, DatePipe, MatButtonModule, MatIconModule, ChangeDetailComponent],
 })
 export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
   i18n = inject(I18NService);
@@ -34,24 +35,36 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
   private rendererService = inject(MapRendererService);
   private snackBarService = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  readonly historyDate = toSignal(this.stateService.observeHistoryDate());
 
   readonly paginator = viewChild.required(MatPaginator);
 
   activeSnapshot?: string;
+  activeChangeset?: string;
   highlightedChangeset?: string;
   currentChangesets: IZsChangeset[] = [];
-  operation?: IZsMapOperation
+  expertView: boolean;
+  operation?: IZsMapOperation;
 
   snapshots = signal<IZsMapSnapshots | undefined>(undefined);
   resultSize?: number;
   readonly snapshotApiPath = '/api/map-snapshots';
 
   constructor() {
+    this.expertView = this.stateService.isExpertView();
     this.operation = this.sessionService.getOperation();
+
+    effect(() => {
+      const historyDate = this.historyDate();
+      const snapshots = this.snapshots();
+      if (historyDate && snapshots) {
+        const activeEntry = snapshots.data.find((s) => s.createdAt.getTime() === historyDate.getTime());
+        this.activeSnapshot = activeEntry?.documentId;
+      }
+    });
   }
 
   async ngAfterViewInit() {
-    const historyDate = this.stateService.getHistoryDate();
     this.paginator()
       .page.pipe(
         startWith({ pageIndex: 0 }),
@@ -69,10 +82,6 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
               .filter((c) => !!c)
               .reverse();
           });
-          if (!this.activeSnapshot && historyDate) {
-            const activeEntry = result?.data.find((s) => s.createdAt.getTime() === historyDate.getTime());
-            this.activeSnapshot = activeEntry?.documentId;
-          }
 
           if (
             page === 1 &&
@@ -135,5 +144,9 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
     this.highlightedChangeset = changeset.id;
     this.stateService.replaceHighlightedFeatures(changeset.changedDrawElements);
     this.rendererService.zoomToAll(changeset.changedDrawElements);
+  }
+
+  async showDetails(changeset: IZsChangeset) {
+    this.activeChangeset = changeset.id;
   }
 }

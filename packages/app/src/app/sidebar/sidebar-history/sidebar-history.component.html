@@ -49,7 +49,20 @@
             >
               <mat-icon>my_location</mat-icon>
             </button>
+            @if (expertView) {
+              <button
+                class="button"
+                mat-icon-button
+                (click)="showDetails(changeset)"
+                [color]="activeChangeset === changeset.id ? 'primary' : ''"
+              >
+                <mat-icon>list</mat-icon>
+              </button>
+            }
           </div>
+          @if (expertView && activeChangeset === changeset.id) {
+            <app-change-detail [changeset]="changeset" [snapshotId]="element.documentId"></app-change-detail>
+          }
         }
       </td>
     </ng-container>

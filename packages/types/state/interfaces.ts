@@ -71,20 +71,28 @@ export interface IZsChangesetValue {
   value: any;
 }
 
-export interface IZsChangesetConflictValue {
+export interface IZsChangeValues {
   path: string;
   orig: any;
-  there: any;
   our: any;
+}
+
+export interface IZsChangeInfos {
+  drawElementId: string;
+  elementName?: string;
+  symbolImageUrl?: string;
+  values: IZsChangeValues[];
+  origName?: string;
+}
+
+export interface IZsChangesetConflictValue extends IZsChangeValues {
+  there: any;
   conflict: boolean;
   resolved: boolean;
   selected: number;
 }
 
-export interface IZsChangesetConflict {
-  drawElementId: string;
-  elementName?: string;
-  symbolImageUrl?: string;
+export interface IZsChangesetConflict extends IZsChangeInfos {
   missing: { orig: boolean; there: boolean; our: boolean };
   requiredPrefChangesetId: string;
   additionalChangesets: string[];

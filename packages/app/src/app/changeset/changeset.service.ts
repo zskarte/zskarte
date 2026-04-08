@@ -13,15 +13,19 @@ import {
 import {
   ChangesetInconsistentError,
   ChangesetMissingError,
+  defineDefaultValuesForSignature,
   DRAW_ELEMENTS,
   INITIAL_CHANGESET_ID,
+  IZsChangeInfos,
   IZsChangeset,
   IZsChangesetConfig,
   IZsChangesetConflict,
   IZsChangesetConflictDetails,
   IZsChangesetConflictValue,
   IZsChangesetInternal,
+  IZsChangeValues,
   ZsMapDrawElementState,
+  ZsMapDrawElementStateType,
   ZsMapState,
 } from '@zskarte/types';
 import { applyPatches, Patch, produce } from 'immer';
@@ -1044,7 +1048,7 @@ export class ChangesetService {
         changes[path] = null;
       } else if (typeof value === 'object' && !path.endsWith('coordinates')) {
         Object.entries(value).forEach(([key, val]) => {
-          updateValue(changes, op, `${path}.${key}`, val);
+          updateValue(changes, op, path ? `${path}.${key}` : key, val);
         });
       } else {
         changes[path] = value;
@@ -1325,6 +1329,93 @@ export class ChangesetService {
     }
     const hasConflicts = metaConflict || conflicts.some((c) => c.conflict);
     return { changeset, conflicts, meta, metaConflict, hasConflicts };
+  }
+
+  public getChanges(changeset: IZsChangeset, mapState: ZsMapState) {
+    const changes: IZsChangeInfos[] = [];
+    for (const elemId of changeset.changedDrawElements) {
+      let origName = 'before';
+      const ourValues = this._getChangedValuesForElem(changeset.patches, elemId);
+      delete ourValues[''];
+      let origValues: Record<string, any>;
+      const origElem = mapState.drawElements?.[elemId];
+      let symbolId: number | undefined;
+      let name: string | undefined;
+      if (origElem) {
+        symbolId = origElem.symbolId;
+        name = origElem.name;
+        const valuePaths = new Set<string>();
+        Object.keys(ourValues).forEach((path) => {
+          valuePaths.add(path);
+        });
+        origValues = this._getOrigValues(origElem, valuePaths);
+      } else {
+        symbolId = ourValues['symbolId'];
+        name = ourValues['name'];
+        const changesetIds = mapState.drawElementChangesetIds[elemId];
+        if (!changesetIds) {
+          Object.entries(ourValues).forEach(([key, val]) => {
+            if (val === null) {
+              delete ourValues[key];
+            }
+          });
+        }
+        if (Object.keys(ourValues).length > 0) {
+          origValues = this._getChangedValuesForElem(changeset.inversePatches, elemId);
+          delete origValues[''];
+          if (Object.keys(origValues).length === 0 && ourValues['symbolId']) {
+            //for add/create compare with default values
+            let sign: any = Signs.getSignById(ourValues['symbolId']);
+            if (sign) {
+              origName = 'default';
+              sign = {
+                ...sign,
+                type: ZsMapDrawElementStateType.SYMBOL,
+                symboldId: sign.id,
+                coordinates: NO_CONFLICT_VALUE,
+              };
+              delete sign['id'];
+              defineDefaultValuesForSignature(sign);
+
+              const valuePaths = new Set<string>();
+              Object.keys(ourValues).forEach((path) => {
+                valuePaths.add(path);
+              });
+              origValues = this._getOrigValues(sign as ZsMapDrawElementState, valuePaths);
+            }
+          }
+        } else {
+          continue;
+        }
+      }
+
+      //combine value lists
+      const values: IZsChangeValues[] = Object.entries(origValues)
+        .map(([path, value]) => {
+          const orig = value;
+          const our = path in ourValues ? ourValues[path] : NO_CONFLICT_VALUE;
+          if (orig === our) return null;
+          return { path, orig, our };
+        })
+        .filter((v) => v != null);
+      Object.entries(ourValues).map(([path, value]) => {
+        if (!(path in origValues)) {
+          const orig = NO_CONFLICT_VALUE;
+          const our = value;
+          values.push({ path, orig, our });
+        }
+      });
+
+      const imageSrc = Signs.getSignById(symbolId)?.src;
+      changes.push({
+        elementName: name,
+        drawElementId: elemId,
+        symbolImageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
+        values,
+        origName,
+      });
+    }
+    return changes;
   }
 
   public openChangesetMergeView() {
