@@ -4,7 +4,6 @@
 swerder: WILL BE DELETED/REFACTORED shortly
 
 */
-import type { Data } from '@strapi/strapi';
 import { Core } from '@strapi/strapi';
 import {
   updateChangesetFromDiff,
@@ -14,6 +13,7 @@ import {
   updateDescription,
 } from '@zskarte/common';
 import { INITIAL_CHANGESET_ID, IZsChangeset, ZsMapState } from '@zskarte/types';
+import { signChangeset } from '../state/operation';
 
 // swerder: Remove at the end of the week
 export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
@@ -29,7 +29,9 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
     let currentOperation = 1;
     for (const operation of operations) {
       try {
-        strapi.log.info(`Migrating changesets of operation (${currentOperation}/${operationCount}) ${operation.documentId}`);
+        strapi.log.info(
+          `Migrating changesets of operation (${currentOperation}/${operationCount}) ${operation.documentId}`,
+        );
         currentOperation++;
         if (!operation.mapState) continue;
         if (operation.changesets && Object.keys(operation.changesets).length > 0) {
@@ -39,6 +41,8 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
         const organisationId = operation.organization.documentId;
         const operationMapState: ZsMapState = operation.mapState as any;
         const changesets: Record<string, IZsChangeset> = {};
+        const changesetSigns: Record<string, string> = {};
+        const signingKeyIds = new Set<string>();
 
         const snapshots = await strapi.documents('api::map-snapshot.map-snapshot').findMany({
           filters: {
@@ -59,7 +63,7 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
             currentSnapshots++;
             if (!snapshot.mapState) continue;
             let mapState = zsMapStateMigration(snapshot.mapState as any);
-            const newChangesetIds:string[] = [];
+            const newChangesetIds: string[] = [];
             if (prevMapState) {
               if (
                 !mapState.changesetIds ||
@@ -91,14 +95,16 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
                 changeset.endAt =
                   new Date(snapshot.createdAt).getTime();
 
-              changeset.authorIp = undefined;
-              changeset.serverId = undefined;
-              changeset.serverSavedAt = new Date().getTime();
-              changeset.saved = true;
+              mapState = updateChangesetIdsAfterApply(mapState, changeset);
               changeset.applied = true;
+              changeset.saved = true;
+              changeset.serverSavedAt = new Date().getTime();
+              changeset.authorIp = undefined;
+              const sign = signChangeset(changeset);
 
               changesets[changeset.id] = changeset;
-              mapState = updateChangesetIdsAfterApply(mapState, changeset);
+              changesetSigns[changeset.id] = sign;
+              signingKeyIds.add(changeset.signKeyId);
               newChangesetIds.push(changeset.id);
             }
 
@@ -125,6 +131,8 @@ export const migrateOperationChangesets = async (strapi: Core.Strapi) => {
           data: {
             mapState: operationMapState as any,
             changesets: changesets as any,
+            changesetSigns: changesetSigns as any,
+            signingKeyIds: [...signingKeyIds],
           },
         });
         strapi.log.info(`Operation ${operation.documentId} migrated`);

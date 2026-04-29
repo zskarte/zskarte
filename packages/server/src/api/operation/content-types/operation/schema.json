@@ -31,6 +31,12 @@
     "changesets": {
       "type": "json"
     },
+    "changesetSigns": {
+      "type": "json"
+    },
+    "signingKeyIds": {
+      "type": "json"
+    },
     "mapSnapshots": {
       "type": "relation",
       "relation": "oneToMany",
@@ -45,13 +51,13 @@
     },
     "phase": {
       "type": "enumeration",
+      "required": true,
+      "default": "active",
       "enum": [
         "active",
         "archived",
         "deleted"
-      ],
-      "required": true,
-      "default": "active"
+      ]
     }
   }
 }

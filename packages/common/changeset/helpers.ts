@@ -429,3 +429,20 @@ export const updateChangesetFromDiff = (
   updateChangesetIdsFromPatches(changeset, prevMapState);
   return changeset;
 };
+
+export const sortKeysDeep = (data: object) => {
+  if (Array.isArray(data)) {
+    return data.map(sortKeysDeep);
+  }
+
+  if (data && typeof data === 'object' && data.constructor === Object) {
+    return Object.keys(data)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = sortKeysDeep(data[key]);
+        return acc;
+      }, {});
+  }
+
+  return data;
+};

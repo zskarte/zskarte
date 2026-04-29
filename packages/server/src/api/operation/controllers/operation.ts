@@ -21,6 +21,8 @@ export default factories.createCoreController('api::operation.operation', ({ str
     if (operationCache) {
       sanitizedEntity.mapState = operationCache.mapState;
       sanitizedEntity.changesets = operationCache.changesets;
+      sanitizedEntity.changesetSigns = operationCache.changesetSigns;
+      sanitizedEntity.signingKeyIds = [...operationCache.signingKeyIds];
     }
     return this.transformResponse(sanitizedEntity);
   },
@@ -32,7 +34,22 @@ export default factories.createCoreController('api::operation.operation', ({ str
     }
     try {
       const changeset: IZsChangeset = ctx.request.body;
-      const error = await addChangeset(operationid, identifier, changeset, ctx, () => {
+
+      //check valid operation/organisation values, as accesscontrol middleware don't verify that for changeset (only for parent/operation)
+      const { documentId: userOrganisationId } = ctx.state?.user?.organization ?? {};
+      const { jwt } = strapi.plugins['users-permissions'].services;
+      const { operationId: jwtOperationId, organizationId: jwtOrganizationId } = (await jwt.getToken(ctx)) ?? {};
+      if (changeset.operationId !== operationid || (jwtOperationId && changeset.operationId !== jwtOperationId)) {
+        return ctx.forbidden('This action is forbidden.');
+      }
+      if (
+        (userOrganisationId && changeset.organisationId !== userOrganisationId) ||
+        (jwtOrganizationId && changeset.organisationId !== jwtOrganizationId)
+      ) {
+        return ctx.forbidden('This action is forbidden.');
+      }
+
+      const { error, result } = await addChangeset(operationid, identifier, changeset, ctx, () => {
         ctx.status = 429;
         ctx.body = {
           error: 'Too Many Requests',
@@ -44,11 +61,9 @@ export default factories.createCoreController('api::operation.operation', ({ str
           ctx.status = 400;
           return error;
         }
+      } else {
+        return result;
       }
-      if (error === false) {
-        return { success: true, alreadySubmitted: true };
-      }
-      return { success: true };
     } catch (e: any) {
       // onTimeout already handled 429, other errors get 500
       if (ctx.status !== 429) {

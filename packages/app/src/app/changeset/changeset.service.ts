@@ -310,7 +310,7 @@ export class ChangesetService {
         },
       });
 
-      const { error } = response;
+      const { error, result } = response;
       if (error) {
         if ((error as any).isInconsistent) {
           this._snackBar.open('changeset is inconsistent, you need to fix it', 'OK', {
@@ -349,10 +349,21 @@ export class ChangesetService {
           throw new Error(message);
         }
       } else {
-        changeset.saved = true;
+        changesetToSave.saved = true;
+        if (result.data) {
+          const { sign, ...updatedFields } = result.data;
+          Object.assign(changesetToSave, updatedFields);
+          const operation = this._session.getOperation();
+          if (operation) {
+            if (!operation.changesetSigns) {
+              operation.changesetSigns = {};
+            }
+            operation.changesetSigns[changesetToSave.id] = sign;
+          }
+        }
         await this.updateOutgoing(changeset, true);
         this._setErrorChangeset(null, false);
-        this._state.applyChangesets([changeset]);
+        this._state.applyChangesets([changesetToSave]);
       }
     } finally {
       this.saving.set(false);
@@ -532,6 +543,9 @@ export class ChangesetService {
           manual,
           manualDescription,
         );
+        if (this._session.getOperation()?.changesets?.[newChangeset.id]) {
+          throw new Error('uuid collision, try again...');
+        }
         this._current.set(newChangeset);
         return newChangeset;
       } else {

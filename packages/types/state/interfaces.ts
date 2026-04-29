@@ -29,6 +29,7 @@ export interface IZsChangeset {
   author: string;
   authorIp?: string;
   serverId?: string;
+  signKeyId?: string;
   serverSavedAt?: number;
   manualDescription?: string;
   description: string[];

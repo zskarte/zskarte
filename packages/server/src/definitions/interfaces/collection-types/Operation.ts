@@ -8,6 +8,8 @@ export interface Operation extends StrapiObject {
   description: string;
   mapState: object | ZsMapState;
   changesets: object | Record<string, IZsChangeset>;
+  changesetSigns: object | Record<string, string>;
+  signingKeyIds: object | Array<string>;
   organization: Organization;
   mapSnapshots?: MapSnapshot[];
   eventStates: object;

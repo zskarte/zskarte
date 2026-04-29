@@ -1,5 +1,5 @@
 import { migrateOperationChangesets, migrateOperationMapStates } from './migrations';
-import { abortAllQueuedUpdates, loadOperations, persistOperationCache } from './state/operation';
+import { abortAllQueuedUpdates, loadOperations, initializeSigning, persistOperationCache } from './state/operation';
 import { connectSocketIo } from './state/socketio';
 
 export default {
@@ -21,6 +21,7 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
+    await initializeSigning(strapi);
     await migrateOperationMapStates(strapi);
     await migrateOperationChangesets(strapi);
     await loadOperations(strapi);

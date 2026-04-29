@@ -106,11 +106,11 @@ const broadcastConnections = (operationCache: OperationCache) => {
 };
 
 /** Broadcast received changeset to all currently connected sockets of an operation */
-const broadcastChangeset = (operationCache: OperationCache, identifier: string, changeset: IZsChangeset) => {
+const broadcastChangeset = (operationCache: OperationCache, identifier: string, changeset: IZsChangeset, sign: string) => {
   const connections = _.filter(operationCache.connections, (c) => c.identifier !== identifier);
   for (const connection of connections) {
     try {
-      connection.socket.emit(WebsocketEvent.STATE_CHANGESET, changeset);
+      connection.socket.emit(WebsocketEvent.STATE_CHANGESET, {changeset, sign});
     } catch (error) {
       connection.socket.disconnect();
       strapi.log.error(error);

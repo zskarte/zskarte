@@ -4,7 +4,6 @@ import _ from 'lodash';
 import type { Context } from 'koa';
 import { IZsChangeset } from '@zskarte/types';
 import { updateChangesetIdsAfterApply, verifyChangesetConsistency } from '@zskarte/common';
-import os from 'os';
 
 import {
   Operation,
@@ -16,7 +15,7 @@ import {
 } from '../definitions';
 import { broadcastChangeset, broadcastConnections } from './socketio';
 import { QueueMutex, QueueTask } from '../utils/queue-mutex';
-import { execSync } from 'child_process';
+import { getOrCreateSigningKeyPair, getServerId, signData, SigningKeyConfig } from '../utils/signing';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
 const MIN = 1000 * 60;
@@ -25,25 +24,32 @@ const MAX_WAIT_MS = 15_000;
 
 enablePatches();
 
-const interfaces = os.networkInterfaces();
-const serverIPs = Object.keys(interfaces)
-  .flatMap((key) => interfaces[key])
-  .filter((item) => item.family === 'IPv4' && !item.internal)
-  .map((item) => item.address);
-//https://www.perplexity.ai/search/wenn-ich-auf-awz-azure-oder-gc-0nu7bnbhROeFkjMTNShqzg#0
-let externalIP: string;
-/*
-TODO: user better logic not relay on external service?
-try {
-  externalIP = execSync('curl ifconfig.me', { encoding: 'utf8' });
-  if (!externalIP.match(/^\d{1-3}\.\d{1-3}\.\d{1-3}\.\d{1-3}$/)) {
-    externalIP = undefined;
-  }
-} catch (ignoreMe) {}
-*/
-const SERVER_ID = os.hostname() + '-' + (externalIP || serverIPs[0] || '0.0.0.0');
+let signingKeyConfig: SigningKeyConfig | undefined;
 
-const operationCaches: { [key: number]: OperationCache } = {};
+const initializeSigning = async (strapi: Core.Strapi) => {
+  let passphrase: Buffer;
+  if (process.env.SIGN_PRIVATE_KEY_PASSPHRASE) {
+    passphrase = Buffer.from(process.env.SIGN_PRIVATE_KEY_PASSPHRASE, 'base64');
+    if (passphrase.length !== 32) {
+      throw new Error(
+        `SIGN_PRIVATE_KEY_PASSPHRASE: Invalid key length: ${passphrase.length}, expected 32 (after base64 decode)`,
+      );
+    }
+  }
+  const serverId = await getServerId();
+  signingKeyConfig = await getOrCreateSigningKeyPair(serverId, passphrase, strapi);
+  strapi.log.info(
+    `signing serverId: ${serverId}, keyId: ${signingKeyConfig.keyId}, keyType: ${signingKeyConfig.keyType}`,
+  );
+};
+
+const signChangeset = (changeset: IZsChangeset) => {
+  changeset.serverId = signingKeyConfig.serverId;
+  changeset.signKeyId = signingKeyConfig.keyId;
+  return signData(changeset, signingKeyConfig.privateKeyObject, signingKeyConfig.keyType);
+};
+
+const operationCaches: { [key: string]: OperationCache } = {};
 
 /** Loads all active operations initially and generates the in-memory cache */
 const loadOperations = async (strapi: Core.Strapi) => {
@@ -63,6 +69,28 @@ const loadOperations = async (strapi: Core.Strapi) => {
   }
 };
 
+const addToCache = (operation: Operation) => {
+  const mapState = operation.mapState || ({} as any);
+  const changesets = operation.changesets || ({} as any);
+  const changesetSigns = operation.changesetSigns || ({} as any);
+  const signingKeyIds: Set<string> = new Set(operation.signingKeyIds || ([] as any));
+
+  const changesetEndpointMutex = new QueueMutex();
+  operationCaches[operation.documentId] = {
+    operation,
+    connections: [],
+    users: [],
+    changesetEndpointMutex,
+    mapState,
+    changesets,
+    changesetSigns,
+    signingKeyIds,
+    changed: false,
+  };
+  if (!operation.organization) return;
+  operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
+};
+
 /** The implementation of the Strapi Lifecylce hooks of the operation collection type */
 const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation: Operation) => {
   operation =
@@ -71,20 +99,7 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
       populate: ['organization.users'],
     })) as Operation) || operation;
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_CREATE) {
-    const mapState = operation.mapState || {};
-    const changesets = operation.changesets || {};
-    const changesetEndpointMutex = new QueueMutex();
-    operationCaches[operation.documentId] = {
-      operation,
-      connections: [],
-      users: [],
-      changesetEndpointMutex,
-      mapState,
-      changesets,
-      changed: false,
-    };
-    if (!operation.organization) return;
-    operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
+    addToCache(operation);
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_UPDATE) {
     if (operation.phase === OperationPhases.ARCHIVED) {
@@ -95,30 +110,11 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
         operationCache.changesetEndpointMutex.abortAll('operation is archived, changes no longer possible');
       }
       //persist last changes before archive
-      await strapi.documents('api::operation.operation').update({
-        documentId: operation.documentId,
-        data: {
-          mapState: operationCache.mapState as any,
-          changesets: operationCache.changesets as any,
-        },
-      });
+      await persistOperation(operation.documentId, operationCache);
       return;
     } else if (!(operation.documentId in operationCaches)) {
       //maybe an "unarchive" operation
-      const mapState = operation.mapState || {};
-      const changesets = operation.changesets || {};
-      const changesetEndpointMutex = new QueueMutex();
-      operationCaches[operation.documentId] = {
-        operation,
-        connections: [],
-        users: [],
-        changesetEndpointMutex,
-        mapState,
-        changesets,
-        changed: false,
-      };
-      if (!operation.organization) return;
-      operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
+      addToCache(operation);
     } else {
       operationCaches[operation.documentId].operation = operation;
     }
@@ -145,6 +141,7 @@ const changesetAlreadyExist = (operationCache: OperationCache, changeset: IZsCha
       serverSavedAt: _unused,
       authorIp: _unused,
       serverId: _unused,
+      signKeyId: _unused,
       ...savedChangesetToCompare
     } = savedChangeset);
     ({
@@ -153,6 +150,7 @@ const changesetAlreadyExist = (operationCache: OperationCache, changeset: IZsCha
       serverSavedAt: _unused,
       authorIp: _unused,
       serverId: _unused,
+      signKeyId: _unused,
       ...incommingChangesetToCompare
     } = changeset);
 
@@ -173,29 +171,30 @@ const addChangeset = async (
   onTimeout?: () => void,
 ) => {
   const operationCache: OperationCache = operationCaches[operationId];
-  if (!operationCache) return { message: 'operation is not in operationCache, is it archived?' };
+  if (!operationCache)
+    return { error: { message: 'operation is not in operationCache, is it archived?' }, result: undefined };
 
   if (changesetAlreadyExist(operationCache, changeset)) {
-    return false;
+    return { error: undefined, result: { success: true, alreadySubmitted: true } };
   }
 
   const task = operationCache.changesetEndpointMutex.enqueueWithTimeout(ctx, {
     maxWaitMs: MAX_WAIT_MS,
     fn: async (task: QueueTask) => {
       if (changesetAlreadyExist(operationCache, changeset)) {
-        return false;
+        return { error: undefined, result: { success: true, alreadySubmitted: true } };
       }
       let mapState = operationCache.mapState;
       const error = verifyChangesetConsistency(mapState, changeset);
       if (error) {
         strapi.log.error(error.message);
-        return error;
+        return { error, result: undefined };
       }
       const oldMapState = mapState;
       mapState = applyPatches(mapState, changeset.patches);
 
       if (task.aborted || task.clientAborted) {
-        return true;
+        return { error: { message: 'aborted' }, result: undefined };
       }
 
       //verify clean reverse possible
@@ -210,26 +209,41 @@ const addChangeset = async (
           revertedMapState.drawElements[elemId],
         );
 
-        return { message: 'inverse patches do not reset cleanly', isInvalid: true };
+        return { error: { message: 'inverse patches do not reset cleanly', isInvalid: true }, result: undefined };
       }
       mapState = updateChangesetIdsAfterApply(mapState, changeset);
-
+      changeset.applied = true;
       changeset.saved = true;
       changeset.serverSavedAt = new Date().getTime();
       changeset.authorIp = ctx.request.ips?.length > 0 ? ctx.request.ips.join(' ') : ctx.request.ip;
-      changeset.serverId = SERVER_ID;
+      const sign = signChangeset(changeset);
 
       if (operationCache.mapState !== oldMapState) {
-        return { message: 'concurrent modification error' };
+        return { error: { message: 'concurrent modification error' }, result: undefined };
       }
       if (task.aborted || task.clientAborted) {
-        return true;
+        return { error: { message: 'aborted' }, result: undefined };
       }
       operationCache.changesets[changeset.id] = changeset;
+      operationCache.changesetSigns[changeset.id] = sign;
+      operationCache.signingKeyIds.add(changeset.signKeyId);
       operationCache.mapState = mapState;
       operationCache.changed = true;
-      broadcastChangeset(operationCache, identifier, changeset);
-      return null;
+      broadcastChangeset(operationCache, identifier, changeset, sign);
+
+      return {
+        error: undefined,
+        result: {
+          success: true,
+          data: {
+            serverSavedAt: changeset.serverSavedAt,
+            authorIp: changeset.authorIp,
+            serverId: changeset.serverId,
+            signKeyId: changeset.signKeyId,
+            sign,
+          },
+        },
+      };
     },
     onTimeout,
   });
@@ -256,18 +270,24 @@ const updateCurrentLocation = async (
   }
 };
 
+const persistOperation = async (operationId: string, operationCache: OperationCache) => {
+  await strapi.documents('api::operation.operation').update({
+    documentId: operationId,
+    data: {
+      mapState: operationCache.mapState as any,
+      changesets: operationCache.changesets as any,
+      changesetSigns: operationCache.changesetSigns as any,
+      signingKeyIds: [...operationCache.signingKeyIds],
+    },
+  });
+};
+
 /** Persist the map state to the database if something has changed */
 const persistOperationCache = async (strapi: Core.Strapi) => {
   try {
     for (const [operationId, operationCache] of Object.entries(operationCaches)) {
       if (!operationCache.changed) continue;
-      await strapi.documents('api::operation.operation').update({
-        documentId: operationId,
-        data: {
-          mapState: operationCache.mapState as any,
-          changesets: operationCache.changesets as any,
-        },
-      });
+      await persistOperation(operationId, operationCache);
       operationCache.changed = false;
       strapi.log.info(`MapState/changesets of operation ${operationId} Persisted`);
     }
@@ -380,6 +400,8 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
 };
 
 export {
+  initializeSigning,
+  signChangeset,
   operationCaches,
   loadOperations,
   lifecycleOperation,

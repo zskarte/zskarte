@@ -16,6 +16,8 @@ export interface IZsMapOperation {
   updatedAt?: Date;
   mapState: ZsMapState;
   changesets?: Record<string, IZsChangeset>;
+  changesetSigns?: Record<string, string>;
+  signingKeyIds?: Array<string>;
   eventStates: number[];
   phase: ZsOperationPhase;
   mapLayers?: IZSMapOperationMapLayers;
@@ -92,4 +94,16 @@ export interface IZsStrapiAsset extends UZsStrapiAssetFormat {
   provider: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export type IZsSignKeyType = 'rsa' | 'ed25519';
+
+export interface IZsSigningKey {
+  keyId: string;
+  serverId: string;
+  validFrom: Date;
+  validUntil?: Date;
+  keyType: IZsSignKeyType;
+  privateKeyEncrypted?: string;
+  publicKey: string;
 }

@@ -168,9 +168,9 @@ export class SyncService {
         console.warn('Disconnected from websocket');
         this._disconnect();
       });
-      this._socket.on('state:changeset', (changeset: IZsChangeset) => {
+      this._socket.on('state:changeset', (data: { changeset: IZsChangeset, sign: string}) => {
         //if (changeset.identifier === this._connectionId) return;
-        this._state.addIncommingChangesets(changeset);
+        this._state.addIncommingChangeset(data.changeset, data.sign);
       });
       this._socket.on('state:journal', (json: SuperJSONResult) => {
         const entry = deserialize(json) as Partial<JournalEntry>;

@@ -208,6 +208,8 @@ export class OperationService {
       eventStates: result.eventStates,
       mapState,
       changesets: result.changesets,
+      changesetSigns: result.changesetSigns,
+      signingKeyIds: result.signingKeyIds,
       mapLayers: result.mapLayers,
     };
     const createdOperation = await this.insertOperation(operation);
@@ -254,6 +256,8 @@ export class OperationService {
       version: OperationExportFileVersion.V2,
       mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
       changesets: operation.changesets || {},
+      changesetSigns: operation.changesetSigns || {},
+      signingKeyIds: operation.signingKeyIds || [],
       outgoingChangesets,
       eventStates: operation?.eventStates ?? [],
       mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },

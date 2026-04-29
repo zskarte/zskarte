@@ -13,6 +13,8 @@ export interface OperationExportFile {
   version: OperationExportFileVersion;
   mapState: ZsMapState;
   changesets: Record<string, IZsChangeset>;
+  changesetSigns?: Record<string, string>;
+  signingKeyIds?: Array<string>;
   outgoingChangesets?: IZsChangesetExport[];
   mapLayers: IZSMapOperationMapLayers;
   eventStates: number[];

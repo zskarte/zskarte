@@ -1386,7 +1386,7 @@ export class ZsMapStateService {
     return mapState;
   }
 
-  public addIncommingChangesets(changeset: IZsChangeset) {
+  public addIncommingChangeset(changeset: IZsChangeset, sign: string) {
     changeset.applied = false;
     if (
       !this.isChangesetMergeMode() &&
@@ -1396,6 +1396,13 @@ export class ZsMapStateService {
       this.applyChangesets([changeset]);
     } else {
       this._changeset.addIncomming(changeset);
+    }
+    const operation = this._session.getOperation();
+    if (operation) {
+      if (!operation.changesetSigns) {
+        operation.changesetSigns = {};
+      }
+      operation.changesetSigns[changeset.id] = sign;
     }
   }
 

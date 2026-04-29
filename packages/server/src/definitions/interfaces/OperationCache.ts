@@ -10,5 +10,7 @@ export interface OperationCache {
   changesetEndpointMutex: QueueMutex;
   mapState: ZsMapState;
   changesets: Record<string, IZsChangeset>;
+  changesetSigns: Record<string, string>;
+  signingKeyIds: Set<string>;
   changed: boolean;
 }
