@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, DestroyRef, effect, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -25,7 +25,7 @@ export type IZsMapSnapshots = StrapiApiResponseList<IZsMapSnapshotExtended>;
   selector: 'app-sidebar-history',
   templateUrl: './sidebar-history.component.html',
   styleUrls: ['./sidebar-history.component.scss'],
-  imports: [MatTableModule, MatPaginatorModule, DatePipe, MatButtonModule, MatIconModule, ChangeDetailComponent],
+  imports: [MatTableModule, MatPaginatorModule, DatePipe, MatButtonModule, MatIconModule, ChangeDetailComponent, CommonModule],
 })
 export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
   i18n = inject(I18NService);
@@ -39,7 +39,7 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
 
   readonly paginator = viewChild.required(MatPaginator);
 
-  activeSnapshot?: string;
+  activeSnapshot?: string | null;
   activeChangeset?: string;
   highlightedChangeset?: string;
   currentChangesets: IZsChangeset[] = [];
@@ -60,6 +60,8 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
       if (historyDate && snapshots) {
         const activeEntry = snapshots.data.find((s) => s.createdAt.getTime() === historyDate.getTime());
         this.activeSnapshot = activeEntry?.documentId;
+      } else if (!historyDate) {
+        this.activeSnapshot = null;
       }
     });
   }

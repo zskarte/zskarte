@@ -7,6 +7,9 @@
       <button mat-stroked-button (click)="showDetailsAfter()" [color]="activeState() === 2 ? 'primary' : ''">
         after
       </button>
+      <button mat-stroked-button (click)="showOriginalChangeset()" class="changeset-original">
+        show changeset JSON
+      </button>
     </div>
     @for (change of details.changes; track change.drawElementId) {
       <div class="changeset-changes">

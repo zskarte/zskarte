@@ -9,6 +9,7 @@ import { IZsChangeInfos, IZsChangeset, IZsMapOperation, IZsMapSnapshot, ZsMapSta
 import { MatIconModule } from '@angular/material/icon';
 import { ChangesetService, NO_CONFLICT_VALUE } from 'src/app/changeset/changeset.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { applyPatches } from 'immer';
 
 @Component({
   selector: 'app-change-detail',
@@ -22,7 +23,7 @@ export class ChangeDetailComponent {
   private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
   private stateService = inject(ZsMapStateService);
-  private changestService = inject(ChangesetService);
+  private changesetService = inject(ChangesetService);
   private snackBarService = inject(MatSnackBar);
 
   readonly changeset = input<IZsChangeset>();
@@ -52,7 +53,12 @@ export class ChangeDetailComponent {
 
     effect(() => {
       const id = this.snapshotId();
-      if (!id) return;
+      if (!id) {
+        if (this.operation?.mapState){
+          this.snapshot.set({mapState : this.operation.mapState, changesetIds: this.operation.mapState.changesetIds} as IZsMapSnapshot);
+        }
+        return;
+      }
 
       this.apiService
         .get<IZsMapSnapshot>(`${this.snapshotApiPath}/${id}`)
@@ -89,12 +95,12 @@ export class ChangeDetailComponent {
       toUnapply.forEach((id) => {
         const c = this.operation?.changesets?.[id];
         if (c) {
-          mapStateAfter = this.changestService.unapplyChangeset(mapStateAfter, {...c});
+          mapStateAfter = applyPatches(mapStateAfter, c.inversePatches);
         }
       });
     }
-    const mapStateBefore = this.changestService.unapplyChangeset(mapStateAfter, {...changeset});
-    const changes = this.changestService.getChanges(changeset, mapStateBefore);
+    const mapStateBefore = applyPatches(mapStateAfter, changeset.inversePatches);
+    const changes = this.changesetService.getChanges(changeset, mapStateBefore);
 
     const dateBefore = new Date(changeset.startAt);
     const dateAfter = new Date(changeset.endAt || changeset.lastChangeAt || snapshot.createdAt);
@@ -129,6 +135,13 @@ export class ChangeDetailComponent {
           duration: 2000,
         },
       );
+    }
+  }
+
+  showOriginalChangeset() {
+    const changeset = this.changeset();
+    if (changeset) {
+      this.changesetService.showChangesetJSON(changeset);
     }
   }
 }

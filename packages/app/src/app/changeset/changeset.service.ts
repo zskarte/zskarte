@@ -8,7 +8,6 @@ import {
   Signal,
   signal,
   untracked,
-  WritableSignal,
 } from '@angular/core';
 import {
   ChangesetInconsistentError,
@@ -54,6 +53,9 @@ import { Md5 } from 'ts-md5';
 import { SidebarService } from '../sidebar/sidebar.service';
 import { SidebarContext } from '../sidebar/sidebar.interfaces';
 import { DrawStyle } from '../map-renderer/draw-style';
+import { MatDialog } from '@angular/material/dialog';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 
 export const NO_CONFLICT_VALUE = 'NO_CONFLICT_VALUE';
 export const CONFLICT_INDEX_NAME = ['orig', 'there', 'our'];
@@ -68,6 +70,8 @@ export class ChangesetService {
   private _api = inject(ApiService);
   private _i18n = inject(I18NService);
   private _snackBar = inject(MatSnackBar);
+  private _dialog = inject(MatDialog);
+  private _domSanitizer = inject(DomSanitizer);
   private readonly _current = signal<IZsChangesetInternal | null>(null);
   private readonly _unhandledPatches = signal<
     (
@@ -946,6 +950,16 @@ export class ChangesetService {
     return mapState;
   }
 
+  //remove it from mapState for internal handling without UI update
+  public stashCurrentChangesetTemporary(mapState: ZsMapState){
+    const changeset = this._current();
+    if (changeset && !changeset.stashed) {
+      mapState = this.stashChangeset(mapState, changeset);
+      changeset.stashed = false;
+    }
+    return mapState;
+  }
+
   private _setErrorChangeset(errorChangeset: IZsChangeset | null, inconsistent: boolean) {
     const oldConflictDetails = this.oldConflictDetails();
     this.conflictDetails.set(null);
@@ -1416,6 +1430,51 @@ export class ChangesetService {
       });
     }
     return changes;
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  private highlightText(text: string | boolean | number, color: string): string {
+    const escaped = typeof text === 'string' ? this.escapeHtml(text) : text;
+    return `<span style="color: ${color};">${escaped}</span>`;
+  }
+
+  private highlightObject(obj: any, indent = 0): string {
+    if (obj === null) return this.highlightText('null', '#FF0000');
+    if (typeof obj === 'boolean') return this.highlightText(obj, '#FF0000');
+    if (typeof obj === 'number') return this.highlightText(obj, '#C50F1F');
+    if (typeof obj === 'string') return this.highlightText(`"${obj}"`, '#067D17');
+
+    const pad = '  '.repeat(indent);
+    let result = '';
+    if (Array.isArray(obj)) {
+      result = `${this.highlightText('[', '#808080')}\n`;
+      obj.forEach((item: any, i: number) => {
+        if (i > 0) result += ',\n';
+        result += `${pad}  ${this.highlightObject(item, indent + 1)}`;
+      });
+      result += `\n${pad}${this.highlightText(']', '#808080')}`;
+    } else if (typeof obj === 'object') {
+      result = `${this.highlightText('{', '#808080')}\n`;
+      const entries = Object.entries(obj);
+      entries.forEach(([key, val], i: number) => {
+        if (i > 0) result += ',\n';
+        result += `${pad}  ${this.highlightText(key, '#0000FF; font-weight: bold')}${this.highlightText(':', '#808080')} ${this.highlightObject(val, indent + 1)}`;
+      });
+      result += `\n${pad}${this.highlightText('}', '#808080')}`;
+    }
+    return result;
+  }
+
+  public showChangesetJSON(changeset: IZsChangeset) {
+    InfoDialogComponent.showJSONDialog(this._dialog, this._domSanitizer, this._i18n.get('changeset'), changeset);
   }
 
   public openChangesetMergeView() {

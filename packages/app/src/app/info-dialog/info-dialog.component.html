@@ -7,7 +7,7 @@
 </app-dialog-header>
 <app-dialog-body>
   @if (data.html) {
-    <div [innerHTML]="data.html"></div>
+    <div class="innerHtml" [innerHTML]="data.html"></div>
   } @else if (data.error) {
     <div [innerText]="data.error" class="error"></div>
   } @else {

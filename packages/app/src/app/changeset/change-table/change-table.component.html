@@ -1,0 +1,107 @@
+<app-dialog-header>
+  <h2>{{ i18n.get('changeTableTitle') }}</h2>
+</app-dialog-header>
+
+<app-dialog-body>
+  <mat-card>
+      <div class="header">
+        <mat-form-field appearance="outline">
+          <input
+            matInput
+            name="listViewFilterString"
+            [(ngModel)]="changeTableTableDataSource.filter"
+            #listViewFilterString="ngModel"
+            [placeholder]="i18n.get('csvSearchFor')"
+          />
+        </mat-form-field>
+        <mat-checkbox
+          [checked]="technicalFields"
+          (change)="showTechnicalFields($event.checked)"
+          >{{ i18n.get('csvShowTechnicalFields') }}</mat-checkbox
+        >
+        <app-projection-selection
+          [projectionFormatIndex]="projectionFormatIndex"
+          [numerical]="numerical"
+          (projectionChanged)="updateProjection($event)"
+        ></app-projection-selection>
+      </div>
+      <table mat-table [dataSource]="changeTableTableDataSource" class="listView-table" matSort matSortActive="dateNumeric" matSortDirection="desc">
+        <ng-container matColumnDef="changesetId">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by changesetId">{{ i18n.get('csvChangesetId') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.changesetId }}</td>
+        </ng-container>
+        <ng-container matColumnDef="date">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by date">{{ i18n.get('csvChangeDate') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.date }}</td>
+        </ng-container>
+        <ng-container matColumnDef="signValid">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by signValid">{{ i18n.get('csvSignValid') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.signValid }}</td>
+        </ng-container>
+        <ng-container matColumnDef="author">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by author">{{ i18n.get('csvAuthor') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.author }}</td>
+        </ng-container>
+        <ng-container matColumnDef="elemId">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by elemId">{{ i18n.get('csvElemId') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.elemId }}</td>
+        </ng-container>
+        <ng-container matColumnDef="action">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by action">{{ i18n.get('csvAction') }}</th>
+          <td mat-cell *matCellDef="let element">
+            @if (element.action === 'add') {
+              <mat-icon title="add">add</mat-icon>
+            } @else if(element.action === 'remove') {
+              <mat-icon title="remove" class="remove">close</mat-icon>
+            } @else if(element.action === 'update') {
+              <mat-icon title="update">sync</mat-icon>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="changedProperties">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by changedProperties">{{ i18n.get('csvChangedProperties') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.changedProperties }}</td>
+        </ng-container>
+        <ng-container matColumnDef="coordChange">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by coordChange">{{ i18n.get('csvCoordChange') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.coordChange }}</td>
+        </ng-container>
+        <ng-container matColumnDef="group">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by group">{{ i18n.get('csvGroup') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.group }}</td>
+        </ng-container>
+        <ng-container matColumnDef="sign">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by signature">{{ i18n.get('csvSignatur') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.sign }}</td>
+        </ng-container>
+        <ng-container matColumnDef="centroid">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by centroid">{{ i18n.get('csvCentroid') }}</th>
+          <td mat-cell *matCellDef="let element" class="centroid" (click)="navigateTo(element)">{{ element.centroid }}</td>
+        </ng-container>
+        <ng-container matColumnDef="location">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by location">{{ i18n.get('csvLocation') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.location }}</td>
+        </ng-container>
+        <ng-container matColumnDef="label">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by label">{{ i18n.get('csvLabel') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.label }}</td>
+        </ng-container>
+        <ng-container matColumnDef="reportNumber">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by reportNumber">{{ i18n.get('csvReportNumber') }}</th>
+          <td mat-cell *matCellDef="let element">{{ element.reportNumber }}</td>
+        </ng-container>
+        <ng-container matColumnDef="description">
+          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by description">{{ i18n.get('csvDescription') }} </th>
+          <td mat-cell *matCellDef="let element">{{ element.description }}</td>
+        </ng-container>
+        <ng-container matColumnDef="detailButton">
+          <th mat-header-cell *matHeaderCellDef>Details</th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-stroked-button (click)="showOriginalChangeset(element.changeset)" class="changeset-original">show</button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+  </mat-card>
+</app-dialog-body>

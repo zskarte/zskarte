@@ -32,6 +32,10 @@
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listView')">list_alt</mat-icon>
   {{ i18n.get('listView') }}
 </button>
+<button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="changeOptions">
+  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('changeTable')">list_alt</mat-icon>
+  {{ i18n.get('changeTable') }}
+</button>
 <button mat-menu-item class="tools-menu-item" (click)="personRecovery()">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('personRecoveryOverview')">sensor_occupied</mat-icon>
   {{ i18n.get('personRecoveryOverview') }}
@@ -108,6 +112,16 @@
     {{ i18n.get('listViewTable') }}
   </button>
   <button mat-menu-item class="tools-menu-item" (click)="listViewExcelExport()">
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('saveAsExcel')">save</mat-icon>
+    {{ i18n.get('saveAsExcel') }}
+  </button>
+</mat-menu>
+<mat-menu #changeOptions="matMenu">
+  <button mat-menu-item class="tools-menu-item" (click)="changeTable()">
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listViewTable')">table_chart</mat-icon>
+    {{ i18n.get('listViewTable') }}
+  </button>
+  <button mat-menu-item class="tools-menu-item" (click)="changeExcelExport()">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('saveAsExcel')">save</mat-icon>
     {{ i18n.get('saveAsExcel') }}
   </button>

@@ -15,7 +15,7 @@ import VectorLayer from 'ol/layer/Vector';
 import { transform } from 'ol/proj';
 import VectorSource from 'ol/source/Vector';
 import { Circle, Fill, Icon, Stroke, Style } from 'ol/style';
-import { Extent, createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
+import { Extent, createEmpty as createEmptyExtent, extend as extendExtent, isEmpty } from 'ol/extent';
 import { BehaviorSubject, Observable, Subject, combineLatest, concatMap, takeUntil } from 'rxjs';
 import { areArraysEqual } from '../helper/array';
 import { formatArea, formatLength } from '../helper/coordinates';
@@ -826,6 +826,10 @@ export class MapRendererService {
         extendExtent(extent, featureExtent);
       }
     });
+    if (isEmpty(extent)){
+      console.error('zoomToAll extent is empty for featureIds:', featureIds);
+      return;
+    }
     const currentZoom = this.getCurrentZoom();
     this.zoomToFit(extent, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING, (currentZoom ?? 0) >= 13 ? currentZoom : 15);
   }

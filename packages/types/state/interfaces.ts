@@ -108,6 +108,28 @@ export interface IZsChangesetConflictDetails {
   hasConflicts: boolean;
 }
 
+export interface ChangeEntry {
+  changesetId: string;
+  date: string;
+  dateNumeric: number;
+  author: string;
+  signValid: boolean;
+
+  elemId: string;
+  action: string;
+  coordChange?: boolean;
+  changedProperties: string,
+  group: string;
+  sign: string;
+  location: string;
+  centroid: string;
+  size: string;
+  reportNumber: string;
+  label: string;
+  description: string;
+  changeset?: IZsChangeset;
+}
+
 export class ChangesetInconsistentError extends Error {
   constructor(public changesetId: string) {
     super(`Changeset ${changesetId} is inconsistent with current MapState`);

@@ -2,22 +2,14 @@
   <button
     mat-stroked-button
     class="history-button"
-    [color]="activeSnapshot === undefined ? 'primary' : ''"
+    [color]="activeSnapshot === null ? 'primary' : ''"
     (click)="setCurrent()"
   >
     {{ i18n.get('currentState') }}
   </button>
   @for (changeset of currentChangesets; track $index) {
-    <div class="changeset">
-      <div class="changeset-descriptions">
-        @for (line of changeset.description; track $index) {
-          <div class="changeset-description">{{ line }}</div>
-        }
-      </div>
-      <button class="button" mat-icon-button (click)="highlightChangedElements(changeset)">
-        <mat-icon>my_location</mat-icon>
-      </button>
-    </div>
+    <ng-container [ngTemplateOutlet]="changesetInfos" [ngTemplateOutletContext]="{ changeset, element: null }">
+    </ng-container>
   }
 </div>
 
@@ -35,34 +27,8 @@
           {{ element.createdAt | date: 'dd.MM.yyyy HH:mm:ss' }}
         </button>
         @for (changeset of element.changesets; track $index) {
-          <div class="changeset">
-            <div class="changeset-descriptions">
-              @for (line of changeset.description; track $index) {
-                <div class="changeset-description">{{ line }}</div>
-              }
-            </div>
-            <button
-              class="button"
-              mat-icon-button
-              (click)="highlightChangedElements(changeset)"
-              [color]="highlightedChangeset === changeset.id ? 'primary' : ''"
-            >
-              <mat-icon>my_location</mat-icon>
-            </button>
-            @if (expertView) {
-              <button
-                class="button"
-                mat-icon-button
-                (click)="showDetails(changeset)"
-                [color]="activeChangeset === changeset.id ? 'primary' : ''"
-              >
-                <mat-icon>list</mat-icon>
-              </button>
-            }
-          </div>
-          @if (expertView && activeChangeset === changeset.id) {
-            <app-change-detail [changeset]="changeset" [snapshotId]="element.documentId"></app-change-detail>
-          }
+          <ng-container [ngTemplateOutlet]="changesetInfos" [ngTemplateOutletContext]="{ changeset, element }">
+          </ng-container>
         }
       </td>
     </ng-container>
@@ -74,3 +40,44 @@
   </table>
 }
 <mat-paginator [length]="resultSize" [pageSize]="20" aria-label="Select page of Snapshot search result"></mat-paginator>
+
+<ng-template #changesetInfos let-changeset="changeset" let-element="element">
+  <div class="changeset">
+    <div class="changeset-descriptions">
+      @for (line of changeset.description; track $index) {
+        @if (line.startsWith('add')) {
+          <div class="changeset-description"><mat-icon title="add">add</mat-icon>{{ line.substring(3) }}</div>
+        } @else if (line.startsWith('remove')) {
+          <div class="changeset-description">
+            <mat-icon title="remove" class="remove">close</mat-icon>{{ line.substring(6) }}
+          </div>
+        } @else if (line.startsWith('update')) {
+          <div class="changeset-description"><mat-icon title="update">sync</mat-icon>{{ line.substring(6) }}</div>
+        } @else {
+          <div class="changeset-description">{{ line }}</div>
+        }
+      }
+    </div>
+    <button
+      class="button"
+      mat-icon-button
+      (click)="highlightChangedElements(changeset)"
+      [color]="highlightedChangeset === changeset.id ? 'primary' : ''"
+    >
+      <mat-icon>my_location</mat-icon>
+    </button>
+    @if (expertView) {
+      <button
+        class="button"
+        mat-icon-button
+        (click)="showDetails(changeset)"
+        [color]="activeChangeset === changeset.id ? 'primary' : ''"
+      >
+        <mat-icon>list</mat-icon>
+      </button>
+    }
+  </div>
+  @if (expertView && activeChangeset === changeset.id) {
+    <app-change-detail [changeset]="changeset" [snapshotId]="element?.documentId"></app-change-detail>
+  }
+</ng-template>
