@@ -419,7 +419,8 @@ export class JournalComponent implements AfterViewInit {
         return;
       }
       // While writing into a input, don't allow shortcuts
-      if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
+      const target = event.target as HTMLElement;
+      if (['INPUT', 'TEXTAREA'].includes(target.tagName) || target.closest('[contenteditable=true]')) {
         return;
       }
       if (this.isReadOnly()) {
@@ -432,7 +433,7 @@ export class JournalComponent implements AfterViewInit {
   }
 
   openJournalAddDialog(entry?: JournalEntry) {
-    if (!this.sidebarOpen || !this.openDisabled) {
+    if ((!this.sidebarOpen || !this.openDisabled) && this._dialog.openDialogs.length === 0) {
       this._dialog.open(JournalEntryCreateModalComponent, {
         width: '800px',
         maxWidth: '800px',
