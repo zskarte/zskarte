@@ -10,6 +10,11 @@ export const LAYER_TRANSLATIONS = {
     end: 'Local',
     fr: 'Local',
   },
+  localTiles: {
+    de: 'Self-Hosted Basiskarte',
+    en: 'Self hosted base map',
+    fr: 'Carte de base, self-hosted',
+  },
   openStreetMap: {
     de: 'OpenStreetMap',
     en: 'OpenStreetMap',

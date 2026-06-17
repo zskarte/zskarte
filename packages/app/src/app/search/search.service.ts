@@ -30,6 +30,7 @@ import { fromLonLat, transformExtent } from 'ol/proj';
 import { ZsMapStateService } from '../state/state.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { environment } from '../../environments/environment';
 
 const FULL_WIDTH_SWISS = 350_000;
 const FULL_HEIGHT_SWISS = 226_000;
@@ -105,7 +106,7 @@ export class SearchService {
   private formatGeoJSON = new GeoJSON();
   private globalSearchInputText?: WritableSignal<string>;
 
-  searchServiceUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer';
+  searchServiceUrl = environment.searchUrl ?? 'https://api3.geo.admin.ch/rest/services/api/SearchServer';
   mapServiceUrl = 'https://api3.geo.admin.ch/rest/services/api/MapServer';
   searchParam = '&searchText=';
   geomentryParams = 'geometryFormat=geojson&sr=3857';
@@ -124,7 +125,7 @@ export class SearchService {
     this.addSearch(this.coordinateSearch.bind(this), this._i18n.get('coordinates'), undefined, -1);
     this.addSearch(this.geoAdminStreetGeometrySearch.bind(this), this._i18n.get('streetSearch'), undefined, 50);
     this.addSearch(this.geoAdminWaterGeometrySearch.bind(this), this._i18n.get('waterSearch'), undefined, 90);
-    this.addSearch(this.geoAdminLocationSearch.bind(this), 'Geo Admin', undefined, 100);
+    this.addSearch(this.geoAdminLocationSearch.bind(this), environment.searchLabel ?? 'Geo Admin', undefined, 100);
 
     effect(() => {
       const activeView = this.activeView();
