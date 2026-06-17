@@ -7,7 +7,7 @@ export const LAYER_TRANSLATIONS = {
   },
   local: {
     de: 'Lokal',
-    end: 'Local',
+    en: 'Local',
     fr: 'Local',
   },
   openStreetMap: {
