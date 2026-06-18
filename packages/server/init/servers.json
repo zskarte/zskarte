@@ -3,8 +3,8 @@
     "1": {
       "Name": "postgres-local",
       "Group": "Servers",
-      "Host": "postgresql-zskarte",
-      "Port": 5432,
+      "Host": "localhost",
+      "Port": 55432,
       "MaintenanceDB": "postgres",
       "Username": "postgres",
       "Password": "supersecret123",
