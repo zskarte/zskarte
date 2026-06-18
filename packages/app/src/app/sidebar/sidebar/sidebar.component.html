@@ -100,7 +100,7 @@
       <app-sidebar-draw-layers />
     </ng-template>
   </mat-expansion-panel>
-  @if ((mapState.observeSelectedMapLayers$() | async)?.length ?? 0 > 0) {
+  @if (mapState.isExpertView() || (mapState.observeSelectedMapLayers$() | async)?.length ?? 0 > 0) {
     <mat-divider></mat-divider>
     <mat-expansion-panel class="mat-elevation-z0">
       <mat-expansion-panel-header>
