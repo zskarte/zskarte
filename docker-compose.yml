@@ -37,6 +37,9 @@ services:
     networks:
       - zskarte
     ports: [ 1337:1337 ]
+    environment:
+      - DATABASE_HOST=postgresql-zskarte
+      - DATABASE_PORT=5432
   app-zskarte:
     build:
       context: .
