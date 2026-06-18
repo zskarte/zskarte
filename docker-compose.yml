@@ -11,6 +11,10 @@ services:
     environment:
       - POSTGRESQL_PASSWORD=supersecret123
       - POSTGRESQL_DATABASE=zskarte
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U postgres"]
+      start_period: 60s
+      retries: 6
     networks:
       - zskarte
 
@@ -40,6 +44,9 @@ services:
     environment:
       - DATABASE_HOST=postgresql-zskarte
       - DATABASE_PORT=5432
+    depends_on:
+      postgresql-zskarte:
+        condition: service_healthy
   app-zskarte:
     build:
       context: .
