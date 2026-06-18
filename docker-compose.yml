@@ -29,6 +29,22 @@ services:
     networks:
       - zskarte
 
+  server-zskarte:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server-zskarte
+    networks:
+      - zskarte
+    ports: [ 1337:1337 ]
+  app-zskarte:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: app-zskarte
+    ports: [ 4300:80 ]
+    
+
 networks:
   zskarte:
     driver: bridge

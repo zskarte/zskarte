@@ -10,7 +10,7 @@ ADD ./packages/server/package.json /app/packages/server/package.json
 RUN npm ci 
 
 # Copy all files
-ADD . /app
+ADD --exclude=./packages/app . /app
 
 # npm lint
 RUN npm run lint:server
