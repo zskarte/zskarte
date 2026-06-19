@@ -1,0 +1,14 @@
+services:
+  geojson-filter:
+    image: alpine:latest
+    volumes:
+      - ./packages/app/src/assets/geojson:/data
+    # Installs curl & jq, fetches the file, filters for kanton == "AG", and saves it
+    command: >
+      sh -c "
+        apk add --no-cache curl jq &&
+        echo 'Fetching GeoJSON data...' &&
+        curl -s https://data.geo.admin.ch/ch.babs.notfalltreffpunkte/notfalltreffpunkte/notfalltreffpunkte.geojson | 
+        jq '.features |= map(select(.properties.kanton == \"AG\"))' > /data/notfalltreffpunkte_ag.geojson &&
+        echo 'Success! Filtered file saved to ./data/notfalltreffpunkte_ag.geojson'
+      "
