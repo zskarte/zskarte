@@ -25,8 +25,6 @@ COPY <<'EOF' /etc/nginx/conf.d/default.conf
 server {
     listen       80;
 
-    error_log /dev/stdout debug;
-
     root   /usr/share/nginx/html;
     index index.html;
 
