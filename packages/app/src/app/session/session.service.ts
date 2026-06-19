@@ -86,7 +86,11 @@ export class SessionService {
     this._session.pipe(skip(1)).subscribe(async (session) => {
       this._clearOperation.next();
       if (session?.jwt || session?.workLocal) {
-        await db.sessions.put(session);
+        // Ephemeral (embedded share-token) sessions are kept in memory only, so they don't
+        // overwrite the user's persisted full-access session.
+        if (!session.ephemeral) {
+          await db.sessions.put(session);
+        }
         if (session.operation?.documentId || session.operation?.id) {
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
           await this._state?.refreshMapState();
@@ -264,6 +268,11 @@ export class SessionService {
 
   public persistMapState = debounceLeading(async () => {
     const currentSession = this._session.value;
+    // Never persist an ephemeral (embedded share-token) session: it is scoped to a single
+    // operation and would overwrite the user's real full-access session in the local DB.
+    if (currentSession?.ephemeral) {
+      return false;
+    }
     if (currentSession?.operation && !this._state.isHistoryMode()) {
       const mapState = await firstValueFrom(this._state.observeMapState());
       if (Object.keys(mapState?.drawElements || {})?.length) {
@@ -539,7 +548,7 @@ export class SessionService {
     await this.updateJWT(result.jwt);
   }
 
-  public async shareLogin(accessToken: string) {
+  public async shareLogin(accessToken: string, options?: { ephemeral?: boolean }) {
     if (!accessToken) {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
@@ -554,10 +563,10 @@ export class SessionService {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
-    await this.updateJWT(result.jwt);
+    await this.updateJWT(result.jwt, options);
   }
 
-  public async updateJWT(jwt: string) {
+  public async updateJWT(jwt: string, options?: { ephemeral?: boolean }) {
     const decoded = decodeJWT(jwt);
     if (decoded.expired) {
       await this.logout('expired');
@@ -622,6 +631,10 @@ export class SessionService {
         newSession.operation = operation;
       }
     }
+
+    // Embedded share-token logins are scoped to a single operation; keep them in memory only so
+    // they don't replace the user's persisted full-access session.
+    newSession.ephemeral = options?.ephemeral ?? false;
 
     this._session.next(newSession);
 

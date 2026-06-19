@@ -15,7 +15,7 @@ export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined)
       const newMapState = cloneDeep(mapState) as IZsMapStateV2;
 
       newMapState.version = 2;
-      newMapState.layers = oldMapState.layers
+      newMapState.layers = Array.isArray(oldMapState.layers)
         ? oldMapState.layers.reduce((acc, layer) => {
             if (!layer.id) {
               layer.id = uuidv4();
@@ -23,8 +23,8 @@ export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined)
             acc[layer.id] = layer;
             return acc;
           }, {})
-        : {};
-      newMapState.drawElements = oldMapState.drawElements
+        : (oldMapState.layers ?? {});
+      newMapState.drawElements = Array.isArray(oldMapState.drawElements)
         ? oldMapState.drawElements.reduce((acc, element) => {
             if (!element.id) {
               element.id = uuidv4();
@@ -32,7 +32,7 @@ export const zsMapStateMigration = (mapState: ZsMapStateAllVersions | undefined)
             acc[element.id] = element;
             return acc;
           }, {})
-        : {};
+        : (oldMapState.drawElements ?? {});
 
       return newMapState;
     }

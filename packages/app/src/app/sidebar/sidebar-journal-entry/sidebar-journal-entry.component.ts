@@ -15,7 +15,7 @@ import { Coordinate } from 'ol/coordinate';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { filter, firstValueFrom, skip, take } from 'rxjs';
+import { filter, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
 import { SearchService } from 'src/app/search/search.service';
@@ -279,10 +279,8 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     await this.openDrawDialog();
   }
 
-  private async openDrawDialog(): Promise<void> {
-    const layer = await firstValueFrom(this._state.observeActiveLayer());
-    const ref = this._dialog.open(DrawDialogComponent);
-    ref.componentRef?.instance.setLayer(layer);
+  private openDrawDialog(): void {
+    this._dialog.open(DrawDialogComponent);
   }
 
   focusSignatures() {

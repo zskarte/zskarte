@@ -33,6 +33,16 @@
             @if (selectedElementLayer()?.getId() !== activeLayer()?.getId()) {
               <div class="other-layer">{{ i18n.get('elementOnOtherLayer') }}</div>
             }
+            @if (externalLinks(drawElement).length > 0) {
+              <div class="embed-external-links">
+                @for (link of externalLinks(drawElement); track link.index) {
+                  <button mat-stroked-button class="embed-external-link" (click)="openExternalLink(drawElement, link.index)">
+                    <mat-icon>open_in_new</mat-icon>
+                    {{ link.label }}
+                  </button>
+                }
+              </div>
+            }
             @if (!editMode()) {
               <div class="title">
                 @if (!isText(drawElement)) {
@@ -48,7 +58,7 @@
               @if (drawElement.description) {
                 <div class="description" [innerHTML]="drawElement.description"></div>
               }
-              @if (drawElement.reportNumber?.['length'] > 0) {
+              @if (!embed.isEmbedded() && drawElement.reportNumber?.['length'] > 0) {
                 <div class="reportNumber">
                   <div>{{ i18n.get('reportNumber') }}</div>
                   <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
@@ -78,30 +88,32 @@
                   ></textarea>
                 }
               </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
-                <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
-                  @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
-                    <mat-chip-row
-                      (removed)="removeReportNumber(reportNumber, drawElement)"
-                      (click)="openMessage(reportNumber)"
-                      class="report-number-chip"
-                    >
-                      {{ reportNumber }}
-                      <mat-icon matChipRemove (click)="$event.stopPropagation()">cancel</mat-icon>
-                    </mat-chip-row>
-                  }
-                </mat-chip-grid>
-                <input
-                  matInput
-                  type="text"
-                  [placeholder]="i18n.get('pressEnter')"
-                  [matChipInputFor]="reportNumberChips"
-                  (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
-                  (blur)="addReportNumber($event, drawElement)"
-                  (input)="validateNumberInput($event)"
-                />
-              </mat-form-field>
+              @if (!embed.isEmbedded()) {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
+                  <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
+                    @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
+                      <mat-chip-row
+                        (removed)="removeReportNumber(reportNumber, drawElement)"
+                        (click)="openMessage(reportNumber)"
+                        class="report-number-chip"
+                      >
+                        {{ reportNumber }}
+                        <mat-icon matChipRemove (click)="$event.stopPropagation()">cancel</mat-icon>
+                      </mat-chip-row>
+                    }
+                  </mat-chip-grid>
+                  <input
+                    matInput
+                    type="text"
+                    [placeholder]="i18n.get('pressEnter')"
+                    [matChipInputFor]="reportNumberChips"
+                    (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
+                    (blur)="addReportNumber($event, drawElement)"
+                    (input)="validateNumberInput($event)"
+                  />
+                </mat-form-field>
+              }
               <div class="markdown">
                 <div class="markdownEditor">
                   <mat-form-field appearance="outline">

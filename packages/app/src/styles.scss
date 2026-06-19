@@ -287,3 +287,13 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   padding: 1rem !important;
 }
 
+
+// Embedded mode (zskarte hosted inside another application, e.g. an incident manager).
+// The host owns "Meldungen"/journaling, so zskarte's own journal UI is hidden to avoid
+// duplicate, confusing entry points. Toggled by EmbedService via a body class.
+body.zskarte-embedded {
+  // The top "Karte | Journal" tab switcher.
+  .main-tabs {
+    display: none;
+  }
+}

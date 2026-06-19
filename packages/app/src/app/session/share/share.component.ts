@@ -18,7 +18,9 @@ export class ShareComponent {
   constructor() {
     this._activatedRoute.params.subscribe(async (params) => {
       const queryParams = await firstValueFrom(this._activatedRoute.queryParams);
-      await this._session.shareLogin(params['accessToken']);
+      // In embedded mode the share session must stay ephemeral, so unlinking later still shows
+      // the user's full list of operations instead of just the (now unlinked) shared one.
+      await this._session.shareLogin(params['accessToken'], { ephemeral: queryParams['embedded'] != null });
       
       const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
       if (isAuthenticated) {

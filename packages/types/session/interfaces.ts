@@ -31,6 +31,12 @@ export interface IZsMapSession {
   defaultLongitude?: number;
   defaultZoomLevel?: number;
   workLocal?: boolean;
+  /**
+   * Marks a session that must not be persisted to the local database. Used for embedded
+   * share-token logins, which are scoped to a single operation and would otherwise overwrite
+   * the user's real (full-access) session, hiding all other operations afterwards.
+   */
+  ephemeral?: boolean;
 }
 
 export interface IZso {

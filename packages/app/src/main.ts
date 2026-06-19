@@ -55,6 +55,7 @@ import { appRoutes } from './app/app-routes';
 import { JournalService } from './app/journal/journal.service';
 import { SearchService } from './app/search/search.service';
 import { OperationService } from './app/session/operations/operation.service';
+import { EmbedService } from './app/embed/embed.service';
 
 // enable immerjs patches
 enablePatches();
@@ -119,6 +120,7 @@ bootstrapApplication(AppComponent, {
       );
       return initializerFn();
     }),
+    provideAppInitializer(() => inject(EmbedService).initialize()),
 
     DatePipe,
     provideHttpClient(withInterceptorsFromDi()),

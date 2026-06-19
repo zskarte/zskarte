@@ -41,6 +41,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Signs } from '../map-renderer/signs';
+import { EmbedService } from '../embed/embed.service';
 
 @Component({
   selector: 'app-selected-feature',
@@ -69,6 +70,7 @@ export class SelectedFeatureComponent implements OnDestroy {
   i18n = inject(I18NService);
   zsMapStateService = inject(ZsMapStateService);
   private router = inject(Router);
+  protected embed = inject(EmbedService);
 
   groupedFeatures = null;
   selectedFeature: Observable<Feature<SimpleGeometry> | undefined>;
@@ -285,6 +287,19 @@ export class SelectedFeatureComponent implements OnDestroy {
 
   openMessage(reportNumber: string) {
     this.router.navigate([], { fragment: `message=${reportNumber}` });
+  }
+
+  /** The host-provided external links for the given signature (embedded mode only). */
+  externalLinks(element?: ZsMapDrawElementState): { label: string; index: number }[] {
+    const links = this.embed.getExternalLinks(element?.id);
+    return links ? links.map((l, i) => ({ label: l.label, index: i })) : [];
+  }
+
+  /** Asks the embedding host to open a specific external link of the given signature. */
+  openExternalLink(element: ZsMapDrawElementState, linkIndex: number) {
+    if (element.id) {
+      this.embed.requestOpenExternalLink(element.id, linkIndex);
+    }
   }
 
   addReportNumber(event: MatChipInputEvent | FocusEvent, element: ZsMapDrawElementState) {

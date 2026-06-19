@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
-import { ZsMapBaseLayer } from '../map-renderer/layers/base-layer';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,6 +16,7 @@ import { A11yModule } from '@angular/cdk/a11y';
 import { Signs } from '../map-renderer/signs';
 import { DrawStyle } from '../map-renderer/draw-style';
 import { SessionService } from '../session/session.service';
+import { ZsMapStateService } from '../state/state.service';
 import { RecentlyUsedSignsComponent } from '../recently-used-signs/recently-used-signs.component';
 import capitalizeFirstLetter from '../helper/capitalizeFirstLetter';
 
@@ -46,8 +46,7 @@ export class DrawDialogComponent implements OnInit {
   i18n = inject(I18NService);
   dialog = inject(MatDialog);
   private _session = inject(SessionService);
-
-  public layer: ZsMapBaseLayer | undefined;
+  private _state = inject(ZsMapStateService);
 
   // Sign selection properties
   filter = '';
@@ -57,10 +56,6 @@ export class DrawDialogComponent implements OnInit {
   hiddenTypes = ['incident'];
   signCategories = Array.from(signCategories.values()).filter((c) => !this.hiddenTypes.includes(c.name));
   capitalizeFirstLetter = capitalizeFirstLetter;
-
-  public setLayer(layer: ZsMapBaseLayer | undefined): void {
-    this.layer = layer;
-  }
 
   ngOnInit(): void {
     this.loadSigns();
@@ -108,36 +103,36 @@ export class DrawDialogComponent implements OnInit {
 
   selectSign(sign: Sign) {
     this.dialogRef.close();
-    this.layer?.draw(ZsMapDrawElementStateType.SYMBOL, { symbolId: sign.id });
+    this._state.getActiveLayer()?.draw(ZsMapDrawElementStateType.SYMBOL, { symbolId: sign.id });
   }
 
   public addLine(): void {
     this.dialogRef.close();
-    this.layer?.draw(ZsMapDrawElementStateType.LINE);
+    this._state.getActiveLayer()?.draw(ZsMapDrawElementStateType.LINE);
   }
 
   public addText(): void {
     this.dialogRef.close();
-    this.layer?.draw(ZsMapDrawElementStateType.TEXT);
+    this._state.getActiveLayer()?.draw(ZsMapDrawElementStateType.TEXT);
   }
 
   public addPolygon(): void {
     this.dialogRef.close();
-    this.layer?.draw(ZsMapDrawElementStateType.POLYGON);
+    this._state.getActiveLayer()?.draw(ZsMapDrawElementStateType.POLYGON);
   }
 
   public addRectangle(): void {
     this.dialogRef.close();
-    this.layer?.draw(ZsMapDrawElementStateType.RECTANGLE);
+    this._state.getActiveLayer()?.draw(ZsMapDrawElementStateType.RECTANGLE);
   }
 
   public addCircle(): void {
     this.dialogRef.close();
-    this.layer?.draw(ZsMapDrawElementStateType.CIRCLE);
+    this._state.getActiveLayer()?.draw(ZsMapDrawElementStateType.CIRCLE);
   }
 
   public startFreehand(): void {
     this.dialogRef.close();
-    this.layer?.draw(ZsMapDrawElementStateType.FREEHAND);
+    this._state.getActiveLayer()?.draw(ZsMapDrawElementStateType.FREEHAND);
   }
 }

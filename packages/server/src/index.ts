@@ -24,6 +24,16 @@ export default {
     await migrateOperationMapStates(strapi);
     await migrateOperationStatusesToPhases(strapi);
     await loadOperations(strapi);
+
+    // Map-state changes are applied to an in-memory cache and were previously only written to
+    // the database on a graceful shutdown - so an ungraceful stop lost everything drawn since
+    // the last clean exit. Periodically flush changed map states so reloads (and crashes) keep
+    // recent edits. `persistMapStates` is a no-op for operations whose state hasn't changed.
+    const PERSIST_INTERVAL_MS = 30 * 1000;
+    const persistInterval = setInterval(() => {
+      persistMapStates(strapi).catch((error) => strapi.log.error(error));
+    }, PERSIST_INTERVAL_MS);
+    persistInterval.unref?.();
   },
 
   /**

@@ -21,6 +21,20 @@ mat-card.selection {
   margin-bottom: 10px;
 }
 
+.embed-external-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin: 0.25rem 0 1rem;
+}
+
+.embed-external-link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .reportNumber {
   display: flex;
   gap: 10px;

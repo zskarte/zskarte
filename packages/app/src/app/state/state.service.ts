@@ -331,12 +331,28 @@ export class ZsMapStateService {
         return this._getDefaultDisplayState();
       }
       const defaults = this._getDefaultDisplayState();
+
+      // Merge layer tracking: supplement saved state with any layers present in _map but
+      // missing from the saved display state (e.g. layers added after the last display-state save).
+      const layerVisibility = { ...defaults.layerVisibility, ...newState.layerVisibility };
+      const layerOpacity = { ...defaults.layerOpacity, ...newState.layerOpacity };
+      const savedOrder = newState.layerOrder ?? [];
+      const newLayerIds = defaults.layerOrder.filter((id) => !savedOrder.includes(id));
+      const layerOrder = [...savedOrder, ...newLayerIds];
+
+      // Restore activeLayer from saved state only if that layer still exists; otherwise use default.
+      const activeLayer =
+        newState.activeLayer && layerVisibility[newState.activeLayer] !== undefined
+          ? newState.activeLayer
+          : (defaults.activeLayer ?? layerOrder[0]);
+
       return {
         ...defaults,
         ...newState,
-        layerVisibility: newState.layerVisibility ?? defaults.layerVisibility,
-        layerOpacity: newState.layerOpacity ?? defaults.layerOpacity,
-        layerOrder: newState.layerOrder ?? defaults.layerOrder,
+        activeLayer,
+        layerVisibility,
+        layerOpacity,
+        layerOrder,
         elementVisibility: newState.elementVisibility ?? defaults.elementVisibility,
         elementOpacity: newState.elementOpacity ?? defaults.elementOpacity,
         layers: newState.layers ?? defaults.layers,
@@ -885,7 +901,9 @@ export class ZsMapStateService {
   public addDrawLayer(name: string) {
     this.updateMapState((draft) => {
       const id = uuidv4();
-      draft.layers![id] = { id, name, type: ZsMapLayerStateType.DRAW };
+      if (!draft.version) draft.version = 2;
+      if (!draft.layers) draft.layers = {};
+      draft.layers[id] = { id, name, type: ZsMapLayerStateType.DRAW };
     });
   }
 

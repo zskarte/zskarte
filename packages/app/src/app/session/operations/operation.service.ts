@@ -82,7 +82,16 @@ export class OperationService {
     if (operation.documentId) {
       await this.updateMeta(operation);
     } else {
-      await this.insertOperation(operation);
+      let result = await this.insertOperation(operation);
+      if (!result) {
+        // Refresh JWT (handles expiry) and retry once
+        await this._session.refreshToken();
+        result = await this.insertOperation(operation);
+      }
+      if (!result) {
+        // Still failed — keep form open so user can retry
+        return;
+      }
     }
     await this.reload('active');
     this.operationToEdit.next(undefined);

@@ -135,9 +135,7 @@ export class ShortcutService {
   private _openAdd() {
     return () => {
       if (this._dialog.openDialogs.length === 0) {
-        const layer = this._state.getActiveLayer();
-        const ref = this._dialog.open(DrawDialogComponent);
-        ref.componentRef?.instance.setLayer(layer);
+        this._dialog.open(DrawDialogComponent);
       }
     };
   }

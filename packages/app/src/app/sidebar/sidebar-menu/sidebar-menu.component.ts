@@ -83,7 +83,7 @@ export class SidebarMenuComponent {
   async updateIncidents(incidents: number[]): Promise<void> {
     const operation = this.session.getOperation();
     if (operation) {
-      if (operation.eventStates.toString() !== incidents.toString()) {
+      if ((operation.eventStates ?? []).toString() !== incidents.toString()) {
         operation.eventStates = incidents;
         await this._operation.updateMeta(operation);
       }

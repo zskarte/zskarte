@@ -82,15 +82,17 @@
         </button>
       }
 
-      <button
-        class="sidebar-button mat-elevation-z3"
-        mat-icon-button
-        [color]="(sidebar.observeContext() | async) === SidebarContext.Journal ? 'primary' : 'basic'"
-        (click)="sidebar.toggle(SidebarContext.Journal)"
-        [attr.aria-label]="i18n.get('journal')"
-      >
-        <mat-icon>menu_book</mat-icon>
-      </button>
+      @if (!embed.isEmbedded()) {
+        <button
+          class="sidebar-button mat-elevation-z3"
+          mat-icon-button
+          [color]="(sidebar.observeContext() | async) === SidebarContext.Journal ? 'primary' : 'basic'"
+          (click)="sidebar.toggle(SidebarContext.Journal)"
+          [attr.aria-label]="i18n.get('journal')"
+        >
+          <mat-icon>menu_book</mat-icon>
+        </button>
+      }
 
       <div class="button-toggle mat-elevation-z3">
         @if (!(isReadOnly | async)) {
