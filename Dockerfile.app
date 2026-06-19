@@ -19,5 +19,27 @@ RUN NODE_ENV=production npm run build:app && rm -rf /app/packages/app/src
 
 FROM nginx:1.15.8-alpine
 
+
+# EOF with single quotes to suppress $-expansion
+COPY <<'EOF' /etc/nginx/conf.d/default.conf
+server {
+    listen       80;
+
+    error_log /dev/stdout debug;
+
+    root   /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+EOF
+
 #Copy built angular files to NGINX HTML folder
 COPY --from=build-app /app/packages/app/dist/zskarte/browser /usr/share/nginx/html
