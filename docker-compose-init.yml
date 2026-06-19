@@ -10,5 +10,5 @@ services:
         echo 'Fetching GeoJSON data...' &&
         curl -s https://data.geo.admin.ch/ch.babs.notfalltreffpunkte/notfalltreffpunkte/notfalltreffpunkte.geojson | 
         jq '.features |= map(select(.properties.kanton == \"AG\"))' > /data/notfalltreffpunkte_ag.geojson &&
-        echo 'Success! Filtered file saved to ./data/notfalltreffpunkte_ag.geojson'
+        echo 'Success! Filtered file saved as notfalltreffpunkte_ag.geojson'
       "
