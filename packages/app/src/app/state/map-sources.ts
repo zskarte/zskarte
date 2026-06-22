@@ -11,6 +11,7 @@ import { BlobService } from '../db/blob.service';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
 import { WmsService } from '../map-layer/wms/wms.service';
 import { GeodiensteService } from '../map-layer/geodienste/geodienste.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -106,6 +107,14 @@ export class MapSourcesService {
               '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
             ],
             url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            maxZoom: 19,
+            crossOrigin: 'anonymous',
+          }),
+        );
+      case ZsMapStateSource.LOCAL_TILES:
+        return this.getOlTileLayer(
+          new OlTileXYZ({
+            url: `${environment.tileUrl}/{z}/{x}/{y}.png`,
             maxZoom: 19,
             crossOrigin: 'anonymous',
           }),

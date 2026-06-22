@@ -60,15 +60,18 @@
           }
         }
       </button>
-      <button
-        class="sidebar-button mat-elevation-z3"
-        mat-icon-button
-        [color]="(sidebar.observeContext() | async) === SidebarContext.Layers ? 'primary' : 'basic'"
-        (click)="sidebar.toggle(SidebarContext.Layers)"
-        [attr.aria-label]="i18n.get('layers')"
-      >
-        <mat-icon>layers</mat-icon>
-      </button>
+
+      @if (showNavLink){
+        <button
+          class="sidebar-button mat-elevation-z3"
+          mat-icon-button
+          [color]="(sidebar.observeContext() | async) === SidebarContext.Layers ? 'primary' : 'basic'"
+          (click)="sidebar.toggle(SidebarContext.Layers)"
+          [attr.aria-label]="i18n.get('layers')"
+        >
+          <mat-icon>layers</mat-icon>
+        </button>
+      }
 
       @if (isHistoryMode | async) {
         <button

@@ -15,6 +15,7 @@ export enum ZsMapStateSource {
   GEODIENSTE_AV_SITUATION = 'geodiensteAVSituation',
   LOCAL = 'local',
   NONE = 'noBaseMap',
+  LOCAL_TILES = 'localTiles',
 }
 
 export const zsMapStateSourceToDownloadUrl = {

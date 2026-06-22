@@ -11,6 +11,10 @@ services:
     environment:
       - POSTGRESQL_PASSWORD=supersecret123
       - POSTGRESQL_DATABASE=zskarte
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U postgres"]
+      start_period: 60s
+      retries: 6
     networks:
       - zskarte
 
@@ -28,6 +32,28 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=zskarte
     networks:
       - zskarte
+
+  server-zskarte:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server-zskarte
+    networks:
+      - zskarte
+    ports: [ 1337:1337 ]
+    environment:
+      - DATABASE_HOST=postgresql-zskarte
+      - DATABASE_PORT=5432
+    depends_on:
+      postgresql-zskarte:
+        condition: service_healthy
+  app-zskarte:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: app-zskarte
+    ports: [ 4300:80 ]
+    
 
 networks:
   zskarte:

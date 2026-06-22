@@ -10,6 +10,8 @@ import { SidebarWrapperComponent } from './sidebar/sidebar-wrapper/sidebar-wrapp
 import { NavigationService } from './navigation/navigation.service';
 import { VersionService } from 'src/version/version.service';
 import { LanguageSelectorComponent } from './language-selector/language-selector.component';
+import { environment } from '../environments/environment'; 
+
 
 @Component({
   selector: 'app-root',
@@ -28,6 +30,7 @@ export class AppComponent implements OnInit {
   readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
   readonly operationId = toSignal(this._session.observeOperationId());
 
+  readonly showNavLink = environment.showNavLink;
   navLinks = [
     {
       label: 'map',

@@ -1,0 +1,8 @@
+{
+  "circle-radius": 6,
+  "circle-fill-color": "red",
+  "circle-stroke-color": "white",
+  "circle-stroke-width": 2,
+  "icon-src":"/assets/img/signs/NTP/Notfalltreffpunkt.svg",
+  "icon-scale":  0.1
+}

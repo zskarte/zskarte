@@ -15,4 +15,3 @@ docker-compose.yml
 test
 dist
 packages/server/public/uploads/*
-packages/app

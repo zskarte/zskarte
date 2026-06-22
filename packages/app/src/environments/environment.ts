@@ -5,6 +5,10 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:1337',
+  tileUrl: 'http://localhost:8080/styles/osm-bright',
+  searchUrl: 'http://localhost:8000/search/',
+  searchLabel: 'ZSO Freiamt lokale Suche',
+  showNavLink: true,
 };
 
 /*
