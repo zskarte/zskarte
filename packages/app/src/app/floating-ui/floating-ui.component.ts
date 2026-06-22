@@ -26,6 +26,10 @@ import { JournalDrawOverlayComponent } from '../journal-draw-overlay/journal-dra
 import { SearchService } from '../search/search.service';
 import { CompassButtonComponent } from '../compass-button/compass-button.component';
 import { JournalService } from '../journal/journal.service';
+import { environment } from '../../environments/environment';
+
+
+
 
 @Component({
   selector: 'app-floating-ui',
@@ -60,6 +64,8 @@ export class FloatingUIComponent {
   mapState = inject(ZsMapStateService);
 
   SidebarContext = SidebarContext;
+
+  readonly showNavLink = environment.showNavLink;
 
   private _ngUnsubscribe = new Subject<void>();
   public connectionCount = new BehaviorSubject<number>(0);
