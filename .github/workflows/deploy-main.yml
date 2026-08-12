@@ -10,7 +10,7 @@ env:
   APP_NAME: zskarte-server
   IMAGE_TAG: zskarte/zskarte-server
   LETSENCRYPT_STAGE: prod
-  DB_HOST: postgresql.postgresql.svc.cluster.local
+  DB_HOST: db.db.svc.cluster.local
   DB_PORT: 5432
   DB_NAME: zskarte
   DB_USER: zskarte
