@@ -13,8 +13,8 @@ env:
   DB_HOST: db.db.svc.cluster.local
   DB_PORT: 5432
   DB_NAME: zskarte-test
-  DB_USER: zskarte_test
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD_PG18_TEST }}
+  DB_USER: zskarte
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET_DEV }}
   JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET_DEV }}
   APP_KEYS: ${{ secrets.STRAPI_APP_KEYS_DEV }}
