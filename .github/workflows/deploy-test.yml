@@ -10,7 +10,7 @@ env:
   APP_NAME: zskarte-server
   FULL_IMAGE_NAME: zskarte/zskarte-server:${{ github.sha }}
   LETSENCRYPT_STAGE: prod
-  DB_HOST: postgresql.postgresql.svc.cluster.local
+  DB_HOST: db.db.svc.cluster.local
   DB_PORT: 5432
   DB_NAME: zskarte-test
   DB_USER: zskarte
@@ -63,6 +63,28 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
           CHANGE_CAUSE: ${{ github.event.release.tag_name }}
+
+      - name: Verify Server Deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kubectl \
+            --namespace "$KUBERNETES_NAMESPACE" \
+            rollout status "deployment/$APP_NAME" \
+            --timeout=240s
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --location \
+            --retry 12 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --max-time 15 \
+            "https://$BASE_URL/" \
+            --output /dev/null
 
   build-and-deploy-app:
     runs-on: ubuntu-latest
