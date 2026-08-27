@@ -81,8 +81,6 @@ export class SigningService {
       if (!keyConfig) {
         tryLoadingKeys.add(changeset.signKeyId);
         if (tryLoadingKeys.has(changeset.signKeyId)) {
-          
-          console.log([...tryLoadingKeys]);
           keyConfig = await this.loadKey(changeset.signKeyId, changeset.serverId);
           if (keyConfig) {
             this.publicKeys[changeset.signKeyId] = keyConfig;

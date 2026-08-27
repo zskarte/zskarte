@@ -83,6 +83,10 @@ export class SidebarWrapperComponent {
             this.showLogo = false;
             this.sidebarTitle = this.i18n.get('journal');
             break;
+          case SidebarContext.Changeset:
+            this.showLogo = false;
+            this.sidebarTitle = this.i18n.get('changeset');
+            break;
           default:
             this.showLogo = true;
             this.sidebarTitle = this.session.getOperationName() ?? '';

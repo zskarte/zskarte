@@ -194,8 +194,14 @@ export class SidebarMenuComponent {
     this.session.setLocale(locale);
   }
 
-  navigateEvents() {
+  async navigateEvents() {
+    await this.zsMapStateService.finishCurrentChangeset();
     this.session.setOperation(undefined);
+  }
+
+  async logout() {
+    await this.zsMapStateService.finishCurrentChangeset();
+    this.session.logout('logout');
   }
 
   async generateShareLink(readOnly: boolean, isOneWayLink: boolean) {

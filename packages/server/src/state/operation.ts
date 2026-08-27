@@ -30,9 +30,9 @@ const initializeSigning = async (strapi: Core.Strapi) => {
   let passphrase: Buffer;
   if (process.env.SIGN_PRIVATE_KEY_PASSPHRASE) {
     passphrase = Buffer.from(process.env.SIGN_PRIVATE_KEY_PASSPHRASE, 'base64');
-    if (passphrase.length !== 32) {
+    if (passphrase.length < 32) {
       throw new Error(
-        `SIGN_PRIVATE_KEY_PASSPHRASE: Invalid key length: ${passphrase.length}, expected 32 (after base64 decode)`,
+        `SIGN_PRIVATE_KEY_PASSPHRASE: Invalid key length: ${passphrase.length}, expected >= 32 (after base64 decode)`,
       );
     }
   }

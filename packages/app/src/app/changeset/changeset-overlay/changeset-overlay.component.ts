@@ -47,7 +47,7 @@ export class ChangesetOverlayComponent {
 
   finishChangeset(byTimer = false) {
     this.stopProgressTimer();
-    this._state.finishCurrentChangeset(!byTimer);
+    this._state.finishCurrentChangeset();
   }
 
   resolveConflicts() {

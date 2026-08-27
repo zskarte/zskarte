@@ -314,6 +314,13 @@ export const SIDEBAR_TRANSLATIONS = {
     fr: 'Exportation du journal des modifications',
   },
 
+  //changeset conflict sidebar
+  changeset: {
+    de: 'Changeset',
+    en: 'Changeset',
+    fr: 'Changeset',
+  },
+
   //version info
   version: {
     de: 'Version',

@@ -83,7 +83,7 @@ export class SyncService {
 
         //prevent multiple submit of same patches
         if (this._reonnectPublishPromise) {
-          await this._reonnectPublishPromise;
+          return this._reonnectPublishPromise;
         }
         let promisResolver!: () => void;
         let promisReject!: (reason?: any) => void;
@@ -138,7 +138,7 @@ export class SyncService {
     }
 
     if (this._connectingPromise) {
-      await this._connectingPromise;
+      return this._connectingPromise;
     }
 
     this._connectingPromise = new Promise<void>((resolve, reject) => {
@@ -169,7 +169,6 @@ export class SyncService {
         this._disconnect();
       });
       this._socket.on('state:changeset', (data: { changeset: IZsChangeset, sign: string}) => {
-        //if (changeset.identifier === this._connectionId) return;
         this._state.addIncommingChangeset(data.changeset, data.sign);
       });
       this._socket.on('state:journal', (json: SuperJSONResult) => {

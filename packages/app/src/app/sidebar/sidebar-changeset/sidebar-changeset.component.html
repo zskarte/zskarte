@@ -64,7 +64,7 @@
           [class.activePreview]="allPreviewIndex === $index"
           (click)="highlightAllPreview($index)"
           class="highlightAllPreview"
-          [title]="i18n.get('highlightAll')"
+          title="highlightAll"
         >
           {{ field }}
         </button>
@@ -75,21 +75,23 @@
         [class.activePreview]="allPreviewIndex === 3"
         (click)="highlightAllPreview(3)"
         class="highlightAllPreview"
-        [title]="i18n.get('highlightAll')"
+        title="highlightAll"
       >
         merged
       </button>
     </div>
-    <button
-      mat-flat-button
-      (click)="toggleHighlightAll()"
-      class="highlightAll"
-      [title]="i18n.get('highlightAll')"
-      [class]="{ selected: allHighlighted }"
-    >
-      <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
-      Highlight changed elements
-    </button>
+    <div>
+      <button
+        mat-flat-button
+        (click)="toggleHighlightAll()"
+        class="highlightAll"
+        title="highlightAll"
+        [class]="{ selected: allHighlighted }"
+      >
+        <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
+        Highlight changed elements
+      </button>
+    </div>
     @for (element of changesetService.conflictDetails()?.conflicts; track element.drawElementId) {
       @if (element.conflict || !conflictsOnly) {
         <div class="merge-element" [attr.data-elemId]="element.drawElementId">
@@ -149,7 +151,7 @@
         </div>
       }
     }
-    <button class="merge-button" mat-flat-button color="primary" (click)="finish()" title="finish">merge changes</button>
+    <div><button class="merge-button" mat-flat-button color="primary" (click)="finish()" title="finish">merge changes</button></div>
   } @else {
     <p>no conflicts, all fine</p>
   }

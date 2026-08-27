@@ -68,7 +68,7 @@ export const verifyChangesetConsistency = (mapState: ZsMapState, changeset: IZsC
             (patch) => patch.path[0] === DRAW_ELEMENTS && patch.path[1] === elemId,
           );
           if (!fistChange || fistChange.path.length !== 2 || (fistChange.op !== 'add' && fistChange.op !== 'replace')) {
-            const message = `drawElement ${elemId} to change no longer exist (and first patch does not add it again) on try apply changeset ${changeset.id}`;
+            const message = `drawElement ${elemId} to change no longer exist (and first patch of changeset does not add it again) on try apply changeset ${changeset.id}`;
             return { message, isInconsistent: true };
           }
         }
@@ -335,7 +335,21 @@ export const updateChangesetIdsFromPatches = (changeset: IZsChangeset, mapState:
     (acc, elemId) => {
       acc[elemId] =
         mapState.drawElementChangesetIds[elemId]?.[mapState.drawElementChangesetIds[elemId].length - 1] || '-2';
-
+      if (acc[elemId] === '-2') {
+        const hasCreatePatch = changeset.patches.some(
+          (patch) =>
+            patch.op === 'add' &&
+            patch.path.length === 2 &&
+            patch.path[0] === DRAW_ELEMENTS &&
+            patch.path[1] === elemId,
+        );
+        if (!hasCreatePatch) {
+          console.warn(
+            `after merge conflicts on changeset ${changeset.id} the lastChangeset for ${elemId} could not be found, fallback to '${INITIAL_CHANGESET_ID}'`,
+          );
+        }
+        acc[elemId] = INITIAL_CHANGESET_ID;
+      }
       return acc;
     },
     {} as Record<string, string>,

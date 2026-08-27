@@ -364,6 +364,8 @@ export class ZsMapStateService {
 
   public async toggleDisplayMode() {
     if (!this.isHistoryMode()) {
+      //make sure current open change is saved and published first
+      await this.finishCurrentChangeset();
       //make sure latest live mapState is backedup on session before entering historyMode
       await this._session.persistMapState();
     } else {
@@ -1323,10 +1325,10 @@ export class ZsMapStateService {
   }
 
   public updateMapState(fn: (draft: ZsMapState) => void, preventPatches = false) {
-    if (!preventPatches && !this._session.hasWritePermission() && this._session.isArchived()) {
-      return;
-    }
     const mapState = this._map.value || {};
+    if (!preventPatches && !this._session.hasWritePermission() && this._session.isArchived()) {
+      return mapState;
+    }
     const newState = produce<ZsMapState>(mapState, fn, (patches, inversePatches) => {
       if (preventPatches || this.isChangesetMergeMode()) {
         return;
@@ -1344,6 +1346,7 @@ export class ZsMapStateService {
       }
     });
     this._map.next(newState);
+    return newState;
   }
 
   public applyMapStatePatches(patches: Patch[]) {
@@ -1394,6 +1397,7 @@ export class ZsMapStateService {
     changeset.applied = false;
     if (
       !this.isChangesetMergeMode() &&
+      //in hidden mode it apply incoming changes directly (also if same element would be changed)
       (!this._changeset.hasChanges() || this._changeset.changesetConfig().hiddenMode) &&
       (!this.isHistoryMode() || this.isCurrentMapData())
     ) {
@@ -1410,12 +1414,14 @@ export class ZsMapStateService {
     }
   }
 
-  public async finishCurrentChangeset(manual = false) {
-    await this._changeset.finishChangeset(this._map.value, manual);
+  public async finishCurrentChangeset(applyUnhandledPatchesAfterwards = true) {
+    await this._changeset.finishChangeset(this._map.value, applyUnhandledPatchesAfterwards);
   }
 
   public async handleUnhandledPatches() {
-    await this._changeset.handleUnhandledPatches(this._map.value);
+    if (!this.isHistoryMode() || this.isCurrentMapData()) {
+      await this._changeset.handleUnhandledPatches();
+    }
   }
 
   public getErrorChangesetConflicts() {

@@ -59,6 +59,15 @@ import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 
 export const NO_CONFLICT_VALUE = 'NO_CONFLICT_VALUE';
 export const CONFLICT_INDEX_NAME = ['orig', 'there', 'our'];
+export const ORIG_INDEX = 0;
+export const THERE_INDEX = 1;
+export const OUR_INDEX = 2;
+export const CONFLICT_INDEX = 3;
+
+
+export type UnhandledPatch =
+  | { patches: Patch[]; inversePatches: Patch[]; timestamp: number }
+  | { newChangeset: true; messageNumber?: number; manual?: boolean; manualDescription?: string };
 
 @Injectable({
   providedIn: 'root',
@@ -73,17 +82,17 @@ export class ChangesetService {
   private _dialog = inject(MatDialog);
   private _domSanitizer = inject(DomSanitizer);
   private readonly _current = signal<IZsChangesetInternal | null>(null);
-  private readonly _unhandledPatches = signal<
-    (
-      | { patches: Patch[]; inversePatches: Patch[]; timestamp: number }
-      | { newChangeset: true; messageNumber?: number; manual?: boolean; manualDescription?: string }
-    )[]
-  >([]);
+  private readonly _unhandledPatches = signal<UnhandledPatch[]>([]);
   private _handlingUnhandledPromise: Promise<void> | null = null;
   readonly unhandledPatchesCount = computed(() => this._unhandledPatches().length);
   private readonly _environmentInjector = inject(EnvironmentInjector);
   private _operationId: Signal<string | undefined> = signal<string | undefined>(undefined);
-  readonly changesetConfig = signal<IZsChangesetConfig>({applyOnExpertViewOnly:false, hiddenMode: true, automerge: true, conflictTakeOur: true});
+  readonly changesetConfig = signal<IZsChangesetConfig>({
+    applyOnExpertViewOnly: false,
+    hiddenMode: true,
+    automerge: true,
+    conflictTakeOur: true,
+  });
   readonly isChangesetMergeMode = signal<boolean | undefined>(undefined);
   readonly incommingChangesets = signal<IZsChangeset[]>([]);
   readonly incommingCount = computed(() => {
@@ -105,7 +114,6 @@ export class ChangesetService {
     return this.errorChangeset()?.description;
   });
 
-  readonly blockFutureChanges = signal<boolean>(false);
   readonly offlineMode = signal<boolean>(false);
   readonly hasChanges = computed(() => {
     return this._current()?.startAt !== undefined;
@@ -146,22 +154,12 @@ export class ChangesetService {
       }
     });
 
-    let prevCurrent: IZsChangeset | null = null;
     effect(() => {
       const changeset = this._current();
-      if (!changeset) {
-        if (prevCurrent) {
-          if (!prevCurrent.saved && prevCurrent.patches.length > 0) {
-            //TODO find better solution , should be submited if possible!
-            //should submit on go back to operation list...
-            this.updateOutgoing(prevCurrent);
-          }
-        }
-      } else {
+      if (changeset) {
         //save in local db to prevent data loose on page refresh...
         this.updateOutgoing(changeset);
       }
-      prevCurrent = changeset;
     });
 
     effect(() => {
@@ -182,17 +180,17 @@ export class ChangesetService {
   public setStateService(state: ZsMapStateService): void {
     this._state = state;
 
-    const changesetConfig = toSignal(this._state.observeChangesetConfig());
-    const isChangesetMergeMode = toSignal(this._state.observeIsChangesetMergeMode());
-    const isExpertView = toSignal(this._state.observeIsExpertView());
-    //initialize state based signals
     runInInjectionContext(this._environmentInjector, () => {
+      const changesetConfig = toSignal(this._state.observeChangesetConfig());
+      const isChangesetMergeMode = toSignal(this._state.observeIsChangesetMergeMode());
+      const isExpertView = toSignal(this._state.observeIsExpertView());
+      //initialize state based signals
       effect(() => {
         const config = changesetConfig();
         if (config) {
           const expertView = isExpertView();
-          const evaluatedConfig: IZsChangesetConfig = {...config};
-          if (config.applyOnExpertViewOnly && !expertView){
+          const evaluatedConfig: IZsChangesetConfig = { ...config };
+          if (config.applyOnExpertViewOnly && !expertView) {
             evaluatedConfig.hiddenMode = true;
             evaluatedConfig.automerge = true;
             evaluatedConfig.conflictTakeOur = true;
@@ -230,7 +228,6 @@ export class ChangesetService {
         this.timeout.set(null);
         this.saving.set(false);
         this._setErrorChangeset(null, false);
-        this.blockFutureChanges.set(false);
         if (this._state.isChangesetMergeMode()) {
           this._state.setChangesetMergeMode(false);
         }
@@ -272,15 +269,19 @@ export class ChangesetService {
   private async _unapplyOutgoingAndApplyIncomming() {
     try {
       await this.unapplyOutgoingChangesets();
-      this.applyIncommingChangesets();
-    } catch (error) {
-      await this._state.refreshMapState(false);
-      const operationId = this._operationId();
-      if (operationId) {
-        this._getOutgoingChangesets(operationId).modify({ applied: false });
+      if (this.incommingCount() > 1) {
+        this.applyIncommingChangesets();
+        return;
       }
-      this.incommingChangesets.set([]);
+    } catch (error) {
+      console.warn('error on unapplyOutgoingAndApplyIncomming, refreshMapState instead.', error);
     }
+    await this._state.refreshMapState(false);
+    const operationId = this._operationId();
+    if (operationId) {
+      this._getOutgoingChangesets(operationId).modify({ applied: false });
+    }
+    this.incommingChangesets.set([]);
   }
 
   private async _submitChangeset(changeset: IZsChangesetInternal) {
@@ -321,9 +322,11 @@ export class ChangesetService {
       const { error, result } = response;
       if (error) {
         if ((error as any).isInconsistent) {
-          this._snackBar.open('changeset is inconsistent, you need to fix it', 'OK', {
-            duration: 5000,
-          });
+          if (!this.changesetConfig().hiddenMode) {
+            this._snackBar.open('changeset is inconsistent, you need to fix it', 'OK', {
+              duration: 5000,
+            });
+          }
           await this._unapplyOutgoingAndApplyIncomming();
           this._setErrorChangeset(changeset, true);
           throw new ChangesetInconsistentError(changeset.id);
@@ -337,7 +340,6 @@ export class ChangesetService {
           this._setErrorChangeset(changeset, true);
           throw new Error(message);
         }
-        await this.updateOutgoing(changeset);
         if ((error.status ?? 0) >= 500 || error.message?.startsWith('NetworkError')) {
           if (!this.offlineMode()) {
             this._snackBar.open('Publish changes failed, you are now in offline mode!', 'OK', {
@@ -345,6 +347,7 @@ export class ChangesetService {
             });
             this.offlineMode.set(true);
           }
+          await this.updateOutgoing(changeset);
           await this.applyOutgoingChangesets();
         } else {
           this._setErrorChangeset(changeset, false);
@@ -352,8 +355,7 @@ export class ChangesetService {
           this._snackBar.open(message, 'OK', {
             duration: 5000,
           });
-          //TODO should we "go back" to all changesets applied?
-          //await this.applyOutgoingChangesets();
+          await this.applyOutgoingChangesets();
           throw new Error(message);
         }
       } else {
@@ -368,6 +370,8 @@ export class ChangesetService {
             }
             operation.changesetSigns[changesetToSave.id] = sign;
           }
+        } else {
+          console.warn(`no signature infos returned on submit changeset ${changesetToSave.id} response was:`, result);
         }
         await this.updateOutgoing(changeset, true);
         this._setErrorChangeset(null, false);
@@ -388,6 +392,7 @@ export class ChangesetService {
   public async submitOutgoing() {
     const operationId = this._operationId();
     if (operationId) {
+      //only submit if there is no currently open changeset
       if (this._current()) return;
       this.offlineMode.set(false);
       const changesets = await this._getOutgoingChangesets(operationId).sortBy('endAt');
@@ -423,16 +428,14 @@ export class ChangesetService {
     );
   }
 
-  private _cleanupChangeset(mapState: ZsMapState, changeset: IZsChangesetInternal) {
-    if (!changeset.stashed && mapState !== changeset.baseMapState) {
-      throw new Error('changeset need to be stashed for cleanup');
+  private _cleanupChangeset(changeset: IZsChangesetInternal) {
+    if (!changeset.baseMapState){
+      throw new Error('changeset.baseMapState is required')
     }
 
     //merge changes from patches so add+remove is eliminated, add+replace+replace+replace is only add,...
-    //this eleminate changes already applied to given mapState
-    //this also updates inversePatches to values based on given mapState
     const mergedMapState = produce<ZsMapState>(
-      mapState,
+      changeset.baseMapState,
       (draft) => {
         applyPatches(draft, changeset.patches);
       },
@@ -469,7 +472,7 @@ export class ChangesetService {
     }
   }
 
-  public async finishChangeset(mapState: ZsMapState, manual: boolean) {
+  public async finishChangeset(mapState: ZsMapState, applyUnhandledPatchesAfterwards = true) {
     this.timeout.set(null);
     const changeset: IZsChangesetInternal | null = this._current();
     if (changeset === null) return;
@@ -481,7 +484,7 @@ export class ChangesetService {
     }
     //clean changeset from not needed edit steps
     if (!changeset.cleaned && changeset.baseMapState) {
-      this._cleanupChangeset(changeset.baseMapState, changeset);
+      this._cleanupChangeset(changeset);
       if (changeset.patches.length === 0) {
         await this.updateOutgoing(changeset, true);
         this._current.set(null);
@@ -492,6 +495,7 @@ export class ChangesetService {
 
     //save changeset element state for conflict handling
     if (!changeset.stashed && !changeset.ourDrawElements) {
+      //on hiddenMode incomming changes are auto applied, and here perhaps changed element are deleted from other already
       changeset.ourDrawElements = this.cloneElements(mapState, changeset.changedDrawElements);
       this._current.set(changeset);
     }
@@ -500,7 +504,7 @@ export class ChangesetService {
     if (!changeset.stashed || this.incommingCount() > 0) {
       await this._unstashAndApplyIncomming();
       //restart with new mapState
-      await this._state.finishCurrentChangeset(manual);
+      await this._state.finishCurrentChangeset(applyUnhandledPatchesAfterwards);
       return;
     }
 
@@ -519,26 +523,25 @@ export class ChangesetService {
       return;
     }
 
-    //if there is no queue verify and submit
+    //verify and submit all outgoing
     const error = verifyChangesetConsistency(mapState, changeset);
     if (error) {
       this._setErrorChangeset(changeset, true);
       throw new ChangesetInconsistentError(changeset.id);
     }
 
-    await this._submitChangeset(changeset);
+    await this.submitOutgoing();
 
-    if (manual) {
+    if (applyUnhandledPatchesAfterwards) {
       await this._state.handleUnhandledPatches();
     }
   }
 
   public async newChangeset(messageNumber?: number, manual = false, queueOnFail = false, manualDescription?: string) {
     try {
-      await this._state.finishCurrentChangeset();
+      await this._state.finishCurrentChangeset(false);
 
-      //TODO handling workOffline for organisationId
-      const organisationId = this._session.getOrganization()?.documentId;
+      const organisationId = this._session.isWorkLocal() ? 'local' : this._session.getOrganization()?.documentId;
       const operationId = this._session.getOperationId();
       const author = this._session.getLabel();
 
@@ -632,59 +635,49 @@ export class ChangesetService {
     return changeset;
   }
 
-  public async handleUnhandledPatches(mapState: ZsMapState) {
-    if (this._handlingUnhandledPromise) {
-      return this._handlingUnhandledPromise.catch((err) => {
-        /* ignore */
-      });
-    }
-    if (this._unhandledPatches().length === 0) return;
-    let resolveHandled!: () => void;
-    let rejectHandled!: (e: unknown) => void;
-    const patches = [...this._unhandledPatches()];
-    let patch:
-      | {
-          patches: Patch[];
-          inversePatches: Patch[];
-          timestamp: number;
-        }
-      | {
-          newChangeset: true;
-          messageNumber?: number;
-          manual?: boolean;
-          manualDescription?: string;
-        }
-      | undefined;
-    try {
-      this._handlingUnhandledPromise = new Promise<void>((resolve, reject) => {
-        resolveHandled = resolve;
-        rejectHandled = reject;
-      });
+  public handleUnhandledPatches(): Promise<void> {
+    if (this._handlingUnhandledPromise) return this._handlingUnhandledPromise;
 
+    this._handlingUnhandledPromise = this._handleUnhandledPatchesInternal().finally(() => {
+      this._handlingUnhandledPromise = null;
+    });
+
+    return this._handlingUnhandledPromise;
+  }
+
+  private async _handleUnhandledPatchesInternal() {
+    if (this._unhandledPatches().length === 0) return;
+    const patches = [...this._unhandledPatches()];
+    this._unhandledPatches.set([]);
+    let patch: UnhandledPatch | undefined;
+    try {
       patch = patches.shift();
       while (patch) {
         if ('newChangeset' in patch) {
           await this.newChangeset(patch.messageNumber, patch.manual, false, patch.manualDescription);
         } else {
-          //TODO: mapstate is already updated, do we have problem with changesetId's?
+          //on handling unhandled patches the changes initially done may be reverted by save changeset function, so they need to be reapplied
+          const mapState = this._state.updateMapState((draft) => {
+            if (patch && !('newChangeset' in patch)){
+              applyPatches(draft, patch.patches);
+            }
+          }, true);
           await this.addChange(mapState, patch.patches, patch.inversePatches, true);
         }
         patch = patches.shift();
       }
-      this._unhandledPatches.set([]);
-      resolveHandled();
     } catch (error) {
       if (patch) {
         patches.unshift(patch);
       }
-      this._unhandledPatches.set(patches);
-      rejectHandled(error);
+      this._unhandledPatches.update((newPatches) => [...patches, ...newPatches]);
+      throw error;
     } finally {
       this._handlingUnhandledPromise = null;
     }
   }
 
-  public async addChange(mapState: ZsMapState, patches: Patch[], inversePatches: Patch[], handleUnhandled = false) {
+  public async addChange(mapState: ZsMapState, patches: Patch[], inversePatches: Patch[], applyingUnhandledPatches = false) {
     if (patches.length === 0) return;
     const modifiedDrawElements = getModifiedDrawElements(patches);
 
@@ -692,25 +685,32 @@ export class ChangesetService {
     this.timeout.set(null);
     const timestamp = new Date().getTime();
 
-    //TODO: handle after fix finish problem and afterwards this._blockFutureChanges.set(false);
-    if (!handleUnhandled && (this.unhandledPatchesCount() > 0 || this.saving())) {
+    if (!applyingUnhandledPatches) {
+      if (this.saving()){
+        //on saving no changes are allowed, save it
+        this._unhandledPatches.update((currentItems) => [...currentItems, { patches, inversePatches, timestamp }]);
+        return;
+      }
       if (this._handlingUnhandledPromise) {
+        //if there is already one running, finish it first.
         await this._handlingUnhandledPromise.catch((err) => {
           /* ignore */
         });
       }
-      this._unhandledPatches.update((currentItems) => [...currentItems, { patches, inversePatches, timestamp }]);
-      return;
+      if (this.unhandledPatchesCount() > 0){
+        //if there are already/still incommings, add and start new run
+        this._unhandledPatches.update((currentItems) => [...currentItems, { patches, inversePatches, timestamp }]);
+        await this._state.handleUnhandledPatches();
+        return;
+      }
     }
 
     let changeset: IZsChangesetInternal;
     try {
       changeset = await this._verifyUsableChangesetActive(mapState, patches, modifiedDrawElements);
-      //copy to make later set triggers signal:
+      //copy to make later `_current.set` triggers signal
       changeset = { ...changeset };
     } catch (error) {
-      this.blockFutureChanges.set(true);
-      //TODO: set errorChangeset? or whats the right way here?
       this._unhandledPatches.update((currentItems) => [...currentItems, { patches, inversePatches, timestamp }]);
       if (error instanceof ChangesetInconsistentError) {
         this._snackBar.open('You need to first solve the conflicts before update new fields!', 'OK', {
@@ -923,8 +923,10 @@ export class ChangesetService {
     stash = true,
     catchErrors = false,
   ) {
+    let useCurrent = false;
     if (!changeset) {
       changeset = this._current();
+      useCurrent = true;
     }
     if (changeset === null) return mapState;
     if (changeset.stashed === stash) return mapState;
@@ -946,16 +948,20 @@ export class ChangesetService {
     } else {
       mapState = applyPatches(mapState, patches);
     }
-    this.upateCurrent({ stashed: stash });
+    if (useCurrent) {
+      this.upateCurrent({ stashed: stash });
+    } else {
+      changeset.stashed = stash;
+    }
     return mapState;
   }
 
   //remove it from mapState for internal handling without UI update
-  public stashCurrentChangesetTemporary(mapState: ZsMapState){
+  public stashCurrentChangesetTemporary(mapState: ZsMapState) {
     const changeset = this._current();
     if (changeset && !changeset.stashed) {
       mapState = this.stashChangeset(mapState, changeset);
-      changeset.stashed = false;
+      changeset.stashed = true;
     }
     return mapState;
   }
@@ -984,10 +990,9 @@ export class ChangesetService {
 
     if (conflictDetails) {
       const changesetConfig = this.changesetConfig();
-      const automerge =
-        changesetConfig.automerge &&
-        (!conflictDetails.hasConflicts || changesetConfig.conflictTakeOur);
+      const automerge = changesetConfig.automerge && (!conflictDetails.hasConflicts || changesetConfig.conflictTakeOur);
       if (automerge && oldConflictDetails?.changeset.id !== conflictDetails.changeset.id) {
+        console.info(`try automerge and (re-)submit changeset ${conflictDetails.changeset.id} asynchronous`);
         this.replaceErrorChangesetByMerge(conflictDetails, changesetConfig.conflictTakeOur);
       } else {
         this.conflictDetails.set(conflictDetails);
@@ -1022,7 +1027,13 @@ export class ChangesetService {
     //get all elementId changed in these changesets
     const totalThereChangedElements = new Set<string>();
     totalAdditionalChangesets.forEach((changeId) => {
-      allChangesets[changeId].changedDrawElements.forEach((elemId) => {
+      const additionalChangeset = allChangesets[changeId];
+
+      if (!additionalChangeset) {
+        throw new ChangesetMissingError(changeId);
+      }
+
+      additionalChangeset.changedDrawElements.forEach((elemId) => {
         totalThereChangedElements.add(elemId);
       });
     });
@@ -1060,7 +1071,7 @@ export class ChangesetService {
           .filter((k) => k.startsWith(path))
           .forEach((k) => delete changes[k]);
         changes[path] = null;
-      } else if (typeof value === 'object' && !path.endsWith('coordinates')) {
+      } else if (typeof value === 'object' && !path.endsWith('coordinates') && !path.endsWith('reportNumber')) {
         Object.entries(value).forEach(([key, val]) => {
           updateValue(changes, op, path ? `${path}.${key}` : key, val);
         });
@@ -1083,9 +1094,13 @@ export class ChangesetService {
       const key = path[0];
       const remainingPath = path.slice(1);
       if (remainingPath.length === 0) {
-        return valueElement[key];
+        if (key in valueElement) {
+          return valueElement[key];
+        } else {
+          throw 'notDefined';
+        }
       }
-      getValue(valueElement[key], remainingPath);
+      return getValue(valueElement[key], remainingPath);
     };
     paths.forEach((path) => {
       try {
@@ -1099,37 +1114,49 @@ export class ChangesetService {
     origValues: Record<string, any>,
     ourValues: Record<string, any>,
     thereValues: Record<string, any>,
-    missing?: { orig: boolean; there: boolean; our: boolean },
   ) {
     //combine value lists
     const merged: IZsChangesetConflictValue[] = Object.entries(origValues).map(([path, value]) => {
       const orig = value;
-      const there = path in thereValues ? thereValues[path] : NO_CONFLICT_VALUE;
-      const our = path in ourValues ? ourValues[path] : NO_CONFLICT_VALUE;
+      const hasThere = path in thereValues;
+      const hasOur = path in ourValues;
+      const there = hasThere ? thereValues[path] : NO_CONFLICT_VALUE;
+      const our = hasOur ? ourValues[path] : NO_CONFLICT_VALUE;
+
+      //in our and there only values are returned (by _getChangedValuesForElem) if they differs form orig
+
       let selected: number;
-      let conflict: boolean;
-      if (our === NO_CONFLICT_VALUE) {
-        conflict = false;
-        selected = 1;
-      } else if ((there === NO_CONFLICT_VALUE && !missing?.there) || there === orig || there === our) {
-        conflict = false;
-        selected = 2;
+      let conflict = false;
+      if (!hasOur && hasThere) {
+        selected = THERE_INDEX;
+      } else if (hasOur && !hasThere) {
+        selected = OUR_INDEX;
+      } else if (!hasOur && !hasThere) {
+        //should never happen, as if there are no change it's not part of valuePaths read from orig element
+        selected = ORIG_INDEX;
+      } else if (our === orig && there !== orig) {
+        //should never happen, as 'our' would not be set in _getChangedValuesForElem
+        selected = THERE_INDEX;
+      } else if (our !== orig && there === orig) {
+        //should never happen, as 'there' would not be set in _getChangedValuesForElem
+        selected = OUR_INDEX;
+      } else if (our === there) {
+        selected = OUR_INDEX;
       } else {
+        selected = CONFLICT_INDEX;
         conflict = true;
-        selected = 3;
       }
+
       return { path, orig, there, our, conflict, selected, resolved: false } as IZsChangesetConflictValue;
     });
     Object.entries(ourValues).forEach(([path, value]) => {
       if (!(path in origValues)) {
         const orig = NO_CONFLICT_VALUE;
-        const there = path in thereValues ? thereValues[path] : NO_CONFLICT_VALUE;
+        const hasThere = path in thereValues;
+        const there = hasThere ? thereValues[path] : NO_CONFLICT_VALUE;
         const our = value;
-        let conflict = true;
-        if ((there === NO_CONFLICT_VALUE && !missing?.there) || there === our) {
-          conflict = false;
-        }
-        const selected = 2;
+        const conflict = hasThere && there !== our;
+        const selected = conflict ? CONFLICT_INDEX : OUR_INDEX;
         merged.push({ path, orig, there, our, conflict, selected, resolved: false });
       }
     });
@@ -1141,7 +1168,7 @@ export class ChangesetService {
           there: value,
           our: NO_CONFLICT_VALUE,
           conflict: false,
-          selected: 1,
+          selected: THERE_INDEX,
           resolved: false,
         });
       }
@@ -1158,7 +1185,7 @@ export class ChangesetService {
           .filter((k) => k.startsWith(path))
           .forEach((k) => delete changes[k]);
         changes[path] = null;
-      } else if (typeof value === 'object' && !path.endsWith('coordinates')) {
+      } else if (typeof value === 'object') {
         Object.entries(value).forEach(([key, val]) => {
           updateValue(changes, op, `${path}.${key}`, val);
         });
@@ -1230,116 +1257,116 @@ export class ChangesetService {
     const metaConflict = meta.some((v) => v.conflict);
 
     //add all elements to conflicts that have any changes in our.
-    //changes only in there are ignored here, in opposit to "elements on corresponding state" where all changed elements are shown.
+    //changes only in there are ignored here(as already applied to changeset.currentMapState), in opposit to "elements on corresponding state" where all changed elements are shown.
     //to add there only changes also, need to loop over totalChangedElements
     const conflicts: IZsChangesetConflict[] = [];
-    for (const [elemId, changeId] of Object.entries(changeset.drawElementsLastChangeset)) {
+    for (let [elemId, changeId] of Object.entries(changeset.drawElementsLastChangeset)) {
       const ourValues = this._getChangedValuesForElem(changeset.patches, elemId);
       const ourMissing = ourValues[''] === null;
       delete ourValues[''];
-      const changesetIds = mapState.drawElementChangesetIds[elemId];
+      let changesetIds: string[] | undefined = mapState.drawElementChangesetIds[elemId];
+      const origElem = changeset.origDrawElements?.[elemId];
+      let origValues: Record<string, any>;
+      let thereValues: Record<string, any>;
+      let thereMissing: boolean;
+      let additionalChangesets: string[];
+      if (changesetIds && !changesetIds?.includes(changeId)) {
+        //this block handle the case if any outgoing change was empty after merge and therefore removed from changeset stack
+        console.info(
+          `on get conflict changes the drawElementsLastChangeset ${changeId} for element ${elemId} did not exist, try to use last from baseMapState`,
+        );
+        const baseDrawElementChangesetIds = changeset.baseMapState?.drawElementChangesetIds[elemId];
+        if (baseDrawElementChangesetIds) {
+          const lastBaseDrawElementChangesetId = baseDrawElementChangesetIds[baseDrawElementChangesetIds?.length - 1];
+          if (changesetIds?.includes(lastBaseDrawElementChangesetId)) {
+            changeId = lastBaseDrawElementChangesetId;
+          } else {
+            changesetIds = undefined;
+          }
+        } else {
+          changesetIds = undefined;
+        }
+      }
       if (!changesetIds) {
         Object.entries(ourValues).forEach(([key, val]) => {
           if (val === null) {
             delete ourValues[key];
           }
         });
-        if (Object.keys(ourValues).length > 0) {
-          const valuePaths = new Set<string>();
-          Object.keys(ourValues).forEach((path) => {
-            valuePaths.add(path);
-          });
-          let origValues: Record<string, any>;
-          const origElem = changeset.origDrawElements?.[elemId];
-          if (origElem) {
-            origValues = this._getOrigValues(origElem, valuePaths);
-          } else {
-            origValues = this._getChangedValuesForElem(changeset.inversePatches, elemId);
-          }
-          const origMissing = origValues[''] === null;
-          delete origValues[''];
-          const missing = { orig: origMissing, there: true, our: ourMissing };
-          const values = this._mergeConflictValues(origValues, ourValues, {}, missing);
-
-          const imageSrc = Signs.getSignById(origElem?.symbolId)?.src;
-          conflicts.push({
-            drawElementId: elemId,
-            elementName: origElem?.name,
-            symbolImageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
-            missing,
-            requiredPrefChangesetId: changeId,
-            additionalChangesets: [],
-            values,
-            conflict: values.some((v) => v.conflict),
-          });
+        if (Object.keys(ourValues).length === 0) {
+          continue;
+        }
+        additionalChangesets = [];
+        thereValues = {};
+        thereMissing = true;
+        const valuePaths = new Set<string>();
+        Object.keys(ourValues).forEach((path) => {
+          valuePaths.add(path);
+        });
+        if (origElem) {
+          origValues = this._getOrigValues(origElem, valuePaths);
+        } else {
+          origValues = this._getChangedValuesForElem(changeset.inversePatches, elemId);
         }
       } else {
-        if (changesetIds?.includes(changeId)) {
-          let thereValues: Record<string, any>;
-          let additionalChangesets: string[];
-          if (changesetIds?.[changesetIds.length - 1] !== changeId) {
-            additionalChangesets = changesetIds.slice(changesetIds.indexOf(changeId) + 1);
-            const therePatches = additionalChangesets.reduce<Patch[]>((acc, changesetId) => {
-              const thereChangesset = allChangesets[changesetId];
-              if (thereChangesset) {
-                acc.push(...thereChangesset.patches);
-              } else {
-                throw new ChangesetMissingError(changesetId);
-              }
-              return acc;
-            }, []);
-            thereValues = this._getChangedValuesForElem(therePatches, elemId);
-          } else {
-            //if there is no conflict / other change: still add infos of changes to conflict array -> to handle all changes in replaceErrorChangesetByMerge
-            additionalChangesets = [];
-            thereValues = {};
-          }
-          const thereMissing = thereValues[''] === null;
-          delete thereValues[''];
-
-          const valuePaths = new Set<string>();
-          Object.keys(ourValues).forEach((path) => {
-            valuePaths.add(path);
-          });
-          Object.keys(thereValues).forEach((path) => {
-            valuePaths.add(path);
-          });
-          let origValues: Record<string, any>;
-          const origElem = changeset.origDrawElements?.[elemId];
-          if (origElem) {
-            origValues = this._getOrigValues(origElem, valuePaths);
-          } else {
-            const thereInversePatches = [...additionalChangesets].reverse().reduce<Patch[]>((acc, changesetId) => {
-              const thereChangesset = allChangesets[changesetId];
-              if (thereChangesset) {
-                acc.push(...thereChangesset.inversePatches);
-              } else {
-                throw new ChangesetMissingError(changesetId);
-              }
-              return acc;
-            }, []);
-            origValues = this._getChangedValuesForElem([...thereInversePatches, ...changeset.inversePatches], elemId);
-          }
-          const origMissing = origValues[''] === null;
-          delete origValues[''];
-          const missing = { orig: origMissing, there: thereMissing, our: ourMissing };
-          const values = this._mergeConflictValues(origValues, ourValues, thereValues, missing);
-
-          const imageSrc = Signs.getSignById(origElem?.symbolId)?.src;
-          conflicts.push({
-            drawElementId: elemId,
-            elementName: origElem?.name,
-            symbolImageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
-            missing,
-            requiredPrefChangesetId: changeId,
-            additionalChangesets,
-            values,
-            conflict: values.some((v) => v.conflict),
-          });
+        if (changesetIds?.[changesetIds.length - 1] !== changeId) {
+          additionalChangesets = changesetIds.slice(changesetIds.indexOf(changeId) + 1);
+          const therePatches = additionalChangesets.reduce<Patch[]>((acc, changesetId) => {
+            const thereChangesset = allChangesets[changesetId];
+            if (thereChangesset) {
+              acc.push(...thereChangesset.patches);
+            } else {
+              throw new ChangesetMissingError(changesetId);
+            }
+            return acc;
+          }, []);
+          thereValues = this._getChangedValuesForElem(therePatches, elemId);
         } else {
-          console.warn('getChangesetConflicts not found', changeId, 'for elem', elemId, mapState);
+          //if there is no conflict / other change: still add infos of changes to conflict array -> to handle all changes in replaceErrorChangesetByMerge
+          additionalChangesets = [];
+          thereValues = {};
+        }
+        thereMissing = thereValues[''] === null;
+        delete thereValues[''];
+
+        const valuePaths = new Set<string>();
+        Object.keys(ourValues).forEach((path) => {
+          valuePaths.add(path);
+        });
+        Object.keys(thereValues).forEach((path) => {
+          valuePaths.add(path);
+        });
+        if (origElem) {
+          origValues = this._getOrigValues(origElem, valuePaths);
+        } else {
+          const thereInversePatches = [...additionalChangesets].reverse().reduce<Patch[]>((acc, changesetId) => {
+            const thereChangesset = allChangesets[changesetId];
+            if (thereChangesset) {
+              acc.push(...thereChangesset.inversePatches);
+            } else {
+              throw new ChangesetMissingError(changesetId);
+            }
+            return acc;
+          }, []);
+          origValues = this._getChangedValuesForElem([...thereInversePatches, ...changeset.inversePatches], elemId);
         }
       }
+      const origMissing = origValues[''] === null;
+      delete origValues[''];
+      const missing = { orig: origMissing, there: thereMissing, our: ourMissing };
+      const values = this._mergeConflictValues(origValues, ourValues, thereValues);
+
+      const imageSrc = Signs.getSignById(origElem?.symbolId)?.src;
+      conflicts.push({
+        drawElementId: elemId,
+        elementName: origElem?.name,
+        symbolImageUrl: imageSrc ? DrawStyle.getImageUrl(imageSrc) : undefined,
+        missing,
+        requiredPrefChangesetId: changeId,
+        additionalChangesets,
+        values,
+        conflict: values.some((v) => v.conflict),
+      });
     }
     const hasConflicts = metaConflict || conflicts.some((c) => c.conflict);
     return { changeset, conflicts, meta, metaConflict, hasConflicts };
@@ -1385,7 +1412,7 @@ export class ChangesetService {
               sign = {
                 ...sign,
                 type: ZsMapDrawElementStateType.SYMBOL,
-                symboldId: sign.id,
+                symbolId: sign.id,
                 coordinates: NO_CONFLICT_VALUE,
               };
               delete sign['id'];
@@ -1430,47 +1457,6 @@ export class ChangesetService {
       });
     }
     return changes;
-  }
-
-  private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  private highlightText(text: string | boolean | number, color: string): string {
-    const escaped = typeof text === 'string' ? this.escapeHtml(text) : text;
-    return `<span style="color: ${color};">${escaped}</span>`;
-  }
-
-  private highlightObject(obj: any, indent = 0): string {
-    if (obj === null) return this.highlightText('null', '#FF0000');
-    if (typeof obj === 'boolean') return this.highlightText(obj, '#FF0000');
-    if (typeof obj === 'number') return this.highlightText(obj, '#C50F1F');
-    if (typeof obj === 'string') return this.highlightText(`"${obj}"`, '#067D17');
-
-    const pad = '  '.repeat(indent);
-    let result = '';
-    if (Array.isArray(obj)) {
-      result = `${this.highlightText('[', '#808080')}\n`;
-      obj.forEach((item: any, i: number) => {
-        if (i > 0) result += ',\n';
-        result += `${pad}  ${this.highlightObject(item, indent + 1)}`;
-      });
-      result += `\n${pad}${this.highlightText(']', '#808080')}`;
-    } else if (typeof obj === 'object') {
-      result = `${this.highlightText('{', '#808080')}\n`;
-      const entries = Object.entries(obj);
-      entries.forEach(([key, val], i: number) => {
-        if (i > 0) result += ',\n';
-        result += `${pad}  ${this.highlightText(key, '#0000FF; font-weight: bold')}${this.highlightText(':', '#808080')} ${this.highlightObject(val, indent + 1)}`;
-      });
-      result += `\n${pad}${this.highlightText('}', '#808080')}`;
-    }
-    return result;
   }
 
   public showChangesetJSON(changeset: IZsChangeset) {
@@ -1585,6 +1571,21 @@ export class ChangesetService {
     this.updateConflictValue(elementDraft[key], remainingPath, value, index);
   }
 
+  public removeConflictValue(elementDraft: ZsMapDrawElementState | ZsMapState, path: string[]) {
+    const key = path[0];
+    const remainingPath = path.slice(1);
+    if (remainingPath.length === 0) {
+      delete elementDraft[key];
+      return;
+    }
+
+    if (!elementDraft[key]) {
+      return;
+    }
+
+    this.removeConflictValue(elementDraft[key], remainingPath);
+  }
+
   private _getElementFromCachedElements(changeset: IZsChangesetInternal, elemId: string, index: number) {
     switch (index) {
       case 0: {
@@ -1619,7 +1620,6 @@ export class ChangesetService {
     const changeset = this.errorChangeset();
     if (!conflictDetails || !changeset || !changeset.currentMapState) return;
     const incommingAppliedMapState = changeset.currentMapState;
-    console.log('replacemerge', changeset.baseMapState, incommingAppliedMapState);
 
     //remember old values
     const oldPatches = [...changeset.patches];
@@ -1638,11 +1638,18 @@ export class ChangesetService {
         //apply meta changes
         for (const value of conflictDetails.meta) {
           let selected = value.selected;
-          if (selected === 3) {
-            selected = conflictTakeOur ? 2 : 1;
+          if (selected === CONFLICT_INDEX) {
+            selected = conflictTakeOur ? OUR_INDEX : THERE_INDEX;
           }
-          if (value.resolved || (selected !== 1 && value[CONFLICT_INDEX_NAME[selected]] !== NO_CONFLICT_VALUE)) {
-            this.updateConflictValue(draft, value.path.split('.'), value, selected);
+          if (value.resolved || selected !== THERE_INDEX) {
+            if (
+              value[CONFLICT_INDEX_NAME[selected]] !== NO_CONFLICT_VALUE &&
+              value[CONFLICT_INDEX_NAME[selected]] !== null
+            ) {
+              this.updateConflictValue(draft, value.path.split('.'), value, selected);
+            } else {
+              this.removeConflictValue(draft, value.path.split('.'));
+            }
           }
         }
         //apply element changes
@@ -1652,9 +1659,20 @@ export class ChangesetService {
           let element = draft.drawElements[elemId];
           if (!element) {
             //restore if want to keep but was deleted
-            const clonedElement = this._getElementFromCachedElements(changeset, elemId, conflict.values[0].selected);
+            let selected = conflict.values[0].selected;
+            if (selected === CONFLICT_INDEX) {
+              selected = conflictTakeOur ? OUR_INDEX : THERE_INDEX;
+            }
+            const clonedElement = this._getElementFromCachedElements(changeset, elemId, selected);
             if (!clonedElement) {
-              throw new Error(`unable to restore deleted element: ${elemId}`);
+              if (!this.changesetConfig().hiddenMode) {
+                throw new Error(`unable to restore deleted element: ${elemId}`);
+              } else {
+                console.warn(
+                  `element ${elemId} is deleted (remotely) and cannot be restored in hiddenMode, therefore changes on it are reverted.`,
+                );
+                continue;
+              }
             }
             element = clonedElement;
             draft.drawElements[elemId] = element;
@@ -1662,11 +1680,18 @@ export class ChangesetService {
 
           for (const value of conflict.values) {
             let selected = value.selected;
-            if (selected === 3) {
-              selected = conflictTakeOur ? 2 : 1;
+            if (selected === CONFLICT_INDEX) {
+              selected = conflictTakeOur ? OUR_INDEX : THERE_INDEX;
             }
-            if (value.resolved || (selected !== 1 && value[CONFLICT_INDEX_NAME[selected]] !== NO_CONFLICT_VALUE)) {
-              this.updateConflictValue(element, value.path.split('.'), value, selected);
+            if (value.resolved || selected !== THERE_INDEX) {
+              if (
+                value[CONFLICT_INDEX_NAME[selected]] !== NO_CONFLICT_VALUE &&
+                value[CONFLICT_INDEX_NAME[selected]] !== null
+              ) {
+                this.updateConflictValue(element, value.path.split('.'), value, selected);
+              } else {
+                this.removeConflictValue(element, value.path.split('.'));
+              }
             }
           }
         }
@@ -1696,8 +1721,6 @@ export class ChangesetService {
       if (current?.id === changeset.id) {
         this._current.set(null);
       }
-      //TODO:if there are (more)outgoing changesets they may refered to this changesetId so it must be somehow recognized as it's ok this one is not part of it.
-      //e.g. it need "changeset not exist" logic on check for conflict values
       return;
     }
 
@@ -1719,14 +1742,17 @@ export class ChangesetService {
     ];
 
     changeset.mergedAt = new Date().getTime();
+    this.updateOutgoing(changeset);
 
     this._removeAllConflictElements();
 
     this.inconsistent.set(false);
-    await this._submitChangeset(changeset);
     this._setErrorChangeset(null, false);
     this._state.setChangesetMergeMode(false);
 
     await this.submitOutgoing();
+
+    //start handleUnhandledPatches here but not await, to prevent potential deadlock
+    this._state.handleUnhandledPatches();
   }
 }

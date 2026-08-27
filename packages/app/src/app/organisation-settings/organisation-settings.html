@@ -29,7 +29,8 @@
       <legend>hiddenMode</legend>
       <div class="infoText">
         If you deactivate the hiddenMode, you see an UI that show current
-        change infos and the submit timeout. (on expert mode it's always visible.)
+        change infos and the submit timeout.
+        If hiddenMode is active, incomming changes are directly applied(and override yours), if there are conflicts on submit it always take your changes.
       </div>
       <mat-checkbox [checked]="settings.changeset.hiddenMode" (change)="settings.changeset.hiddenMode = $event.checked">
         hide changeset UI
