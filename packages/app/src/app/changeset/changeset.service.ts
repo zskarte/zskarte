@@ -81,8 +81,8 @@ export class ChangesetService {
   private _snackBar = inject(MatSnackBar);
   private _dialog = inject(MatDialog);
   private _domSanitizer = inject(DomSanitizer);
-  private readonly _current = signal<IZsChangesetInternal | null>(null);
-  private readonly _unhandledPatches = signal<UnhandledPatch[]>([]);
+  protected readonly _current = signal<IZsChangesetInternal | null>(null);
+  protected readonly _unhandledPatches = signal<UnhandledPatch[]>([]);
   private _handlingUnhandledPromise: Promise<void> | null = null;
   readonly unhandledPatchesCount = computed(() => this._unhandledPatches().length);
   private readonly _environmentInjector = inject(EnvironmentInjector);
@@ -135,10 +135,10 @@ export class ChangesetService {
 
   private _timeoutId: NodeJS.Timeout | undefined = undefined;
   private _createMultiElementChangesetDelta = 15000; //15sec
-  private _commitSingleTimeout = 15000; //15sec
-  private _commitMultiTimeout = 30000; //30sec
-  private _commitMessageTimeout = 120000; //2min
-  private _commitManualTimeout = 120000; //2min
+  protected _commitSingleTimeout = 15000; //15sec
+  protected _commitMultiTimeout = 30000; //30sec
+  protected _commitMessageTimeout = 120000; //2min
+  protected _commitManualTimeout = 120000; //2min
   private _maxEditTimeout = 300000; //5min
 
   constructor() {
@@ -266,7 +266,7 @@ export class ChangesetService {
     return this._i18n.getLabelForSign(sign);
   }
 
-  private async _unapplyOutgoingAndApplyIncomming() {
+  protected async _unapplyOutgoingAndApplyIncomming() {
     try {
       await this.unapplyOutgoingChangesets();
       if (this.incommingCount() > 1) {
@@ -284,7 +284,7 @@ export class ChangesetService {
     this.incommingChangesets.set([]);
   }
 
-  private async _submitChangeset(changeset: IZsChangesetInternal) {
+  protected async _submitChangeset(changeset: IZsChangesetInternal) {
     if (this.inconsistent()) {
       this._snackBar.open('fix inconsistent changeset before try to submit', 'OK', {
         duration: 5000,
@@ -382,7 +382,7 @@ export class ChangesetService {
     }
   }
 
-  private _getOutgoingChangesets(operationId: string) {
+  protected _getOutgoingChangesets(operationId: string) {
     return db.changesetOutgoingQueue
       .where('operationId')
       .equals(operationId)
@@ -428,7 +428,7 @@ export class ChangesetService {
     );
   }
 
-  private _cleanupChangeset(changeset: IZsChangesetInternal) {
+  protected _cleanupChangeset(changeset: IZsChangesetInternal) {
     if (!changeset.baseMapState){
       throw new Error('changeset.baseMapState is required')
     }
@@ -461,7 +461,7 @@ export class ChangesetService {
     return mergedMapState;
   }
 
-  private async _unstashAndApplyIncomming() {
+  protected async _unstashAndApplyIncomming() {
     try {
       this._state.stashCurrentChangeset();
       this.applyIncommingChangesets();
@@ -592,7 +592,7 @@ export class ChangesetService {
     this.upateCurrent({ manualDescription: description });
   }
 
-  private async _verifyUsableChangesetActive(
+  protected async _verifyUsableChangesetActive(
     mapState: ZsMapState,
     patches: Patch[],
     modifiedDrawElements: Set<string>,
@@ -776,7 +776,7 @@ export class ChangesetService {
     this._current.set(changeset);
   }
 
-  private _updateTimeout(changeset: IZsChangeset | null) {
+  protected _updateTimeout(changeset: IZsChangeset | null) {
     if (!changeset?.firstChangeAt) return;
     const timeSinceFirstChange = new Date().getTime() - changeset?.firstChangeAt;
     const maxTimeout = timeSinceFirstChange > this._maxEditTimeout ? 0 : this._maxEditTimeout - timeSinceFirstChange;
@@ -824,7 +824,10 @@ export class ChangesetService {
           const conflictPatches = changeset.patches.filter(
             (p) => p.path.length >= 2 && currentChangeset.changedDrawElements.includes(p.path[1] as string),
           );
-          if (conflictPatches.length > 0) {
+          const conflictInversePatches = changeset.inversePatches.filter(
+            (p) => p.path.length >= 2 && currentChangeset.changedDrawElements.includes(p.path[1] as string),
+          );
+          if (conflictPatches.length > 0 || conflictInversePatches.length > 0) {
             const patchesPaths = conflictPatches.map((p) => p.path.join('.'));
             if (!currentChangeset.patchesRevertedForMerge) {
               currentChangeset.patchesRevertedForMerge = [];
@@ -837,7 +840,20 @@ export class ChangesetService {
                 filteredPatches.push(p);
               }
             });
+            const inversePatchesPaths = conflictInversePatches.map((p) => p.path.join('.'));
+            if (!currentChangeset.inversePatchesRevertedForMerge) {
+              currentChangeset.inversePatchesRevertedForMerge = [];
+            }
+            const filteredInversePatches: Patch[] = [];
+            currentChangeset.inversePatches.forEach((p) => {
+              if (inversePatchesPaths.includes(p.path.join('.'))) {
+                currentChangeset.inversePatchesRevertedForMerge?.push(p);
+              } else {
+                filteredInversePatches.push(p);
+              }
+            });
             currentChangeset.patches = filteredPatches;
+            currentChangeset.inversePatches = filteredInversePatches;
             this._current.set(currentChangeset);
           }
         }
@@ -966,7 +982,7 @@ export class ChangesetService {
     return mapState;
   }
 
-  private _setErrorChangeset(errorChangeset: IZsChangeset | null, inconsistent: boolean) {
+  protected _setErrorChangeset(errorChangeset: IZsChangeset | null, inconsistent: boolean) {
     const oldConflictDetails = this.oldConflictDetails();
     this.conflictDetails.set(null);
     this.inconsistent.set(inconsistent);
@@ -1002,7 +1018,7 @@ export class ChangesetService {
   }
 
   //update thereDrawElements/origDrawElements in changeset and return totalAdditionalChangesets
-  private _saveThereElements(mapState: ZsMapState, changeset: IZsChangesetInternal) {
+  protected _saveThereElements(mapState: ZsMapState, changeset: IZsChangesetInternal) {
     const allChangesets = this._session.getOperation()?.changesets;
     if (!allChangesets) {
       throw new ChangesetMissingError('<any>');
@@ -1063,7 +1079,7 @@ export class ChangesetService {
     return { totalAdditionalChangesets, totalThereChangedElements };
   }
 
-  private _getChangedValuesForElem(patches: Patch[], elemId: string) {
+  protected _getChangedValuesForElem(patches: Patch[], elemId: string) {
     const changes: Record<string, any> = {};
     const updateValue = (changes: Record<string, any>, op: string, path: string, value: any) => {
       if (op === 'remove') {
@@ -1088,7 +1104,7 @@ export class ChangesetService {
     return changes;
   }
 
-  private _getOrigValues(element: ZsMapDrawElementState | ZsMapState, paths: Set<string>) {
+  protected _getOrigValues(element: ZsMapDrawElementState | ZsMapState, paths: Set<string>) {
     const changes: Record<string, any> = {};
     const getValue = (valueElement: ZsMapDrawElementState | ZsMapState, path: string[]) => {
       const key = path[0];
@@ -1110,7 +1126,7 @@ export class ChangesetService {
     return changes;
   }
 
-  private _mergeConflictValues(
+  protected _mergeConflictValues(
     origValues: Record<string, any>,
     ourValues: Record<string, any>,
     thereValues: Record<string, any>,
@@ -1177,7 +1193,7 @@ export class ChangesetService {
     return merged;
   }
 
-  private _getChangedMetaValues(patches: Patch[]) {
+  protected _getChangedMetaValues(patches: Patch[]) {
     const changes: Record<string, any> = {};
     const updateValue = (changes: Record<string, any>, op: string, path: string, value: any) => {
       if (op === 'remove') {
@@ -1469,7 +1485,7 @@ export class ChangesetService {
     this._sidebar.open(SidebarContext.Changeset);
   }
 
-  private _addAllConflictElements() {
+  protected _addAllConflictElements() {
     const changeset = this.errorChangeset();
     if (!changeset) return;
     const activeLayer = this._state.getActiveLayer()?.getId();
@@ -1527,7 +1543,7 @@ export class ChangesetService {
     }, true);
   }
 
-  private _removeAllConflictElements() {
+  protected _removeAllConflictElements() {
     this._state.updateMapState((draft) => {
       const normalElementIds = new Set<string>();
       Object.keys(draft.drawElements)
@@ -1546,7 +1562,7 @@ export class ChangesetService {
     }, true);
   }
 
-  private _isArrayKey(key: string): boolean {
+  protected _isArrayKey(key: string): boolean {
     return !isNaN(key as any) && key.trim() !== '';
   }
 
@@ -1586,7 +1602,7 @@ export class ChangesetService {
     this.removeConflictValue(elementDraft[key], remainingPath);
   }
 
-  private _getElementFromCachedElements(changeset: IZsChangesetInternal, elemId: string, index: number) {
+  protected _getElementFromCachedElements(changeset: IZsChangesetInternal, elemId: string, index: number) {
     switch (index) {
       case 0: {
         if (changeset.origDrawElements?.[elemId]) {

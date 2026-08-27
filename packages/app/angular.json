@@ -15,6 +15,12 @@
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
+        "test": {
+          "builder": "@analogjs/vitest-angular:test",
+          "options": {
+            "testPathIgnorePatterns": ["/node_modules/", "/dist/"]
+          }
+        },
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
