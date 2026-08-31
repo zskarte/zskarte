@@ -1,5 +1,5 @@
 import type { IZsMapOrganizationSettings } from '@zskarte/types';
-import { doublePrecision, integer, jsonb, pgEnum, pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { doublePrecision, uuid, jsonb, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { files } from '../file/schema.js';
 
@@ -11,7 +11,6 @@ export const organizationDefaultLocaleEnum = pgEnum('organization_default_locale
 ]);
 
 export const organizations = pgTable('organizations', {
-  id: serial('id').primaryKey(),
   documentId: documentId(),
   name: text('name').notNull(),
   mapLongitude: doublePrecision('map_longitude').notNull().default(7.44297),
@@ -19,7 +18,7 @@ export const organizations = pgTable('organizations', {
   mapZoomLevel: doublePrecision('map_zoom_level').notNull().default(16),
   defaultLocale: organizationDefaultLocaleEnum('default_locale').notNull().default('de-CH'),
   url: text('url'),
-  logoId: integer('logo_id').references(() => files.id, { onDelete: 'set null' }),
+  logoId: uuid('logo_id').references(() => files.documentId, { onDelete: 'set null' }),
   journalEntryTemplate: jsonb('journal_entry_template').$type<Record<string, unknown>>(),
   settings: jsonb('settings').$type<IZsMapOrganizationSettings>(),
   ...timestamps,

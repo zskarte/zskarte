@@ -1,18 +1,17 @@
-import { boolean, integer, jsonb, pgEnum, pgTable, primaryKey, serial, text } from 'drizzle-orm/pg-core';
+import { boolean, integer, uuid, jsonb, pgEnum, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { organizations } from '../organization/schema.js';
 
 export const wmsSourceTypeEnum = pgEnum('wms_source_type', ['wms', 'wmts']);
 
 export const wmsSources = pgTable('wms_sources', {
-  id: serial('id').primaryKey(),
   documentId: documentId(),
   label: text('label'),
   type: wmsSourceTypeEnum('type'),
   url: text('url'),
   attribution: jsonb('attribution'),
   public: boolean('public'),
-  organizationId: integer('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.documentId, { onDelete: 'cascade' }),
   ...timestamps,
 });
 
@@ -23,12 +22,12 @@ export const wmsSources = pgTable('wms_sources', {
 export const organizationWmsSources = pgTable(
   'organization_wms_sources',
   {
-    organizationId: integer('organization_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => organizations.id, { onDelete: 'cascade' }),
-    wmsSourceId: integer('wms_source_id')
+      .references(() => organizations.documentId, { onDelete: 'cascade' }),
+    wmsSourceId: uuid('wms_source_id')
       .notNull()
-      .references(() => wmsSources.id, { onDelete: 'cascade' }),
+      .references(() => wmsSources.documentId, { onDelete: 'cascade' }),
   },
   (table) => [primaryKey({ columns: [table.organizationId, table.wmsSourceId] })],
 );

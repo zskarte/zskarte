@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgEnum, pgTable, primaryKey, serial, text } from 'drizzle-orm/pg-core';
+import { boolean, uuid, jsonb, pgEnum, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { files } from '../file/schema.js';
 import { organizations } from '../organization/schema.js';
@@ -15,17 +15,16 @@ export const mapLayerTypeEnum = pgEnum('map_layer_type', [
 ]);
 
 export const mapLayers = pgTable('map_layers', {
-  id: serial('id').primaryKey(),
   documentId: documentId(),
   label: text('label'),
   serverLayerName: text('server_layer_name'),
   type: mapLayerTypeEnum('type'),
-  wmsSourceId: integer('wms_source_id').references(() => wmsSources.id, { onDelete: 'set null' }),
+  wmsSourceId: uuid('wms_source_id').references(() => wmsSources.documentId, { onDelete: 'set null' }),
   customSource: text('custom_source'),
-  mediaSourceId: integer('media_source_id').references(() => files.id, { onDelete: 'set null' }),
+  mediaSourceId: uuid('media_source_id').references(() => files.documentId, { onDelete: 'set null' }),
   options: jsonb('options').$type<Record<string, unknown>>(),
   public: boolean('public'),
-  organizationId: integer('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: uuid('organization_id').references(() => organizations.documentId, { onDelete: 'cascade' }),
   ...timestamps,
 });
 
@@ -36,12 +35,12 @@ export const mapLayers = pgTable('map_layers', {
 export const organizationMapLayerFavorites = pgTable(
   'organization_map_layer_favorites',
   {
-    organizationId: integer('organization_id')
+    organizationId: uuid('organization_id')
       .notNull()
-      .references(() => organizations.id, { onDelete: 'cascade' }),
-    mapLayerId: integer('map_layer_id')
+      .references(() => organizations.documentId, { onDelete: 'cascade' }),
+    mapLayerId: uuid('map_layer_id')
       .notNull()
-      .references(() => mapLayers.id, { onDelete: 'cascade' }),
+      .references(() => mapLayers.documentId, { onDelete: 'cascade' }),
   },
   (table) => [primaryKey({ columns: [table.organizationId, table.mapLayerId] })],
 );

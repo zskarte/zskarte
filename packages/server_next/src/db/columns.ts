@@ -1,4 +1,5 @@
-import { text, timestamp } from 'drizzle-orm/pg-core';
+import { timestamp, uuid } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { createDocumentId } from '../lib/ids.js';
 
 /**
@@ -7,10 +8,11 @@ import { createDocumentId } from '../lib/ids.js';
  * that the angular app uses as primary handle.
  */
 export const documentId = () =>
-  text('document_id')
+  uuid('document_id')
     .notNull()
     .unique()
-    .$defaultFn(() => createDocumentId());
+    .default(sql`uuidv7()`)
+    .primaryKey();
 
 export const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

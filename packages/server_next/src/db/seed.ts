@@ -14,7 +14,7 @@ const BASELINE_ORGANIZATIONS = [
 const seedOrganizations = async (): Promise<void> => {
   for (const organization of BASELINE_ORGANIZATIONS) {
     const [existing] = await db
-      .select({ id: organizations.id })
+      .select({ documentId: organizations.documentId })
       .from(organizations)
       .where(eq(organizations.name, organization.name))
       .limit(1);
@@ -30,7 +30,7 @@ const seedOrganizations = async (): Promise<void> => {
 };
 
 const seedMapLayerGenerationConfig = async (): Promise<void> => {
-  const [existing] = await db.select({ id: mapLayerGenerationConfig.id }).from(mapLayerGenerationConfig).limit(1);
+  const [existing] = await db.select({ documentId: mapLayerGenerationConfig.documentId }).from(mapLayerGenerationConfig).limit(1);
   if (existing) {
     logger.info('map layer generation config already present');
     return;

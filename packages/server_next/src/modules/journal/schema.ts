@@ -1,4 +1,4 @@
-import { boolean, index, integer, pgEnum, pgTable, serial, text, timestamp, unique } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, uuid, pgEnum, pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { operations } from '../operation/schema.js';
 import { organizations } from '../organization/schema.js';
@@ -27,11 +27,10 @@ export const journalEntryDepartmentEnum = pgEnum('journal_entry_department', [
 export const journalEntries = pgTable(
   'journal_entries',
   {
-    id: serial('id').primaryKey(),
     documentId: documentId(),
     uuid: text('uuid').notNull().unique(),
-    operationId: integer('operation_id').references(() => operations.id, { onDelete: 'cascade' }),
-    organizationId: integer('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+    operationId: uuid('operation_id').references(() => operations.documentId, { onDelete: 'cascade' }),
+    organizationId: uuid('organization_id').references(() => organizations.documentId, { onDelete: 'cascade' }),
     messageNumber: integer('message_number').notNull(),
     sender: text('sender'),
     creator: text('creator'),

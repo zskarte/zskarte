@@ -1,4 +1,4 @@
-import { boolean, index, integer, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, uuid, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { operations } from '../operation/schema.js';
 import { organizations } from '../organization/schema.js';
@@ -13,15 +13,14 @@ export const accessTypeEnum = pgEnum('access_type', ['read', 'write', 'all']);
 export const accesses = pgTable(
   'accesses',
   {
-    id: serial('id').primaryKey(),
     documentId: documentId(),
     accessToken: text('access_token').notNull().unique(),
     type: accessTypeEnum('type').notNull().default('read'),
     name: text('name'),
     active: boolean('active').notNull().default(true),
     expiresOn: timestamp('expires_on', { withTimezone: true }),
-    operationId: integer('operation_id').references(() => operations.id, { onDelete: 'cascade' }),
-    organizationId: integer('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+    operationId: uuid('operation_id').references(() => operations.documentId, { onDelete: 'cascade' }),
+    organizationId: uuid('organization_id').references(() => organizations.documentId, { onDelete: 'cascade' }),
     ...timestamps,
   },
   (table) => [index('accesses_operation_id_idx').on(table.operationId)],

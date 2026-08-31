@@ -7,7 +7,6 @@ export const signingKeyTypeEnum = pgEnum('signing_key_type', ['rsa', 'ed25519'])
 export const signingKeys = pgTable(
   'signing_keys',
   {
-    id: serial('id').primaryKey(),
     documentId: documentId(),
     keyId: text('key_id').notNull().unique(),
     serverId: text('server_id').notNull(),

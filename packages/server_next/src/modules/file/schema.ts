@@ -1,5 +1,5 @@
 import type { UZsStrapiAssetFormat } from '@zskarte/types';
-import { doublePrecision, integer, jsonb, pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { doublePrecision, integer, jsonb, pgTable, text } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 
 /**
@@ -8,7 +8,6 @@ import { documentId, timestamps } from '../../db/columns.js';
  * Strapi's separate folder entity collapses into `folder_path`.
  */
 export const files = pgTable('files', {
-  id: serial('id').primaryKey(),
   documentId: documentId(),
   name: text('name').notNull(),
   alternativeText: text('alternative_text'),

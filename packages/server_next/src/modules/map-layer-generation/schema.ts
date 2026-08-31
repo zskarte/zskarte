@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, uuid, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { files } from '../file/schema.js';
 
@@ -13,19 +13,18 @@ export const DEFAULT_FILE_SWISS_NAMES_3D = 'swissNAMES3D_PLY';
 
 /** Single row configuration table, replaces the strapi single type. */
 export const mapLayerGenerationConfig = pgTable('map_layer_generation_config', {
-  id: serial('id').primaryKey(),
   documentId: documentId(),
   enabled: boolean('enabled').notNull().default(false),
   allwaysCreateDistrict: boolean('allways_create_district').notNull().default(false),
   cantons: text('cantons').notNull().default(DEFAULT_CANTONS),
   urlMadd: text('url_madd').notNull().default(DEFAULT_URL_MADD),
-  styleEntrancesId: integer('style_entrances_id').references(() => files.id, { onDelete: 'set null' }),
+  styleEntrancesId: uuid('style_entrances_id').references(() => files.documentId, { onDelete: 'set null' }),
   urlSwissBoundaries3d: text('url_swiss_boundaries_3d').notNull().default(DEFAULT_URL_SWISS_BOUNDARIES_3D),
-  styleSwissBoundaries3dId: integer('style_swiss_boundaries_3d_id').references(() => files.id, {
+  styleSwissBoundaries3dId: uuid('style_swiss_boundaries_3d_id').references(() => files.documentId, {
     onDelete: 'set null',
   }),
   urlSwissNames3d: text('url_swiss_names_3d').notNull().default(DEFAULT_URL_SWISS_NAMES_3D),
-  styleSwissNames3dId: integer('style_swiss_names_3d_id').references(() => files.id, { onDelete: 'set null' }),
+  styleSwissNames3dId: uuid('style_swiss_names_3d_id').references(() => files.documentId, { onDelete: 'set null' }),
   fieldsSwissNames3d: text('fields_swiss_names_3d').notNull().default(DEFAULT_FIELDS_SWISS_NAMES_3D),
   fileSwissNames3d: text('file_swiss_names_3d').notNull().default(DEFAULT_FILE_SWISS_NAMES_3D),
   lastStartDate: timestamp('last_start_date', { withTimezone: true }),

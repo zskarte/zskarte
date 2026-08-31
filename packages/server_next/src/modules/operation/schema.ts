@@ -1,5 +1,5 @@
 import type { IZsChangeset, IZSMapOperationMapLayers, ZsMapState } from '@zskarte/types';
-import { index, integer, jsonb, pgEnum, pgTable, serial, text } from 'drizzle-orm/pg-core';
+import { index, uuid, jsonb, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { organizations } from '../organization/schema.js';
 
@@ -8,11 +8,10 @@ export const operationPhaseEnum = pgEnum('operation_phase', ['active', 'archived
 export const operations = pgTable(
   'operations',
   {
-    id: serial('id').primaryKey(),
     documentId: documentId(),
     name: text('name').notNull(),
     description: text('description'),
-    organizationId: integer('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+    organizationId: uuid('organization_id').references(() => organizations.documentId, { onDelete: 'cascade' }),
     mapState: jsonb('map_state').$type<ZsMapState>(),
     changesets: jsonb('changesets').$type<Record<string, IZsChangeset>>(),
     changesetSigns: jsonb('changeset_signs').$type<Record<string, string>>(),
