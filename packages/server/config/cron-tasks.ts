@@ -20,6 +20,6 @@ export default {
   '0 0 * * *': async ({ strapi }: { strapi: Core.Strapi }) => deleteGuestOperations(strapi),
   // Every 5 minutes
   '*/5 * * * *': async ({ strapi }: { strapi: Core.Strapi }) => createMapStateSnapshots(strapi),
-  // Every 1st and 15th of month update mapLayers
-  '0 0 1,15 * *': async ({ strapi }: { strapi: Core.Strapi }) => updateMapLayerMedias(strapi),
+  // Every 2nd and 15th of month update mapLayers
+  '0 0 2,15 * *': async ({ strapi }: { strapi: Core.Strapi }) => updateMapLayerMedias(strapi),
 };

@@ -10,6 +10,15 @@ import shp from 'shpjs';
 import proj4 from 'proj4';
 import type { FeatureCollection, Feature, Polygon, MultiPolygon } from 'geojson';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import bbox from '@turf/bbox';
+import { BBox } from 'geojson';
+import booleanWithin from '@turf/boolean-within';
+import booleanDisjoint from '@turf/boolean-disjoint';
+import booleanIntersects from '@turf/boolean-intersects';
+import intersect from '@turf/intersect';
+import buffer from '@turf/buffer';
+import area from '@turf/area';
+import { Units } from '@turf/helpers';
 import { inferSchema, initParser } from 'udsv';
 import { writeToString } from '@fast-csv/format';
 import { Worker } from 'node:worker_threads';
@@ -281,7 +290,7 @@ async function extractFilesToNewZip(inputZip: any, filterBasename: string, outpu
   let foundFiles = 0;
   for (const entry of inputZip.getEntries()) {
     if (basename(entry.entryName).startsWith(filterBasename)) {
-      outputZip.addFile(entry.entryName, entry.getData(), '');
+      outputZip.addFile(basename(entry.entryName), entry.getData(), '');
       foundFiles++;
     }
   }
@@ -307,16 +316,17 @@ async function insertOrUpdateBoundariesMapLayer(
   boundariesLayerName: string,
   sourceMedia: Media,
   styleMedia: Media,
+  type: MapLayerType = MapLayerTypes.SHAPE,
 ) {
   const mapLayerData = {
     label: boundariesLayerName,
-    type: MapLayerTypes.SHAPE,
+    type,
     //media is referenced by id not documentId
     media_source: sourceMedia.id,
     public: true,
     options: {
       hidden: false,
-      opacity: 1,
+      opacity: 0.8,
       styleUrl: styleMedia?.url,
       searchable: true,
       attribution: [['swisstopo', 'https://www.swisstopo.admin.ch/de/home.html']],
@@ -347,6 +357,8 @@ export async function downloadAndExtractSwissBoundaries(params: {
   tmpDir: string;
   cantonFile: string;
   districtFile: string;
+  municipalityFile: string;
+  create_municipality: boolean;
 }) {
   const response = await downloadIfChanged(params.url, params.lastModified);
   if (response.buffer) {
@@ -355,6 +367,7 @@ export async function downloadAndExtractSwissBoundaries(params: {
 
     let cantonSuccess = false;
     let districtSuccess = false;
+    let municipalitySuccess = false;
 
     //extract canton shape files
     let fullTmpPath = join(params.tmpDir, params.cantonFile);
@@ -369,7 +382,16 @@ export async function downloadAndExtractSwissBoundaries(params: {
     if (districtAreas) {
       districtSuccess = true;
     }
-    return { cantonSuccess, districtSuccess, downloaded: true };
+
+    if (params.create_municipality) {
+      //extract municipality shape files
+      fullTmpPath = join(params.tmpDir, params.municipalityFile);
+      const municipalityAreas = await extractFilesToNewZip(zip, 'swissBOUNDARIES3D_1_5_TLM_HOHEITSGEBIET', fullTmpPath);
+      if (municipalityAreas) {
+        municipalitySuccess = true;
+      }
+    }
+    return { cantonSuccess, districtSuccess, municipalitySuccess, downloaded: true };
   } else {
     return response;
   }
@@ -380,12 +402,14 @@ async function updateSwissBoundaries(
   url_template: string,
   boundariesFolder: Folder,
   styleMedia: Media,
+  create_municipality: boolean,
   callWorker: <T>(func: string, params: any) => Promise<T>,
 ) {
   try {
     const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
     let cantonAreasMedia: Media;
     let districtAreasMedia: Media;
+    let municipalityAreasMedia: Media;
     let lastModified: string;
     let year = new Date().getFullYear();
     let monthNo = new Date().getMonth() + 1;
@@ -415,18 +439,50 @@ async function updateSwissBoundaries(
         fileNameDistrict,
         boundariesFolder,
       ));
-      lastModified = lastModified || formatForIfModifiedSince(cantonAreasMedia?.updatedAt);
+      if (districtAreasMedia === null) {
+        lastModified = null;
+      } else {
+        lastModified = lastModified || formatForIfModifiedSince(districtAreasMedia?.updatedAt);
+      }
+
+      //check for municipality shape files
+      const fileNameMunicipality = `swissBOUNDARIES3D_HOHEITSGEBIET_${year}_${month}.zip`;
+      const municipalityLayerName = 'Gemeindegrenzen (Ganze Schweiz)';
+      let municipalityMapLayer: Partial<MapLayer>;
+      if (create_municipality) {
+        ({ mapLayer: municipalityMapLayer, media: municipalityAreasMedia } = await findLayerAndMedia(
+          municipalityLayerName,
+          MapLayerTypes.SHAPE,
+          fileNameMunicipality,
+          boundariesFolder,
+        ));
+        if (municipalityAreasMedia === null) {
+          lastModified = null;
+        } else {
+          lastModified = lastModified || formatForIfModifiedSince(municipalityAreasMedia?.updatedAt);
+        }
+      }
 
       const cantonFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameCanton}`;
       const districtFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameDistrict}`;
+      const municipalityFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameMunicipality}`;
       const response = await callWorker<{
         status?: number;
         lastModified?: string;
         age?: string;
         cantonSuccess?: boolean;
         districtSuccess?: boolean;
+        municipalitySuccess?: boolean;
         downloaded?: boolean;
-      }>('downloadAndExtractSwissBoundaries', { url, lastModified, tmpDir, cantonFile, districtFile });
+      }>('downloadAndExtractSwissBoundaries', {
+        url,
+        lastModified,
+        tmpDir,
+        cantonFile,
+        districtFile,
+        municipalityFile,
+        create_municipality,
+      });
       if (response.downloaded) {
         strapi.log.info(`updateSwissBoundaries: new data loaded from ${url}`);
         let fullTmpPath = join(tmpDir, cantonFile);
@@ -436,9 +492,11 @@ async function updateSwissBoundaries(
             strapi.log.info(`updateSwissBoundaries: media ${fileNameCanton} saved: ${cantonAreasMedia.id}`);
           }
         } finally {
-          await unlink(fullTmpPath).catch((err) => {
-            strapi.log.warn(`updateSwissBoundaries: remove temp file failed: "${fullTmpPath}", ${err}`);
-          });
+          if (existsSync(fullTmpPath)) {
+            await unlink(fullTmpPath).catch((err) => {
+              strapi.log.warn(`updateSwissBoundaries: remove temp file failed: "${fullTmpPath}", ${err}`);
+            });
+          }
         }
 
         //extract district shape files
@@ -449,9 +507,35 @@ async function updateSwissBoundaries(
             strapi.log.info(`updateSwissBoundaries: media ${fileNameDistrict} saved: ${districtAreasMedia.id}`);
           }
         } finally {
-          await unlink(fullTmpPath).catch((err) => {
-            strapi.log.warn(`updateSwissBoundaries: remove temp file failed: "${fullTmpPath}", ${err}`);
-          });
+          if (existsSync(fullTmpPath)) {
+            await unlink(fullTmpPath).catch((err) => {
+              strapi.log.warn(`updateSwissBoundaries: remove temp file failed: "${fullTmpPath}", ${err}`);
+            });
+          }
+        }
+
+        if (create_municipality) {
+          //extract municipality shape files
+          fullTmpPath = join(tmpDir, municipalityFile);
+          try {
+            if (response.municipalitySuccess) {
+              municipalityAreasMedia = await updateOrCreateMedia(
+                strapi,
+                boundariesFolder,
+                fileNameMunicipality,
+                fullTmpPath,
+              );
+              strapi.log.info(
+                `updateSwissBoundaries: media ${fileNameMunicipality} saved: ${municipalityAreasMedia.id}`,
+              );
+            }
+          } finally {
+            if (existsSync(fullTmpPath)) {
+              await unlink(fullTmpPath).catch((err) => {
+                strapi.log.warn(`updateSwissBoundaries: remove temp file failed: "${fullTmpPath}", ${err}`);
+              });
+            }
+          }
         }
       } else if (response.status === 304) {
         strapi.log.info(
@@ -465,6 +549,7 @@ async function updateSwissBoundaries(
       if (!cantonAreasMedia) {
         monthNo -= 1;
         if (monthNo <= 0) {
+          monthNo = 12;
           year -= 1;
           if (year < 2025) {
             return;
@@ -491,13 +576,131 @@ async function updateSwissBoundaries(
             `updateSwissBoundaries district: maplayer "${districtLayerName}" ${districtMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
           );
         }
+        if (create_municipality) {
+          if (municipalityAreasMedia) {
+            const savedLayer = await insertOrUpdateBoundariesMapLayer(
+              municipalityMapLayer,
+              municipalityLayerName,
+              municipalityAreasMedia,
+              styleMedia,
+            );
+            strapi.log.info(
+              `updateSwissBoundaries municipality: maplayer "${municipalityLayerName}" ${municipalityMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+            );
+          }
+        }
       }
     }
-    return { cantonAreasMedia, districtAreasMedia };
+    return { cantonAreasMedia, districtAreasMedia, municipalityAreasMedia };
   } catch (error) {
     strapi.log.error(`updateSwissBoundaries: error ${error.stack ?? error}`);
     return null;
   }
+}
+
+export async function extractMunicipality(
+  params: {
+    cantonFeature: Feature;
+    canton: string;
+    municipalityMediaFile: string;
+    tmpDir: string;
+    municipalityCantonFile: string;
+  },
+  fileCache: Map<string, FeatureCollection>,
+) {
+  let geojson: FeatureCollection = fileCache.get(params.municipalityMediaFile);
+  if (!geojson) {
+    geojson = await loadShpFile(params.municipalityMediaFile);
+    fileCache[params.municipalityMediaFile] = geojson;
+  }
+  let features: Feature[];
+  if (!params.cantonFeature) {
+    features = getMunicipalityFeaturesCountry(params.canton, geojson);
+  } else {
+    features = getMunicipalityFeatures(params.cantonFeature, geojson);
+  }
+  const newCollection: FeatureCollection = {
+    type: 'FeatureCollection',
+    features,
+  };
+  let municipalitySuccess = false;
+  if (newCollection.features.length > 0) {
+    const fullTmpPath = join(params.tmpDir, params.municipalityCantonFile);
+    await writeFile(fullTmpPath, JSON.stringify(newCollection), 'utf8');
+    municipalitySuccess = true;
+  }
+  return { municipalitySuccess };
+}
+
+async function updateMunicipalityCanton(
+  strapi: Core.Strapi,
+  canton: string,
+  cantonFeature: Feature,
+  mediaFolder: Folder,
+  styleMedia: Media,
+  mediaUpdatedAt: DateTimeValue | undefined,
+  municipalityMediaFile: string,
+  callWorker: <T>(func: string, params: any) => Promise<T>,
+) {
+  const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
+  strapi.log.info(`updateMunicipalityCanton for ${canton}: start`);
+
+  const municipalityCantonLayerName = `Gemeindegrenzen (${canton})`;
+  const municipalityCantonFileName = `municipality_${canton}.geojson`;
+  let { mapLayer: municipalityCantonMapLayer, media: municipalityCantonMedia } = await findLayerAndMedia(
+    municipalityCantonLayerName,
+    MapLayerTypes.GEOJSON,
+    municipalityCantonFileName,
+    mediaFolder,
+  );
+  if (!municipalityCantonMedia || !mediaUpdatedAt || municipalityCantonMedia.updatedAt < mediaUpdatedAt) {
+    const municipalityCantonFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${municipalityCantonFileName}`;
+    const response = await callWorker<{ municipalitySuccess?: boolean }>('extractMunicipality', {
+      cantonFeature,
+      canton,
+      municipalityMediaFile,
+      tmpDir,
+      municipalityCantonFile,
+    });
+    if (response.municipalitySuccess) {
+      const fullTmpPath = join(tmpDir, municipalityCantonFile);
+      try {
+        municipalityCantonMedia = await updateOrCreateMedia(
+          strapi,
+          mediaFolder,
+          municipalityCantonFileName,
+          fullTmpPath,
+        );
+        strapi.log.info(
+          `updateMunicipalityCanton for ${canton}: media ${municipalityCantonFileName} saved: ${municipalityCantonMedia.id}`,
+        );
+      } finally {
+        if (existsSync(fullTmpPath)) {
+          await unlink(fullTmpPath).catch((err) => {
+            strapi.log.warn(
+              `updateMunicipalityCanton for ${canton}: remove temp file failed: "${fullTmpPath}", ${err}`,
+            );
+          });
+        }
+      }
+    } else {
+      strapi.log.error(`updateMunicipalityCanton for ${canton}: no data after geo filtering`);
+    }
+  }
+
+  if (municipalityCantonMedia) {
+    const savedLayer = await insertOrUpdateBoundariesMapLayer(
+      municipalityCantonMapLayer,
+      municipalityCantonLayerName,
+      municipalityCantonMedia,
+      styleMedia,
+      MapLayerTypes.GEOJSON,
+    );
+    strapi.log.info(
+      `updateMunicipalityCanton for ${canton}: maplayer "${municipalityCantonLayerName}" ${municipalityCantonMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+    );
+  }
+  strapi.log.info(`updateMunicipalityCanton for ${canton}: finished`);
 }
 
 function getCantonFeature(cantonAreasGeoJSON: FeatureCollection, canton: string) {
@@ -518,6 +721,530 @@ function getDistrictFeatures(cantonFeature: Feature, districtAreasGeoJSON: Featu
   return districtAreasGeoJSON.features.filter((feature) => feature.properties?.KANTONSNUM === cantonNo) as Feature<
     Polygon | MultiPolygon
   >[];
+}
+
+function getMunicipalityFeatures(cantonFeature: Feature, municipalityGeoJSON: FeatureCollection) {
+  if (!cantonFeature || !municipalityGeoJSON) {
+    return null;
+  }
+  const cantonNo = cantonFeature.properties?.KANTONSNUM;
+  return municipalityGeoJSON.features.filter((feature) => feature.properties?.KANTONSNUM === cantonNo) as Feature<
+    Polygon | MultiPolygon
+  >[];
+}
+
+function getMunicipalityFeaturesCountry(country: string, municipalityGeoJSON: FeatureCollection) {
+  if (!country || !municipalityGeoJSON) {
+    return null;
+  }
+  return municipalityGeoJSON.features.filter((feature) => feature.properties?.ICC === country) as Feature<
+    Polygon | MultiPolygon
+  >[];
+}
+
+async function insertOrUpdateLocalityMapLayer(
+  mapLayer: Partial<MapLayer>,
+  localitiesLayerName: string,
+  sourceMedia: Media,
+  styleMedia: Media,
+  type: MapLayerType = MapLayerTypes.SHAPE,
+  isZip = false,
+) {
+  let searchRegExPatterns: Array<Array<string>>;
+  let searchResultLabelMask: string;
+  if (isZip) {
+    if (type === MapLayerTypes.SHAPE) {
+      //the zip shape layer have no name field, it's only added on filtered GEOJSON variant
+      searchRegExPatterns = [['(?<ZIP4>\\d\\d\\d\\d)', 'u']];
+      searchResultLabelMask = '${ZIP4}';
+    } else {
+      searchRegExPatterns = [
+        ['(?<NAME>\\p{L}+(?:[ -]\\p{L}+)*)', 'u'],
+        ['(?<ZIP4>\\d{2,4})', 'u'],
+        ['(?<ZIP4>\\d{2,4}) (?<NAME>\\p{L}+(?:[ -]\\p{L}+)*)', 'u'],
+      ];
+      searchResultLabelMask = '${ZIP4} ${NAME}';
+    }
+  } else {
+    searchRegExPatterns = [['(?<NAME>\\p{L}+(?:[ -]\\p{L}+)*)', 'u']];
+    searchResultLabelMask = '${NAME}';
+  }
+  const mapLayerData = {
+    label: localitiesLayerName,
+    type,
+    //media is referenced by id not documentId
+    media_source: sourceMedia.id,
+    public: true,
+    options: {
+      hidden: false,
+      opacity: 0.6,
+      styleUrl: styleMedia?.url,
+      searchable: true,
+      attribution: [['swisstopo', 'https://www.swisstopo.admin.ch/de/home.html']],
+      styleFormat: 'mapbox',
+      styleSourceName: 'locality',
+      styleSourceType: 'url',
+      searchRegExPatterns,
+      searchResultLabelMask,
+      searchResultGroupingFilterFields: [],
+    },
+  };
+  //always set/update all fields to make sure changes in the config/template here are always updated.
+  if (mapLayer) {
+    return await strapi.documents('api::map-layer.map-layer').update({
+      documentId: mapLayer.documentId,
+      data: mapLayerData,
+    });
+  } else {
+    return await strapi.documents('api::map-layer.map-layer').create({
+      data: mapLayerData,
+    });
+  }
+}
+
+export async function downloadAndExtractLocality(params: {
+  url: string;
+  lastModified: string;
+  tmpDir: string;
+  localityFile: string;
+  zipFile: string;
+  create_zip: boolean;
+}) {
+  const response = await downloadIfChanged(params.url, params.lastModified);
+  if (response.buffer) {
+    //extract corresponding files from zip and save temporarly (required for upload Service)
+    const zip = new AdmZip(response.buffer);
+
+    let localitySuccess = false;
+    let zipSuccess = false;
+
+    //extract locality shape files
+    let fullTmpPath = join(params.tmpDir, params.localityFile);
+    const localityAreas = await extractFilesToNewZip(zip, 'AMTOVZ_LOCALITY', fullTmpPath);
+    if (localityAreas) {
+      localitySuccess = true;
+    }
+
+    if (params.create_zip) {
+      //extract zip shape files
+      fullTmpPath = join(params.tmpDir, params.zipFile);
+      const zipAreas = await extractFilesToNewZip(zip, 'AMTOVZ_ZIP', fullTmpPath);
+      if (zipAreas) {
+        zipSuccess = true;
+      }
+    }
+    return { localitySuccess, zipSuccess, downloaded: true };
+  } else {
+    return response;
+  }
+}
+
+async function updateLocality(
+  strapi: Core.Strapi,
+  url: string,
+  localitiesFolder: Folder,
+  styleMedia: Media,
+  create_locality: boolean,
+  create_zip: boolean,
+  callWorker: <T>(func: string, params: any) => Promise<T>,
+) {
+  try {
+    const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
+    let localityMedia: Media;
+    let zipMedia: Media;
+    let lastModified: string;
+    //check for locality shape files
+    const fileNameLocality = 'AMTOVZ_LOCALITY.zip';
+    const localityLayerName = 'Ortschaftsgrenzen (Ganze Schweiz)';
+    let localityMapLayer: Partial<MapLayer>;
+    if (create_locality || create_zip) {
+      ({ mapLayer: localityMapLayer, media: localityMedia } = await findLayerAndMedia(
+        localityLayerName,
+        MapLayerTypes.SHAPE,
+        fileNameLocality,
+        localitiesFolder,
+      ));
+      lastModified = formatForIfModifiedSince(localityMedia?.updatedAt);
+    }
+
+    //check for zip shape files
+    const fileNameZip = 'AMTOVZ_ZIP.zip';
+    const zipLayerName = 'PLZ-Grenzen (Ganze Schweiz, nur PLZ keine Ortsnamen)';
+    let zipMapLayer: Partial<MapLayer>;
+    if (create_zip) {
+      ({ mapLayer: zipMapLayer, media: zipMedia } = await findLayerAndMedia(
+        zipLayerName,
+        MapLayerTypes.SHAPE,
+        fileNameZip,
+        localitiesFolder,
+      ));
+      if (zipMedia === null) {
+        lastModified = null;
+      } else {
+        lastModified = lastModified || formatForIfModifiedSince(zipMedia?.updatedAt);
+      }
+    }
+
+    const localityFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameLocality}`;
+    const zipFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${fileNameZip}`;
+    const response = await callWorker<{
+      status?: number;
+      lastModified?: string;
+      age?: string;
+      localitySuccess?: boolean;
+      zipSuccess?: boolean;
+      downloaded?: boolean;
+    }>('downloadAndExtractLocality', {
+      url,
+      lastModified,
+      tmpDir,
+      localityFile,
+      zipFile,
+      create_zip,
+    });
+    if (response.downloaded) {
+      strapi.log.info(`updateLocality: new data loaded from ${url}`);
+      //extract locality shape files
+      let fullTmpPath = join(tmpDir, localityFile);
+      try {
+        if (response.localitySuccess) {
+          localityMedia = await updateOrCreateMedia(strapi, localitiesFolder, fileNameLocality, fullTmpPath);
+          strapi.log.info(`updateLocality: media ${fileNameLocality} saved: ${localityMedia.id}`);
+        }
+      } finally {
+        if (existsSync(fullTmpPath)) {
+          await unlink(fullTmpPath).catch((err) => {
+            strapi.log.warn(`updateLocality: remove temp file failed: "${fullTmpPath}", ${err}`);
+          });
+        }
+      }
+
+      //extract zip shape files
+      fullTmpPath = join(tmpDir, zipFile);
+      try {
+        if (create_zip) {
+          if (response.zipSuccess) {
+            zipMedia = await updateOrCreateMedia(strapi, localitiesFolder, fileNameZip, fullTmpPath);
+            strapi.log.info(`updateLocality: media ${fileNameZip} saved: ${zipMedia.id}`);
+          }
+        }
+      } finally {
+        if (existsSync(fullTmpPath)) {
+          await unlink(fullTmpPath).catch((err) => {
+            strapi.log.warn(`updateLocality: remove temp file failed: "${fullTmpPath}", ${err}`);
+          });
+        }
+      }
+    } else if (response.status === 304) {
+      strapi.log.info(`updateLocality: content not changed since: ${response.lastModified} / age: ${response.age}`);
+    } else if (response.status === 404) {
+      strapi.log.info(`updateLocality: file not found ${url}`);
+    } else {
+      throw new Error(`${url}: HTTP ${response.status}`);
+    }
+    if (localityMedia) {
+      if (create_locality) {
+        const savedLayer = await insertOrUpdateLocalityMapLayer(
+          localityMapLayer,
+          localityLayerName,
+          localityMedia,
+          styleMedia,
+        );
+        strapi.log.info(
+          `updateLocality locality: maplayer "${localityLayerName}" ${localityMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+        );
+      }
+      if (zipMedia && create_zip) {
+        const savedLayer = await insertOrUpdateLocalityMapLayer(
+          zipMapLayer,
+          zipLayerName,
+          zipMedia,
+          styleMedia,
+          MapLayerTypes.SHAPE,
+          true,
+        );
+        strapi.log.info(
+          `updateLocality zip: maplayer "${zipLayerName}" ${zipMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+        );
+      } else {
+        strapi.log.error('updateLocality zip: media not available');
+      }
+    } else {
+      strapi.log.error('updateLocality locality/zip: localityMedia not available');
+    }
+    return { localityMedia, zipMedia };
+  } catch (error) {
+    strapi.log.error(`updateLocality: error ${error.stack ?? error}`);
+    return null;
+  }
+}
+
+export function bboxIntersect(a: BBox, b: BBox): boolean {
+  return !(
+    (
+      a[2] < b[0] || // a.maxX < b.minX
+      a[0] > b[2] || // a.minX > b.maxX
+      a[3] < b[1] || // a.maxY < b.minY
+      a[1] > b[3]
+    ) // a.minY > b.maxY
+  );
+}
+
+function filterIntersect(
+  features: Feature<Polygon | MultiPolygon>[],
+  checkArea: Feature<Polygon | MultiPolygon>,
+  isIntersectAreaCountAsIntersect: (feature: Feature, intersectAreaSize: number) => boolean,
+  isIntersectAreaCountAsFullInside: (feature: Feature, intersectAreaSize: number) => boolean,
+  removeFullyInside = true,
+) {
+  const areaBbox = bbox(checkArea);
+  const checkAreaShrinked = buffer(checkArea, -10, { units: 'meters', steps: 1 });
+  const checkAreaExtended = buffer(checkArea, 30, { units: 'meters', steps: 1 });
+  const fullyInside = new Set<Feature>();
+
+  const filtered = features.filter((feature) => {
+    // BBOX-Pre-Filter
+    if (!bboxIntersect(areaBbox, bbox(feature))) return false;
+
+    // not intersect
+    if (booleanDisjoint(feature, checkArea)) return false;
+
+    // completely inside (30m extended area, to ignore small border issues), does not support MultiPolygon
+    if (feature.geometry.type === 'Polygon' && booleanWithin(feature, checkAreaExtended)) {
+      fullyInside.add(feature);
+      return true;
+    }
+
+    // faster pre check with a 10m shrinked checkArea (prevent "border only")
+    if (!booleanIntersects(feature, checkAreaShrinked)) return false;
+
+    // get intersecting area
+    const hit = intersect({
+      type: 'FeatureCollection',
+      features: [feature, checkArea],
+    });
+    if (!hit) return false;
+
+    const intersectAreaSize = area(hit);
+    //check if valid, or only touching border / small irrelevant area
+    const valid = isIntersectAreaCountAsIntersect(feature, intersectAreaSize);
+    if (valid && isIntersectAreaCountAsFullInside(feature, intersectAreaSize)) {
+      fullyInside.add(feature);
+    }
+    return valid;
+  });
+
+  if (removeFullyInside) {
+    //remove the one fully inside, as cannot be in any other / later filterIntersect call
+    for (let i = features.length - 1; i >= 0; i--) {
+      if (fullyInside.has(features[i])) {
+        features.splice(i, 1);
+      }
+    }
+  }
+
+  return filtered;
+}
+
+export async function extractLocality(
+  params: {
+    cantonFeature: Feature;
+    localityMediaFile: string;
+    zipMediaFile: string;
+    tmpDir: string;
+    localityCantonFile: string;
+    zipCantonFile: string;
+    create_locality: boolean;
+    create_locality_zip: boolean;
+  },
+  fileCache: Map<string, FeatureCollection>,
+) {
+  let geojsonLocality: FeatureCollection = fileCache.get(params.localityMediaFile);
+  if (!geojsonLocality) {
+    geojsonLocality = await loadShpFile(params.localityMediaFile);
+    fileCache[params.localityMediaFile] = geojsonLocality;
+  }
+  let geojsonZip: FeatureCollection = fileCache.get(params.zipMediaFile);
+  if (!geojsonZip && params.create_locality_zip) {
+    geojsonZip = await loadShpFile(params.zipMediaFile);
+    fileCache[params.zipMediaFile] = geojsonZip;
+  }
+
+  const areaBelongToCanton = (feature: Feature, intersectAreaSize: number) => {
+    //min 10% of area
+    return intersectAreaSize / feature.properties['SHAPE_AREA'] > 0.1;
+  };
+  const areaBelongOnlyToCanton = (feature: Feature, intersectAreaSize: number) => {
+    //min 90% of area
+    return intersectAreaSize / feature.properties['SHAPE_AREA'] > 0.9;
+  };
+
+  let featuresListToReadNames = geojsonLocality.features;
+  let localitySuccess = false;
+  if (params.create_locality) {
+    //find locality in cantonArea
+    const localityFeatures = filterIntersect(
+      geojsonLocality.features as Feature<Polygon | MultiPolygon>[],
+      params.cantonFeature as Feature<Polygon | MultiPolygon>,
+      areaBelongToCanton,
+      areaBelongOnlyToCanton,
+    );
+    featuresListToReadNames = localityFeatures;
+    const filteredLocalityCollection: FeatureCollection = {
+      type: 'FeatureCollection',
+      features: localityFeatures,
+    };
+    //save as file for media update
+    if (filteredLocalityCollection.features.length > 0) {
+      const fullTmpPath = join(params.tmpDir, params.localityCantonFile);
+      await writeFile(fullTmpPath, JSON.stringify(filteredLocalityCollection), 'utf8');
+      localitySuccess = true;
+    }
+  }
+
+  let zipSuccess = false;
+  if (params.create_locality_zip) {
+    //find zip in cantonArea
+    const zipFeatures = filterIntersect(
+      geojsonZip.features as Feature<Polygon | MultiPolygon>[],
+      params.cantonFeature as Feature<Polygon | MultiPolygon>,
+      areaBelongToCanton,
+      areaBelongOnlyToCanton,
+    );
+    //add matching NAME from locality
+    zipFeatures.forEach((feature) => {
+      feature.properties['NAME'] = featuresListToReadNames.find(
+        (f) => f.properties['LOCALITYID'] === feature.properties['FK_LOCALIT'],
+      )?.properties['NAME'];
+    });
+    const filteredZipCollection: FeatureCollection = {
+      type: 'FeatureCollection',
+      features: zipFeatures,
+    };
+    //save as file for media update
+    if (filteredZipCollection.features.length > 0) {
+      const fullTmpPath = join(params.tmpDir, params.zipCantonFile);
+      await writeFile(fullTmpPath, JSON.stringify(filteredZipCollection), 'utf8');
+      zipSuccess = true;
+    }
+  }
+  return { localitySuccess, zipSuccess };
+}
+
+async function updateLocalityCanton(
+  strapi: Core.Strapi,
+  canton: string,
+  cantonFeature: Feature,
+  mediaFolder: Folder,
+  styleMedia: Media,
+  localityMediaFile: string,
+  localityMediaLastModified: DateTimeValue | undefined,
+  zipMediaFile: string,
+  zipMediaLastModified: DateTimeValue | undefined,
+  create_locality: boolean,
+  create_locality_zip: boolean,
+  callWorker: <T>(func: string, params: any) => Promise<T>,
+) {
+  const tmpDir: string = strapi.config.get('server.tmpDir') || '/tmp';
+  strapi.log.info(`updateLocalityCanton for ${canton}: start`);
+
+  const localityCantonLayerName = `Ortschaftsgrenzen (${canton})`;
+  const localityCantonFileName = `locality_${canton}.geojson`;
+  let { mapLayer: localityCantonMapLayer, media: localityCantonMedia } = await findLayerAndMedia(
+    localityCantonLayerName,
+    MapLayerTypes.GEOJSON,
+    localityCantonFileName,
+    mediaFolder,
+  );
+  const zipCantonLayerName = `PLZ-Grenzen (${canton})`;
+  const zipCantonFileName = `zip_${canton}.geojson`;
+  let { mapLayer: zipCantonMapLayer, media: zipCantonMedia } = await findLayerAndMedia(
+    zipCantonLayerName,
+    MapLayerTypes.GEOJSON,
+    zipCantonFileName,
+    mediaFolder,
+  );
+  const mediaNeedUpdate =
+    (create_locality &&
+      (!localityCantonMedia ||
+        !localityMediaLastModified ||
+        localityCantonMedia.updatedAt < localityMediaLastModified)) ||
+    (create_locality_zip &&
+      (!zipCantonMedia || !zipMediaLastModified || zipCantonMedia.updatedAt < zipMediaLastModified));
+  if (mediaNeedUpdate) {
+    const localityCantonFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${localityCantonFileName}`;
+    const zipCantonFile = `strapi-${Date.now()}-${Math.random().toString(36).slice(2)}-${zipCantonFileName}`;
+    const response = await callWorker<{ localitySuccess?: boolean; zipSuccess?: boolean }>('extractLocality', {
+      cantonFeature,
+      localityMediaFile,
+      zipMediaFile,
+      tmpDir,
+      localityCantonFile,
+      zipCantonFile,
+      create_locality,
+      create_locality_zip,
+    });
+    if (response.localitySuccess && create_locality) {
+      const fullTmpPath = join(tmpDir, localityCantonFile);
+      try {
+        localityCantonMedia = await updateOrCreateMedia(strapi, mediaFolder, localityCantonFileName, fullTmpPath);
+        strapi.log.info(
+          `updateLocalityCanton for ${canton}: media ${localityCantonFileName} saved: ${localityCantonMedia.id}`,
+        );
+      } finally {
+        if (existsSync(fullTmpPath)) {
+          await unlink(fullTmpPath).catch((err) => {
+            strapi.log.warn(`updateLocalityCanton for ${canton}: remove temp file failed: "${fullTmpPath}", ${err}`);
+          });
+        }
+      }
+    } else {
+      strapi.log.error(`updateLocalityCanton for ${canton}: no locality data after geo filtering`);
+    }
+    if (response.zipSuccess && create_locality_zip) {
+      const fullTmpPath = join(tmpDir, zipCantonFile);
+      try {
+        zipCantonMedia = await updateOrCreateMedia(strapi, mediaFolder, zipCantonFileName, fullTmpPath);
+        strapi.log.info(`updateLocalityCanton for ${canton}: media ${zipCantonFileName} saved: ${zipCantonMedia.id}`);
+      } finally {
+        if (existsSync(fullTmpPath)) {
+          await unlink(fullTmpPath).catch((err) => {
+            strapi.log.warn(`updateLocalityCanton for ${canton}: remove temp file failed: "${fullTmpPath}", ${err}`);
+          });
+        }
+      }
+    } else {
+      strapi.log.error(`updateLocalityCanton for ${canton}: no zip data after geo filtering`);
+    }
+  }
+
+  if (localityCantonMedia && create_locality) {
+    const savedLayer = await insertOrUpdateLocalityMapLayer(
+      localityCantonMapLayer,
+      localityCantonLayerName,
+      localityCantonMedia,
+      styleMedia,
+      MapLayerTypes.GEOJSON,
+    );
+    strapi.log.info(
+      `updateLocalityCanton for ${canton}: maplayer "${localityCantonLayerName}" ${localityCantonMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+    );
+  }
+
+  if (zipCantonMedia && create_locality_zip) {
+    const savedLayer = await insertOrUpdateLocalityMapLayer(
+      zipCantonMapLayer,
+      zipCantonLayerName,
+      zipCantonMedia,
+      styleMedia,
+      MapLayerTypes.GEOJSON,
+      true,
+    );
+    strapi.log.info(
+      `updateLocalityCanton for ${canton}: maplayer "${zipCantonLayerName}" ${zipCantonMapLayer ? 'updated' : 'saved'}: ${savedLayer.id}`,
+    );
+  }
+  strapi.log.info(`updateLocalityCanton for ${canton}: finished`);
 }
 
 export async function extractEntranceDistrict(
@@ -612,11 +1339,13 @@ async function updateEntranceDistrict(
                 `updateEntranceDistrict for ${canton} / ${districtName}: media ${districtFileName} saved: ${districtMedia.id}`,
               );
             } finally {
-              await unlink(fullTmpPath).catch((err) => {
-                strapi.log.warn(
-                  `updateEntranceDistrict for ${canton} / ${districtName}: remove temp file failed: "${fullTmpPath}", ${err}`,
-                );
-              });
+              if (existsSync(fullTmpPath)) {
+                await unlink(fullTmpPath).catch((err) => {
+                  strapi.log.warn(
+                    `updateEntranceDistrict for ${canton} / ${districtName}: remove temp file failed: "${fullTmpPath}", ${err}`,
+                  );
+                });
+              }
             }
           } else {
             strapi.log.error(`updateEntranceDistrict for ${canton} / ${districtName}: no data after geo filtering`);
@@ -643,7 +1372,7 @@ async function updateEntranceDistrict(
   } else {
     strapi.log.info(`updateEntranceDistrict for ${canton}: no district splitting required`);
   }
-  callWorker('extractEntranceDistrictEnd', cantonFile);
+  callWorker('removeFileCache', cantonFile);
 }
 
 export async function downloadAndExtractEntrance(
@@ -748,9 +1477,11 @@ async function updateEntrance(
           media = await updateOrCreateMedia(strapi, mediaFolder, fileName, fullTmpPath, response.fileSize);
           strapi.log.info(`updateEntrance for ${canton}: media ${fileName} saved: ${media.id}`);
         } finally {
-          await unlink(fullTmpPath).catch((err) => {
-            strapi.log.warn(`updateEntrance for ${canton}: remove temp file failed: "${fullTmpPath}", ${err}`);
-          });
+          if (existsSync(fullTmpPath)) {
+            await unlink(fullTmpPath).catch((err) => {
+              strapi.log.warn(`updateEntrance for ${canton}: remove temp file failed: "${fullTmpPath}", ${err}`);
+            });
+          }
         }
       }
     } else if (response.status === 304) {
@@ -846,9 +1577,11 @@ async function updateSwissNamesNational(
           media = await updateOrCreateMedia(strapi, namesFolder, fileName, fullTmpPath, response.fileSize);
           strapi.log.info(`updateSwissNamesNational: media "${fileName}" saved: ${media.id}`);
         } finally {
-          await unlink(fullTmpPath).catch((err) => {
-            strapi.log.warn(`updateSwissNamesNational: remove temp file failed: "${fullTmpPath}", ${err}`);
-          });
+          if (existsSync(fullTmpPath)) {
+            await unlink(fullTmpPath).catch((err) => {
+              strapi.log.warn(`updateSwissNamesNational: remove temp file failed: "${fullTmpPath}", ${err}`);
+            });
+          }
         }
       } else if (response.status === 304) {
         strapi.log.info(`updateSwissNamesNational: content ${year} not changed since: ${response.lastModified}`);
@@ -1026,9 +1759,11 @@ async function updateSwissNames(
           media = await updateOrCreateMedia(strapi, mediaFolder, fileName, fullTmpPath);
           strapi.log.info(`updateSwissNames for ${canton}: media ${fileName} saved: ${media.id}`);
         } finally {
-          await unlink(fullTmpPath).catch((err) => {
-            strapi.log.warn(`updateSwissNames for ${canton}: remove temp file failed: "${fullTmpPath}"`);
-          });
+          if (existsSync(fullTmpPath)) {
+            await unlink(fullTmpPath).catch((err) => {
+              strapi.log.warn(`updateSwissNames for ${canton}: remove temp file failed: "${fullTmpPath}"`);
+            });
+          }
         }
       } else {
         strapi.log.error(`updateSwissNames for ${canton}: swissNAMES no data after geo filtering`);
@@ -1052,7 +1787,8 @@ async function prepareMediaFolders(strapi: Core.Strapi) {
   const entrancesFolder = await findOrCreateFolder(strapi, 'entrances', parentFolder);
   const boundariesFolder = await findOrCreateFolder(strapi, 'swissBOUNDARIES3D', parentFolder);
   const namesFolder = await findOrCreateFolder(strapi, 'swissNAMES3D', parentFolder);
-  return { entrancesFolder, boundariesFolder, namesFolder };
+  const localitiesFolder = await findOrCreateFolder(strapi, 'localities', parentFolder);
+  return { entrancesFolder, boundariesFolder, namesFolder, localitiesFolder };
 }
 
 async function uploadStyleIfMissing(strapi: Core.Strapi, folder: Folder, fileLocation: string) {
@@ -1060,8 +1796,8 @@ async function uploadStyleIfMissing(strapi: Core.Strapi, folder: Folder, fileLoc
   let media = await strapi.documents('plugin::upload.file').findFirst({
     filters: { name: mediaFileName, folder: { documentId: { $eq: folder.documentId } } },
   });
-  if (!media) {
-    if (existsSync(fileLocation)) {
+  if (existsSync(fileLocation)) {
+    if (!media || new Date(media.updatedAt) < (await stat(fileLocation)).mtime) {
       media = await updateOrCreateMedia(strapi, folder, mediaFileName, fileLocation);
     }
   }
@@ -1073,6 +1809,7 @@ async function prepareStyleMedias(
   entrancesFolder: Folder,
   boundariesFolder: Folder,
   namesFolder: Folder,
+  localitiesFolder: Folder,
 ) {
   const entrancesStyle = await uploadStyleIfMissing(strapi, entrancesFolder, './init/entrances-mapboxstyle.json');
   const boundariesStyle = await uploadStyleIfMissing(
@@ -1081,16 +1818,18 @@ async function prepareStyleMedias(
     './init/swissBOUNDARIES3D-mapboxstyle.json',
   );
   const namesStyle = await uploadStyleIfMissing(strapi, namesFolder, './init/swissNAMES3D_PLY-mapboxstyle.json');
-  return { entrancesStyle, boundariesStyle, namesStyle };
+  const localityStyle = await uploadStyleIfMissing(strapi, localitiesFolder, './init/locality-mapboxstyle.json');
+  return { entrancesStyle, boundariesStyle, namesStyle, localityStyle };
 }
 
 async function configureDefaultStyleMedias(strapi: Core.Strapi, config: any) {
-  const { entrancesFolder, boundariesFolder, namesFolder } = await prepareMediaFolders(strapi);
-  const { entrancesStyle, boundariesStyle, namesStyle } = await prepareStyleMedias(
+  const { entrancesFolder, boundariesFolder, namesFolder, localitiesFolder } = await prepareMediaFolders(strapi);
+  const { entrancesStyle, boundariesStyle, namesStyle, localityStyle } = await prepareStyleMedias(
     strapi,
     entrancesFolder,
     boundariesFolder,
     namesFolder,
+    localitiesFolder,
   );
   let allMediasAvailable = true;
   const configUpdate: any = {};
@@ -1118,6 +1857,15 @@ async function configureDefaultStyleMedias(strapi: Core.Strapi, config: any) {
       allMediasAvailable = false;
     }
   }
+  if (!config.style_locality) {
+    if (localityStyle) {
+      configUpdate.style_locality = localityStyle.id;
+      config.style_locality = localityStyle;
+    } else {
+      allMediasAvailable = false;
+    }
+  }
+
   await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').update({
     documentId: config.documentId,
     data: configUpdate,
@@ -1128,7 +1876,7 @@ async function configureDefaultStyleMedias(strapi: Core.Strapi, config: any) {
 export async function getAndVerifyMapLayerGenerationConfig(strapi: Core.Strapi) {
   //read and verify config
   const config = await strapi.documents('api::map-layer-generation-config.map-layer-generation-config').findFirst({
-    populate: ['style_entrances', 'style_swissBOUNDARIES3D', 'style_swissNAMES3D'],
+    populate: ['style_entrances', 'style_swissBOUNDARIES3D', 'style_swissNAMES3D', 'style_locality'],
   });
   if (!config) {
     throw new Error('updateMapLayerMedias failed: no map-layer-generation-config defined');
@@ -1143,12 +1891,17 @@ export async function getAndVerifyMapLayerGenerationConfig(strapi: Core.Strapi) 
     throw new Error('updateMapLayerMedias failed: cantons need to be splited by ","');
   }
 
-  if (!config.style_entrances || !config.style_swissBOUNDARIES3D || !config.style_swissNAMES3D) {
+  if (
+    !config.style_entrances ||
+    !config.style_swissBOUNDARIES3D ||
+    !config.style_swissNAMES3D ||
+    !config.style_locality
+  ) {
     //try to autofix and continue
     const allMediasAvailable = await configureDefaultStyleMedias(strapi, config);
     if (!allMediasAvailable) {
       throw new Error(
-        'updateMapLayerMedias failed: style_entrances or style_swissBOUNDARIES3D or style_swissNAMES3D not set',
+        'updateMapLayerMedias failed: style_entrances or style_swissBOUNDARIES3D or style_swissNAMES3D or style_locality not set',
       );
     }
   }
@@ -1172,7 +1925,7 @@ export async function updateMapLayerMedias(strapi: Core.Strapi) {
 
     const cantonsToUpdate = config.cantons.trim().toUpperCase().split(',');
 
-    const { entrancesFolder, boundariesFolder, namesFolder } = await prepareMediaFolders(strapi);
+    const { entrancesFolder, boundariesFolder, namesFolder, localitiesFolder } = await prepareMediaFolders(strapi);
 
     //updateSwissBoundaries
     strapi.log.info('updateMapLayerMedias: start update boundaries');
@@ -1181,16 +1934,109 @@ export async function updateMapLayerMedias(strapi: Core.Strapi) {
       config.url_swissBOUNDARIES3D,
       boundariesFolder,
       config.style_swissBOUNDARIES3D,
+      config.create_swissBOUNDARIES3D_municipality,
       callWorker,
     );
     strapi.log.info('updateMapLayerMedias: finished update boundaries');
 
     let cantonAreasGeoJSON: FeatureCollection;
     let districtAreasGeoJSON: FeatureCollection;
+    let municipalityMediaFile: string;
+    let municipalityMediaLastModified: DateTimeValue;
     if (boundaries) {
-      const { cantonAreasMedia, districtAreasMedia } = boundaries;
+      const { cantonAreasMedia, districtAreasMedia, municipalityAreasMedia } = boundaries;
       cantonAreasGeoJSON = await callWorker('loadShpFile', getMediaFetchUrl(cantonAreasMedia));
       districtAreasGeoJSON = await callWorker('loadShpFile', getMediaFetchUrl(districtAreasMedia));
+      municipalityMediaFile = getMediaFetchUrl(municipalityAreasMedia);
+      municipalityMediaLastModified = municipalityAreasMedia?.updatedAt;
+    }
+
+    if (cantonAreasGeoJSON && config.create_swissBOUNDARIES3D_municipality) {
+      //municipality canton split
+      strapi.log.info('updateMapLayerMedias: start municipality canton split');
+      const municipalityCantonsToUpdate = [...cantonsToUpdate];
+      if (municipalityCantonsToUpdate.length >= 20) {
+        municipalityCantonsToUpdate.push('LI');
+      }
+
+      for (const canton of municipalityCantonsToUpdate) {
+        try {
+          strapi.log.info(`updateMapLayerMedias: start municipality canton split ${canton}`);
+          const cantonFeature = getCantonFeature(cantonAreasGeoJSON, canton);
+          await updateMunicipalityCanton(
+            strapi,
+            canton,
+            cantonFeature,
+            boundariesFolder,
+            config.style_swissBOUNDARIES3D,
+            municipalityMediaLastModified,
+            municipalityMediaFile,
+            callWorker,
+          );
+          strapi.log.info(`updateMapLayerMedias: finished municipality canton split ${canton}`);
+        } catch (error) {
+          strapi.log.error(error);
+        }
+      }
+      callWorker('removeFileCache', municipalityMediaFile);
+      strapi.log.info('updateMapLayerMedias: finished all municipality canton split');
+    } else if (!cantonAreasGeoJSON) {
+      strapi.log.error('updateMapLayerMedias: cannot split municipality without boundaries');
+    }
+
+    //updateLocality & updateLocalityCanton
+    if (cantonAreasGeoJSON && (config.create_locality || config.create_locality_zip)) {
+      //updateLocality
+      strapi.log.info('updateMapLayerMedias: start update locality');
+      const localityResult = await updateLocality(
+        strapi,
+        config.url_locality,
+        localitiesFolder,
+        config.style_locality,
+        config.create_locality,
+        config.create_locality_zip,
+        callWorker,
+      );
+      strapi.log.info('updateMapLayerMedias: finished update locality');
+      if (localityResult) {
+        const { localityMedia, zipMedia } = localityResult;
+        const localityMediaFile = getMediaFetchUrl(localityMedia);
+        const localityMediaLastModified = localityMedia?.updatedAt;
+        const zipMediaFile = getMediaFetchUrl(zipMedia);
+        const zipMediaLastModified = zipMedia?.updatedAt;
+
+        //updateLocalityCanton / locality canton split
+        strapi.log.info('updateMapLayerMedias: start locality canton split');
+
+        for (const canton of cantonsToUpdate) {
+          try {
+            strapi.log.info(`updateMapLayerMedias: start locality canton split ${canton}`);
+            const cantonFeature = getCantonFeature(cantonAreasGeoJSON, canton);
+            await updateLocalityCanton(
+              strapi,
+              canton,
+              cantonFeature,
+              localitiesFolder,
+              config.style_locality,
+              localityMediaFile,
+              localityMediaLastModified,
+              zipMediaFile,
+              zipMediaLastModified,
+              config.create_locality,
+              config.create_locality_zip,
+              callWorker,
+            );
+            strapi.log.info(`updateMapLayerMedias: finished locality canton split ${canton}`);
+          } catch (error) {
+            strapi.log.error(error);
+          }
+        }
+        callWorker('removeFileCache', localityMediaFile);
+        callWorker('removeFileCache', zipMediaFile);
+        strapi.log.info('updateMapLayerMedias: finished all locality canton split');
+      }
+    } else if (!cantonAreasGeoJSON) {
+      strapi.log.error('updateMapLayerMedias: cannot split locality without boundaries');
     }
 
     //updateEntrance
@@ -1260,7 +2106,6 @@ export async function updateMapLayerMedias(strapi: Core.Strapi) {
       } else {
         strapi.log.error('updateMapLayerMedias: swissNames not loaded');
       }
-      strapi.log.info('updateMapLayerMedias: done');
     } else {
       strapi.log.error('updateMapLayerMedias: cannot split swissNames without boundaries');
     }
@@ -1273,6 +2118,7 @@ export async function updateMapLayerMedias(strapi: Core.Strapi) {
       data: { lastEndDate: new Date() },
     });
   }
+  strapi.log.info('updateMapLayerMedias: finished all mapLayer updates');
   await stopWorker();
 }
 
@@ -1286,6 +2132,10 @@ function startWorker(strapi: Core.Strapi) {
   let requestId = 0;
 
   worker.on('message', (msg) => {
+    if (msg.type === 'LOG') {
+      strapi.log[msg.level ?? 'info'](msg.message);
+      return;
+    }
     if (!msg.id) {
       strapi.log.error('Worker message without id:' + JSON.stringify(msg));
       return;
@@ -1327,7 +2177,7 @@ function startWorker(strapi: Core.Strapi) {
         params: params,
       });
 
-      // 5min Timeout
+      // 6min Timeout
       setTimeout(() => {
         const req = pendingRequests.get(id);
         if (req) {
@@ -1335,7 +2185,7 @@ function startWorker(strapi: Core.Strapi) {
           strapi.log.error(`Worker timeout for id ${id} (func:${func})`);
           req.reject(new Error('worker call timeout'));
         }
-      }, 300000);
+      }, 360000);
     });
   };
 

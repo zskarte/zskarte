@@ -22,7 +22,7 @@
     },
     "cantons": {
       "type": "string",
-      "default": "AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH"
+      "default": "AG,AI,AR,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH,BE"
     },
     "url_madd": {
       "type": "string",
@@ -47,6 +47,10 @@
         "files"
       ]
     },
+    "create_swissBOUNDARIES3D_municipality": {
+      "type": "boolean",
+      "default": true
+    },
     "url_swissNAMES3D": {
       "type": "string",
       "default": "https://data.geo.admin.ch/ch.swisstopo.swissnames3d/swissnames3d_${year}/swissnames3d_${year}_2056.csv.zip"
@@ -66,6 +70,25 @@
     "file_swissNAMES3D": {
       "type": "string",
       "default": "swissNAMES3D_PLY"
+    },
+    "url_locality": {
+      "type": "string",
+      "default": "https://data.geo.admin.ch/ch.swisstopo-vd.ortschaftenverzeichnis_plz/ortschaftenverzeichnis_plz/ortschaftenverzeichnis_plz_2056.shp.zip"
+    },
+    "style_locality": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "files"
+      ]
+    },
+    "create_locality": {
+      "type": "boolean",
+      "default": true
+    },
+    "create_locality_zip": {
+      "type": "boolean",
+      "default": true
     },
     "lastStartDate": {
       "type": "datetime"
