@@ -8,6 +8,13 @@
       "when": 1788182935421,
       "tag": "0000_romantic_squadron_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788184640340,
+      "tag": "0001_demonic_nick_fury",
+      "breakpoints": true
     }
   ]
 }

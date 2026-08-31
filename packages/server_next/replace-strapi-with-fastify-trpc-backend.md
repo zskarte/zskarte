@@ -429,7 +429,7 @@ The new backend must be provably interchangeable with the old one from the app's
 - Add `src/db/seed.ts` creating the baseline data the app needs (organizations, guest and `operation_read`/`operation_write`/`operation_all` pseudo-users, generation-config row).
 - Wire root scripts: `start:server-next`, `build:server-next`, `lint:server-next`, `db:generate`, `db:migrate`, `db:seed`, `db:studio`.
 
-###   Step 2: Add better-auth identity, role matrix and share-link sessions
+### ✓ Step 2: Add better-auth identity, role matrix and share-link sessions
 Login, `me`, refresh and share-token redemption work end-to-end, and every tRPC procedure can be guarded by role and tenant scope.
 
 - Add `better-auth` with `drizzleAdapter(db, { provider: 'pg' })`; generate `src/db/auth-schema.ts` via the better-auth CLI and fold it into the schema barrel and migrations.

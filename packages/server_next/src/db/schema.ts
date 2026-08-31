@@ -12,3 +12,4 @@ export * from '../modules/operation/schema.js';
 export * from '../modules/organization/schema.js';
 export * from '../modules/signing-key/schema.js';
 export * from '../modules/wms-source/schema.js';
+export * from './auth-schema.js';
