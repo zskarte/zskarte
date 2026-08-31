@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "skills": {
+    "adapter-fastify": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/adapter-fastify/SKILL.md",
+      "computedHash": "92ee8d150cbc2d9e22cf3ad184eeab87e43f1789f20213366336ababc15ef468"
+    },
+    "auth": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/auth/SKILL.md",
+      "computedHash": "fef9f9dcb1631490a3a273f1a6b89aa234260ed8087a97de5a1c75f769ea26fe"
+    },
+    "better-auth-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/best-practices/SKILL.md",
+      "computedHash": "61ba0ef64ed2e7c424401cc848ca33dd6d790a720c44727717dc0c5cba5fc122"
+    },
+    "better-auth-security-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "security/SKILL.md",
+      "computedHash": "7a230edf3a24ce18162cb4379f59b6a19b8d24ca04db530609d0f15cede556dc"
+    },
+    "caching": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/caching/SKILL.md",
+      "computedHash": "c4f3f4bb6b04529e85705dc9c64043caf92818226fae7a95eeba28da79a6b45e"
+    },
+    "client-setup": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/client/skills/client-setup/SKILL.md",
+      "computedHash": "65b2f97d796665441ec9044e422d549184836684b2f15b8586d978b9f8bb0406"
+    },
+    "create-auth": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/create-auth/SKILL.md",
+      "computedHash": "4e261efac2ae9a2321c4495c846ef97cf239818fc8bd2ab7e92ed1f9d25470f7"
+    },
+    "email-and-password-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/emailAndPassword/SKILL.md",
+      "computedHash": "747d7f73bd9e2ec5317b8ef88dc70f97df716d00e3d02de4051feebaa48b062d"
+    },
+    "error-handling": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/error-handling/SKILL.md",
+      "computedHash": "5816a0b5e2e7a33b2bf5b130201bba4251b0865688f4c647a780f39af277c6b8"
+    },
+    "fastify-best-practices": {
+      "source": "mcollina/skills",
+      "sourceType": "github",
+      "skillPath": "skills/fastify/SKILL.md",
+      "computedHash": "cd479b552b22493a73eabcef8804f956847c8d3d9d0aaf051ccb01d22dc3247e"
+    },
+    "links": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/client/skills/links/SKILL.md",
+      "computedHash": "1a3b8d6ebed34539510683825ce88372b0bec28f01a75456c60bdc79568d41ec"
+    },
+    "middlewares": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/middlewares/SKILL.md",
+      "computedHash": "f6e57c21ef44f645b7cb3f144901497631abb6dbe8aa37a0bfcce48459b274b3"
+    },
+    "organization-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/organization/SKILL.md",
+      "computedHash": "27627eb3a13bd44eff3a5d890f96e7db052b623db90e01684f759abe3e7fe56b"
+    },
+    "server-setup": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/server-setup/SKILL.md",
+      "computedHash": "ab611adb5895b038b4579832a039d5d8961b9244b8da395017c84f749179daa2"
+    },
+    "service-oriented-architecture": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/service-oriented-architecture/SKILL.md",
+      "computedHash": "dec4ae563a1e5d8618f92f1e6a3153886e446dd225061398f159a058c514d5b4"
+    },
+    "subscriptions": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/subscriptions/SKILL.md",
+      "computedHash": "9da7fc9d98616564a67d7ff567641b517cb321fefc281ac6ca245517a2ef71ad"
+    },
+    "trpc-router": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/trpc-router/SKILL.md",
+      "computedHash": "dd22c754d042bbc48826d7289463e5cfc40725899c576e25bf9766706a4b2850"
+    },
+    "two-factor-authentication-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/twoFactor/SKILL.md",
+      "computedHash": "a6f720042e5a090909e0d519a6a50a7eb8179553cd5315f0bbad852a6d20dac8"
+    },
+    "validators": {
+      "source": "trpc/trpc",
+      "sourceType": "github",
+      "skillPath": "packages/server/skills/validators/SKILL.md",
+      "computedHash": "2bd2393213400f414b3592b3ca6369177fb17229076fa6c4435578410b28607b"
+    }
+  }
+}
