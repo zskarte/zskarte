@@ -63,12 +63,12 @@ test.describe('Journal', () => {
   });
 
   test('should add journal entry', async ({ page }) => {
-    const id = random(1, 99).toString();
+    const id = random(1000, 999999).toString();
     await createJournalEntry({ reportId: id }, page);
     
     const rows = page.locator('tbody').getByRole('row');
     const rowCount = await rows.count();
-    const firstRow = rows.first();
+    const firstRow = rows.filter({ has: page.getByRole('cell', { name: id, exact: true }) }).first();
     await expect(firstRow.getByRole('cell').first()).toHaveText(id);
     await expect(firstRow.getByRole('cell').nth(1)).toHaveText('Betreff');
     await expect(firstRow.getByRole('cell').nth(2)).toHaveText('Inhalt');
