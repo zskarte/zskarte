@@ -8,7 +8,7 @@ import { ZsMapStateService } from './state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SidebarWrapperComponent } from './sidebar/sidebar-wrapper/sidebar-wrapper.component';
 import { NavigationService } from './navigation/navigation.service';
-import { VersionService } from 'src/version/version.service';
+import { VersionService } from './version/version.service';
 import { LanguageSelectorComponent } from './language-selector/language-selector.component';
 
 @Component({

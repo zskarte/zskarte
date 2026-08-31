@@ -3,13 +3,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { ZsMapDrawElementState } from '@zskarte/types';
 import { transform } from 'ol/proj';
-import { coordinatesProjection, mercatorProjection } from 'src/app/helper/projections';
-import { JournalEntry, JournalEntryStatus } from 'src/app/journal/journal.types';
-import { DrawStyle } from 'src/app/map-renderer/draw-style';
-import { ZsMapBaseDrawElement } from 'src/app/map-renderer/elements/base/base-draw-element';
-import { Signs } from 'src/app/map-renderer/signs';
-import { ZsMapStateService } from 'src/app/state/state.service';
-import { I18NService } from 'src/app/state/i18n.service';
+import { coordinatesProjection, mercatorProjection } from '../../helper/projections';
+import { JournalEntry, JournalEntryStatus } from '../../journal/journal.types';
+import { DrawStyle } from '../../map-renderer/draw-style';
+import { ZsMapBaseDrawElement } from '../../map-renderer/elements/base/base-draw-element';
+import { Signs } from '../../map-renderer/signs';
+import { ZsMapStateService } from '../../state/state.service';
+import { I18NService } from '../../state/i18n.service';
 import { MatIcon } from '@angular/material/icon';
 import { Coordinate } from 'ol/coordinate';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,17 +17,16 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { filter, firstValueFrom, skip, take } from 'rxjs';
 import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
-import { MapRendererService } from 'src/app/map-renderer/map-renderer.service';
-import { SearchService } from 'src/app/search/search.service';
+import { MapRendererService } from '../../map-renderer/map-renderer.service';
+import { SearchService } from '../../search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
-import { JournalService } from 'src/app/journal/journal.service';
+import { JournalService } from '../../journal/journal.service';
 import { Router } from '@angular/router';
 import { SidebarService } from '../sidebar.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
-import { DrawDialogComponent } from 'src/app/draw-dialog/draw-dialog.component';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { DrawDialogComponent } from '../../draw-dialog/draw-dialog.component';
 
-const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 @Component({
   selector: 'app-sidebar-journal-entry',
   imports: [
@@ -44,6 +43,7 @@ const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100,
 export class SidebarJournalEntryComponent implements OnDestroy {
   private _state = inject(ZsMapStateService);
   private _renderer = inject(MapRendererService);
+  
   i18n = inject(I18NService);
   search = inject(SearchService);
   journal = inject(JournalService);
@@ -107,14 +107,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   }
 
   zoomToAll() {
-    const extent = createEmptyExtent();
-    this.entryElements().forEach((feature) => {
-      const featureExtent = this._state.getDrawElement(feature.id)?.getOlFeature()?.getGeometry()?.getExtent();
-      if (featureExtent) {
-        extendExtent(extent, featureExtent);
-      }
-    });
-    this._renderer.zoomToFit(extent, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING);
+    this._renderer.zoomToAll(this.entryElements().map((e)=>e.id));
   }
 
   toggleHighlightAll() {

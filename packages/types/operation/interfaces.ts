@@ -1,6 +1,5 @@
-import { StrapiApiResponseList } from 'src/app/helper/strapi-utils';
 import { MapLayer } from '../map-layer/interfaces';
-import { ZsMapState, ZsMapStateSource } from '../state/interfaces';
+import { IZsChangeset, IZsChangesetConfig, ZsMapState, ZsMapStateSource } from '../state/interfaces';
 
 export interface IZSMapOperationMapLayers {
   baseLayer: ZsMapStateSource;
@@ -16,6 +15,9 @@ export interface IZsMapOperation {
   description: string;
   updatedAt?: Date;
   mapState: ZsMapState;
+  changesets?: Record<string, IZsChangeset>;
+  changesetSigns?: Record<string, string>;
+  signingKeyIds?: Array<string>;
   eventStates: number[];
   phase: ZsOperationPhase;
   mapLayers?: IZSMapOperationMapLayers;
@@ -24,9 +26,10 @@ export interface IZsMapOperation {
 export interface IZsMapSnapshot {
   id: number;
   documentId: string;
+  changesetIds: string[];
+  mapState: ZsMapState;
   createdAt: Date;
 }
-export type IZsMapSnapshots = StrapiApiResponseList<IZsMapSnapshot[]>;
 
 export interface IZsMapOrganizationMapLayerSettings {
   wms_sources: number[];
@@ -35,6 +38,7 @@ export interface IZsMapOrganizationMapLayerSettings {
 
 export interface IZsMapOrganizationSettings {
   journalMessageTextTemplate?: string;
+  changeset: IZsChangesetConfig;
 }
 
 export interface IZsMapOrganization extends IZsMapOrganizationMapLayerSettings {
@@ -92,4 +96,16 @@ export interface IZsStrapiAsset extends UZsStrapiAssetFormat {
   provider: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export type IZsSignKeyType = 'rsa' | 'ed25519';
+
+export interface IZsSigningKey {
+  keyId: string;
+  serverId: string;
+  validFrom: Date;
+  validUntil?: Date;
+  keyType: IZsSignKeyType;
+  privateKeyEncrypted?: string;
+  publicKey: string;
 }

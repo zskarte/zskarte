@@ -67,6 +67,11 @@ export const SIDEBAR_TRANSLATIONS = {
     en: 'Export as Excel',
     fr: 'Exporter en Excel',
   },
+  changeTable: {
+    de: 'Änderungsprotokoll',
+    en: 'Change log',
+    fr: 'Journal des modifications',
+  },
   personRecoveryOverview: {
     de: 'Personenbergungsübersicht',
     en: 'Person recovery overview',
@@ -252,6 +257,70 @@ export const SIDEBAR_TRANSLATIONS = {
     fr: 'ExporterVueListe',
   },
 
+  //changeTable / changeset table representation export
+  changeTableTitle: {
+    de: 'Änderungsprotokoll',
+    en: 'Changelog',
+    fr: 'Journal des modifications',
+  },
+  csvShowTechnicalFields: {
+    de: 'technische Felder anzeigen',
+    en: 'show technical fields',
+    fr: 'afficher les champs techniques',
+  },
+  csvChangesetId: {
+    de: 'Änderungs ID',
+    en: 'Changeset ID',
+    fr: 'ID du changeset',
+  },
+  csvChangeDate: {
+    de: 'Änderungsdatum',
+    en: 'Change date',
+    fr: 'Date de modification',
+  },
+  csvSignValid: {
+    de: 'Signature gültig',
+    en: 'Signature valid',
+    fr: 'Signature valide',
+  },
+  csvAuthor: {
+    de: 'Autor',
+    en: 'Author',
+    fr: 'Auteur',
+  },
+  csvElemId: {
+    de: 'Element ID',
+    en: 'Element ID',
+    fr: "Identifiant de l'élément",
+  },
+  csvAction: {
+    de: 'Aktion',
+    en: 'Action',
+    fr: 'Action',
+  },
+  csvChangedProperties: {
+    de: 'Geänderte Felder',
+    en: 'Changed fields',
+    fr: 'Champs modifiés',
+  },
+  csvCoordChange: {
+    de: 'Koordinatenänderung',
+    en: 'Coordinate Change',
+    fr: 'Changement de coordonnées',
+  },
+  changeTableExport: {
+    de: 'AenderungsProtokollExport',
+    en: 'ChangeLogExport',
+    fr: 'Exportation du journal des modifications',
+  },
+
+  //changeset conflict sidebar
+  changeset: {
+    de: 'Changeset',
+    en: 'Changeset',
+    fr: 'Changeset',
+  },
+
   //version info
   version: {
     de: 'Version',
@@ -283,7 +352,7 @@ export const SIDEBAR_TRANSLATIONS = {
     en: 'No change log available.',
     fr: 'Aucun journal des modifications disponible.',
   },
-  
+
   //user / offline data sidebar
   connections: {
     de: 'Verbindungen',

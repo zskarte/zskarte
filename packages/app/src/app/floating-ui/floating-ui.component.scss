@@ -20,7 +20,7 @@
 .action-buttons {
   display: flex;
   flex-direction: column;
-  align-items: end; 
+  align-items: end;
   justify-content: space-between;
   height: calc(100% - 2.5rem);
   margin: 1.25rem 1.25rem 1.25rem 0;
@@ -39,22 +39,44 @@
   gap: 1rem;
 }
 
+.top-row {
+  display: flex;
+  width: 100%;
+  align-self: flex-start;
+  justify-content: space-between;
+  container: floating-ui-top-row / inline-size;
+    
+  &.sidebar-open {
+    width: calc(100% - var(--sidebar-width));
+  }
+}
+
 .search {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  width: 80%;
+  width: min(80%, calc(100% - 95px));
   max-width: 400px;
   align-self: flex-start;
   will-change: width;
+  container: floating-ui-top-row-search / inline-size;
+}
 
-  &.sidebar-open {
-    width: calc(100% - 48px - var(--sidebar-width));
+app-changeset-overlay {
+  align-self: center;
+  --changeset-description-display: block;
+}
 
-    @media (max-width: 800px) {
-      display: none;
-    }
+@container floating-ui-top-row (inline-size < 500px) {
+  app-changeset-overlay {
+    --changeset-description-display: none;
   }
+}
+
+/* empty element to allow app-changeset-overlay to be in middle */
+.top-row::after {
+  content: '';
+  flex: 0 0 0px;
 }
 
 .limit {
@@ -156,7 +178,7 @@ app-geocoder {
 }
 
 @media (max-width: 800px) {
-  .sidebar-open.search {
+  .sidebar-open:not(.action-buttons) {
     display: none;
   }
 }

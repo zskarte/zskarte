@@ -15,7 +15,9 @@
     "build": "run-p ng:build:prod",
     "start": "run-p ng:serve",
     "start:dev": "run-p ng:serve:dev",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "private": true,
   "dependencies": {
@@ -37,6 +39,8 @@
     "@pdfme/ui": "^5.5.8",
     "@types/file-saver": "^2.0.7",
     "@types/geojson": "^7946.0.16",
+    "@zskarte/common": "file:../common",
+    "@zskarte/types": "file:../types",
     "angular-split": "^20.0.0",
     "dexie": "^4.2.1",
     "exceljs": "^4.4.0",
@@ -66,10 +70,14 @@
     "zone.js": "^0.15.1"
   },
   "devDependencies": {
+    "@analogjs/vite-plugin-angular": "^2.3.1",
+    "@analogjs/vitest-angular": "^2.3.1",
     "@angular-devkit/build-angular": "^21.0.4",
     "@angular/cli": "~21.0.4",
     "@angular/compiler-cli": "^21.0.6",
     "@playwright/test": "^1.57.0",
+    "@testing-library/angular": "^19.1.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/jasmine": "~5.1.5",
     "@types/lodash": "^4.17.21",
     "@types/luxon": "^3.7.1",
@@ -77,8 +85,12 @@
     "@types/proj4": "^2.5.6",
     "@types/qrcode": "^1.5.6",
     "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "jsdom": "^29.0.0",
     "npm-run-all": "^4.1.5",
     "typescript": "~5.9.3",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.0",
     "wait-on": "^8.0.5"
   }
 }

@@ -6,6 +6,8 @@ import {
   ZsMapLayerStateType,
   ZsOperationPhase,
   ZsMapStateSource,
+  IZsChangesetExport,
+  INITIAL_CHANGESET_ID,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
@@ -15,7 +17,7 @@ import { OperationExportFile, OperationExportFileVersion } from '../../core/enti
 import { db } from '../../db/db';
 import { IpcService } from '../../ipc/ipc.service';
 import { SessionService } from '../session.service';
-import { JournalService } from 'src/app/journal/journal.service';
+import { JournalService } from '../../journal/journal.service';
 
 @Injectable({
   providedIn: 'root',
@@ -205,11 +207,41 @@ export class OperationService {
       phase: 'active',
       eventStates: result.eventStates,
       mapState,
+      changesets: result.changesets || {},
+      changesetSigns: result.changesetSigns || {},
+      signingKeyIds: result.signingKeyIds || [],
       mapLayers: result.mapLayers,
     };
     const createdOperation = await this.insertOperation(operation);
+    
+    if (result.outgoingChangesets && createdOperation?.documentId) {
+      const operationId = createdOperation.documentId;
+      result.outgoingChangesets.forEach((cs) => cs.operationId = operationId)
+      db.changesetOutgoingQueue.bulkAdd(result.outgoingChangesets)
+    }
+
     await this.reload('active');
     return createdOperation;
+  }
+
+  private async getOutgoingChangesetExport(operationId: string) {
+    const outgoingChangesets = await db.changesetOutgoingQueue.where('operationId').equals(operationId).toArray();
+    const exportChangeset = outgoingChangesets.map((changeset) => {
+      let changesetToExport: IZsChangesetExport, _unused: any;
+      ({
+        cleaned: _unused,
+        stashed: _unused,
+        //baseMapState: _unused, //also export baseMapState as only with them conflicts can be solved.
+        currentMapState: _unused,
+        origDrawElements: _unused,
+        thereDrawElements: _unused,
+        ourDrawElements: _unused,
+        mergedDrawElements: _unused,
+        ...changesetToExport
+      } = changeset);
+      return changesetToExport;
+    });
+    return exportChangeset;
   }
 
   public async exportOperation(operationId: string | undefined): Promise<void> {
@@ -217,6 +249,11 @@ export class OperationService {
       return;
     }
     const operation = await this.getOperation(operationId);
+    if (!operation) {
+      console.error('read operation failed');
+      return;
+    }
+    const outgoingChangesets = await this.getOutgoingChangesetExport(operationId);
     const journal = await this._journalService.getJournalForExport(operationId);
     const fileName = `Ereignis_${operation?.name.replaceAll(/[^a-zA-Z0-9-]/g, '_')}_${DateTime.now().toFormat('yyyy_LL_dd_hh_mm')}.zsjson`;
     const saveFile: OperationExportFile = {
@@ -224,6 +261,10 @@ export class OperationService {
       description: operation?.description ?? '',
       version: OperationExportFileVersion.V2,
       mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
+      changesets: operation.changesets || {},
+      changesetSigns: operation.changesetSigns || {},
+      signingKeyIds: operation.signingKeyIds || [],
+      outgoingChangesets,
       eventStates: operation?.eventStates ?? [],
       mapLayers: operation?.mapLayers ?? { baseLayer: undefined as unknown as ZsMapStateSource, layerConfigs: [] },
       journal: journal ?? [],
@@ -248,6 +289,7 @@ export class OperationService {
       phase: 'active',
       eventStates: [],
       mapState: this.createMapstate(),
+      changesets: {},
     });
   }
 
@@ -258,7 +300,10 @@ export class OperationService {
       id: uuidv4(),
       center: this._session.getOrganizationLongLat(),
       name: '',
-      layers: { [initLayerId]: { id: uuidv4(), type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      layers: { [initLayerId]: { id: initLayerId, type: ZsMapLayerStateType.DRAW, name: 'Layer 1' } },
+      drawElements: {},
+      drawElementChangesetIds: {},
+      changesetIds: [INITIAL_CHANGESET_ID],
     };
   }
 }

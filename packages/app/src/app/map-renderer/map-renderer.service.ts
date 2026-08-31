@@ -15,7 +15,7 @@ import VectorLayer from 'ol/layer/Vector';
 import { transform } from 'ol/proj';
 import VectorSource from 'ol/source/Vector';
 import { Circle, Fill, Icon, Stroke, Style } from 'ol/style';
-import { Extent } from 'ol/extent';
+import { Extent, createEmpty as createEmptyExtent, extend as extendExtent, isEmpty } from 'ol/extent';
 import { BehaviorSubject, Observable, Subject, combineLatest, concatMap, takeUntil } from 'rxjs';
 import { areArraysEqual } from '../helper/array';
 import { formatArea, formatLength } from '../helper/coordinates';
@@ -47,6 +47,8 @@ export const LAYER_Z_INDEX_NAVIGATION_LAYER = 1000020;
 export const LAYER_Z_INDEX_DEVICE_TRACKING = 1000030;
 export const LAYER_Z_INDEX_SEARCH_RESULT_LAYER = 1000040;
 export const LAYER_Z_INDEX_PRINT_DIMENSIONS = 1000100;
+
+export const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] = [100, 600, 100, 100];
 
 @Injectable({
   providedIn: 'root',
@@ -801,8 +803,12 @@ export class MapRendererService {
     return this._scaleLine;
   }
 
+  public getCurrentZoom(){
+    return this.getMap().getView().getZoom();
+  }
+
   public zoomToFit(extent: Extent, padding: [number, number, number, number] = [100, 100, 100, 100], maxZoom = 18) {
-    const currentZoom = this.getMap().getView().getZoom();
+    const currentZoom = this.getCurrentZoom();
     if (currentZoom) {
       maxZoom = Math.max(maxZoom, currentZoom);
     }
@@ -810,6 +816,22 @@ export class MapRendererService {
       padding,
       maxZoom,
     });
+  }
+
+  public zoomToAll(featureIds:string[]) {
+    const extent = createEmptyExtent();
+    featureIds.forEach((featureId) => {
+      const featureExtent = this._state.getDrawElement(featureId)?.getOlFeature()?.getGeometry()?.getExtent();
+      if (featureExtent) {
+        extendExtent(extent, featureExtent);
+      }
+    });
+    if (isEmpty(extent)){
+      console.error('zoomToAll extent is empty for featureIds:', featureIds);
+      return;
+    }
+    const currentZoom = this.getCurrentZoom();
+    this.zoomToFit(extent, ZOOM_TO_FIT_WITH_SIDEBAR_PADDING, (currentZoom ?? 0) >= 13 ? currentZoom : 15);
   }
 
   public getMapExtent() {

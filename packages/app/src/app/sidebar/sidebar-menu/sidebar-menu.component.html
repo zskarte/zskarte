@@ -9,7 +9,7 @@
 }
 <mat-divider></mat-divider>
 
-@if (!localOperation) {
+@if (!localOperation && !zsMapStateService.isChangesetMergeMode()) {
   <button mat-menu-item (click)="toggleHistory()">
     @if (!(zsMapStateService.observeIsHistoryMode() | async)) {
       <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('history')">history</mat-icon>
@@ -31,6 +31,10 @@
 <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="listViewOptions">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listView')">list_alt</mat-icon>
   {{ i18n.get('listView') }}
+</button>
+<button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="changeOptions">
+  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('changeTable')">list_alt</mat-icon>
+  {{ i18n.get('changeTable') }}
 </button>
 <button mat-menu-item class="tools-menu-item" (click)="personRecovery()">
   <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('personRecoveryOverview')">sensor_occupied</mat-icon>
@@ -81,7 +85,7 @@
     {{ i18n.get('navigateOperations') }}
   </button>
 } @else {
-  <button mat-menu-item class="tools-menu-item" (click)="session.logout('logout')">
+  <button mat-menu-item class="tools-menu-item" (click)="logout()">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon>
     {{ i18n.get('logout') }}
   </button>
@@ -108,6 +112,16 @@
     {{ i18n.get('listViewTable') }}
   </button>
   <button mat-menu-item class="tools-menu-item" (click)="listViewExcelExport()">
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('saveAsExcel')">save</mat-icon>
+    {{ i18n.get('saveAsExcel') }}
+  </button>
+</mat-menu>
+<mat-menu #changeOptions="matMenu">
+  <button mat-menu-item class="tools-menu-item" (click)="changeTable()">
+    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listViewTable')">table_chart</mat-icon>
+    {{ i18n.get('listViewTable') }}
+  </button>
+  <button mat-menu-item class="tools-menu-item" (click)="changeExcelExport()">
     <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('saveAsExcel')">save</mat-icon>
     {{ i18n.get('saveAsExcel') }}
   </button>

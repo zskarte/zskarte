@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { I18NService } from 'src/app/state/i18n.service';
+import { I18NService } from '../../state/i18n.service';
 import { IZsAccess } from '@zskarte/types';
-import { ApiService } from 'src/app/api/api.service';
+import { ApiService } from '../../api/api.service';
 import { SessionService } from '../session.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';

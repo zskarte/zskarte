@@ -14,7 +14,7 @@ import { MatIcon } from '@angular/material/icon';
 import { ZsMapBaseLayer } from '../../map-renderer/layers/base-layer';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from 'src/app/ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 
 @Component({
   selector: 'app-sidebar-draw-layers',

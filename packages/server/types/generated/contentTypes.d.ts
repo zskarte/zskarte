@@ -560,6 +560,7 @@ export interface ApiMapSnapshotMapSnapshot extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    changesetIds: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -584,6 +585,8 @@ export interface ApiOperationOperation extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    changesets: Schema.Attribute.JSON;
+    changesetSigns: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
     description: Schema.Attribute.RichText;
@@ -599,7 +602,7 @@ export interface ApiOperationOperation extends Struct.CollectionTypeSchema {
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'active'>;
     publishedAt: Schema.Attribute.DateTime;
-    status: Schema.Attribute.Enumeration<['active', 'archived', 'deleted']> & Schema.Attribute.DefaultTo<'active'>;
+    signingKeyIds: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
   };
@@ -638,6 +641,36 @@ export interface ApiOrganizationOrganization extends Struct.CollectionTypeSchema
     url: Schema.Attribute.String;
     users: Schema.Attribute.Relation<'oneToMany', 'plugin::users-permissions.user'>;
     wms_sources: Schema.Attribute.Relation<'oneToMany', 'api::wms-source.wms-source'>;
+  };
+}
+
+export interface ApiSigningKeySigningKey extends Struct.CollectionTypeSchema {
+  collectionName: 'signing_keys';
+  info: {
+    displayName: 'Signing Key';
+    pluralName: 'signing-keys';
+    singularName: 'signing-key';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    keyId: Schema.Attribute.UID & Schema.Attribute.Required;
+    keyType: Schema.Attribute.Enumeration<['rsa', 'ed25519']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'ed25519'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::signing-key.signing-key'> & Schema.Attribute.Private;
+    privateKeyEncrypted: Schema.Attribute.Text & Schema.Attribute.Private;
+    publicKey: Schema.Attribute.Text & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    serverId: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> & Schema.Attribute.Private;
+    validFrom: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    validUntil: Schema.Attribute.DateTime;
   };
 }
 
@@ -1088,6 +1121,7 @@ declare module '@strapi/strapi' {
       'api::map-snapshot.map-snapshot': ApiMapSnapshotMapSnapshot;
       'api::operation.operation': ApiOperationOperation;
       'api::organization.organization': ApiOrganizationOrganization;
+      'api::signing-key.signing-key': ApiSigningKeySigningKey;
       'api::wms-source.wms-source': ApiWmsSourceWmsSource;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

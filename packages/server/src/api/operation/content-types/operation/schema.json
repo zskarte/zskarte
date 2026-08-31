@@ -19,16 +19,6 @@
     "description": {
       "type": "richtext"
     },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "active",
-        "archived",
-        "deleted"
-      ],
-      "default": "active",
-      "required": false
-    },
     "organization": {
       "type": "relation",
       "relation": "manyToOne",
@@ -36,6 +26,15 @@
       "inversedBy": "operations"
     },
     "mapState": {
+      "type": "json"
+    },
+    "changesets": {
+      "type": "json"
+    },
+    "changesetSigns": {
+      "type": "json"
+    },
+    "signingKeyIds": {
       "type": "json"
     },
     "mapSnapshots": {
@@ -52,13 +51,13 @@
     },
     "phase": {
       "type": "enumeration",
+      "required": true,
+      "default": "active",
       "enum": [
         "active",
         "archived",
         "deleted"
-      ],
-      "required": true,
-      "default": "active"
+      ]
     }
   }
 }

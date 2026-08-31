@@ -96,15 +96,28 @@ export class ApiService {
       });
 
       if (!response.ok) {
-        let json = await response.json();
-        if (json) {
-          if (json.json) {
-            json = deserialize(json);
+        let responseContent: any;
+        const responseText = await response.text();
+        try {
+          let json = JSON.parse(responseText);
+          if (json) {
+            if (json.json) {
+              json = deserialize(json);
+            }
+            responseContent = json;
           }
-          throw json;
+        } catch (parseError) {
+          responseContent = responseText;
+        }
+        if (responseContent) {
+          throw responseContent;
         } else {
           console.error('Error on request', { method, path, body, options, response });
-          throw new Error('Error on request');
+          throw {
+            status: response.status,
+            statusText: response.statusText,
+            message: `Request failed with status ${response.status} ${response.statusText}`,
+          };
         }
       }
 

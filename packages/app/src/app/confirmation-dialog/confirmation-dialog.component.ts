@@ -4,11 +4,12 @@ import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
 import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
 import { MatCard } from "@angular/material/card";
+import { SafeHtml } from '@angular/platform-browser';
 
 export interface ConfirmationDialogData {
   title?: string;
   message?: string;
-  html?: string;
+  html?: string|SafeHtml;
   cancelLabel?: string;
   confirmLabel?: string;
 }
@@ -16,6 +17,7 @@ export interface ConfirmationDialogData {
 @Component({
   selector: 'app-confirmation-dialog',
   templateUrl: './confirmation-dialog.component.html',
+  styleUrl: './confirmation-dialog.component.scss',
   imports: [MatDialogModule, MatDialogClose, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent, MatCard],
 })
 export class ConfirmationDialogComponent {

@@ -14,11 +14,10 @@ export default {
     },
     {
       method: 'POST',
-      path: '/operations/mapstate/patch',
-      handler: 'operation.patch',
+      path: '/operations/mapstate/changeset',
+      handler: 'operation.changeset',
       config: {
-        //this route does not update Operation itself therefore no UPDATE_BY_ID checks are needed
-        middlewares: [CreateAccessControlMiddlewareConfig({ type: 'api::operation.operation', check: AccessControlTypes.BY_ID })],
+        middlewares: [CreateAccessControlMiddlewareConfig({ type: 'api::operation.operation', check: AccessControlTypes.UPDATE_BY_ID })],
       },
     },
   ],

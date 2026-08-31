@@ -1,0 +1,158 @@
+<div class="changeset-container">
+  @if (changesetService.inconsistent()) {
+    <div class="title">changeset with conflicts</div>
+    <div class="description">{{ changesetService.errorDescription() }}</div>
+
+    <div>
+      <div class="sub-title">conflict with changesets:</div>
+      @for (changeId of changesetService.errorChangeset()?.mergeConflictChangesetIds; track changeId) {
+        <span>{{ changeId }}</span>
+      }
+    </div>
+
+    <mat-checkbox class="conflicts-only" [(ngModel)]="conflictsOnly" (change)="conflictsOnly = $event.checked">
+      show conflicts only
+    </mat-checkbox>
+
+    @if (
+      (changesetService.conflictDetails()?.metaConflict || !conflictsOnly) &&
+      changesetService.conflictDetails()?.meta?.length
+    ) {
+      <div>
+        <h3>mapState meta</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>field</th>
+              @for (field of CONFLICT_INDEX_NAME; track field) {
+                <th>
+                  {{ field }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (value of changesetService.conflictDetails()?.meta; track value.path) {
+              @if (value.conflict || !conflictsOnly) {
+                <tr [class.conflict]="value.conflict && !value.resolved">
+                  <td>{{ value.path }}</td>
+                  @for (field of CONFLICT_INDEX_NAME; track field) {
+                    <td
+                      class="value"
+                      [class.nv]="value[field] === NO_CONFLICT_VALUE"
+                      [class.selected]="value.selected === $index"
+                      (click)="selectMeta(value, $index)"
+                    >
+                      @if (value[field] !== NO_CONFLICT_VALUE) {
+                        {{ value[field] }}
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+    <div>
+      <div class="sub-title">show elements of corresponsing state</div>
+      @for (field of CONFLICT_INDEX_NAME; track field) {
+        <button
+          mat-flat-button
+          [class]="'header-' + $index"
+          [class.activePreview]="allPreviewIndex === $index"
+          (click)="highlightAllPreview($index)"
+          class="highlightAllPreview"
+          title="highlightAll"
+        >
+          {{ field }}
+        </button>
+      }
+      <button
+        mat-flat-button
+        class="header-3"
+        [class.activePreview]="allPreviewIndex === 3"
+        (click)="highlightAllPreview(3)"
+        class="highlightAllPreview"
+        title="highlightAll"
+      >
+        merged
+      </button>
+    </div>
+    <div>
+      <button
+        mat-flat-button
+        (click)="toggleHighlightAll()"
+        class="highlightAll"
+        title="highlightAll"
+        [class]="{ selected: allHighlighted }"
+      >
+        <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
+        Highlight changed elements
+      </button>
+    </div>
+    @for (element of changesetService.conflictDetails()?.conflicts; track element.drawElementId) {
+      @if (element.conflict || !conflictsOnly) {
+        <div class="merge-element" [attr.data-elemId]="element.drawElementId">
+          <div class="conflict-element" (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
+            @if (element.symbolImageUrl) {
+              <img [src]="element.symbolImageUrl" class="signature-icon" />
+            } @else {
+              <mat-icon class="signature-icon">widgets</mat-icon>
+            }
+            <span class="elem-title">{{ element.elementName }}</span>
+            <button mat-icon-button (click)="zoomToElement()" title="zoomToElement">
+              <mat-icon>zoom_in_map</mat-icon>
+            </button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>field</th>
+                @for (field of CONFLICT_INDEX_NAME; track field) {
+                  <th
+                    [class]="'header-' + $index"
+                    [class.activePreview]="allPreviewIndex === $index"
+                    (mouseenter)="highlightPreview(element, $index, true, $event)"
+                    (mouseleave)="highlightPreview(element, $index, false, $event)"
+                  >
+                    {{ field }}
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (value of element.values; track value.path) {
+                @if (value.conflict || !conflictsOnly) {
+                  <tr [class.conflict]="value.conflict && !value.resolved">
+                    <td>{{ value.path }}</td>
+                    @for (field of CONFLICT_INDEX_NAME; track field) {
+                      <td
+                        class="value"
+                        [class.nv]="value[field] === NO_CONFLICT_VALUE"
+                        [class.missing]="element.missing[field]"
+                        [class.selected]="value.selected === $index"
+                        (click)="select(element, value, $index)"
+                      >
+                        @if (value[field] === NO_CONFLICT_VALUE || element.missing[field]) {
+                        } @else if (value.path === 'coordinates') {
+                          &lt;coords&gt;
+                        } @else {
+                          {{ value[field] }}
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+    <div><button class="merge-button" mat-flat-button color="primary" (click)="finish()" title="finish">merge changes</button></div>
+  } @else {
+    <p>no conflicts, all fine</p>
+  }
+</div>

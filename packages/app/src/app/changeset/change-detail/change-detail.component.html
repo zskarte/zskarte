@@ -1,0 +1,53 @@
+@if (changesetDetails(); as details) {
+  <div class="changeset-details">
+    <div class="buttons">
+      <button mat-stroked-button (click)="showDetailsBefore()" [color]="activeState() === 1 ? 'primary' : ''">
+        before
+      </button>
+      <button mat-stroked-button (click)="showDetailsAfter()" [color]="activeState() === 2 ? 'primary' : ''">
+        after
+      </button>
+      <button mat-stroked-button (click)="showOriginalChangeset()" class="changeset-original">
+        show changeset JSON
+      </button>
+    </div>
+    @for (change of details.changes; track change.drawElementId) {
+      <div class="changeset-changes">
+        <div class="changeset-element">
+          @if (change.symbolImageUrl) {
+            <img [src]="change.symbolImageUrl" class="signature-icon" />
+          } @else {
+            <mat-icon class="signature-icon">widgets</mat-icon>
+          }
+          <span class="elem-title">{{ change.elementName }}</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>field</th>
+              <th class="header-orig">{{change.origName}}</th>
+              <th class="header-our">after</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (value of change.values; track value.path) {
+              <tr>
+                <td>{{ value.path }}</td>
+                @for (field of ['orig', 'our']; track field) {
+                  <td class="value">
+                    @if (value[field] === NO_CONFLICT_VALUE) {
+                    } @else if (value.path === 'coordinates') {
+                      &lt;coords&gt;
+                    } @else {
+                      {{ value[field] }}
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+}

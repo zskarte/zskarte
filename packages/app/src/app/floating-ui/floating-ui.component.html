@@ -1,18 +1,21 @@
 <div class="floating-ui-container">
   <div class="main noprint">
-    <div class="search" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
-      <app-geocoder />
-      @if (session.isGuest()) {
-        @let limitReached = session.observeIsGuestElementLimitReached() | async;
-        <button class="limit" [attr.data-limit-reached]="limitReached" (click)="openLimitDialog(limitReached)">
-          @if (limitReached) {
-            <span>{{ i18n.get('guestLimitReachedShort') }}</span>
-          } @else {
-            {{ state.observeDrawElementCount() | async }} / {{ MAX_DRAW_ELEMENTS_GUEST }}
-            <span>{{ i18n.get('guestLimitElements') }}</span>
-          }
-        </button>
-      }
+    <div class="top-row" [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }">
+      <div class="search">
+        <app-geocoder />
+        @if (session.isGuest()) {
+          @let limitReached = session.observeIsGuestElementLimitReached() | async;
+          <button class="limit" [attr.data-limit-reached]="limitReached" (click)="openLimitDialog(limitReached)">
+            @if (limitReached) {
+              <span>{{ i18n.get('guestLimitReachedShort') }}</span>
+            } @else {
+              {{ state.observeDrawElementCount() | async }} / {{ MAX_DRAW_ELEMENTS_GUEST }}
+              <span>{{ i18n.get('guestLimitElements') }}</span>
+            }
+          </button>
+        }
+      </div>
+      <app-changeset-overlay/>
     </div>
     <app-journal-draw-overlay [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />
     <app-coordinates [ngClass]="{ 'sidebar-open': sidebar.observeIsOpen() | async }" />

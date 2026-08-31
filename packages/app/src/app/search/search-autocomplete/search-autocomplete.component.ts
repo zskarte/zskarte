@@ -2,7 +2,7 @@ import { Component, ViewChild, inject, input, output } from '@angular/core';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent, MatAutocomplete } from '@angular/material/autocomplete';
 import { IResultSet, IZsMapSearchResult } from '@zskarte/types';
 import { CommonModule } from '@angular/common';
-import { I18NService } from 'src/app/state/i18n.service';
+import { I18NService } from '../../state/i18n.service';
 
 @Component({
   selector: 'app-search-autocomplete',

@@ -17,13 +17,13 @@ import { FormsModule } from '@angular/forms';
 import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { ConfirmationDialogComponent } from 'src/app/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { NameEntryDialogComponent } from './name-entry-dialog/name-entry-dialog.component';
-import { ImportDialogComponent } from 'src/app/import-dialog/import-dialog.component';
-import { JournalService } from 'src/app/journal/journal.service';
-import { OperationExportFile } from 'src/app/core/entity/operationExportFile';
-import { VersionService } from 'src/version/version.service';
+import { ImportDialogComponent } from '../../import-dialog/import-dialog.component';
+import { JournalService } from '../../journal/journal.service';
+import { OperationExportFile } from '../../core/entity/operationExportFile';
+import { VersionService } from '../../version/version.service';
 
 @Component({
   selector: 'app-operations',

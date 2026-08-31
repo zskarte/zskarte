@@ -3,9 +3,10 @@
  */
 
 import { factories } from '@strapi/strapi';
-import { Operation, PatchExtended, OperationPhases } from '../../../definitions';
-import { operationCaches, updateCurrentLocation, updateMapState } from '../../../state/operation';
+import { Operation, OperationPhases } from '../../../definitions';
+import { operationCaches, updateCurrentLocation, addChangeset } from '../../../state/operation';
 import _ from 'lodash';
+import { IZsChangeset } from '@zskarte/types';
 
 const allowedMetaFields = ['name', 'description', 'eventStates'];
 
@@ -19,19 +20,58 @@ export default factories.createCoreController('api::operation.operation', ({ str
     const operationCache = operationCaches[entity.documentId];
     if (operationCache) {
       sanitizedEntity.mapState = operationCache.mapState;
+      sanitizedEntity.changesets = operationCache.changesets;
+      sanitizedEntity.changesetSigns = operationCache.changesetSigns;
+      sanitizedEntity.signingKeyIds = [...operationCache.signingKeyIds];
     }
     return this.transformResponse(sanitizedEntity);
   },
-  async patch(ctx) {
+  async changeset(ctx) {
     const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;
     if (!identifier || !operationid) {
       ctx.status = 400;
       return { message: 'Missing headers: identifier or operationId' };
     }
-    const patches: PatchExtended[] = ctx.request.body;
-    await updateMapState(operationid, identifier, patches);
-    ctx.status = 200;
-    return { success: true };
+    try {
+      const changeset: IZsChangeset = ctx.request.body;
+
+      //check valid operation/organisation values, as accesscontrol middleware don't verify that for changeset (only for parent/operation)
+      const { documentId: userOrganisationId } = ctx.state?.user?.organization ?? {};
+      const { jwt } = strapi.plugins['users-permissions'].services;
+      const { operationId: jwtOperationId, organizationId: jwtOrganizationId } = (await jwt.getToken(ctx)) ?? {};
+      if (changeset.operationId !== operationid || (jwtOperationId && changeset.operationId !== jwtOperationId)) {
+        return ctx.forbidden('This action is forbidden.');
+      }
+      if (
+        (userOrganisationId && changeset.organisationId !== userOrganisationId) ||
+        (jwtOrganizationId && changeset.organisationId !== jwtOrganizationId)
+      ) {
+        return ctx.forbidden('This action is forbidden.');
+      }
+
+      const { error, result } = await addChangeset(operationid, identifier, changeset, ctx, () => {
+        ctx.status = 429;
+        ctx.body = {
+          error: 'Too Many Requests',
+          message: 'Lock not available within 15 seconds',
+        };
+      });
+      if (error) {
+        if (ctx.status !== 429) {
+          ctx.status = 400;
+          return error;
+        }
+      } else {
+        return result;
+      }
+    } catch (e: any) {
+      // onTimeout already handled 429, other errors get 500
+      if (ctx.status !== 429) {
+        strapi.log.error(e);
+        ctx.status = 500;
+        ctx.body = { error: 'Internal error', message: e.message };
+      }
+    }
   },
   async currentLocation(ctx) {
     const { identifier, operationid }: { identifier: string; operationid: string } = ctx.request.headers as any;

@@ -20,6 +20,9 @@
       "relation": "manyToOne",
       "target": "api::operation.operation",
       "inversedBy": "mapSnapshots"
+    },
+    "changesetIds": {
+      "type": "json"
     }
   }
 }

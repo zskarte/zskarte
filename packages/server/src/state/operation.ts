@@ -1,25 +1,55 @@
-import { applyPatches, enablePatches, Patch } from 'immer';
+import { applyPatches, enablePatches } from 'immer';
 import { Core } from '@strapi/types';
 import _ from 'lodash';
-import crypto from 'crypto';
+import type { Context } from 'koa';
+import { IZsChangeset } from '@zskarte/types';
+import { updateChangesetIdsAfterApply, verifyChangesetConsistency } from '@zskarte/common';
 
 import {
   Operation,
   OperationCache,
   OperationPhases,
-  PatchExtended,
   StrapiLifecycleHook,
   StrapiLifecycleHooks,
   User,
 } from '../definitions';
-import { broadcastConnections, broadcastPatches } from './socketio';
+import { broadcastChangeset, broadcastConnections } from './socketio';
+import { QueueMutex, QueueTask } from '../utils/queue-mutex';
+import { getOrCreateSigningKeyPair, getServerId, signData, SigningKeyConfig } from '../utils/signing';
 
 const WEEK = 1000 * 60 * 60 * 24 * 7;
 const MIN = 1000 * 60;
 
+const MAX_WAIT_MS = 15_000;
+
 enablePatches();
 
-const operationCaches: { [key: number]: OperationCache } = {};
+let signingKeyConfig: SigningKeyConfig | undefined;
+
+const initializeSigning = async (strapi: Core.Strapi) => {
+  let passphrase: Buffer;
+  if (process.env.SIGN_PRIVATE_KEY_PASSPHRASE) {
+    passphrase = Buffer.from(process.env.SIGN_PRIVATE_KEY_PASSPHRASE, 'base64');
+    if (passphrase.length < 32) {
+      throw new Error(
+        `SIGN_PRIVATE_KEY_PASSPHRASE: Invalid key length: ${passphrase.length}, expected >= 32 (after base64 decode)`,
+      );
+    }
+  }
+  const serverId = await getServerId();
+  signingKeyConfig = await getOrCreateSigningKeyPair(serverId, passphrase, strapi);
+  strapi.log.info(
+    `signing serverId: ${serverId}, keyId: ${signingKeyConfig.keyId}, keyType: ${signingKeyConfig.keyType}`,
+  );
+};
+
+const signChangeset = (changeset: IZsChangeset) => {
+  changeset.serverId = signingKeyConfig.serverId;
+  changeset.signKeyId = signingKeyConfig.keyId;
+  return signData(changeset, signingKeyConfig.privateKeyObject, signingKeyConfig.keyType);
+};
+
+const operationCaches: { [key: string]: OperationCache } = {};
 
 /** Loads all active operations initially and generates the in-memory cache */
 const loadOperations = async (strapi: Core.Strapi) => {
@@ -39,6 +69,28 @@ const loadOperations = async (strapi: Core.Strapi) => {
   }
 };
 
+const addToCache = (operation: Operation) => {
+  const mapState = operation.mapState || ({} as any);
+  const changesets = operation.changesets || ({} as any);
+  const changesetSigns = operation.changesetSigns || ({} as any);
+  const signingKeyIds: Set<string> = new Set(operation.signingKeyIds || ([] as any));
+
+  const changesetEndpointMutex = new QueueMutex();
+  operationCaches[operation.documentId] = {
+    operation,
+    connections: [],
+    users: [],
+    changesetEndpointMutex,
+    mapState,
+    changesets,
+    changesetSigns,
+    signingKeyIds,
+    changed: false,
+  };
+  if (!operation.organization) return;
+  operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
+};
+
 /** The implementation of the Strapi Lifecylce hooks of the operation collection type */
 const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation: Operation) => {
   operation =
@@ -47,75 +99,155 @@ const lifecycleOperation = async (lifecycleHook: StrapiLifecycleHook, operation:
       populate: ['organization.users'],
     })) as Operation) || operation;
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_CREATE) {
-    const mapState = operation.mapState || {};
-    operationCaches[operation.documentId] = { operation, connections: [], users: [], mapState, mapStateChanged: false };
-    if (!operation.organization) return;
-    operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
+    addToCache(operation);
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_UPDATE) {
     if (operation.phase === OperationPhases.ARCHIVED) {
+      const operationCache: OperationCache = operationCaches[operation.documentId];
       delete operationCaches[operation.documentId];
+      if (!operationCache) return;
+      if (operationCache.changesetEndpointMutex) {
+        operationCache.changesetEndpointMutex.abortAll('operation is archived, changes no longer possible');
+      }
+      //persist last changes before archive
+      await persistOperation(operation.documentId, operationCache);
       return;
     } else if (!(operation.documentId in operationCaches)) {
       //maybe an "unarchive" operation
-      const mapState = operation.mapState || {};
-      operationCaches[operation.documentId] = {
-        operation,
-        connections: [],
-        users: [],
-        mapState,
-        mapStateChanged: false,
-      };
-      if (!operation.organization) return;
-      operationCaches[operation.documentId].users.push(...(operation.organization.users || []));
+      addToCache(operation);
     } else {
       operationCaches[operation.documentId].operation = operation;
     }
   }
   if (lifecycleHook === StrapiLifecycleHooks.AFTER_DELETE) {
+    const operationCache: OperationCache = operationCaches[operation.documentId];
     delete operationCaches[operation.documentId];
-  }
-};
-
-const isValidImmerPatch = (patch: Patch) => {
-  if (typeof patch !== 'object' || patch === null) return false;
-  if (!['replace', 'add', 'remove'].includes(patch.op)) return false;
-  if (!Array.isArray(patch.path)) return false;
-  if (patch.op === 'replace' || patch.op === 'add') {
-    if (patch.value === undefined) return false;
-  }
-  return true;
-};
-
-const validatePatches = (patches: PatchExtended[]) => {
-  if (!patches || !_.isArray(patches)) return [];
-  return _.orderBy(_.filter(patches, isValidImmerPatch), ['timestamp'], ['asc']);
-};
-
-/** Uses the immer library to patch the server map state */
-const updateMapState = async (operationId: string, identifier: string, patches: PatchExtended[]) => {
-  const operationCache: OperationCache = operationCaches[operationId];
-  if (!operationCache) return;
-  const validatedPatches = validatePatches(patches);
-  if (!validatedPatches.length) return;
-  const oldMapState = operationCache.mapState;
-  for (const patch of validatedPatches) {
-    try {
-      operationCache.mapState = applyPatches(operationCache.mapState, [patch]);
-    } catch (error) {
-      strapi.log.error(error);
+    if (!operationCache) return;
+    if (operationCache.changesetEndpointMutex) {
+      operationCache.changesetEndpointMutex.abortAll('operation is deleted');
     }
   }
-  const jsonOldMapState = JSON.stringify(oldMapState);
-  const jsonNewMapState = JSON.stringify(operationCache.mapState);
-  const hashOldMapState = crypto.createHash('sha256').update(jsonOldMapState).digest('hex');
-  const hashNewMapState = crypto.createHash('sha256').update(jsonNewMapState).digest('hex');
-  const stateChanged = hashOldMapState !== hashNewMapState;
+};
 
-  if (!stateChanged) return;
+const changesetAlreadyExist = (operationCache: OperationCache, changeset: IZsChangeset) => {
+  const savedChangeset = operationCache.changesets[changeset.id];
+  if (savedChangeset) {
+    let savedChangesetToCompare: Partial<IZsChangeset>,
+      incommingChangesetToCompare: Partial<IZsChangeset>,
+      _unused: any;
+    ({
+      applied: _unused,
+      saved: _unused,
+      serverSavedAt: _unused,
+      authorIp: _unused,
+      serverId: _unused,
+      signKeyId: _unused,
+      ...savedChangesetToCompare
+    } = savedChangeset);
+    ({
+      applied: _unused,
+      saved: _unused,
+      serverSavedAt: _unused,
+      authorIp: _unused,
+      serverId: _unused,
+      signKeyId: _unused,
+      ...incommingChangesetToCompare
+    } = changeset);
 
-  operationCache.mapStateChanged = true;
-  broadcastPatches(operationCache, identifier, patches);
+    if (_.isEqual(savedChangesetToCompare, incommingChangesetToCompare)) {
+      return true;
+    }
+
+    throw new Error('re-submit changeset with other content');
+  }
+  return false;
+};
+
+const addChangeset = async (
+  operationId: string,
+  identifier: string,
+  changeset: IZsChangeset,
+  ctx: Context,
+  onTimeout?: () => void,
+) => {
+  const operationCache: OperationCache = operationCaches[operationId];
+  if (!operationCache)
+    return { error: { message: 'operation is not in operationCache, is it archived?' }, result: undefined };
+
+  if (changesetAlreadyExist(operationCache, changeset)) {
+    return { error: undefined, result: { success: true, alreadySubmitted: true } };
+  }
+
+  const task = operationCache.changesetEndpointMutex.enqueueWithTimeout(ctx, {
+    maxWaitMs: MAX_WAIT_MS,
+    fn: async (task: QueueTask) => {
+      if (changesetAlreadyExist(operationCache, changeset)) {
+        return { error: undefined, result: { success: true, alreadySubmitted: true } };
+      }
+      let mapState = operationCache.mapState;
+      const error = verifyChangesetConsistency(mapState, changeset);
+      if (error) {
+        strapi.log.error(error.message);
+        return { error, result: undefined };
+      }
+      const oldMapState = mapState;
+      mapState = applyPatches(mapState, changeset.patches);
+
+      if (task.aborted || task.clientAborted) {
+        return { error: { message: 'aborted' }, result: undefined };
+      }
+
+      //verify clean reverse possible
+      const revertedMapState = applyPatches(mapState, changeset.inversePatches);
+      if (!_.isEqual(oldMapState, revertedMapState)) {
+        const elemId = changeset.patches[0].path[1];
+        console.error(
+          changeset.patches,
+          changeset.inversePatches,
+          'inverse invalid',
+          oldMapState.drawElements[elemId],
+          revertedMapState.drawElements[elemId],
+        );
+
+        return { error: { message: 'inverse patches do not reset cleanly', isInvalid: true }, result: undefined };
+      }
+      mapState = updateChangesetIdsAfterApply(mapState, changeset);
+      changeset.applied = true;
+      changeset.saved = true;
+      changeset.serverSavedAt = new Date().getTime();
+      changeset.authorIp = ctx.request.ips?.length > 0 ? ctx.request.ips.join(' ') : ctx.request.ip;
+      const sign = signChangeset(changeset);
+
+      if (operationCache.mapState !== oldMapState) {
+        return { error: { message: 'concurrent modification error' }, result: undefined };
+      }
+      if (task.aborted || task.clientAborted) {
+        return { error: { message: 'aborted' }, result: undefined };
+      }
+      operationCache.changesets[changeset.id] = changeset;
+      operationCache.changesetSigns[changeset.id] = sign;
+      operationCache.signingKeyIds.add(changeset.signKeyId);
+      operationCache.mapState = mapState;
+      operationCache.changed = true;
+      broadcastChangeset(operationCache, identifier, changeset, sign);
+
+      return {
+        error: undefined,
+        result: {
+          success: true,
+          data: {
+            serverSavedAt: changeset.serverSavedAt,
+            authorIp: changeset.authorIp,
+            serverId: changeset.serverId,
+            signKeyId: changeset.signKeyId,
+            sign,
+          },
+        },
+      };
+    },
+    onTimeout,
+  });
+  return await task.result;
 };
 
 /** Updates the current location of a connection */
@@ -138,19 +270,38 @@ const updateCurrentLocation = async (
   }
 };
 
+const persistOperation = async (operationId: string, operationCache: OperationCache) => {
+  await strapi.documents('api::operation.operation').update({
+    documentId: operationId,
+    data: {
+      mapState: operationCache.mapState as any,
+      changesets: operationCache.changesets as any,
+      changesetSigns: operationCache.changesetSigns as any,
+      signingKeyIds: [...operationCache.signingKeyIds],
+    },
+  });
+};
+
 /** Persist the map state to the database if something has changed */
-const persistMapStates = async (strapi: Core.Strapi) => {
+const persistOperationCache = async (strapi: Core.Strapi) => {
   try {
     for (const [operationId, operationCache] of Object.entries(operationCaches)) {
-      if (!operationCache.mapStateChanged) continue;
-      await strapi.documents('api::operation.operation').update({
-        documentId: operationId,
-        data: {
-          mapState: operationCache.mapState as any,
-        },
-      });
-      operationCache.mapStateChanged = false;
-      strapi.log.info(`MapState of operation ${operationId} Persisted`);
+      if (!operationCache.changed) continue;
+      await persistOperation(operationId, operationCache);
+      operationCache.changed = false;
+      strapi.log.info(`MapState/changesets of operation ${operationId} Persisted`);
+    }
+  } catch (error) {
+    strapi.log.error(error);
+  }
+};
+
+const abortAllQueuedUpdates = async (strapi: Core.Strapi) => {
+  try {
+    for (const operationCache of Object.values(operationCaches)) {
+      if (operationCache.changesetEndpointMutex) {
+        operationCache.changesetEndpointMutex.abortAll('server shutdown');
+      }
     }
   } catch (error) {
     strapi.log.error(error);
@@ -222,10 +373,23 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
 
       strapi.log.debug(`Creating snapshot for operation [${operation.documentId}] ${operation.name}`);
 
+      const lastSnapshot = await strapi.documents('api::map-snapshot.map-snapshot').findFirst({
+        filters: { operation: { documentId: operation.documentId } },
+        sort: { createdAt: 'desc' },
+      });
+      let changesetIds: string[] = operation.mapState['changesetIds'];
+      if (lastSnapshot) {
+        const lastChangesetIds: string[] = lastSnapshot.mapState['changesetIds'];
+        if (lastChangesetIds) {
+          changesetIds = changesetIds.filter((c) => !lastChangesetIds.includes(c));
+        }
+      }
+
       await strapi.documents('api::map-snapshot.map-snapshot').create({
         data: {
           operation,
           mapState: operation.mapState as any,
+          changesetIds,
           publishedAt: Date.now(),
         },
       });
@@ -236,12 +400,15 @@ const createMapStateSnapshots = async (strapi: Core.Strapi) => {
 };
 
 export {
+  initializeSigning,
+  signChangeset,
   operationCaches,
   loadOperations,
   lifecycleOperation,
-  updateMapState,
+  addChangeset,
   updateCurrentLocation,
-  persistMapStates,
+  abortAllQueuedUpdates,
+  persistOperationCache,
   archiveOperations,
   deleteGuestOperations,
   createMapStateSnapshots,
