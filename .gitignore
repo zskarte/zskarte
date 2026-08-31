@@ -71,6 +71,7 @@ $RECYCLE.BIN/
 *.sqlite
 *.sqlite3
 !packages/server/init/init.sql
+!packages/server_next/drizzle/*.sql
 
 
 ############################
