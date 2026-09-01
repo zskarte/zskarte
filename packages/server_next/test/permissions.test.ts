@@ -12,11 +12,12 @@ describe('role permissions', () => {
   });
 
   it.each([
-    ['organization', 'operation.submitChangeset', true],
-    ['guest', 'operation.submitChangeset', false],
+    ['organization', 'operation.patch', false],
+    ['organization', 'organization.updateSettings', false],
     ['operationwrite', 'journal.create', true],
-    ['operationwrite', 'operation.patch', true],
+    ['operationwrite', 'operation.create', true],
     ['operationread', 'journal.create', false],
+    ['guest', 'mapSnapshot.list', false],
     ['public', 'organization.forLogin', true],
     ['public', 'operation.byId', false],
   ] as const)('%s permission for %s is %s', (role, permission, expected) => {
