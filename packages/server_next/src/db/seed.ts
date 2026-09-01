@@ -9,15 +9,25 @@ import { closeDatabase, db } from './client.js';
 
 const BASELINE_ORGANIZATIONS = [
   { name: 'ZSO Development' },
-  // organization the guest users belong to
   { name: 'ZSO Gast' },
 ];
 
 const BASELINE_USERS = [
-  { username: 'zso_guest', email: 'zso_guest@internal.zskarte.ch', password: 'zsogast', role: 'guest' },
+  {
+    username: 'zso_guest',
+    email: 'zso_guest@internal.zskarte.ch',
+    password: 'zsogast',
+    role: 'guest',
+    organization: BASELINE_ORGANIZATIONS[1].name,
+  },
   { username: 'operation_read', email: 'operation_read@internal.zskarte.ch', role: 'operationread' },
   { username: 'operation_write', email: 'operation_write@internal.zskarte.ch', role: 'operationwrite' },
-  { username: 'operation_all', email: 'operation_all@internal.zskarte.ch', role: 'organization' },
+  {
+    username: 'operation_all',
+    email: 'operation_all@internal.zskarte.ch',
+    role: 'organization',
+    organization: BASELINE_ORGANIZATIONS[0].name,
+  },
 ] as const;
 
 const seedOrganizations = async (): Promise<void> => {
@@ -49,18 +59,15 @@ const seedMapLayerGenerationConfig = async (): Promise<void> => {
 };
 
 const seedUsers = async (): Promise<void> => {
-  const [guestOrganization] = await db
-    .select({ documentId: organizations.documentId })
-    .from(organizations)
-    .where(eq(organizations.name, 'ZSO Gast'))
-    .limit(1);
-  if (!guestOrganization) throw new Error('Guest organization is missing');
+  const orgs = await db
+    .select({ documentId: organizations.documentId, name: organizations.name})
+    .from(organizations);
 
   for (const baselineUser of BASELINE_USERS) {
     const [existing] = await db.select({ id: user.id }).from(user).where(eq(user.username, baselineUser.username)).limit(1);
     if (existing) continue;
 
-    const password = 'password' in baselineUser ? baselineUser.password : crypto.randomUUID();
+    const password = 'password' in baselineUser ? baselineUser.password : 'supersecret123';
     const authContext = await auth.$context;
     const created = await authContext.internalAdapter.createUser(
       {
@@ -69,7 +76,7 @@ const seedUsers = async (): Promise<void> => {
         emailVerified: true,
         username: baselineUser.username,
         zsRole: baselineUser.role,
-        organizationId: baselineUser.role === 'guest' ? guestOrganization.documentId : null,
+        organizationId: 'organization' in baselineUser ? orgs.find(org => org.name === baselineUser.organization)?.documentId : null,
       },
       { method: 'email-password' },
     );

@@ -62,7 +62,10 @@ export const createContextInner = async (opts: CreateInnerContextOptions = {}): 
 };
 
 export const createContext = async ({ req, info }: CreateFastifyContextOptions): Promise<Context> => {
-  const connectionToken = info.connectionParams?.['authorization'] ?? info.connectionParams?.['token'];
+  console.log(req.query, req);
+
+  const connectionToken =
+    info.connectionParams?.['authorization'] ?? info.connectionParams?.['token'] ?? (req.params as any)['token'];
   const headers =
     typeof connectionToken === 'string'
       ? bearerHeaders(connectionToken.replace(/^Bearer\s+/i, ''))

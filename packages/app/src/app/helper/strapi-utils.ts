@@ -25,7 +25,7 @@ const mapInternalUrl = (url: string) => {
   return environment.apiUrl + url;
 };
 
-export const getResponsiveImageSource = (asset: IZsStrapiAsset) => {
+export const getResponsiveImageSource = (asset: {url: string, formats: object | null} | null) => {
   if (!asset) return undefined;
   const responsiveImageSource: ImageResponsiveSource = { src: mapInternalUrl(asset.url), srcSet: '' };
   if (asset.formats) {

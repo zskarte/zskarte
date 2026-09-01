@@ -54,7 +54,7 @@ export class OrganisationLayerSettingsComponent {
   private _mapLayerService = inject(MapLayerService);
   i18n = inject(I18NService);
 
-  wms_sources: number[];
+  wms_sources: string[];
   layer_favorites: MapLayer[];
 
   layerFilter = new FormControl('');
@@ -66,12 +66,12 @@ export class OrganisationLayerSettingsComponent {
     if (data.organization) {
       this.wms_sources = [...data.organization.wms_sources];
       this.layer_favorites = data.allLayers.filter(
-        (f) => f.id && data.organization?.map_layer_favorites.includes(f.id),
+        (f) => f.documentId && data.organization?.map_layer_favorites.includes(f.documentId),
       );
     } else if (data.localMapLayerSettings) {
       this.wms_sources = [...(data.localMapLayerSettings.wms_sources ?? [])];
       this.layer_favorites = data.allLayers.filter(
-        (f) => f.id && data.localMapLayerSettings?.map_layer_favorites?.includes(f.id),
+        (f) => f.documentId && data.localMapLayerSettings?.map_layer_favorites?.includes(f.documentId),
       );
     } else {
       this.wms_sources = [];
@@ -106,7 +106,7 @@ export class OrganisationLayerSettingsComponent {
   }
 
   toggleSource(item: WmsSource) {
-    const id = item.id;
+    const id = item.documentId;
     if (id) {
       const index = this.wms_sources.indexOf(id);
       if (index !== -1) {
@@ -118,7 +118,7 @@ export class OrganisationLayerSettingsComponent {
   }
 
   selectCurrentSource() {
-    this.wms_sources = this.data.selectedSources.map((s) => s.id ?? null).filter((id): id is number => Boolean(id));
+    this.wms_sources = this.data.selectedSources.map((s) => s.documentId ?? null).filter((id): id is string => Boolean(id));
   }
 
   removeLayer(layer: MapLayer) {

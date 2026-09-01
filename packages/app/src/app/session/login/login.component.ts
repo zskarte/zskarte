@@ -1,7 +1,6 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { getResponsiveImageSource } from '../../helper/strapi-utils';
-import { ApiService } from '../../api/api.service';
 import { SessionService } from '../session.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,7 +17,7 @@ import { TextDividerComponent } from '../../text-divider/text-divider.component'
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { IZso, IZsMapOrganization } from '@zskarte/types';
+import { IZso } from '@zskarte/types';
 
 @Component({
   selector: 'app-login',
@@ -41,7 +40,6 @@ import { IZso, IZsMapOrganization } from '@zskarte/types';
 export class LoginComponent implements OnDestroy {
   session = inject(SessionService);
   i18n = inject(I18NService);
-  private _api = inject(ApiService);
   private _dialog = inject(MatDialog);
   private router = inject(Router);
 
@@ -66,8 +64,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   async ngOnInit() {
-    const { error, result } = await this._api.get<IZsMapOrganization[]>('/api/organizations/forlogin');
-    if (error || !result) return;
+    const result = await this.session.trpcClient.organization.forLogin.query();
     const orgs: IZso[] = [];
     for (const org of result) {
       if (org.users?.length > 0 && org.users[0]?.username) {

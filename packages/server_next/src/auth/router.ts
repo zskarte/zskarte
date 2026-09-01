@@ -6,11 +6,13 @@ import type { Database } from '../db/client.js';
 import { files } from '../modules/file/schema.js';
 import { organizationMapLayerFavorites } from '../modules/map-layer/schema.js';
 import { organizations } from '../modules/organization/schema.js';
+import { operations } from '../modules/operation/schema.js';
 import { organizationWmsSources } from '../modules/wms-source/schema.js';
 import { auth } from './auth.js';
 import { shareTokenSchema } from './share-access-plugin.js';
 import { publicProcedure, sessionProcedure } from '../trpc/procedures.js';
 import { router } from '../trpc/trpc.js';
+import { IZsMapOrganization } from '@zskarte/types';
 
 const unauthorized = (): never => {
   throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Invalid credentials' });
@@ -50,7 +52,7 @@ const getOrganization = async (db: Database, organizationId: string) => {
     .limit(1);
   if (!organization) return null;
 
-  const [wmsSources, mapLayerFavorites] = await Promise.all([
+  const [wmsSources, mapLayerFavorites, organizationOperations, organizationUsers] = await Promise.all([
     db
       .select({ documentId: organizationWmsSources.wmsSourceId })
       .from(organizationWmsSources)
@@ -59,18 +61,22 @@ const getOrganization = async (db: Database, organizationId: string) => {
       .select({ documentId: organizationMapLayerFavorites.mapLayerId })
       .from(organizationMapLayerFavorites)
       .where(eq(organizationMapLayerFavorites.organizationId, organizationId)),
+    db.select().from(operations).where(eq(operations.organizationId, organizationId)),
+    db.select().from(user).where(eq(user.organizationId, organizationId)),
   ]);
 
   return {
     ...organization,
+    users: organizationUsers,
+    operations: organizationOperations,
     wms_sources: wmsSources.map(({ documentId }) => documentId),
     map_layer_favorites: mapLayerFavorites.map(({ documentId }) => documentId),
-  };
+  } as IZsMapOrganization;
 };
 
 const authResult = async (ctx: { db: Database }, token: string, authUser: typeof user.$inferSelect) => {
   return {
-    jwt: token,
+    token,
     user: {
       ...authUser,
       organization: authUser.organizationId ? await getOrganization(ctx.db, authUser.organizationId) : null,
@@ -90,12 +96,14 @@ export const authRouter = router({
       return authResult(ctx, result.token, authUser);
     }),
 
-  me: sessionProcedure.query(async ({ ctx }) => {
-    return {
-      ...ctx.user,
-      organization: ctx.scope ? await getOrganization(ctx.db, ctx.scope.organizationId) : null,
-    };
-  }),
+  me: sessionProcedure
+    .query(async ({ ctx }) => {
+      return {
+        ...ctx.user,
+        operationId: ctx.scope?.operationId,
+        organization: ctx.scope ? await getOrganization(ctx.db, ctx.scope.organizationId) : null,
+      };
+    }),
 
   refresh: sessionProcedure.mutation(async ({ ctx }) => {
     const [authUser] = await ctx.db

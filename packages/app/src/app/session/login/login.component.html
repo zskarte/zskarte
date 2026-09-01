@@ -48,11 +48,8 @@
           </mat-form-field>
           @if (session.observeAuthError() | async; as authError) {
             <mat-error>{{
-              authError?.error?.message === 'Internal Server Error' ? i18n.get('wrongPassword') :
-              authError?.error?.details?.errors?.[0]?.message ||
-                authError?.error?.message ||
-                authError?.statusText ||
-                authError?.message
+              authError?.code === 'INVALID_USERNAME_OR_PASSWORD' ? i18n.get('wrongPassword') :
+              authError?.message
             }}</mat-error>
           }
         } @else {

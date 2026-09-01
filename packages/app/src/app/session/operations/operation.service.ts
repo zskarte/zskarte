@@ -99,9 +99,7 @@ export class OperationService {
     }
 
     if (this._session.isWorkLocal()) {
-      const minId = Math.min(0, ...(await db.localOperation.toArray()).map((o) => o.id ?? 0));
-      operation.id = minId - 1;
-      operation.documentId = 'local' + operation.id;
+      operation.documentId = `local-${uuidv4()}`;
       await db.localOperation.add(operation);
       return operation;
     } 
@@ -117,7 +115,7 @@ export class OperationService {
   public async updateMeta(operation: IZsMapOperation): Promise<void> {
     if (!operation.documentId || operation.documentId?.startsWith('local-')) {
       if (!operation.documentId) {
-        operation.documentId = 'local' + operation.id;
+        operation.documentId = 'local-' + uuidv4();
       }
       await OperationService.persistLocalOperation(operation);
     } else {
@@ -138,12 +136,16 @@ export class OperationService {
   }
 
   public static async deleteLocalOperation(operation: IZsMapOperation) {
-    if (!operation || !operation.id) return;
-    return await db.localOperation.where('id').equals(operation.id).delete();
+    if (!operation || !operation.documentId) return;
+    return await db.localOperation.where('documentId').equals(operation.documentId).delete();
   }
 
   public static async deleteNoneLocalOperations() {
-    return await db.localOperation.where('id').aboveOrEqual(0).delete();
+    return await db.localOperation.each(async (operation, {key}) => {
+      if (!operation.documentId?.startsWith('local')) {
+        await db.localOperation.delete(key);
+      }
+    });
   }
 
   public static async persistLocalOperation(operation: IZsMapOperation) {
@@ -171,7 +173,7 @@ export class OperationService {
         `/api/operations/overview?phase=${phase}`,
       );
       if (!error && savedOperations !== undefined) {
-        operations = [...operations.filter((x) => x.id && x.id < 0), ...savedOperations];
+        operations = [...operations.filter((x) => x.documentId?.startsWith('local')), ...savedOperations];
       }
       this.operations.next(operations);
     } else {

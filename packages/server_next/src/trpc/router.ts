@@ -1,4 +1,5 @@
 import { authRouter } from '../auth/router.js';
+import { organizationRouter } from '../modules/organization/router.js';
 import { publicProcedure, router } from './trpc.js';
 
 /**
@@ -6,6 +7,7 @@ import { publicProcedure, router } from './trpc.js';
  */
 export const appRouter = router({
   auth: authRouter,
+  organization: organizationRouter,
   health: publicProcedure.query(() => ({ status: 'ok' as const, time: new Date() })),
 });
 

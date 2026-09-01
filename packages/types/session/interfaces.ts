@@ -22,10 +22,10 @@ export interface IZsMapSession {
   id: string;
   permission?: PermissionType;
   operation?: IZsMapOperation;
-  organization?: IZsMapOrganization;
+  organization?: IZsMapOrganization | null;
   organizationLogo?: string;
   label?: string;
-  jwt?: string;
+  token?: string;
   locale: Locale;
   defaultLatitude?: number;
   defaultLongitude?: number;

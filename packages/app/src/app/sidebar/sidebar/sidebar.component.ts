@@ -224,11 +224,11 @@ export class SidebarComponent implements OnDestroy {
     ]).pipe(
       map(([favoriteLayers, selectedLayers, availableLayers]) => {
         if (favoriteLayers?.length) {
-          const selectedIds = selectedLayers.map((l: MapLayer) => l.id);
+          const selectedIds = selectedLayers.map((l: MapLayer) => l.documentId);
           return mapState
             .getGlobalMapLayers()
-            .filter((l) => l.id && favoriteLayers.includes(l.id))
-            .filter((l) => !l.id || !selectedIds.includes(l.id))
+            .filter((l) => l.documentId && favoriteLayers.includes(l.documentId))
+            .filter((l) => !l.documentId || !selectedIds.includes(l.documentId))
             .sort((a: MapLayer, b: MapLayer) => a.label.localeCompare(b.label));
         } else {
           return availableLayers

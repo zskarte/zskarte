@@ -11,7 +11,7 @@
       @if (data.wmsSources.length > 0) {
         <mat-selection-list class="availableSources">
           @for (source of data.wmsSources; track source) {
-            <mat-list-option (click)="toggleSource(source)" [selected]="wms_sources.includes(source.id ?? 0)">
+            <mat-list-option (click)="toggleSource(source)" [selected]="wms_sources.includes(source.documentId ?? '')">
               <div>{{ source.label }}</div>
               <div>{{ source.url }}</div>
             </mat-list-option>

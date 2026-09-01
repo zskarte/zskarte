@@ -77,9 +77,8 @@ export class OperationsComponent implements OnDestroy {
       if (queryParams['operationId']) {
         try {
           const operationId = queryParams['operationId'];
-          const operationIdInt = parseInt(operationId);
           this.operationService.operations.pipe(takeUntil(this._ngUnsubscribe)).subscribe((operations) => {
-            const operation = operations.find((o) => o.documentId === operationId || o.id === operationIdInt);
+            const operation = operations.find((o) => o.documentId === operationId);
             if (operation) {
               this.selectOperation(operation);
             }
@@ -98,7 +97,7 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public async selectOperation(operation: IZsMapOperation) {
-    if (operation.documentId || operation.id) {
+    if (operation.documentId) {
       const dialogRef = this.dialog.open(NameEntryDialogComponent);
       dialogRef.afterClosed().subscribe(async (name: string | null) => {
         if (name) {
