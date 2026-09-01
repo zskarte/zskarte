@@ -25,13 +25,11 @@ export interface IZsMapSession {
   organization?: IZsMapOrganization | null;
   organizationLogo?: string;
   label?: string;
-  token?: string;
   locale: Locale;
   defaultLatitude?: number;
   defaultLongitude?: number;
   defaultZoomLevel?: number;
   workLocal?: boolean;
-  expiresAt?: Date;
 }
 
 export interface IZso {
@@ -39,17 +37,4 @@ export interface IZso {
   identifier: string;
   logoSrc?: string;
   logoSrcSet?: string;
-}
-
-export interface IAuthResult {
-  jwt: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    provider: string;
-    confirmed: boolean;
-    blocked: boolean;
-    createdAt: string;
-  };
 }

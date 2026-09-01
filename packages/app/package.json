@@ -50,7 +50,6 @@
     "html2canvas": "^1.4.1",
     "immer": "^10.2.0",
     "jspdf": "^3.0.4",
-    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "luxon": "^3.7.2",
     "material-icons": "^1.13.14",

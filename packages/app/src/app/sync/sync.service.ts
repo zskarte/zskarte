@@ -142,11 +142,9 @@ export class SyncService {
     }
 
     this._connectingPromise = new Promise<void>((resolve, reject) => {
-      const token = this._session.getToken();
       const url = this._api.getUrl();
 
       this._socket = io(url, {
-        auth: { token },
         transports: ['websocket'],
         query: {
           identifier: this._connectionId,

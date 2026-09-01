@@ -28,9 +28,7 @@ export class LoginRedirectGuard implements CanActivate {
       const currentOperation = this._session.getOperation();
       let operationJustSet = false;
       if (!currentOperation?.documentId || currentOperation.documentId !== operationId) {
-        const operation = await this._operationService.getOperation(operationId, { 
-          token: this._session.getToken() 
-        });
+        const operation = await this._operationService.getOperation(operationId);
         if (operation) {
           await this._session.setOperation(operation);
           operationJustSet = true;

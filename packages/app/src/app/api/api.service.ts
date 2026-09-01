@@ -3,15 +3,12 @@ import { Injectable } from '@angular/core';
 import { catchError, from, lastValueFrom, of, retry } from 'rxjs';
 import { deserialize } from 'superjson';
 import { environment } from '../../environments/environment';
-import { SessionService } from '../session/session.service';
 import transformResponse, { TransformerOptions } from './transformer';
 
 export interface IApiRequestOptions {
   headers?: { [key: string]: string };
-  token?: string;
   retries?: number;
   transformerOptions?: TransformerOptions;
-  preventAuthorization?: boolean;
   keepMeta?: boolean;
 }
 
@@ -25,11 +22,6 @@ export interface ApiResponse<T> {
 })
 export class ApiService {
   private _apiUrl = environment.apiUrl;
-  private _session!: SessionService;
-
-  public setSessionService(sessionService: SessionService): void {
-    this._session = sessionService;
-  }
 
   public getUrl(): string {
     return this._apiUrl;
@@ -63,11 +55,6 @@ export class ApiService {
     const defaults: { [key: string]: string } = {
       'Content-Type': 'application/json',
     };
-    if (!options?.preventAuthorization) {
-      if (options?.token || this._session.getToken()) {
-        defaults['Authorization'] = `Bearer ${options?.token || this._session.getToken()}`;
-      }
-    }
     return { ...defaults, ...(options?.headers || {}) };
   }
 

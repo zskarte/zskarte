@@ -62,11 +62,7 @@ export const shareAccess = () =>
           }
 
           await setSessionCookie(ctx, { session, user: shareUser });
-          return ctx.json({
-            token: session.token,
-            user: shareUser,
-            session,
-          });
+          return ctx.json({ success: true });
         },
       ),
     },

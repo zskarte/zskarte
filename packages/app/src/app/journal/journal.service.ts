@@ -517,7 +517,7 @@ export class JournalService {
   public async publishPatches() {
     const operationId = this.operationId();
     const organizationId = this.organizationId();
-    if (!operationId || !organizationId || !this._session.getToken() || !this._session.isOnline()) {
+    if (!operationId || !organizationId || !this._session.isAuthenticated() || !this._session.isOnline()) {
       return;
     }
     const entries = await db.patchJournalEntries.where({ operationId, organizationId }).toArray();

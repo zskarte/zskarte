@@ -1,6 +1,5 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { bearer } from 'better-auth/plugins/bearer';
 import { username } from 'better-auth/plugins/username';
 import { db } from '../db/client.js';
 import * as schema from '../db/schema.js';
@@ -32,7 +31,7 @@ export const auth = betterAuth({
       permission: { type: ['read', 'write', 'all'], required: false, input: false },
     },
   },
-  plugins: [bearer(), username({ displayUsername: false }), shareAccess()],
+  plugins: [username({ displayUsername: false }), shareAccess()],
   trustedOrigins: env.TRUSTED_ORIGINS,
   rateLimit: {
     enabled: true,

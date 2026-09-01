@@ -1,10 +1,8 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import {
   AccessTokenType,
   DEFAULT_LOCALE,
-  IAuthResult,
   IZsMapDisplayState,
   IZsMapOperation,
   IZsMapOrganization,
@@ -21,19 +19,14 @@ import {
   Subject,
   concatMap,
   distinctUntilChanged,
-  filter,
   firstValueFrom,
   map,
-  of,
-  retry,
   skip,
-  switchMap,
   takeUntil,
 } from 'rxjs';
 import { ApiService } from '../api/api.service';
 import { db } from '../db/db';
 import { debounceLeading } from '../helper/debounce';
-import { decodeJWT } from '../helper/jwt';
 import { coordinatesProjection, mercatorProjection } from '../helper/projections';
 import { MapLayerService } from '../map-layer/map-layer.service';
 import { OrganisationLayerSettingsComponent } from '../map-layer/organisation-layer-settings/organisation-layer-settings.component';
@@ -52,24 +45,22 @@ import { BLOB_URL_JOURNAL_ENTRY_TEMPLATE } from '../journal/journal.types';
 import { createAuthClient } from 'better-auth/client';
 import { usernameClient } from 'better-auth/client/plugins';
 import { environment } from '../../environments/environment';
-import { createTRPCClient, httpBatchLink, isTRPCClientError } from '@trpc/client';
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '@zskarte/server-next/dist/trpc/router';
 import superjson from 'superjson';
 
 const LANGUAGE_PREFERENCE_KEY = 'zskarte-language-preference';
 
-export type LogoutReason = 'logout' | 'networkError' | 'expired' | 'noToken';
+export type LogoutReason = 'logout' | 'networkError';
 export type AuthError = { code?: string; message?: string };
 
-function createAuthorizedTRPCClient(token: Observable<string | undefined>) {
+function createCookieTRPCClient() {
   return createTRPCClient<AppRouter>({
     links: [
       httpBatchLink({
         url: `${environment.apiUrlNext}/trpc`,
         transformer: superjson,
-        headers: async () => ({
-          authorization: `Bearer ${await firstValueFrom(token)}`,
-        }),
+        fetch: (url, options) => fetch(url, { ...options, credentials: 'include' }),
       }),
     ],
   });
@@ -89,11 +80,13 @@ export class SessionService {
   private _clearOperation = new Subject<void>();
   private _state!: ZsMapStateService;
   private _authError = new BehaviorSubject<AuthError | undefined>(undefined);
+  private _authenticated = new BehaviorSubject(false);
   private _isOnline = new BehaviorSubject<boolean>(true);
   public readonly sessionInitialized = signal(false);
-  public readonly trpcClient = createAuthorizedTRPCClient(this._session.pipe(map(session => session?.token)))
+  public readonly trpcClient = createCookieTRPCClient();
   private readonly _authClient = createAuthClient({
     baseURL: environment.apiUrlNext,
+    fetchOptions: { credentials: 'include' },
     plugins: [usernameClient()],
   });
 
@@ -113,7 +106,7 @@ export class SessionService {
     this._session.pipe(skip(1)).subscribe(async (session) => {
       this._clearOperation.next();
       this.sessionInitialized.set(false);
-      if (session?.token || session?.workLocal) {
+      if (session && (this._authenticated.value || session.workLocal)) {
         await db.sessions.put(session);
         if (session.operation?.documentId) {
           const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
@@ -272,22 +265,10 @@ export class SessionService {
     this._isOnline
       .asObservable()
       .pipe(skip(1), distinctUntilChanged())
-      .subscribe((isOnline) => {
-        // feature: show notification that connection was lost
-        if (!isOnline) return;
-        of([])
-          .pipe(
-            switchMap(async () => {
-              await this.refreshToken();
-            }),
-            retry({ count: 5, delay: 1000 }),
-            takeUntil(this._isOnline.asObservable().pipe(filter((isOnline) => !isOnline))),
-          )
-          .subscribe({
-            complete: () => {
-              // feature: show notification that connection was restored
-            },
-          });
+      .subscribe(async (isOnline) => {
+        if (isOnline && !this.isWorkLocal()) {
+          await this.loadAuthenticatedSession();
+        }
       });
   }
 
@@ -544,14 +525,12 @@ export class SessionService {
 
   public async loadSavedSession(): Promise<void> {
     const session = await this.getSavedSession();
-    if (session?.token) {
-      await this.updateToken(session?.token);
-      return;
-    } else if (session?.workLocal) {
+    if (session?.workLocal) {
+      this._authenticated.next(true);
       this._session.next(session);
       return;
     }
-    this._session.next(undefined);
+    await this.loadAuthenticatedSession();
   }
 
   public async login(params: { identifier: string; password: string }): Promise<void> {
@@ -570,7 +549,7 @@ export class SessionService {
       return;
     }
 
-    await this.updateToken(result.data.token);
+    await this.loadAuthenticatedSession();
   }
 
   public async shareLogin(accessToken: string) {
@@ -578,40 +557,34 @@ export class SessionService {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
-    const { result, error: authError } = await this._api.post<IAuthResult>(
-      '/api/accesses/auth/token',
-      { accessToken },
-      { preventAuthorization: true },
-    );
-    // this._authError.next(authError);
-    if (authError || !result?.jwt) {
+    const response = await fetch(`${environment.apiUrlNext}/api/auth/share-access/redeem`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accessToken }),
+    });
+    if (!response.ok) {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
-    await this.updateToken(result.jwt);
+    await this.loadAuthenticatedSession();
   }
 
-  public async updateToken(token: string) {
+  private async loadAuthenticatedSession(): Promise<void> {
     const currentSession = await this.getSavedSession();
 
-    const {error, data: sessionResult} = await this._authClient.getSession();
+    const { error, data: sessionResult } = await this._authClient.getSession();
 
     if (error || !sessionResult) {
-      if (
-        currentSession &&
-        !currentSession.workLocal &&
-        currentSession.token === token &&
-        ((error?.status ?? 0) >= 500 || !this._isOnline.value)
-      ) {
-        //session is not expired but there seams to be a network problem, keep current session
-        this._session.next(currentSession);
+      if ((error?.status ?? 0) >= 500 || !this._isOnline.value) {
         return;
       }
-      await this.logout((error?.status ?? 0) >= 500 ? 'networkError' : 'noToken');
+      this._authenticated.next(false);
+      this._session.next(undefined);
       return;
     }
 
-    const meResult = await createAuthorizedTRPCClient(of(sessionResult.session.token)).auth.me.query();
+    const meResult = await this.trpcClient.auth.me.query();
     let newSession: IZsMapSession;
 
     if (currentSession && !currentSession.workLocal) {
@@ -628,8 +601,6 @@ export class SessionService {
     newSession.label = newSession.label || meResult.organization?.name || meResult.organization?.documentId;
 
     // update organization values
-    newSession.expiresAt = sessionResult.session.expiresAt;
-    newSession.token = token;
     newSession.organizationLogo = meResult.organization?.logo?.url;
     newSession.organization = meResult.organization;
 
@@ -642,7 +613,7 @@ export class SessionService {
     let operationJustSet = false;
 
     if (operationId) {
-      const operation = await this._operationService.getOperation(operationId, { token: token });
+      const operation = await this._operationService.getOperation(operationId);
       if (operation) {
         operationJustSet =
           !currentSession?.operation?.documentId || currentSession.operation.documentId !== operation.documentId;
@@ -650,6 +621,7 @@ export class SessionService {
       }
     }
 
+    this._authenticated.next(true);
     this._session.next(newSession);
 
     const currentUrl = this._router.url;
@@ -688,6 +660,7 @@ export class SessionService {
       label: 'local',
     };
 
+    this._authenticated.next(true);
     this._session.next(newSession);
   }
 
@@ -701,63 +674,20 @@ export class SessionService {
       }
     }
     OperationService.deleteNoneLocalOperations();
+    if (reason === 'logout' && this._isOnline.value && !this.isWorkLocal()) {
+      await this._authClient.signOut();
+    }
+    this._authenticated.next(false);
     this._session.next(undefined);
     await this._router.navigateByUrl('/login');
   }
 
-  public async refreshToken(): Promise<void> {
-    if (this.isWorkLocal()) {
-      return;
-    }
-    const currentToken = this._session.value?.token;
-    if (!currentToken) {
-      await this.logout('noToken');
-      return;
-    }
-
-    const { result, error: authError } = await this._api.get<IAuthResult>('/api/accesses/auth/refresh', {
-      token: currentToken,
-    });
-
-    if (authError || !result?.jwt) {
-      if (decodeJWT(currentToken).expired) {
-        await this.logout('expired');
-      } else if (
-        (authError?.status ?? 0) >= 500 ||
-        authError?.message?.startsWith('NetworkError') ||
-        authError?.message?.startsWith('JSON.parse') ||
-        !this._isOnline.value
-      ) {
-        //await this.logout('networkError');
-        //session is not expired but there seams to be a network problem, keep current session without refresh
-      } else {
-        await this.logout('noToken');
-      }
-      return;
-    }
-
-    await this.updateToken(result.jwt);
-  }
-
-  public getToken(): string | undefined {
-    return this._session.value?.token;
-  }
-
   public observeAuthenticated(): Observable<boolean> {
-    return this._session.pipe(
-      map((session) => {
-        if (session?.workLocal) {
-          return true;
-        }
+    return this._authenticated.pipe(distinctUntilChanged());
+  }
 
-        if (session?.expiresAt && session.expiresAt < new Date()) {
-          this.logout('expired');
-          return false;
-        }
-
-        return true;
-      }),
-    );
+  public isAuthenticated(): boolean {
+    return this._authenticated.value;
   }
 
   public setLocale(locale: Locale): void {

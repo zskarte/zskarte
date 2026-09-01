@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ApiService } from '../../api/api.service';
 import { SessionService } from '../session.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -12,7 +11,6 @@ import { firstValueFrom } from 'rxjs';
 export class ShareComponent {
   private _activatedRoute = inject(ActivatedRoute);
   private _router = inject(Router);
-  private _api = inject(ApiService);
   private _session = inject(SessionService);
 
   constructor() {

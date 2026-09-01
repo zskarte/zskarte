@@ -38,8 +38,6 @@ export interface Context {
   scope: Scope | null;
 }
 
-const bearerHeaders = (token: string): Headers => new Headers({ authorization: `Bearer ${token}` });
-
 export const createContextInner = async (opts: CreateInnerContextOptions = {}): Promise<Context> => {
   const authSession = opts.authSession ?? null;
   const role = isRole(authSession?.user.zsRole) ? authSession.user.zsRole : 'public';
@@ -61,16 +59,8 @@ export const createContextInner = async (opts: CreateInnerContextOptions = {}): 
   };
 };
 
-export const createContext = async ({ req, info }: CreateFastifyContextOptions): Promise<Context> => {
-  console.log(req.query, req);
-
-  const connectionToken =
-    info.connectionParams?.['authorization'] ?? info.connectionParams?.['token'] ?? (req.params as any)['token'];
-  const headers =
-    typeof connectionToken === 'string'
-      ? bearerHeaders(connectionToken.replace(/^Bearer\s+/i, ''))
-      : fromNodeHeaders(req.headers);
-  const authSession = (await auth.api.getSession({ headers })) as AuthSession | null;
+export const createContext = async ({ req }: CreateFastifyContextOptions): Promise<Context> => {
+  const authSession = (await auth.api.getSession({ headers: fromNodeHeaders(req.headers) })) as AuthSession | null;
 
   return createContextInner({
     authSession,
