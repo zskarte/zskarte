@@ -4,7 +4,7 @@ import { router } from '../../trpc/trpc.js';
 import { mapLayerTypeEnum } from './schema.js';
 import * as service from './service.js';
 
-const documentIdInput = z.string().uuid();
+const documentIdInput = z.uuid();
 
 /** tolerates the strapi relation payloads the app still sends (`{ connect: [documentId] }`) */
 const relationInput = z

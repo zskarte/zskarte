@@ -4,7 +4,7 @@ import { router } from '../../trpc/trpc.js';
 import { wmsSourceTypeEnum } from './schema.js';
 import * as service from './service.js';
 
-const documentIdInput = z.string().uuid();
+const documentIdInput = z.uuid();
 
 /**
  * `id`/`documentId`/`organization` are accepted so the ported access control checks can reject

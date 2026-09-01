@@ -24,7 +24,7 @@ export const operationRouter = router({
     .use(requirePermission('operation.byId'))
     .input(
       z.object({
-        documentId: z.string().uuid(),
+        documentId: z.uuid(),
       }),
     )
     .query(({ ctx, input }) => service.byId(ctx, input.documentId)),
@@ -51,7 +51,7 @@ export const operationRouter = router({
     .use(requirePermission('operation.updateMeta'))
     .input(
       z.object({
-        operationId: z.string().uuid(),
+        operationId: z.uuid(),
         data: z.object({
           name: z.string().min(1).optional(),
           description: z.string().nullable().optional(),
@@ -65,7 +65,7 @@ export const operationRouter = router({
     .use(requirePermission('operation.updateMapLayers'))
     .input(
       z.object({
-        operationId: z.string().uuid(),
+        operationId: z.uuid(),
         mapLayers: z.record(z.string(), z.unknown()),
       }),
     )
@@ -76,7 +76,7 @@ export const operationRouter = router({
     .use(requirePermission('operation.archive'))
     .input(
       z.object({
-        operationId: z.string().uuid(),
+        operationId: z.uuid(),
       }),
     )
     .mutation(({ ctx, input }) => service.archive(ctx, input.operationId)),
@@ -86,7 +86,7 @@ export const operationRouter = router({
     .use(requirePermission('operation.unarchive'))
     .input(
       z.object({
-        operationId: z.string().uuid(),
+        operationId: z.uuid(),
       }),
     )
     .mutation(({ ctx, input }) => service.unarchive(ctx, input.operationId)),
@@ -96,7 +96,7 @@ export const operationRouter = router({
     .use(requirePermission('operation.shadowDelete'))
     .input(
       z.object({
-        operationId: z.string().uuid(),
+        operationId: z.uuid(),
       }),
     )
     .mutation(({ ctx, input }) => service.shadowDelete(ctx, input.operationId)),
@@ -105,7 +105,7 @@ export const operationRouter = router({
     .use(requirePermission('operation.submitChangeset'))
     .input(
       z.object({
-        operationId: z.string().uuid(),
+        operationId: z.uuid(),
         identifier: z.string().min(1),
         changeset: z.any(),
       }),

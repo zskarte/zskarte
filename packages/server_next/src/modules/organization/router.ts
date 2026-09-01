@@ -15,7 +15,7 @@ const settingsSchema = z.object({
   changeset: changesetConfigSchema,
 });
 
-const uuidList = z.array(z.string().uuid());
+const uuidList = z.array(z.uuid());
 
 /** strapi kept exactly these two keys of the payload and dropped every other one. */
 const layerSettingsSchema = z.object({
@@ -23,7 +23,7 @@ const layerSettingsSchema = z.object({
   map_layer_favorites: uuidList.optional(),
 });
 
-const organizationIdInput = z.object({ organizationId: z.string().uuid() });
+const organizationIdInput = z.object({ organizationId: z.uuid() });
 
 export const organizationRouter = router({
   /** Public organization projection used by the login organization selector. */

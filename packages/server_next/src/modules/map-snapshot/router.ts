@@ -16,6 +16,6 @@ export const mapSnapshotRouter = router({
 
   byId: orgProcedure
     .use(requirePermission('mapSnapshot.byId'))
-    .input(z.object({ documentId: z.string().uuid() }))
+    .input(z.object({ documentId: z.uuid() }))
     .query(({ ctx, input }) => getMapSnapshotById(ctx, input.documentId)),
 });

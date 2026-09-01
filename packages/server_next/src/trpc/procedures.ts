@@ -46,7 +46,7 @@ export const sessionProcedure = baseProcedure.use(requireSessionMiddleware);
 export const orgProcedure = sessionProcedure.use(requireOrgScopeMiddleware);
 
 export const operationProcedure = orgProcedure
-  .input(z.object({ operationId: z.string().uuid() }))
+  .input(z.object({ operationId: z.uuid() }))
   .use(async ({ ctx, input, next, type, path }) => {
     const [operation] = await ctx.db
       .select({ documentId: operations.documentId, organizationId: operations.organizationId, phase: operations.phase })
