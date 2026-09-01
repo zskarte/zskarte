@@ -63,8 +63,15 @@ export class WmsSourceComponent {
       }
       return clone;
     });
-    const sourceIds = this.sources.map((s) => s.id);
-    this.filteredGlobalSources$.next(this.globalSources.filter((s) => !s.id || !sourceIds.includes(s.id)));
+    this.filterGlobalSources();
+  }
+
+  /** a source of the backend is only identified by its documentId */
+  private filterGlobalSources() {
+    const sourceIds = this.sources.map((s: WmsSource) => s.documentId);
+    this.filteredGlobalSources$.next(
+      this.globalSources.filter((s) => !s.documentId || !sourceIds.includes(s.documentId)),
+    );
   }
 
   updateFullUrl($event: MatRadioChange | Event | null) {
@@ -119,8 +126,7 @@ export class WmsSourceComponent {
       this.selectedSource = undefined;
       this.fullUrl = '';
 
-      const sourceIds = this.sources.map((s) => s.id);
-      this.filteredGlobalSources$.next(this.globalSources.filter((s) => !s.id || !sourceIds.includes(s.id)));
+      this.filterGlobalSources();
     }
   }
 
@@ -132,8 +138,7 @@ export class WmsSourceComponent {
       this.updateFullUrl(null);
       this.globalSource = undefined;
 
-      const sourceIds = this.sources.map((s) => s.id);
-      this.filteredGlobalSources$.next(this.globalSources.filter((s) => !s.id || !sourceIds.includes(s.id)));
+      this.filterGlobalSources();
     }
   }
 }

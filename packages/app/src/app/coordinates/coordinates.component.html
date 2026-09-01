@@ -1,4 +1,4 @@
-<div class="coordinates mat-elevation-z3" [ngClass]="{'showOptions': showOptions}">
+<div class="coordinates mat-elevation-z3" [ngClass]="{ showOptions: showOptions }">
   @if (showOptions) {
     <app-projection-selection
       [projectionFormatIndexes]="projectionFormatIndexes()"
@@ -15,10 +15,9 @@
         </span>
       }
     </div>
-    
-   <button class="switch" mat-icon-button (click)="toggleOptions()"> 
-    <mat-icon>{{ showOptions ? 'save' : 'settings' }}</mat-icon>
-  </button>
-    
+
+    <button class="switch" mat-icon-button (click)="toggleOptions()">
+      <mat-icon>{{ showOptions ? 'save' : 'settings' }}</mat-icon>
+    </button>
   </div>
 </div>

@@ -1,6 +1,13 @@
 <form class="login-form">
   <mat-card>
-    <button type="button" class="help-button" mat-icon-button (click)="openHelp()" [attr.aria-label]="i18n.get('help')" [title]="i18n.get('help')">
+    <button
+      type="button"
+      class="help-button"
+      mat-icon-button
+      (click)="openHelp()"
+      [attr.aria-label]="i18n.get('help')"
+      [title]="i18n.get('help')"
+    >
       <mat-icon>help</mat-icon>
     </button>
     <mat-card-header class="title">
@@ -44,23 +51,36 @@
           </mat-form-field>
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>{{ i18n.get('password') }}</mat-label>
-            <input matInput type="password" [placeholder]="i18n.get('enterPassword')" [(ngModel)]="password" name="password" />
+            <input
+              matInput
+              type="password"
+              [placeholder]="i18n.get('enterPassword')"
+              [(ngModel)]="password"
+              name="password"
+            />
           </mat-form-field>
           @if (session.observeAuthError() | async; as authError) {
             <mat-error>{{
-              authError?.code === 'INVALID_USERNAME_OR_PASSWORD' ? i18n.get('wrongPassword') :
-              authError?.message
+              authError?.code === 'INVALID_USERNAME_OR_PASSWORD' ? i18n.get('wrongPassword') : authError?.message
             }}</mat-error>
           }
         } @else {
           <!-- Login with code dialog-->
           <mat-form-field class="full-width" appearance="outline">
             <mat-label>{{ i18n.get('loginCode') }}</mat-label>
-            <input matInput type="text" [placeholder]="i18n.get('enterLoginCode')" [(ngModel)]="joinCode" name="joinCode" />
+            <input
+              matInput
+              type="text"
+              [placeholder]="i18n.get('enterLoginCode')"
+              [(ngModel)]="joinCode"
+              name="joinCode"
+            />
           </mat-form-field>
         }
         <stack [spacing]="5">
-          <button class="login-button" mat-flat-button color="primary" (click)="login()">{{ i18n.get('login') }}</button>
+          <button class="login-button" mat-flat-button color="primary" (click)="login()">
+            {{ i18n.get('login') }}
+          </button>
           @if (isLoginWithCodeEnabled) {
             <button
               class="login-button"

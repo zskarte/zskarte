@@ -75,7 +75,7 @@ mat-action-list {
 }
 
 .mat-sidenav {
-  margin: .5rem .5rem .5rem 0;
+  margin: 0.5rem 0.5rem 0.5rem 0;
   background-color: #fff;
   border-radius: 1rem !important;
   border: 1px solid #dedede;
@@ -158,7 +158,7 @@ fieldset.like-mat-form-field-outline {
   border-color: var(--mat-form-field-outlined-outline-color);
   border-radius: var(--mat-form-field-outlined-container-shape);
   &:hover {
-    border-color: var(--mdc-outlined-text-field-hover-outline-color, rgba(0, 0, 0, .87));
+    border-color: var(--mdc-outlined-text-field-hover-outline-color, rgba(0, 0, 0, 0.87));
   }
   &:focus-within {
     border-width: var(--mat-form-field-outlined-focus-outline-width);
@@ -279,11 +279,9 @@ fieldset.like-mat-form-field-outline:focus-within > legend {
   background: transparent;
 }
 
-
 .mat-mdc-card {
   box-shadow: none !important;
   border: 1px solid #dedede !important;
   border-radius: 1rem !important;
   padding: 1rem !important;
 }
-

@@ -50,7 +50,12 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="['symbol', 'name', 'actions']"></tr>
-        <tr mat-row class="row" *matRowDef="let row; columns: ['symbol', 'name', 'actions']" (click)="selectSign(row)"></tr>
+        <tr
+          mat-row
+          class="row"
+          *matRowDef="let row; columns: ['symbol', 'name', 'actions']"
+          (click)="selectSign(row)"
+        ></tr>
       </table>
     </div>
   </mat-card>

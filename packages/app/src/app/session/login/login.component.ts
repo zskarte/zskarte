@@ -1,5 +1,6 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
+import { trpc } from '../../api/trpc.client';
 import { getResponsiveImageSource } from '../../helper/strapi-utils';
 import { SessionService } from '../session.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';
@@ -64,7 +65,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   async ngOnInit() {
-    const result = await this.session.trpcClient.organization.forLogin.query();
+    const result = await trpc.organization.forLogin.query();
     const orgs: IZso[] = [];
     for (const org of result) {
       if (org.users?.length > 0 && org.users[0]?.username) {

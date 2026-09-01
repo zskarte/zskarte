@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, from, of, tap } from 'rxjs';
 import { Coordinate } from 'ol/coordinate';
 import { mercatorProjection, swissProjection } from '../../helper/projections';
-import { MapLayer, WMSMapLayer, WmsSource, WmsSourceApi } from '@zskarte/types';
+import { MapLayer, WMSMapLayer, WmsSource } from '@zskarte/types';
 import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 import OlTileWMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
 import WMSCapabilities from 'ol/format/WMSCapabilities';
@@ -12,7 +12,8 @@ import OlTileLayer from '../../map-renderer/utils';
 import ImageLayer from 'ol/layer/Image';
 import ImageWMS from 'ol/source/ImageWMS';
 import { LOG2_ZOOM_0_RESOLUTION, DEFAULT_RESOLUTION } from '../../session/default-map-values';
-import { ApiResponse, ApiService } from '../../api/api.service';
+import { trpc } from '../../api/trpc.client';
+import { trpcRequest } from '../../api/trpc.error';
 import TileGrid, { Options as TileGridOptions } from 'ol/tilegrid/TileGrid';
 import { getForProjection } from 'ol/tilegrid';
 import { MapLayerService } from '../map-layer.service';
@@ -20,11 +21,14 @@ import { MapLayerService } from '../map-layer.service';
 const ATTRIBUTION_POPUP_STYLE =
   'position: absolute; top: -80vh; width: 500px; background-color: white; text-align: left; padding: 20px; margin-left: calc(50% - 250px)';
 
+/** projections of the `wmsSource` procedures, inferred from the client so the server stays authoritative */
+export type WmsSourceApiResponse = Awaited<ReturnType<typeof trpc.wmsSource.list.query>>[number];
+export type WmsSourceApiData = Parameters<typeof trpc.wmsSource.create.mutate>[0]['data'];
+
 @Injectable({
   providedIn: 'root',
 })
 export class WmsService {
-  private _api = inject(ApiService);
   private _mapLayerService = inject(MapLayerService);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -527,16 +531,21 @@ export class WmsService {
     ];
   }
 
-  static mapWmsSourceResponse(source: WmsSourceApi, organizationId: string) {
-    source.owner = source.organization?.documentId === organizationId;
-    delete source.organization;
-    delete source.createdAt;
-    delete source.updatedAt;
-    return source as WmsSource;
+  static mapWmsSourceResponse(source: WmsSourceApiResponse, organizationId: string): WmsSource {
+    //the response only transports the persisted columns, the timestamps and the relation are not part of WmsSource
+    return {
+      documentId: source.documentId,
+      url: source.url ?? '',
+      label: source.label ?? '',
+      type: source.type ?? 'wms',
+      attribution: source.attribution ?? undefined,
+      public: source.public,
+      owner: source.organization?.documentId === organizationId,
+    };
   }
 
   async readGlobalWMSSources(organizationId: string) {
-    const { error, result: sources } = await this._api.get<WmsSourceApi[]>('/api/wms-sources');
+    const { error, result: sources } = await trpcRequest(trpc.wmsSource.list.query());
     if (error || !sources) {
       return [];
     }
@@ -547,21 +556,20 @@ export class WmsService {
     if (!source.owner) {
       return null;
     }
-    const { owner, ...validFields } = source;
-    let response: ApiResponse<WmsSourceApi>;
-    if (source.documentId) {
-      response = await this._api.put(`/api/wms-sources/${source.documentId}`, {
-        data: { ...validFields, organization: organizationId },
-      });
-    } else {
-      response = await this._api.post('/api/wms-sources', { data: { ...validFields, organization: organizationId } });
-    }
-    const { error, result } = response;
+    // the organization of the entry is derived from the session, sending it would be rejected with FORBIDDEN
+    const data: WmsSourceApiData = {
+      label: source.label,
+      type: source.type,
+      url: source.url,
+      attribution: source.attribution,
+      public: source.public,
+    };
+    const { error, result } = source.documentId
+      ? await trpcRequest(trpc.wmsSource.update.mutate({ documentId: source.documentId, data }))
+      : await trpcRequest(trpc.wmsSource.create.mutate({ data }));
     if (error) {
       console.error('saveGlobalWMSSource', error);
     } else if (result) {
-      //on save the referenced organisation is no returned
-      result.organization = { documentId: organizationId };
       return WmsService.mapWmsSourceResponse(result, organizationId);
     }
     return null;

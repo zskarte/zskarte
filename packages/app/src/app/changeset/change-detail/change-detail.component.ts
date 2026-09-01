@@ -1,7 +1,8 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ApiService } from '../../api/api.service';
+import { trpc } from '../../api/trpc.client';
+import { trpcRequest } from '../../api/trpc.error';
 import { SessionService } from '../../session/session.service';
 import { I18NService } from '../../state/i18n.service';
 import { ZsMapStateService } from '../../state/state.service';
@@ -20,7 +21,6 @@ import { applyPatches } from 'immer';
 export class ChangeDetailComponent {
   NO_CONFLICT_VALUE = NO_CONFLICT_VALUE;
   i18n = inject(I18NService);
-  private apiService = inject(ApiService);
   private sessionService = inject(SessionService);
   private stateService = inject(ZsMapStateService);
   private changesetService = inject(ChangesetService);
@@ -46,7 +46,6 @@ export class ChangeDetailComponent {
   >(undefined);
 
   operation?: IZsMapOperation;
-  readonly snapshotApiPath = '/api/map-snapshots';
 
   constructor() {
     this.operation = this.sessionService.getOperation();
@@ -60,9 +59,18 @@ export class ChangeDetailComponent {
         return;
       }
 
-      this.apiService
-        .get<IZsMapSnapshot>(`${this.snapshotApiPath}/${id}`)
-        .then((response) => this.snapshot.set(response.result));
+      trpcRequest(trpc.mapSnapshot.byId.query({ documentId: id })).then(({ result }) =>
+        this.snapshot.set(
+          result?.mapState
+            ? {
+                documentId: result.documentId,
+                changesetIds: result.changesetIds ?? [],
+                mapState: result.mapState,
+                createdAt: result.createdAt,
+              }
+            : undefined,
+        ),
+      );
     });
     effect(() => {
       const changeset = this.changeset();

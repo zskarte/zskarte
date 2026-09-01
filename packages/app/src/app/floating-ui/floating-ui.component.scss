@@ -45,7 +45,7 @@
   align-self: flex-start;
   justify-content: space-between;
   container: floating-ui-top-row / inline-size;
-    
+
   &.sidebar-open {
     width: calc(100% - var(--sidebar-width));
   }

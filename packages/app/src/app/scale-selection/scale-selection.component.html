@@ -11,7 +11,7 @@
       <mat-label>screenDimension (in ")</mat-label>
       <input matInput type="text" [(ngModel)]="screenDimension" name="screenDimension" (change)="updateDpi()" />
     </mat-form-field>
-  </mat-card> 
+  </mat-card>
 
   <mat-card>
     <mat-form-field class="full-width" appearance="outline">
@@ -39,4 +39,3 @@
     <button mat-flat-button (click)="ok()" color="primary">{{ i18n.get('ok') }}</button>
   </div>
 </app-dialog-footer>
-

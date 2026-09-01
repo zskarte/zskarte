@@ -15,7 +15,7 @@
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
-  
+
   <mat-sidenav-container class="help-sidenav-container">
     <mat-sidenav mode="side" opened class="help-sidenav">
       <mat-nav-list>
@@ -47,8 +47,7 @@
               }
             }
           </div>
-        }
-        @empty {
+        } @empty {
           <div class="no-results">
             <p>{{ i18n.get('noResults') || 'No results found' }}</p>
           </div>
@@ -83,10 +82,7 @@
                   />
                 </div>
               }
-              <div
-                class="article-text"
-                [innerHTML]="i18n.get(article.contentKey)"
-              ></div>
+              <div class="article-text" [innerHTML]="i18n.get(article.contentKey)"></div>
             </div>
           </mat-card-content>
         </mat-card>

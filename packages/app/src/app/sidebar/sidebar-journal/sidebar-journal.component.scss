@@ -32,7 +32,7 @@ mat-panel-title {
     background: transparent;
 
     &.mat-expanded {
-      background-color: #F1F1F1;
+      background-color: #f1f1f1;
     }
 
     .mat-expansion-panel-header {
@@ -41,7 +41,7 @@ mat-panel-title {
 
     .mat-expansion-panel-body {
       padding: 0 16px 16px 16px;
-      background-color: #F1F1F1;
+      background-color: #f1f1f1;
     }
   }
 }
@@ -56,8 +56,6 @@ mat-panel-title {
   width: 30rem;
 }
 
-
-
 .mark-as-drawn-container {
   margin-top: -8px;
   padding-top: 8px;
@@ -66,7 +64,6 @@ mat-panel-title {
 .mark-as-drawn-button {
   width: 100%;
 }
-
 
 .tab-group-wrapper {
   display: flex;

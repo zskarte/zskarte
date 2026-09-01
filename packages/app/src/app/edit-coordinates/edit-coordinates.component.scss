@@ -22,7 +22,8 @@ mat-form-field textarea {
   height: 30vh;
 }
 
-@media screen and (max-width: 650px) and (orientation: portrait), screen and (max-height: 650px) and (orientation: landscape) {
+@media screen and (max-width: 650px) and (orientation: portrait),
+  screen and (max-height: 650px) and (orientation: landscape) {
   mat-form-field {
     width: 100%;
     min-width: auto;

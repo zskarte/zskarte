@@ -31,7 +31,7 @@
   @if (geodienste_source) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('geodiensteLayerId') }}</mat-label>
-      <input matInput type="url" [(ngModel)]="layer.geodiensteSourceLayerId" [disabled]="layer.type !== 'wms_custom'"/>
+      <input matInput type="url" [(ngModel)]="layer.geodiensteSourceLayerId" [disabled]="layer.type !== 'wms_custom'" />
     </mat-form-field>
   }
   @if (custom_source) {

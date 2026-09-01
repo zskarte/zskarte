@@ -1,6 +1,7 @@
-import { inject, Injectable } from '@angular/core';
-import { IZsChangeset, IZsMapOperation, IZsSigningKey } from '@zskarte/types';
-import { ApiService } from '../api/api.service';
+import { Injectable } from '@angular/core';
+import { IZsChangeset, IZsMapOperation } from '@zskarte/types';
+import { trpc } from '../api/trpc.client';
+import { trpcRequest } from '../api/trpc.error';
 import { sortKeysDeep } from '@zskarte/common';
 
 export interface IZsSignKeyConfig {
@@ -12,7 +13,6 @@ export interface IZsSignKeyConfig {
   providedIn: 'root',
 })
 export class SigningService {
-  private _api = inject(ApiService);
   private encoder = new TextEncoder();
   private publicKeys: Record<string, IZsSignKeyConfig> = {};
 
@@ -38,7 +38,7 @@ export class SigningService {
   }
 
   private async loadKey(keyId: string, serverId?: string): Promise<IZsSignKeyConfig | null> {
-    const { error, result } = await this._api.get<IZsSigningKey>(`/api/signing-key/bykey/${keyId}`);
+    const { error, result } = await trpcRequest(trpc.signingKey.byKeyId.query({ keyId }));
     if (error || !result) {
       console.error(`Load signing Key '${keyId}' failed: ${JSON.stringify(error) || 'result empty'}.`);
       return null;

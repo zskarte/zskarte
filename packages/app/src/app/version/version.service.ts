@@ -4,9 +4,9 @@ import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from '../state/i18n.service';
 import { version } from '../../../package.json';
-import { ApiService } from '../api/api.service';
+import { trpc } from '../api/trpc.client';
+import { trpcRequest } from '../api/trpc.error';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
-import { CompatibilityResponse } from '@zskarte/types';
 
 export interface VersionInfos {
   version: string;
@@ -21,7 +21,6 @@ export class VersionService {
   private _swUpdate = inject(SwUpdate);
   private _dialog = inject(MatDialog);
   private _i18n = inject(I18NService);
-  private _api = inject(ApiService);
   private notCompatibleDialogRef: MatDialogRef<InfoDialogComponent, any> | undefined;
   private newVersionDialogRef: MatDialogRef<ConfirmationDialogComponent, any> | undefined;
   readonly versionInfos = signal<VersionInfos>({ version: version as string });
@@ -51,7 +50,7 @@ export class VersionService {
 
   public checkVersionCompatible() {
     if (this.compatibleWithBackend() === undefined) {
-      this._api.get<CompatibilityResponse>(`/api/version/compatibility?version=${version}`).then((response) => {
+      trpcRequest(trpc.version.compatibility.query({ version })).then((response) => {
         const { result, error } = response;
         if (error || !result?.success) {
           console.error(error);

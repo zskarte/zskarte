@@ -45,26 +45,13 @@ import { BLOB_URL_JOURNAL_ENTRY_TEMPLATE } from '../journal/journal.types';
 import { createAuthClient } from 'better-auth/client';
 import { usernameClient } from 'better-auth/client/plugins';
 import { environment } from '../../environments/environment';
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '@zskarte/server-next/dist/trpc/router';
-import superjson from 'superjson';
+import { trpc } from '../api/trpc.client';
+import { trpcRequest } from '../api/trpc.error';
 
 const LANGUAGE_PREFERENCE_KEY = 'zskarte-language-preference';
 
 export type LogoutReason = 'logout' | 'networkError';
 export type AuthError = { code?: string; message?: string };
-
-function createCookieTRPCClient() {
-  return createTRPCClient<AppRouter>({
-    links: [
-      httpBatchLink({
-        url: `${environment.apiUrlNext}/trpc`,
-        transformer: superjson,
-        fetch: (url, options) => fetch(url, { ...options, credentials: 'include' }),
-      }),
-    ],
-  });
-}
 
 @Injectable({
   providedIn: 'root',
@@ -83,7 +70,6 @@ export class SessionService {
   private _authenticated = new BehaviorSubject(false);
   private _isOnline = new BehaviorSubject<boolean>(true);
   public readonly sessionInitialized = signal(false);
-  public readonly trpcClient = createCookieTRPCClient();
   private readonly _authClient = createAuthClient({
     baseURL: environment.apiUrlNext,
     fetchOptions: { credentials: 'include' },
@@ -345,7 +331,7 @@ export class SessionService {
     this._state.updateChangesetConfig((draft) => Object.assign(draft, data.changeset));
     const organization = this.getOrganization();
     if (organization?.documentId) {
-      await this._api.put(`/api/organizations/${organization.documentId}/settings`, { data });
+      await trpc.organization.updateSettings.mutate({ organizationId: organization.documentId, data });
 
       organization.settings = data;
       //update session object
@@ -364,7 +350,7 @@ export class SessionService {
   public async saveOrganizationMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {
     const organization = this.getOrganization();
     if (organization?.documentId) {
-      await this._api.put(`/api/organizations/${organization.documentId}/layer-settings`, { data });
+      await trpc.organization.updateLayerSettings.mutate({ organizationId: organization.documentId, data });
 
       organization.wms_sources = data.wms_sources;
       organization.map_layer_favorites = data.map_layer_favorites;
@@ -383,9 +369,13 @@ export class SessionService {
   public async saveJournalEntryTemplate(data: object | null) {
     const organization = this.getOrganization();
     if (organization?.documentId) {
-      const response = await this._api.put(`/api/organizations/${organization.documentId}/journal-entry-template`, {
-        data,
-      });
+      const response = await trpcRequest(
+        trpc.organization.updateJournalEntryTemplate.mutate({
+          organizationId: organization.documentId,
+          // the template is an opaque pdfme/quill document, the procedure only stores it as jsonb
+          data: data as Record<string, unknown> | null,
+        }),
+      );
       const { error, result } = response;
       if (error || !result) {
         console.error('error on update JournalEntryTemplate', error);
@@ -584,7 +574,7 @@ export class SessionService {
       return;
     }
 
-    const meResult = await this.trpcClient.auth.me.query();
+    const meResult = await trpc.auth.me.query();
     let newSession: IZsMapSession;
 
     if (currentSession && !currentSession.workLocal) {

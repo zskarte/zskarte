@@ -21,12 +21,13 @@
     <div class="buttons">
       @switch (dataBlobMeta?.blobState) {
         @case ('loading') {
-          <button mat-stroked-button color="warn" class="button-cancel" (click)="cancelDownloadData()">{{ i18n.get('cancel') }}</button>
+          <button mat-stroked-button color="warn" class="button-cancel" (click)="cancelDownloadData()">
+            {{ i18n.get('cancel') }}
+          </button>
           <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="dataProgress" />
         }
         @case ('downloaded') {
           <button mat-stroked-button color="warn" class="button-remove" (click)="removeData()">
-            
             {{ i18n.get('remove') }}
           </button>
           <div class="source">{{ i18n.get('blobMetaBlobSource') }} {{ dataBlobMeta?.source }}</div>
@@ -57,7 +58,9 @@
       <div class="buttons">
         @switch (styleBlobMeta?.blobState) {
           @case ('loading') {
-            <button mat-stroked-button color="warn" class="button-cancel" (click)="cancelDownloadStyle()">{{ i18n.get('cancel') }}</button>
+            <button mat-stroked-button color="warn" class="button-cancel" (click)="cancelDownloadStyle()">
+              {{ i18n.get('cancel') }}
+            </button>
             <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="styleProgress" />
           }
           @case ('downloaded') {
@@ -90,8 +93,12 @@
             <textarea matInput [(ngModel)]="styleText"></textarea>
           </mat-form-field>
           <div class="buttons">
-            <button mat-flat-button color="primary" class="button-editStyle" (click)="endEditStyle()">{{ i18n.get('ok') }}</button>
-            <button mat-flat-button class="button-editStyle" (click)="cancelEditStyle()">{{ i18n.get('cancel') }}</button>
+            <button mat-flat-button color="primary" class="button-editStyle" (click)="endEditStyle()">
+              {{ i18n.get('ok') }}
+            </button>
+            <button mat-flat-button class="button-editStyle" (click)="cancelEditStyle()">
+              {{ i18n.get('cancel') }}
+            </button>
           </div>
         </div>
       }

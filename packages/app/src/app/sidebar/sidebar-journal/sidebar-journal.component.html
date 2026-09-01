@@ -44,7 +44,13 @@
                 <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
                 @if (!isReadOnly()) {
                   <div class="mark-as-drawn-container">
-                    <button mat-flat-button color="primary" class="mark-as-drawn-button" (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}
+                    <button
+                      mat-flat-button
+                      color="primary"
+                      class="mark-as-drawn-button"
+                      (click)="journal.markAsDrawn(entry, true)"
+                    >
+                      {{ i18n.get('markAsDrawn') }}
                       <mat-icon>check</mat-icon>
                     </button>
                   </div>

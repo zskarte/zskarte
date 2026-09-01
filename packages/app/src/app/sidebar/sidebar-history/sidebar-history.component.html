@@ -39,7 +39,11 @@
     </tr>
   </table>
 }
-<mat-paginator [length]="resultSize" [pageSize]="20" aria-label="Select page of Snapshot search result"></mat-paginator>
+<mat-paginator
+  [length]="resultSize"
+  [pageSize]="pageSize"
+  aria-label="Select page of Snapshot search result"
+></mat-paginator>
 
 <ng-template #changesetInfos let-changeset="changeset" let-element="element">
   <div class="changeset">

@@ -86,11 +86,11 @@ export class OrganisationLayerSettingsComponent {
         let layers = data.allLayers.sort((a: MapLayer, b: MapLayer) => a.label.localeCompare(b.label));
         if (source !== 'ALL') {
           if (source === '_OwnMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined && f.owner);
+            layers = layers.filter((f) => OrganisationLayerSettingsComponent.isPersisted(f) && f.owner);
           } else if (source === '_GlobalMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined && !f.owner && !f.managed);
+            layers = layers.filter((f) => OrganisationLayerSettingsComponent.isPersisted(f) && !f.owner && !f.managed);
           } else if (source === '_ManagedMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined && f.managed);
+            layers = layers.filter((f) => OrganisationLayerSettingsComponent.isPersisted(f) && f.managed);
           } else if (source === '_geodienste_') {
             layers = layers.filter((f) => f.fullId.startsWith('geodienste|'));
           } else {
@@ -103,6 +103,11 @@ export class OrganisationLayerSettingsComponent {
           : layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''));
       }),
     );
+  }
+
+  /** a persisted layer is identified by its documentId, only local only layers still carry a generated id */
+  private static isPersisted(layer: MapLayer) {
+    return layer.documentId !== undefined || layer.id !== undefined;
   }
 
   toggleSource(item: WmsSource) {
@@ -135,7 +140,7 @@ export class OrganisationLayerSettingsComponent {
   selectLayer(layer: MapLayer) {
     const index = this.layer_favorites.indexOf(layer);
     if (index === -1) {
-      let existing = this.layer_favorites.find((f) => f.id === layer.id);
+      let existing = layer.documentId ? this.layer_favorites.find((f) => f.documentId === layer.documentId) : undefined;
       if (!existing) {
         existing = this.layer_favorites.find((f) => f.fullId === layer.fullId);
       }
@@ -188,7 +193,7 @@ export class OrganisationLayerSettingsComponent {
   }
 
   async ok() {
-    const map_layer_favorites: number[] = [];
+    const map_layer_favorites: string[] = [];
     const errors: string[] = [];
     for (let i = 0; i < this.layer_favorites.length; i++) {
       const layer = { ...this.layer_favorites[i] };
@@ -196,7 +201,7 @@ export class OrganisationLayerSettingsComponent {
       const selectedLayer = this.data.selectedLayers.find(
         (g) => g.fullId === layer.fullId && OrganisationLayerSettingsComponent.sameOptions(g, layer),
       );
-      if (layer.id) {
+      if (layer.documentId) {
         const defaultLayer = this.data.allLayers.find((g) => g.fullId === layer.fullId);
         if (defaultLayer) {
           if (
@@ -207,7 +212,7 @@ export class OrganisationLayerSettingsComponent {
             ])
           ) {
             // unchaged existing globalMapLayer, add it
-            map_layer_favorites.push(layer.id);
+            map_layer_favorites.push(layer.documentId);
             if (!this.data.organization) {
               // if it's local mode make sure layer is saved locally
               await this._mapLayerService.saveLocalMapLayer(layer);
@@ -244,11 +249,11 @@ export class OrganisationLayerSettingsComponent {
       // as you change it, it's not longer managed
       layer.managed = false;
       const savedLayer = await this._mapLayerService.saveGlobalMapLayer(layer, this.data.organization?.documentId);
-      if (savedLayer?.id) {
+      if (savedLayer) {
         this.layer_favorites[i] = savedLayer;
-        // add new added/updated layer
-        if(!map_layer_favorites.includes(savedLayer.id)){
-          map_layer_favorites.push(savedLayer.id);
+        // add new added/updated layer, a local only layer has no documentId to reference
+        if (savedLayer.documentId && !map_layer_favorites.includes(savedLayer.documentId)) {
+          map_layer_favorites.push(savedLayer.documentId);
         }
         this.updateSelectedLayer(selectedLayer, savedLayer);
       } else {

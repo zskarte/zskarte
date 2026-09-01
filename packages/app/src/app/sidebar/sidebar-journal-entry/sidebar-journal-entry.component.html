@@ -1,8 +1,8 @@
 <div class="entry-header">
   @if (entry().isDrawingOnMap) {
-  <div class="drawing-warning-card">
-    {{ i18n.get('someoneIsDrawing') }}
-  </div>
+    <div class="drawing-warning-card">
+      {{ i18n.get('someoneIsDrawing') }}
+    </div>
   }
   <div class="meta-infos-container">
     <div class="meta-info-card">
@@ -20,110 +20,151 @@
   <div class="content-section">
     <div class="section-title">{{ i18n.get('description') }}</div>
     <div class="section-content">
-      <p class="preserve-linebreak" [innerHTML]="entry()!.messageContent | replaceAllAddressTokens : true"
-        (click)="search.handleMessageContentClick($event)"></p>
+      <p
+        class="preserve-linebreak"
+        [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true"
+        (click)="search.handleMessageContentClick($event)"
+      ></p>
     </div>
   </div>
   @if (entry().decision && entry().decision.trim()) {
-  <div class="content-section" [class.entscheid-awaiting-completion]="entry().entryStatus === JournalEntryStatus.AWAITING_COMPLETION || entry().entryStatus === JournalEntryStatus.COMPLETED">
-    <div class="section-title">{{ i18n.get('decision') }}</div>
-    <div class="section-content">
-      <p class="preserve-linebreak">{{ entry().decision }}</p>
+    <div
+      class="content-section"
+      [class.entscheid-awaiting-completion]="
+        entry().entryStatus === JournalEntryStatus.AWAITING_COMPLETION ||
+        entry().entryStatus === JournalEntryStatus.COMPLETED
+      "
+    >
+      <div class="section-title">{{ i18n.get('decision') }}</div>
+      <div class="section-content">
+        <p class="preserve-linebreak">{{ entry().decision }}</p>
+      </div>
     </div>
-  </div>
   }
   <div class="content-section">
     <div class="section-title">{{ i18n.get('drawnSymbols') }}</div>
     <div class="section-content">
       @if (entryElements().length === 0) {
-      <div class="signatures-empty">
-        <p>{{ i18n.get('noSignatureAvailable') }}</p>
+        <div class="signatures-empty">
+          <p>{{ i18n.get('noSignatureAvailable') }}</p>
+          <div class="signature-buttons">
+            <button mat-stroked-button (click)="addSignature()">
+              <mat-icon>add</mat-icon>
+              {{ i18n.get('addSignature') }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="signatures-list">
+          @for (element of entryElements(); track element.elementState?.id) {
+            <div class="signature-item-container">
+              <button
+                class="signature-item"
+                [disabled]="!element.coordinates || editingElementId() === element.id"
+                [attr.data-editing]="editingElementId() === element.id ? '' : null"
+                (click)="handleButtonClick($event, element)"
+                (mouseenter)="highlightElement(element, true)"
+                (mouseleave)="highlightElement(element, false)"
+                (keydown)="handleButtonKeydown($event, element.id)"
+              >
+                @if (element.imageUrl) {
+                  <img [src]="element.imageUrl" class="signature-icon" />
+                } @else {
+                  <mat-icon class="signature-icon">widgets</mat-icon>
+                }
+                @if (editingElementId() === element.id) {
+                  <input
+                    class="signature-name-input"
+                    type="text"
+                    [value]="editingValue()"
+                    (input)="updateEditingValue($any($event.target).value)"
+                    (keydown.enter)="
+                      saveElementName(element, $any($event.target).value);
+                      $event.preventDefault();
+                      $event.stopPropagation()
+                    "
+                    (keydown.escape)="cancelEditing(); $event.stopPropagation()"
+                    (keydown)="handleInputKeydown($event)"
+                    (click)="$event.stopPropagation()"
+                    (mousedown)="$event.stopPropagation()"
+                    (focus)="$event.stopPropagation()"
+                    autofocus
+                  />
+                } @else {
+                  @if (getElementName(element)) {
+                    <span class="signature-name">{{ getElementName(element) }}</span>
+                  } @else {
+                    <span class="signature-name signature-name-fallback">{{ getSymbolName(element) }}</span>
+                  }
+                }
+              </button>
+              <div class="signature-actions">
+                @if (editingElementId() === element.id) {
+                  <button
+                    mat-icon-button
+                    class="save-signature-button"
+                    (click)="saveElementName(element); $event.stopPropagation()"
+                    [attr.aria-label]="i18n.get('save')"
+                    [attr.title]="i18n.get('save')"
+                    type="button"
+                  >
+                    <mat-icon>check</mat-icon>
+                  </button>
+                } @else {
+                  <button
+                    mat-icon-button
+                    class="edit-signature-button"
+                    (click)="startEditing(element); $event.stopPropagation()"
+                    [attr.aria-label]="i18n.get('edit')"
+                    [attr.title]="i18n.get('edit')"
+                    type="button"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+                <button
+                  mat-icon-button
+                  color="warn"
+                  class="delete-signature-button"
+                  (click)="deleteSignature(element); $event.stopPropagation()"
+                  [attr.aria-label]="i18n.get('delete')"
+                  [attr.title]="i18n.get('delete')"
+                  type="button"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
         <div class="signature-buttons">
           <button mat-stroked-button (click)="addSignature()">
             <mat-icon>add</mat-icon>
             {{ i18n.get('addSignature') }}
           </button>
-        </div>
-      </div>
-      } @else {
-      <div class="signatures-list">
-        @for (element of entryElements(); track element.elementState?.id) {
-        <div class="signature-item-container">
-          <button class="signature-item" [disabled]="!element.coordinates || editingElementId() === element.id" 
-            [attr.data-editing]="editingElementId() === element.id ? '' : null"
-            (click)="handleButtonClick($event, element)"
-            (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)"
-            (keydown)="handleButtonKeydown($event, element.id)">
-            @if (element.imageUrl) {
-            <img [src]="element.imageUrl" class="signature-icon" />
-            } @else {
-            <mat-icon class="signature-icon">widgets</mat-icon>
-            }
-            @if (editingElementId() === element.id) {
-              <input
-                class="signature-name-input"
-                type="text"
-                [value]="editingValue()"
-                (input)="updateEditingValue($any($event.target).value)"
-                (keydown.enter)="saveElementName(element, $any($event.target).value); $event.preventDefault(); $event.stopPropagation()"
-                (keydown.escape)="cancelEditing(); $event.stopPropagation()"
-                (keydown)="handleInputKeydown($event)"
-                (click)="$event.stopPropagation()"
-                (mousedown)="$event.stopPropagation()"
-                (focus)="$event.stopPropagation()"
-                autofocus
-              />
-            } @else {
-              @if (getElementName(element)) {
-                <span class="signature-name">{{ getElementName(element) }}</span>
-              } @else {
-                <span class="signature-name signature-name-fallback">{{ getSymbolName(element) }}</span>
-              }
-            }
+          <button mat-stroked-button (click)="focusSignatures()">
+            <mat-icon>my_location</mat-icon>
+            {{ i18n.get('focusSignatures') }}
           </button>
-          <div class="signature-actions">
-            @if (editingElementId() === element.id) {
-              <button mat-icon-button class="save-signature-button" (click)="saveElementName(element); $event.stopPropagation()"
-                [attr.aria-label]="i18n.get('save')" [attr.title]="i18n.get('save')" type="button">
-                <mat-icon>check</mat-icon>
-              </button>
-            } @else {
-              <button mat-icon-button class="edit-signature-button" (click)="startEditing(element); $event.stopPropagation()"
-                [attr.aria-label]="i18n.get('edit')" [attr.title]="i18n.get('edit')" type="button">
-                <mat-icon>edit</mat-icon>
-              </button>
-            }
-            <button mat-icon-button color="warn" class="delete-signature-button" (click)="deleteSignature(element); $event.stopPropagation()"
-              [attr.aria-label]="i18n.get('delete')" [attr.title]="i18n.get('delete')" type="button">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
         </div>
-        }
-      </div>
-      <div class="signature-buttons">
-        <button mat-stroked-button (click)="addSignature()">
-          <mat-icon>add</mat-icon>
-          {{ i18n.get('addSignature') }}
-        </button>
-        <button mat-stroked-button (click)="focusSignatures()">
-          <mat-icon>my_location</mat-icon>
-          {{ i18n.get('focusSignatures') }}
-        </button>
-      </div>
       }
     </div>
   </div>
   <div class="action-buttons">
-    <button mat-stroked-button class="show-in-journal-button" [attr.aria-label]="i18n.get('showInJournal')"
-      [attr.title]="i18n.get('showInJournal')" (click)="openJournalClick($event)">
+    <button
+      mat-stroked-button
+      class="show-in-journal-button"
+      [attr.aria-label]="i18n.get('showInJournal')"
+      [attr.title]="i18n.get('showInJournal')"
+      (click)="openJournalClick($event)"
+    >
       <mat-icon>menu_book</mat-icon>
       {{ i18n.get('showInJournal') }}
     </button>
     @if (hasIncompleteSignatures()) {
-    <button mat-stroked-button color="warn" class="warning-button" (click)="markAsNotDrawn()">
-      {{ i18n.get('signaturesNotComplete') }}
-    </button>
+      <button mat-stroked-button color="warn" class="warning-button" (click)="markAsNotDrawn()">
+        {{ i18n.get('signaturesNotComplete') }}
+      </button>
     }
   </div>
 </div>

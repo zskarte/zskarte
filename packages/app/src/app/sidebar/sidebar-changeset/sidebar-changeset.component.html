@@ -95,7 +95,11 @@
     @for (element of changesetService.conflictDetails()?.conflicts; track element.drawElementId) {
       @if (element.conflict || !conflictsOnly) {
         <div class="merge-element" [attr.data-elemId]="element.drawElementId">
-          <div class="conflict-element" (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
+          <div
+            class="conflict-element"
+            (mouseenter)="highlightElement(element, true)"
+            (mouseleave)="highlightElement(element, false)"
+          >
             @if (element.symbolImageUrl) {
               <img [src]="element.symbolImageUrl" class="signature-icon" />
             } @else {
@@ -151,7 +155,11 @@
         </div>
       }
     }
-    <div><button class="merge-button" mat-flat-button color="primary" (click)="finish()" title="finish">merge changes</button></div>
+    <div>
+      <button class="merge-button" mat-flat-button color="primary" (click)="finish()" title="finish">
+        merge changes
+      </button>
+    </div>
   } @else {
     <p>no conflicts, all fine</p>
   }

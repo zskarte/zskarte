@@ -8,6 +8,23 @@
     "name": "ZSKarte Team"
   },
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./router": {
+      "types": "./dist/trpc/router.d.ts",
+      "default": "./dist/trpc/router.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/auth.d.ts",
+      "default": "./dist/auth/auth.js"
+    },
+    "./dist/*": "./dist/*"
+  },
   "engines": {
     "node": ">=22.14.0"
   },
