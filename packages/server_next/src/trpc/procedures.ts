@@ -63,7 +63,11 @@ export const operationProcedure = orgProcedure
       throw forbidden;
     }
 
-    const allowedArchivedMutation = path.endsWith('.unarchive') || path.endsWith('.shadowDelete');
+    const allowedArchivedMutation =
+      path === 'unarchive' ||
+      path.endsWith('.unarchive') ||
+      path === 'shadowDelete' ||
+      path.endsWith('.shadowDelete');
     if (type === 'mutation' && operation.phase !== 'active' && !allowedArchivedMutation) {
       throw new TRPCError({ code: 'FORBIDDEN', message: 'The operation is archived, no update allowed.' });
     }

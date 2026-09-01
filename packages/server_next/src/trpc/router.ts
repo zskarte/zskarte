@@ -2,6 +2,7 @@ import { mapLayerRouter } from '../modules/map-layer/router.js';
 import { mapSnapshotRouter } from '../modules/map-snapshot/router.js';
 import { proxyRouter } from '../modules/misc/proxy.router.js';
 import { versionRouter } from '../modules/misc/version.router.js';
+import { operationRouter } from '../modules/operation/router.js';
 import { organizationRouter } from '../modules/organization/router.js';
 import { signingKeyRouter } from '../modules/signing-key/router.js';
 import { wmsSourceRouter } from '../modules/wms-source/router.js';
@@ -11,6 +12,7 @@ import { publicProcedure, router } from './trpc.js';
  * Root router. Feature routers get merged in here as the modules land.
  */
 export const appRouter = router({
+  operation: operationRouter,
   organization: organizationRouter,
   mapLayer: mapLayerRouter,
   wmsSource: wmsSourceRouter,

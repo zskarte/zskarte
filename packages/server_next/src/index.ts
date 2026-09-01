@@ -1,7 +1,14 @@
-import { closeDatabase } from './db/client.js';
+import { closeDatabase, db } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
 import { env } from './env.js';
+import { startScheduler, stopScheduler } from './jobs/scheduler.js';
 import { logger } from './lib/logger.js';
+import {
+  abortAllQueuedChangesets,
+  persistAllOperations,
+  warmupOperationCache,
+} from './modules/operation/cache.js';
+import { initializeSigningKeys } from './modules/signing-key/service.js';
 import { type AppServer, buildServer } from './server.js';
 
 let app: AppServer | undefined;
@@ -12,6 +19,9 @@ const shutdown = async (reason: string): Promise<void> => {
   shuttingDown = true;
   logger.info({ reason }, 'shutting down');
   try {
+    stopScheduler();
+    abortAllQueuedChangesets('server shutdown');
+    await persistAllOperations(db);
     await app?.close();
     await closeDatabase();
     logger.info('shutdown complete');
@@ -25,6 +35,10 @@ const start = async (): Promise<void> => {
   if (env.RUN_MIGRATIONS_ON_BOOT) {
     await runMigrations();
   }
+
+  await initializeSigningKeys({ db, logger });
+  await warmupOperationCache(db);
+  startScheduler({ db, logger });
 
   app = await buildServer();
   await app.listen({ host: env.HOST, port: env.PORT });

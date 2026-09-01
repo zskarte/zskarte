@@ -1,3 +1,7 @@
+import '@angular/compiler';
+import 'zone.js';
+import 'zone.js/testing';
+
 //Attention NO import from vitest for { describe, it, expect, beforeEach, afterEach } -> they override the ones from angular which allow to use fakeAsync...
 import { vi } from 'vitest';
 
@@ -13,13 +17,12 @@ vi.mock('@zskarte/common', async (importOriginal) => {
 import { verifyChangesetConsistency } from '@zskarte/common';
 
 import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
-import { EnvironmentInjector } from '@angular/core';
+import { EnvironmentInjector, Injectable } from '@angular/core';
 
 import { ChangesetService, NO_CONFLICT_VALUE, OUR_INDEX, THERE_INDEX } from './changeset.service';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
 import { SidebarService } from '../sidebar/sidebar.service';
-import { ApiService } from '../api/api.service';
 import { I18NService } from '../state/i18n.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { db } from '../db/db';
@@ -44,11 +47,9 @@ import { v4 as uuidv4 } from 'uuid';
 // VITEST MOCKS
 // -----------------------------------------------------------------------------
 
-const snackBarMock = { open: vi.fn() };
-const signKeyId = uuidv4();
-const apiSuccessResponse = {
-  error: undefined,
-  result: {
+const { trpcMock } = vi.hoisted(() => {
+  const signKeyId = 'mock-sign-key-id';
+  const trpcSuccessResponse = {
     success: true,
     data: {
       serverSavedAt: Date.now(),
@@ -57,9 +58,30 @@ const apiSuccessResponse = {
       signKeyId,
       sign: 'MockValue',
     },
+  };
+  return {
+    trpcMock: {
+      operation: {
+        submitChangeset: {
+          mutate: vi.fn().mockResolvedValue(trpcSuccessResponse),
+        },
+      },
+    },
+  };
+});
+vi.mock('../api/trpc.client', () => ({ trpc: trpcMock }));
+const snackBarMock = { open: vi.fn() };
+const signKeyId = uuidv4();
+const trpcSuccessResponse = {
+  success: true,
+  data: {
+    serverSavedAt: Date.now(),
+    authorIp: '192.168.1.2',
+    serverId: 'localhost-127.0.0.1',
+    signKeyId,
+    sign: 'MockValue',
   },
 };
-const apiMock = { post: vi.fn().mockResolvedValue(apiSuccessResponse) };
 const sidebarMock = { open: vi.fn() };
 const i18nMock = { getLabelForSign: vi.fn().mockReturnValue('label') };
 
@@ -144,6 +166,7 @@ function resetSubjects() {
  * which just forwards to the real implementation) while making them directly callable AND
  * spy-able from the spec file without `service as any`.
  */
+@Injectable()
 class TestableChangesetService extends ChangesetService {
   public get current() {
     return this._current;
@@ -593,7 +616,7 @@ describe('ChangesetService', () => {
     });
     sessionMock.sessionInitialized.mockReturnValue(false);
     stateMock.updateMapState.mockReset();
-    apiMock.post.mockResolvedValue(apiSuccessResponse);
+    trpcMock.operation.submitChangeset.mutate.mockResolvedValue(trpcSuccessResponse);
 
     TestBed.configureTestingModule({
       providers: [
@@ -601,7 +624,6 @@ describe('ChangesetService', () => {
         { provide: ZsMapStateService, useValue: stateMock },
         { provide: SessionService, useValue: sessionMock },
         { provide: SidebarService, useValue: sidebarMock },
-        { provide: ApiService, useValue: apiMock },
         { provide: I18NService, useValue: i18nMock },
         { provide: MatSnackBar, useValue: snackBarMock },
         EnvironmentInjector,
@@ -670,24 +692,25 @@ describe('ChangesetService', () => {
 
   describe('timer handling', () => {
     it('timeout effect calls finishCurrentChangeset', fakeAsync(() => {
+      let called = false;
+      stateMock.finishCurrentChangeset = vi.fn().mockImplementation(() => { called = true; });
       service.timeout.set(1000);
-      //wait 10ms to let zone / angular change detection run the effect
-      tick(10);
+      TestBed.flushEffects();
 
-      //wait 900 (less than 1000)
       tick(900);
-      expect(stateMock.finishCurrentChangeset).not.toHaveBeenCalled();
+      expect(called).toBe(false);
 
       tick(100);
-      expect(stateMock.finishCurrentChangeset).toHaveBeenCalledTimes(1);
+      expect(called).toBe(true);
     }));
 
     it('clearTimeout when timeout set to null', fakeAsync(() => {
       service.timeout.set(1000);
-      tick(10);
+      TestBed.flushEffects();
 
       tick(900);
       service.timeout.set(null);
+      TestBed.flushEffects();
 
       tick(1500);
       expect(stateMock.finishCurrentChangeset).not.toHaveBeenCalled();
@@ -1056,8 +1079,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { isInconsistent: true },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        isInconsistent: true,
+        message: 'changeset is inconsistent',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1069,13 +1093,10 @@ describe('ChangesetService', () => {
         expect.objectContaining({ message: expect.stringContaining(changeset.id) }),
       );
 
-      expect(apiPostSpy).toHaveBeenCalledWith(
-        '/api/operations/mapstate/changeset',
-        expect.objectContaining({ id: changeset.id }),
+      expect(submitSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          headers: expect.objectContaining({
-            operationId: changeset.operationId,
-          }),
+          operationId: changeset.operationId,
+          changeset: expect.objectContaining({ id: changeset.id }),
         }),
       );
 
@@ -1089,8 +1110,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { isInvalid: true, message: 'validation failed' },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        isInvalid: true,
+        message: 'validation failed',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1102,7 +1124,7 @@ describe('ChangesetService', () => {
         expect.objectContaining({ message: expect.stringContaining('is invalid and cannot be handled') }),
       );
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith(
         expect.stringContaining('is invalid and cannot be handled by backend'),
         'OK',
@@ -1117,8 +1139,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 503, message: 'Service Unavailable' },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        data: { httpStatus: 503 },
+        message: 'Service Unavailable',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1128,7 +1151,7 @@ describe('ChangesetService', () => {
 
       await service._submitChangeset(changeset);
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith('Publish changes failed, you are now in offline mode!', 'OK', {
         duration: 5000,
       });
@@ -1142,9 +1165,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 0, message: 'NetworkError: Failed to fetch' },
-      });
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue(
+        new Error('NetworkError: Failed to fetch'),
+      );
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
       const updateOutgoingSpy = vi.spyOn(service, 'updateOutgoing').mockResolvedValue(undefined);
@@ -1153,7 +1176,7 @@ describe('ChangesetService', () => {
 
       await service._submitChangeset(changeset);
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith('Publish changes failed, you are now in offline mode!', 'OK', {
         duration: 5000,
       });
@@ -1166,8 +1189,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 400, message: 'Bad Request' },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        data: { httpStatus: 400 },
+        message: 'Bad Request',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1178,7 +1202,7 @@ describe('ChangesetService', () => {
         expect.objectContaining({ message: expect.stringContaining('unknown error on submit changeset') }),
       );
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith(expect.stringContaining('unknown error on submit changeset'), 'OK', {
         duration: 5000,
       });
@@ -1201,7 +1225,7 @@ describe('ChangesetService', () => {
 
       await service._submitChangeset(changeset);
 
-      expect(apiMock.post).toHaveBeenCalled();
+      expect(trpcMock.operation.submitChangeset.mutate).toHaveBeenCalled();
       expect(applySpy).toHaveBeenCalledTimes(1);
       const appliedChangeset = applySpy.mock.calls[0][0][0];
       expect(appliedChangeset.saved).toBe(true);
@@ -1217,8 +1241,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 500, message: 'Server Error' },
+      vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        data: { httpStatus: 500 },
+        message: 'Server Error',
       });
 
       vi.spyOn(service, 'applyOutgoingChangesets').mockResolvedValue(undefined);

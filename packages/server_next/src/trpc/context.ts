@@ -23,6 +23,7 @@ export interface CreateInnerContextOptions {
   authSession?: AuthSession | null;
   db?: Database;
   logger?: Logger;
+  req?: any;
 }
 
 export interface Context {
@@ -36,6 +37,7 @@ export interface Context {
   session: AuthSession['session'] | null;
   role: Role;
   scope: Scope | null;
+  req?: any;
 }
 
 export const createContextInner = async (opts: CreateInnerContextOptions = {}): Promise<Context> => {
@@ -56,6 +58,7 @@ export const createContextInner = async (opts: CreateInnerContextOptions = {}): 
     scope: organizationId
       ? { organizationId, ...(authSession?.session.operationId ? { operationId: authSession.session.operationId } : {}) }
       : null,
+    req: opts.req,
   };
 };
 
@@ -67,5 +70,6 @@ export const createContext = async ({ req }: CreateFastifyContextOptions): Promi
     requestIp: req.ip ?? null,
     requestPath: req.url,
     userAgent: req.headers['user-agent'] ?? null,
+    req,
   });
 };

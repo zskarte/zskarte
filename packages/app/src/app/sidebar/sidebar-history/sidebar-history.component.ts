@@ -101,7 +101,7 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
               ...s,
               changesets: (s.changesetIds ?? [])
                 .map((c) => this.operation?.changesets?.[c])
-                .filter((c) => !!c)
+                .filter((c): c is IZsChangeset => !!c)
                 .reverse(),
             })),
           };
@@ -120,7 +120,7 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
 
             this.currentChangesets = changesetIds
               ?.map((c) => this.operation?.changesets?.[c])
-              .filter((c) => !!c)
+              .filter((c): c is IZsChangeset => !!c)
               .reverse();
           }
 

@@ -26,8 +26,19 @@ export function mapTRPCError(error: unknown): TrpcError {
       message: error.message,
     };
   }
-  if (error instanceof Error) {
-    return { status: 0, message: error.message };
+  if (error && typeof error === 'object') {
+    const err = error as any;
+    const isNetworkError =
+      err.message?.startsWith('NetworkError') ||
+      err.message?.includes('Failed to fetch') ||
+      err.name === 'TypeError';
+    return {
+      status: isNetworkError ? 0 : (err.status ?? err.data?.httpStatus ?? (err instanceof Error ? 500 : 500)),
+      code: err.code ?? err.data?.code,
+      message: err.message ?? String(error),
+      ...(err.isInconsistent ? { isInconsistent: true } : {}),
+      ...(err.isInvalid ? { isInvalid: true } : {}),
+    } as TrpcError;
   }
   return { status: 0, message: String(error) };
 }

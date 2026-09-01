@@ -31,7 +31,8 @@ import { applyPatches, Patch, produce } from 'immer';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
 import { Signs } from '../map-renderer/signs';
-import { ApiService } from '../api/api.service';
+import { trpc } from '../api/trpc.client';
+import { trpcRequest } from '../api/trpc.error';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { db } from '../db/db';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -76,7 +77,6 @@ export class ChangesetService {
   private _state!: ZsMapStateService;
   private _session!: SessionService;
   private _sidebar!: SidebarService;
-  private _api = inject(ApiService);
   private _i18n = inject(I18NService);
   private _snackBar = inject(MatSnackBar);
   private _dialog = inject(MatDialog);
@@ -149,7 +149,7 @@ export class ChangesetService {
       } else {
         clearTimeout(this._timeoutId);
         this._timeoutId = setTimeout(() => {
-          this._state.finishCurrentChangeset();
+          this._state?.finishCurrentChangeset();
         }, val);
       }
     });
@@ -312,16 +312,17 @@ export class ChangesetService {
         ...changesetToSave
       } = changeset);
 
-      const response = await this._api.post('/api/operations/mapstate/changeset', changesetToSave, {
-        headers: {
+      const response = await trpcRequest(
+        trpc.operation.submitChangeset.mutate({
           operationId: changeset.operationId,
           identifier: this._connectionId,
-        },
-      });
+          changeset: changesetToSave,
+        }),
+      );
 
       const { error, result } = response;
       if (error) {
-        if ((error as any).isInconsistent) {
+        if ((error as any).isInconsistent || error.message?.includes('inconsistent')) {
           if (!this.changesetConfig().hiddenMode) {
             this._snackBar.open('changeset is inconsistent, you need to fix it', 'OK', {
               duration: 5000,
@@ -331,7 +332,11 @@ export class ChangesetService {
           this._setErrorChangeset(changeset, true);
           throw new ChangesetInconsistentError(changeset.id);
         }
-        if ((error as any).isInvalid) {
+        if (
+          (error as any).isInvalid ||
+          error.message?.includes('invalid') ||
+          error.message?.includes('inverse patches do not reset cleanly')
+        ) {
           const message = `changeset ${changeset.id} is invalid and cannot be handled by backend: ${error.message}`;
           this._snackBar.open(message, 'OK', {
             duration: 5000,
@@ -340,7 +345,7 @@ export class ChangesetService {
           this._setErrorChangeset(changeset, true);
           throw new Error(message);
         }
-        if ((error.status ?? 0) >= 500 || error.message?.startsWith('NetworkError')) {
+        if ((error.status ?? 0) >= 500 || error.message?.startsWith('NetworkError') || error.status === 0) {
           if (!this.offlineMode()) {
             this._snackBar.open('Publish changes failed, you are now in offline mode!', 'OK', {
               duration: 5000,
@@ -360,7 +365,7 @@ export class ChangesetService {
         }
       } else {
         changesetToSave.saved = true;
-        if (result.data) {
+        if (result?.data) {
           const { sign, ...updatedFields } = result.data;
           Object.assign(changesetToSave, updatedFields);
           const operation = this._session.getOperation();
@@ -370,7 +375,7 @@ export class ChangesetService {
             }
             operation.changesetSigns[changesetToSave.id] = sign;
           }
-        } else {
+        } else if (!result?.alreadySubmitted) {
           console.warn(`no signature infos returned on submit changeset ${changesetToSave.id} response was:`, result);
         }
         await this.updateOutgoing(changeset, true);
@@ -1454,7 +1459,7 @@ export class ChangesetService {
           if (orig === our) return null;
           return { path, orig, our };
         })
-        .filter((v) => v != null);
+        .filter((v): v is IZsChangeValues => v != null);
       Object.entries(ourValues).map(([path, value]) => {
         if (!(path in origValues)) {
           const orig = NO_CONFLICT_VALUE;
@@ -1555,8 +1560,9 @@ export class ChangesetService {
 
       const hideLayer = 'conflict-4-';
       normalElementIds.forEach((elemId) => {
-        if (draft.drawElements[elemId]?.layer?.startsWith(hideLayer)) {
-          draft.drawElements[elemId].layer = draft.drawElements[elemId].layer.substring(11);
+        const drawElem = draft.drawElements[elemId];
+        if (drawElem?.layer?.startsWith(hideLayer)) {
+          drawElem.layer = drawElem.layer.substring(11);
         }
       });
     }, true);

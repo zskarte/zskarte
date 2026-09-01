@@ -10,8 +10,10 @@ export class NavigationService {
   public readonly helpOriginUrl = signal<UrlTree | undefined>(undefined);
 
   constructor() {
-    this._router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
-      const url = event.urlAfterRedirects;
+    this._router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        const url = event.urlAfterRedirects;
       // Track if we're on the help page
       if (this.isHelpPageUrl(url)) {
         if (!this.isHelpPage()) {

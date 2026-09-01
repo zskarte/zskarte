@@ -389,7 +389,8 @@ export class I18NService {
     console.warn(`Sign translation missing for user locale '${userLocale}'`);
 
     for (const locale of LOCALES) {
-      if (sign[locale]) return sign[locale];
+      const val = sign[locale];
+      if (val) return val;
     }
     return '';
   }
