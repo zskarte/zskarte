@@ -12,6 +12,7 @@ import {
 } from './cache.js';
 import * as repository from './repository.js';
 import type { OperationRow } from './schema.js';
+import { updateCurrentLocation } from '../../realtime/presence.js';
 
 const forbidden = new TRPCError({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
 
@@ -200,4 +201,24 @@ export const submitChangeset = async (
     authorIp: ctx.requestIp ?? undefined,
     req: ctx.req,
   });
+};
+
+export const publishCurrentLocation = async (
+  _ctx: Context & { scope: Scope },
+  input: {
+    operationId: string;
+    identifier: string;
+    location?: { long: number; lat: number };
+  },
+): Promise<{ success: true }> => {
+  if (!updateCurrentLocation(input.operationId, input.identifier, input.location)) {
+    throw new TRPCError({ code: 'NOT_FOUND', message: 'Realtime connection not found.' });
+  }
+  return { success: true };
+};
+
+export const assertRealtimeAvailable = (operationId: string): void => {
+  if (!getOperationCache(operationId)) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'The operation is archived, realtime unavailable.' });
+  }
 };

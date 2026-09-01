@@ -6,6 +6,8 @@ import isEqual from 'lodash/isEqual.js';
 import type { Database } from '../../db/client.js';
 import { QueueMutex } from '../../lib/queue-mutex.js';
 import { signData } from '../../lib/signing.js';
+import { closeOperationChannel, publishChangeset } from '../../realtime/event-bus.js';
+import { clearOperationPresence } from '../../realtime/presence.js';
 import { getActiveSigningKeyConfig } from '../signing-key/service.js';
 import { findActiveOperations, updateOperationState } from './repository.js';
 import type { OperationRow } from './schema.js';
@@ -50,6 +52,8 @@ export const getOperationCache = (operationId: string): OperationCache | undefin
   return operationCaches.get(operationId);
 };
 
+export const getOperationCaches = (): ReadonlyMap<string, OperationCache> => operationCaches;
+
 export const addToCache = (operation: OperationRow): OperationCache => {
   const mapState: ZsMapState =
     operation.mapState ||
@@ -82,6 +86,8 @@ export const removeFromCache = (operationId: string, reason = 'Operation removed
   if (!cache) return;
   operationCaches.delete(operationId);
   cache.changesetEndpointMutex.abortAll(reason);
+  clearOperationPresence(operationId);
+  closeOperationChannel(operationId);
 };
 
 export const warmupOperationCache = async (db: Database): Promise<void> => {
@@ -222,6 +228,7 @@ export const addChangeset = async (params: AddChangesetParams): Promise<SubmitCh
       operationCache.signingKeyIds.add(params.changeset.signKeyId!);
       operationCache.mapState = mapState;
       operationCache.changed = true;
+      publishChangeset(params.operationId, params.identifier, params.changeset, sign);
 
       return {
         success: true,
@@ -267,8 +274,5 @@ export const abortAllQueuedChangesets = (reason = 'server shutdown'): void => {
 };
 
 export const resetCacheForTesting = (): void => {
-  for (const cache of operationCaches.values()) {
-    cache.changesetEndpointMutex.abortAll('reset for testing');
-  }
-  operationCaches.clear();
+  for (const operationId of Array.from(operationCaches.keys())) removeFromCache(operationId, 'reset for testing');
 };

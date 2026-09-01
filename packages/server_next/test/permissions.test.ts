@@ -16,6 +16,8 @@ describe('role permissions', () => {
     ['organization', 'organization.updateSettings', false],
     ['operationwrite', 'journal.create', true],
     ['operationwrite', 'operation.create', true],
+    ['operationwrite', 'operation.submitChangeset', true],
+    ['organization', 'operation.submitChangeset', true],
     ['operationread', 'journal.create', false],
     ['guest', 'mapSnapshot.list', false],
     ['public', 'organization.forLogin', true],

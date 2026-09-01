@@ -1,14 +1,17 @@
 import { Cron } from 'croner';
-import { and, eq, lte } from 'drizzle-orm';
+import { and, desc, eq, inArray, lte } from 'drizzle-orm';
+import { session, user } from '../db/auth-schema.js';
 import type { Database } from '../db/client.js';
 import type { Logger } from '../lib/logger.js';
 import {
   getOperationCache,
+  getOperationCaches,
   persistAllOperations,
   persistOperation,
   removeFromCache,
 } from '../modules/operation/cache.js';
 import { operations } from '../modules/operation/schema.js';
+import { mapSnapshots } from '../modules/map-snapshot/schema.js';
 
 export interface SchedulerDeps {
   db: Database;
@@ -48,6 +51,56 @@ export const archiveStaleOperations = async (deps: SchedulerDeps): Promise<void>
   }
 };
 
+export const createMapStateSnapshots = async (deps: SchedulerDeps): Promise<void> => {
+  for (const [operationId, cache] of getOperationCaches()) {
+    try {
+      const [lastSnapshot] = await deps.db
+        .select({ mapState: mapSnapshots.mapState })
+        .from(mapSnapshots)
+        .where(eq(mapSnapshots.operationId, operationId))
+        .orderBy(desc(mapSnapshots.createdAt))
+        .limit(1);
+      const currentIds = cache.mapState.changesetIds ?? [];
+      const previousIds = new Set(lastSnapshot?.mapState?.changesetIds ?? []);
+      const newIds = currentIds.filter((id) => !previousIds.has(id));
+      if (lastSnapshot && newIds.length === 0) continue;
+
+      await deps.db.insert(mapSnapshots).values({
+        operationId,
+        mapState: cache.mapState,
+        changesetIds: newIds,
+      });
+    } catch (error) {
+      deps.logger.error({ err: error, operationId }, 'failed to create map-state snapshot');
+    }
+  }
+};
+
+export const purgeGuestOperations = async (deps: SchedulerDeps): Promise<void> => {
+  try {
+    const [guest] = await deps.db
+      .select({ organizationId: user.organizationId })
+      .from(user)
+      .where(eq(user.username, 'zso_guest'))
+      .limit(1);
+    if (!guest?.organizationId) return;
+
+    const guestOperations = await deps.db
+      .select({ documentId: operations.documentId })
+      .from(operations)
+      .where(eq(operations.organizationId, guest.organizationId));
+    const operationIds = guestOperations.map(({ documentId }) => documentId);
+    if (operationIds.length === 0) return;
+
+    for (const operationId of operationIds) removeFromCache(operationId, 'guest operation purged');
+    await deps.db.delete(session).where(inArray(session.operationId, operationIds));
+    await deps.db.delete(operations).where(inArray(operations.documentId, operationIds));
+    deps.logger.info({ count: operationIds.length }, 'guest operations purged');
+  } catch (error) {
+    deps.logger.error({ err: error }, 'failed to purge guest operations');
+  }
+};
+
 export const startScheduler = (deps: SchedulerDeps): void => {
   stopScheduler();
 
@@ -65,8 +118,16 @@ export const startScheduler = (deps: SchedulerDeps): void => {
     await archiveStaleOperations(deps);
   });
 
-  runningJobs = [persistJob, archiveJob];
-  deps.logger.info('scheduler started (15s persist, hourly auto-archive)');
+  const snapshotJob = new Cron('*/5 * * * *', async () => {
+    await createMapStateSnapshots(deps);
+  });
+
+  const guestPurgeJob = new Cron('0 0 * * *', async () => {
+    await purgeGuestOperations(deps);
+  });
+
+  runningJobs = [persistJob, archiveJob, snapshotJob, guestPurgeJob];
+  deps.logger.info('scheduler started (15s persist, hourly auto-archive, 5m snapshots, nightly guest purge)');
 };
 
 export const stopScheduler = (): void => {

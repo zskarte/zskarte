@@ -1,19 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from '../api/api.service';
 import { SessionService } from '../session/session.service';
-import io, { Socket } from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
-import { Patch } from 'immer';
 import { debounce } from '../helper/debounce';
 import { ZsMapStateService } from '../state/state.service';
 import { BehaviorSubject, debounceTime, filter, merge, switchMap } from 'rxjs';
-import { db } from '../db/db';
 import { JournalService } from '../journal/journal.service';
-import { JournalEntry } from '../journal/journal.types';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { deserialize, SuperJSONResult } from 'superjson';
-import { ChangesetInconsistentError, IZsChangeset } from '@zskarte/types';
+import { ChangesetInconsistentError } from '@zskarte/types';
 import { ChangesetService } from '../changeset/changeset.service';
+import { trpc } from '../api/trpc.client';
 
 export interface User {
   username: string;
@@ -36,13 +31,13 @@ const TRY_RECONNECT_NO_CONNECTION_TIME = 60_000;
   providedIn: 'root',
 })
 export class SyncService {
-  private _api = inject(ApiService);
   private _session = inject(SessionService);
   private _journal = inject(JournalService);
   private _changeset = inject(ChangesetService);
 
   private _connectionId = uuidv4();
-  private _socket: Socket | undefined;
+  private _subscriptions: { unsubscribe(): void }[] = [];
+  private _subscriptionGeneration = 0;
   private _state!: ZsMapStateService;
   private _connectingPromise: Promise<void> | undefined;
   private _reonnectPublishPromise: Promise<void> | undefined;
@@ -133,7 +128,7 @@ export class SyncService {
   }
 
   private async _connect(): Promise<void> {
-    if (this._socket?.connected) {
+    if (this._subscriptions.length > 0) {
       return;
     }
 
@@ -141,42 +136,59 @@ export class SyncService {
       return this._connectingPromise;
     }
 
+    const operationId = this._session.getOperationId();
+    const label = this._session.getLabel();
+    if (!operationId || !label) return;
+    const generation = ++this._subscriptionGeneration;
+
     this._connectingPromise = new Promise<void>((resolve, reject) => {
-      const url = this._api.getUrl();
-
-      this._socket = io(url, {
-        transports: ['websocket'],
-        query: {
-          identifier: this._connectionId,
-          operationId: this._session.getOperationId(),
-          label: this._session.getLabel(),
-        },
-        forceNew: true,
-      });
-
-      this._socket.on('connect_error', (err) => {
-        console.error('Error while connecting to websocket');
+      let started = 0;
+      let settled = false;
+      const onStarted = () => {
+        started += 1;
+        if (started === this._subscriptions.length) {
+          settled = true;
+          resolve();
+        }
+      };
+      const onError = (error: unknown) => {
+        if (generation !== this._subscriptionGeneration) return;
+        console.error('Error while connecting to realtime subscriptions', error);
         this._disconnect();
-        reject(err);
-      });
-      this._socket.on('connect', () => {
-        resolve();
-      });
-      this._socket.on('disconnect', () => {
-        console.warn('Disconnected from websocket');
-        this._disconnect();
-      });
-      this._socket.on('state:changeset', (data: { changeset: IZsChangeset, sign: string}) => {
-        this._state.addIncommingChangeset(data.changeset, data.sign);
-      });
-      this._socket.on('state:journal', (json: SuperJSONResult) => {
-        const entry = deserialize(json) as Partial<JournalEntry>;
-        this._journal.patchEntry(entry);
-      });
-      this._socket.on('state:connections', (connections: Connection[]) => {
-        this._connections.next(connections);
-      });
-      this._socket.connect();
+        if (!settled) reject(error);
+      };
+
+      this._subscriptions = [
+        trpc.operation.onChangeset.subscribe(
+          { operationId, identifier: this._connectionId },
+          {
+            onStarted,
+            onData: (data) => this._state.addIncommingChangeset(data.changeset, data.sign),
+            onError,
+            onStopped: () => {
+              if (generation === this._subscriptionGeneration) this._disconnect();
+            },
+            onComplete: () => {
+              if (generation === this._subscriptionGeneration) this._disconnect();
+            },
+          },
+        ),
+        trpc.operation.onConnections.subscribe(
+          { operationId, identifier: this._connectionId, label },
+          {
+            onStarted,
+            onData: (connections) => this._connections.next(connections),
+            onError,
+            onStopped: () => {
+              if (generation === this._subscriptionGeneration) this._disconnect();
+            },
+            onComplete: () => {
+              if (generation === this._subscriptionGeneration) this._disconnect();
+            },
+          },
+        ),
+      ];
+
       if (!this._state.getShowCurrentLocation()) return;
       setTimeout(() => {
         this._state.updateShowCurrentLocation(false);
@@ -190,17 +202,10 @@ export class SyncService {
   }
 
   private _disconnect(): void {
+    this._subscriptionGeneration += 1;
     this._connections.next([]);
-    if (!this._socket) {
-      return;
-    }
-    this._socket.removeAllListeners();
-    try {
-      this._socket.disconnect();
-    } catch {
-      // do nothing here
-    }
-    this._socket = undefined;
+    for (const subscription of this._subscriptions) subscription.unsubscribe();
+    this._subscriptions = [];
   }
 
   public publishCurrentLocation = debounce(async (longLat: { long: number; lat: number } | undefined) => {
@@ -210,11 +215,12 @@ export class SyncService {
   }, 1000);
 
   private async _publishCurrentLocation(longLat: { long: number; lat: number } | undefined): Promise<void> {
-    await this._api.post('/api/operations/mapstate/currentlocation', longLat, {
-      headers: {
-        operationId: String(this._session.getOperationId()),
-        identifier: this._connectionId,
-      },
+    const operationId = this._session.getOperationId();
+    if (!operationId) return;
+    await trpc.operation.publishCurrentLocation.mutate({
+      operationId,
+      identifier: this._connectionId,
+      location: longLat,
     });
   }
 

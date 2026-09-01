@@ -6,9 +6,50 @@ import {
   requirePermission,
 } from '../../trpc/procedures.js';
 import { router } from '../../trpc/trpc.js';
+import type { RealtimeEvent } from '../../realtime/types.js';
+import { subscribeToOperation } from '../../realtime/event-bus.js';
+import { registerPresence, unregisterPresence } from '../../realtime/presence.js';
 import * as service from './service.js';
 
 export const operationRouter = router({
+  onChangeset: operationProcedure
+    .use(requirePermission('operation.byId'))
+    .input(z.object({ operationId: z.uuid(), identifier: z.string().min(1) }))
+    .subscription(async function* ({ input, signal }) {
+      service.assertRealtimeAvailable(input.operationId);
+      try {
+        for await (const [event] of subscribeToOperation(input.operationId, signal)) {
+          const realtimeEvent = event as RealtimeEvent;
+          if (realtimeEvent.type === 'closed') return;
+          if (realtimeEvent.type === 'changeset' && realtimeEvent.identifier !== input.identifier) {
+            yield { changeset: realtimeEvent.changeset, sign: realtimeEvent.sign };
+          }
+        }
+      } catch (error) {
+        if (!signal?.aborted) throw error;
+      }
+    }),
+
+  onConnections: operationProcedure
+    .use(requirePermission('operation.byId'))
+    .input(z.object({ operationId: z.uuid(), identifier: z.string().min(1), label: z.string().min(1).max(40) }))
+    .subscription(async function* ({ ctx, input, signal }) {
+      service.assertRealtimeAvailable(input.operationId);
+      const events = subscribeToOperation(input.operationId, signal);
+      const registrationId = registerPresence(input.operationId, input.identifier, input.label, ctx.authSession!.user);
+      try {
+        for await (const [event] of events) {
+          const realtimeEvent = event as RealtimeEvent;
+          if (realtimeEvent.type === 'closed') return;
+          if (realtimeEvent.type === 'connections') yield realtimeEvent.connections;
+        }
+      } catch (error) {
+        if (!signal?.aborted) throw error;
+      } finally {
+        unregisterPresence(input.operationId, input.identifier, registrationId);
+      }
+    }),
+
   overview: orgProcedure
     .use(requirePermission('operation.overview'))
     .input(
@@ -111,4 +152,15 @@ export const operationRouter = router({
       }),
     )
     .mutation(({ ctx, input }) => service.submitChangeset(ctx, input)),
+
+  publishCurrentLocation: operationProcedure
+    .use(requirePermission('operation.publishCurrentLocation'))
+    .input(
+      z.object({
+        operationId: z.uuid(),
+        identifier: z.string().min(1),
+        location: z.object({ long: z.number().finite(), lat: z.number().finite() }).optional(),
+      }),
+    )
+    .mutation(({ ctx, input }) => service.publishCurrentLocation(ctx, input)),
 });

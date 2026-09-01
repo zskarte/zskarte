@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import type { CreateFastifyContextOptions } from '@trpc/server/adapters/fastify';
 import { fromNodeHeaders } from 'better-auth/node';
 import { auth } from '../auth/auth.js';
@@ -62,8 +63,14 @@ export const createContextInner = async (opts: CreateInnerContextOptions = {}): 
   };
 };
 
-export const createContext = async ({ req }: CreateFastifyContextOptions): Promise<Context> => {
-  const authSession = (await auth.api.getSession({ headers: fromNodeHeaders(req.headers) })) as AuthSession | null;
+export const createContext = async ({ req, info }: CreateFastifyContextOptions): Promise<Context> => {
+  const headers = { ...req.headers };
+  if (!headers.cookie && info.connectionParams?.cookie) headers.cookie = info.connectionParams.cookie;
+  const authSession = (await auth.api.getSession({ headers: fromNodeHeaders(headers) })) as AuthSession | null;
+
+  if (req.headers.upgrade === 'websocket' && !authSession) {
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'This action is unauthorized.' });
+  }
 
   return createContextInner({
     authSession,
