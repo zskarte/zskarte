@@ -12,6 +12,7 @@ import {
 } from '../modules/operation/cache.js';
 import { operations } from '../modules/operation/schema.js';
 import { mapSnapshots } from '../modules/map-snapshot/schema.js';
+import { deleteExpired } from '../modules/access/repository.js';
 
 export interface SchedulerDeps {
   db: Database;
@@ -101,6 +102,15 @@ export const purgeGuestOperations = async (deps: SchedulerDeps): Promise<void> =
   }
 };
 
+export const purgeExpiredAccesses = async (deps: SchedulerDeps): Promise<void> => {
+  try {
+    const count = await deleteExpired(deps.db, new Date());
+    if (count > 0) deps.logger.info({ count }, 'expired access tokens purged');
+  } catch (error) {
+    deps.logger.error({ err: error }, 'failed to purge expired access tokens');
+  }
+};
+
 export const startScheduler = (deps: SchedulerDeps): void => {
   stopScheduler();
 
@@ -115,7 +125,7 @@ export const startScheduler = (deps: SchedulerDeps): void => {
 
   // Hourly auto-archive cadence
   const archiveJob = new Cron('0 * * * *', async () => {
-    await archiveStaleOperations(deps);
+    await Promise.all([archiveStaleOperations(deps), purgeExpiredAccesses(deps)]);
   });
 
   const snapshotJob = new Cron('*/5 * * * *', async () => {
@@ -127,7 +137,7 @@ export const startScheduler = (deps: SchedulerDeps): void => {
   });
 
   runningJobs = [persistJob, archiveJob, snapshotJob, guestPurgeJob];
-  deps.logger.info('scheduler started (15s persist, hourly auto-archive, 5m snapshots, nightly guest purge)');
+  deps.logger.info('scheduler started (15s persist, hourly auto-archive/access cleanup, 5m snapshots, nightly guest purge)');
 };
 
 export const stopScheduler = (): void => {

@@ -1,4 +1,5 @@
 import type { IZsChangeset } from '@zskarte/types';
+import type { JournalEntryRow } from '../modules/journal/schema.js';
 
 export interface RealtimeUser {
   username: string;
@@ -17,4 +18,5 @@ export interface RealtimeConnection {
 export type RealtimeEvent =
   | { type: 'changeset'; identifier: string; changeset: IZsChangeset; sign: string }
   | { type: 'connections'; connections: RealtimeConnection[] }
+  | { type: 'journal'; identifier: string; entry: JournalEntryRow }
   | { type: 'closed' };

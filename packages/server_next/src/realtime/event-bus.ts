@@ -1,5 +1,6 @@
 import { EventEmitter, on } from 'node:events';
 import type { IZsChangeset } from '@zskarte/types';
+import type { JournalEntryRow } from '../modules/journal/schema.js';
 import type { RealtimeConnection, RealtimeEvent } from './types.js';
 
 const operationEmitters = new Map<string, EventEmitter>();
@@ -41,6 +42,10 @@ export const publishChangeset = (
 
 export const publishConnections = (operationId: string, connections: RealtimeConnection[]): void => {
   getEmitter(operationId).emit('event', { type: 'connections', connections } satisfies RealtimeEvent);
+};
+
+export const publishJournalChange = (operationId: string, identifier: string, entry: JournalEntryRow): void => {
+  getEmitter(operationId).emit('event', { type: 'journal', identifier, entry } satisfies RealtimeEvent);
 };
 
 export const closeOperationChannel = (operationId: string): void => {

@@ -1,6 +1,13 @@
 import type { IZsChangeset } from '@zskarte/types';
 import { afterEach, describe, expect, it } from 'vitest';
-import { closeOperationChannel, publishChangeset, resetEventBusForTesting, subscribeToOperation } from '../src/realtime/event-bus.js';
+import {
+  closeOperationChannel,
+  publishChangeset,
+  publishJournalChange,
+  resetEventBusForTesting,
+  subscribeToOperation,
+} from '../src/realtime/event-bus.js';
+import type { JournalEntryRow } from '../src/modules/journal/schema.js';
 import {
   listPresence,
   registerPresence,
@@ -66,6 +73,21 @@ describe('realtime event bus', () => {
     const next = events[Symbol.asyncIterator]().next();
     closeOperationChannel(OPERATION_ID);
     await expect(next).resolves.toEqual({ done: false, value: [{ type: 'closed' }] });
+  });
+
+  it('fans journal changes out with the origin identifier', async () => {
+    const abortController = new AbortController();
+    const events = subscribeToOperation(OPERATION_ID, abortController.signal);
+    const next = events.next();
+    const entry = { documentId: '33333333-3333-4333-8333-333333333333', messageNumber: 1 } as JournalEntryRow;
+
+    publishJournalChange(OPERATION_ID, 'client-a', entry);
+
+    await expect(next).resolves.toEqual({
+      done: false,
+      value: [{ type: 'journal', identifier: 'client-a', entry }],
+    });
+    abortController.abort();
   });
 });
 
