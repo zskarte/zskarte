@@ -594,31 +594,24 @@ export class SessionService {
   public async updateToken(token: string) {
     const currentSession = await this.getSavedSession();
 
-    const {error, meResult} = await (async () => {
-      try {
-        const meResult = await createAuthorizedTRPCClient(of(token)).auth.me.query();
-        return { meResult, error: null };
-      } catch (error) {
-        return {meResult: null, error}
-      }
-    })();
+    const {error, data: sessionResult} = await this._authClient.getSession();
 
-    if (error || !meResult) {
+    if (error || !sessionResult) {
       if (
         currentSession &&
         !currentSession.workLocal &&
         currentSession.token === token &&
-        !this._isOnline.value
+        ((error?.status ?? 0) >= 500 || !this._isOnline.value)
       ) {
         //session is not expired but there seams to be a network problem, keep current session
         this._session.next(currentSession);
         return;
       }
-      console.log(error);
-      await this.logout('noToken');
+      await this.logout((error?.status ?? 0) >= 500 ? 'networkError' : 'noToken');
       return;
     }
 
+    const meResult = await createAuthorizedTRPCClient(of(sessionResult.session.token)).auth.me.query();
     let newSession: IZsMapSession;
 
     if (currentSession && !currentSession.workLocal) {
@@ -635,6 +628,7 @@ export class SessionService {
     newSession.label = newSession.label || meResult.organization?.name || meResult.organization?.documentId;
 
     // update organization values
+    newSession.expiresAt = sessionResult.session.expiresAt;
     newSession.token = token;
     newSession.organizationLogo = meResult.organization?.logo?.url;
     newSession.organization = meResult.organization;
@@ -755,7 +749,13 @@ export class SessionService {
         if (session?.workLocal) {
           return true;
         }
-        return Boolean(session?.token);
+
+        if (session?.expiresAt && session.expiresAt < new Date()) {
+          this.logout('expired');
+          return false;
+        }
+
+        return true;
       }),
     );
   }

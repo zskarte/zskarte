@@ -31,6 +31,7 @@ export interface IZsMapSession {
   defaultLongitude?: number;
   defaultZoomLevel?: number;
   workLocal?: boolean;
+  expiresAt?: Date;
 }
 
 export interface IZso {
