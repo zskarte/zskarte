@@ -2,33 +2,15 @@ import { boolean, index, integer, uuid, pgEnum, pgTable, text, timestamp, unique
 import { documentId, timestamps } from '../../db/columns.js';
 import { operations } from '../operation/schema.js';
 import { organizations } from '../organization/schema.js';
+import { entryDepartments, entryStates } from './enums.js';
 
-export const journalEntryStatusEnum = pgEnum('journal_entry_status', [
-  'awaiting_message',
-  'awaiting_triage',
-  'awaiting_decision',
-  'awaiting_completion',
-  'completed',
-]);
-
-export const journalEntryDepartmentEnum = pgEnum('journal_entry_department', [
-  'politische-behoerde',
-  'chef-fuehrungsorgan',
-  'stabschef',
-  'fb-lage',
-  'fb-information',
-  'fb-oeffentliche-sicherheit',
-  'fb-schutz-rettung',
-  'fb-gesundheit',
-  'fb-logistik',
-  'fb-infrastrukturen',
-]);
+export const journalEntryStatusEnum = pgEnum('journal_entry_status', entryStates);
+export const journalEntryDepartmentEnum = pgEnum('journal_entry_department', entryDepartments);
 
 export const journalEntries = pgTable(
   'journal_entries',
   {
     documentId: documentId(),
-    uuid: text('uuid').notNull().unique(),
     operationId: uuid('operation_id').references(() => operations.documentId, { onDelete: 'cascade' }),
     organizationId: uuid('organization_id').references(() => organizations.documentId, { onDelete: 'cascade' }),
     messageNumber: integer('message_number').notNull(),

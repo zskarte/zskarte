@@ -13,7 +13,7 @@ describe('role permissions', () => {
 
   it.each([
     ['organization', 'operation.patch', false],
-    ['organization', 'organization.updateSettings', false],
+    ['organization', 'organization.updateSettings', true],
     ['operationwrite', 'journal.create', true],
     ['operationwrite', 'operation.create', true],
     ['operationwrite', 'operation.submitChangeset', true],

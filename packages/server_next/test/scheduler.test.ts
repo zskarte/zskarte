@@ -1,13 +1,19 @@
 import type { ZsMapState } from '@zskarte/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Database } from '../src/db/client.js';
-import { createMapStateSnapshots, purgeGuestOperations } from '../src/jobs/scheduler.js';
+import { createMapStateSnapshots, purgeExpiredAccesses, purgeGuestOperations } from '../src/jobs/scheduler.js';
+import * as accessRepository from '../src/modules/access/repository.js';
 import { addToCache, getOperationCache, resetCacheForTesting } from '../src/modules/operation/cache.js';
 import type { OperationRow } from '../src/modules/operation/schema.js';
 
 const OPERATION_ID = '11111111-1111-4111-8111-111111111111';
 const ORGANIZATION_ID = 'ca548097-df0f-4862-8bd3-b104bf537bd8';
 const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), fatal: vi.fn(), debug: vi.fn() } as any;
+
+vi.mock('../src/modules/access/repository.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../src/modules/access/repository.js')>()),
+  deleteExpired: vi.fn(),
+}));
 
 const operation = (changesetIds: string[]): OperationRow => ({
   documentId: OPERATION_ID,
@@ -100,5 +106,15 @@ describe('purgeGuestOperations', () => {
     expect(getOperationCache(OPERATION_ID)).toBeUndefined();
     expect(deleted).toHaveLength(2);
     expect(logger.info).toHaveBeenCalledWith({ count: 1 }, 'guest operations purged');
+  });
+});
+
+describe('purgeExpiredAccesses', () => {
+  it('logs the number of removed expired tokens without token values', async () => {
+    vi.mocked(accessRepository.deleteExpired).mockResolvedValue(2);
+
+    await purgeExpiredAccesses({ db: {} as Database, logger });
+
+    expect(logger.info).toHaveBeenCalledWith({ count: 2 }, 'expired access tokens purged');
   });
 });

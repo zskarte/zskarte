@@ -57,6 +57,7 @@ export const ROLE_PERMISSIONS: Record<Role, ReadonlySet<PermissionKey>> = {
     'operation.publishCurrentLocation', 'operation.shadowDelete', 'operation.submitChangeset',
     'operation.unarchive', 'operation.updateMapLayers', 'operation.updateMeta',
     'organization.current', 'organization.updateJournalEntryTemplate', 'organization.updateLayerSettings',
+    'organization.updateSettings',
     'wmsSource.byId', 'wmsSource.create', 'wmsSource.delete', 'wmsSource.list', 'wmsSource.update',
   ),
   guest: permissions(

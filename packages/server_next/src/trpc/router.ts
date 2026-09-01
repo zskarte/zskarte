@@ -7,11 +7,15 @@ import { organizationRouter } from '../modules/organization/router.js';
 import { signingKeyRouter } from '../modules/signing-key/router.js';
 import { wmsSourceRouter } from '../modules/wms-source/router.js';
 import { publicProcedure, router } from './trpc.js';
+import { accessRouter } from '../modules/access/router.js';
+import { journalRouter } from '../modules/journal/router.js';
 
 /**
  * Root router. Feature routers get merged in here as the modules land.
  */
 export const appRouter = router({
+  access: accessRouter,
+  journal: journalRouter,
   operation: operationRouter,
   organization: organizationRouter,
   mapLayer: mapLayerRouter,
