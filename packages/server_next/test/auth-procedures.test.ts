@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { shareTokenSchema } from '../src/auth/share-access-plugin.js';
 import { createContextInner, type AuthSession } from '../src/trpc/context.js';
 import { orgProcedure, requirePermission } from '../src/trpc/procedures.js';
+import { appRouter } from '../src/trpc/router.js';
 import { createCallerFactory, router } from '../src/trpc/trpc.js';
 
 const authSession = (role: AuthSession['user']['zsRole'], organizationId: string | null): AuthSession => ({
@@ -39,6 +40,10 @@ const testRouter = router({
 const createCaller = createCallerFactory(testRouter);
 
 describe('auth procedure guards', () => {
+  it('does not expose an auth domain router', () => {
+    expect(appRouter._def.procedures).not.toHaveProperty('auth.me');
+  });
+
   it('rejects anonymous callers', async () => {
     await expect(createCaller(await createContextInner()).allowed()).rejects.toMatchObject<Partial<TRPCError>>({
       code: 'UNAUTHORIZED',

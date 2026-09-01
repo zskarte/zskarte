@@ -5,7 +5,6 @@ import {
   DEFAULT_LOCALE,
   IZsMapDisplayState,
   IZsMapOperation,
-  IZsMapOrganization,
   IZsMapOrganizationMapLayerSettings,
   IZsMapOrganizationSettings,
   IZsMapSession,
@@ -42,16 +41,14 @@ import { OperationService } from './operations/operation.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_ORG } from './userLogic';
 import { BlobService } from '../db/blob.service';
 import { BLOB_URL_JOURNAL_ENTRY_TEMPLATE } from '../journal/journal.types';
-import { createAuthClient } from 'better-auth/client';
-import { usernameClient } from 'better-auth/client/plugins';
-import { environment } from '../../environments/environment';
+import { authClient } from '../api/auth.client';
 import { trpc } from '../api/trpc.client';
 import { trpcRequest } from '../api/trpc.error';
 
 const LANGUAGE_PREFERENCE_KEY = 'zskarte-language-preference';
 
 export type LogoutReason = 'logout' | 'networkError';
-export type AuthError = { code?: string; message?: string };
+export type AuthError = { code?: string; message?: string; status?: number };
 
 @Injectable({
   providedIn: 'root',
@@ -70,11 +67,6 @@ export class SessionService {
   private _authenticated = new BehaviorSubject(false);
   private _isOnline = new BehaviorSubject<boolean>(true);
   public readonly sessionInitialized = signal(false);
-  private readonly _authClient = createAuthClient({
-    baseURL: environment.apiUrlNext,
-    fetchOptions: { credentials: 'include' },
-    plugins: [usernameClient()],
-  });
 
   constructor() {
     const _operationService = this._operationService;
@@ -524,7 +516,7 @@ export class SessionService {
   }
 
   public async login(params: { identifier: string; password: string }): Promise<void> {
-    const result = await this._authClient.signIn.username({
+    const result = await authClient.signIn.username({
       username: params.identifier,
       password: params.password,
     });
@@ -547,13 +539,9 @@ export class SessionService {
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
-    const response = await fetch(`${environment.apiUrlNext}/api/auth/share-access/redeem`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accessToken }),
-    });
-    if (!response.ok) {
+    const { error } = await authClient.shareAccess.redeem({ accessToken });
+    if (error) {
+      this._authError.next(error);
       await this._router.navigate(['login'], { queryParamsHandling: 'preserve' });
       return;
     }
@@ -563,7 +551,7 @@ export class SessionService {
   private async loadAuthenticatedSession(): Promise<void> {
     const currentSession = await this.getSavedSession();
 
-    const { error, data: sessionResult } = await this._authClient.getSession();
+    const { error, data: sessionResult } = await authClient.getSession();
 
     if (error || !sessionResult) {
       if ((error?.status ?? 0) >= 500 || !this._isOnline.value) {
@@ -574,7 +562,6 @@ export class SessionService {
       return;
     }
 
-    const meResult = await trpc.auth.me.query();
     let newSession: IZsMapSession;
 
     if (currentSession && !currentSession.workLocal) {
@@ -586,20 +573,25 @@ export class SessionService {
       };
     }
 
-    newSession.permission = meResult.zsRole === 'operationread' ? PermissionType.READ : PermissionType.ALL;
+    // Shared sessions have the permission stored directly on the session.
+    // Normal login session get the permission based on the role.
+    newSession.permission =
+      sessionResult.session.permission ? (sessionResult.session.permission as PermissionType)
+      : sessionResult.zsRole === 'operationread' ? PermissionType.READ
+      : PermissionType.ALL;
 
-    newSession.label = newSession.label || meResult.organization?.name || meResult.organization?.documentId;
+    newSession.label = newSession.label || sessionResult.organization?.name || sessionResult.organization?.documentId;
 
     // update organization values
-    newSession.organizationLogo = meResult.organization?.logo?.url;
-    newSession.organization = meResult.organization;
+    newSession.organizationLogo = sessionResult.organization?.logo?.url;
+    newSession.organization = sessionResult.organization;
 
     newSession.defaultLongitude = newSession.organization?.mapLongitude;
     newSession.defaultLatitude = newSession.organization?.mapLatitude;
 
     // update operation values
     const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-    const operationId = meResult.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
+    const operationId = sessionResult.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
     let operationJustSet = false;
 
     if (operationId) {
@@ -665,7 +657,7 @@ export class SessionService {
     }
     OperationService.deleteNoneLocalOperations();
     if (reason === 'logout' && this._isOnline.value && !this.isWorkLocal()) {
-      await this._authClient.signOut();
+      await authClient.signOut();
     }
     this._authenticated.next(false);
     this._session.next(undefined);
