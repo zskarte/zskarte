@@ -54,7 +54,7 @@ export const ROLE_PERMISSIONS: Record<Role, ReadonlySet<PermissionKey>> = {
     'mapLayer.byId', 'mapLayer.create', 'mapLayer.delete', 'mapLayer.list', 'mapLayer.update',
     'mapSnapshot.byId', 'mapSnapshot.list',
     'operation.archive', 'operation.byId', 'operation.create', 'operation.list', 'operation.overview',
-    'operation.publishCurrentLocation', 'operation.shadowDelete',
+    'operation.publishCurrentLocation', 'operation.shadowDelete', 'operation.submitChangeset',
     'operation.unarchive', 'operation.updateMapLayers', 'operation.updateMeta',
     'organization.current', 'organization.updateJournalEntryTemplate', 'organization.updateLayerSettings',
     'wmsSource.byId', 'wmsSource.create', 'wmsSource.delete', 'wmsSource.list', 'wmsSource.update',
@@ -71,7 +71,7 @@ export const ROLE_PERMISSIONS: Record<Role, ReadonlySet<PermissionKey>> = {
     'journal.byId', 'journal.byNumber', 'journal.create', 'journal.list', 'journal.update',
     'mapLayer.byId', 'mapLayer.create', 'mapLayer.list', 'mapLayer.update',
     'mapSnapshot.byId', 'mapSnapshot.list', 'operation.byId', 'operation.create', 'operation.list', 'operation.overview',
-    'operation.publishCurrentLocation', 'operation.updateMapLayers',
+    'operation.publishCurrentLocation', 'operation.submitChangeset', 'operation.updateMapLayers',
     'organization.current', 'wmsSource.byId', 'wmsSource.create', 'wmsSource.list', 'wmsSource.update',
   ),
   operationread: permissions(
