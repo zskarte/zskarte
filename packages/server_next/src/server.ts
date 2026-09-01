@@ -12,6 +12,9 @@ import { createContext } from './trpc/context.js';
 import { type AppRouter, appRouter } from './trpc/router.js';
 
 const MAX_BODY_SIZE = 25 * 1024 * 1024;
+/** snapshots are immutable, the strapi `findOne` answered `Cache-Control: max-age=86400`. */
+const IMMUTABLE_QUERY_PATHS = new Set(['mapSnapshot.byId']);
+const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
 
 /** `keepAlive` is handled by the fastify plugin but missing in its option type (@trpc/server 11.18). */
 type TrpcPluginOptions = FastifyTRPCPluginOptions<AppRouter>['trpcOptions'] & {
@@ -58,6 +61,15 @@ export const buildServer = async () => {
       keepAlive: { enabled: true, pingMs: 30_000, pongWaitMs: 5_000 },
       onError({ path, error, type }) {
         logger.error({ err: error, path, type }, 'trpc handler failed');
+      },
+      // batched requests share one response, so every operation of the batch has to be cacheable
+      responseMeta({ paths, errors, type }) {
+        const allImmutable =
+          paths !== undefined && paths.length > 0 && paths.every((path) => IMMUTABLE_QUERY_PATHS.has(path));
+        if (allImmutable && errors.length === 0 && type === 'query') {
+          return { headers: new Headers([['cache-control', `max-age=${ONE_DAY_IN_SECONDS}`]]) };
+        }
+        return {};
       },
     } satisfies TrpcPluginOptions,
   });

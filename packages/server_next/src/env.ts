@@ -36,6 +36,9 @@ const schema = z.object({
   BETTER_AUTH_URL: z.string().optional(),
   TRUSTED_ORIGINS: z.string().default('http://localhost:4300'),
 
+  // hosts `proxy.fetch` may forward to, `*.` prefix matches subdomains
+  PROXY_ALLOWED_HOSTS: z.string().default('*.geo.admin.ch,geodienste.ch,*.geodienste.ch'),
+
   SIGN_KEY_TYPE: z.enum(['rsa', 'ed25519']).default('ed25519'),
   SIGN_PRIVATE_KEY_PASSPHRASE: z.string().min(8).default(DEV_SIGN_PASSPHRASE),
   SKIP_EXTERNAL_IP: booleanish(false),
@@ -80,6 +83,9 @@ export const env = Object.freeze({
   TRUSTED_ORIGINS: raw.TRUSTED_ORIGINS.split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0),
+  PROXY_ALLOWED_HOSTS: raw.PROXY_ALLOWED_HOSTS.split(',')
+    .map((host) => host.trim().toLowerCase())
+    .filter((host) => host.length > 0),
   isProduction,
   isTest: raw.NODE_ENV === 'test',
 });

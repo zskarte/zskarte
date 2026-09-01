@@ -1,39 +1,48 @@
-import { asc, eq } from 'drizzle-orm';
-import { user } from '../../db/auth-schema.js';
-import { files } from '../file/schema.js';
-import { publicProcedure } from '../../trpc/procedures.js';
+import { z } from 'zod';
+import { orgProcedure, publicProcedure, requirePermission } from '../../trpc/procedures.js';
 import { router } from '../../trpc/trpc.js';
-import { organizations } from './schema.js';
+import * as service from './service.js';
 
-/** Public organization projection used by the login organization selector. */
+const changesetConfigSchema = z.object({
+  applyOnExpertViewOnly: z.boolean(),
+  hiddenMode: z.boolean(),
+  automerge: z.boolean(),
+  conflictTakeOur: z.boolean(),
+});
+
+const settingsSchema = z.object({
+  journalMessageTextTemplate: z.string().optional(),
+  changeset: changesetConfigSchema,
+});
+
+const uuidList = z.array(z.string().uuid());
+
+/** strapi kept exactly these two keys of the payload and dropped every other one. */
+const layerSettingsSchema = z.object({
+  wms_sources: uuidList.optional(),
+  map_layer_favorites: uuidList.optional(),
+});
+
+const organizationIdInput = z.object({ organizationId: z.string().uuid() });
+
 export const organizationRouter = router({
-  forLogin: publicProcedure.query(async ({ ctx }) => {
-    const rows = await ctx.db
-      .select({
-        organizationId: organizations.documentId,
-        name: organizations.name,
-        logo: {
-          formats: files.formats,
-          url: files.url,
-        },
-        username: user.username,
-      })
-      .from(organizations)
-      .leftJoin(files, eq(organizations.logoId, files.documentId))
-      .leftJoin(user, eq(user.organizationId, organizations.documentId))
-      .orderBy(asc(organizations.name));
+  /** Public organization projection used by the login organization selector. */
+  forLogin: publicProcedure.query(({ ctx }) => service.listForLogin(ctx)),
 
-    const organizationsById = new Map<string, { name: string; logo: (typeof rows)[number]['logo']; users: { username: string }[] }>();
+  current: orgProcedure.use(requirePermission('organization.current')).query(({ ctx }) => service.current(ctx)),
 
-    for (const row of rows) {
-      if (organizationsById.has(row.organizationId)) continue;
-      organizationsById.set(row.organizationId, {
-        name: row.name,
-        logo: row.logo,
-        users: row.username ? [{ username: row.username }] : [],
-      });
-    }
+  updateSettings: orgProcedure
+    .use(requirePermission('organization.updateSettings'))
+    .input(organizationIdInput.extend({ data: settingsSchema.nullable() }))
+    .mutation(({ ctx, input }) => service.updateSettings(ctx, input.organizationId, input.data)),
 
-    return [...organizationsById.values()];
-  }),
+  updateLayerSettings: orgProcedure
+    .use(requirePermission('organization.updateLayerSettings'))
+    .input(organizationIdInput.extend({ data: layerSettingsSchema }))
+    .mutation(({ ctx, input }) => service.updateLayerSettings(ctx, input.organizationId, input.data)),
+
+  updateJournalEntryTemplate: orgProcedure
+    .use(requirePermission('organization.updateJournalEntryTemplate'))
+    .input(organizationIdInput.extend({ data: z.record(z.string(), z.unknown()).nullable() }))
+    .mutation(({ ctx, input }) => service.updateJournalEntryTemplate(ctx, input.organizationId, input.data)),
 });
