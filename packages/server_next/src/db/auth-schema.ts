@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { bigint, boolean, index, integer, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { bigint, boolean, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { organizations } from '../modules/organization/schema.js';
 
 export const user = pgTable(
@@ -113,3 +113,16 @@ export const rateLimit = pgTable('rate_limit', {
   count: integer('count').notNull(),
   lastRequest: bigint('last_request', { mode: 'number' }).notNull(),
 });
+
+export const rolePermissions = pgTable(
+  'role_permissions',
+  {
+    role: text('role').notNull(),
+    permission: text('permission').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.role, table.permission] }),
+    index('role_permissions_role_idx').on(table.role),
+  ],
+);

@@ -156,7 +156,7 @@ describe('organization.current', () => {
 describe('organization.updateSettings', () => {
   it('writes only the settings column of the own organization', async () => {
     const { db, recorded } = createFakeDatabase();
-    const caller = await createCaller({ db });
+    const caller = await createCaller({ db, role: 'admin' });
 
     await expect(caller.updateSettings({ organizationId: ORGANIZATION_ID, data: settings })).resolves.toEqual({
       success: true,
@@ -166,7 +166,7 @@ describe('organization.updateSettings', () => {
 
   it('accepts a null payload like the strapi endpoint did', async () => {
     const { db, recorded } = createFakeDatabase();
-    const caller = await createCaller({ db });
+    const caller = await createCaller({ db, role: 'admin' });
 
     await expect(caller.updateSettings({ organizationId: ORGANIZATION_ID, data: null })).resolves.toEqual({
       success: true,
@@ -177,7 +177,7 @@ describe('organization.updateSettings', () => {
   it('rejects a foreign organization id and logs the access violation', async () => {
     const { db, recorded } = createFakeDatabase();
     const logger = createFakeLogger();
-    const caller = await createCaller({ db, logger });
+    const caller = await createCaller({ db, logger, role: 'admin' });
 
     await expect(
       caller.updateSettings({ organizationId: FOREIGN_ORGANIZATION_ID, data: settings }),
@@ -191,7 +191,7 @@ describe('organization.updateSettings', () => {
 
   it('rejects a role without the organization.updateSettings permission', async () => {
     const { db, recorded } = createFakeDatabase();
-    const caller = await createCaller({ db, logger: createFakeLogger(), role: 'operationread' });
+    const caller = await createCaller({ db, logger: createFakeLogger(), role: 'organization' });
 
     await expect(caller.updateSettings({ organizationId: ORGANIZATION_ID, data: settings })).rejects.toMatchObject<
       Partial<TRPCError>

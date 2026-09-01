@@ -1,0 +1,68 @@
+<div class="admin-container">
+  <mat-toolbar color="primary" class="admin-toolbar">
+    <button mat-icon-button (click)="backToOperations()" [title]="i18n.get('backToOperations')" data-testid="back-to-operations-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="toolbar-title">{{ i18n.get('adminPanel') }}</span>
+    <span class="spacer"></span>
+    <button mat-button (click)="backToOperations()">
+      <mat-icon>list</mat-icon>
+      {{ i18n.get('backToOperations') }}
+    </button>
+  </mat-toolbar>
+
+  <div class="admin-content">
+    <mat-tab-group animationDuration="200ms" class="admin-tabs">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">business</mat-icon>
+          {{ i18n.get('organizations') }}
+        </ng-template>
+        <div class="tab-body">
+          <mat-card class="admin-tab-card">
+            <mat-card-header>
+              <mat-card-title>{{ i18n.get('organizations') }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-admin-organizations></app-admin-organizations>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">emergency</mat-icon>
+          {{ i18n.get('operations') }}
+        </ng-template>
+        <div class="tab-body">
+          <mat-card class="admin-tab-card">
+            <mat-card-header>
+              <mat-card-title>{{ i18n.get('operations') }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-admin-operations></app-admin-operations>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">security</mat-icon>
+          {{ i18n.get('permissionsMatrix') }}
+        </ng-template>
+        <div class="tab-body">
+          <mat-card class="admin-tab-card">
+            <mat-card-header>
+              <mat-card-title>{{ i18n.get('permissionsMatrix') }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <app-admin-permissions></app-admin-permissions>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

@@ -46,7 +46,8 @@ import { VersionService } from '../../version/version.service';
   ],
 })
 export class OperationsComponent implements OnDestroy {
-  private _session = inject(SessionService);
+  public session = inject(SessionService);
+  private _session = this.session;
   i18n = inject(I18NService);
   private _dialog = inject(MatDialog);
   operationService = inject(OperationService);
@@ -131,6 +132,10 @@ export class OperationsComponent implements OnDestroy {
 
   public async logout(): Promise<void> {
     await this._session.logout('logout');
+  }
+
+  public navigateToAdmin(): void {
+    this._router.navigate(['/admin']);
   }
 
   public importOperation(): void {

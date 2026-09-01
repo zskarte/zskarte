@@ -10,6 +10,7 @@ import {
   IZsMapSession,
   Locale,
   PermissionType,
+  Role,
 } from '@zskarte/types';
 import { transform } from 'ol/proj';
 import {
@@ -67,6 +68,7 @@ export class SessionService {
   private _authenticated = new BehaviorSubject(false);
   private _isOnline = new BehaviorSubject<boolean>(true);
   public readonly sessionInitialized = signal(false);
+  public readonly isAdmin = signal(false);
 
   constructor() {
     const _operationService = this._operationService;
@@ -84,6 +86,7 @@ export class SessionService {
     this._session.pipe(skip(1)).subscribe(async (session) => {
       this._clearOperation.next();
       this.sessionInitialized.set(false);
+      this.isAdmin.set(session?.zsRole === 'admin');
       if (session && (this._authenticated.value || session.workLocal)) {
         await db.sessions.put(session);
         if (session.operation?.documentId) {
@@ -575,6 +578,8 @@ export class SessionService {
 
     // Shared sessions have the permission stored directly on the session.
     // Normal login session get the permission based on the role.
+    newSession.zsRole = (sessionResult.zsRole ?? (sessionResult.user as any)?.zsRole) as Role;
+    this.isAdmin.set(newSession.zsRole === 'admin');
     newSession.permission =
       sessionResult.session.permission ? (sessionResult.session.permission as PermissionType)
       : sessionResult.zsRole === 'operationread' ? PermissionType.READ
@@ -640,8 +645,10 @@ export class SessionService {
       workLocal: true,
       permission: PermissionType.ALL,
       label: 'local',
+      zsRole: 'organization',
     };
 
+    this.isAdmin.set(false);
     this._authenticated.next(true);
     this._session.next(newSession);
   }
@@ -659,6 +666,7 @@ export class SessionService {
     if (reason === 'logout' && this._isOnline.value && !this.isWorkLocal()) {
       await authClient.signOut();
     }
+    this.isAdmin.set(false);
     this._authenticated.next(false);
     this._session.next(undefined);
     await this._router.navigateByUrl('/login');
@@ -767,6 +775,17 @@ export class SessionService {
 
   public isArchived(): boolean {
     return this._session.value?.operation?.phase === 'archived';
+  }
+
+  public observeIsAdmin(): Observable<boolean> {
+    return this._session.pipe(
+      map((session) => session?.zsRole === 'admin'),
+      distinctUntilChanged(),
+    );
+  }
+
+  public getRole(): Role | undefined {
+    return this._session.value?.zsRole;
   }
 
   public getDefaultMapCenter(): number[] {

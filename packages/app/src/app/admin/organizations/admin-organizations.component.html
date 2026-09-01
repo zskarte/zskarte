@@ -1,0 +1,129 @@
+<div class="organizations-container">
+  <div class="table-header-toolbar">
+    <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchQuery" [placeholder]="i18n.get('searchOrganizations')" data-testid="org-search-input" />
+      @if (searchQuery()) {
+        <button matSuffix mat-icon-button (click)="searchQuery.set('')">
+          <mat-icon>clear</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <div class="header-actions">
+      <button mat-icon-button (click)="loadOrganizations()" [title]="i18n.get('refresh')" [disabled]="isLoading()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-flat-button color="primary" (click)="openCreateDialog()" data-testid="add-org-btn">
+        <mat-icon>add</mat-icon>
+        {{ i18n.get('addOrganization') }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (filteredOrganizations().length === 0) {
+    <div class="empty-state">
+      <mat-icon>business</mat-icon>
+      <p>{{ i18n.get('noOrganizationsFound') }}</p>
+    </div>
+  } @else {
+    <div class="table-responsive mat-elevation-z1">
+      <table mat-table [dataSource]="filteredOrganizations()" class="organizations-table" data-testid="orgs-table">
+        <!-- Logo Column -->
+        <ng-container matColumnDef="logo">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('organizationLogo') }}</th>
+          <td mat-cell *matCellDef="let org">
+            <div class="org-logo-cell">
+              @if (org.logo?.url) {
+                <img [src]="resolveLogoUrl(org.logo.url)" alt="Logo" class="table-org-logo" />
+              } @else {
+                <div class="table-logo-fallback">
+                  <mat-icon>business</mat-icon>
+                </div>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('organizationName') }}</th>
+          <td mat-cell *matCellDef="let org" class="font-medium">
+            {{ org.name }}
+          </td>
+        </ng-container>
+
+        <!-- Default Locale Column -->
+        <ng-container matColumnDef="defaultLocale">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('defaultLocale') }}</th>
+          <td mat-cell *matCellDef="let org">
+            <span class="locale-badge">{{ org.defaultLocale || 'de-CH' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Coordinates Column -->
+        <ng-container matColumnDef="coordinates">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('mapCoordinates') }}</th>
+          <td mat-cell *matCellDef="let org" class="coordinates-text">
+            @if (org.mapLongitude && org.mapLatitude) {
+              <span>{{ org.mapLongitude | number:'1.2-2' }}, {{ org.mapLatitude | number:'1.2-2' }} (z{{ org.mapZoomLevel || 16 }})</span>
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- URL Column -->
+        <ng-container matColumnDef="url">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('websiteUrl') }}</th>
+          <td mat-cell *matCellDef="let org">
+            @if (org.url) {
+              <a [href]="org.url" target="_blank" rel="noopener noreferrer" class="external-link">
+                {{ org.url }}
+                <mat-icon class="inline-icon">open_in_new</mat-icon>
+              </a>
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Users Count Column -->
+        <ng-container matColumnDef="userCount">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('userCount') }}</th>
+          <td mat-cell *matCellDef="let org">
+            <span class="count-badge">{{ org.userCount ?? 0 }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Operations Count Column -->
+        <ng-container matColumnDef="operationCount">
+          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('operationCount') }}</th>
+          <td mat-cell *matCellDef="let org">
+            <span class="count-badge">{{ org.operationCount ?? 0 }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="actions-header">{{ i18n.get('actions') }}</th>
+          <td mat-cell *matCellDef="let org" class="actions-cell">
+            <button mat-icon-button (click)="openEditDialog(org)" [title]="i18n.get('editOrganization')" data-testid="edit-org-btn">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteOrganization(org)" [title]="i18n.get('deleteOrganization')" data-testid="delete-org-btn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  }
+</div>

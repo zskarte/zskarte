@@ -1,0 +1,150 @@
+<app-dialog-header>
+  <h2>{{ data.mode === 'create' ? i18n.get('addOrganization') : i18n.get('editOrganization') }}</h2>
+</app-dialog-header>
+
+<app-dialog-body>
+  <form [formGroup]="form" class="dialog-form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ i18n.get('organizationName') }}</mat-label>
+      <input matInput formControlName="name" required placeholder="z.B. ZSO Basel-Stadt" data-testid="org-name-input" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>{{ i18n.get('name') }} is required</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>{{ i18n.get('defaultLocale') }}</mat-label>
+        <mat-select formControlName="defaultLocale">
+          @for (loc of locales; track loc.value) {
+            <mat-option [value]="loc.value">{{ loc.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>{{ i18n.get('websiteUrl') }}</mat-label>
+        <input matInput formControlName="url" placeholder="https://..." />
+      </mat-form-field>
+    </div>
+
+    <div class="user-section">
+      <h3>{{ data.mode === 'create' ? i18n.get('initialUser') : i18n.get('userAccount') }}</h3>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>{{ i18n.get('username') }}</mat-label>
+          <input matInput formControlName="username" required placeholder="z.B. zso_basel" data-testid="org-username-input" />
+          @if (form.get('username')?.hasError('required')) {
+            <mat-error>{{ i18n.get('username') }} is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>{{ i18n.get('password') }}</mat-label>
+          <input
+            matInput
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            [required]="data.mode === 'create'"
+            [placeholder]="data.mode === 'edit' ? i18n.get('passwordPlaceholderEdit') : ''"
+            data-testid="org-password-input"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword.set(!hidePassword())"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hidePassword()"
+          >
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('password')?.hasError('required')) {
+            <mat-error>{{ i18n.get('password') }} is required</mat-error>
+          }
+          @if (form.get('password')?.hasError('minlength')) {
+            <mat-error>{{ i18n.get('passwordMinLength') }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>{{ i18n.get('email') }}</mat-label>
+          <input matInput type="email" formControlName="userEmail" placeholder="user@domain.ch" data-testid="org-email-input" />
+          @if (form.get('userEmail')?.hasError('email')) {
+            <mat-error>Invalid email format</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>{{ i18n.get('role') }}</mat-label>
+          <mat-select formControlName="userRole">
+            @for (role of availableRoles; track role.value) {
+              <mat-option [value]="role.value">{{ role.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="coordinates-section">
+      <h3>{{ i18n.get('mapCoordinates') }}</h3>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>{{ i18n.get('longitude') }}</mat-label>
+          <input matInput type="number" step="any" formControlName="mapLongitude" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>{{ i18n.get('latitude') }}</mat-label>
+          <input matInput type="number" step="any" formControlName="mapLatitude" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>{{ i18n.get('zoomLevel') }}</mat-label>
+          <input matInput type="number" min="1" max="22" formControlName="mapZoomLevel" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="logo-section">
+      <h3>{{ i18n.get('organizationLogo') }}</h3>
+      <div class="logo-container">
+        @if (logoPreview()) {
+          <div class="logo-preview-box">
+            <img [src]="logoPreview()" alt="Logo Preview" class="logo-preview-img" />
+            <button mat-icon-button color="warn" type="button" (click)="removeLogo()" [title]="i18n.get('removeLogo')">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        } @else {
+          <div class="logo-placeholder">
+            <mat-icon>image</mat-icon>
+            <span>No logo selected</span>
+          </div>
+        }
+
+        <div class="logo-actions">
+          <input #fileInput type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display: none" (change)="onFileSelected($event)" />
+          <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="isUploadingLogo()">
+            <mat-icon>upload</mat-icon>
+            {{ logoPreview() ? i18n.get('changeLogo') : i18n.get('uploadLogo') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</app-dialog-body>
+
+<app-dialog-footer>
+  <button mat-button type="button" (click)="cancel()" [disabled]="isSaving()">
+    {{ i18n.get('cancel') }}
+  </button>
+  <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="form.invalid || isSaving()" data-testid="org-save-btn">
+    @if (isSaving()) {
+      <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+    }
+    {{ i18n.get('save') }}
+  </button>
+</app-dialog-footer>

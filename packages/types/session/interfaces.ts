@@ -1,6 +1,9 @@
 import { Locale } from '../i18n/interfaces';
 import { IZsMapOperation, IZsMapOrganization } from '../operation/interfaces';
 
+export const ROLES = ['admin', 'organization', 'guest', 'operationwrite', 'operationread', 'public'] as const;
+export type Role = (typeof ROLES)[number];
+
 export enum PermissionType {
   READ = 'read',
   WRITE = 'write',
@@ -30,6 +33,7 @@ export interface IZsMapSession {
   defaultLongitude?: number;
   defaultZoomLevel?: number;
   workLocal?: boolean;
+  zsRole?: Role;
 }
 
 export interface IZso {
@@ -37,4 +41,21 @@ export interface IZso {
   identifier: string;
   logoSrc?: string;
   logoSrcSet?: string;
+}
+
+export interface IZsRolePermission {
+  role: Role;
+  permission: string;
+}
+
+export interface IZsRolePermissionToggleInput {
+  role: Role | string;
+  permission: string;
+  enabled: boolean;
+}
+
+export interface IZsPermissionMatrix {
+  permissions: readonly string[];
+  roles: readonly Role[];
+  matrix: Record<Role, Record<string, boolean>>;
 }

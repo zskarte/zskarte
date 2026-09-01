@@ -41,8 +41,17 @@ const requireOrgScopeMiddleware = middleware(({ ctx, next }) => {
   return next({ ctx: { ...ctx, scope: ctx.scope } });
 });
 
+const requireAdminMiddleware = middleware(({ ctx, next }) => {
+  if (ctx.user?.zsRole !== 'admin') {
+    logViolation(ctx, 'access not allowed, requires admin role');
+    throw forbidden;
+  }
+  return next();
+});
+
 export const publicProcedure = baseProcedure;
 export const sessionProcedure = baseProcedure.use(requireSessionMiddleware);
+export const adminProcedure = sessionProcedure.use(requireAdminMiddleware);
 export const orgProcedure = sessionProcedure.use(requireOrgScopeMiddleware);
 
 export const operationProcedure = orgProcedure

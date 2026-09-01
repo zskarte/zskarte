@@ -1,3 +1,4 @@
+import { adminRouter } from '../modules/admin/router.js';
 import { mapLayerRouter } from '../modules/map-layer/router.js';
 import { mapSnapshotRouter } from '../modules/map-snapshot/router.js';
 import { proxyRouter } from '../modules/misc/proxy.router.js';
@@ -12,6 +13,7 @@ import { publicProcedure, router } from './trpc.js';
  * Root router. Feature routers get merged in here as the modules land.
  */
 export const appRouter = router({
+  admin: adminRouter,
   operation: operationRouter,
   organization: organizationRouter,
   mapLayer: mapLayerRouter,

@@ -15,6 +15,13 @@
       "when": 1788184640340,
       "tag": "0001_demonic_nick_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788268597377,
+      "tag": "0002_amused_red_ghost",
+      "breakpoints": true
     }
   ]
 }

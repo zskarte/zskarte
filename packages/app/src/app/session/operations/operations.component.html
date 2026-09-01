@@ -42,7 +42,21 @@
       </mat-card-actions>
     } @else {
       <mat-card-header class="operations-header">
-        <mat-card-title class="title">{{ i18n.get('docCreateOrLoadTitle') }}</mat-card-title>
+        <div class="operations-title-row">
+          <mat-card-title class="title">{{ i18n.get('docCreateOrLoadTitle') }}</mat-card-title>
+          @if (session.isAdmin()) {
+            <button
+              mat-stroked-button
+              color="primary"
+              class="admin-panel-btn"
+              data-testid="admin-panel-btn"
+              (click)="navigateToAdmin()"
+            >
+              <mat-icon>admin_panel_settings</mat-icon>
+              {{ i18n.get('adminPanel') }}
+            </button>
+          }
+        </div>
         <mat-divider></mat-divider>
         <mat-card-actions class="operations-actions">
           <button mat-flat-button color="primary" (click)="operationService.createOperation()">

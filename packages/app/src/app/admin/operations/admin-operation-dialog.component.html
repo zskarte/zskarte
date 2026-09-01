@@ -1,0 +1,55 @@
+<app-dialog-header>
+  <h2>{{ data.mode === 'create' ? i18n.get('createOperation') : i18n.get('editOperation') }}</h2>
+</app-dialog-header>
+
+<app-dialog-body>
+  <form [formGroup]="form" class="dialog-form" (ngSubmit)="save()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ i18n.get('operationName') }}</mat-label>
+      <input matInput formControlName="name" required placeholder="z.B. Hochwasser Einsatz 2026" data-testid="op-name-input" />
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>{{ i18n.get('name') }} is required</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>{{ i18n.get('organization') }}</mat-label>
+        <mat-select formControlName="organizationId" required data-testid="op-org-select">
+          @for (org of data.organizations; track org.documentId) {
+            <mat-option [value]="org.documentId">{{ org.name }}</mat-option>
+          }
+        </mat-select>
+        @if (form.get('organizationId')?.hasError('required')) {
+          <mat-error>{{ i18n.get('selectOrganization') }} is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>{{ i18n.get('status') }}</mat-label>
+        <mat-select formControlName="phase" required data-testid="op-phase-select">
+          @for (ph of phases; track ph.value) {
+            <mat-option [value]="ph.value">{{ ph.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ i18n.get('description') }}</mat-label>
+      <textarea matInput formControlName="description" rows="4" placeholder="Optionale Beschreibung..."></textarea>
+    </mat-form-field>
+  </form>
+</app-dialog-body>
+
+<app-dialog-footer>
+  <button mat-button type="button" (click)="cancel()" [disabled]="isSaving()">
+    {{ i18n.get('cancel') }}
+  </button>
+  <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="form.invalid || isSaving()" data-testid="op-save-btn">
+    @if (isSaving()) {
+      <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+    }
+    {{ i18n.get('save') }}
+  </button>
+</app-dialog-footer>

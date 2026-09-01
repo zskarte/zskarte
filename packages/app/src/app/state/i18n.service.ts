@@ -6,6 +6,7 @@ import { MAP_TRANSLATIONS } from './translations/map.translations';
 import { LAYER_TRANSLATIONS } from './translations/layer.translations';
 import { JOURNAL_TRANSLATIONS } from './translations/journal.translations';
 import { DOCUMENTATION_TRANSLATIONS } from './translations/documentation.translations';
+import { ADMIN_TRANSLATIONS } from './translations/admin.translations';
 
 /**
  * Translation Management Guide - ZSKarte Application
@@ -229,6 +230,7 @@ export class I18NService {
       de: 'Passwort',
       en: 'Password',
       fr: 'Mot de passe',
+      it: 'Password',
     },
     wrongPassword: {
       de: 'Ungültiges Passwort',
@@ -335,6 +337,7 @@ export class I18NService {
     ...LAYER_TRANSLATIONS,
     ...JOURNAL_TRANSLATIONS,
     ...DOCUMENTATION_TRANSLATIONS,
+    ...ADMIN_TRANSLATIONS,
   };
 
   public get(key: string): string {
