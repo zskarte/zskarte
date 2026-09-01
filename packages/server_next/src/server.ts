@@ -5,6 +5,7 @@ import fastifyStatic from '@fastify/static';
 import websocket from '@fastify/websocket';
 import { type FastifyTRPCPluginOptions, fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
 import Fastify from 'fastify';
+import { authHandlerPlugin } from './auth/handler.js';
 import { env } from './env.js';
 import { logger } from './lib/logger.js';
 import { createContext } from './trpc/context.js';
@@ -42,6 +43,8 @@ export const buildServer = async () => {
       prefix: '/uploads/',
     });
   }
+
+  await app.register(authHandlerPlugin);
 
   // has to be registered before the trpc plugin, otherwise the websocket route is ignored
   await app.register(websocket);

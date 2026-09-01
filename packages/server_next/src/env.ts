@@ -34,7 +34,7 @@ const schema = z.object({
 
   BETTER_AUTH_SECRET: z.string().min(16).default(DEV_AUTH_SECRET),
   BETTER_AUTH_URL: z.string().optional(),
-  TRUSTED_ORIGINS: z.string().default('http://localhost:4200'),
+  TRUSTED_ORIGINS: z.string().default('http://localhost:4300'),
 
   SIGN_KEY_TYPE: z.enum(['rsa', 'ed25519']).default('ed25519'),
   SIGN_PRIVATE_KEY_PASSPHRASE: z.string().min(8).default(DEV_SIGN_PASSPHRASE),
