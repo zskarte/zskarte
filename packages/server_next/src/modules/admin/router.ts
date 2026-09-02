@@ -7,6 +7,7 @@ import { ALLOWED_LOGO_MIME_TYPES } from '../file/service.js';
 import * as operationService from './operation.service.js';
 import * as organizationService from './organization.service.js';
 import * as permissionService from './permission.service.js';
+import * as mapLayerGenerationService from './map-layer-generation.service.js';
 
 const createUserInputSchema = z.object({
   username: z.string().min(1, 'Username is required').optional(),
@@ -172,8 +173,28 @@ export const adminPermissionRouter = router({
   resetDefaults: adminProcedure.mutation(({ ctx }) => permissionService.resetDefaults(ctx.db)),
 });
 
+export const adminMapLayerGenerationRouter = router({
+  config: adminProcedure.query(({ ctx }) => mapLayerGenerationService.getConfig(ctx.db)),
+  update: adminProcedure
+    .input(
+      z.object({
+        enabled: z.boolean(),
+        allwaysCreateDistrict: z.boolean(),
+        cantons: z.string().trim().min(1),
+        urlMadd: z.string().trim().min(1),
+        urlSwissBoundaries3d: z.string().trim().min(1),
+        urlSwissNames3d: z.string().trim().min(1),
+        fieldsSwissNames3d: z.string().trim().min(1),
+        fileSwissNames3d: z.string().trim().min(1),
+      }),
+    )
+    .mutation(({ ctx, input }) => mapLayerGenerationService.updateConfig(ctx.db, input)),
+  trigger: adminProcedure.mutation(({ ctx }) => mapLayerGenerationService.trigger(ctx.db)),
+});
+
 export const adminRouter = router({
   organization: adminOrganizationRouter,
   operation: adminOperationRouter,
   permission: adminPermissionRouter,
+  mapLayerGeneration: adminMapLayerGenerationRouter,
 });

@@ -10,6 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { AdminOrganizationsComponent } from './organizations/admin-organizations.component';
 import { AdminOperationsComponent } from './operations/admin-operations.component';
 import { AdminPermissionsComponent } from './permissions/admin-permissions.component';
+import { AdminMapLayerGenerationComponent } from './map-layer-generation/admin-map-layer-generation.component';
 
 @Component({
   selector: 'app-admin',
@@ -24,6 +25,7 @@ import { AdminPermissionsComponent } from './permissions/admin-permissions.compo
     AdminOrganizationsComponent,
     AdminOperationsComponent,
     AdminPermissionsComponent,
+    AdminMapLayerGenerationComponent,
   ],
 })
 export class AdminComponent {
