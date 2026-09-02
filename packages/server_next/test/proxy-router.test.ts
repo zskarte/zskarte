@@ -1,17 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Logger } from '../src/lib/logger.js';
 import { createProxyRouter } from '../src/modules/misc/proxy.router.js';
-import { createContextInner } from '../src/trpc/context.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
+import { createMockLogger, createTestContext } from './helpers/index.js';
 
 const ALLOWED_HOSTS = ['example.com', '*.geo.admin.ch', 'localhost', '127.0.0.1', '10.0.0.5'];
 
-const silentLogger = () => ({ error: vi.fn(), warn: vi.fn(), info: vi.fn(), debug: vi.fn() }) as unknown as Logger;
-
 const fetchMock = vi.fn<typeof globalThis.fetch>();
 
-const createCaller = async (logger = silentLogger()) =>
-  createCallerFactory(createProxyRouter(ALLOWED_HOSTS))(await createContextInner({ logger }));
+const createCaller = async (logger: Logger = createMockLogger()) =>
+  createCallerFactory(createProxyRouter(ALLOWED_HOSTS))(await createTestContext({ logger }));
 
 beforeEach(() => {
   fetchMock.mockReset();
@@ -79,7 +77,7 @@ describe('proxy.fetch', () => {
 
   it('maps an upstream error status to BAD_GATEWAY', async () => {
     fetchMock.mockResolvedValue(new Response('boom', { status: 500 }));
-    const logger = silentLogger();
+    const logger = createMockLogger();
     const caller = await createCaller(logger);
 
     await expect(caller.fetch({ url: 'https://example.com/broken' })).rejects.toMatchObject({ code: 'BAD_GATEWAY' });

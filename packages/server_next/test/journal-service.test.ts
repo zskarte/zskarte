@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Database } from '../src/db/client.js';
 import * as repository from '../src/modules/journal/repository.js';
 import type { JournalEntryRow } from '../src/modules/journal/schema.js';
 import * as service from '../src/modules/journal/service.js';
 import type { Context, Scope } from '../src/trpc/context.js';
+import { TEST_OP_ID, TEST_ORG_ID, createTestContext } from './helpers/index.js';
 
 vi.mock('../src/modules/journal/repository.js', () => ({
   list: vi.fn(),
@@ -16,8 +16,8 @@ vi.mock('../src/modules/journal/repository.js', () => ({
   update: vi.fn(),
 }));
 
-const ORGANIZATION_ID = 'ca548097-df0f-4862-8bd3-b104bf537bd8';
-const OPERATION_ID = '11111111-1111-4111-8111-111111111111';
+const ORGANIZATION_ID = TEST_ORG_ID;
+const OPERATION_ID = TEST_OP_ID;
 const DOCUMENT_ID = '33333333-3333-4333-8333-333333333333';
 
 const row = (messageNumber: number): JournalEntryRow => ({
@@ -52,21 +52,12 @@ const row = (messageNumber: number): JournalEntryRow => ({
   updatedAt: new Date(),
 });
 
-const context = () => {
-  const transaction = vi.fn(async (callback: (tx: Database) => Promise<unknown>) => callback({} as Database));
-  return {
-    db: { transaction } as unknown as Database,
-    scope: { organizationId: ORGANIZATION_ID } as Scope,
-    logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), fatal: vi.fn(), debug: vi.fn() },
-    requestIp: null,
-    requestPath: '/trpc/journal',
-    userAgent: null,
-    authSession: null,
-    user: null,
-    session: null,
+const context = async () =>
+  (await createTestContext({
     role: 'organization',
-  } as Context & { scope: Scope };
-};
+    organizationId: ORGANIZATION_ID,
+    requestPath: '/trpc/journal',
+  })) as Context & { scope: Scope };
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -74,17 +65,23 @@ describe('journal service numbering', () => {
   it('allocates the next message number', async () => {
     vi.mocked(repository.highestMessageNumber).mockResolvedValue(12);
     vi.mocked(repository.insert).mockImplementation(async (_db, _scope, values) => row(values.messageNumber));
+    const ctx = await context();
 
-    const result = await service.create(context(), OPERATION_ID, 'client-a', {});
+    const result = await service.create(ctx, OPERATION_ID, 'client-a', {});
 
     expect(result.messageNumber).toBe(13);
-    expect(repository.insert).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.objectContaining({ messageNumber: 13 }));
+    expect(repository.insert).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ messageNumber: 13 }),
+    );
   });
 
   it('reclaims the positive equivalent of a negative offline number', async () => {
     vi.mocked(repository.insert).mockImplementation(async (_db, _scope, values) => row(values.messageNumber));
+    const ctx = await context();
 
-    const result = await service.create(context(), OPERATION_ID, 'client-a', { messageNumber: -7 });
+    const result = await service.create(ctx, OPERATION_ID, 'client-a', { messageNumber: -7 });
 
     expect(result.messageNumber).toBe(7);
     expect(repository.highestMessageNumber).not.toHaveBeenCalled();
@@ -95,8 +92,9 @@ describe('journal service numbering', () => {
     vi.mocked(repository.insert)
       .mockRejectedValueOnce({ code: '23505', constraint: 'journal_entries_number_unique' })
       .mockImplementationOnce(async (_db, _scope, values) => row(values.messageNumber));
+    const ctx = await context();
 
-    const result = await service.create(context(), OPERATION_ID, 'client-a', {});
+    const result = await service.create(ctx, OPERATION_ID, 'client-a', {});
 
     expect(result.messageNumber).toBe(6);
     expect(repository.insert).toHaveBeenCalledTimes(2);
@@ -104,9 +102,11 @@ describe('journal service numbering', () => {
 
   it('returns conflict for an explicit duplicate number', async () => {
     vi.mocked(repository.insert).mockRejectedValue({ code: '23505', constraint: 'journal_entries_number_unique' });
+    const ctx = await context();
 
-    await expect(
-      service.create(context(), OPERATION_ID, 'client-a', { messageNumber: 7 }),
-    ).rejects.toMatchObject({ code: 'CONFLICT', message: 'messageNumber 7 already exist' });
+    await expect(service.create(ctx, OPERATION_ID, 'client-a', { messageNumber: 7 })).rejects.toMatchObject({
+      code: 'CONFLICT',
+      message: 'messageNumber 7 already exist',
+    });
   });
 });

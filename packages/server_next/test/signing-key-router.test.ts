@@ -1,7 +1,6 @@
 import { webcrypto } from 'node:crypto';
 import type { IZsSignKeyType } from '@zskarte/types';
 import { describe, expect, it } from 'vitest';
-import type { Database } from '../src/db/client.js';
 import {
   createNewSigningKeyPair,
   resolveSigningPassphrase,
@@ -10,26 +9,10 @@ import {
   verifyData,
 } from '../src/lib/signing.js';
 import { signingKeyRouter } from '../src/modules/signing-key/router.js';
-import { createContextInner } from '../src/trpc/context.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
+import { createMockDb, createTestContext } from './helpers/index.js';
 
 const SERVER_ID = 'host:test-host-10.0.0.1';
-
-const createFakeDatabase = (rows: unknown[]) => {
-  const projections: string[][] = [];
-  const db = {
-    select: (projection: Record<string, unknown>) => {
-      projections.push(Object.keys(projection));
-      const builder: any = {
-        from: () => builder,
-        where: () => builder,
-        limit: () => Promise.resolve(rows),
-      };
-      return builder;
-    },
-  } as unknown as Database;
-  return { db, projections };
-};
 
 const storedKey = {
   keyId: 'e3b0c442-98fc-1c14-9afb-f4c8996fb924',
@@ -40,7 +23,8 @@ const storedKey = {
   validUntil: null,
 };
 
-const createCaller = createCallerFactory(signingKeyRouter);
+const createCaller = async (db = createMockDb().db) =>
+  createCallerFactory(signingKeyRouter)(await createTestContext({ db }));
 
 /** mirrors `packages/app/.../changeset/signing.service.ts` */
 const verifyInBrowserStyle = async (
@@ -66,20 +50,23 @@ const verifyInBrowserStyle = async (
 
 describe('signingKey.byKeyId', () => {
   it('is public and returns public material only', async () => {
-    const { db, projections } = createFakeDatabase([storedKey]);
+    const { db, captured } = createMockDb({ selects: [[storedKey]] });
+    const caller = await createCaller(db);
 
-    const result = await createCaller(await createContextInner({ db })).byKeyId({ keyId: storedKey.keyId });
+    const result = await caller.byKeyId({ keyId: storedKey.keyId });
 
     expect(result).toEqual(storedKey);
     expect(result).not.toHaveProperty('privateKeyEncrypted');
-    expect(projections[0]).toEqual(['keyId', 'serverId', 'keyType', 'publicKey', 'validFrom', 'validUntil']);
-    expect(projections[0]).not.toContain('privateKeyEncrypted');
+    const projectionKeys = Object.keys(captured.selects[0].fields as Record<string, unknown>);
+    expect(projectionKeys).toEqual(['keyId', 'serverId', 'keyType', 'publicKey', 'validFrom', 'validUntil']);
+    expect(projectionKeys).not.toContain('privateKeyEncrypted');
   });
 
   it('returns null for an unknown key instead of throwing', async () => {
-    const { db } = createFakeDatabase([]);
+    const { db } = createMockDb({ selects: [[]] });
+    const caller = await createCaller(db);
 
-    await expect(createCaller(await createContextInner({ db })).byKeyId({ keyId: 'unknown' })).resolves.toBeNull();
+    await expect(caller.byKeyId({ keyId: 'unknown' })).resolves.toBeNull();
   });
 });
 

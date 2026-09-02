@@ -2,9 +2,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { IZsStrapiAsset } from '@zskarte/types';
-import type { SQL } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Database } from '../src/db/client.js';
 import {
   type UploadFileInput,
   deleteFile,
@@ -23,61 +21,9 @@ import {
   getStorageProvider,
   setStorageProvider,
 } from '../src/modules/file/storage.js';
+import { logger } from '../src/lib/logger.js';
 import { buildServer } from '../src/server.js';
-
-const createFakeDatabase = (options: { selects?: unknown[][]; returning?: unknown[][] } = {}) => {
-  const selects = [...(options.selects ?? [])];
-  const returning = [...(options.returning ?? [])];
-  const captured = {
-    where: [] as SQL[],
-    inserted: [] as Record<string, unknown>[],
-    updated: [] as Record<string, unknown>[],
-    deletes: 0,
-  };
-  const nextSelect = () => Promise.resolve(selects.shift() ?? []);
-  const nextReturning = () => Promise.resolve(returning.shift() ?? []);
-
-  const query: any = {
-    from: () => query,
-    leftJoin: () => query,
-    where: (condition: SQL) => {
-      captured.where.push(condition);
-      return query;
-    },
-    orderBy: () => nextSelect(),
-    limit: () => nextSelect(),
-  };
-
-  const db = {
-    select: () => query,
-    insert: () => ({
-      values: (values: Record<string, unknown>) => {
-        captured.inserted.push(values);
-        return { returning: () => nextReturning() };
-      },
-    }),
-    update: () => ({
-      set: (values: Record<string, unknown>) => {
-        captured.updated.push(values);
-        return {
-          where: (condition: SQL) => {
-            captured.where.push(condition);
-            return { returning: () => nextReturning() };
-          },
-        };
-      },
-    }),
-    delete: () => ({
-      where: (condition: SQL) => {
-        captured.where.push(condition);
-        captured.deletes += 1;
-        return { returning: () => nextReturning() };
-      },
-    }),
-  } as unknown as Database;
-
-  return { db, captured };
-};
+import { createMockDb } from './helpers/index.js';
 
 describe('getExtension', () => {
   it('extracts extension from filename if present', () => {
@@ -349,7 +295,7 @@ describe('File Service & IZsStrapiAsset Parity', () => {
       updatedAt: new Date(),
     };
 
-    const { db, captured } = createFakeDatabase({ returning: [[fakeRow]] });
+    const { db, captured } = createMockDb({ returning: [[fakeRow]] });
 
     const input: UploadFileInput = {
       fileName: 'sample.txt',
@@ -420,7 +366,7 @@ describe('File Service & IZsStrapiAsset Parity', () => {
       size: 0.02,
     };
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[existingRow]],
       returning: [[updatedRow]],
     });
@@ -438,11 +384,11 @@ describe('File Service & IZsStrapiAsset Parity', () => {
 
     expect(result.name).toBe('version-v2.txt');
     expect(captured.updated).toHaveLength(1);
-    expect(captured.updated[0].name).toBe('version-v2.txt');
+    expect(captured.updated[0]).toMatchObject({ name: 'version-v2.txt' });
   });
 
   it('replaceFile throws NOT_FOUND when file does not exist in db', async () => {
-    const { db } = createFakeDatabase({ selects: [[]] });
+    const { db } = createMockDb({ selects: [[]] });
 
     await expect(
       replaceFile(
@@ -471,14 +417,14 @@ describe('File Service & IZsStrapiAsset Parity', () => {
       url: saved.url,
     };
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[existingRow]],
       returning: [[]],
     });
 
     await deleteFile(db, 'file-del-1', testStorage);
 
-    expect(captured.deletes).toBe(1);
+    expect(captured.deleted).toHaveLength(1);
     await expect(readFile(join(tempDir, saved.key))).rejects.toThrow();
   });
 
@@ -489,7 +435,7 @@ describe('File Service & IZsStrapiAsset Parity', () => {
       url: '/uploads/logo.png',
     };
 
-    const { db } = createFakeDatabase({ selects: [[existingRow]] });
+    const { db } = createMockDb({ selects: [[existingRow]] });
 
     const file = await getFileById(db, 'file-abc');
     expect(file).toEqual(existingRow);
@@ -498,6 +444,8 @@ describe('File Service & IZsStrapiAsset Parity', () => {
 
 describe('Static File Serving via Fastify', () => {
   it('serves static files from uploads directory', async () => {
+    const prevLevel = logger.level;
+    logger.level = 'silent';
     const app = await buildServer();
     const testFileName = `test-static-${Date.now()}.txt`;
     const uploadsDir = (await import('../src/server.js')).uploadsDirectory;
@@ -516,6 +464,7 @@ describe('Static File Serving via Fastify', () => {
     } finally {
       await rm(join(uploadsDir, testFileName), { force: true });
       await app.close();
+      logger.level = prevLevel;
     }
   });
 });

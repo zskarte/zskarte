@@ -1,113 +1,38 @@
 import type { TRPCError } from '@trpc/server';
 import type { IZsChangeset, ZsMapState } from '@zskarte/types';
-import type { SQL } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Database } from '../src/db/client.js';
-import {
-  addToCache,
-  getOperationCache,
-  resetCacheForTesting,
-} from '../src/modules/operation/cache.js';
+import { addToCache, getOperationCache, resetCacheForTesting } from '../src/modules/operation/cache.js';
 import { operationRouter } from '../src/modules/operation/router.js';
 import type { OperationRow } from '../src/modules/operation/schema.js';
 import { initializeSigningKeys } from '../src/modules/signing-key/service.js';
-import { type AuthSession, createContextInner } from '../src/trpc/context.js';
+import type { AuthSession } from '../src/trpc/context.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
+import {
+  TEST_OP_ID,
+  TEST_OP_ID_2,
+  TEST_ORG_ID,
+  TEST_ORG_ID_2,
+  createMockDb,
+  createSilentLogger,
+  createTestContext,
+  createTestSession,
+} from './helpers/index.js';
 
-const ORG_A = 'ca548097-df0f-4862-8bd3-b104bf537bd8';
-const ORG_B = '2f1d1c9a-8f4b-4f1e-9b3a-9c1d2e3f4a5b';
-const OP_1 = '11111111-1111-4111-8111-111111111111';
-const OP_2 = '22222222-2222-4222-8222-222222222222';
-
-const authSession = (
-  role: AuthSession['user']['zsRole'],
-  organizationId: string | null,
-  operationId: string | null = null,
-): AuthSession => ({
-  user: {
-    id: 'user-1',
-    name: 'Test User',
-    email: 'test@example.com',
-    emailVerified: true,
-    image: null,
-    username: 'test',
-    organizationId,
-    zsRole: role,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  session: {
-    id: 'session-1',
-    token: 'token',
-    userId: 'user-1',
-    expiresAt: new Date(Date.now() + 60_000),
-    ipAddress: null,
-    userAgent: null,
-    operationId,
-    organizationId,
-    permission: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-});
-
-const createFakeDatabase = (options: { selects?: unknown[][]; returning?: unknown[][] } = {}) => {
-  const selects = [...(options.selects ?? [])];
-  const returning = [...(options.returning ?? [])];
-  const captured = {
-    where: [] as SQL[],
-    inserted: [] as Record<string, unknown>[],
-    updated: [] as Record<string, unknown>[],
-    deletes: 0,
-  };
-  const nextSelect = () => Promise.resolve(selects.shift() ?? []);
-  const nextReturning = () => Promise.resolve(returning.shift() ?? []);
-
-  const query: any = {
-    from: () => query,
-    leftJoin: () => query,
-    where: (condition: SQL) => {
-      captured.where.push(condition);
-      return query;
-    },
-    orderBy: () => nextSelect(),
-    limit: () => nextSelect(),
-  };
-
-  const db = {
-    select: () => query,
-    insert: () => ({
-      values: (values: Record<string, unknown>) => {
-        captured.inserted.push(values);
-        return { returning: () => nextReturning() };
-      },
-    }),
-    update: () => ({
-      set: (values: Record<string, unknown>) => {
-        captured.updated.push(values);
-        return {
-          where: (condition: SQL) => {
-            captured.where.push(condition);
-            return { returning: () => nextReturning() };
-          },
-        };
-      },
-    }),
-    delete: () => ({
-      where: (condition: SQL) => {
-        captured.where.push(condition);
-        captured.deletes += 1;
-        return { returning: () => nextReturning() };
-      },
-    }),
-  } as unknown as Database;
-
-  return { db, captured };
-};
+const ORG_A = TEST_ORG_ID;
+const ORG_B = TEST_ORG_ID_2;
+const OP_1 = TEST_OP_ID;
+const OP_2 = TEST_OP_ID_2;
 
 const createCaller = async (db: Database, session: AuthSession | null) =>
   createCallerFactory(operationRouter)(
-    await createContextInner({ db, authSession: session, requestIp: '127.0.0.1', requestPath: '/trpc/operation' }),
+    await createTestContext({
+      db,
+      authSession: session,
+      requestIp: '127.0.0.1',
+      requestPath: '/trpc/operation',
+      logger: createSilentLogger(),
+    }),
   );
 
 const sampleOperationRow = (overrides: Partial<OperationRow> = {}): OperationRow => ({
@@ -134,16 +59,16 @@ const sampleOperationRow = (overrides: Partial<OperationRow> = {}): OperationRow
 describe('operationRouter', () => {
   beforeEach(async () => {
     resetCacheForTesting();
-    const { db } = createFakeDatabase({ selects: [[]], returning: [[]] });
+    const { db } = createMockDb({ selects: [[]], returning: [[]] });
     await initializeSigningKeys({
       db,
-      logger: { info: () => {}, warn: () => {}, error: () => {}, fatal: () => {}, debug: () => {} } as any,
+      logger: createSilentLogger(),
     });
   });
 
   describe('overview', () => {
     it('returns operation overview list for the organization', async () => {
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [
           [
             {
@@ -158,14 +83,14 @@ describe('operationRouter', () => {
           ],
         ],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const res = await caller.overview();
       expect(res).toHaveLength(1);
       expect(res[0].name).toBe('Op 1');
     });
 
     it('rejects unauthenticated caller', async () => {
-      const { db } = createFakeDatabase();
+      const { db } = createMockDb();
       const caller = await createCaller(db, null);
       await expect(caller.overview()).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
@@ -185,10 +110,10 @@ describe('operationRouter', () => {
         },
       } as any;
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [[baseRow]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const result = await caller.byId({ documentId: OP_1 });
 
       expect(result.documentId).toBe(OP_1);
@@ -196,8 +121,8 @@ describe('operationRouter', () => {
     });
 
     it('rejects foreign operation with FORBIDDEN', async () => {
-      const { db } = createFakeDatabase({ selects: [[]] });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const { db } = createMockDb({ selects: [[]] });
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       await expect(caller.byId({ documentId: OP_2 })).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
@@ -207,10 +132,10 @@ describe('operationRouter', () => {
   describe('create', () => {
     it('inserts operation and populates in-memory cache', async () => {
       const createdRow = sampleOperationRow({ documentId: OP_1, name: 'New Op' });
-      const { db, captured } = createFakeDatabase({
+      const { db, captured } = createMockDb({
         returning: [[createdRow]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const result = await caller.create({
         name: 'New Op',
         description: 'New Desc',
@@ -225,8 +150,8 @@ describe('operationRouter', () => {
     });
 
     it('rejects forcing documentId on create', async () => {
-      const { db } = createFakeDatabase();
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const { db } = createMockDb();
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       await expect(
         caller.create({
           documentId: OP_1,
@@ -243,11 +168,11 @@ describe('operationRouter', () => {
       const row = sampleOperationRow();
       addToCache(row);
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }]],
         returning: [[row]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const result = await caller.archive({ operationId: OP_1 });
 
       expect(result.success).toBe(true);
@@ -256,14 +181,11 @@ describe('operationRouter', () => {
 
     it('unarchives operation and restores cache', async () => {
       const row = sampleOperationRow({ phase: 'active' });
-      const { db } = createFakeDatabase({
-        selects: [
-          [{ documentId: OP_1, organizationId: ORG_A, phase: 'archived' }],
-          [row],
-        ],
+      const { db } = createMockDb({
+        selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'archived' }], [row]],
         returning: [[row]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const result = await caller.unarchive({ operationId: OP_1 });
 
       expect(result.success).toBe(true);
@@ -274,11 +196,11 @@ describe('operationRouter', () => {
       const row = sampleOperationRow();
       addToCache(row);
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }]],
         returning: [[row]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const result = await caller.shadowDelete({ operationId: OP_1 });
 
       expect(result.success).toBe(true);
@@ -291,11 +213,11 @@ describe('operationRouter', () => {
       const row = sampleOperationRow();
       addToCache(row);
 
-      const { db, captured } = createFakeDatabase({
+      const { db, captured } = createMockDb({
         selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }]],
         returning: [[row]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const result = await caller.updateMeta({
         operationId: OP_1,
         data: { name: 'Updated Name', description: 'Updated Desc', eventStates: [3, 4] },
@@ -318,11 +240,11 @@ describe('operationRouter', () => {
       addToCache(row);
 
       const mapLayers = { layer1: { opacity: 0.8 } } as any;
-      const { db, captured } = createFakeDatabase({
+      const { db, captured } = createMockDb({
         selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }]],
         returning: [[row]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const result = await caller.updateMapLayers({
         operationId: OP_1,
         mapLayers,
@@ -367,10 +289,10 @@ describe('operationRouter', () => {
         ],
       } as any;
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
       const res = await caller.submitChangeset({
         operationId: OP_1,
         identifier: 'client-1',
@@ -415,13 +337,13 @@ describe('operationRouter', () => {
         ],
       } as any;
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [
           [{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }],
           [{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }],
         ],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
 
       const first = await caller.submitChangeset({
         operationId: OP_1,
@@ -477,13 +399,13 @@ describe('operationRouter', () => {
         ],
       } as any;
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [
           [{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }],
           [{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }],
         ],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
 
       await caller.submitChangeset({
         operationId: OP_1,
@@ -532,10 +454,10 @@ describe('operationRouter', () => {
         ],
       } as any;
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
 
       await expect(
         caller.submitChangeset({
@@ -550,10 +472,10 @@ describe('operationRouter', () => {
     });
 
     it('rejects changeset submission on archived operation', async () => {
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [[{ documentId: OP_1, organizationId: ORG_A, phase: 'archived' }]],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
 
       const changeset: IZsChangeset = {
         id: 'cs-archived',
@@ -607,13 +529,13 @@ describe('operationRouter', () => {
         inversePatches: [{ op: 'remove', path: ['drawElements', 'e2'] }],
       } as any;
 
-      const { db } = createFakeDatabase({
+      const { db } = createMockDb({
         selects: [
           [{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }],
           [{ documentId: OP_1, organizationId: ORG_A, phase: 'active' }],
         ],
       });
-      const caller = await createCaller(db, authSession('organization', ORG_A));
+      const caller = await createCaller(db, createTestSession('organization', ORG_A));
 
       const [resA, resB] = await Promise.all([
         caller.submitChangeset({ operationId: OP_1, identifier: 'c1', changeset: changesetA }),

@@ -16,47 +16,56 @@ import {
   resetPermissionCache,
   setRolePermissionInCache,
 } from '../src/auth/permissions.js';
-import { ROLES } from '../src/auth/roles.js';
-import type { Database } from '../src/db/client.js';
+import { ROLES, isRole } from '../src/auth/roles.js';
 import { DEFAULT_ROLE_PERMISSIONS } from '../src/db/default-permissions.js';
-
-const defaultDbRows: { role: string; permission: string; createdAt: Date }[] = [];
-for (const [role, perms] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
-  for (const permission of perms) {
-    defaultDbRows.push({ role, permission, createdAt: new Date() });
-  }
-}
-
-const createFakeDb = (rows = defaultDbRows) =>
-  ({
-    select: () => ({
-      from: async () => rows,
-    }),
-  }) as unknown as Database;
+import { logger } from '../src/lib/logger.js';
+import { DEFAULT_ROLE_PERMISSION_ROWS } from './helpers/fixtures.js';
+import { createMockDb } from './helpers/mock-db.js';
 
 describe('role permissions', () => {
   beforeEach(async () => {
     resetPermissionCache();
-    await loadRolePermissionsFromDb(createFakeDb());
+    const { db } = createMockDb({ rows: DEFAULT_ROLE_PERMISSION_ROWS });
+    await loadRolePermissionsFromDb(db);
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
-  it('defines every role and only known permission keys in default permissions', () => {
+  it('defines every role and correctly identifies them via isRole', () => {
     expect(Object.keys(DEFAULT_ROLE_PERMISSIONS).sort()).toEqual([...ROLES].sort());
+    expect(ROLES).toContain('admin');
+    expect(isRole('admin')).toBe(true);
+    expect(isRole('organization')).toBe(true);
+    expect(isRole('operationwrite')).toBe(true);
+    expect(isRole('operationread')).toBe(true);
+    expect(isRole('guest')).toBe(true);
+    expect(isRole('public')).toBe(true);
+    expect(isRole('invalid_role')).toBe(false);
+    expect(isRole(123)).toBe(false);
+    expect(isRole(null)).toBe(false);
+    expect(isRole(undefined)).toBe(false);
+  });
+
+  it('defines only known permission keys in default permissions', () => {
     const known = new Set(PERMISSION_KEYS);
     for (const permissions of Object.values(DEFAULT_ROLE_PERMISSIONS)) {
       for (const permission of permissions) expect(known.has(permission)).toBe(true);
     }
   });
 
-  it('grants all permissions to the admin role in baseline', async () => {
+  it('grants all permissions to the admin role in baseline and prevents disabling them', async () => {
     for (const key of PERMISSION_KEYS) {
       expect(await hasPermission('admin', key)).toBe(true);
       expect(hasPermissionSync('admin', key)).toBe(true);
     }
+
+    // Admin permissions remain hardcoded and fixed even if attempted to disable
+    setRolePermissionInCache('admin', 'operation.create', false);
+    expect(await hasPermission('admin', 'operation.create')).toBe(true);
+    expect(hasPermissionSync('admin', 'operation.create')).toBe(true);
   });
 
   it.each([
@@ -101,7 +110,8 @@ describe('role permissions', () => {
         /Permissions cache is empty or uninitialized/i,
       );
 
-      const reloaded = await ensurePermissionsLoaded(createFakeDb());
+      const { db } = createMockDb({ rows: DEFAULT_ROLE_PERMISSION_ROWS });
+      const reloaded = await ensurePermissionsLoaded(db);
       expect(reloaded).toBeDefined();
       expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(false);
     });
@@ -127,7 +137,8 @@ describe('role permissions', () => {
       expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(true);
 
       invalidatePermissionCache();
-      const reloaded = await ensurePermissionsLoaded(createFakeDb());
+      const { db } = createMockDb({ rows: DEFAULT_ROLE_PERMISSION_ROWS });
+      const reloaded = await ensurePermissionsLoaded(db);
       expect(reloaded).toBeDefined();
       expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(false);
     });
@@ -135,50 +146,40 @@ describe('role permissions', () => {
 
   describe('LRUCache TTL, single-flight deduplication, and stale fallback', () => {
     it('returns permissions from memory on cache hit within TTL without querying database', async () => {
-      let queryCount = 0;
-      const fakeDb = {
-        select: () => ({
-          from: async (_table: any) => {
-            queryCount++;
-            return [{ role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() }];
-          },
-        }),
-      } as any;
+      const { db, captured } = createMockDb({
+        rows: [{ role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() }],
+      });
 
       // Force load to warm cache
-      await ensurePermissionsLoaded(fakeDb, true);
-      expect(queryCount).toBe(1);
+      await ensurePermissionsLoaded(db, true);
+      expect(captured.selects.length).toBe(1);
 
       // Subsequent lookups within TTL should hit cache
-      expect(await hasPermission('guest', 'mapSnapshot.list', fakeDb)).toBe(true);
-      expect(await hasPermission('guest', 'operation.create', fakeDb)).toBe(false);
-      expect(await getCachedRolePermissions('guest', fakeDb)).toEqual(new Set(['mapSnapshot.list']));
-      expect(await getAllCachedRolePermissions(fakeDb)).toBeDefined();
+      expect(await hasPermission('guest', 'mapSnapshot.list', db)).toBe(true);
+      expect(await hasPermission('guest', 'operation.create', db)).toBe(false);
+      expect(await getCachedRolePermissions('guest', db)).toEqual(new Set(['mapSnapshot.list']));
+      expect(await getAllCachedRolePermissions(db)).toBeDefined();
 
       // Database should not have been queried again
-      expect(queryCount).toBe(1);
+      expect(captured.selects.length).toBe(1);
     });
 
     it('deduplicates concurrent re-fetch calls into a single database query', async () => {
-      let queryCount = 0;
-      const fakeDb = {
-        select: () => ({
-          from: async () => {
-            queryCount++;
-            await new Promise((resolve) => setTimeout(resolve, 15));
-            return [{ role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() }];
-          },
-        }),
-      } as any;
+      const { db, captured } = createMockDb({
+        queryHandler: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 15));
+          return [{ role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() }];
+        },
+      });
 
       invalidatePermissionCache();
 
       // Fire 10 concurrent requests
       const results = await Promise.all(
-        Array.from({ length: 10 }, () => hasPermission('guest', 'mapSnapshot.list', fakeDb)),
+        Array.from({ length: 10 }, () => hasPermission('guest', 'mapSnapshot.list', db)),
       );
 
-      expect(queryCount).toBe(1);
+      expect(captured.selects.length).toBe(1);
       for (const res of results) {
         expect(res).toBe(true);
       }
@@ -188,21 +189,15 @@ describe('role permissions', () => {
       vi.useFakeTimers({ toFake: ['Date', 'performance', 'setTimeout', 'clearTimeout'] });
 
       let dbRows = [{ role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() }];
-      let queryCount = 0;
-      const fakeDb = {
-        select: () => ({
-          from: async () => {
-            queryCount++;
-            return dbRows;
-          },
-        }),
-      } as any;
+      const { db, captured } = createMockDb({
+        queryHandler: () => dbRows,
+      });
 
       // Force initial load
-      await ensurePermissionsLoaded(fakeDb, true);
-      expect(queryCount).toBe(1);
-      expect(await hasPermission('guest', 'mapSnapshot.list', fakeDb)).toBe(true);
-      expect(await hasPermission('guest', 'access.create', fakeDb)).toBe(false);
+      await ensurePermissionsLoaded(db, true);
+      expect(captured.selects.length).toBe(1);
+      expect(await hasPermission('guest', 'mapSnapshot.list', db)).toBe(true);
+      expect(await hasPermission('guest', 'access.create', db)).toBe(false);
 
       // Simulate external DB mutation by another instance
       dbRows = [
@@ -212,38 +207,30 @@ describe('role permissions', () => {
 
       // Within TTL (< 60s), still returns cached permissions without DB query
       vi.advanceTimersByTime(30_000);
-      expect(await hasPermission('guest', 'access.create', fakeDb)).toBe(false);
-      expect(queryCount).toBe(1);
+      expect(await hasPermission('guest', 'access.create', db)).toBe(false);
+      expect(captured.selects.length).toBe(1);
 
       // Advance time beyond TTL (60,000ms + 1,000ms = 61s)
       vi.advanceTimersByTime(31_000);
 
       // Next call after TTL expiration re-fetches from DB
-      expect(await hasPermission('guest', 'access.create', fakeDb)).toBe(true);
-      expect(queryCount).toBe(2);
+      expect(await hasPermission('guest', 'access.create', db)).toBe(true);
+      expect(captured.selects.length).toBe(2);
     });
 
     it('simulates multi-instance synchronization when another server modifies DB', async () => {
       vi.useFakeTimers({ toFake: ['Date', 'performance', 'setTimeout', 'clearTimeout'] });
 
-      let dbRows: Array<{ role: string; permission: string; createdAt: Date }> = [
-        { role: 'organization', permission: 'access.byId', createdAt: new Date() },
-      ];
-      let queryCount = 0;
-      const fakeDb = {
-        select: () => ({
-          from: async () => {
-            queryCount++;
-            return dbRows;
-          },
-        }),
-      } as any;
+      let dbRows = [{ role: 'organization', permission: 'access.byId', createdAt: new Date() }];
+      const { db, captured } = createMockDb({
+        queryHandler: () => dbRows,
+      });
 
       // Instance A / B initial fetch
-      await ensurePermissionsLoaded(fakeDb, true);
-      expect(queryCount).toBe(1);
-      expect(await hasPermission('organization', 'access.byId', fakeDb)).toBe(true);
-      expect(await hasPermission('organization', 'mapSnapshot.byId', fakeDb)).toBe(false);
+      await ensurePermissionsLoaded(db, true);
+      expect(captured.selects.length).toBe(1);
+      expect(await hasPermission('organization', 'access.byId', db)).toBe(true);
+      expect(await hasPermission('organization', 'mapSnapshot.byId', db)).toBe(false);
 
       // Remote instance writes new permission to shared DB
       dbRows = [
@@ -252,103 +239,87 @@ describe('role permissions', () => {
       ];
 
       // Local instance does not see update immediately while TTL is unexpired
-      expect(await hasPermission('organization', 'mapSnapshot.byId', fakeDb)).toBe(false);
-      expect(queryCount).toBe(1);
+      expect(await hasPermission('organization', 'mapSnapshot.byId', db)).toBe(false);
+      expect(captured.selects.length).toBe(1);
 
       // After TTL expires (60s), local instance automatically re-fetches and synchronizes
       vi.advanceTimersByTime(61_000);
-      expect(await hasPermission('organization', 'mapSnapshot.byId', fakeDb)).toBe(true);
-      expect(queryCount).toBe(2);
+      expect(await hasPermission('organization', 'mapSnapshot.byId', db)).toBe(true);
+      expect(captured.selects.length).toBe(2);
     });
 
     it('supports force refresh to bypass TTL immediately', async () => {
       let dbRows = [{ role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() }];
-      let queryCount = 0;
-      const fakeDb = {
-        select: () => ({
-          from: async () => {
-            queryCount++;
-            return dbRows;
-          },
-        }),
-      } as any;
+      const { db, captured } = createMockDb({
+        queryHandler: () => dbRows,
+      });
 
-      await ensurePermissionsLoaded(fakeDb, true);
-      expect(queryCount).toBe(1);
+      await ensurePermissionsLoaded(db, true);
+      expect(captured.selects.length).toBe(1);
 
       // DB changes immediately
       dbRows = [{ role: 'guest', permission: 'journal.byId', createdAt: new Date() }];
 
       // Normal call within TTL still uses cache
-      expect(await hasPermission('guest', 'journal.byId', fakeDb)).toBe(false);
-      expect(queryCount).toBe(1);
+      expect(await hasPermission('guest', 'journal.byId', db)).toBe(false);
+      expect(captured.selects.length).toBe(1);
 
       // Forced refresh queries DB immediately
-      await ensurePermissionsLoaded(fakeDb, true);
-      expect(queryCount).toBe(2);
-      expect(await hasPermission('guest', 'journal.byId', fakeDb)).toBe(true);
+      await ensurePermissionsLoaded(db, true);
+      expect(captured.selects.length).toBe(2);
+      expect(await hasPermission('guest', 'journal.byId', db)).toBe(true);
     });
 
     it('falls back gracefully to stale cache when DB query throws', async () => {
-      const initialDb = createFakeDb([
-        { role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() },
-      ]);
+      const { db: initialDb } = createMockDb({
+        rows: [{ role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() }],
+      });
       await ensurePermissionsLoaded(initialDb, true);
       expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(true);
 
-      const failingDb = {
-        select: () => ({
-          from: async () => {
-            throw new Error('Database connection failure');
-          },
-        }),
-      } as any;
+      const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => logger as any);
+
+      const { db: failingDb } = createMockDb({
+        selectError: new Error('Database connection failure'),
+      });
 
       // Force refresh on failing DB falls back gracefully to stale cache
       const permissionsMap = await ensurePermissionsLoaded(failingDb, true);
       expect(permissionsMap).toBeDefined();
       expect(await hasPermission('guest', 'mapSnapshot.list', failingDb)).toBe(true);
+      expect(warnSpy).toHaveBeenCalled();
     });
 
     it('throws error and fails fast if database table is empty or unseeded', async () => {
       resetPermissionCache();
 
-      const emptyDb = {
-        select: () => ({
-          from: async () => [],
-        }),
-      } as any;
+      const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => logger as any);
+      const { db: emptyDb } = createMockDb({ rows: [] });
 
       await expect(ensurePermissionsLoaded(emptyDb, true)).rejects.toThrow(
         /Role permissions table is empty or unseeded/i,
       );
-      await expect(fetchPermissionsFromDb(emptyDb)).rejects.toThrow(
-        /Role permissions table is empty or unseeded/i,
-      );
+      await expect(fetchPermissionsFromDb(emptyDb)).rejects.toThrow(/Role permissions table is empty or unseeded/i);
+      await expect(loadRolePermissionsFromDb(emptyDb)).rejects.toThrow(/Role permissions table is empty or unseeded/i);
+      expect(errorSpy).toHaveBeenCalled();
     });
 
     it('throws error if failing DB without stale cache', async () => {
       resetPermissionCache();
 
-      const failingDb = {
-        select: () => ({
-          from: async () => {
-            throw new Error('DB Down');
-          },
-        }),
-      } as any;
+      const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => logger as any);
+      const { db: failingDb } = createMockDb({
+        selectError: new Error('DB Down'),
+      });
 
       await expect(ensurePermissionsLoaded(failingDb, true)).rejects.toThrow('DB Down');
+      expect(errorSpy).toHaveBeenCalled();
     });
 
     it('always preserves full admin permissions regardless of database contents', async () => {
-      const restrictedDb = {
-        select: () => ({
-          from: async () => [
-            { role: 'organization', permission: 'operation.byId', createdAt: new Date() },
-          ],
-        }),
-      } as any;
+      const { db: restrictedDb } = createMockDb({
+        rows: [{ role: 'organization', permission: 'operation.byId', createdAt: new Date() }],
+      });
 
       await ensurePermissionsLoaded(restrictedDb, true);
 

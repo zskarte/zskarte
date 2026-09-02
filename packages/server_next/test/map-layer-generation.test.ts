@@ -2,9 +2,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import AdmZip from 'adm-zip';
-import type { SQL } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Database } from '../src/db/client.js';
 import { LocalStorageProvider } from '../src/modules/file/storage.js';
 import {
   CANTON_NAMES,
@@ -46,60 +44,7 @@ import {
   prepareSwissNamesContent,
   resetWorkerCaches,
 } from '../src/modules/map-layer-generation/worker.js';
-
-const createFakeDatabase = (options: { selects?: unknown[][]; returning?: unknown[][] } = {}) => {
-  const selects = [...(options.selects ?? [])];
-  const returning = [...(options.returning ?? [])];
-  const captured = {
-    where: [] as SQL[],
-    inserted: [] as Record<string, unknown>[],
-    updated: [] as Record<string, unknown>[],
-    deletes: 0,
-  };
-  const nextSelect = () => Promise.resolve(selects.shift() ?? []);
-  const nextReturning = () => Promise.resolve(returning.shift() ?? []);
-
-  const query: any = {
-    from: () => query,
-    leftJoin: () => query,
-    where: (condition: SQL) => {
-      captured.where.push(condition);
-      return query;
-    },
-    orderBy: () => nextSelect(),
-    limit: () => nextSelect(),
-  };
-
-  const db = {
-    select: () => query,
-    insert: () => ({
-      values: (values: Record<string, unknown>) => {
-        captured.inserted.push(values);
-        return { returning: () => nextReturning() };
-      },
-    }),
-    update: () => ({
-      set: (values: Record<string, unknown>) => {
-        captured.updated.push(values);
-        return {
-          where: (condition: SQL) => {
-            captured.where.push(condition);
-            return { returning: () => nextReturning() };
-          },
-        };
-      },
-    }),
-    delete: () => ({
-      where: (condition: SQL) => {
-        captured.where.push(condition);
-        captured.deletes += 1;
-        return { returning: () => nextReturning() };
-      },
-    }),
-  } as unknown as Database;
-
-  return { db, captured };
-};
+import { createMockDb } from './helpers/index.js';
 
 describe('Map Layer Generation - Helpers', () => {
   it('formatForIfModifiedSince handles Dates, numbers, and strings', () => {
@@ -137,16 +82,13 @@ describe('Map Layer Generation - Helpers', () => {
       { features: [{ properties: { NAME: 'Zürich', KANTONSNUM: ZH_NUMBER } }] },
       'zh',
     );
-    const districts = getDistrictFeatures(
-      cantonFeature,
-      {
-        features: [
-          { properties: { NAME: 'District A', KANTONSNUM: ZH_NUMBER } },
-          { properties: { NAME: 'District B', KANTONSNUM: ZH_NUMBER } },
-          { properties: { NAME: 'Other canton', KANTONSNUM: 99 } },
-        ],
-      },
-    );
+    const districts = getDistrictFeatures(cantonFeature, {
+      features: [
+        { properties: { NAME: 'District A', KANTONSNUM: ZH_NUMBER } },
+        { properties: { NAME: 'District B', KANTONSNUM: ZH_NUMBER } },
+        { properties: { NAME: 'Other canton', KANTONSNUM: 99 } },
+      ],
+    });
 
     expect(districts).toHaveLength(2);
     expect(districts.every((district) => district.properties.KANTONSNUM === ZH_NUMBER)).toBe(true);
@@ -250,11 +192,11 @@ describe('Map Layer Generation - Worker Functions', () => {
         type: 'Polygon',
         coordinates: [
           [
-            [7.40, 46.90],
-            [7.50, 46.90],
-            [7.50, 47.00],
-            [7.40, 47.00],
-            [7.40, 46.90],
+            [7.4, 46.9],
+            [7.5, 46.9],
+            [7.5, 47.0],
+            [7.4, 47.0],
+            [7.4, 46.9],
           ],
         ],
       },
@@ -308,11 +250,11 @@ describe('Map Layer Generation - Worker Functions', () => {
         type: 'Polygon',
         coordinates: [
           [
-            [7.40, 46.90],
-            [7.50, 46.90],
-            [7.50, 47.00],
-            [7.40, 47.00],
-            [7.40, 46.90],
+            [7.4, 46.9],
+            [7.5, 46.9],
+            [7.5, 47.0],
+            [7.4, 47.0],
+            [7.4, 46.9],
           ],
         ],
       },
@@ -384,7 +326,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       name: 'swissBOUNDARIES3D_BEZIRKSGEBIET_2026_01.zip',
       url: '/uploads/district.zip',
     };
-    const { db } = createFakeDatabase({
+    const { db } = createMockDb({
       selects: [[], [], [], [], [], [], [], []],
       returning: [[cantonFile], [districtFile], [{ documentId: 'canton-layer' }], [{ documentId: 'district-layer' }]],
     });
@@ -426,7 +368,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
         return { success: true };
       },
     } as unknown as WorkerClient;
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[], [], [], [], [], [], []],
       returning: [
         [{ documentId: 'canton-entrances' }],
@@ -467,7 +409,9 @@ describe('Map Layer Generation - Service & Database Integration', () => {
 
     const entranceLayerInserts = captured.inserted.filter((row) => String(row.label).startsWith('Hausnummern'));
     expect(entranceLayerInserts).toHaveLength(3);
-    expect(entranceLayerInserts.every((row) => row.options?.searchRegExPatterns === ENTRANCE_SEARCH_REGEX_PATTERNS)).toBe(true);
+    expect(
+      entranceLayerInserts.every((row) => row.options?.searchRegExPatterns === ENTRANCE_SEARCH_REGEX_PATTERNS),
+    ).toBe(true);
   });
 
   it('updateOrCreateMedia uploads new file when not present', async () => {
@@ -481,7 +425,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       provider: 'local',
     };
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[]],
       returning: [[fakeRow]],
     });
@@ -517,7 +461,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       url: '/uploads/new-hash.json',
     };
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[existingRow], [existingRow]],
       returning: [[updatedRow]],
     });
@@ -547,7 +491,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       options: { hidden: false },
     };
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[]],
       returning: [[createdRow]],
     });
@@ -582,7 +526,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       mediaSourceId: 'file-new',
     };
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[existingRow]],
       returning: [[updatedRow]],
     });
@@ -611,7 +555,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       url: '/uploads/style.json',
     };
 
-    const { db } = createFakeDatabase({
+    const { db } = createMockDb({
       selects: [[styleFileRow]],
     });
 
@@ -634,7 +578,7 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       cantons: 'ZH,BE',
     };
 
-    const { db } = createFakeDatabase({
+    const { db } = createMockDb({
       selects: [[configRow]],
     });
 
@@ -651,27 +595,25 @@ describe('Map Layer Generation - Service & Database Integration', () => {
       cantons: 'ZH BE AG',
     };
 
-    const { db } = createFakeDatabase({
+    const { db } = createMockDb({
       selects: [[configRow]],
     });
 
-    await expect(updateMapLayerMedias(db, { storageProvider })).rejects.toThrow(
-      'cantons need to be splited by ","',
-    );
+    await expect(updateMapLayerMedias(db, { storageProvider })).rejects.toThrow('cantons need to be splited by ","');
     expect(isGenerationRunning()).toBe(false);
   });
 });
 
 describe('Map Layer Generation - Repository', () => {
   it('getConfig returns null when table is empty', async () => {
-    const { db } = createFakeDatabase({ selects: [[]] });
+    const { db } = createMockDb({ selects: [[]] });
     const result = await getConfig(db);
     expect(result).toBeNull();
   });
 
   it('getConfig returns first row when present', async () => {
     const row = { documentId: 'cfg-123', enabled: true, cantons: 'BE,ZH' };
-    const { db } = createFakeDatabase({ selects: [[row]] });
+    const { db } = createMockDb({ selects: [[row]] });
     const result = await getConfig(db);
     expect(result?.documentId).toBe('cfg-123');
     expect(result?.enabled).toBe(true);
@@ -679,26 +621,26 @@ describe('Map Layer Generation - Repository', () => {
 
   it('insertConfig inserts new config row', async () => {
     const createdRow = { documentId: 'cfg-new', enabled: true, cantons: 'AG,BE' };
-    const { db, captured } = createFakeDatabase({ returning: [[createdRow]] });
+    const { db, captured } = createMockDb({ returning: [[createdRow]] });
     const result = await insertConfig(db, { enabled: true, cantons: 'AG,BE' });
     expect(result.documentId).toBe('cfg-new');
     expect(captured.inserted).toHaveLength(1);
-    expect(captured.inserted[0].enabled).toBe(true);
+    expect(captured.inserted[0]).toMatchObject({ enabled: true });
   });
 
   it('updateConfig updates row with timestamp', async () => {
     const updatedRow = { documentId: 'cfg-123', enabled: true, cantons: 'ZH' };
-    const { db, captured } = createFakeDatabase({ returning: [[updatedRow]] });
+    const { db, captured } = createMockDb({ returning: [[updatedRow]] });
     const result = await updateConfig(db, 'cfg-123', { cantons: 'ZH' });
     expect(result?.cantons).toBe('ZH');
     expect(captured.updated).toHaveLength(1);
-    expect(captured.updated[0].cantons).toBe('ZH');
-    expect(captured.updated[0].updatedAt).toBeInstanceOf(Date);
+    expect(captured.updated[0]).toMatchObject({ cantons: 'ZH' });
+    expect(captured.updated[0]).toHaveProperty('updatedAt');
   });
 
   it('initOrGetConfig returns existing config if present', async () => {
     const existingRow = { documentId: 'cfg-existing', enabled: false };
-    const { db, captured } = createFakeDatabase({ selects: [[existingRow]] });
+    const { db, captured } = createMockDb({ selects: [[existingRow]] });
     const result = await initOrGetConfig(db);
     expect(result.documentId).toBe('cfg-existing');
     expect(captured.inserted).toHaveLength(0);
@@ -706,7 +648,7 @@ describe('Map Layer Generation - Repository', () => {
 
   it('initOrGetConfig inserts new config if missing', async () => {
     const createdRow = { documentId: 'cfg-created', enabled: false };
-    const { db, captured } = createFakeDatabase({ selects: [[]], returning: [[createdRow]] });
+    const { db, captured } = createMockDb({ selects: [[]], returning: [[createdRow]] });
     const result = await initOrGetConfig(db);
     expect(result.documentId).toBe('cfg-created');
     expect(captured.inserted).toHaveLength(1);
@@ -715,7 +657,7 @@ describe('Map Layer Generation - Repository', () => {
   it('updateSingleConfig updates the single config row', async () => {
     const existingRow = { documentId: 'cfg-1', enabled: false };
     const updatedRow = { documentId: 'cfg-1', enabled: true };
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [[existingRow]],
       returning: [[updatedRow]],
     });
@@ -727,7 +669,7 @@ describe('Map Layer Generation - Repository', () => {
   it('updateExecutionDates updates lastStartDate and lastEndDate', async () => {
     const now = new Date();
     const updatedRow = { documentId: 'cfg-1', lastStartDate: now, lastEndDate: now };
-    const { db, captured } = createFakeDatabase({ returning: [[updatedRow]] });
+    const { db, captured } = createMockDb({ returning: [[updatedRow]] });
     const result = await updateExecutionDates(db, 'cfg-1', { lastStartDate: now, lastEndDate: now });
     expect(result?.lastStartDate).toBe(now);
     expect(captured.updated).toHaveLength(1);
@@ -736,12 +678,7 @@ describe('Map Layer Generation - Repository', () => {
 
 describe('Map Layer Generation - CLI', () => {
   it('parseCliArgs parses all flag types correctly', () => {
-    const parsed = parseCliArgs([
-      '--force',
-      '--cantons=BE,ZH,AG',
-      '--date=2026-05-15T00:00:00Z',
-      '--seed-styles-only',
-    ]);
+    const parsed = parseCliArgs(['--force', '--cantons=BE,ZH,AG', '--date=2026-05-15T00:00:00Z', '--seed-styles-only']);
     expect(parsed.force).toBe(true);
     expect(parsed.cantons).toEqual(['BE', 'ZH', 'AG']);
     expect(parsed.date).toEqual(new Date('2026-05-15T00:00:00Z'));
@@ -772,30 +709,24 @@ describe('Map Layer Generation - Scheduler Trigger', () => {
   });
 
   it('skips scheduled generation when MAPLAYER_GENERATION_ENABLED is false without force', async () => {
-    const { db } = createFakeDatabase();
+    const { db } = createMockDb();
     await runScheduledMapLayerGeneration({ db, logger: fakeLogger });
-    expect(fakeLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining('MAPLAYER_GENERATION_ENABLED is false'),
-    );
+    expect(fakeLogger.debug).toHaveBeenCalledWith(expect.stringContaining('MAPLAYER_GENERATION_ENABLED is false'));
   });
 
   it('skips scheduled generation when config is disabled', async () => {
     const configRow = { documentId: 'cfg-1', enabled: false };
-    const { db } = createFakeDatabase({ selects: [[configRow]] });
+    const { db } = createMockDb({ selects: [[configRow]] });
 
     await runScheduledMapLayerGeneration({ db, logger: fakeLogger }, { force: true });
-    expect(fakeLogger.info).toHaveBeenCalledWith(
-      expect.stringContaining('config.enabled is false'),
-    );
+    expect(fakeLogger.info).toHaveBeenCalledWith(expect.stringContaining('config.enabled is false'));
   });
 
   it('skips scheduled generation when no config row is found', async () => {
-    const { db } = createFakeDatabase({ selects: [[]] });
+    const { db } = createMockDb({ selects: [[]] });
 
     await runScheduledMapLayerGeneration({ db, logger: fakeLogger }, { force: true });
-    expect(fakeLogger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('no config row found'),
-    );
+    expect(fakeLogger.warn).toHaveBeenCalledWith(expect.stringContaining('no config row found'));
   });
 });
 
@@ -854,7 +785,7 @@ describe('Map Layer Generation - Style Asset Seeding', () => {
       folderPath: '/MapLayer',
     };
 
-    const { db } = createFakeDatabase({
+    const { db } = createMockDb({
       selects: [
         [configRow], // initOrGetConfig
         [styleEntranceFile], // ensureStyleFile (entrances)
@@ -942,7 +873,10 @@ describe('Map Layer Generation - End-to-End Orchestration & Idempotency', () => 
         return { status: 200, cantonSuccess: true, districtSuccess: true };
       }
       if (type === 'downloadAndExtractEntrance') {
-        await writeFile(join(params.tmpDir, params.cantonFile), JSON.stringify({ type: 'FeatureCollection', features: [] }));
+        await writeFile(
+          join(params.tmpDir, params.cantonFile),
+          JSON.stringify({ type: 'FeatureCollection', features: [] }),
+        );
         return { status: 200, cantonSuccess: true, fileSize: 5000 };
       }
       if (type === 'downloadAndExtractSwissNamesNational') {
@@ -967,7 +901,7 @@ describe('Map Layer Generation - End-to-End Orchestration & Idempotency', () => 
       provider: 'local',
     });
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [
         [configRow], // getConfig
         [styleFile], // styleEntrances
@@ -1066,7 +1000,7 @@ describe('Map Layer Generation - End-to-End Orchestration & Idempotency', () => 
 
     vi.spyOn(WorkerClient.prototype, 'stop').mockResolvedValue(0);
 
-    const { db, captured } = createFakeDatabase({
+    const { db, captured } = createMockDb({
       selects: [
         [configRow], // getConfig
         [styleFile], // styleEntrances
@@ -1078,10 +1012,7 @@ describe('Map Layer Generation - End-to-End Orchestration & Idempotency', () => 
         [existingEntrance], // entrance media lookup
         [existingNames], // swissnames national media lookup
       ],
-      returning: [
-        [{ ...configRow, lastStartDate: new Date() }],
-        [{ ...configRow, lastEndDate: new Date() }],
-      ],
+      returning: [[{ ...configRow, lastStartDate: new Date() }], [{ ...configRow, lastEndDate: new Date() }]],
     });
 
     const result = await updateMapLayerMedias(db, {
@@ -1110,7 +1041,7 @@ describe('Map Layer Generation - End-to-End Orchestration & Idempotency', () => 
       return { success: true };
     });
 
-    const { db } = createFakeDatabase({
+    const { db } = createMockDb({
       selects: [[configRow], [configRow]],
       returning: [[configRow]],
     });

@@ -1,49 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { createCustomSession } from '../src/auth/auth.js';
-import type { Database } from '../src/db/client.js';
+import { createMockDb } from './helpers/mock-db.js';
+import { createTestSession } from './helpers/session.js';
 
-const createFakeDatabase = (results: unknown[][]): Database => {
-  let index = 0;
-  return {
-    select: () => {
-      const result = results[index++];
-      const query = Object.assign(Promise.resolve(result), {
-        from: () => query,
-        leftJoin: () => query,
-        where: () => query,
-        limit: () => Promise.resolve(result),
-      });
-      return query;
-    },
-  } as unknown as Database;
-};
-
-const user = {
-  id: 'user-1',
-  name: 'Test User',
-  email: 'test@example.com',
-  emailVerified: true,
-  image: null,
+const testSession = createTestSession('organization', 'session-org', 'operation-1', {
+  userId: 'user-1',
+  userName: 'Test User',
   username: 'test-user',
-  organizationId: 'user-org',
-  zsRole: 'organization',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-
-const session = {
-  id: 'session-1',
+  sessionId: 'session-1',
   token: 'token',
-  userId: user.id,
-  expiresAt: new Date(Date.now() + 60_000),
-  ipAddress: null,
-  userAgent: null,
-  operationId: 'operation-1',
-  organizationId: 'session-org',
   permission: 'all',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
+  userOverrides: { organizationId: 'user-org' },
+});
+const user = testSession.user;
+const session = testSession.session;
 
 describe('custom session payload', () => {
   it('returns the complete organization projection consumed by the app', async () => {
@@ -59,15 +29,17 @@ describe('custom session payload', () => {
       settings: null,
       logo: { documentId: 'logo-1', name: 'logo.png', url: '/uploads/logo.png', formats: null, provider: 'local' },
     };
-    const database = createFakeDatabase([
-      [organization],
-      [{ documentId: 'wms-1' }],
-      [{ documentId: 'layer-1' }],
-      [{ documentId: 'operation-1' }],
-      [{ id: 'user-1' }],
-    ]);
+    const { db } = createMockDb({
+      selects: [
+        [organization],
+        [{ documentId: 'wms-1' }],
+        [{ documentId: 'layer-1' }],
+        [{ documentId: 'operation-1' }],
+        [{ id: 'user-1' }],
+      ],
+    });
 
-    await expect(createCustomSession(database, { user, session })).resolves.toEqual({
+    await expect(createCustomSession(db, { user, session })).resolves.toEqual({
       user,
       session,
       zsRole: 'organization',
@@ -83,9 +55,11 @@ describe('custom session payload', () => {
   });
 
   it('uses the user organization when the session has no organization override', async () => {
-    const database = createFakeDatabase([[], [], [], [], []]);
+    const { db } = createMockDb({
+      selects: [[], [], [], [], []],
+    });
 
-    const result = await createCustomSession(database, {
+    const result = await createCustomSession(db, {
       user,
       session: { ...session, organizationId: null, operationId: null },
     });
