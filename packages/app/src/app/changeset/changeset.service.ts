@@ -84,6 +84,7 @@ export class ChangesetService {
   protected readonly _current = signal<IZsChangesetInternal | null>(null);
   protected readonly _unhandledPatches = signal<UnhandledPatch[]>([]);
   private _handlingUnhandledPromise: Promise<void> | null = null;
+  private _submittingOutgoingPromise: Promise<void> | null = null;
   readonly unhandledPatchesCount = computed(() => this._unhandledPatches().length);
   private readonly _environmentInjector = inject(EnvironmentInjector);
   private _operationId: Signal<string | undefined> = signal<string | undefined>(undefined);
@@ -394,16 +395,28 @@ export class ChangesetService {
       .and((c) => !!c.endAt);
   }
 
-  public async submitOutgoing() {
+  public submitOutgoing(): Promise<void> {
+    // Several independent paths can request a drain at the same time. Keep a
+    // single drain active so the backend changeset mutex is not fed duplicate
+    // concurrent requests.
+    if (this._submittingOutgoingPromise) return this._submittingOutgoingPromise;
+
+    this._submittingOutgoingPromise = this._submitOutgoingInternal().finally(() => {
+      this._submittingOutgoingPromise = null;
+    });
+    return this._submittingOutgoingPromise;
+  }
+
+  private async _submitOutgoingInternal(): Promise<void> {
     const operationId = this._operationId();
-    if (operationId) {
-      //only submit if there is no currently open changeset
-      if (this._current()) return;
-      this.offlineMode.set(false);
-      const changesets = await this._getOutgoingChangesets(operationId).sortBy('endAt');
-      for (const c of changesets) {
-        await this._submitChangeset(c);
-      }
+    if (!operationId) return;
+
+    // only submit if there is no currently open changeset
+    if (this._current()) return;
+    this.offlineMode.set(false);
+    const changesets = await this._getOutgoingChangesets(operationId).sortBy('endAt');
+    for (const c of changesets) {
+      await this._submitChangeset(c);
     }
   }
 

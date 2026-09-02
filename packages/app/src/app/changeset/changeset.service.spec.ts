@@ -1469,6 +1469,34 @@ describe('ChangesetService', () => {
       expect(submitChangesetSpy).toHaveBeenCalledTimes(2);
     });
 
+    it('shares an in-flight outgoing submission between concurrent callers', async () => {
+      let release!: () => void;
+      const submissionStarted = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      dbQueueMock.where.mockReturnValue({
+        equals: () => ({
+          and: () => ({
+            sortBy: vi.fn().mockResolvedValue([changeset1]),
+          }),
+        }),
+      });
+
+      const submitChangesetSpy = vi.spyOn(service, '_submitChangeset').mockReturnValue(submissionStarted);
+      const first = service.submitOutgoing();
+      const second = service.submitOutgoing();
+
+      // Let the async database read reach _submitChangeset before asserting.
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(second).toBe(first);
+      expect(submitChangesetSpy).toHaveBeenCalledTimes(1);
+
+      release();
+      await first;
+    });
+
     describe('unapplyOutgoingChangesets', () => {
       it('does nothing when operationId is null', async () => {
         operationIdSubject.next(null);
