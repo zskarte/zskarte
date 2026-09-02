@@ -21,11 +21,6 @@ const scoped = (scope: JournalScope) =>
 export const list = (db: JournalDatabase, scope: JournalScope): Promise<JournalEntryRow[]> =>
   db.select().from(journalEntries).where(scoped(scope)).orderBy(desc(journalEntries.messageNumber));
 
-export const countAll = async (db: JournalDatabase, scope: JournalScope): Promise<number> => {
-  const [row] = await db.select({ total: count() }).from(journalEntries).where(scoped(scope));
-  return row?.total ?? 0;
-};
-
 export const findByDocumentId = async (
   db: JournalDatabase,
   scope: JournalScope,

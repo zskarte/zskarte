@@ -115,6 +115,7 @@ export class SyncService {
       });
 
     this._changeset.setConnectionId(this._connectionId);
+    this._journal.setConnectionId(this._connectionId);
   }
 
   public setStateService(state: ZsMapStateService): void {
@@ -177,6 +178,20 @@ export class SyncService {
           {
             onStarted,
             onData: (connections) => this._connections.next(connections),
+            onError,
+            onStopped: () => {
+              if (generation === this._subscriptionGeneration) this._disconnect();
+            },
+            onComplete: () => {
+              if (generation === this._subscriptionGeneration) this._disconnect();
+            },
+          },
+        ),
+        trpc.journal.onChanged.subscribe(
+          { operationId, identifier: this._connectionId },
+          {
+            onStarted,
+            onData: (entry) => this._journal.patchEntry(entry),
             onError,
             onStopped: () => {
               if (generation === this._subscriptionGeneration) this._disconnect();

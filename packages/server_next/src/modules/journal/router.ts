@@ -51,23 +51,24 @@ export const journalRouter = router({
 
   create: operationProcedure
     .use(requirePermission('journal.create'))
-    .input(z.object({ operationId: z.uuid(), entry: journalData }))
-    .mutation(({ ctx, input }) => service.create(ctx, input.operationId, input.entry)),
+    .input(z.object({ operationId: z.uuid(), identifier: z.string(), entry: journalData }))
+    .mutation(({ ctx, input }) => service.create(ctx, input.operationId, input.identifier, input.entry)),
 
   update: operationProcedure
     .use(requirePermission('journal.update'))
-    .input(z.object({ operationId: z.uuid(), entry: journalData }))
-    .mutation(({ ctx, input }) => service.update(ctx, input.operationId, input.entry)),
+    .input(z.object({ operationId: z.uuid(), identifier: z.string(), entry: journalData }))
+    .mutation(({ ctx, input }) => service.update(ctx, input.operationId, input.identifier, input.entry)),
 
   onChanged: operationProcedure
     .use(requirePermission('journal.list'))
-    .input(z.object({ operationId: z.uuid()}))
+    .input(z.object({ operationId: z.uuid(), identifier: z.string()}))
     .subscription(async function* ({ input, signal }) {
       try {
         for await (const [event] of subscribeToOperation(input.operationId, signal)) {
           const realtimeEvent = event as RealtimeEvent;
           if (realtimeEvent.type === 'closed') return;
-          if (realtimeEvent.type === 'journal') yield realtimeEvent.entry;
+          if (realtimeEvent.type === 'journal' && realtimeEvent.identifier !== input.identifier)
+            yield realtimeEvent.entry;
         }
       } catch (error) {
         if (!signal?.aborted) throw error;

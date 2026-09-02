@@ -29,6 +29,7 @@ export class JournalService {
   private _search!: SearchService;
   private _state!: ZsMapStateService;
   private isOnline = toSignal(this._session.observeIsOnline());
+  private _connectionId!: string;
 
   private operationId = signal<string | null>(null);
   private organizationId = signal<string | null>(null);
@@ -155,6 +156,10 @@ export class JournalService {
 
   public setSearchService(search: SearchService): void {
     this._search = search;
+  }
+
+  public setConnectionId(_connectionId: string) {
+    this._connectionId = _connectionId;
   }
 
   public async loadJournal(operationId: string | null, organizationId: string | null) {
@@ -334,7 +339,7 @@ export class JournalService {
     if (!operationId || !organizationId) {
       return { error: true, result: undefined };
     }
-    const response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry }));
+    const response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry, identifier: this._connectionId }));
     const { error, result } = response;
     if (!error && result) {
       this.patchEntry(result, true);
@@ -409,6 +414,7 @@ export class JournalService {
       trpc.journal.update.mutate({
         operationId: this.operationId()!,
         entry: { ...entry, documentId: documentId || entry.documentId },
+        identifier: this._connectionId
       }),
     );
 
@@ -500,9 +506,9 @@ export class JournalService {
         //do the backend request to create/update it
         let response: TrpcResponse<JournalEntry>;
         if (entry.create) {
-          response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry: entry.entry }));
+          response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry: entry.entry, identifier: this._connectionId }));
         } else {
-          response = await trpcRequest(trpc.journal.update.mutate({ operationId, entry: entry.entry }));
+          response = await trpcRequest(trpc.journal.update.mutate({ operationId, entry: entry.entry, identifier: this._connectionId}));
         }
 
         //handle response
