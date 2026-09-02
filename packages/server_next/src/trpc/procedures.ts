@@ -85,8 +85,9 @@ export const operationProcedure = orgProcedure
   });
 
 export const requirePermission = (permission: PermissionKey) =>
-  middleware(({ ctx, next }) => {
-    if (!hasPermission(ctx.role, permission)) {
+  middleware(async ({ ctx, next }) => {
+    const allowed = await hasPermission(ctx.role, permission, ctx.db);
+    if (!allowed) {
       logViolation(ctx, `access not allowed, missing permission ${permission}`);
       throw forbidden;
     }

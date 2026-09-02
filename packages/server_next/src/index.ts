@@ -1,4 +1,4 @@
-import { loadRolePermissionsFromDb } from './auth/permissions.js';
+import { ensurePermissionsLoaded } from './auth/permissions.js';
 import { closeDatabase, db } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
 import { env } from './env.js';
@@ -37,7 +37,7 @@ const start = async (): Promise<void> => {
     await runMigrations();
   }
 
-  await loadRolePermissionsFromDb(db);
+  await ensurePermissionsLoaded(db, true);
   await initializeSigningKeys({ db, logger });
   await warmupOperationCache(db);
   startScheduler({ db, logger });

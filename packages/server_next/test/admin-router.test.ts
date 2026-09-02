@@ -1,14 +1,16 @@
 import { TRPCError } from '@trpc/server';
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  BASELINE_ROLE_PERMISSIONS,
   PERMISSION_KEYS,
   hasPermission,
+  hasPermissionSync,
+  loadRolePermissionsFromDb,
   resetPermissionCache,
   setRolePermissionInCache,
 } from '../src/auth/permissions.js';
 import { ROLES } from '../src/auth/roles.js';
 import type { Database } from '../src/db/client.js';
+import { DEFAULT_ROLE_PERMISSIONS } from '../src/db/default-permissions.js';
 import { addToCache, getOperationCache, resetCacheForTesting } from '../src/modules/operation/cache.js';
 import { type AuthSession, createContextInner } from '../src/trpc/context.js';
 import { appRouter } from '../src/trpc/router.js';
@@ -20,10 +22,14 @@ const OP_1 = '33333333-3333-4333-8333-333333333333';
 const OP_2 = '44444444-4444-4444-8444-444444444444';
 const FILE_1 = '55555555-5555-4555-8555-555555555555';
 
-const makeAuthSession = (
-  role: AuthSession['user']['zsRole'],
-  organizationId: string | null = null,
-): AuthSession => ({
+const defaultRolePermissionRows: { role: string; permission: string }[] = [];
+for (const [role, perms] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
+  for (const permission of perms) {
+    defaultRolePermissionRows.push({ role, permission });
+  }
+}
+
+const makeAuthSession = (role: AuthSession['user']['zsRole'], organizationId: string | null = null): AuthSession => ({
   user: {
     id: 'user-admin',
     name: 'Admin User',
@@ -51,11 +57,13 @@ const makeAuthSession = (
   },
 });
 
-const createFakeDatabase = (options: {
-  selects?: unknown[][];
-  returning?: unknown[][];
-  rows?: unknown[];
-} = {}) => {
+const createFakeDatabase = (
+  options: {
+    selects?: unknown[][];
+    returning?: unknown[][];
+    rows?: unknown[];
+  } = {},
+) => {
   const selects = [...(options.selects ?? [])];
   const returning = [...(options.returning ?? [])];
   const captured = {
@@ -135,9 +143,11 @@ const createCaller = async (db: Database, session: AuthSession | null) =>
   );
 
 describe('Admin tRPC Router', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetCacheForTesting();
     resetPermissionCache();
+    const { db } = createFakeDatabase({ rows: defaultRolePermissionRows });
+    await loadRolePermissionsFromDb(db);
   });
 
   describe('Security & Access Control (adminProcedure)', () => {
@@ -205,8 +215,22 @@ describe('Admin tRPC Router', () => {
       ];
       const opsCount = [{ organizationId: ORG_1, count: 5 }];
       const usersList = [
-        { id: 'u-1', organizationId: ORG_1, username: 'user1', email: 'u1@test.ch', name: 'User 1', zsRole: 'organization' },
-        { id: 'u-2', organizationId: ORG_1, username: 'user2', email: 'u2@test.ch', name: 'User 2', zsRole: 'organization' },
+        {
+          id: 'u-1',
+          organizationId: ORG_1,
+          username: 'user1',
+          email: 'u1@test.ch',
+          name: 'User 1',
+          zsRole: 'organization',
+        },
+        {
+          id: 'u-2',
+          organizationId: ORG_1,
+          username: 'user2',
+          email: 'u2@test.ch',
+          name: 'User 2',
+          zsRole: 'organization',
+        },
       ];
 
       const { db } = createFakeDatabase({ selects: [orgs, opsCount, usersList] });
@@ -500,7 +524,8 @@ describe('Admin tRPC Router', () => {
         organizationId: ORG_1,
         fileName: 'logo.png',
         mimeType: 'image/png',
-        base64: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        base64:
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
         alternativeText: 'Logo Alt',
       });
 
@@ -748,7 +773,7 @@ describe('Admin tRPC Router', () => {
       const caller = await createCaller(db, makeAuthSession('admin'));
 
       // Initially guest cannot list map snapshots
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(false);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(false);
 
       // Toggle ON
       const enableRes = await caller.admin.permission.toggleRolePermission({
@@ -763,7 +788,7 @@ describe('Admin tRPC Router', () => {
         permission: 'mapSnapshot.list',
         enabled: true,
       });
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(true);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(true);
       expect(captured.inserted[0]).toMatchObject({
         role: 'guest',
         permission: 'mapSnapshot.list',
@@ -782,7 +807,7 @@ describe('Admin tRPC Router', () => {
         permission: 'mapSnapshot.list',
         enabled: false,
       });
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(false);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(false);
       expect(captured.deleted).toHaveLength(1);
     });
 
@@ -801,7 +826,7 @@ describe('Admin tRPC Router', () => {
         message: 'Admin permissions are fixed and cannot be modified.',
       });
 
-      expect(hasPermission('admin', 'operation.create')).toBe(true);
+      expect(hasPermissionSync('admin', 'operation.create')).toBe(true);
       expect(captured.deleted).toHaveLength(0);
       expect(captured.inserted).toHaveLength(0);
     });
@@ -830,17 +855,17 @@ describe('Admin tRPC Router', () => {
     it('resetDefaults clears DB, repopulates baseline permissions, and resets in-memory cache', async () => {
       // Modify cache first
       setRolePermissionInCache('guest', 'mapSnapshot.list', true);
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(true);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(true);
 
-      const { db, captured } = createFakeDatabase();
+      const { db, captured } = createFakeDatabase({ rows: defaultRolePermissionRows });
       const caller = await createCaller(db, makeAuthSession('admin'));
 
       const result = await caller.admin.permission.resetDefaults();
       expect(result).toEqual({ success: true });
 
       // Cache should be back to baseline
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(false);
-      expect(hasPermission('admin', 'operation.create')).toBe(true);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(false);
+      expect(hasPermissionSync('admin', 'operation.create')).toBe(true);
       expect(captured.deleted).toContain('all');
       expect(captured.inserted.length).toBeGreaterThan(0);
     });

@@ -1,5 +1,6 @@
 import { Cron } from 'croner';
 import { and, desc, eq, inArray, lte } from 'drizzle-orm';
+import { env } from '../env.js';
 import { session, user } from '../db/auth-schema.js';
 import type { Database } from '../db/client.js';
 import type { Logger } from '../lib/logger.js';
@@ -13,6 +14,8 @@ import {
 import { operations } from '../modules/operation/schema.js';
 import { mapSnapshots } from '../modules/map-snapshot/schema.js';
 import { deleteExpired } from '../modules/access/repository.js';
+import { getConfig } from '../modules/map-layer-generation/repository.js';
+import { updateMapLayerMedias } from '../modules/map-layer-generation/service.js';
 
 export interface SchedulerDeps {
   db: Database;
@@ -111,6 +114,38 @@ export const purgeExpiredAccesses = async (deps: SchedulerDeps): Promise<void> =
   }
 };
 
+export interface RunScheduledMapLayerGenerationOptions {
+  force?: boolean;
+}
+
+export const runScheduledMapLayerGeneration = async (
+  deps: SchedulerDeps,
+  options: RunScheduledMapLayerGenerationOptions = {},
+): Promise<void> => {
+  if (!env.MAPLAYER_GENERATION_ENABLED && !options.force) {
+    deps.logger.debug('scheduled map layer generation skipped (MAPLAYER_GENERATION_ENABLED is false)');
+    return;
+  }
+
+  try {
+    const config = await getConfig(deps.db);
+    if (!config) {
+      deps.logger.warn('scheduled map layer generation skipped (no config row found)');
+      return;
+    }
+    if (!config.enabled) {
+      deps.logger.info('scheduled map layer generation skipped (config.enabled is false)');
+      return;
+    }
+
+    deps.logger.info('starting scheduled semi-monthly map layer generation');
+    const result = await updateMapLayerMedias(deps.db, { logger: deps.logger });
+    deps.logger.info(result, 'scheduled map layer generation completed');
+  } catch (error) {
+    deps.logger.error({ err: error }, 'failed scheduled map layer generation');
+  }
+};
+
 export const startScheduler = (deps: SchedulerDeps): void => {
   stopScheduler();
 
@@ -137,7 +172,19 @@ export const startScheduler = (deps: SchedulerDeps): void => {
   });
 
   runningJobs = [persistJob, archiveJob, snapshotJob, guestPurgeJob];
-  deps.logger.info('scheduler started (15s persist, hourly auto-archive/access cleanup, 5m snapshots, nightly guest purge)');
+
+  // Semi-monthly map layer generation: 1st and 15th of each month at 03:00
+  if (env.MAPLAYER_GENERATION_ENABLED) {
+    const mapLayerJob = new Cron('0 3 1,15 * *', async () => {
+      await runScheduledMapLayerGeneration(deps);
+    });
+    runningJobs.push(mapLayerJob);
+  }
+
+  const mapLayerStatus = env.MAPLAYER_GENERATION_ENABLED ? ', semi-monthly map layers (0 3 1,15 * *)' : '';
+  deps.logger.info(
+    `scheduler started (15s persist, hourly auto-archive/access cleanup, 5m snapshots, nightly guest purge${mapLayerStatus})`,
+  );
 };
 
 export const stopScheduler = (): void => {

@@ -1,12 +1,12 @@
 import { pathToFileURL } from 'node:url';
 import { eq } from 'drizzle-orm';
 import { auth } from '../auth/auth.js';
-import { BASELINE_ROLE_PERMISSIONS } from '../auth/permissions.js';
 import { logger } from '../lib/logger.js';
-import { mapLayerGenerationConfig } from '../modules/map-layer-generation/schema.js';
+import { seedDefaultStyleAssets } from '../modules/map-layer-generation/service.js';
 import { organizations } from '../modules/organization/schema.js';
 import { rolePermissions, user } from './auth-schema.js';
 import { closeDatabase, db } from './client.js';
+import { DEFAULT_ROLE_PERMISSIONS } from './default-permissions.js';
 
 export const ADMIN_ORGANIZATION_NAME = 'Admin';
 
@@ -60,16 +60,8 @@ const seedOrganizations = async (): Promise<void> => {
 };
 
 const seedMapLayerGenerationConfig = async (): Promise<void> => {
-  const [existing] = await db
-    .select({ documentId: mapLayerGenerationConfig.documentId })
-    .from(mapLayerGenerationConfig)
-    .limit(1);
-  if (existing) {
-    logger.info('map layer generation config already present');
-    return;
-  }
-  await db.insert(mapLayerGenerationConfig).values({});
-  logger.info('map layer generation config created');
+  const { seeded } = await seedDefaultStyleAssets(db, { logger });
+  logger.info({ seededCount: seeded.length }, 'map layer generation config and default styles seeded');
 };
 
 const seedUsers = async (): Promise<void> => {
@@ -123,7 +115,7 @@ const seedUsers = async (): Promise<void> => {
 
 const seedRolePermissions = async (): Promise<void> => {
   const valuesToInsert: { role: string; permission: string }[] = [];
-  for (const [role, perms] of Object.entries(BASELINE_ROLE_PERMISSIONS)) {
+  for (const [role, perms] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
     for (const permission of perms) {
       valuesToInsert.push({ role, permission });
     }

@@ -1,16 +1,16 @@
 import { TRPCError } from '@trpc/server';
 import { and, eq } from 'drizzle-orm';
 import {
-  BASELINE_ROLE_PERMISSIONS,
   PERMISSION_KEYS,
   type PermissionKey,
   getAllCachedRolePermissions,
-  resetPermissionCache,
+  loadRolePermissionsFromDb,
   setRolePermissionInCache,
 } from '../../auth/permissions.js';
 import { ROLES, type Role, isRole } from '../../auth/roles.js';
 import { rolePermissions } from '../../db/auth-schema.js';
 import type { Database } from '../../db/client.js';
+import { DEFAULT_ROLE_PERMISSIONS } from '../../db/default-permissions.js';
 
 export interface TogglePermissionInput {
   role: string;
@@ -18,8 +18,8 @@ export interface TogglePermissionInput {
   enabled: boolean;
 }
 
-export const getMatrix = () => {
-  const cached = getAllCachedRolePermissions();
+export const getMatrix = async (db: Database) => {
+  const cached = await getAllCachedRolePermissions(db);
   const matrix = {} as Record<Role, Record<PermissionKey, boolean>>;
 
   for (const role of ROLES) {
@@ -73,7 +73,7 @@ export const resetDefaults = async (db: Database) => {
   await db.delete(rolePermissions);
 
   const rowsToInsert: { role: Role; permission: PermissionKey }[] = [];
-  for (const [role, perms] of Object.entries(BASELINE_ROLE_PERMISSIONS)) {
+  for (const [role, perms] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
     for (const perm of perms) {
       rowsToInsert.push({ role: role as Role, permission: perm });
     }
@@ -83,7 +83,7 @@ export const resetDefaults = async (db: Database) => {
     await db.insert(rolePermissions).values(rowsToInsert);
   }
 
-  resetPermissionCache();
+  await loadRolePermissionsFromDb(db);
 
   return { success: true };
 };

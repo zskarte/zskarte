@@ -51,6 +51,7 @@ const schema = z.object({
   STORAGE_AZURE_SERVICE_BASE_URL: z.string().optional(),
 
   MAPLAYER_GENERATION_ENABLED: booleanish(false),
+  PERMISSION_CACHE_TTL_MS: z.coerce.number().int().positive().default(60_000),
 });
 
 const parsed = schema.safeParse(process.env);

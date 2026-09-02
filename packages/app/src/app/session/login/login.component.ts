@@ -1,7 +1,7 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { trpc } from '../../api/trpc.client';
-import { getResponsiveImageSource } from '../../helper/strapi-utils';
+import { getResponsiveImageSource } from '../../helper/media-utils';
 import { SessionService } from '../session.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';
 import { MatDialog } from '@angular/material/dialog';

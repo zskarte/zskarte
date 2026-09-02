@@ -39,6 +39,7 @@
     "db:migrate": "cd packages/server_next && npm run db:migrate",
     "db:seed": "cd packages/server_next && npm run db:seed",
     "db:studio": "cd packages/server_next && npm run db:studio",
+    "maplayer:generate": "npm --prefix packages/server_next run maplayer:generate --",
     "server:export": "cd packages/server && npm run export",
     "server:import": "cd packages/server && npm run import",
     "cleanup": "tsx scripts/cleanup.ts",

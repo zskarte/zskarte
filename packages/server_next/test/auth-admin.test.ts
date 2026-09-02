@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  BASELINE_ROLE_PERMISSIONS,
   PERMISSION_KEYS,
   getAllCachedRolePermissions,
+  getAllCachedRolePermissionsSync,
   getCachedRolePermissions,
+  getCachedRolePermissionsSync,
   hasPermission,
+  hasPermissionSync,
   loadRolePermissionsFromDb,
   resetPermissionCache,
   setRolePermissionInCache,
@@ -38,30 +40,52 @@ describe('auth admin role & permissions', () => {
   });
 
   describe('admin permissions matrix', () => {
-    it('contains all PERMISSION_KEYS for admin role in baseline and cannot be modified', () => {
-      const adminPerms = BASELINE_ROLE_PERMISSIONS.admin;
-      expect(adminPerms.size).toBe(PERMISSION_KEYS.length);
+    it('contains all PERMISSION_KEYS for admin role and cannot be modified', async () => {
+      const fakeDb = {
+        select: () => ({
+          from: async () => [
+            { role: 'admin', permission: 'operation.byId', createdAt: new Date() },
+            { role: 'organization', permission: 'operation.byId', createdAt: new Date() },
+          ],
+        }),
+      } as unknown as Database;
+
+      await loadRolePermissionsFromDb(fakeDb);
+
       for (const key of PERMISSION_KEYS) {
-        expect(adminPerms.has(key)).toBe(true);
-        expect(hasPermission('admin', key)).toBe(true);
+        expect(await hasPermission('admin', key)).toBe(true);
+        expect(hasPermissionSync('admin', key)).toBe(true);
       }
 
       // Admin permissions remain hardcoded and fixed even if attempted to disable
       setRolePermissionInCache('admin', 'operation.create', false);
-      expect(hasPermission('admin', 'operation.create')).toBe(true);
+      expect(await hasPermission('admin', 'operation.create')).toBe(true);
+      expect(hasPermissionSync('admin', 'operation.create')).toBe(true);
     });
 
-    it('reflects dynamic modifications in cache for non-admin roles', () => {
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(false);
+    it('reflects dynamic modifications in cache for non-admin roles', async () => {
+      const fakeDb = {
+        select: () => ({
+          from: async () => [
+            { role: 'guest', permission: 'journal.byId', createdAt: new Date() },
+          ],
+        }),
+      } as unknown as Database;
+      await loadRolePermissionsFromDb(fakeDb);
+
+      expect(await hasPermission('guest', 'mapSnapshot.list')).toBe(false);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(false);
       setRolePermissionInCache('guest', 'mapSnapshot.list', true);
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(true);
+      expect(await hasPermission('guest', 'mapSnapshot.list')).toBe(true);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(true);
 
       setRolePermissionInCache('guest', 'mapSnapshot.list', false);
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(false);
+      expect(await hasPermission('guest', 'mapSnapshot.list')).toBe(false);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(false);
     });
   });
 
-  describe('DB-backed permission resolution (loadRolePermissionsFromDb)', () => {
+  describe('DB-backed permission resolution (loadRolePermissionsFromDb & ensurePermissionsLoaded)', () => {
     it('populates cache from DB rows while preserving all fixed admin permissions', async () => {
       const fakeDb = {
         select: () => ({
@@ -74,27 +98,46 @@ describe('auth admin role & permissions', () => {
 
       await loadRolePermissionsFromDb(fakeDb);
 
-      expect(hasPermission('admin', 'operation.byId')).toBe(true);
-      expect(hasPermission('admin', 'operation.create')).toBe(true);
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(true);
-      expect(hasPermission('guest', 'operation.byId')).toBe(false);
+      expect(await hasPermission('admin', 'operation.byId')).toBe(true);
+      expect(await hasPermission('admin', 'operation.create')).toBe(true);
+      expect(await hasPermission('guest', 'mapSnapshot.list')).toBe(true);
+      expect(await hasPermission('guest', 'operation.byId')).toBe(false);
+      expect(hasPermissionSync('guest', 'mapSnapshot.list')).toBe(true);
+      expect(hasPermissionSync('guest', 'operation.byId')).toBe(false);
     });
 
-    it('resets to baseline when DB returns no rows', async () => {
-      // Modify cache first
-      setRolePermissionInCache('guest', 'mapSnapshot.list', true);
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(true);
-
+    it('throws when DB returns no rows (empty or unseeded)', async () => {
       const emptyDb = {
         select: () => ({
           from: async () => [],
         }),
       } as unknown as Database;
 
-      await loadRolePermissionsFromDb(emptyDb);
+      await expect(loadRolePermissionsFromDb(emptyDb)).rejects.toThrow(
+        /Role permissions table is empty or unseeded/i,
+      );
+    });
 
-      expect(hasPermission('guest', 'mapSnapshot.list')).toBe(false);
-      expect(hasPermission('admin', 'operation.create')).toBe(true);
+    it('retrieves cached role permissions accurately through sync and async helpers', async () => {
+      const fakeDb = {
+        select: () => ({
+          from: async () => [
+            { role: 'guest', permission: 'mapSnapshot.list', createdAt: new Date() },
+          ],
+        }),
+      } as unknown as Database;
+      await loadRolePermissionsFromDb(fakeDb);
+
+      const guestPermsAsync = await getCachedRolePermissions('guest');
+      const guestPermsSync = getCachedRolePermissionsSync('guest');
+      expect(guestPermsAsync).toEqual(guestPermsSync);
+      expect(guestPermsSync.has('mapSnapshot.list')).toBe(true);
+
+      const allPermsAsync = await getAllCachedRolePermissions();
+      const allPermsSync = getAllCachedRolePermissionsSync();
+      expect(allPermsAsync.guest).toEqual(allPermsSync.guest);
+      expect(allPermsSync.guest.has('mapSnapshot.list')).toBe(true);
+      expect(allPermsSync.admin.size).toBe(PERMISSION_KEYS.length);
     });
   });
 });

@@ -6,7 +6,6 @@ import { type Database, db } from '../db/client.js';
 import * as schema from '../db/schema.js';
 import { env } from '../env.js';
 import { getOrganization } from '../modules/organization/repository.js';
-import { ROLE_PERMISSIONS } from './permissions.js';
 import { ROLES } from './roles.js';
 import { shareAccess } from './share-access-plugin.js';
 
@@ -75,4 +74,3 @@ export const auth = betterAuth({
 export type AuthSession = typeof auth.$Infer.Session;
 export type Auth = typeof auth;
 export type ShareAccessPlugin = typeof shareAccess;
-export { ROLE_PERMISSIONS };

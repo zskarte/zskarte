@@ -161,7 +161,7 @@ export const adminOperationRouter = router({
 });
 
 export const adminPermissionRouter = router({
-  getMatrix: adminProcedure.query(() => permissionService.getMatrix()),
+  getMatrix: adminProcedure.query(({ ctx }) => permissionService.getMatrix(ctx.db)),
 
   toggleRolePermission: adminProcedure
     .input(

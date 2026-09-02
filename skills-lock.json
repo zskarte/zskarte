@@ -7,6 +7,18 @@
       "skillPath": "packages/server/skills/adapter-fastify/SKILL.md",
       "computedHash": "92ee8d150cbc2d9e22cf3ad184eeab87e43f1789f20213366336ababc15ef468"
     },
+    "angular-developer": {
+      "source": "angular/skills",
+      "sourceType": "github",
+      "skillPath": "angular-developer/SKILL.md",
+      "computedHash": "3faf142c1524f6d006621e1485810d15ee975bdfddb6d0f80c2b367b3a596a44"
+    },
+    "angular-new-app": {
+      "source": "angular/skills",
+      "sourceType": "github",
+      "skillPath": "angular-new-app/SKILL.md",
+      "computedHash": "49bd84ab08bd3498c52f476bed48fbb942dc6dbc0925607e84549adbed34bccf"
+    },
     "auth": {
       "source": "trpc/trpc",
       "sourceType": "github",
