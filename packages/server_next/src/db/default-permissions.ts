@@ -39,6 +39,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Role, ReadonlySet<PermissionKey>> 
     'organization.current',
     'organization.updateJournalEntryTemplate',
     'organization.updateLayerSettings',
+    'organization.updateSettings',
     'wmsSource.byId',
     'wmsSource.create',
     'wmsSource.delete',
