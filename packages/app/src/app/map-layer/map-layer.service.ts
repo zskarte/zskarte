@@ -33,7 +33,7 @@ export class MapLayerService {
   private _domSanitizer = inject(DomSanitizer);
   private _blobService = inject(BlobService);
   /** the new backend serves the uploaded media and style files below its own origin */
-  private _apiUrl = environment.apiUrlNext;
+  private _apiUrl = environment.apiUrl;
 
   public sanitizeHTML(html: string) {
     return this._domSanitizer.sanitize(SecurityContext.HTML, html) ?? '';

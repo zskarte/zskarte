@@ -3,7 +3,7 @@ import type { AppRouter } from '@zskarte/server-next/router';
 import superjson from 'superjson';
 import { environment } from '../../environments/environment';
 
-const trpcUrl = `${environment.apiUrlNext}/trpc`;
+const trpcUrl = `${environment.apiUrl}/trpc`;
 const wsUrl = new URL(trpcUrl);
 wsUrl.protocol = wsUrl.protocol === 'https:' ? 'wss:' : 'ws:';
 

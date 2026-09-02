@@ -156,11 +156,11 @@ describe('MapLayerService', () => {
 
       const layers = await service.readGlobalMapLayers([], ORGANIZATION_ID);
 
-      expect(layers[0].source?.url).toBe(`${environment.apiUrlNext}/uploads/layer.geojson`);
+      expect(layers[0].source?.url).toBe(`${environment.apiUrl}/uploads/layer.geojson`);
       expect(layers[0].source?.documentId).toBe(MEDIA_SOURCE_ID);
-      expect(layers[0].fullId).toBe(`${environment.apiUrlNext}/uploads/layer.geojson|layer-name|${MAP_LAYER_ID}`);
+      expect(layers[0].fullId).toBe(`${environment.apiUrl}/uploads/layer.geojson|layer-name|${MAP_LAYER_ID}`);
       expect((layers[0] as MapLayer & { styleUrl: string }).styleUrl).toBe(
-        `${environment.apiUrlNext}/uploads/style.json`,
+        `${environment.apiUrl}/uploads/style.json`,
       );
     });
 
@@ -256,7 +256,7 @@ describe('MapLayerService', () => {
         public: false,
         owner: true,
         styleSourceType: 'url',
-        styleUrl: `${environment.apiUrlNext}/uploads/style.json`,
+        styleUrl: `${environment.apiUrl}/uploads/style.json`,
         source: { documentId: MEDIA_SOURCE_ID, url: 'https://cdn.example.org/layer.geojson' },
       } as unknown as MapLayer;
 

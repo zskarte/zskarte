@@ -86,8 +86,7 @@ export class AdminOrganizationsComponent implements OnInit {
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
       return url;
     }
-    const baseUrl = environment.apiUrlNext || environment.apiUrl || '';
-    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+    return `${environment.apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   public openCreateDialog(): void {

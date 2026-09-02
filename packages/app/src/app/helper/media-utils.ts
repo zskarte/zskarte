@@ -30,7 +30,7 @@ export const mapInternalUrl = (url?: string | null): string => {
   ) {
     return url;
   }
-  const base = environment.apiUrlNext.replace(/\/+$/, '');
+  const base = environment.apiUrl.replace(/\/+$/, '');
   const path = url.startsWith('/') ? url : `/${url}`;
   return `${base}${path}`;
 };

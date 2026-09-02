@@ -4,7 +4,7 @@ import { customSessionClient, usernameClient } from 'better-auth/client/plugins'
 import { environment } from '../../environments/environment';
 
 export const authClient = createAuthClient({
-  baseURL: environment.apiUrlNext,
+  baseURL: environment.apiUrl,
   fetchOptions: { credentials: 'include' },
   plugins: [
     usernameClient(),

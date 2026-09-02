@@ -739,7 +739,7 @@ export class JournalService {
       logo_url: organizationFull?.logo?.url,
     };
     if (organizationFull?.logo?.provider === 'local') {
-      organization.logo_url = `${environment.apiUrl}${organization.logo_url}`;
+      organization.logo_url = `${environment.apiUrl}/${organization.logo_url}`;
     }
     let fileName = `${operation.name}_message${entry.messageNumber}_${new Date().toISOString().slice(0, 16)}.pdf`;
     let entryUrl: string | undefined;

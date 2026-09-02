@@ -18,8 +18,8 @@ describe('media-utils', () => {
       expect(mapInternalUrl('blob:http://localhost:4200/uuid')).toBe('blob:http://localhost:4200/uuid');
     });
 
-    it('maps internal relative /uploads/... paths against environment.apiUrlNext', () => {
-      const expectedBase = environment.apiUrlNext.replace(/\/+$/, '');
+    it('maps internal relative /uploads/... paths against environment.apiUrl', () => {
+      const expectedBase = environment.apiUrl.replace(/\/+$/, '');
       expect(mapInternalUrl('/uploads/sample.png')).toBe(`${expectedBase}/uploads/sample.png`);
       expect(mapInternalUrl('uploads/sample.png')).toBe(`${expectedBase}/uploads/sample.png`);
     });
@@ -33,7 +33,7 @@ describe('media-utils', () => {
     });
 
     it('returns single src if formats is missing or empty', () => {
-      const expectedBase = environment.apiUrlNext.replace(/\/+$/, '');
+      const expectedBase = environment.apiUrl.replace(/\/+$/, '');
       const result = getResponsiveImageSource({ url: '/uploads/original.png' });
       expect(result).toEqual({
         src: `${expectedBase}/uploads/original.png`,
@@ -42,7 +42,7 @@ describe('media-utils', () => {
     });
 
     it('constructs responsive srcSet when formats are present', () => {
-      const expectedBase = environment.apiUrlNext.replace(/\/+$/, '');
+      const expectedBase = environment.apiUrl.replace(/\/+$/, '');
       const asset = {
         url: '/uploads/original.png',
         formats: {
