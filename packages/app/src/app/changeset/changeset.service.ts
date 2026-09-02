@@ -619,7 +619,7 @@ export class ChangesetService {
         }
       }
 
-      if (changeset.changedDrawElements.some((elemId) => !modifiedDrawElements.has(elemId))) {
+      if (Array.from(modifiedDrawElements).some(elemId => !changeset.changedDrawElements.includes(elemId))) {
         //new drawElement is changed
         const timestamp = new Date().getTime();
         if (
