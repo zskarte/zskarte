@@ -9,12 +9,14 @@ export const accessRouter = router({
   generate: operationProcedure
     .use(rejectShareSession)
     .use(requirePermission('access.generate'))
-    .input(z.object({
-      operationId: z.uuid(),
-      name: z.string().max(255).optional(),
-      type: z.enum(['read', 'write', 'all']),
-      tokenType: z.enum(['long', 'short']),
-    }))
+    .input(
+      z.object({
+        operationId: z.uuid(),
+        name: z.string().max(255).optional(),
+        type: z.enum(['read', 'write', 'all']),
+        tokenType: z.enum(['long', 'short']),
+      }),
+    )
     .mutation(({ ctx, input }) => service.generate(ctx, input)),
 
   list: orgProcedure
@@ -32,14 +34,16 @@ export const accessRouter = router({
   update: orgProcedure
     .use(rejectShareSession)
     .use(requirePermission('access.update'))
-    .input(documentIdInput.extend({
-      data: z.object({
-        name: z.string().max(255).nullable().optional(),
-        type: z.enum(['read', 'write', 'all']).optional(),
-        active: z.boolean().optional(),
-        expiresOn: z.date().nullable().optional(),
+    .input(
+      documentIdInput.extend({
+        data: z.object({
+          name: z.string().max(255).nullable().optional(),
+          type: z.enum(['read', 'write', 'all']).optional(),
+          active: z.boolean().optional(),
+          expiresOn: z.date().nullable().optional(),
+        }),
       }),
-    }))
+    )
     .mutation(({ ctx, input }) => service.update(ctx, input.documentId, input.data)),
 
   delete: orgProcedure

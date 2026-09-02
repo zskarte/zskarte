@@ -4,7 +4,7 @@ import type { Database } from '../db/client.js';
 import { db as defaultDb } from '../db/client.js';
 import { env } from '../env.js';
 import { logger } from '../lib/logger.js';
-import { ROLES, type Role } from './roles.js';
+import { type Role, ROLES } from './roles.js';
 
 export const PERMISSION_KEYS = [
   'access.byId',
@@ -60,9 +60,7 @@ export interface PermissionFetchContext {
 export const fetchPermissionsFromDb = async (db: Database): Promise<RolePermissionMap> => {
   const rows = await db.select().from(rolePermissions);
   if (rows.length === 0) {
-    throw new Error(
-      'Role permissions table is empty or unseeded. Run database seeding before starting the server.',
-    );
+    throw new Error('Role permissions table is empty or unseeded. Run database seeding before starting the server.');
   }
 
   const newMap: RolePermissionMap = new Map();

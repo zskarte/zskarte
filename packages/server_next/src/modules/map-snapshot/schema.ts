@@ -1,5 +1,5 @@
 import type { ZsMapState } from '@zskarte/types';
-import { index, uuid, jsonb, pgTable } from 'drizzle-orm/pg-core';
+import { index, jsonb, pgTable, uuid } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { operations } from '../operation/schema.js';
 

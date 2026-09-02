@@ -1,10 +1,9 @@
 import { TRPCError } from '@trpc/server';
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  PERMISSION_KEYS,
-  hasPermission,
   hasPermissionSync,
   loadRolePermissionsFromDb,
+  PERMISSION_KEYS,
   resetPermissionCache,
   setRolePermissionInCache,
 } from '../src/auth/permissions.js';
@@ -15,16 +14,16 @@ import type { AuthSession } from '../src/trpc/context.js';
 import { appRouter } from '../src/trpc/router.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
 import {
+  createMockDb,
+  createSilentLogger,
+  createTestContext,
+  createTestSession,
   DEFAULT_ROLE_PERMISSION_ROWS,
   TEST_FILE_ID,
   TEST_OP_ID,
   TEST_OP_ID_2,
   TEST_ORG_ID,
   TEST_ORG_ID_2,
-  createMockDb,
-  createSilentLogger,
-  createTestContext,
-  createTestSession,
 } from './helpers/index.js';
 
 const ORG_1 = TEST_ORG_ID;

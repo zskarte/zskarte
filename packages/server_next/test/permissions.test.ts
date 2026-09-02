@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  PERMISSION_CACHE_KEY,
-  PERMISSION_KEYS,
   ensurePermissionsLoaded,
   fetchPermissionsFromDb,
   getAllCachedRolePermissions,
@@ -12,11 +10,11 @@ import {
   hasPermissionSync,
   invalidatePermissionCache,
   loadRolePermissionsFromDb,
-  permissionCache,
+  PERMISSION_KEYS,
   resetPermissionCache,
   setRolePermissionInCache,
 } from '../src/auth/permissions.js';
-import { ROLES, isRole } from '../src/auth/roles.js';
+import { isRole, ROLES } from '../src/auth/roles.js';
 import { DEFAULT_ROLE_PERMISSIONS } from '../src/db/default-permissions.js';
 import { logger } from '../src/lib/logger.js';
 import { DEFAULT_ROLE_PERMISSION_ROWS } from './helpers/fixtures.js';

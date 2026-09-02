@@ -1,4 +1,10 @@
-export const entryStates = ['awaiting_message', 'awaiting_triage', 'awaiting_decision', 'awaiting_completion', 'completed'] as const;
+export const entryStates = [
+  'awaiting_message',
+  'awaiting_triage',
+  'awaiting_decision',
+  'awaiting_completion',
+  'completed',
+] as const;
 export const entryDepartments = [
   'politische-behoerde',
   'chef-fuehrungsorgan',

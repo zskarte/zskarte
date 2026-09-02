@@ -63,9 +63,9 @@ const toApi = (record: repository.MapLayerRecord): MapLayerApiResponse => ({
   options: record.options ?? {},
   wms_source: record.wmsSourceId ? { documentId: record.wmsSourceId } : null,
   media_source:
-    record.mediaSourceId && record.mediaSourceUrl !== null
-      ? { documentId: record.mediaSourceId, url: record.mediaSourceUrl, name: record.mediaSourceName ?? '' }
-      : null,
+    record.mediaSourceId && record.mediaSourceUrl !== null ?
+      { documentId: record.mediaSourceId, url: record.mediaSourceUrl, name: record.mediaSourceName ?? '' }
+    : null,
   custom_source: record.customSource,
   organization: record.organizationId ? { documentId: record.organizationId } : null,
   createdAt: record.createdAt,

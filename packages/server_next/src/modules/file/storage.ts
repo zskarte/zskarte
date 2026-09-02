@@ -4,9 +4,8 @@ import { basename, extname, isAbsolute, join, resolve } from 'node:path';
 import { BlobServiceClient, StorageSharedKeyCredential } from '@azure/storage-blob';
 import { env } from '../../env.js';
 
-export const uploadsDirectory = isAbsolute(env.STORAGE_LOCAL_DIR)
-  ? env.STORAGE_LOCAL_DIR
-  : resolve(process.cwd(), env.STORAGE_LOCAL_DIR);
+export const uploadsDirectory =
+  isAbsolute(env.STORAGE_LOCAL_DIR) ? env.STORAGE_LOCAL_DIR : resolve(process.cwd(), env.STORAGE_LOCAL_DIR);
 
 export interface StorageSaveOptions {
   fileName: string;
@@ -101,9 +100,8 @@ export class LocalStorageProvider implements StorageProvider {
 
   async delete(keyOrUrl: string): Promise<void> {
     if (!keyOrUrl) return;
-    const cleanKey = keyOrUrl.startsWith(this.publicPrefix)
-      ? keyOrUrl.slice(this.publicPrefix.length)
-      : basename(keyOrUrl);
+    const cleanKey =
+      keyOrUrl.startsWith(this.publicPrefix) ? keyOrUrl.slice(this.publicPrefix.length) : basename(keyOrUrl);
     const filePath = join(this.targetDir, cleanKey);
     await rm(filePath, { force: true });
   }
@@ -158,27 +156,6 @@ export class AzureBlobStorageProvider implements StorageProvider {
     }
   }
 
-  private getContainerClient() {
-    return this.client.getContainerClient(this.containerName);
-  }
-
-  private extractBlobName(keyOrUrl: string): string {
-    if (keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
-      try {
-        const parsed = new URL(keyOrUrl);
-        const segments = parsed.pathname.split('/').filter(Boolean);
-        // If the path contains the container name as first segment, take the rest
-        if (segments.length > 1 && segments[0] === this.containerName) {
-          return segments.slice(1).join('/');
-        }
-        return segments[segments.length - 1] || keyOrUrl;
-      } catch {
-        return basename(keyOrUrl);
-      }
-    }
-    return keyOrUrl.replace(/^\/+/, '');
-  }
-
   async save(options: StorageSaveOptions): Promise<StoredFile> {
     const hash = createHash('sha256').update(options.buffer).digest('hex');
     const ext = getExtension(options.fileName, options.mimeType);
@@ -226,6 +203,27 @@ export class AzureBlobStorageProvider implements StorageProvider {
     }
     const blobName = this.extractBlobName(key);
     return this.getContainerClient().getBlockBlobClient(blobName).url;
+  }
+
+  private getContainerClient() {
+    return this.client.getContainerClient(this.containerName);
+  }
+
+  private extractBlobName(keyOrUrl: string): string {
+    if (keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
+      try {
+        const parsed = new URL(keyOrUrl);
+        const segments = parsed.pathname.split('/').filter(Boolean);
+        // If the path contains the container name as first segment, take the rest
+        if (segments.length > 1 && segments[0] === this.containerName) {
+          return segments.slice(1).join('/');
+        }
+        return segments[segments.length - 1] || keyOrUrl;
+      } catch {
+        return basename(keyOrUrl);
+      }
+    }
+    return keyOrUrl.replace(/^\/+/, '');
   }
 }
 

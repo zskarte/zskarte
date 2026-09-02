@@ -6,8 +6,8 @@ import type { Logger } from '../../src/lib/logger.js';
 import {
   type AuthSession,
   type Context,
-  type CreateInnerContextOptions,
   createContextInner,
+  type CreateInnerContextOptions,
 } from '../../src/trpc/context.js';
 import { TEST_ORG_ID, TEST_SESSION_ID, TEST_USER_ID } from './fixtures.js';
 import { createMockDb } from './mock-db.js';

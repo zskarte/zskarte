@@ -51,14 +51,10 @@ export const adminOrganizationRouter = router({
             .max(1, 'Only a single user per organization is supported for now')
             .optional(),
         })
-        .refine(
-          (data) =>
-            (Array.isArray(data.users) && data.users.length === 1) || Boolean(data.user),
-          {
-            message: 'A user with an account must be specified when creating an organization',
-            path: ['user'],
-          },
-        ),
+        .refine((data) => (Array.isArray(data.users) && data.users.length === 1) || Boolean(data.user), {
+          message: 'A user with an account must be specified when creating an organization',
+          path: ['user'],
+        }),
     )
     .mutation(({ ctx, input }) => organizationService.createOrganization(ctx.db, input as any)),
 

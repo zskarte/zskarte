@@ -1,4 +1,4 @@
-import { type SQL, and, asc, eq, or } from 'drizzle-orm';
+import { and, asc, eq, or, type SQL } from 'drizzle-orm';
 import type { Database } from '../../db/client.js';
 import type { Scope } from '../../trpc/context.js';
 import { files } from '../file/schema.js';
@@ -31,9 +31,9 @@ export type MapLayerValues = Pick<
 
 /** strapi `doListChecks`/`doByIdChecks` with a `hasPublic` content type: own organization or public */
 const visibleFilter = (scope: Scope | null): SQL | undefined =>
-  scope
-    ? or(eq(mapLayers.public, true), eq(mapLayers.organizationId, scope.organizationId))
-    : eq(mapLayers.public, true);
+  scope ?
+    or(eq(mapLayers.public, true), eq(mapLayers.organizationId, scope.organizationId))
+  : eq(mapLayers.public, true);
 
 export const listVisible = (db: Database, scope: Scope | null): Promise<MapLayerRecord[]> =>
   db

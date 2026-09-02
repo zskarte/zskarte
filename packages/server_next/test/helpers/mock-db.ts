@@ -538,17 +538,17 @@ export function createMockDb(initialOptions: MockDbOptions = {}): MockDbHandle {
           findFirst: async (_config?: unknown) => {
             const tableSource = tableRegistry[prop];
             const rows =
-              typeof tableSource === 'function'
-                ? tableSource({ type: 'select', joins: [], orderBy: [], groupBy: [] })
-                : tableSource;
+              typeof tableSource === 'function' ?
+                tableSource({ type: 'select', joins: [], orderBy: [], groupBy: [] })
+              : tableSource;
             return rows && rows.length > 0 ? rows[0] : (defaultRows[0] ?? null);
           },
           findMany: async (_config?: unknown) => {
             const tableSource = tableRegistry[prop];
             const rows =
-              typeof tableSource === 'function'
-                ? tableSource({ type: 'select', joins: [], orderBy: [], groupBy: [] })
-                : tableSource;
+              typeof tableSource === 'function' ?
+                tableSource({ type: 'select', joins: [], orderBy: [], groupBy: [] })
+              : tableSource;
             return rows ? [...rows] : [...defaultRows];
           },
         };

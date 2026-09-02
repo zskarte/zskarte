@@ -1,4 +1,4 @@
-import { and, count, desc, eq, max } from 'drizzle-orm';
+import { and, desc, eq, max } from 'drizzle-orm';
 import type { Database } from '../../db/client.js';
 import type { JournalEntryInsert, JournalEntryRow } from './schema.js';
 import { journalEntries } from './schema.js';

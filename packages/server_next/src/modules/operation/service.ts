@@ -1,13 +1,13 @@
 import { TRPCError } from '@trpc/server';
-import type { IZSMapOperationMapLayers, IZsChangeset, ZsMapState, ZsOperationPhase } from '@zskarte/types';
+import type { IZsChangeset, IZSMapOperationMapLayers, ZsMapState, ZsOperationPhase } from '@zskarte/types';
 import type { Context, Scope } from '../../trpc/context.js';
 import { assertCreateIdentifiersNotForced } from '../../trpc/procedures.js';
 import {
+  addChangeset,
   addToCache,
   getOperationCache,
   persistOperation,
   removeFromCache,
-  addChangeset,
   type SubmitChangesetResult,
 } from './cache.js';
 import * as repository from './repository.js';
@@ -76,10 +76,7 @@ export const byId = async (ctx: Context & { scope: Scope }, documentId: string):
   return row;
 };
 
-export const create = async (
-  ctx: Context & { scope: Scope },
-  data: CreateOperationInput,
-): Promise<OperationRow> => {
+export const create = async (ctx: Context & { scope: Scope }, data: CreateOperationInput): Promise<OperationRow> => {
   if (data.id !== undefined || data.documentId !== undefined) {
     logViolation(ctx, `create with forcing entry documentId, data.documentId:${JSON.stringify(data.documentId)}`);
   }
@@ -134,10 +131,7 @@ export const updateMapLayers = async (
   return { success: true };
 };
 
-export const archive = async (
-  ctx: Context & { scope: Scope },
-  operationId: string,
-): Promise<{ success: boolean }> => {
+export const archive = async (ctx: Context & { scope: Scope }, operationId: string): Promise<{ success: boolean }> => {
   await repository.updateOperationPhase(ctx.db, ctx.scope, operationId, 'archived');
   const cache = getOperationCache(operationId);
   if (cache) {

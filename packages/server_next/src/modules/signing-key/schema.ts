@@ -1,4 +1,4 @@
-import { index, pgEnum, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 
 export const signingKeyTypeEnum = pgEnum('signing_key_type', ['rsa', 'ed25519']);

@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { fileTypeFromBuffer } from 'file-type';
 import type { Database } from '../../db/client.js';
 import { type FileRow, files } from './schema.js';
-import { type StorageProvider, getStorageProvider } from './storage.js';
+import { getStorageProvider, type StorageProvider } from './storage.js';
 
 export interface UploadFileInput {
   fileName: string;

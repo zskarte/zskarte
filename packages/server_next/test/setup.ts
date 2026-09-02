@@ -1,4 +1,4 @@
-import { PERMISSION_CACHE_KEY, type RolePermissionMap, permissionCache } from '../src/auth/permissions.js';
+import { PERMISSION_CACHE_KEY, permissionCache, type RolePermissionMap } from '../src/auth/permissions.js';
 import { ROLES } from '../src/auth/roles.js';
 import { DEFAULT_ROLE_PERMISSIONS } from '../src/db/default-permissions.js';
 

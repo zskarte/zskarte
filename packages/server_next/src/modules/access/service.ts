@@ -3,7 +3,7 @@ import { TRPCError } from '@trpc/server';
 import type { Context, Scope } from '../../trpc/context.js';
 import * as repository from './repository.js';
 import { isUniqueViolation } from '../../db/util.js';
-import { PermissionType, AccessTokenType } from '@zskarte/types';
+import { AccessTokenType, PermissionType } from '@zskarte/types';
 
 type ScopedContext = Context & { scope: Scope };
 const TOKEN_RETRIES = 8;
@@ -19,13 +19,11 @@ export interface GenerateAccessInput {
   tokenType: AccessTokenType;
 }
 
-export const generate = async (
-  ctx: ScopedContext,
-  input: GenerateAccessInput,
-): Promise<{ accessToken: string }> => {
+export const generate = async (ctx: ScopedContext, input: GenerateAccessInput): Promise<{ accessToken: string }> => {
   for (let attempt = 0; attempt < TOKEN_RETRIES; attempt += 1) {
-    const accessToken = input.tokenType === 'long'
-      ? randomBytes(16).toString('hex')
+    const accessToken =
+      input.tokenType === 'long' ?
+        randomBytes(16).toString('hex')
       : randomInt(0, 1_000_000).toString().padStart(6, '0');
     try {
       await repository.insert(ctx.db, scopeFor(ctx), accessToken, {

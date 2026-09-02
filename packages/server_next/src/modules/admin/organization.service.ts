@@ -4,7 +4,7 @@ import { auth } from '../../auth/auth.js';
 import { account, user } from '../../db/auth-schema.js';
 import type { Database } from '../../db/client.js';
 import { files } from '../file/schema.js';
-import { type UploadFileInput, uploadFile, validateLogoUpload } from '../file/service.js';
+import { uploadFile, type UploadFileInput, validateLogoUpload } from '../file/service.js';
 import { organizationMapLayerFavorites } from '../map-layer/schema.js';
 import { getOperationCaches, removeFromCache } from '../operation/cache.js';
 import { operations } from '../operation/schema.js';
@@ -209,7 +209,7 @@ export const createOrganization = async (db: Database, data: CreateOrganizationI
       message: 'Only a single user per organization is supported for now',
     });
   }
-  
+
   const deriveUsername = (name: string): string => {
     return name
       .toLowerCase()
@@ -320,16 +320,12 @@ export const updateOrganization = async (db: Database, documentId: string, data:
   }
 
   if (data.user) {
-    const existingUsers = await db
-      .select()
-      .from(user)
-      .where(eq(user.organizationId, documentId));
+    const existingUsers = await db.select().from(user).where(eq(user.organizationId, documentId));
 
     const authContext = await auth.$context;
 
     if (existingUsers.length > 0) {
-      const targetUser =
-        (data.user.id ? existingUsers.find((u) => u.id === data.user!.id) : null) ?? existingUsers[0];
+      const targetUser = (data.user.id ? existingUsers.find((u) => u.id === data.user!.id) : null) ?? existingUsers[0];
       const userUpdates: Partial<typeof user.$inferInsert> = {};
 
       if (data.user.username !== undefined) {
@@ -373,10 +369,7 @@ export const updateOrganization = async (db: Database, documentId: string, data:
           .limit(1);
 
         if (existingAccount.length > 0) {
-          await db
-            .update(account)
-            .set({ password: hashedPassword })
-            .where(eq(account.id, existingAccount[0].id));
+          await db.update(account).set({ password: hashedPassword }).where(eq(account.id, existingAccount[0].id));
         } else {
           await db.insert(account).values({
             id: crypto.randomUUID(),

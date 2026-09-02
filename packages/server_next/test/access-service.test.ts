@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as repository from '../src/modules/access/repository.js';
 import * as service from '../src/modules/access/service.js';
 import type { Context, Scope } from '../src/trpc/context.js';
-import { TEST_OP_ID, TEST_ORG_ID, createTestContext } from './helpers/index.js';
+import { createTestContext, TEST_OP_ID, TEST_ORG_ID } from './helpers/index.js';
 
 vi.mock('../src/modules/access/repository.js', () => ({
   insert: vi.fn(),

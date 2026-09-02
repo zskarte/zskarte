@@ -21,14 +21,14 @@ const publicColumns = {
   updatedAt: accesses.updatedAt,
 };
 
-export const list = (
-  db: Database,
-  scope: AccessScope,
-  operationId?: string,
-): Promise<AccessPublicRow[]> => {
+export const list = (db: Database, scope: AccessScope, operationId?: string): Promise<AccessPublicRow[]> => {
   const predicates = [eq(accesses.organizationId, scope.organizationId)];
   if (operationId) predicates.push(eq(accesses.operationId, operationId));
-  return db.select(publicColumns).from(accesses).where(and(...predicates)).orderBy(asc(accesses.type));
+  return db
+    .select(publicColumns)
+    .from(accesses)
+    .where(and(...predicates))
+    .orderBy(asc(accesses.type));
 };
 
 export const findById = async (

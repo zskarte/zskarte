@@ -8,7 +8,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import type { Database } from '../../db/client.js';
 import { type FileRow, files } from '../file/schema.js';
 import { getFileById, replaceFile, uploadFile } from '../file/service.js';
-import { type StorageProvider, getStorageProvider } from '../file/storage.js';
+import { getStorageProvider, type StorageProvider } from '../file/storage.js';
 import { type MapLayerRow, mapLayers } from '../map-layer/schema.js';
 import { getConfig, initOrGetConfig, updateConfig } from './repository.js';
 import type { MapLayerGenerationConfigRow } from './schema.js';
@@ -42,9 +42,7 @@ export const CANTON_NAMES: Record<string, string> = {
   ZH: 'Zürich',
 };
 
-export function formatForIfModifiedSince(
-  timestamp: Date | number | string | null | undefined,
-): string | null {
+export function formatForIfModifiedSince(timestamp: Date | number | string | null | undefined): string | null {
   if (!timestamp) return null;
   let date: Date;
   if (typeof timestamp === 'number') {
@@ -86,10 +84,7 @@ export function getBoundaryArchivePeriods(
   return periods;
 }
 
-export function getSwissNamesArchiveYears(
-  startDate: Date = new Date(),
-  minimumYear = MIN_SOURCE_YEAR,
-): string[] {
+export function getSwissNamesArchiveYears(startDate: Date = new Date(), minimumYear = MIN_SOURCE_YEAR): string[] {
   const years: string[] = [];
   for (let year = startDate.getFullYear(); year >= minimumYear; year -= 1) {
     years.push(String(year));
@@ -100,17 +95,13 @@ export function getSwissNamesArchiveYears(
 export function getCantonFeature(cantonGeoJSON: any, canton: string): any | null {
   if (!cantonGeoJSON?.features) return null;
   const cantonName = CANTON_NAMES[canton.toUpperCase()];
-  return (
-    cantonGeoJSON.features.find((feature: any) => feature.properties?.NAME === cantonName) ?? null
-  );
+  return cantonGeoJSON.features.find((feature: any) => feature.properties?.NAME === cantonName) ?? null;
 }
 
 export function getDistrictFeatures(cantonFeature: any, districtGeoJSON: any): any[] {
   if (!cantonFeature || !districtGeoJSON?.features) return [];
   const cantonNumber = cantonFeature.properties?.KANTONSNUM;
-  return districtGeoJSON.features.filter(
-    (feature: any) => feature.properties?.KANTONSNUM === cantonNumber,
-  );
+  return districtGeoJSON.features.filter((feature: any) => feature.properties?.KANTONSNUM === cantonNumber);
 }
 
 export const ENTRANCE_SEARCH_REGEX_PATTERNS: [string, string][] = [
@@ -118,18 +109,12 @@ export const ENTRANCE_SEARCH_REGEX_PATTERNS: [string, string][] = [
     '(?<streetName>\\p{L}+(?:[ -]\\p{L}+)*) (?<entranceNumber>\\d+ ?\\p{L}?),? (?<zip>\\d\\d\\d\\d) (?<locality>\\p{L}+(?: \\p{L}+)*)',
     'u',
   ],
-  [
-    '(?<streetName>\\p{L}+(?:[ -]\\p{L}+)*) (?<entranceNumber>\\d+ ?\\p{L}?),? (?<locality>\\p{L}+(?: \\p{L}+)*)',
-    'u',
-  ],
+  ['(?<streetName>\\p{L}+(?:[ -]\\p{L}+)*) (?<entranceNumber>\\d+ ?\\p{L}?),? (?<locality>\\p{L}+(?: \\p{L}+)*)', 'u'],
   ['(?<streetName>\\p{L}+(?:[ -]\\p{L}+)*) (?<entranceNumber>\\d+ ?\\p{L}?),? (?<zip>\\d{1,4})', 'u'],
   ['(?<streetName>\\p{L}+(?:[ -]\\p{L}+)*) (?<entranceNumber>\\d+\\p{L}?)', 'u'],
   ['(?<streetName>\\p{L}+(?:[ -]\\p{L}+)*),? (?<locality>\\p{L}+(?:[ .-]\\p{L}+)*?)', 'u'],
   ['(?<streetName>\\p{L}+(?:[ -]\\p{L}+)*)', 'u'],
-  [
-    '(?<entranceNumber>\\d+ ?\\p{L}?),? (?<zip>\\d\\d\\d\\d) (?<locality>\\p{L}+(?:[ .-]\\p{L}+)*)',
-    'u',
-  ],
+  ['(?<entranceNumber>\\d+ ?\\p{L}?),? (?<zip>\\d\\d\\d\\d) (?<locality>\\p{L}+(?:[ .-]\\p{L}+)*)', 'u'],
   ['(?<entranceNumber>\\d+ ?\\p{L}?),? (?<locality>\\p{L}+(?:[ .-]\\p{L}+)*)', 'u'],
 ];
 
@@ -144,10 +129,7 @@ export function getWorkerLocation(): URL {
 export class WorkerClient {
   private worker: Worker;
   private messageId = 0;
-  private pending = new Map<
-    number,
-    { resolve: (value: any) => void; reject: (reason: any) => void }
-  >();
+  private pending = new Map<number, { resolve: (value: any) => void; reject: (reason: any) => void }>();
   private logger?: FastifyBaseLogger | Console;
 
   constructor(logger?: FastifyBaseLogger | Console) {
@@ -395,20 +377,11 @@ export interface UpsertMapLayerParams {
   options: Record<string, unknown>;
 }
 
-export const upsertMapLayer = async (
-  db: Database,
-  params: UpsertMapLayerParams,
-): Promise<MapLayerRow> => {
+export const upsertMapLayer = async (db: Database, params: UpsertMapLayerParams): Promise<MapLayerRow> => {
   const [existing] = await db
     .select()
     .from(mapLayers)
-    .where(
-      and(
-        eq(mapLayers.label, params.label),
-        eq(mapLayers.type, params.type),
-        isNull(mapLayers.organizationId),
-      ),
-    )
+    .where(and(eq(mapLayers.label, params.label), eq(mapLayers.type, params.type), isNull(mapLayers.organizationId)))
     .limit(1);
 
   if (existing) {
@@ -479,9 +452,8 @@ export async function updateSwissBoundariesMedia(
       .from(files)
       .where(and(eq(files.name, districtFileName), eq(files.folderPath, folderPath)))
       .limit(1);
-    const lastModified = existingCantonMedia?.updatedAt
-      ? formatForIfModifiedSince(existingCantonMedia.updatedAt)
-      : null;
+    const lastModified =
+      existingCantonMedia?.updatedAt ? formatForIfModifiedSince(existingCantonMedia.updatedAt) : null;
     const url = renderUrlTemplate(config.urlSwissBoundaries3d, { year, month });
 
     logger?.info(`Downloading SwissBoundaries3D from: ${url}`);
@@ -582,9 +554,7 @@ export async function updateEntranceMedia(
       .where(and(eq(files.name, cantonFile), eq(files.folderPath, folderPath)))
       .limit(1);
 
-    const lastModified = existingMedia?.updatedAt
-      ? formatForIfModifiedSince(existingMedia.updatedAt)
-      : null;
+    const lastModified = existingMedia?.updatedAt ? formatForIfModifiedSince(existingMedia.updatedAt) : null;
     const url = renderUrlTemplate(config.urlMadd, { canton: canton.toLowerCase() });
 
     logger?.info(`Downloading entrances for canton ${canton} from: ${url}`);
@@ -651,7 +621,6 @@ export async function updateEntranceMedia(
     const shouldSplit = config.allwaysCreateDistrict || fileSize > 25_000_000;
 
     if (sourceFile && shouldSplit && districtsForCanton.length >= 2) {
-
       for (const district of districtsForCanton) {
         const districtName = district.properties?.NAME ?? district.properties?.BEZIRKSNA;
         if (!districtName) continue;
@@ -746,9 +715,8 @@ export async function updateSwissNames3DMedia(
       .from(files)
       .where(and(eq(files.name, nationalFileName), eq(files.folderPath, folderPath)))
       .limit(1);
-    const lastModified = existingNationalMedia?.updatedAt
-      ? formatForIfModifiedSince(existingNationalMedia.updatedAt)
-      : null;
+    const lastModified =
+      existingNationalMedia?.updatedAt ? formatForIfModifiedSince(existingNationalMedia.updatedAt) : null;
     const url = renderUrlTemplate(config.urlSwissNames3d, { year: candidateYear });
 
     logger?.info(`Downloading SwissNames3D from: ${url}`);
@@ -883,8 +851,7 @@ export async function updateMapLayerMedias(
     if (!config.enabled && !options.force) {
       throw new Error('updateMapLayerMedias skipped: update is disabled');
     }
-    const rawCantons =
-      options.cantons && options.cantons.length > 0 ? options.cantons.join(',') : config.cantons;
+    const rawCantons = options.cantons && options.cantons.length > 0 ? options.cantons.join(',') : config.cantons;
 
     if (!rawCantons || rawCantons.trim().length === 0) {
       throw new Error('updateMapLayerMedias failed: cantons to update is empty');

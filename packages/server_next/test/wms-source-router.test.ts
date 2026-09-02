@@ -6,11 +6,11 @@ import { wmsSourceRouter } from '../src/modules/wms-source/router.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
 import {
   type AuthSession,
-  TEST_ORG_ID,
   createMockDb,
   createSilentLogger,
   createTestContext,
   createTestSession,
+  TEST_ORG_ID,
 } from './helpers/index.js';
 
 const ORG_A = TEST_ORG_ID;
@@ -95,7 +95,9 @@ describe('wmsSource.list', () => {
 describe('wmsSource.byId', () => {
   it('returns a public row of another organization', async () => {
     const { db } = createMockDb({ selects: [[publicForeignRow()]] });
-    const source = await (await caller({ db, authSession: authSession('organization', ORG_A) })).byId({
+    const source = await (
+      await caller({ db, authSession: authSession('organization', ORG_A) })
+    ).byId({
       documentId: SOURCE_FOREIGN,
     });
 

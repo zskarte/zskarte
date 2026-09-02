@@ -56,8 +56,12 @@ export const createContextInner = async (opts: CreateInnerContextOptions = {}): 
     user: authSession?.user ?? null,
     session: authSession?.session ?? null,
     role,
-    scope: organizationId
-      ? { organizationId, ...(authSession?.session.operationId ? { operationId: authSession.session.operationId } : {}) }
+    scope:
+      organizationId ?
+        {
+          organizationId,
+          ...(authSession?.session.operationId ? { operationId: authSession.session.operationId } : {}),
+        }
       : null,
     req: opts.req,
   };

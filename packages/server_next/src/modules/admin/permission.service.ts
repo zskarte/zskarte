@@ -1,13 +1,13 @@
 import { TRPCError } from '@trpc/server';
 import { and, eq } from 'drizzle-orm';
 import {
-  PERMISSION_KEYS,
-  type PermissionKey,
   getAllCachedRolePermissions,
   loadRolePermissionsFromDb,
+  PERMISSION_KEYS,
+  type PermissionKey,
   setRolePermissionInCache,
 } from '../../auth/permissions.js';
-import { ROLES, type Role, isRole } from '../../auth/roles.js';
+import { isRole, type Role, ROLES } from '../../auth/roles.js';
 import { rolePermissions } from '../../db/auth-schema.js';
 import type { Database } from '../../db/client.js';
 import { DEFAULT_ROLE_PERMISSIONS } from '../../db/default-permissions.js';

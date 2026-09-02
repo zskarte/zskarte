@@ -1,8 +1,8 @@
 import type { IZsMapOrganization, IZsMapOrganizationSettings } from '@zskarte/types';
 import { TRPCError } from '@trpc/server';
 import type { Context, Scope } from '../../trpc/context.js';
-import * as repository from './repository.js';
 import type { LoginOrganization } from './repository.js';
+import * as repository from './repository.js';
 
 /** Keys strapi accepted on the layer settings endpoint, every other key was dropped. */
 export interface LayerSettingsInput {

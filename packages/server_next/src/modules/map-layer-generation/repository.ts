@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm';
 import type { Database } from '../../db/client.js';
 import {
+  mapLayerGenerationConfig,
   type MapLayerGenerationConfigInsert,
   type MapLayerGenerationConfigRow,
-  mapLayerGenerationConfig,
 } from './schema.js';
 
 export const getConfig = async (db: Database): Promise<MapLayerGenerationConfigRow | null> => {
@@ -15,10 +15,7 @@ export const insertConfig = async (
   db: Database,
   values: Partial<MapLayerGenerationConfigInsert> = {},
 ): Promise<MapLayerGenerationConfigRow> => {
-  const [row] = await db
-    .insert(mapLayerGenerationConfig)
-    .values(values)
-    .returning();
+  const [row] = await db.insert(mapLayerGenerationConfig).values(values).returning();
   return row;
 };
 

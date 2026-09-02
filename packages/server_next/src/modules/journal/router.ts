@@ -61,7 +61,7 @@ export const journalRouter = router({
 
   onChanged: operationProcedure
     .use(requirePermission('journal.list'))
-    .input(z.object({ operationId: z.uuid(), identifier: z.string()}))
+    .input(z.object({ operationId: z.uuid(), identifier: z.string() }))
     .subscription(async function* ({ input, signal }) {
       try {
         for await (const [event] of subscribeToOperation(input.operationId, signal)) {

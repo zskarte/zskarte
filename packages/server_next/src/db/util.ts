@@ -7,4 +7,3 @@ export const isUniqueViolation = (error: unknown, constraint?: string): boolean 
   }
   return false;
 };
-

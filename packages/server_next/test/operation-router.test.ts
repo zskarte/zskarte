@@ -1,4 +1,3 @@
-import type { TRPCError } from '@trpc/server';
 import type { IZsChangeset, ZsMapState } from '@zskarte/types';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Database } from '../src/db/client.js';
@@ -9,14 +8,14 @@ import { initializeSigningKeys } from '../src/modules/signing-key/service.js';
 import type { AuthSession } from '../src/trpc/context.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
 import {
-  TEST_OP_ID,
-  TEST_OP_ID_2,
-  TEST_ORG_ID,
-  TEST_ORG_ID_2,
   createMockDb,
   createSilentLogger,
   createTestContext,
   createTestSession,
+  TEST_OP_ID,
+  TEST_OP_ID_2,
+  TEST_ORG_ID,
+  TEST_ORG_ID_2,
 } from './helpers/index.js';
 
 const ORG_A = TEST_ORG_ID;

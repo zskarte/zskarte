@@ -7,12 +7,12 @@ import { mapLayerRouter } from '../src/modules/map-layer/router.js';
 import type { AuthSession } from '../src/trpc/context.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
 import {
-  TEST_ORG_ID,
-  TEST_ORG_ID_2,
   createMockDb,
   createSilentLogger,
   createTestContext,
   createTestSession,
+  TEST_ORG_ID,
+  TEST_ORG_ID_2,
 } from './helpers/index.js';
 
 const ORG_A = TEST_ORG_ID;
@@ -121,7 +121,9 @@ describe('mapLayer.list', () => {
 describe('mapLayer.byId', () => {
   it('returns a public row of another organization', async () => {
     const { db } = createMockDb({ selects: [[publicForeignRow()]] });
-    const layer = await (await caller({ db, authSession: createTestSession('organization', ORG_A) })).byId({
+    const layer = await (
+      await caller({ db, authSession: createTestSession('organization', ORG_A) })
+    ).byId({
       documentId: LAYER_FOREIGN,
     });
 

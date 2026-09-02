@@ -1,12 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { and, desc, eq, ilike } from 'drizzle-orm';
 import type { Database } from '../../db/client.js';
-import {
-  addToCache,
-  getOperationCache,
-  persistOperation,
-  removeFromCache,
-} from '../operation/cache.js';
+import { addToCache, getOperationCache, persistOperation, removeFromCache } from '../operation/cache.js';
 import { type OperationRow, operations } from '../operation/schema.js';
 import { organizations } from '../organization/schema.js';
 
@@ -144,11 +139,7 @@ export const updateOperation = async (
   if (data.mapLayers !== undefined) updateValues.mapLayers = data.mapLayers as any;
   if (data.phase !== undefined) updateValues.phase = data.phase;
 
-  const [row] = await db
-    .update(operations)
-    .set(updateValues)
-    .where(eq(operations.documentId, documentId))
-    .returning();
+  const [row] = await db.update(operations).set(updateValues).where(eq(operations.documentId, documentId)).returning();
 
   if (!row) {
     throw new TRPCError({ code: 'NOT_FOUND', message: 'Operation not found' });

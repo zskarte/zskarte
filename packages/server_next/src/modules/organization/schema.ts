@@ -1,5 +1,5 @@
 import type { IZsMapOrganizationSettings } from '@zskarte/types';
-import { doublePrecision, uuid, jsonb, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
+import { doublePrecision, jsonb, pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { files } from '../file/schema.js';
 

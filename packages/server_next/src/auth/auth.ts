@@ -65,10 +65,7 @@ const authOptions = {
 
 export const auth = betterAuth({
   ...authOptions,
-  plugins: [
-    ...authOptions.plugins,
-    customSession((session) => createCustomSession(db, session), authOptions),
-  ],
+  plugins: [...authOptions.plugins, customSession((session) => createCustomSession(db, session), authOptions)],
 });
 
 export type AuthSession = typeof auth.$Infer.Session;

@@ -1,4 +1,4 @@
-import type { IZSMapOperationMapLayers, IZsChangeset, ZsMapState } from '@zskarte/types';
+import type { IZsChangeset, ZsMapState } from '@zskarte/types';
 import type { Role } from '../../src/auth/roles.js';
 import { ROLES } from '../../src/auth/roles.js';
 import type { session, user } from '../../src/db/auth-schema.js';

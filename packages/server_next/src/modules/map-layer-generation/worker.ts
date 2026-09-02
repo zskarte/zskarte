@@ -9,9 +9,7 @@ import shp from 'shpjs';
 import { inferSchema, initParser } from 'udsv';
 
 const storageLocalDir = process.env.STORAGE_LOCAL_DIR ?? 'public/uploads';
-export const uploadsDirectory = isAbsolute(storageLocalDir)
-  ? storageLocalDir
-  : resolve(process.cwd(), storageLocalDir);
+export const uploadsDirectory = isAbsolute(storageLocalDir) ? storageLocalDir : resolve(process.cwd(), storageLocalDir);
 
 proj4.defs(
   'EPSG:2056',
@@ -67,11 +65,7 @@ export async function downloadIfChanged(
   };
 }
 
-export function extractFilesToNewZip(
-  inputZip: AdmZip,
-  filterBasename: string,
-  outputPath: string,
-): AdmZip | null {
+export function extractFilesToNewZip(inputZip: AdmZip, filterBasename: string, outputPath: string): AdmZip | null {
   const outZip = new AdmZip();
   let foundFiles = 0;
   for (const entry of inputZip.getEntries()) {
@@ -382,9 +376,7 @@ export async function extractSwissNamesCanton(params: {
     });
   }
 
-  const filtered = nameCache.names.filter((row) =>
-    booleanPointInPolygon(row.coord, params.cantonFeature),
-  );
+  const filtered = nameCache.names.filter((row) => booleanPointInPolygon(row.coord, params.cantonFeature));
 
   if (filtered.length > 0) {
     const csvRows = filtered.map((row) => {

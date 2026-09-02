@@ -4,11 +4,7 @@ import { runMigrations } from './db/migrate.js';
 import { env } from './env.js';
 import { startScheduler, stopScheduler } from './jobs/scheduler.js';
 import { logger } from './lib/logger.js';
-import {
-  abortAllQueuedChangesets,
-  persistAllOperations,
-  warmupOperationCache,
-} from './modules/operation/cache.js';
+import { abortAllQueuedChangesets, persistAllOperations, warmupOperationCache } from './modules/operation/cache.js';
 import { initializeSigningKeys } from './modules/signing-key/service.js';
 import { type AppServer, buildServer } from './server.js';
 

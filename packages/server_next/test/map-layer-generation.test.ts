@@ -7,9 +7,8 @@ import { LocalStorageProvider } from '../src/modules/file/storage.js';
 import {
   CANTON_NAMES,
   DEFAULT_STYLE_FILES,
-  ENTRANCE_SEARCH_REGEX_PATTERNS,
-  WorkerClient,
   ensureStyleFile,
+  ENTRANCE_SEARCH_REGEX_PATTERNS,
   formatForIfModifiedSince,
   getBoundaryArchivePeriods,
   getCantonFeature,
@@ -19,10 +18,11 @@ import {
   renderUrlTemplate,
   seedDefaultStyleAssets,
   updateEntranceMedia,
-  updateSwissBoundariesMedia,
   updateMapLayerMedias,
   updateOrCreateMedia,
+  updateSwissBoundariesMedia,
   upsertMapLayer,
+  WorkerClient,
 } from '../src/modules/map-layer-generation/service.js';
 import {
   getConfig,
@@ -34,7 +34,6 @@ import {
 } from '../src/modules/map-layer-generation/repository.js';
 import { parseCliArgs } from '../src/modules/map-layer-generation/cli.js';
 import { runScheduledMapLayerGeneration } from '../src/jobs/scheduler.js';
-import { env } from '../src/env.js';
 import {
   downloadIfChanged,
   extractEntranceDistrict,

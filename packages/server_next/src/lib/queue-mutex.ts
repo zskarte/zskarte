@@ -63,6 +63,15 @@ export class QueueMutex {
     return task;
   }
 
+  abortAll(reason = 'Operation aborted'): void {
+    const queuedTasks = [...this.queue];
+    this.queue = [];
+
+    for (const task of queuedTasks) {
+      this.rejectTaskBeforeStart(task, reason);
+    }
+  }
+
   private createTask<T>(options: EnqueueOptions<T>): InternalQueueTask<T> {
     let resolveStarted!: () => void;
     let rejectStarted!: (e: unknown) => void;
@@ -143,9 +152,9 @@ export class QueueMutex {
     }
 
     const error =
-      reason === 'Wait timeout'
-        ? new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Lock not available within 15 seconds' })
-        : new TRPCError({ code: 'BAD_REQUEST', message: reason });
+      reason === 'Wait timeout' ?
+        new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Lock not available within 15 seconds' })
+      : new TRPCError({ code: 'BAD_REQUEST', message: reason });
 
     task._rejectStarted(error);
     task._rejectResult(error);
@@ -205,15 +214,6 @@ export class QueueMutex {
     } finally {
       this.isLocked = false;
       this.processNext();
-    }
-  }
-
-  abortAll(reason = 'Operation aborted'): void {
-    const queuedTasks = [...this.queue];
-    this.queue = [];
-
-    for (const task of queuedTasks) {
-      this.rejectTaskBeforeStart(task, reason);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { boolean, uuid, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { files } from '../file/schema.js';
 

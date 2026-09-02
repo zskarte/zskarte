@@ -8,11 +8,7 @@ import { middleware, publicProcedure as baseProcedure } from './trpc.js';
 
 const forbidden = new TRPCError({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
 
-const logViolation = (
-  ctx: Context,
-  message: string,
-  operationId?: string,
-) => {
+const logViolation = (ctx: Context, message: string, operationId?: string) => {
   ctx.logger.warn(
     {
       url: ctx.requestPath,
@@ -73,10 +69,7 @@ export const operationProcedure = orgProcedure
     }
 
     const allowedArchivedMutation =
-      path === 'unarchive' ||
-      path.endsWith('.unarchive') ||
-      path === 'shadowDelete' ||
-      path.endsWith('.shadowDelete');
+      path === 'unarchive' || path.endsWith('.unarchive') || path === 'shadowDelete' || path.endsWith('.shadowDelete');
     if (type === 'mutation' && operation.phase !== 'active' && !allowedArchivedMutation) {
       throw new TRPCError({ code: 'FORBIDDEN', message: 'The operation is archived, no update allowed.' });
     }

@@ -3,7 +3,7 @@ import { isAbsolute, resolve } from 'node:path';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import websocket from '@fastify/websocket';
-import { type FastifyTRPCPluginOptions, fastifyTRPCPlugin } from '@trpc/server/adapters/fastify';
+import { fastifyTRPCPlugin, type FastifyTRPCPluginOptions } from '@trpc/server/adapters/fastify';
 import Fastify from 'fastify';
 import { authHandlerPlugin } from './auth/handler.js';
 import { env } from './env.js';
@@ -21,9 +21,8 @@ type TrpcPluginOptions = FastifyTRPCPluginOptions<AppRouter>['trpcOptions'] & {
   keepAlive?: { enabled: boolean; pingMs: number; pongWaitMs: number };
 };
 
-export const uploadsDirectory = isAbsolute(env.STORAGE_LOCAL_DIR)
-  ? env.STORAGE_LOCAL_DIR
-  : resolve(process.cwd(), env.STORAGE_LOCAL_DIR);
+export const uploadsDirectory =
+  isAbsolute(env.STORAGE_LOCAL_DIR) ? env.STORAGE_LOCAL_DIR : resolve(process.cwd(), env.STORAGE_LOCAL_DIR);
 
 export const buildServer = async () => {
   const app = Fastify({

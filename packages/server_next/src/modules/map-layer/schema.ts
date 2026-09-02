@@ -1,4 +1,4 @@
-import { boolean, uuid, jsonb, pgEnum, pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
+import { boolean, jsonb, pgEnum, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
 import { documentId, timestamps } from '../../db/columns.js';
 import { files } from '../file/schema.js';
 import { organizations } from '../organization/schema.js';
