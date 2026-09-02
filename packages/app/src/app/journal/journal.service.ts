@@ -292,14 +292,14 @@ export class JournalService {
     return min - 1;
   }
 
-  public async messageNumberAlreadyExist(messageNumber: number, uuid?: string) {
+  public async messageNumberAlreadyExist(messageNumber: number, documentId?: string) {
     const operationId = this.operationId();
     const organizationId = this.organizationId();
     if (!operationId) {
       return -10000;
     }
     const cached = await db.localJournalEntries.where({ operationId, organizationId, messageNumber }).first();
-    return uuid ? cached && cached?.documentId !== uuid : cached != null;
+    return documentId ? cached && cached?.documentId !== documentId : cached != null;
   }
 
   public async insert(entry: Partial<JournalEntry>) {
@@ -364,6 +364,7 @@ export class JournalService {
             create: true,
             operationId,
             organizationId,
+            documentId: entry.documentId ?? uuidv4(),
             date: new Date(),
           });
           //on network error and save patch to submit later, still update the view
@@ -418,15 +419,14 @@ export class JournalService {
       //if network error, create patch for apply later
       try {
         if ((error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') || !this.isOnline()) {
-          const cacheUuid = documentId || entry.documentId;
-          if (cacheUuid) {
+          if (entry.documentId) {
             const operationId = this.operationId();
             const organizationId = this.organizationId();
             if (operationId && organizationId) {
               db.patchJournalEntries.add({
                 entry,
                 create: false,
-                documentId,
+                documentId: entry.documentId,
                 operationId,
                 organizationId,
                 date: new Date(),
@@ -472,11 +472,11 @@ export class JournalService {
       return;
     }
 
-    //group patches by uuid and sort the patches and the packages groups by date
-    const groupedEntries = groupBy(entries, 'uuid');
+    //group patches by documentId and sort the patches and the packages groups by date
+    const groupedEntries = groupBy(entries, 'documentId');
     const sortedGroups = Object.entries(groupedEntries)
-      .map(([uuid, group]) => ({
-        uuid,
+      .map(([documentId, group]) => ({
+        documentId,
         changes: group.sort((a, b) => a.date.getTime() - b.date.getTime()),
       }))
       .sort((a, b) => {
@@ -485,11 +485,11 @@ export class JournalService {
         return aFirstDate - bFirstDate;
       });
 
-    const errors: { uuid: string; changes: PatchJournalEntry[] }[] = [];
+    const errors: { documentId: string; changes: PatchJournalEntry[] }[] = [];
     const messageNumberMapping: Record<number, number> = {};
-    for (const { uuid, changes } of sortedGroups) {
+    for (const { documentId, changes } of sortedGroups) {
       try {
-        //merge the changes of same uuid so only one backend request is required per JournalEntry
+        //merge the changes of same documentId so only one backend request is required per JournalEntry
         const entry = changes
           .slice(1)
           .reduce<PatchJournalEntry>((acc: PatchJournalEntry, change: PatchJournalEntry) => {
@@ -509,7 +509,7 @@ export class JournalService {
         const { error, result } = response;
         if (error || !result) {
           console.error('Error updating journal entry:', entry, error);
-          errors.push({ uuid, changes });
+          errors.push({ documentId, changes });
         } else {
           messageNumberMapping[entry.entry.messageNumber!] = result.messageNumber;
           if (entry.create) {
@@ -523,8 +523,8 @@ export class JournalService {
           await db.patchJournalEntries.bulkDelete(changes.map((p) => p.id!));
         }
       } catch (e) {
-        console.error('error while save patches', uuid, changes);
-        errors.push({ uuid, changes });
+        console.error('error while save patches', documentId, changes);
+        errors.push({ documentId, changes });
       }
     }
     console.log('publishJournalPatches: error', errors, 'messageNumberMapping', messageNumberMapping);

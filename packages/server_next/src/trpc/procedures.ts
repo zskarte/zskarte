@@ -101,6 +101,6 @@ export const rejectShareSession = middleware(({ ctx, next }) => {
   return next();
 });
 
-export const assertCreateIdentifiersNotForced = (value: { id?: unknown; documentId?: unknown }): void => {
-  if (value.id !== undefined || value.documentId !== undefined) throw forbidden;
+export const assertCreateIdentifiersNotForced = (value: { documentId?: unknown }): void => {
+  if (value.documentId !== undefined) throw forbidden;
 };

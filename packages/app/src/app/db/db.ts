@@ -50,7 +50,7 @@ export type PatchJournalEntry = {
   id?: number;
   entry: Partial<JournalEntry>;
   create: boolean;
-  documentId?: string;
+  documentId: string;
   operationId: string;
   organizationId: string;
   date: Date;
