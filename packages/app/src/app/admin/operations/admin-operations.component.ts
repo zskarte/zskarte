@@ -185,7 +185,23 @@ export class AdminOperationsComponent implements OnInit {
     }
   }
 
-  public deleteOperation(operation: AdminOperationData): void {
+  public async deleteOperation(operation: AdminOperationData): Promise<void> {
+    if (operation.phase !== 'deleted') {
+      const res = await trpcRequest(
+        trpc.admin.operation.update.mutate({
+          documentId: operation.documentId,
+          data: { phase: 'deleted' },
+        }),
+      );
+      if (res.error) {
+        this.snackBar.open(this.i18n.get('error'), 'OK', { duration: 3000 });
+      } else {
+        this.snackBar.open(this.i18n.get('operationMovedToTrash'), 'OK', { duration: 3000 });
+        this.loadOperations();
+      }
+      return;
+    }
+
     const confirmRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: this.i18n.get('deleteOperation'),

@@ -12,7 +12,7 @@ import { organizations } from '../organization/schema.js';
 import { organizationWmsSources } from '../wms-source/schema.js';
 
 export interface CreateOrganizationUserInput {
-  username: string;
+  username?: string;
   password: string;
   email?: string | null;
   name?: string | null;
@@ -209,6 +209,13 @@ export const createOrganization = async (db: Database, data: CreateOrganizationI
       message: 'Only a single user per organization is supported for now',
     });
   }
+  
+  const deriveUsername = (name: string): string => {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z_]/g, '');
+  };
 
   const initialUser = data.user || data.users?.[0];
 
@@ -219,12 +226,14 @@ export const createOrganization = async (db: Database, data: CreateOrganizationI
     });
   }
 
-  if (!initialUser.username || !initialUser.username.trim()) {
+  const derivedUsername = deriveUsername(data.name);
+  if (!derivedUsername) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
-      message: 'Username is required',
+      message: 'Organization name must result in a valid username (a-z and _)',
     });
   }
+
   if (!initialUser.password || initialUser.password.length < 6) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
@@ -248,10 +257,8 @@ export const createOrganization = async (db: Database, data: CreateOrganizationI
     .returning();
 
   const authContext = await auth.$context;
-
-  const trimmedUsername = initialUser.username.trim();
-  const email = initialUser.email?.trim() || `${trimmedUsername.toLowerCase()}@internal.zskarte.ch`;
-  const name = initialUser.name?.trim() || trimmedUsername;
+  const email = `${derivedUsername}@internal.zskarte.ch`;
+  const name = initialUser.name?.trim() || data.name;
   const role = (initialUser.role?.trim() as any) || 'organization';
   const hashedPassword = await authContext.password.hash(initialUser.password);
   const userId = crypto.randomUUID();
@@ -261,7 +268,7 @@ export const createOrganization = async (db: Database, data: CreateOrganizationI
     name,
     email,
     emailVerified: true,
-    username: trimmedUsername,
+    username: derivedUsername,
     zsRole: role,
     organizationId: row.documentId,
   });
@@ -435,6 +442,10 @@ export const deleteOrganization = async (db: Database, documentId: string) => {
   for (const [operationId, cache] of getOperationCaches()) {
     if (cache.operation.organizationId === documentId) operationIds.add(operationId);
   }
+
+  // Delete all users belonging to the organization.
+  // Account records will be deleted via CASCADE on userId.
+  await db.delete(user).where(eq(user.organizationId, documentId));
 
   const [deleted] = await db
     .delete(organizations)

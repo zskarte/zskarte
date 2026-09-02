@@ -156,7 +156,7 @@ describe('Admin UI Components', () => {
   });
 
   describe('AdminOrganizationDialogComponent', () => {
-    it('should create new organization with form data', async () => {
+    it('should create new organization with auto-derived username', async () => {
       const dialogRefMock = { close: vi.fn() };
       trpcMock.admin.organization.create.mutate.mockResolvedValue({
         documentId: 'new-org-id',
@@ -176,10 +176,12 @@ describe('Admin UI Components', () => {
         mapLongitude: 6.63,
         mapLatitude: 46.51,
         mapZoomLevel: 14,
-        username: 'zso_user',
         password: 'password123',
         userRole: 'organization',
       });
+
+      expect(comp.form.get('username')?.value).toBe('new_zso');
+      expect(comp.form.get('userEmail')?.value).toBe('new_zso@internal.zskarte.ch');
 
       await comp.save();
 
@@ -192,9 +194,9 @@ describe('Admin UI Components', () => {
         mapZoomLevel: 14,
         logoId: undefined,
         user: {
-          username: 'zso_user',
+          username: 'new_zso',
           password: 'password123',
-          email: undefined,
+          email: 'new_zso@internal.zskarte.ch',
           role: 'organization',
         },
       });
@@ -334,6 +336,33 @@ describe('Admin UI Components', () => {
 
       await comp.unarchiveOperation({ documentId: 'op-2', phase: 'archived' } as any);
       expect(trpcMock.admin.operation.unarchive.mutate).toHaveBeenCalledWith({ documentId: 'op-2' });
+    });
+
+    it('should move operation to trash on first delete and fully delete on second', async () => {
+      const activeOp = { documentId: 'op-1', phase: 'active' } as any;
+      const deletedOp = { documentId: 'op-2', phase: 'deleted' } as any;
+
+      trpcMock.admin.operation.update.mutate.mockResolvedValue({ success: true });
+      trpcMock.admin.operation.delete.mutate.mockResolvedValue({ success: true });
+      trpcMock.admin.operation.list.query.mockResolvedValue([]);
+      dialogMock.open.mockReturnValue({
+        afterClosed: () => of(true),
+      });
+
+      const injector = createTestInjector();
+      const comp = runInInjectionContext(injector, () => new AdminOperationsComponent());
+
+      // First click on active op -> update phase to deleted
+      await comp.deleteOperation(activeOp);
+      expect(trpcMock.admin.operation.update.mutate).toHaveBeenCalledWith({
+        documentId: 'op-1',
+        data: { phase: 'deleted' },
+      });
+
+      // Second click on deleted op -> show confirmation and then delete
+      await comp.deleteOperation(deletedOp);
+      expect(dialogMock.open).toHaveBeenCalled();
+      expect(trpcMock.admin.operation.delete.mutate).toHaveBeenCalledWith({ documentId: 'op-2' });
     });
   });
 

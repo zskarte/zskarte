@@ -294,7 +294,6 @@ describe('Admin tRPC Router', () => {
         name: 'New Org',
         url: 'https://new.org',
         user: {
-          username: 'zso_user',
           password: 'supersecret123',
         },
       });
@@ -306,8 +305,8 @@ describe('Admin tRPC Router', () => {
         defaultLocale: 'de-CH',
       });
       expect(captured.inserted[1]).toMatchObject({
-        username: 'zso_user',
-        email: 'zso_user@internal.zskarte.ch',
+        username: 'new_org',
+        email: 'new_org@internal.zskarte.ch',
         organizationId: ORG_1,
         zsRole: 'organization',
       });
@@ -316,6 +315,37 @@ describe('Admin tRPC Router', () => {
         issuer: 'local:credential',
       });
       expect(captured.inserted[2].password).toBeDefined();
+    });
+
+    it('create ignores provided email and username, using derived ones instead', async () => {
+      const createdOrg = {
+        documentId: ORG_1,
+        name: 'Custom User Org',
+        mapLongitude: 7.44297,
+        mapLatitude: 46.94635,
+        mapZoomLevel: 16,
+        defaultLocale: 'de-CH',
+        url: null,
+        logoId: null,
+        journalEntryTemplate: null,
+        settings: null,
+      };
+      const { db, captured } = createFakeDatabase({ returning: [[createdOrg]] });
+      const caller = await createCaller(db, makeAuthSession('admin'));
+
+      await caller.admin.organization.create({
+        name: 'Custom User Org',
+        user: {
+          username: 'should_be_ignored',
+          email: 'ignored@custom.com',
+          password: 'supersecret123',
+        },
+      });
+
+      expect(captured.inserted[1]).toMatchObject({
+        username: 'custom_user_org',
+        email: 'custom_user_org@internal.zskarte.ch',
+      });
     });
 
     it('create rejects organization when no user or empty users array is provided', async () => {
@@ -426,13 +456,13 @@ describe('Admin tRPC Router', () => {
       expect(captured.updated[1].password).not.toEqual('newpassword123');
     });
 
-    it('delete removes the organization and returns success', async () => {
+    it('delete removes the organization and associated users and returns success', async () => {
       const { db, captured } = createFakeDatabase({ returning: [[{ documentId: ORG_1 }]] });
       const caller = await createCaller(db, makeAuthSession('admin'));
 
       const result = await caller.admin.organization.delete({ documentId: ORG_1 });
       expect(result).toEqual({ success: true, documentId: ORG_1 });
-      expect(captured.deleted).toHaveLength(1);
+      expect(captured.deleted).toHaveLength(2);
     });
 
     it('clears cached operations belonging to the deleted organization', async () => {

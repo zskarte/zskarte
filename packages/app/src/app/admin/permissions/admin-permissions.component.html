@@ -11,10 +11,21 @@
     </mat-form-field>
 
     <div class="actions">
-      <button mat-icon-button (click)="loadMatrix()" [title]="i18n.get('refresh')" [disabled]="isLoading() || isResetting()">
+      <button
+        mat-icon-button
+        (click)="loadMatrix()"
+        [title]="i18n.get('refresh')"
+        [disabled]="isLoading() || isResetting()"
+      >
         <mat-icon>refresh</mat-icon>
       </button>
-      <button mat-stroked-button color="warn" (click)="resetToDefaults()" [disabled]="isLoading() || isResetting()" data-testid="reset-perms-btn">
+      <button
+        mat-stroked-button
+        color="warn"
+        (click)="resetToDefaults()"
+        [disabled]="isLoading() || isResetting()"
+        data-testid="reset-perms-btn"
+      >
         @if (isResetting()) {
           <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
         } @else {

@@ -22,7 +22,7 @@ const mapInternalUrl = (url: string) => {
   if (url.startsWith('http')) {
     return url;
   }
-  return environment.apiUrl + url;
+  return environment.apiUrlNext + url;
 };
 
 export const getResponsiveImageSource = (asset: {url: string, formats: object | null} | null) => {

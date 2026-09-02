@@ -6,7 +6,13 @@
   <form [formGroup]="form" class="dialog-form" (ngSubmit)="save()">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ i18n.get('operationName') }}</mat-label>
-      <input matInput formControlName="name" required placeholder="z.B. Hochwasser Einsatz 2026" data-testid="op-name-input" />
+      <input
+        matInput
+        formControlName="name"
+        required
+        placeholder="z.B. Hochwasser Einsatz 2026"
+        data-testid="op-name-input"
+      />
       @if (form.get('name')?.hasError('required')) {
         <mat-error>{{ i18n.get('name') }} is required</mat-error>
       }
@@ -46,7 +52,14 @@
   <button mat-button type="button" (click)="cancel()" [disabled]="isSaving()">
     {{ i18n.get('cancel') }}
   </button>
-  <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="form.invalid || isSaving()" data-testid="op-save-btn">
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    (click)="save()"
+    [disabled]="form.invalid || isSaving()"
+    data-testid="op-save-btn"
+  >
     @if (isSaving()) {
       <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
     }

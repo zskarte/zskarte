@@ -77,6 +77,7 @@ export class AdminOrganizationDialogComponent {
   public logoPreview = signal<string | null>(null);
   public logoRemoved = signal(false);
   public hidePassword = signal(true);
+  public showUserDetails = signal(false);
 
   public availableRoles = [
     { value: 'organization', label: 'Organization' },
@@ -103,18 +104,13 @@ export class AdminOrganizationDialogComponent {
     name: [this.data.organization?.name ?? '', [Validators.required, Validators.minLength(1)]],
     defaultLocale: [this.data.organization?.defaultLocale ?? 'de-CH'],
     url: [this.data.organization?.url ?? ''],
-    mapLongitude: [this.data.organization?.mapLongitude ?? 828675.74],
-    mapLatitude: [this.data.organization?.mapLatitude ?? 5933353.21],
+    mapLongitude: [this.data.organization?.mapLongitude ?? 7.44297],
+    mapLatitude: [this.data.organization?.mapLatitude ?? 46.94635],
     mapZoomLevel: [this.data.organization?.mapZoomLevel ?? 16],
-    username: [
-      this.data.organization?.user?.username ?? '',
-      [Validators.required, Validators.minLength(1)],
-    ],
+    username: [this.data.organization?.user?.username ?? '', [Validators.required, Validators.minLength(1)]],
     password: [
       '',
-      this.data.mode === 'create'
-        ? [Validators.required, Validators.minLength(6)]
-        : [Validators.minLength(6)],
+      this.data.mode === 'create' ? [Validators.required, Validators.minLength(6)] : [Validators.minLength(6)],
     ],
     userEmail: [this.data.organization?.user?.email ?? '', [Validators.email]],
     userRole: [this.data.organization?.user?.zsRole ?? 'organization'],
@@ -126,10 +122,21 @@ export class AdminOrganizationDialogComponent {
       this.logoPreview.set(this.resolveLogoUrl(url));
     }
 
+    this.form.get('username')?.disable();
+    this.form.get('userEmail')?.disable();
+
+    if (this.data.mode === 'create') {
+      this.form.get('name')?.valueChanges.subscribe((name) => {
+        if (name) {
+          const derived = this.deriveUsername(name);
+          this.form.get('username')?.setValue(derived);
+          this.form.get('userEmail')?.setValue(`${derived}@internal.zskarte.ch`);
+        }
+      });
+    }
+
     if (this.data.mode === 'edit' && this.data.organization?.documentId && !this.data.organization.user) {
-      trpcRequest(
-        trpc.admin.organization.byId.query({ documentId: this.data.organization.documentId }),
-      ).then((res) => {
+      trpcRequest(trpc.admin.organization.byId.query({ documentId: this.data.organization.documentId })).then((res) => {
         if (res.result) {
           const orgUser = (res.result as any).user || (res.result as any).users?.[0];
           if (orgUser) {
@@ -192,7 +199,7 @@ export class AdminOrganizationDialogComponent {
 
     this.isSaving.set(true);
     try {
-      const formVal = this.form.value;
+      const formVal = this.form.getRawValue();
       let logoId: string | null | undefined = undefined;
 
       if (this.selectedLogoFile) {
@@ -288,5 +295,16 @@ export class AdminOrganizationDialogComponent {
 
   public cancel(): void {
     this.dialogRef.close();
+  }
+
+  public toggleUserDetails(): void {
+    this.showUserDetails.update((v) => !v);
+  }
+
+  private deriveUsername(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z_]/g, '');
   }
 }

@@ -9,7 +9,7 @@ import * as organizationService from './organization.service.js';
 import * as permissionService from './permission.service.js';
 
 const createUserInputSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  username: z.string().min(1, 'Username is required').optional(),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   email: z.string().email('Invalid email address').optional(),
   name: z.string().optional(),
