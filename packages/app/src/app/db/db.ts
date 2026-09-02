@@ -66,7 +66,7 @@ export class AppDB extends Dexie {
   localMapInfo!: Table<LocalMapInfo, string>;
   localBlob!: Table<LocalBlob, number>;
   localBlobMeta!: Table<LocalBlobMeta, number>;
-  localOperation!: Table<IZsMapOperation, number>;
+  localOperation!: Table<IZsMapOperation, string>;
   localWmsSource!: Table<WmsSource, number>;
   localMapLayer!: Table<LocalMapLayer, string>;
   localMapLayerSettings!: Table<LocalMapLayerSettings, string>;
@@ -87,7 +87,7 @@ export class AppDB extends Dexie {
     //omitted stores still exist, no need to repeat if no change on key/index (but you can repeate them)
     this.version(5.5)
       .stores({
-        localBlobMeta: 'id++,url',
+        localBlobMeta: '++id,url',
         localBlob: 'id',
         localMapInfo: 'map',
       })
@@ -146,10 +146,10 @@ export class AppDB extends Dexie {
         }
       });
     //new modifications can be done here with only modify version number(or adding new version block), but 'localMapBlobs: null,' and 'localMapMeta: null,' need to stay here (to remove old table).
-    this.version(9).stores({
+    this.version(9.1).stores({
       localMapBlobs: null,
       localMapMeta: null,
-      localOperation: 'id,phase',
+      localOperation: 'documentId,phase',
       localWmsSource: 'id',
       localMapLayer: 'fullId,id',
       localMapLayerSettings: 'id',

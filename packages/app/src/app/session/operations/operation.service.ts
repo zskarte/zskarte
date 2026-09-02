@@ -102,7 +102,8 @@ export class OperationService {
       operation.documentId = `local-${uuidv4()}`;
       await db.localOperation.add(operation);
       return operation;
-    } 
+    }
+
     const { error, result } = await trpcRequest(
       trpc.operation.create.mutate({
         name: operation.name,
@@ -137,7 +138,7 @@ export class OperationService {
 
   public async getOperation(operationId: string) {
     if (operationId.startsWith('local-')) {
-      return db.localOperation.get(parseInt(operationId.substring(5)));
+      return db.localOperation.get(operationId);
     } else {
       const { error, result } = await trpcRequest(trpc.operation.byId.query({ documentId: operationId }));
       if (error || !result) return null;
