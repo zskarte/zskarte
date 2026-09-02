@@ -63,7 +63,6 @@ import { SidebarContext } from '../sidebar/sidebar.interfaces';
   styleUrl: './journal.component.scss',
 })
 export class JournalComponent implements AfterViewInit {
-  journalFormComponent = viewChild.required(JournalFormComponent);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   sidebar = inject(SidebarService);
@@ -220,9 +219,9 @@ export class JournalComponent implements AfterViewInit {
         case 'entryResponsibility':
           return this.journal.getResponsibility(item);
         case 'entryStatus':
-          return Object.values(JournalEntryStatus).indexOf(item[property]);
+          return Object.values(JournalEntryStatus).indexOf(item[property]! as JournalEntryStatus);
         case 'dateMessage':
-          return new Date(item[property]).getTime();
+          return new Date(item[property] as Date).getTime();
         case 'isKeyMessage':
           return item[property];
         default:
@@ -373,7 +372,7 @@ export class JournalComponent implements AfterViewInit {
     if (button) {
       button.disabled = true;
     }
-    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent, false)});
+    await this.journal.print({...entry, messageContent: this._search.removeAllAddressTokens(entry.messageContent!, false)});
     setTimeout(() => {
       if (button) {
         button.disabled = false;

@@ -27,7 +27,7 @@
       ></p>
     </div>
   </div>
-  @if (entry().decision && entry().decision.trim()) {
+  @if (entry().decision && entry().decision!.trim()) {
     <div
       class="content-section"
       [class.entscheid-awaiting-completion]="

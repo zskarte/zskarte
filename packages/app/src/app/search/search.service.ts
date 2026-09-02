@@ -884,7 +884,7 @@ export class SearchService {
     return text.replace(regex, (match, p1) => ADDRESS_TOKEN_REPLACEMENT_ADDRESS(p1));
   }
 
-  public replaceAllAddressTokens(text?: string, withMarker = false) {
+  public replaceAllAddressTokens(text?: string | null, withMarker = false) {
     if (!text) {
       return text;
     }
@@ -904,7 +904,7 @@ export class SearchService {
     return this._sanitizer.bypassSecurityTrustHtml(response);
   }
 
-  public tokenizeAllPotentialAddresses(text?: string) {
+  public tokenizeAllPotentialAddresses(text?: string | null) {
     if (!text) {
       return text;
     }

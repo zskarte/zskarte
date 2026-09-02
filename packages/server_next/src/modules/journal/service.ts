@@ -9,8 +9,7 @@ import { isUniqueViolation } from '../../db/util.js';
 type ScopedContext = Context & { scope: Scope };
 
 export interface JournalEntryData extends Partial<repository.JournalValues> {
-  id?: unknown;
-  documentId?: unknown;
+  documentId?: string;
 }
 
 const NUMBER_RETRIES = 8;
@@ -81,7 +80,6 @@ export const byNumber = async (
 export const create = async (
   ctx: ScopedContext,
   operationId: string,
-  documentId: string,
   data: JournalEntryData,
 ): Promise<JournalEntryRow> => {
   assertCreateIdentifiersNotForced(data);
@@ -104,7 +102,7 @@ export const create = async (
           messageNumber: candidate as number,
         } as repository.JournalValues);
       });
-      publishJournalChange(operationId, documentId, row);
+      publishJournalChange(operationId, row.documentId, row);
       return row;
     } catch (error) {
       if (!isUniqueViolation(error, 'journal_entries_number_unique')) throw error;
@@ -125,11 +123,10 @@ export const create = async (
 export const update = async (
   ctx: ScopedContext,
   operationId: string,
-  documentId: string,
   data: JournalEntryData,
 ): Promise<JournalEntryRow> => {
   const scope = scopeFor(ctx, operationId);
-  const current = await repository.findByDocumentId(ctx.db, scope, documentId);
+  const current = await repository.findByDocumentId(ctx.db, scope, data.documentId);
   if (!current) throw forbidden;
   const values = writableValues(data);
   if (values.messageNumber !== undefined && values.messageNumber <= 0) {
@@ -138,7 +135,7 @@ export const update = async (
   try {
     const row = await repository.update(ctx.db, scope, current.documentId, values);
     if (!row) throw forbidden;
-    publishJournalChange(operationId, documentId, row);
+    publishJournalChange(operationId, row.documentId, row);
     return row;
   } catch (error) {
     if (values.messageNumber !== undefined && isUniqueViolation(error, 'journal_entries_number_unique')) {

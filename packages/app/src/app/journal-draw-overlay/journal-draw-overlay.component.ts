@@ -33,7 +33,6 @@ export class JournalDrawOverlayComponent {
   public search = inject(SearchService);
   expanded = signal(true);
   entry = computed(() => this.journal.drawingEntry);
-  markPotentialAddresses = signal(false);
 
   constructor() {
     effect(() => {
@@ -55,10 +54,5 @@ export class JournalDrawOverlayComponent {
       await this.journal.startDrawing(this.entry()!, false);
     }
     this._sidebar.open(SidebarContext.Journal);
-  }
-
-  async showAllAddresses() {
-    await this.search.showAllFeature(this.entry()!.messageContent, true, [100, 100, 100, 100]);
-    this.search.addressPreview.set(true);
   }
 }

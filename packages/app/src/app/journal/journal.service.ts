@@ -1,12 +1,11 @@
-import { Injectable, effect, inject, resource, signal } from '@angular/core';
-import { JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
-import { ApiResponse, ApiService } from '../api/api.service';
+import { effect, inject, Injectable, resource, signal } from '@angular/core';
+import { ExportJournalEntry, JournalDateFields, JournalEntry, JournalEntryStatus } from './journal.types';
 import { SessionService } from '../session/session.service';
 import { tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { IPdfService, PdfServiceFactory } from '../pdf/pdf-service.factory';
 import { v4 as uuidv4 } from 'uuid';
-import { LocalJournalEntry, PatchJournalEntry, db } from '../db/db';
+import { db, LocalJournalEntry, PatchJournalEntry } from '../db/db';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { groupBy } from 'lodash';
 import { ZsMapStateService } from '../state/state.service';
@@ -14,16 +13,15 @@ import { I18NService } from '../state/i18n.service';
 import saveAs from 'file-saver';
 import { SearchService } from '../search/search.service';
 import { OperationExportFile } from '../core/entity/operationExportFile';
-import { StrapiApiResponseList } from '../helper/strapi-utils';
-import { HttpErrorResponse } from '@angular/common/http';
 import { IZsChangeset } from '@zskarte/types';
 import { ChangesetService } from '../changeset/changeset.service';
+import { trpc } from '../api/trpc.client';
+import { trpcRequest, TrpcResponse } from '../api/trpc.error';
 
 @Injectable({
   providedIn: 'root',
 })
 export class JournalService {
-  private _api = inject(ApiService);
   private _session = inject(SessionService);
   private _pdfServiceFactory = inject(PdfServiceFactory);
   private _i18n = inject(I18NService);
@@ -31,7 +29,6 @@ export class JournalService {
   private _search!: SearchService;
   private _state!: ZsMapStateService;
   private isOnline = toSignal(this._session.observeIsOnline());
-  private _connectionId!: string;
 
   private operationId = signal<string | null>(null);
   private organizationId = signal<string | null>(null);
@@ -130,7 +127,6 @@ export class JournalService {
                   ...entry,
                   operationId,
                   organizationId,
-                  uuid: entry.uuid || entry.documentId,
                   fromCache: true,
                 })),
               );
@@ -161,11 +157,7 @@ export class JournalService {
     this._search = search;
   }
 
-  public setConnectionId(_connectionId: string) {
-    this._connectionId = _connectionId;
-  }
-
-  public async loadJournal(operationId: string | null, organizationId: string | null, loadAll = false) {
+  public async loadJournal(operationId: string | null, organizationId: string | null) {
     if (!operationId || !organizationId) {
       return [];
     }
@@ -173,24 +165,11 @@ export class JournalService {
       return await db.localJournalEntries.where({ operationId: operationId, organizationId: organizationId }).toArray();
     }
 
-    const journal: JournalEntry[] = [];
-    let page = 0;
-    const pageSize = 1000;
-    let error: HttpErrorResponse | undefined;
-    let result: StrapiApiResponseList<JournalEntry> | undefined;
-    do {
-      page++;
-      //organization is implicit by session
-      ({ error, result } = await this._api.get<StrapiApiResponseList<JournalEntry>>(
-        `/api/journal-entries?operationId=${operationId}&pagination[pageSize]=${pageSize}&pagination[page]=${page}`,
-        { keepMeta: true },
-      ));
-      if (error || !result) {
-        throw 'error on fetch journal entries';
-      }
-      journal.push(...result.data);
-    } while (loadAll && page < result.meta.pagination.pageCount);
-    return journal;
+    const { error, result } = await trpcRequest(trpc.journal.list.query({ operationId }));
+    if (error || !result) {
+      throw 'error on fetch journal entries';
+    }
+    return result;
   }
 
   public patchEntry(updatedEntry: Partial<JournalEntry>, internal = false) {
@@ -202,14 +181,12 @@ export class JournalService {
         resultList = [entry];
       } else {
         const index = currentEntries.findIndex(
-          (entry) =>
-            (entry.documentId && entry.documentId === updatedEntry.documentId) ||
-            (entry.uuid && entry.uuid === updatedEntry.uuid),
+          (entry) => entry.documentId && entry.documentId === updatedEntry.documentId,
         );
         if (index !== -1) {
           oldEntry = currentEntries[index];
           entry = { ...oldEntry, ...updatedEntry };
-          
+
           if (
             oldEntry.entryStatus === JournalEntryStatus.AWAITING_DECISION &&
             entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION &&
@@ -217,7 +194,7 @@ export class JournalService {
           ) {
             entry.isDrawnOnMap = false;
           }
-          
+
           resultList = [...currentEntries.slice(0, index), entry, ...currentEntries.slice(index + 1)];
         } else {
           resultList = [entry, ...currentEntries];
@@ -230,7 +207,6 @@ export class JournalService {
           ...entry,
           operationId,
           organizationId,
-          uuid: entry.uuid || entry.documentId,
           fromCache: true,
         });
       }
@@ -255,33 +231,18 @@ export class JournalService {
     return template;
   }
 
-  public async get(documentId: string) {
-    const { error, result } = await this._api.get<JournalEntry>(`/api/journal-entries/${documentId}`);
-    if (error || !result) {
-      console.error(`could not get journalEntry ${documentId}`, error);
-      return null;
-    }
-    return result;
-  }
-
-  public async getJournalForExport(operationId: string) {
+  public async getJournalForExport(operationId: string): Promise<ExportJournalEntry[] | null> {
     if (!operationId) {
       return null;
     }
     const organizationId = this._session.getOrganization()?.documentId ?? null;
-    const journal = (await this.loadJournal(operationId, organizationId, true)) as LocalJournalEntry[];
+    const journal = (await this.loadJournal(operationId, organizationId)) as LocalJournalEntry[];
     const cleanedJournal = journal.map((entry) => {
       const {
-        id,
         documentId,
-        uuid,
         createdAt,
-        createdBy,
-        publishedAt,
+        creator,
         updatedAt,
-        updatedBy,
-        operation,
-        organization,
         fromCache,
         localOnly,
         localPatch,
@@ -300,9 +261,7 @@ export class JournalService {
       return null;
     }
     //organization is implicit by session
-    const { error, result } = await this._api.get<JournalEntry>(
-      `/api/journal-entries/by-number/${messageNumber}?operationId=${operationId}`,
-    );
+    const { error, result } = await trpcRequest(trpc.journal.byNumber.query({ messageNumber, operationId }));
     if (error || !result) {
       console.error(`could not get journalEntry with number ${messageNumber}`, error);
       const organizationId = this.organizationId();
@@ -340,10 +299,10 @@ export class JournalService {
       return -10000;
     }
     const cached = await db.localJournalEntries.where({ operationId, organizationId, messageNumber }).first();
-    return uuid ? cached && cached?.uuid !== uuid : cached != null;
+    return uuid ? cached && cached?.documentId !== uuid : cached != null;
   }
 
-  public async insert(entry: JournalEntry) {
+  public async insert(entry: Partial<JournalEntry>) {
     if (entry.messageNumber) {
       if (entry.messageNumber < 0) {
         return {
@@ -352,7 +311,9 @@ export class JournalService {
         };
       } else if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
         return {
-          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
+          error: {
+            message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()),
+          },
           result: undefined,
         };
       }
@@ -362,8 +323,8 @@ export class JournalService {
         //on work local use positive numbers as always work local
         entry.messageNumber = -(await this.getNextLocalNumber());
       }
-      if (!entry.uuid) {
-        entry.uuid = uuidv4();
+      if (!entry.documentId) {
+        entry.documentId = uuidv4();
       }
       const result = this.patchEntry(entry, true);
       return { error: undefined, result };
@@ -373,15 +334,7 @@ export class JournalService {
     if (!operationId || !organizationId) {
       return { error: true, result: undefined };
     }
-    if (!entry.uuid) {
-      entry.uuid = uuidv4();
-    }
-    const response = await this._api.post<JournalEntry>(
-      '/api/journal-entries',
-      { data: { ...entry, operation: operationId, organization: organizationId } },
-      { headers: { identifier: this._connectionId } },
-    );
-
+    const response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry }));
     const { error, result } = response;
     if (!error && result) {
       this.patchEntry(result, true);
@@ -397,7 +350,11 @@ export class JournalService {
             }
             if (await this.messageNumberAlreadyExist(entry.messageNumber)) {
               return {
-                error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
+                error: {
+                  message: this._i18n
+                    .get('messageNumberAlreadyExists')
+                    .replace('{number}', entry.messageNumber.toString()),
+                },
                 result: undefined,
               };
             }
@@ -405,7 +362,6 @@ export class JournalService {
           db.patchJournalEntries.add({
             entry,
             create: true,
-            uuid: entry.uuid,
             operationId,
             organizationId,
             date: new Date(),
@@ -421,54 +377,48 @@ export class JournalService {
     return response;
   }
 
-  public async update(entry: Partial<JournalEntry>, documentId?: string, uuid?: string) {
+  public async update(entry: Partial<JournalEntry>, documentId?: string) {
     if (entry.messageNumber) {
-      if (
-        await this.messageNumberAlreadyExist(entry.messageNumber, uuid || entry.uuid || documentId || entry.documentId)
-      ) {
+      if (await this.messageNumberAlreadyExist(entry.messageNumber, documentId || entry.documentId)) {
         return {
-          error: { message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()) },
+          error: {
+            message: this._i18n.get('messageNumberAlreadyExists').replace('{number}', entry.messageNumber.toString()),
+          },
           result: undefined,
         };
       }
     }
-    
+
     if (entry.entryStatus === JournalEntryStatus.AWAITING_COMPLETION) {
-      const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
+      const cacheUuid = documentId || entry.documentId;
       const currentEntries = this.data();
-      const currentEntry = currentEntries?.find(
-        (e) =>
-          (e.documentId && e.documentId === cacheUuid) ||
-          (e.uuid && e.uuid === cacheUuid)
-      );
-      if (
-        currentEntry?.entryStatus === JournalEntryStatus.AWAITING_DECISION &&
-        currentEntry.isDrawnOnMap
-      ) {
+      const currentEntry = currentEntries?.find((e) => e.documentId && e.documentId === cacheUuid);
+      if (currentEntry?.entryStatus === JournalEntryStatus.AWAITING_DECISION && currentEntry.isDrawnOnMap) {
         entry.isDrawnOnMap = false;
       }
     }
-    
+
+    entry.documentId = documentId || entry.documentId;
+
     if (this._session.isWorkLocal()) {
-      const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
-      const result = this.patchEntry({ ...entry, documentId: documentId || entry.documentId, uuid: cacheUuid }, true);
+      const result = this.patchEntry(entry, true);
       return { error: undefined, result };
     }
-    const { documentId: documentIdEntry, ...data } = entry;
-    const response = await this._api.put<JournalEntry>(
-      `/api/journal-entries/${documentId || entry.documentId || uuid || entry.uuid}`,
-      { data },
-      { headers: { identifier: this._connectionId } },
+    const response = await trpcRequest(
+      trpc.journal.update.mutate({
+        operationId: this.operationId()!,
+        entry: { ...entry, documentId: documentId || entry.documentId },
+      }),
     );
 
     const { error, result } = response;
     if (!error && result) {
-      this.patchEntry({ ...entry, documentId: result.documentId, uuid: result.uuid }, true);
+      this.patchEntry({ ...entry, documentId: result.documentId }, true);
     } else {
       //if network error, create patch for apply later
       try {
         if ((error?.status ?? 0) >= 500 || error?.message?.startsWith('NetworkError') || !this.isOnline()) {
-          const cacheUuid = uuid || entry.uuid || documentId || entry.documentId;
+          const cacheUuid = documentId || entry.documentId;
           if (cacheUuid) {
             const operationId = this.operationId();
             const organizationId = this.organizationId();
@@ -476,17 +426,13 @@ export class JournalService {
               db.patchJournalEntries.add({
                 entry,
                 create: false,
-                uuid: cacheUuid,
                 documentId,
                 operationId,
                 organizationId,
                 date: new Date(),
               });
               //on network error and save patch to submit later, still update the view
-              this.patchEntry(
-                { ...entry, localPatch: true, documentId: documentId || entry.documentId, uuid: cacheUuid },
-                true,
-              );
+              this.patchEntry({ ...entry, localPatch: true }, true);
               return { error: { localOnly: true }, result: undefined };
             }
           }
@@ -506,8 +452,8 @@ export class JournalService {
     }
   }
 
-  public async save(entry: JournalEntry) {
-    if (entry.documentId || entry.uuid) {
+  public async save(entry: Partial<JournalEntry>) {
+    if (entry.documentId) {
       return this.update(entry);
     } else {
       return this.insert(entry);
@@ -552,20 +498,11 @@ export class JournalService {
           }, changes[0]);
 
         //do the backend request to create/update it
-        let response: ApiResponse<JournalEntry>;
+        let response: TrpcResponse<JournalEntry>;
         if (entry.create) {
-          response = await this._api.post<JournalEntry>(
-            '/api/journal-entries',
-            { data: { ...entry.entry, operation: entry.operationId, organization: entry.organizationId } },
-            { headers: { identifier: this._connectionId } },
-          );
+          response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry: entry.entry }));
         } else {
-          const { documentId: documentIdEntry, ...data } = entry.entry;
-          response = await this._api.put<JournalEntry>(
-            `/api/journal-entries/${entry.documentId || entry.entry.documentId || entry.uuid || entry.entry.uuid}`,
-            { data },
-            { headers: { identifier: this._connectionId } },
-          );
+          response = await trpcRequest(trpc.journal.update.mutate({ operationId, entry: entry.entry }));
         }
 
         //handle response
@@ -579,7 +516,7 @@ export class JournalService {
             this.patchEntry({ ...result, localOnly: false, localPatch: false }, true);
           } else {
             this.patchEntry(
-              { ...entry.entry, localOnly: false, localPatch: false, documentId: result.documentId, uuid: result.uuid },
+              { ...entry.entry, localOnly: false, localPatch: false, documentId: result.documentId },
               true,
             );
           }
@@ -613,8 +550,9 @@ export class JournalService {
           if (element.reportNumber) {
             let changed = false;
             const reportNumber = (
-              Array.isArray(element.reportNumber) ? element.reportNumber : [element.reportNumber]
-            ).map((n) => {
+              Array.isArray(element.reportNumber) ?
+                element.reportNumber
+              : [element.reportNumber]).map((n) => {
               if (n in messageNumberMapping && n !== messageNumberMapping[n]) {
                 changed = true;
                 return messageNumberMapping[n];
@@ -660,7 +598,6 @@ export class JournalService {
         isDrawingOnMap: value,
       },
       entry.documentId,
-      entry.uuid,
     );
     if (error || !result) {
       console.error('Error updating journal entry:', error);
@@ -671,16 +608,15 @@ export class JournalService {
 
   public async markAsDrawn(entry: JournalEntry, value: boolean) {
     const { error, result } = await this.update(
-      value
-        ? {
-            isDrawnOnMap: value,
-            isDrawingOnMap: false,
-          }
-        : {
-            isDrawnOnMap: value,
-          },
+      value ?
+        {
+          isDrawnOnMap: value,
+          isDrawingOnMap: false,
+        }
+      : {
+          isDrawnOnMap: value,
+        },
       entry.documentId,
-      entry.uuid,
     );
 
     if (error || !result) {
@@ -777,10 +713,10 @@ export class JournalService {
       pdfService,
       template,
       'entry.messageContent',
-      entry.messageContent,
+      entry.messageContent ?? '',
       'line_messageContent_',
     );
-    this.checkTextBlockSizeAndAdjust(pdfService, template, 'entry.decision', entry.decision, 'line_decision_');
+    this.checkTextBlockSizeAndAdjust(pdfService, template, 'entry.decision', entry.decision ?? '', 'line_decision_');
     this.forceEmptyTextValueToDummyText(template, entry);
 
     //prepare operation/organisation data accessible in pdf
@@ -902,7 +838,7 @@ export class JournalService {
     entries.forEach((entry) => {
       const translatedEntry = {
         ...entry,
-        messageContent: this._search.removeAllAddressTokens(entry.messageContent?.trim(), false),
+        messageContent: this._search.removeAllAddressTokens(entry.messageContent?.trim() ?? '', false),
         decision: entry.decision?.trim(),
         department: entry.department ? this._i18n.get(entry.department) : '',
         isKeyMessage: entry.isKeyMessage ? this._i18n.get('yes') : this._i18n.get('no'),

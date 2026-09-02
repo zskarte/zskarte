@@ -22,7 +22,7 @@
         </app-empty>
       } @else {
         <mat-accordion [multi]="false" displayMode="flat">
-          @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
+          @for (entry of journalEntriesToDraw(); track entry.documentId) {
             <mat-expansion-panel
               class="mat-elevation-z0"
               [expanded]="entry.messageNumber === currentMessageNumber"
@@ -80,7 +80,7 @@
         </app-empty>
       } @else {
         <mat-accordion [multi]="false" displayMode="flat">
-          @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
+          @for (entry of journalEntriesDrawn(); track entry.documentId) {
             <mat-expansion-panel
               class="mat-elevation-z0"
               [expanded]="entry.messageNumber === currentMessageNumber"

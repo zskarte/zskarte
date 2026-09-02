@@ -114,7 +114,6 @@ export class SyncService {
         }
       });
 
-    this._journal.setConnectionId(this._connectionId);
     this._changeset.setConnectionId(this._connectionId);
   }
 
