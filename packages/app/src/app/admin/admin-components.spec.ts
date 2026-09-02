@@ -11,6 +11,7 @@ import { AdminOrganizationDialogComponent } from './organizations/admin-organiza
 import { AdminOperationsComponent } from './operations/admin-operations.component';
 import { AdminOperationDialogComponent } from './operations/admin-operation-dialog.component';
 import { AdminPermissionsComponent } from './permissions/admin-permissions.component';
+import { AdminMapLayerGenerationComponent } from './map-layer-generation/admin-map-layer-generation.component';
 import { I18NService } from '../state/i18n.service';
 import { SessionService } from '../session/session.service';
 
@@ -39,6 +40,11 @@ const { trpcMock } = vi.hoisted(() => {
           getMatrix: { query: vi.fn() },
           toggleRolePermission: { mutate: vi.fn() },
           resetDefaults: { mutate: vi.fn() },
+        },
+        mapLayerGeneration: {
+          config: { query: vi.fn() },
+          update: { mutate: vi.fn() },
+          trigger: { mutate: vi.fn() },
         },
       },
     },
@@ -461,6 +467,38 @@ describe('Admin UI Components', () => {
       comp.resetToDefaults();
 
       expect(dialogMock.open).toHaveBeenCalled();
+    });
+  });
+
+  describe('AdminMapLayerGenerationComponent', () => {
+    it('loads the config and triggers the download job', async () => {
+      const config = {
+        enabled: true,
+        allwaysCreateDistrict: false,
+        cantons: 'BE',
+        urlMadd: 'https://example.test/${canton}.zip',
+        styleEntrancesId: null,
+        urlSwissBoundaries3d: 'https://example.test/boundaries.zip',
+        styleSwissBoundaries3dId: null,
+        urlSwissNames3d: 'https://example.test/names.zip',
+        styleSwissNames3dId: null,
+        fieldsSwissNames3d: 'NAME,E,N',
+        fileSwissNames3d: 'names',
+      } as any;
+      trpcMock.admin.mapLayerGeneration.config.query.mockResolvedValue(config);
+      trpcMock.admin.mapLayerGeneration.update.mutate.mockResolvedValue(config);
+      trpcMock.admin.mapLayerGeneration.trigger.mutate.mockResolvedValue({ success: true });
+
+      const injector = createTestInjector();
+      const comp = runInInjectionContext(injector, () => new AdminMapLayerGenerationComponent());
+      await comp.loadConfig();
+      comp.form.patchValue({ cantons: 'BE,ZH' });
+      await comp.saveConfig();
+      await comp.triggerGeneration();
+
+      expect(comp.config()).toEqual(config);
+      expect(trpcMock.admin.mapLayerGeneration.update.mutate).toHaveBeenCalledWith(expect.objectContaining({ cantons: 'BE,ZH' }));
+      expect(trpcMock.admin.mapLayerGeneration.trigger.mutate).toHaveBeenCalledWith();
     });
   });
 });

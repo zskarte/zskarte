@@ -68,6 +68,20 @@
           </mat-card>
         </div>
       </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">download</mat-icon>
+          {{ i18n.get('mapLayerGeneration') }}
+        </ng-template>
+        <div class="tab-body">
+          <mat-card class="admin-tab-card">
+            <mat-card-content>
+              <app-admin-map-layer-generation></app-admin-map-layer-generation>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
     </mat-tab-group>
   </div>
 </div>
