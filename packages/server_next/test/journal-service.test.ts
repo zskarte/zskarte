@@ -19,11 +19,9 @@ vi.mock('../src/modules/journal/repository.js', () => ({
 const ORGANIZATION_ID = 'ca548097-df0f-4862-8bd3-b104bf537bd8';
 const OPERATION_ID = '11111111-1111-4111-8111-111111111111';
 const DOCUMENT_ID = '33333333-3333-4333-8333-333333333333';
-const UUID = '44444444-4444-4444-8444-444444444444';
 
 const row = (messageNumber: number): JournalEntryRow => ({
   documentId: DOCUMENT_ID,
-  uuid: UUID,
   operationId: OPERATION_ID,
   organizationId: ORGANIZATION_ID,
   messageNumber,
@@ -77,7 +75,7 @@ describe('journal service numbering', () => {
     vi.mocked(repository.highestMessageNumber).mockResolvedValue(12);
     vi.mocked(repository.insert).mockImplementation(async (_db, _scope, values) => row(values.messageNumber));
 
-    const result = await service.create(context(), OPERATION_ID, 'client-a', { uuid: UUID });
+    const result = await service.create(context(), OPERATION_ID, 'client-a', {});
 
     expect(result.messageNumber).toBe(13);
     expect(repository.insert).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.objectContaining({ messageNumber: 13 }));
@@ -86,7 +84,7 @@ describe('journal service numbering', () => {
   it('reclaims the positive equivalent of a negative offline number', async () => {
     vi.mocked(repository.insert).mockImplementation(async (_db, _scope, values) => row(values.messageNumber));
 
-    const result = await service.create(context(), OPERATION_ID, 'client-a', { uuid: UUID, messageNumber: -7 });
+    const result = await service.create(context(), OPERATION_ID, 'client-a', { messageNumber: -7 });
 
     expect(result.messageNumber).toBe(7);
     expect(repository.highestMessageNumber).not.toHaveBeenCalled();
@@ -98,7 +96,7 @@ describe('journal service numbering', () => {
       .mockRejectedValueOnce({ code: '23505', constraint: 'journal_entries_number_unique' })
       .mockImplementationOnce(async (_db, _scope, values) => row(values.messageNumber));
 
-    const result = await service.create(context(), OPERATION_ID, 'client-a', { uuid: UUID });
+    const result = await service.create(context(), OPERATION_ID, 'client-a', {});
 
     expect(result.messageNumber).toBe(6);
     expect(repository.insert).toHaveBeenCalledTimes(2);
@@ -108,17 +106,7 @@ describe('journal service numbering', () => {
     vi.mocked(repository.insert).mockRejectedValue({ code: '23505', constraint: 'journal_entries_number_unique' });
 
     await expect(
-      service.create(context(), OPERATION_ID, 'client-a', { uuid: UUID, messageNumber: 7 }),
+      service.create(context(), OPERATION_ID, 'client-a', { messageNumber: 7 }),
     ).rejects.toMatchObject({ code: 'CONFLICT', message: 'messageNumber 7 already exist' });
-  });
-
-  it('updates an entry addressed by uuid', async () => {
-    vi.mocked(repository.findByIdentifier).mockResolvedValue(row(3));
-    vi.mocked(repository.update).mockResolvedValue(row(4));
-
-    const result = await service.update(context(), OPERATION_ID, 'client-a', { uuid: UUID }, { messageNumber: 4 });
-
-    expect(result.messageNumber).toBe(4);
-    expect(repository.findByIdentifier).toHaveBeenCalledWith(expect.anything(), expect.anything(), { uuid: UUID });
   });
 });

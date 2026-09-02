@@ -9,7 +9,6 @@ import { getOrganization } from '../modules/organization/repository.js';
 import { ROLE_PERMISSIONS } from './permissions.js';
 import { ROLES } from './roles.js';
 import { shareAccess } from './share-access-plugin.js';
-import type { BetterAuthClientPlugin } from 'better-auth/client';
 
 export const createCustomSession = async <
   User extends { zsRole: string; organizationId?: string | null },
@@ -55,7 +54,7 @@ const authOptions = {
   plugins: [username({ displayUsername: false }), shareAccess()],
   trustedOrigins: env.TRUSTED_ORIGINS,
   rateLimit: {
-    enabled: true,
+    enabled: env.isProduction,
     window: 60,
     max: 100,
     storage: 'database',

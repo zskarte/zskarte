@@ -1,7 +1,14 @@
 import { Page } from '@playwright/test';
 
+export function waitForTrpcResponse(page: Page, procedure: string) {
+  return page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return url.pathname.endsWith(`/trpc/${procedure}`) && response.ok();
+  });
+}
+
 export async function login(page: Page) {
-  const operationResponse = page.waitForResponse(/api\/operations/);
+  const operationResponse = waitForTrpcResponse(page, 'operation.overview');
   await page.goto('./login');
   await page.getByRole('button', { name: 'Als Gast fortfahren' }).click();
   await page.getByRole('button', { name: 'Bestätigen' }).click();

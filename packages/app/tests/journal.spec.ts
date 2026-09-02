@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { clickOnMap, login } from './util';
+import { clickOnMap, login, waitForTrpcResponse } from './util';
 import { random } from 'lodash';
 
 interface JournalEntry {
@@ -41,7 +41,9 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
 
   await page.waitForTimeout(500);
 
+  const createEntryResponse = waitForTrpcResponse(page, 'journal.create');
   await modal.getByRole('button', { name: 'Erfassen' }).click();
+  await createEntryResponse;
   await expect(page.locator('tbody tr')).toHaveCount(rowCount + 1);
   await expect(modal.getByLabel('Absender')).toHaveValue('');
   await modal.getByRole('button', { name: 'Schliessen' }).click();
@@ -50,14 +52,13 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
 
 test.describe('Journal', () => {
   test.beforeEach(async ({ page }) => {
-    const journalEntriesResponse = page.waitForResponse(/api\/journal-entries/);
     await login(page);
     await page.locator('mat-list-item', { hasText: 'e2e test' }).first().click();
     const nameDialog = page.getByRole('dialog');
     await nameDialog.getByRole('textbox').fill('Guest');
     await nameDialog.getByRole('button', { name: 'OK' }).click();
     await page.waitForSelector('#map', { state: 'visible' });
-    await page.waitForTimeout(500);
+    const journalEntriesResponse = waitForTrpcResponse(page, 'journal.list');
     await page.getByRole('tab', { name: 'Journal' }).click();
     await journalEntriesResponse;
   });
@@ -102,7 +103,8 @@ test.describe('Journal', () => {
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
     
+    const updateEntryResponse = waitForTrpcResponse(page, 'journal.update');
     await page.getByRole('button', { name: 'Als done markieren' }).click();
-    await page.waitForResponse(/api\/journal-entries/);
+    await updateEntryResponse;
   })
 });

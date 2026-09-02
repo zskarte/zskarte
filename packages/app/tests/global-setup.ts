@@ -1,5 +1,5 @@
 import { chromium, FullConfig } from '@playwright/test';
-import { login } from './util';
+import { login, waitForTrpcResponse } from './util';
 
 async function globalSetup(config: FullConfig) {
   const { baseURL } = config.projects[0].use;
@@ -11,8 +11,9 @@ async function globalSetup(config: FullConfig) {
   await page.getByText('Bearbeiten').waitFor();
   await page.getByPlaceholder('Name eingeben').fill('e2e test');
   await page.getByPlaceholder('Beschreibung eingeben').fill('e2e test');
+  const createOperationResponse = waitForTrpcResponse(page, 'operation.create');
   await page.getByTestId('operation-save').click();
-  await page.waitForResponse(/api\/operations/);
+  await createOperationResponse;
   await browser.close();
 
   return async () => {
@@ -21,7 +22,10 @@ async function globalSetup(config: FullConfig) {
     await login(page);
     
     await page.locator('.operation-list-item', { hasText: 'e2e test' }).first().getByRole('button', { name: 'More options' }).click();
+    const archiveOperationResponse = waitForTrpcResponse(page, 'operation.archive');
     await page.getByRole('menuitem', { name: 'Ereignis Archivieren' }).click();
+    await archiveOperationResponse;
+    await browser.close();
   };
 }
 
