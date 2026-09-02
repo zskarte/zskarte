@@ -193,20 +193,9 @@ export class WorkerClient {
 }
 
 export const findStyleFilePath = (fileName: string): string | null => {
-  const searchDirs = [
-    join(process.cwd(), 'init'),
-    join(process.cwd(), '../server/init'),
-    join(process.cwd(), 'packages/server/init'),
-    join(process.cwd(), '../../packages/server/init'),
-    resolve(import.meta.dirname, '../../../../server/init'),
-    resolve(import.meta.dirname, '../../../../packages/server/init'),
-  ];
-
-  for (const dir of searchDirs) {
-    const candidate = join(dir, fileName);
-    if (existsSync(candidate)) {
-      return candidate;
-    }
+  const candidate = join(process.cwd(), 'init', fileName);
+  if (existsSync(candidate)) {
+    return candidate;
   }
   return null;
 };

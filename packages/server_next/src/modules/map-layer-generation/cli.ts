@@ -52,7 +52,7 @@ Options:
   --force, -f           Force generation even if disabled in config
   --cantons=C1,C2,...   Generate only specified cantons (comma-separated, e.g. --cantons=BE,ZH)
   --date=YYYY-MM-DD     Reference date for archive period fallback calculations
-  --seed-styles-only    Seed bundled map styles from packages/server/init/*.json without generating layers
+  --seed-styles-only    Seed bundled map styles from packages/server_next/init/*.json without generating layers
   --help, -h            Show this help message
 `);
 }

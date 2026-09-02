@@ -1,0 +1,93 @@
+{
+  "version": 8,
+  "name": "swissBOUNDARIES3D",
+  "sources": {
+    "swissBOUNDARIES3D": {
+      "type": "geojson",
+      "data": "./swissBOUNDARIES3D.geojson"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "rgba(0,0,0,0)"
+      }
+    },
+    {
+      "id": "district",
+      "type": "line",
+      "source": "swissBOUNDARIES3D",
+      "minzoom": 8,
+      "filter": ["all",
+        ["==", "Bezirk", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {},
+      "paint": {
+        "line-color": "#000000",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8, 0.25,
+          12, 1,
+          16, 3,
+          22, 6
+        ],
+        "line-gap-width": 0,
+        "line-opacity": 1
+      }
+    },
+    {
+      "id": "canton",
+      "type": "line",
+      "source": "swissBOUNDARIES3D",
+      "minzoom": 5,
+      "filter": ["all",
+        ["==", "Kanton", ["get", "OBJEKTART"]],
+        ["==", null, ["get", "ZsMapSearchResult"]]
+      ],
+      "layout": {},
+      "paint": {
+        "line-color": "#888888",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          0, 0.5, 
+          8, 2,
+          12, 4,
+          16, 7,
+          22, 10
+        ],
+        "line-gap-width": 0,
+        "line-opacity": 1
+      }
+    },
+    {
+      "id": "searchResult",
+      "type": "line",
+      "source": "swissBOUNDARIES3D",
+      "minzoom": 4,
+      "filter": ["get", "ZsMapSearchResult"],
+      "layout": {},
+      "paint": {
+        "line-color": "#ff0000",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          0, 0.5, 
+          8, 2,
+          12, 4,
+          16, 7,
+          22, 10
+        ],
+        "line-gap-width": 0,
+        "line-opacity": 1
+      }
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import {
   DEFAULT_STYLE_FILES,
   ensureStyleFile,
   ENTRANCE_SEARCH_REGEX_PATTERNS,
+  findStyleFilePath,
   formatForIfModifiedSince,
   getBoundaryArchivePeriods,
   getCantonFeature,
@@ -750,6 +751,11 @@ describe('Map Layer Generation - Style Asset Seeding', () => {
     expect(names).toContain('swissBOUNDARIES3D-mapboxstyle.json');
     expect(names).toContain('swissNAMES3D_PLY-mapboxstyle.json');
     expect(names).toContain('entrances-olstyle.json');
+  });
+
+  it('resolves bundled styles from the server_next package', () => {
+    const filePath = findStyleFilePath('entrances-mapboxstyle.json');
+    expect(filePath).toContain(join('server_next', 'init', 'entrances-mapboxstyle.json'));
   });
 
   it('seedDefaultStyleAssets seeds and updates config style references', async () => {
