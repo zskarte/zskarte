@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { I18NService } from '../../state/i18n.service';
 import { IZsAccess } from '@zskarte/types';
-import { ApiService } from '../../api/api.service';
 import { SessionService } from '../session.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
@@ -9,6 +8,8 @@ import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { DialogHeaderComponent, DialogBodyComponent } from '../../ui/dialog-layout';
 import { MatCard } from "@angular/material/card";
+import { trpcRequest } from '../../api/trpc.error';
+import { trpc } from '../../api/trpc.client';
 
 @Component({
   selector: 'app-revoke-share-dialog',
@@ -18,7 +19,6 @@ import { MatCard } from "@angular/material/card";
 })
 export class RevokeShareDialogComponent {
   i18n = inject(I18NService);
-  private _api = inject(ApiService);
   private session = inject(SessionService);
   private _snackBar = inject(MatSnackBar);
 
@@ -26,15 +26,13 @@ export class RevokeShareDialogComponent {
   displayedColumns: string[] = ['createdAt', 'type', 'expiresOn', 'actions'];
 
   async ngOnInit() {
-    const { error, result } = await this._api.get<IZsAccess[]>(
-      `/api/accesses?sort[0]=type&operationId=${this.session.getOperationId()}`,
-    );
+    const { error, result } = await trpcRequest(trpc.access.list.query({ operationId: this.session.getOperationId() }));
     if (error || !result) return;
     this.shareLinks = result;
   }
 
   async revokeShareLink(documentId: string) {
-    const { error } = await this._api.delete<IZsAccess>(`/api/accesses/${documentId}`);
+    const { error } = await trpcRequest(trpc.access.delete.mutate({ documentId }));
     if (error) {
       this._snackBar.open(this.i18n.get('rewokeShareLinkFailedMessage'), this.i18n.get('ok'), { duration: 2000 });
     }

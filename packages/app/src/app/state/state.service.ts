@@ -242,7 +242,7 @@ export class ZsMapStateService {
       emptyMap: false,
       qrCode: true,
       shareLink: false,
-      sharePermission: PermissionType.READ,
+      sharePermission: 'read',
       dimensions: PaperDimensions['A4'].map((s) => s - 15 * 2) as [number, number],
       generateCallback: undefined,
       tileEventCallback: undefined,

@@ -45,7 +45,6 @@ export class SidebarPrintComponent {
 
   readonly progressEl = viewChild.required<ElementRef>('progress');
   private _ngUnsubscribe = new Subject<void>();
-  PermissionType = PermissionType;
   paperDimensions = Object.keys(PaperDimensions);
 
   format = 'A4';
@@ -59,7 +58,7 @@ export class SidebarPrintComponent {
   emptyMap = false;
   qrCode = true;
   shareLink = false;
-  sharePermission: PermissionType = PermissionType.READ;
+  sharePermission: PermissionType = 'read';
   dimensions: [number, number] = [...PaperDimensions['A4']];
   generating = false;
   generateError?: string;
@@ -418,7 +417,7 @@ export class SidebarPrintComponent {
       //add QR-Code bottom right
       let relativePath: string;
       if (this.shareLink) {
-        const joinCode = await this.session.generateShareLink(this.sharePermission, AccessTokenType.LONG);
+        const joinCode = await this.session.generateShareLink(this.sharePermission, 'long');
         relativePath = `share/${joinCode}`;
       } else {
         relativePath = 'map';

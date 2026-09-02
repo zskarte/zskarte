@@ -78,8 +78,8 @@
               <fieldset class="like-mat-form-field-outline">
                 <legend>{{ i18n.get('type') }}</legend>
                 <mat-radio-group [(ngModel)]="sharePermission" (change)="updateSettings('sharePermission')">
-                  <mat-radio-button [value]="PermissionType.READ">{{ i18n.get('read') }}</mat-radio-button>
-                  <mat-radio-button [value]="PermissionType.WRITE">{{ i18n.get('write') }}</mat-radio-button>
+                  <mat-radio-button value="read">{{ i18n.get('read') }}</mat-radio-button>
+                  <mat-radio-button value="write">{{ i18n.get('write') }}</mat-radio-button>
                 </mat-radio-group>
               </fieldset>
             }

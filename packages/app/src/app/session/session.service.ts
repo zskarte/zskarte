@@ -24,7 +24,6 @@ import {
   skip,
   takeUntil,
 } from 'rxjs';
-import { ApiService } from '../api/api.service';
 import { db } from '../db/db';
 import { debounceLeading } from '../helper/debounce';
 import { coordinatesProjection, mercatorProjection } from '../helper/projections';
@@ -56,7 +55,6 @@ export type AuthError = { code?: string; message?: string; status?: number };
 })
 export class SessionService {
   private _router = inject(Router);
-  private _api = inject(ApiService);
   private _wms = inject(WmsService);
   private _mapLayerService = inject(MapLayerService);
   private _operationService = inject(OperationService);
@@ -582,8 +580,8 @@ export class SessionService {
     this.isAdmin.set(newSession.zsRole === 'admin');
     newSession.permission =
       sessionResult.session.permission ? (sessionResult.session.permission as PermissionType)
-      : sessionResult.zsRole === 'operationread' ? PermissionType.READ
-      : PermissionType.ALL;
+      : sessionResult.zsRole === 'operationread' ? 'read'
+      : 'all';
 
     newSession.label = newSession.label || sessionResult.organization?.name || sessionResult.organization?.documentId;
 
@@ -643,7 +641,7 @@ export class SessionService {
       id: 'local',
       locale: this.getPreferredLocale(),
       workLocal: true,
-      permission: PermissionType.ALL,
+      permission: 'all',
       label: 'local',
       zsRole: 'organization',
     };
@@ -742,11 +740,8 @@ export class SessionService {
     if (!this.getOperationId()) {
       throw new Error('OperationId is not defined');
     }
-    const response = await this._api.post<{ accessToken: string }>('/api/accesses/auth/token/generate', {
-      type: permission,
-      operationId: this.getOperationId(),
-      tokenType,
-    });
+
+    const response = await trpcRequest(trpc.access.generate.mutate({operationId: this.getOperationId()!, tokenType, type: permission}))
     if (!response.result?.accessToken) {
       throw new Error('Unable to generate share url');
     }
@@ -756,13 +751,13 @@ export class SessionService {
   public observeHasWritePermission(): Observable<boolean> {
     return this._session.pipe(
       map((session) => {
-        return !(session?.permission === PermissionType.READ);
+        return !(session?.permission === 'read');
       }),
     );
   }
 
   public hasWritePermission(): boolean {
-    return !(this._session.value?.permission === PermissionType.READ);
+    return !(this._session.value?.permission === 'read');
   }
 
   public observeIsArchived(): Observable<boolean> {

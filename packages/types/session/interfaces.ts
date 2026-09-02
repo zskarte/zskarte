@@ -4,21 +4,13 @@ import { IZsMapOperation, IZsMapOrganization } from '../operation/interfaces';
 export const ROLES = ['admin', 'organization', 'guest', 'operationwrite', 'operationread', 'public'] as const;
 export type Role = (typeof ROLES)[number];
 
-export enum PermissionType {
-  READ = 'read',
-  WRITE = 'write',
-  ALL = 'all',
-}
+export type PermissionType = 'read' | 'write' | 'all';
+export type AccessTokenType = 'long' | 'short';
 
-export enum AccessTokenType {
-  LONG = 'long',
-  SHORT = 'short',
-}
 export interface IZsAccess {
-  id: string;
   documentId: string;
-  accessToken: string;
   type: PermissionType;
+  expiresOn: Date | null;
 }
 
 export interface IZsMapSession {

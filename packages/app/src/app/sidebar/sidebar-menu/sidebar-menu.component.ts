@@ -206,8 +206,8 @@ export class SidebarMenuComponent {
 
   async generateShareLink(readOnly: boolean, isOneWayLink: boolean) {
     const joinCode = await this.session.generateShareLink(
-      readOnly ? PermissionType.READ : PermissionType.WRITE,
-      isOneWayLink ? AccessTokenType.SHORT : AccessTokenType.LONG,
+      readOnly ? 'read' : 'write',
+      isOneWayLink ? 'short' : 'long',
     );
     this._dialog.open(ShareDialogComponent, {
       data: joinCode,

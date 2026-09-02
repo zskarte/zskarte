@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 import type { Context, Scope } from '../../trpc/context.js';
 import * as repository from './repository.js';
 import { isUniqueViolation } from '../../db/util.js';
+import { PermissionType, AccessTokenType } from '@zskarte/types';
 
 type ScopedContext = Context & { scope: Scope };
 const TOKEN_RETRIES = 8;
@@ -13,9 +14,9 @@ const scopeFor = (ctx: ScopedContext): repository.AccessScope => ({ organization
 
 export interface GenerateAccessInput {
   name?: string;
-  type: 'read' | 'write' | 'all';
+  type: PermissionType;
   operationId: string;
-  tokenType: 'long' | 'short';
+  tokenType: AccessTokenType;
 }
 
 export const generate = async (
