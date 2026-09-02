@@ -160,6 +160,27 @@ export class AppDB extends Dexie {
       patchSyncQueue: null,
       changesetOutgoingQueue: 'id, operationId',
     });
+
+    this.version(11)
+      .stores({
+        patchJournalEntries: '++id, [operationId+organizationId], organizationId, operationId, documentId',
+        localJournalEntries: null,
+        localJournalEntriesTmp:
+          '[operationId+documentId], [organizationId+operationId+messageNumber], organizationId, operationId, documentId, messageNumber',
+      })
+      .upgrade(async (trans) => {
+        await trans.table('localJournalEntriesTmp').bulkAdd(await trans.table('localJournalEntries').toArray());
+      });
+
+    this.version(12)
+      .stores({
+        localJournalEntriesTmp: null,
+        localJournalEntries:
+          '[operationId+documentId], [organizationId+operationId+messageNumber], organizationId, operationId, documentId, messageNumber',
+      })
+      .upgrade(async (trans) => {
+        await trans.table('localJournalEntries').bulkAdd(await trans.table('localJournalEntriesTmp').toArray());
+      });
   }
 }
 
