@@ -1,5 +1,5 @@
 import { TRPCClientError } from '@trpc/client';
-import type { AppRouter } from '@zskarte/server-next/router';
+import type { AppRouter } from '@zskarte/server/router';
 
 export interface TrpcError {
   status: number;

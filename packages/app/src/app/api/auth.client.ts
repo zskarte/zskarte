@@ -1,4 +1,4 @@
-import type { Auth, ShareAccessPlugin } from '@zskarte/server-next/auth';
+import type { Auth, ShareAccessPlugin } from '@zskarte/server/auth';
 import { createAuthClient } from 'better-auth/client';
 import { customSessionClient, usernameClient } from 'better-auth/client/plugins';
 import { environment } from '../../environments/environment';

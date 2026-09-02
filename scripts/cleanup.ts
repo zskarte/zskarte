@@ -12,7 +12,7 @@ const exec = promisify(cbExec);
     { type: 'confirm', name: 'resetDb', message: 'Do you want to reset your database?', default: false },
   ]);
 
-  const tempFolders = ['node_modules', 'dist', '.angular', '.strapi'];
+  const tempFolders = ['node_modules', 'dist', '.angular'];
 
   if (response.resetDb) {
     try {

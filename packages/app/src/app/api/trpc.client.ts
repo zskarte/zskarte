@@ -1,5 +1,5 @@
 import { createTRPCClient, createWSClient, httpBatchLink, splitLink, wsLink } from '@trpc/client';
-import type { AppRouter } from '@zskarte/server-next/router';
+import type { AppRouter } from '@zskarte/server/router';
 import superjson from 'superjson';
 import { environment } from '../../environments/environment';
 

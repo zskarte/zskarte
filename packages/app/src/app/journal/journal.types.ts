@@ -1,4 +1,4 @@
-import type { AppRouter } from '@zskarte/server-next/router';
+import type { AppRouter } from '@zskarte/server/router';
 import type { inferRouterOutputs } from '@trpc/server';
 
 export const BLOB_URL_JOURNAL_ENTRY_TEMPLATE = 'local:JournalEntryTemplate';

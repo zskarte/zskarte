@@ -1,5 +1,5 @@
 [
-  {
+{
     "style": {
       "text-value": ["get", "entranceNumber"],
       "text-font": ["concat", [
