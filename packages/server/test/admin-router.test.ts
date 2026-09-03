@@ -7,7 +7,7 @@ import {
   resetPermissionCache,
   setRolePermissionInCache,
 } from '../src/auth/permissions.js';
-import { ROLES } from '../src/auth/roles.js';
+import { type Role, ROLES } from '../src/auth/roles.js';
 import type { Database } from '../src/db/client.js';
 import { addToCache, getOperationCache, resetCacheForTesting } from '../src/modules/operation/cache.js';
 import type { AuthSession } from '../src/trpc/context.js';
@@ -32,7 +32,7 @@ const OP_1 = TEST_OP_ID;
 const OP_2 = TEST_OP_ID_2;
 const FILE_1 = TEST_FILE_ID;
 
-const makeAuthSession = (role: AuthSession['user']['zsRole'], organizationId: string | null = null): AuthSession =>
+const makeAuthSession = (role: Role = 'admin', organizationId: string | null = null): AuthSession =>
   createTestSession(role, organizationId, null, {
     userId: 'user-admin',
     userName: 'Admin User',
@@ -66,13 +66,13 @@ describe('Admin tRPC Router', () => {
       const { db } = createMockDb();
       const caller = await createCaller(db, null);
 
-      await expect(caller.admin.organization.list()).rejects.toMatchObject<Partial<TRPCError>>({
+      await expect(caller.admin.organization.list()).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
-      await expect(caller.admin.operation.list()).rejects.toMatchObject<Partial<TRPCError>>({
+      await expect(caller.admin.operation.list()).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
-      await expect(caller.admin.permission.getMatrix()).rejects.toMatchObject<Partial<TRPCError>>({
+      await expect(caller.admin.permission.getMatrix()).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
     });
@@ -83,13 +83,13 @@ describe('Admin tRPC Router', () => {
       for (const nonAdminRole of ['organization', 'guest', 'operationwrite', 'operationread', 'public'] as const) {
         const caller = await createCaller(db, makeAuthSession(nonAdminRole, ORG_1));
 
-        await expect(caller.admin.organization.list()).rejects.toMatchObject<Partial<TRPCError>>({
+        await expect(caller.admin.organization.list()).rejects.toMatchObject({
           code: 'FORBIDDEN',
         });
-        await expect(caller.admin.operation.list()).rejects.toMatchObject<Partial<TRPCError>>({
+        await expect(caller.admin.operation.list()).rejects.toMatchObject({
           code: 'FORBIDDEN',
         });
-        await expect(caller.admin.permission.getMatrix()).rejects.toMatchObject<Partial<TRPCError>>({
+        await expect(caller.admin.permission.getMatrix()).rejects.toMatchObject({
           code: 'FORBIDDEN',
         });
       }
@@ -203,7 +203,7 @@ describe('Admin tRPC Router', () => {
       const { db } = createMockDb({ selects: [[]] });
       const caller = await createCaller(db, makeAuthSession('admin'));
 
-      await expect(caller.admin.organization.byId({ documentId: ORG_1 })).rejects.toMatchObject<Partial<TRPCError>>({
+      await expect(caller.admin.organization.byId({ documentId: ORG_1 })).rejects.toMatchObject({
         code: 'NOT_FOUND',
       });
     });
@@ -465,7 +465,7 @@ describe('Admin tRPC Router', () => {
           mimeType: 'image/png',
           base64: 'iVBORw0KGgo=',
         }),
-      ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'BAD_REQUEST' });
+      ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
       expect(captured.inserted).toHaveLength(0);
     });
 
@@ -477,10 +477,10 @@ describe('Admin tRPC Router', () => {
         caller.admin.organization.uploadLogo({
           organizationId: ORG_1,
           fileName: 'logo.gif',
-          mimeType: 'image/gif',
+          mimeType: 'image/gif' as any,
           base64: 'R0lGODlhAQABAIAAAAAAAP///yw=',
         }),
-      ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'BAD_REQUEST' });
+      ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
       expect(captured.inserted).toHaveLength(0);
     });
   });
@@ -731,7 +731,7 @@ describe('Admin tRPC Router', () => {
           permission: 'operation.create',
           enabled: false,
         }),
-      ).rejects.toMatchObject<Partial<TRPCError>>({
+      ).rejects.toMatchObject({
         code: 'BAD_REQUEST',
         message: 'Admin permissions are fixed and cannot be modified.',
       });
@@ -747,18 +747,18 @@ describe('Admin tRPC Router', () => {
 
       await expect(
         caller.admin.permission.toggleRolePermission({
-          role: 'unknown',
+          role: 'unknown' as any,
           permission: 'operation.create',
           enabled: true,
         }),
-      ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'BAD_REQUEST' });
+      ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
       await expect(
         caller.admin.permission.toggleRolePermission({
           role: 'guest',
-          permission: 'unknown.permission',
+          permission: 'unknown.permission' as any,
           enabled: true,
         }),
-      ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'BAD_REQUEST' });
+      ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
       expect(captured.inserted).toHaveLength(0);
     });
 

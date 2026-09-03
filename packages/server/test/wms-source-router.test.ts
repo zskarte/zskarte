@@ -1,7 +1,7 @@
-import type { TRPCError } from '@trpc/server';
 import type { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import { describe, expect, it } from 'vitest';
+import type { Role } from '../src/auth/roles.js';
 import { wmsSourceRouter } from '../src/modules/wms-source/router.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
 import {
@@ -19,9 +19,9 @@ const SOURCE_OWN = '55555555-5555-4555-8555-555555555555';
 const SOURCE_FOREIGN = '66666666-6666-4666-8666-666666666666';
 
 const dialect = new PgDialect();
-const toQuery = (condition: SQL) => dialect.sqlToQuery(condition);
+const toQuery = (condition: any) => dialect.sqlToQuery(condition as SQL);
 
-const authSession = (role: AuthSession['user']['zsRole'], organizationId: string | null): AuthSession =>
+const authSession = (role: Role, organizationId: string | null): AuthSession =>
   createTestSession(role, organizationId);
 
 const row = (overrides: Record<string, unknown> = {}) => ({
@@ -108,7 +108,7 @@ describe('wmsSource.byId', () => {
     const { db } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.byId({ documentId: SOURCE_FOREIGN })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.byId({ documentId: SOURCE_FOREIGN })).rejects.toMatchObject({
       code: 'FORBIDDEN',
       message: 'This action is forbidden.',
     });
@@ -162,7 +162,7 @@ describe('wmsSource.create', () => {
     const { db, captured } = createMockDb();
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.create({ data: { label: 'x', organization: ORG_B } })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.create({ data: { label: 'x', organization: ORG_B } })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
     expect(captured.inserted).toHaveLength(0);
@@ -172,9 +172,9 @@ describe('wmsSource.create', () => {
     const { db, captured } = createMockDb();
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.create({ data: { documentId: SOURCE_OWN, label: 'x' } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.create({ data: { documentId: SOURCE_OWN, label: 'x' } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.inserted).toHaveLength(0);
   });
 
@@ -182,7 +182,7 @@ describe('wmsSource.create', () => {
     const { db } = createMockDb();
     const trpc = await caller({ db, authSession: authSession('operationread', ORG_A) });
 
-    await expect(trpc.create({ data: { label: 'x' } })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.create({ data: { label: 'x' } })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -190,7 +190,7 @@ describe('wmsSource.create', () => {
   it('is unauthorized for anonymous callers', async () => {
     const { db } = createMockDb();
 
-    await expect((await caller({ db })).create({ data: { label: 'x' } })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect((await caller({ db })).create({ data: { label: 'x' } })).rejects.toMatchObject({
       code: 'UNAUTHORIZED',
     });
   });
@@ -219,9 +219,9 @@ describe('wmsSource.update', () => {
     const { db, captured } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: SOURCE_FOREIGN, data: { label: 'x' } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: SOURCE_FOREIGN, data: { label: 'x' } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.updated).toHaveLength(0);
   });
 
@@ -230,9 +230,9 @@ describe('wmsSource.update', () => {
     const { db, captured } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: SOURCE_FOREIGN, data: { public: true } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: SOURCE_FOREIGN, data: { public: true } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.updated).toHaveLength(0);
   });
 
@@ -240,9 +240,9 @@ describe('wmsSource.update', () => {
     const { db, captured } = createMockDb({ selects: [[row()]] });
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: SOURCE_OWN, data: { organization: ORG_B } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: SOURCE_OWN, data: { organization: ORG_B } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.updated).toHaveLength(0);
   });
 
@@ -250,9 +250,9 @@ describe('wmsSource.update', () => {
     const { db } = createMockDb({ selects: [[row()]] });
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: SOURCE_OWN, data: { organization: null } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: SOURCE_OWN, data: { organization: null } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
   });
 });
 
@@ -272,7 +272,7 @@ describe('wmsSource.delete', () => {
     const { db, captured } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: authSession('organization', ORG_A) });
 
-    await expect(trpc.delete({ documentId: SOURCE_FOREIGN })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.delete({ documentId: SOURCE_FOREIGN })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
     expect(captured.deleted).toHaveLength(0);
@@ -282,7 +282,7 @@ describe('wmsSource.delete', () => {
     const { db, captured } = createMockDb({ selects: [[row()]] });
     const trpc = await caller({ db, authSession: authSession('operationwrite', ORG_A) });
 
-    await expect(trpc.delete({ documentId: SOURCE_OWN })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.delete({ documentId: SOURCE_OWN })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
     expect(captured.deleted).toHaveLength(0);

@@ -9,6 +9,12 @@ import {
   createContextInner,
   type CreateInnerContextOptions,
 } from '../../src/trpc/context.js';
+export {
+  type AuthSession,
+  type Context,
+  createContextInner,
+  type CreateInnerContextOptions,
+} from '../../src/trpc/context.js';
 import { TEST_ORG_ID, TEST_SESSION_ID, TEST_USER_ID } from './fixtures.js';
 import { createMockDb } from './mock-db.js';
 

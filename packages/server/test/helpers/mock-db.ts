@@ -3,46 +3,46 @@ import type { Database } from '../../src/db/client.js';
 
 export interface CapturedSelectQuery {
   type: 'select';
-  table?: unknown;
+  table?: any;
   tableName?: string;
-  fields?: unknown;
-  from?: unknown;
-  joins: Array<{ type: string; table: unknown; condition: unknown }>;
-  where?: unknown;
-  orderBy: unknown[];
-  groupBy: unknown[];
+  fields?: any;
+  from?: any;
+  joins: Array<{ type: string; table: any; condition: any }>;
+  where?: any;
+  orderBy: any[];
+  groupBy: any[];
   limit?: number;
   offset?: number;
 }
 
 export interface CapturedInsertQuery {
   type: 'insert';
-  table?: unknown;
+  table?: any;
   tableName?: string;
-  values: unknown;
+  values: any;
   onConflict?: {
     action: 'ignore' | 'update';
-    target?: unknown;
-    set?: unknown;
+    target?: any;
+    set?: any;
   };
-  returningFields?: unknown;
+  returningFields?: any;
 }
 
 export interface CapturedUpdateQuery {
   type: 'update';
-  table?: unknown;
+  table?: any;
   tableName?: string;
-  values: unknown;
-  where?: unknown;
-  returningFields?: unknown;
+  values: any;
+  where?: any;
+  returningFields?: any;
 }
 
 export interface CapturedDeleteQuery {
   type: 'delete';
-  table?: unknown;
+  table?: any;
   tableName?: string;
-  where?: unknown;
-  returningFields?: unknown;
+  where?: any;
+  returningFields?: any;
 }
 
 export type CapturedQuery = CapturedSelectQuery | CapturedInsertQuery | CapturedUpdateQuery | CapturedDeleteQuery;
@@ -53,11 +53,11 @@ export interface CapturedState {
   inserts: CapturedInsertQuery[];
   updates: CapturedUpdateQuery[];
   deletes: CapturedDeleteQuery[];
-  inserted: unknown[];
-  updated: unknown[];
-  deleted: unknown[];
-  where: unknown[];
-  tables: unknown[];
+  inserted: any[];
+  updated: any[];
+  deleted: any[];
+  where: any[];
+  tables: any[];
 }
 
 export interface MockDbOptions {

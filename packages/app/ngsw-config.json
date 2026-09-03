@@ -44,7 +44,7 @@
     }
   ],
   "appData": {
-    "version": "6.0.2-c3ab7da8",
+    "version": "6.0.2-7bc204b5",
     "buildDate": "2026-09-03",
     "changelog": "- Add Geodienste layers\n- Optimize address search map layer generation\n- Optimize street search results\n- Resource table clickable\n- Rename protocol to list view\n- Translation file cleanup / modularize\n- Language change on login/operation/help page\n- Show message number on readonly view\n- Prevent multi submit on journal, allow submit with return\n- Show current UI version & changelog\n- Diverse small bugfixes"
   }

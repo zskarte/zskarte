@@ -134,7 +134,7 @@ describe('mapLayer.byId', () => {
     const { db } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.byId({ documentId: LAYER_FOREIGN })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.byId({ documentId: LAYER_FOREIGN })).rejects.toMatchObject({
       code: 'FORBIDDEN',
       message: 'This action is forbidden.',
     });
@@ -196,7 +196,7 @@ describe('mapLayer.create', () => {
     const { db, captured } = createMockDb();
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.create({ data: { label: 'x', organization: ORG_B } })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.create({ data: { label: 'x', organization: ORG_B } })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
     expect(captured.inserted).toHaveLength(0);
@@ -206,9 +206,9 @@ describe('mapLayer.create', () => {
     const { db, captured } = createMockDb();
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.create({ data: { documentId: LAYER_OWN, label: 'x' } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.create({ data: { documentId: LAYER_OWN, label: 'x' } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.inserted).toHaveLength(0);
   });
 
@@ -216,7 +216,7 @@ describe('mapLayer.create', () => {
     const { db } = createMockDb();
     const trpc = await caller({ db, authSession: createTestSession('operationread', ORG_A) });
 
-    await expect(trpc.create({ data: { label: 'x' } })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.create({ data: { label: 'x' } })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -224,7 +224,7 @@ describe('mapLayer.create', () => {
   it('is unauthorized for anonymous callers', async () => {
     const { db } = createMockDb();
 
-    await expect((await caller({ db })).create({ data: { label: 'x' } })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect((await caller({ db })).create({ data: { label: 'x' } })).rejects.toMatchObject({
       code: 'UNAUTHORIZED',
     });
   });
@@ -253,9 +253,9 @@ describe('mapLayer.update', () => {
     const { db, captured } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: LAYER_FOREIGN, data: { label: 'x' } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: LAYER_FOREIGN, data: { label: 'x' } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.updated).toHaveLength(0);
   });
 
@@ -264,9 +264,9 @@ describe('mapLayer.update', () => {
     const { db, captured } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: LAYER_FOREIGN, data: { label: 'x' } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: LAYER_FOREIGN, data: { label: 'x' } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.updated).toHaveLength(0);
   });
 
@@ -274,9 +274,9 @@ describe('mapLayer.update', () => {
     const { db, captured } = createMockDb({ selects: [[row()]] });
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: LAYER_OWN, data: { organization: ORG_B } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: LAYER_OWN, data: { organization: ORG_B } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.updated).toHaveLength(0);
   });
 
@@ -284,18 +284,18 @@ describe('mapLayer.update', () => {
     const { db } = createMockDb({ selects: [[row()]] });
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: LAYER_OWN, data: { organization: null } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: LAYER_OWN, data: { organization: null } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
   });
 
   it('is forbidden when the payload renames the documentId', async () => {
     const { db } = createMockDb({ selects: [[row()]] });
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.update({ documentId: LAYER_OWN, data: { documentId: LAYER_FOREIGN } })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(trpc.update({ documentId: LAYER_OWN, data: { documentId: LAYER_FOREIGN } })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
   });
 });
 
@@ -315,7 +315,7 @@ describe('mapLayer.delete', () => {
     const { db, captured } = createMockDb({ selects: [[]] });
     const trpc = await caller({ db, authSession: createTestSession('organization', ORG_A) });
 
-    await expect(trpc.delete({ documentId: LAYER_FOREIGN })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.delete({ documentId: LAYER_FOREIGN })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
     expect(captured.deletes.length).toBe(0);
@@ -325,7 +325,7 @@ describe('mapLayer.delete', () => {
     const { db, captured } = createMockDb({ selects: [[row()]] });
     const trpc = await caller({ db, authSession: createTestSession('operationwrite', ORG_A) });
 
-    await expect(trpc.delete({ documentId: LAYER_OWN })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(trpc.delete({ documentId: LAYER_OWN })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
     expect(captured.deletes.length).toBe(0);

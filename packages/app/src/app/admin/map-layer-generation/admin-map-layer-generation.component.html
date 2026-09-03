@@ -8,7 +8,12 @@
       <button mat-icon-button (click)="loadConfig()" [title]="i18n.get('refresh')" [disabled]="isLoading()">
         <mat-icon>refresh</mat-icon>
       </button>
-      <button mat-stroked-button (click)="saveConfig()" [disabled]="isSaving() || isLoading() || form.pristine" data-testid="save-map-layer-generation-config-btn">
+      <button
+        mat-stroked-button
+        (click)="saveConfig()"
+        [disabled]="isSaving() || isLoading() || form.pristine"
+        data-testid="save-map-layer-generation-config-btn"
+      >
         @if (isSaving()) {
           <mat-spinner diameter="20"></mat-spinner>
         } @else {
@@ -16,7 +21,13 @@
         }
         {{ i18n.get('save') }}
       </button>
-      <button mat-flat-button color="primary" (click)="triggerGeneration()" [disabled]="isTriggering() || isLoading()" data-testid="trigger-map-layer-generation-btn">
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="triggerGeneration()"
+        [disabled]="isTriggering() || isLoading()"
+        data-testid="trigger-map-layer-generation-btn"
+      >
         @if (isTriggering()) {
           <mat-spinner diameter="20"></mat-spinner>
         } @else {
@@ -36,17 +47,37 @@
         <mat-checkbox formControlName="allwaysCreateDistrict">{{ i18n.get('alwaysCreateDistrict') }}</mat-checkbox>
       </div>
 
-      <mat-form-field appearance="outline"><mat-label>{{ i18n.get('cantons') }}</mat-label><input matInput formControlName="cantons" /></mat-form-field>
-      <mat-form-field appearance="outline" class="wide"><mat-label>{{ i18n.get('urlMadd') }}</mat-label><input matInput formControlName="urlMadd" /></mat-form-field>
-      <mat-form-field appearance="outline" class="wide"><mat-label>{{ i18n.get('urlSwissBoundaries3d') }}</mat-label><input matInput formControlName="urlSwissBoundaries3d" /></mat-form-field>
-      <mat-form-field appearance="outline" class="wide"><mat-label>{{ i18n.get('urlSwissNames3d') }}</mat-label><input matInput formControlName="urlSwissNames3d" /></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ i18n.get('fieldsSwissNames3d') }}</mat-label><input matInput formControlName="fieldsSwissNames3d" /></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ i18n.get('fileSwissNames3d') }}</mat-label><input matInput formControlName="fileSwissNames3d" /></mat-form-field>
+      <mat-form-field appearance="outline"
+        ><mat-label>{{ i18n.get('cantons') }}</mat-label
+        ><input matInput formControlName="cantons"
+      /></mat-form-field>
+      <mat-form-field appearance="outline" class="wide"
+        ><mat-label>{{ i18n.get('urlMadd') }}</mat-label
+        ><input matInput formControlName="urlMadd"
+      /></mat-form-field>
+      <mat-form-field appearance="outline" class="wide"
+        ><mat-label>{{ i18n.get('urlSwissBoundaries3d') }}</mat-label
+        ><input matInput formControlName="urlSwissBoundaries3d"
+      /></mat-form-field>
+      <mat-form-field appearance="outline" class="wide"
+        ><mat-label>{{ i18n.get('urlSwissNames3d') }}</mat-label
+        ><input matInput formControlName="urlSwissNames3d"
+      /></mat-form-field>
+      <mat-form-field appearance="outline"
+        ><mat-label>{{ i18n.get('fieldsSwissNames3d') }}</mat-label
+        ><input matInput formControlName="fieldsSwissNames3d"
+      /></mat-form-field>
+      <mat-form-field appearance="outline"
+        ><mat-label>{{ i18n.get('fileSwissNames3d') }}</mat-label
+        ><input matInput formControlName="fileSwissNames3d"
+      /></mat-form-field>
     </form>
 
     <dl class="run-info">
-      <dt>{{ i18n.get('lastStartDate') }}</dt><dd>{{ currentConfig.lastStartDate ? (currentConfig.lastStartDate | date: 'medium') : '-' }}</dd>
-      <dt>{{ i18n.get('lastEndDate') }}</dt><dd>{{ currentConfig.lastEndDate ? (currentConfig.lastEndDate | date: 'medium') : '-' }}</dd>
+      <dt>{{ i18n.get('lastStartDate') }}</dt>
+      <dd>{{ currentConfig.lastStartDate ? (currentConfig.lastStartDate | date: 'medium') : '-' }}</dd>
+      <dt>{{ i18n.get('lastEndDate') }}</dt>
+      <dd>{{ currentConfig.lastEndDate ? (currentConfig.lastEndDate | date: 'medium') : '-' }}</dd>
     </dl>
   }
 </div>

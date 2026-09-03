@@ -895,7 +895,7 @@ describe('Map Layer Generation - End-to-End Orchestration & Idempotency', () => 
       return { success: true };
     });
 
-    vi.spyOn(WorkerClient.prototype, 'stop').mockResolvedValue(0);
+    vi.spyOn(WorkerClient.prototype, 'stop').mockResolvedValue(undefined);
 
     const createdFile = (name: string, url: string) => ({
       documentId: `file-${name}`,
@@ -1003,7 +1003,7 @@ describe('Map Layer Generation - End-to-End Orchestration & Idempotency', () => 
       return { success: true };
     });
 
-    vi.spyOn(WorkerClient.prototype, 'stop').mockResolvedValue(0);
+    vi.spyOn(WorkerClient.prototype, 'stop').mockResolvedValue(undefined);
 
     const { db, captured } = createMockDb({
       selects: [

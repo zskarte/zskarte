@@ -67,7 +67,7 @@ const createSnapshotDb = (options: SnapshotDatabaseOptions) => {
         return [{ total: options.total ?? snapshots.length }];
       }
       if (projection.includes('operationId')) {
-        const rendered = query.where ? renderSql(query.where) : { params: [] };
+        const rendered = query.where ? renderSql(query.where) : { params: [] as unknown[] };
         const match = snapshots.find((s) => {
           const identifiers = new Set<unknown>([s.documentId, s.organizationId, s.operationId]);
           return (
@@ -169,7 +169,7 @@ describe('mapSnapshot.list', () => {
 
     await expect(
       createCaller(context).list({ operationId: OPERATION_ID, fields: ['privateKeyEncrypted' as 'mapState'] }),
-    ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'BAD_REQUEST' });
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
 
   it('is forbidden for an operation of another organization', async () => {
@@ -180,7 +180,7 @@ describe('mapSnapshot.list', () => {
       logger: createSilentLogger(),
     });
 
-    await expect(createCaller(context).list({ operationId: OPERATION_ID })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(createCaller(context).list({ operationId: OPERATION_ID })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -221,7 +221,7 @@ describe('mapSnapshot.byId', () => {
       logger: createSilentLogger(),
     });
 
-    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -234,10 +234,10 @@ describe('mapSnapshot.byId', () => {
       logger: createSilentLogger(),
     });
 
-    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
-    const whereSql = captured.selects[0]?.where ? renderSql(captured.selects[0].where) : { params: [] };
+    const whereSql = captured.selects[0]?.where ? renderSql(captured.selects[0].where) : { params: [] as unknown[] };
     expect(whereSql.params).toContain(OTHER_OPERATION_ID);
   });
 
@@ -249,7 +249,7 @@ describe('mapSnapshot.byId', () => {
       logger: createSilentLogger(),
     });
 
-    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -262,7 +262,7 @@ describe('mapSnapshot.byId', () => {
       logger: createSilentLogger(),
     });
 
-    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(createCaller(context).byId({ documentId: SNAPSHOT_ID })).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });

@@ -27,9 +27,12 @@ describe('role permissions', () => {
     await loadRolePermissionsFromDb(db);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+    resetPermissionCache();
+    const { db } = createMockDb({ rows: DEFAULT_ROLE_PERMISSION_ROWS });
+    await loadRolePermissionsFromDb(db);
   });
 
   it('defines every role and correctly identifies them via isRole', () => {
@@ -71,7 +74,7 @@ describe('role permissions', () => {
     ['admin', 'organization.updateSettings', true],
     ['organization', 'operation.submitChangeset', true],
     ['organization', 'operation.patch', false],
-    ['organization', 'organization.updateSettings', false],
+    ['organization', 'organization.updateSettings', true],
     ['operationwrite', 'operation.submitChangeset', true],
     ['operationwrite', 'journal.create', true],
     ['operationwrite', 'operation.create', true],

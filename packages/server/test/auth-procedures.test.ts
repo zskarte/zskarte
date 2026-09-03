@@ -19,14 +19,14 @@ describe('auth procedure guards', () => {
 
   it('rejects anonymous callers', async () => {
     const context = await createTestContext({ authSession: null });
-    await expect(createCaller(context).allowed()).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(createCaller(context).allowed()).rejects.toMatchObject({
       code: 'UNAUTHORIZED',
     });
   });
 
   it('rejects sessions without an organization scope', async () => {
     const context = await createTestContext({ authSession: createTestSession('organization', null) });
-    await expect(createCaller(context).allowed()).rejects.toMatchObject<Partial<TRPCError>>({ code: 'FORBIDDEN' });
+    await expect(createCaller(context).allowed()).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
   it('returns the server-derived organization scope', async () => {
@@ -42,7 +42,7 @@ describe('auth procedure guards', () => {
     const deniedRouter = router({
       denied: orgProcedure.use(requirePermission('journal.create')).query(() => true),
     });
-    await expect(createCallerFactory(deniedRouter)(context).denied()).rejects.toMatchObject<Partial<TRPCError>>({
+    await expect(createCallerFactory(deniedRouter)(context).denied()).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });

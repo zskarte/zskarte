@@ -1,5 +1,6 @@
-import type { TRPCError } from '@trpc/server';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { loadRolePermissionsFromDb, resetPermissionCache } from '../src/auth/permissions.js';
+import type { Role } from '../src/auth/roles.js';
 import type { Database } from '../src/db/client.js';
 import type { Logger } from '../src/lib/logger.js';
 import { organizationRouter } from '../src/modules/organization/router.js';
@@ -10,6 +11,7 @@ import {
   createSilentLogger,
   createTestContext,
   createTestSession,
+  DEFAULT_ROLE_PERMISSION_ROWS,
   TEST_ORG_ID,
 } from './helpers/index.js';
 
@@ -20,7 +22,7 @@ const MAP_LAYER_ID = '7d9e1f3a-5c7b-4e2d-8f6a-1b3c5d7e9f01';
 const createCaller = async (options: {
   db?: Database;
   logger?: Logger;
-  role?: AuthSession['user']['zsRole'];
+  role?: Role;
   organizationId?: string | null;
 }) => {
   const session = createTestSession(
@@ -40,6 +42,12 @@ const settings = {
   journalMessageTextTemplate: 'template',
   changeset: { applyOnExpertViewOnly: true, hiddenMode: false, automerge: false, conflictTakeOur: true },
 };
+
+beforeEach(async () => {
+  resetPermissionCache();
+  const { db } = createMockDb({ rows: DEFAULT_ROLE_PERMISSION_ROWS });
+  await loadRolePermissionsFromDb(db);
+});
 
 describe('organization.current', () => {
   it('returns the scope derived organization with the session projection', async () => {
@@ -117,7 +125,7 @@ describe('organization.updateSettings', () => {
 
     await expect(
       caller.updateSettings({ organizationId: FOREIGN_ORGANIZATION_ID, data: settings }),
-    ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
+    ).rejects.toMatchObject({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
     expect(captured.updates).toEqual([]);
     expect(warnSpy).toHaveBeenCalledWith(
       expect.objectContaining({ userOrganisationId: TEST_ORG_ID }),
@@ -127,11 +135,11 @@ describe('organization.updateSettings', () => {
 
   it('rejects a role without the organization.updateSettings permission', async () => {
     const { db, captured } = createMockDb();
-    const caller = await createCaller({ db, role: 'organization' });
+    const caller = await createCaller({ db, role: 'guest' });
 
-    await expect(caller.updateSettings({ organizationId: TEST_ORG_ID, data: settings })).rejects.toMatchObject<
-      Partial<TRPCError>
-    >({ code: 'FORBIDDEN' });
+    await expect(caller.updateSettings({ organizationId: TEST_ORG_ID, data: settings })).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
     expect(captured.updates).toEqual([]);
   });
 });
@@ -155,7 +163,7 @@ describe('organization.updateJournalEntryTemplate', () => {
 
     await expect(
       caller.updateJournalEntryTemplate({ organizationId: FOREIGN_ORGANIZATION_ID, data: null }),
-    ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
+    ).rejects.toMatchObject({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
   });
 });
 
@@ -226,7 +234,7 @@ describe('organization.updateLayerSettings', () => {
 
     await expect(
       caller.updateLayerSettings({ organizationId: TEST_ORG_ID, data: { wms_sources: ['1'] } }),
-    ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'BAD_REQUEST' });
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
     expect(captured.deletes).toEqual([]);
   });
 
@@ -236,7 +244,7 @@ describe('organization.updateLayerSettings', () => {
 
     await expect(
       caller.updateLayerSettings({ organizationId: TEST_ORG_ID, data: { wms_sources: [WMS_SOURCE_ID] } }),
-    ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'BAD_REQUEST' });
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
 
   it('rejects a foreign organization id', async () => {
@@ -245,7 +253,7 @@ describe('organization.updateLayerSettings', () => {
 
     await expect(
       caller.updateLayerSettings({ organizationId: FOREIGN_ORGANIZATION_ID, data: { wms_sources: [] } }),
-    ).rejects.toMatchObject<Partial<TRPCError>>({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
+    ).rejects.toMatchObject({ code: 'FORBIDDEN', message: 'This action is forbidden.' });
     expect(captured.deletes).toEqual([]);
   });
 });

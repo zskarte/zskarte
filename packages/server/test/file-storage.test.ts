@@ -308,7 +308,7 @@ describe('File Service & IZsStrapiAsset Parity', () => {
     const result = await uploadFile(db, input, testStorage);
 
     expect(captured.inserted).toHaveLength(1);
-    const inserted = captured.inserted[0];
+    const inserted = captured.inserted[0] as unknown as typeof fakeRow;
     expect(inserted.name).toBe('sample.txt');
     expect(inserted.mime).toBe('text/plain');
     expect(inserted.provider).toBe('local');
