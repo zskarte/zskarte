@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.0.0
+- **Backend Modernization**: Fully replaced Strapi backend with high-performance Fastify 5 server
+- **End-to-End Type Safety**: Integrated tRPC 11 for fully typed API procedures and real-time WebSocket subscriptions
+- **Database Architecture**: Switched to Drizzle ORM with TypeScript schemas and automated SQL migration pipelines (`drizzle-kit`)
+- **Authentication & Security**: Migrated to Better Auth with custom session enrichment, dynamic role permissions matrix, and secure share-link tokens
+
 ## 6.0.2
 - Add Geodienste layers
 - Optimize address search map layer generation

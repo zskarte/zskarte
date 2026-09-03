@@ -7,12 +7,13 @@ Dockerfile
 .dockerignore
 .git
 .editorconfig
-.strapi-updater.json
 .env
-build
+.env.*
+!.env.example
 data
 docker-compose.yml
-test
 dist
+packages/app/*
+!packages/app/package.json
 packages/server/public/uploads/*
-packages/app
+!packages/server/public/uploads/.gitkeep

@@ -36,7 +36,6 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
-    "db:studio": "drizzle-kit studio",
     "maplayer:generate": "tsx src/modules/map-layer-generation/cli.ts",
     "test": "vitest run",
     "test:permissions": "vitest run test/permissions.test.ts test/admin-router.test.ts test/auth-procedures.test.ts"

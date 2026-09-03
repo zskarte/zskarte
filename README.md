@@ -46,34 +46,63 @@ You can run Zivilschutz-Karte without installation from [https://zskarte.ch](htt
 
 ### 📋 Installation Steps
 
-### 1. Install packages
+#### 1. Install packages
 
 ```bash
 npm install
 ```
 
-### 2. For Server copy .env.example file and rename it to .env (you can keep the values as they are for local development)
+#### 2. Configure Environment
+
+Copy the `.env.example` file to `.env` in `packages/server` (default values work out-of-the-box for local development):
+
 ```bash
 cp packages/server/.env.example packages/server/.env
 ```
 
-### 3. Start the application (database, backend, frontend)
+#### 3. Initialize Database (Migrations & Seed)
+
+```bash
+# Start PostgreSQL database container
+npm run docker-run
+
+# Run migrations and seed baseline data
+npm run db:migrate
+npm run db:seed
+```
+
+#### 4. Start the Application
 
 ```bash
 npm run start
 ```
+*This starts the PostgreSQL database, the Fastify backend server on `http://localhost:1338`, and the Angular frontend client on `http://localhost:4300`.*
 
-### 4. Access the Strapi admin panel (Backend)
+#### 5. Access the Application
 
-1. http://localhost:1337/admin
-2. Login with credentials: User -> info@zskarte.ch, Password -> Supersecret123
+- **Frontend (Application)**: [http://localhost:4300](http://localhost:4300)
+  - Admin login: `zso_admin` / `supersecret123`
+  - Organization login: `operation_all` / `supersecret123`
+  - Guest login: `zso_guest` / `zsogast`
+- **Backend (Fastify + tRPC API)**: [http://localhost:1338](http://localhost:1338)
+  - Health check endpoint: [http://localhost:1338/health](http://localhost:1338/health)
+  - tRPC endpoint: `http://localhost:1338/trpc`
+  - Auth endpoints: `http://localhost:1338/api/auth/*`
 
-### 5. Access the Zivilschutz-Karte application (Frontend)
+## 🛠️ CLI Commands
 
-Zivilschutz-Karte is optimized and tested for use with Google Chrome - nevertheless other browsers might work as well and are supported in a best effort manner.
-
-1. http://localhost:4300
-2. Login with credentials: User -> zso_development, Password -> Supersecret123
+| Command | Description |
+|---|---|
+| `npm run start` | Launch database, backend, and frontend concurrently |
+| `npm run start:server` | Start backend server in development watch mode |
+| `npm run start:app` | Start Angular frontend development server |
+| `npm run build` | Build all workspace packages (`types`, `common`, `server`, `app`) |
+| `npm run lint` | Run Biome linter across workspace |
+| `npm run format` | Auto-format workspace code |
+| `npm run db:generate` | Generate Drizzle schema migrations (`packages/server/drizzle/`) |
+| `npm run db:migrate` | Apply pending database migrations |
+| `npm run db:seed` | Seed baseline organizations, users, and permissions |
+| `npm run maplayer:generate` | CLI tool for generating pre-packaged offline map layers |
 
 ## 💡 Help & Feedback
 

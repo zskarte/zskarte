@@ -78,11 +78,9 @@ const exec = promisify(cbExec);
     if (response.resetDb) {
       console.log('start docker...');
       await exec('npm run docker-run');
-      console.log('import right configs');
-      spawn('npm', ['run', 'server:import'], {
-        stdio: 'inherit',
-        shell: true,
-      });
+      console.log('running migrations and seeding database...');
+      await exec('npm run db:migrate');
+      await exec('npm run db:seed');
     }
   });
 })();

@@ -33,10 +33,7 @@
     "db:generate": "cd packages/server && npm run db:generate",
     "db:migrate": "cd packages/server && npm run db:migrate",
     "db:seed": "cd packages/server && npm run db:seed",
-    "db:studio": "cd packages/server && npm run db:studio",
     "maplayer:generate": "npm --prefix packages/server run maplayer:generate --",
-    "server:export": "cd packages/server && npm run export",
-    "server:import": "cd packages/server && npm run import",
     "cleanup": "tsx scripts/cleanup.ts",
     "postinstall": "patch-package"
   },
@@ -58,10 +55,6 @@
   },
   "overrides": {
     "esbuild": "^0.27.2",
-    "inquirer": "^12.3.2",
-    "koa": "^2.16.3",
-    "@strapi/strapi": {
-      "vite": "^5.4.21"
-    }
+    "inquirer": "^12.3.2"
   }
 }

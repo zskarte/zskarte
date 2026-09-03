@@ -1,9 +1,8 @@
-# @zskarte/server-next
+# @zskarte/server
 
-Backend for zskarte built on **Fastify 5 + tRPC 11 + Drizzle ORM** (better-auth follows in the next stage). It replaces
-`packages/server` (Strapi) step by step; both backends can run side by side during the migration.
+Backend for ZSKarte built on **Fastify 5 + tRPC 11 + Drizzle ORM + Better Auth**.
 
-## Getting started
+## Getting Started
 
 ```bash
 # from the repository root
@@ -12,8 +11,8 @@ npm run docker-run          # postgres on localhost:55432
 cp packages/server/.env.example packages/server/.env
 
 npm run db:migrate          # creates the database and applies drizzle/*.sql
-npm run db:seed             # baseline organizations + map layer generation config
-npm run start:server   # http://localhost:1338
+npm run db:seed             # baseline organizations, users, permissions, and map assets
+npm run start:server        # starts Fastify on http://localhost:1338
 ```
 
 Verify:
@@ -25,44 +24,41 @@ curl http://localhost:1338/trpc/health   # superjson encoded, `time` is a Date
 
 ## Scripts
 
-| Script                                | Purpose                                                          |
-|---------------------------------------|------------------------------------------------------------------|
-| `npm run dev`                         | watch mode (tsx), runs pending migrations on boot                |
-| `npm start`                           | run the compiled server (`npm run build` first)                  |
-| `npm run typecheck` / `npm run build` | tsc without / with emit to `dist`                                |
-| `npm run db:generate`                 | generate a SQL migration from the drizzle schema into `drizzle/` |
-| `npm run db:migrate`                  | create the database if needed and apply migrations               |
-| `npm run db:seed`                     | idempotent baseline data                                         |
-| `npm run db:studio`                   | drizzle-studio, the admin gui replacing the strapi admin panel   |
-| `npm test`                            | vitest                                                           |
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Watch mode (`tsx`), runs pending migrations on boot |
+| `npm start` | Run the compiled server (`npm run build` first) |
+| `npm run typecheck` / `npm run build` | TypeScript typecheck without / with emit to `dist` |
+| `npm run db:generate` | Generate SQL migration from Drizzle schema into `drizzle/` |
+| `npm run db:migrate` | Create the database if needed and apply migrations |
+| `npm run db:seed` | Idempotent baseline data seeding |
+| `npm run maplayer:generate` | Offline map layer generation CLI |
+| `npm test` | Vitest unit and integration tests |
+| `npm run test:permissions` | Permission matrix test suite |
 
-The same scripts are exposed at the repository root as `start:server`, `build:server`,
-`lint:server`, `db:generate`, `db:migrate`, `db:seed` and `db:studio`.
+The primary scripts are exposed at the repository root as `start:server`, `build:server`,
+`lint:server`, `db:generate`, `db:migrate`, `db:seed`, and `maplayer:generate`.
 
-## Layout
+## Architecture Layout
 
 ```
 src/
-  index.ts           boot: migrate -> listen -> graceful shutdown
-  server.ts          fastify composition (cors, /uploads static, websocket, /trpc)
+  index.ts           boot: migrate -> warmup cache -> listen -> graceful shutdown
+  server.ts          fastify composition (cors, /uploads static, auth, websocket, /trpc)
   env.ts             zod validated configuration
+  auth/              Better Auth config, roles, permissions matrix, customSession plugin
   db/                client, schema barrel, migrate, seed, shared columns
-  modules/<feature>/ schema.ts today, router/service/repository next
-  trpc/              tRPC instance, context, root router
-  lib/               logger, id generation
+  modules/<feature>/ schema.ts, repository.ts, service.ts, router.ts
+  trpc/              tRPC instance, context, procedures, root router
+  realtime/          in-memory event bus and presence tracking
+  lib/               logger, signing, mutex, queue
 drizzle/             generated SQL migrations (checked in)
 ```
 
-Every domain table carries both an integer `id` and a stable `document_id`, because the angular app uses `documentId` as
-primary handle while the organization layer settings reference numeric ids.
+Every domain table carries both an integer `id` and a stable `document_id`, providing stable UUID handles for the Angular client.
 
-## Notes during the migration
+## Architectural Notes
 
-- **Own database.** Defaults to `zskarte_next`, because the strapi backend still owns the tables in
-  `zskarte`. `db:migrate` (and boot) create it automatically. Once `packages/server` is gone the name can move back to
-  `zskarte`.
-- **Own port.** Defaults to `1338`; the angular app still talks to strapi on `1337`.
-- **Dependency link shim.** `scripts/link-server-next-deps.ts` (root `postinstall`) links the nested
-  `drizzle-orm` into the root `node_modules` so the hoisted `drizzle-kit` can resolve it. This is only necessary because
-  strapi pins older react/typescript versions and can be removed with it.
-- **Single instance.** The authoritative map state will live in memory, so this backend must not be scaled horizontally.
+- **Single Instance**: The authoritative map state lives in memory (`OperationCache`), so backend instances are not scaled horizontally.
+- **Port**: Default is `1338` (configured via `PORT`).
+- **Health Check**: `GET /health` returns `{ "status": "ok" }`.
