@@ -24,7 +24,7 @@
     "format:server": "npm run lint:server -- --fix",
     "format:types": "npm run lint:types -- --fix",
     "format:common": "npm run lint:common -- --fix",
-    "build": "run-s build:types build:common build:app build:server",
+    "build": "run-s build:types build:common build:server build:app",
     "build:types": "cd packages/types && npm run build",
     "build:common": "cd packages/common && npm run build",
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
