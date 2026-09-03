@@ -66,7 +66,7 @@ export const createMapStateSnapshots = async (deps: SchedulerDeps): Promise<void
         .limit(1);
       const currentIds = cache.mapState.changesetIds ?? [];
       const previousIds = new Set(lastSnapshot?.mapState?.changesetIds ?? []);
-      const newIds = currentIds.filter((id) => !previousIds.has(id));
+      const newIds = currentIds.filter((id: string) => !previousIds.has(id));
       if (lastSnapshot && newIds.length === 0) continue;
 
       await deps.db.insert(mapSnapshots).values({
