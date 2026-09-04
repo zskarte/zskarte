@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1788182935421,
-      "tag": "0000_romantic_squadron_sinister",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1788184640340,
-      "tag": "0001_demonic_nick_fury",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1788268597377,
-      "tag": "0002_amused_red_ghost",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1788332363515,
-      "tag": "0003_polite_true_believers",
+      "when": 1788513489581,
+      "tag": "0000_smart_kang",
       "breakpoints": true
     }
   ]

@@ -43,7 +43,6 @@ CREATE TABLE "files" (
 --> statement-breakpoint
 CREATE TABLE "journal_entries" (
 	"document_id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"uuid" text NOT NULL,
 	"operation_id" uuid,
 	"organization_id" uuid,
 	"message_number" integer NOT NULL,
@@ -66,13 +65,12 @@ CREATE TABLE "journal_entries" (
 	"decision_sender" text,
 	"entry_status" "journal_entry_status",
 	"department" "journal_entry_department",
-	"is_drawn_on_map" boolean,
-	"is_drawing_on_map" boolean,
+	"is_drawn_on_map" boolean DEFAULT false NOT NULL,
+	"is_drawing_on_map" boolean DEFAULT false NOT NULL,
 	"wrong_content_info" text,
 	"wrong_triage_info" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "journal_entries_uuid_unique" UNIQUE("uuid"),
 	CONSTRAINT "journal_entries_number_unique" UNIQUE("operation_id","organization_id","message_number")
 );
 --> statement-breakpoint
@@ -188,6 +186,74 @@ CREATE TABLE "wms_sources" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "account" (
+	"id" text PRIMARY KEY NOT NULL,
+	"account_id" text NOT NULL,
+	"provider_id" text NOT NULL,
+	"issuer" text NOT NULL,
+	"user_id" text NOT NULL,
+	"access_token" text,
+	"refresh_token" text,
+	"id_token" text,
+	"access_token_expires_at" timestamp with time zone,
+	"refresh_token_expires_at" timestamp with time zone,
+	"scope" text,
+	"password" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "rate_limit" (
+	"id" text PRIMARY KEY NOT NULL,
+	"key" text NOT NULL,
+	"count" integer NOT NULL,
+	"last_request" bigint NOT NULL,
+	CONSTRAINT "rate_limit_key_unique" UNIQUE("key")
+);
+--> statement-breakpoint
+CREATE TABLE "role_permissions" (
+	"role" text NOT NULL,
+	"permission" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "role_permissions_role_permission_pk" PRIMARY KEY("role","permission")
+);
+--> statement-breakpoint
+CREATE TABLE "session" (
+	"id" text PRIMARY KEY NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"token" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"ip_address" text,
+	"user_agent" text,
+	"user_id" text NOT NULL,
+	"operation_id" uuid,
+	"organization_id" uuid,
+	"permission" text
+);
+--> statement-breakpoint
+CREATE TABLE "user" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"email" text NOT NULL,
+	"email_verified" boolean DEFAULT false NOT NULL,
+	"image" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"organization_id" uuid,
+	"zs_role" text DEFAULT 'public' NOT NULL,
+	"username" text
+);
+--> statement-breakpoint
+CREATE TABLE "verification" (
+	"id" text PRIMARY KEY NOT NULL,
+	"identifier" text NOT NULL,
+	"value" text NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "accesses" ADD CONSTRAINT "accesses_operation_id_operations_document_id_fk" FOREIGN KEY ("operation_id") REFERENCES "public"."operations"("document_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "accesses" ADD CONSTRAINT "accesses_organization_id_organizations_document_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("document_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "journal_entries" ADD CONSTRAINT "journal_entries_operation_id_operations_document_id_fk" FOREIGN KEY ("operation_id") REFERENCES "public"."operations"("document_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -206,9 +272,20 @@ ALTER TABLE "organizations" ADD CONSTRAINT "organizations_logo_id_files_document
 ALTER TABLE "organization_wms_sources" ADD CONSTRAINT "organization_wms_sources_organization_id_organizations_document_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("document_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "organization_wms_sources" ADD CONSTRAINT "organization_wms_sources_wms_source_id_wms_sources_document_id_fk" FOREIGN KEY ("wms_source_id") REFERENCES "public"."wms_sources"("document_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wms_sources" ADD CONSTRAINT "wms_sources_organization_id_organizations_document_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("document_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user" ADD CONSTRAINT "user_organization_id_organizations_document_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("document_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "accesses_operation_id_idx" ON "accesses" USING btree ("operation_id");--> statement-breakpoint
 CREATE INDEX "journal_entries_operation_id_idx" ON "journal_entries" USING btree ("operation_id");--> statement-breakpoint
 CREATE INDEX "map_snapshots_operation_id_idx" ON "map_snapshots" USING btree ("operation_id","created_at");--> statement-breakpoint
 CREATE INDEX "operations_organization_id_idx" ON "operations" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "operations_phase_idx" ON "operations" USING btree ("phase");--> statement-breakpoint
-CREATE INDEX "signing_keys_server_id_idx" ON "signing_keys" USING btree ("server_id");
+CREATE INDEX "signing_keys_server_id_idx" ON "signing_keys" USING btree ("server_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "account_issuer_account_id_unique" ON "account" USING btree ("issuer","account_id");--> statement-breakpoint
+CREATE INDEX "account_user_id_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "role_permissions_role_idx" ON "role_permissions" USING btree ("role");--> statement-breakpoint
+CREATE UNIQUE INDEX "session_token_unique" ON "session" USING btree ("token");--> statement-breakpoint
+CREATE INDEX "session_user_id_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "user_email_unique" ON "user" USING btree ("email");--> statement-breakpoint
+CREATE UNIQUE INDEX "user_username_unique" ON "user" USING btree ("username");--> statement-breakpoint
+CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");
