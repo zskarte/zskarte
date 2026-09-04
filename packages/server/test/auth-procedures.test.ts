@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server';
 import { describe, expect, it } from 'vitest';
 import { shareTokenSchema } from '../src/auth/share-access-plugin.js';
 import { orgProcedure, requirePermission } from '../src/trpc/procedures.js';

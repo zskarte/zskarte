@@ -1,9 +1,9 @@
 <div class="language-selector-container">
   <button
-    mat-button
-    [matMenuTriggerFor]="languageMenu"
     [attr.aria-label]="i18n.get('language')"
+    [matMenuTriggerFor]="languageMenu"
     class="language-button"
+    mat-button
   >
     <mat-icon>language</mat-icon>
     <span class="language-text">{{ i18n.get(currentLocale()) }}</span>
@@ -12,7 +12,7 @@
 
 <mat-menu #languageMenu="matMenu">
   @for (locale of locales; track locale) {
-    <button mat-menu-item (click)="setLocale(locale)" [ngClass]="{ 'active-language': locale === currentLocale() }">
+    <button (click)="setLocale(locale)" [ngClass]="{ 'active-language': locale === currentLocale() }" mat-menu-item>
       @if (locale === currentLocale()) {
         <mat-icon>check</mat-icon>
       }

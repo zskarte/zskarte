@@ -35,6 +35,7 @@
   .buttons {
     display: flex;
     flex-wrap: nowrap;
+
     button {
       margin-left: 5px;
       --mdc-icon-button-state-layer-size: 36px;
@@ -47,10 +48,12 @@
   white-space: nowrap;
   overflow: auto;
   flex-grow: 1;
+
   &.invalid {
     background-color: lightcoral;
   }
 }
+
 /*
   .template::selection {
     background: #d9d9d9;

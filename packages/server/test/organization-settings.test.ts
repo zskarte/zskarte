@@ -4,7 +4,6 @@ import type { Role } from '../src/auth/roles.js';
 import type { Database } from '../src/db/client.js';
 import type { Logger } from '../src/lib/logger.js';
 import { organizationRouter } from '../src/modules/organization/router.js';
-import type { AuthSession } from '../src/trpc/context.js';
 import { createCallerFactory } from '../src/trpc/trpc.js';
 import {
   createMockDb,

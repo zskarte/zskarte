@@ -1,5 +1,5 @@
-import { Component, OnDestroy, inject } from '@angular/core';
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { Component, inject, OnDestroy } from '@angular/core';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { SessionService } from '../session.service';
 import { IZsMapOperation, ZsOperationPhase } from '@zskarte/types';
 import { I18NService } from '../../state/i18n.service';
@@ -47,19 +47,18 @@ import { VersionService } from '../../version/version.service';
 })
 export class OperationsComponent implements OnDestroy {
   public session = inject(SessionService);
-  private _session = this.session;
   i18n = inject(I18NService);
-  private _dialog = inject(MatDialog);
   operationService = inject(OperationService);
   journalService = inject(JournalService);
+  public showOpPhase: ZsOperationPhase = 'active';
+  private _session = this.session;
+  private _dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
   private _router = inject(Router);
   private _sidebar = inject(SidebarService);
   private dialog = inject(MatDialog);
   private _version = inject(VersionService);
-
   private _ngUnsubscribe = new Subject<void>();
-  public showOpPhase: ZsOperationPhase = 'active';
 
   constructor() {
     const route = this.route;

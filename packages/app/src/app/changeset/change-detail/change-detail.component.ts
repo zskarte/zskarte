@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { trpc } from '../../api/trpc.client';
@@ -21,17 +21,10 @@ import { applyPatches } from 'immer';
 export class ChangeDetailComponent {
   NO_CONFLICT_VALUE = NO_CONFLICT_VALUE;
   i18n = inject(I18NService);
-  private sessionService = inject(SessionService);
-  private stateService = inject(ZsMapStateService);
-  private changesetService = inject(ChangesetService);
-  private snackBarService = inject(MatSnackBar);
-
   readonly changeset = input<IZsChangeset>();
   readonly snapshotId = input<string>();
   readonly snapshot = signal<IZsMapSnapshot | undefined>(undefined);
-  readonly historyDate = toSignal(this.stateService.observeHistoryDate());
   readonly activeState = signal<number>(0);
-
   readonly changesetDetails = signal<
     | {
         mapStateBefore: ZsMapState;
@@ -44,8 +37,12 @@ export class ChangeDetailComponent {
       }
     | undefined
   >(undefined);
-
   operation?: IZsMapOperation;
+  private sessionService = inject(SessionService);
+  private stateService = inject(ZsMapStateService);
+  readonly historyDate = toSignal(this.stateService.observeHistoryDate());
+  private changesetService = inject(ChangesetService);
+  private snackBarService = inject(MatSnackBar);
 
   constructor() {
     this.operation = this.sessionService.getOperation();
@@ -53,22 +50,25 @@ export class ChangeDetailComponent {
     effect(() => {
       const id = this.snapshotId();
       if (!id) {
-        if (this.operation?.mapState){
-          this.snapshot.set({mapState : this.operation.mapState, changesetIds: this.operation.mapState.changesetIds} as IZsMapSnapshot);
+        if (this.operation?.mapState) {
+          this.snapshot.set({
+            mapState: this.operation.mapState,
+            changesetIds: this.operation.mapState.changesetIds,
+          } as IZsMapSnapshot);
         }
         return;
       }
 
       trpcRequest(trpc.mapSnapshot.byId.query({ documentId: id })).then(({ result }) =>
         this.snapshot.set(
-          result?.mapState
-            ? {
-                documentId: result.documentId,
-                changesetIds: result.changesetIds ?? [],
-                mapState: result.mapState,
-                createdAt: result.createdAt,
-              }
-            : undefined,
+          result?.mapState ?
+            {
+              documentId: result.documentId,
+              changesetIds: result.changesetIds ?? [],
+              mapState: result.mapState,
+              createdAt: result.createdAt,
+            }
+          : undefined,
         ),
       );
     });

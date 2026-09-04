@@ -1,4 +1,4 @@
-import { signal, Component, ElementRef, OnDestroy, inject, viewChild, effect } from '@angular/core';
+import { Component, effect, ElementRef, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
@@ -36,23 +36,20 @@ import { MapSearchAreaService } from '../map-renderer/map-search-area.service';
 })
 export class GeocoderComponent implements OnDestroy {
   i18n = inject(I18NService);
-  private _state = inject(ZsMapStateService);
-  private _session = inject(SessionService);
-  private _search = inject(SearchService);
-  private _searchArea = inject(MapSearchAreaService);
-
   readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
   readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
-
   readonly foundLocations = signal<IResultSet[]>([]);
   readonly inputText = signal('');
   keepCoord = false;
   selected: IZsMapSearchResult | null = null;
-  private _ngUnsubscribe = new Subject<void>();
   searchConfig: IZsGlobalSearchConfig;
-
   settingsVisble = false;
   drawingArea = false;
+  private _state = inject(ZsMapStateService);
+  private _session = inject(SessionService);
+  private _search = inject(SearchService);
+  private _searchArea = inject(MapSearchAreaService);
+  private _ngUnsubscribe = new Subject<void>();
 
   constructor() {
     this._session

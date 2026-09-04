@@ -28,29 +28,15 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
   @Input() placeholder = '';
   @Input() required = false;
   @Input() disabled = false;
-
-  private _value: string | null = null;
-  get value() {
-    return this._value;
-  }
-  set value(val: string | null) {
-    if (val !== this._value) {
-      this._value = val;
-      this.onChange(val);
-      this.stateChanges.next();
-    }
-  }
   stateChanges = new Subject<void>();
   focused = false;
   errorState = false;
   controlType = 'contenteditable-div';
-
   content: any = { ops: [] };
   readonly quillClick = output<{ event: MouseEvent; quill: Quill }>();
   readonly quillDblclick = output<{ event: MouseEvent; quill: Quill }>();
   readonly quillKeydown = output<{ event: KeyboardEvent; quill: Quill }>();
   readonly quillContentChanged = output<ContentChange>();
-
   quillBindings = {
     backspace: {
       key: 'Backspace',
@@ -63,8 +49,16 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
     tab: {
       key: 9,
       handler: () => true, //reactivate default form handling
-    }
+    },
   };
+  onInput = debounce(
+    (event: Event) => {
+      const value = this.quillBlotService.extractPlaintextFromDelta(this.content);
+      this.value = value;
+    },
+    500,
+    this,
+  );
 
   constructor(
     private focusMonitor: FocusMonitor,
@@ -81,9 +75,18 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
     });
   }
 
-  ngOnDestroy() {
-    this.stateChanges.complete();
-    this.focusMonitor.stopMonitoring(this.elementRef.nativeElement);
+  private _value: string | null = null;
+
+  get value() {
+    return this._value;
+  }
+
+  set value(val: string | null) {
+    if (val !== this._value) {
+      this._value = val;
+      this.onChange(val);
+      this.stateChanges.next();
+    }
   }
 
   // MatFormFieldControl Methods
@@ -93,6 +96,11 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
 
   get shouldLabelFloat(): boolean {
     return this.focused || !this.empty;
+  }
+
+  ngOnDestroy() {
+    this.stateChanges.complete();
+    this.focusMonitor.stopMonitoring(this.elementRef.nativeElement);
   }
 
   setDescribedByIds(ids: string[]): void {
@@ -124,7 +132,6 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
     this.stateChanges.next();
   }
 
-  private onChange = (value: any) => {};
   onTouched = () => {};
 
   // Specific Methods
@@ -155,12 +162,5 @@ export class ContenteditableComponent implements MatFormFieldControl<string>, Co
     this.quillContentChanged.emit(event);
   }
 
-  onInput = debounce(
-    (event: Event) => {
-      const value = this.quillBlotService.extractPlaintextFromDelta(this.content);
-      this.value = value;
-    },
-    500,
-    this,
-  );
+  private onChange = (value: any) => {};
 }

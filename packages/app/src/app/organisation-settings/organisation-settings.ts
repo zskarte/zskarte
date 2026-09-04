@@ -31,14 +31,19 @@ import { MatCard } from '@angular/material/card';
   ],
 })
 export class OrganisationSettings {
-  private dialogRef = inject<MatDialogRef<OrganisationSettings>>(MatDialogRef);
-  private _session = inject(SessionService);
   i18n = inject(I18NService);
   settings: IZsMapOrganizationSettings;
+  private dialogRef = inject<MatDialogRef<OrganisationSettings>>(MatDialogRef);
+  private _session = inject(SessionService);
 
   constructor() {
     const sessionSettings = this._session.getOrganizationSettings();
-    const changesetDefaults: IZsChangesetConfig = { applyOnExpertViewOnly: true, hiddenMode: false, automerge: true, conflictTakeOur: true };
+    const changesetDefaults: IZsChangesetConfig = {
+      applyOnExpertViewOnly: true,
+      hiddenMode: false,
+      automerge: true,
+      conflictTakeOur: true,
+    };
     this.settings = { changeset: changesetDefaults, ...sessionSettings };
   }
 

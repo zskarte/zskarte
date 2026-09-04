@@ -1,36 +1,36 @@
-<div #mapElement id="map" class="map"></div>
+<div #mapElement class="map" id="map"></div>
 @if (renderer.observeMousePosition() | async; as mousePosition) {
   @if (renderer.observeTooltip() | async; as sketchSize) {
     <div
-      class="tooltip noprint"
+      [innerHTML]="sketchSize"
       [style.left.px]="mousePosition[0]"
       [style.top.px]="mousePosition[1]"
-      [innerHTML]="sketchSize"
+      class="tooltip noprint"
     ></div>
   }
 }
 
-<button mat-mini-fab class="edit-button" color="warn" #deleteButton (click)="remove()">
+<button #deleteButton (click)="remove()" class="edit-button" color="warn" mat-mini-fab>
   <i class="material-icons">delete_forever</i>
 </button>
 <button
-  mat-mini-fab
-  class="edit-button rotate-button"
-  color="primary"
   #rotateButton
   (mousedown)="startRotating()"
   (touchstart)="startRotating()"
+  class="edit-button rotate-button"
+  color="primary"
+  mat-mini-fab
 >
   <!-- todo maybe add click" -->
   <i class="material-icons">rotate_left</i>
 </button>
-<button mat-mini-fab class="edit-button" color="primary" #copyButton (click)="copy()">
+<button #copyButton (click)="copy()" class="edit-button" color="primary" mat-mini-fab>
   <i class="material-icons">content_copy</i>
 </button>
 
-<button mat-mini-fab class="edit-button" color="primary" #drawButton (click)="toggleDrawingDialog()">
+<button #drawButton (click)="toggleDrawingDialog()" class="edit-button" color="primary" mat-mini-fab>
   <mat-icon>stars</mat-icon>
 </button>
-<button mat-mini-fab class="edit-button" #closeButton (click)="hidePositionFlag()">
+<button #closeButton (click)="hidePositionFlag()" class="edit-button" mat-mini-fab>
   <mat-icon>close</mat-icon>
 </button>

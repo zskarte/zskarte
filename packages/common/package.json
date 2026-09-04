@@ -13,7 +13,9 @@
     "build": "tsc -b",
     "dev": "tsc --watch"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "author": "",
   "license": "MIT",
   "description": "",

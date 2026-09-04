@@ -72,8 +72,9 @@ export async function mapChangeEntry(
       const extent = boundingExtent(coords);
       const centroid = convertTo(extent ? getCenter(extent) : [], projection, numerical) as string;
       const reportNumber = (
-        Array.isArray(element?.reportNumber) ? element?.reportNumber : [element?.reportNumber]
-      ).join(', ');
+        Array.isArray(element?.reportNumber) ?
+          element?.reportNumber
+        : [element?.reportNumber]).join(', ');
 
       changes.push({
         ...change,

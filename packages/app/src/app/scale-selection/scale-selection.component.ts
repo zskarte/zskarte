@@ -1,13 +1,13 @@
 import { Component, HostListener, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogContainer } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
 import { DEFAULT_DPI } from '../session/default-map-values';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from "../ui/dialog-layout";
-import { MatCard } from "@angular/material/card";
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
+import { MatCard } from '@angular/material/card';
 
 export type ScaleType = { scale?: number; dpi?: number };
 
@@ -15,7 +15,16 @@ export type ScaleType = { scale?: number; dpi?: number };
   selector: 'app-scale-selection',
   templateUrl: './scale-selection.component.html',
   styleUrl: './scale-selection.component.scss',
-  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent, MatCard],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    FormsModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    MatCard,
+  ],
 })
 export class ScaleSelectionComponent {
   data = inject<ScaleType>(MAT_DIALOG_DATA);
@@ -45,10 +54,6 @@ export class ScaleSelectionComponent {
     this.screenHeight = screen.height * window.devicePixelRatio;
   }
 
-  updateDpi() {
-    this.dpi = ScaleSelectionComponent.calcDpi(this.screenDimension);
-  }
-
   static calcDpi(screenDimension: number) {
     //as on the web the window.devicePixelRatio is not used for size calculation don't use it for calc
     return Math.round(Math.sqrt(Math.pow(screen.width, 2) + Math.pow(screen.height, 2)) / screenDimension);
@@ -57,6 +62,10 @@ export class ScaleSelectionComponent {
   static calcScreenDimension(dpi: number) {
     //as on the web the window.devicePixelRatio is not used for size calculation don't use it for calc
     return Math.round(Math.sqrt(Math.pow(screen.width, 2) + Math.pow(screen.height, 2)) / dpi);
+  }
+
+  updateDpi() {
+    this.dpi = ScaleSelectionComponent.calcDpi(this.screenDimension);
   }
 
   cancel() {

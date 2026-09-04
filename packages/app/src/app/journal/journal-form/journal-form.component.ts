@@ -72,22 +72,15 @@ import { TextAreaWithAddressSearchComponent } from '../text-area-with-address-se
   styleUrl: './journal-form.component.scss',
 })
 export class JournalFormComponent {
-  private _dialog = inject(MatDialog);
-  private _state = inject(ZsMapStateService);
-  private _session = inject(SessionService);
   i18n = inject(I18NService);
   journal = inject(JournalService);
   search = inject(SearchService);
   readonly formVisible = signal(false);
   readonly submitting = signal(false);
-  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
-  @ViewChild('formDirective') private formDirective!: FormGroupDirective;
   messageContentEl = viewChild<TextAreaWithAddressSearchComponent>('messageContent');
-
   JournalEntryStatus = JournalEntryStatus;
   DepartmentValues = DepartmentValues;
   CommunicationTypeValues = CommunicationTypeValues;
-
   entry = input.required<JournalEntry | null>();
   isCreateModal = input<boolean>(false);
   dirty = output<boolean>();
@@ -97,41 +90,7 @@ export class JournalFormComponent {
   showPrint = false;
   markPotentialAddresses = signal(false);
   manualMessageNumber = signal(false);
-  private viewReady = signal(false);
   journalMessageTextTemplate: string | undefined;
-  constructor() {
-    afterNextRender(() => {
-      this.viewReady.set(true);
-      const entry = this.entry();
-      if (entry !== null) {
-        setTimeout(() => this.selectEntry(entry), 0);
-      }
-    });
-
-    effect(() => {
-      if (!this.viewReady()) {
-        return;
-      }
-      const entry = this.entry();
-      if (entry !== null) {
-        setTimeout(() => this.selectEntry(entry), 0);
-      } else if (this.isCreateModal()) {
-        if (this.journalMessageTextTemplate) {
-          this.journalForm.patchValue({
-            messageContent: this.journalMessageTextTemplate,
-          });
-        }
-        this.formVisible.set(true);
-      }
-    });
-
-    this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.dirty.emit(this.journalForm.dirty);
-    });
-    const settings = this._session.getOrganizationSettings();
-    this.journalMessageTextTemplate = settings?.journalMessageTextTemplate;
-  }
-
   journalForm = new FormGroup({
     messageNumber: new FormControl<string | number>(
       { value: '', disabled: true },
@@ -219,18 +178,48 @@ export class JournalFormComponent {
       validators: [this.requiredField('decisionSender')],
     }),
   });
+  private _dialog = inject(MatDialog);
+  private _state = inject(ZsMapStateService);
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
+  private _session = inject(SessionService);
+  @ViewChild('formDirective') private formDirective!: FormGroupDirective;
+  private viewReady = signal(false);
+
+  constructor() {
+    afterNextRender(() => {
+      this.viewReady.set(true);
+      const entry = this.entry();
+      if (entry !== null) {
+        setTimeout(() => this.selectEntry(entry), 0);
+      }
+    });
+
+    effect(() => {
+      if (!this.viewReady()) {
+        return;
+      }
+      const entry = this.entry();
+      if (entry !== null) {
+        setTimeout(() => this.selectEntry(entry), 0);
+      } else if (this.isCreateModal()) {
+        if (this.journalMessageTextTemplate) {
+          this.journalForm.patchValue({
+            messageContent: this.journalMessageTextTemplate,
+          });
+        }
+        this.formVisible.set(true);
+      }
+    });
+
+    this.journalForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.dirty.emit(this.journalForm.dirty);
+    });
+    const settings = this._session.getOrganizationSettings();
+    this.journalMessageTextTemplate = settings?.journalMessageTextTemplate;
+  }
 
   get messageContentControl(): FormControl {
     return this.journalForm.get('messageContent') as FormControl;
-  }
-
-  private combineDateAndTime(dateObj: Date, timeObj: Date) {
-    const newDate = new Date(dateObj);
-    newDate.setHours(timeObj.getHours());
-    newDate.setMinutes(timeObj.getMinutes());
-    newDate.setSeconds(timeObj.getSeconds());
-    newDate.setMilliseconds(timeObj.getMilliseconds());
-    return newDate;
   }
 
   normalizeTimeInput(event: Event) {
@@ -252,18 +241,6 @@ export class JournalFormComponent {
     normalized.setHours(hours, minutes, 0, 0);
     this.journalForm.controls.dateCreatedTime.setValue(normalized);
     input.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  }
-
-  private requiredField(fieldName: keyof JournalEntry): ValidatorFn {
-    return (control: AbstractControl) => {
-      if (this.journalForm === undefined) return null;
-
-      const entryStatus = this.journalForm.controls.entryStatus.value;
-      if (JournalEntryStatusFields[entryStatus].includes(fieldName)) {
-        return control.value ? null : { requiredField: true };
-      }
-      return null;
-    };
   }
 
   async selectEntry(entry: JournalEntry | null) {
@@ -631,5 +608,26 @@ export class JournalFormComponent {
   async showAllAddresses() {
     await this.search.showAllFeature(this.messageContentControl.value, true);
     this.search.addressPreview.set(true);
+  }
+
+  private combineDateAndTime(dateObj: Date, timeObj: Date) {
+    const newDate = new Date(dateObj);
+    newDate.setHours(timeObj.getHours());
+    newDate.setMinutes(timeObj.getMinutes());
+    newDate.setSeconds(timeObj.getSeconds());
+    newDate.setMilliseconds(timeObj.getMilliseconds());
+    return newDate;
+  }
+
+  private requiredField(fieldName: keyof JournalEntry): ValidatorFn {
+    return (control: AbstractControl) => {
+      if (this.journalForm === undefined) return null;
+
+      const entryStatus = this.journalForm.controls.entryStatus.value;
+      if (JournalEntryStatusFields[entryStatus].includes(fieldName)) {
+        return control.value ? null : { requiredField: true };
+      }
+      return null;
+    };
   }
 }

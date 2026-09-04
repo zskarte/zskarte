@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -40,9 +40,6 @@ export interface PermissionGroup {
 })
 export class AdminPermissionsComponent implements OnInit {
   public i18n = inject(I18NService);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-
   public roles = signal<readonly string[]>([]);
   public permissions = signal<readonly string[]>([]);
   public matrix = signal<Record<string, Record<string, boolean>>>({});
@@ -50,11 +47,9 @@ export class AdminPermissionsComponent implements OnInit {
   public isResetting = signal(false);
   public pendingToggles = signal<Set<string>>(new Set());
   public searchQuery = signal('');
-
   public displayedColumns = computed(() => {
     return ['permission', ...this.roles()];
   });
-
   public permissionGroups = computed<PermissionGroup[]>(() => {
     const search = this.searchQuery().trim().toLowerCase();
     const perms = this.permissions();
@@ -77,6 +72,8 @@ export class AdminPermissionsComponent implements OnInit {
     }
     return groups;
   });
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   public ngOnInit(): void {
     this.loadMatrix();

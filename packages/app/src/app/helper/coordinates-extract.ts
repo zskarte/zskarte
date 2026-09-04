@@ -21,7 +21,9 @@ const RE_SEPARATOR = '\\s*?[ \\t,/]\\s*';
 
 // 47.5 7.5 or 47.5° 7.5°
 const REGEX_WGS_84 = new RegExp(
-  `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` + `${RE_SEPARATOR}` + `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
+  `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
+    `${RE_SEPARATOR}` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
   'i',
 );
 // 47.5N 7.5E or 47.5°N 7.5°E
@@ -174,7 +176,8 @@ const wgs84Extractor = (regexMatches: RegExpExecArray | null): number[] | undefi
 };
 
 // LV95, LV03, metric WebMercator (EPSG:3857)
-const REGEX_METRIC_COORDINATES = /^(?<coord1>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)\s*[,/ \t]\s*(?<coord2>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)$/i;
+const REGEX_METRIC_COORDINATES =
+  /^(?<coord1>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)\s*[,/ \t]\s*(?<coord2>\d{1,3}(['`´ ]?\d{3})*(\.\d+)?)$/i;
 
 function extractLV95Coordinates(text: string): number[] | undefined {
   const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()));

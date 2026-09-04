@@ -24,17 +24,17 @@ curl http://localhost:1338/trpc/health   # superjson encoded, `time` is a Date
 
 ## Scripts
 
-| Script | Purpose |
-|---|---|
-| `npm run dev` | Watch mode (`tsx`), runs pending migrations on boot |
-| `npm start` | Run the compiled server (`npm run build` first) |
-| `npm run typecheck` / `npm run build` | TypeScript typecheck without / with emit to `dist` |
-| `npm run db:generate` | Generate SQL migration from Drizzle schema into `drizzle/` |
-| `npm run db:migrate` | Create the database if needed and apply migrations |
-| `npm run db:seed` | Idempotent baseline data seeding |
-| `npm run maplayer:generate` | Offline map layer generation CLI |
-| `npm test` | Vitest unit and integration tests |
-| `npm run test:permissions` | Permission matrix test suite |
+| Script                                | Purpose                                                    |
+|---------------------------------------|------------------------------------------------------------|
+| `npm run dev`                         | Watch mode (`tsx`), runs pending migrations on boot        |
+| `npm start`                           | Run the compiled server (`npm run build` first)            |
+| `npm run typecheck` / `npm run build` | TypeScript typecheck without / with emit to `dist`         |
+| `npm run db:generate`                 | Generate SQL migration from Drizzle schema into `drizzle/` |
+| `npm run db:migrate`                  | Create the database if needed and apply migrations         |
+| `npm run db:seed`                     | Idempotent baseline data seeding                           |
+| `npm run maplayer:generate`           | Offline map layer generation CLI                           |
+| `npm test`                            | Vitest unit and integration tests                          |
+| `npm run test:permissions`            | Permission matrix test suite                               |
 
 The primary scripts are exposed at the repository root as `start:server`, `build:server`,
 `lint:server`, `db:generate`, `db:migrate`, `db:seed`, and `maplayer:generate`.
@@ -55,10 +55,12 @@ src/
 drizzle/             generated SQL migrations (checked in)
 ```
 
-Every domain table carries both an integer `id` and a stable `document_id`, providing stable UUID handles for the Angular client.
+Every domain table carries both an integer `id` and a stable `document_id`, providing stable UUID handles for the
+Angular client.
 
 ## Architectural Notes
 
-- **Single Instance**: The authoritative map state lives in memory (`OperationCache`), so backend instances are not scaled horizontally.
+- **Single Instance**: The authoritative map state lives in memory (`OperationCache`), so backend instances are not
+  scaled horizontally.
 - **Port**: Default is `1338` (configured via `PORT`).
 - **Health Check**: `GET /health` returns `{ "status": "ok" }`.

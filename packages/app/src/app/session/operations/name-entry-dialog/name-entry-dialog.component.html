@@ -6,19 +6,19 @@
   <app-dialog-body>
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ i18n.get('myName') }}</mat-label>
-      <input matInput [formControl]="nameControl" maxlength="40" cdkFocusInitial />
+      <input [formControl]="nameControl" cdkFocusInitial matInput maxlength="40" />
     </mat-form-field>
   </app-dialog-body>
 
   <app-dialog-footer>
-    <button mat-stroked-button type="button" (click)="cancel()">
+    <button (click)="cancel()" mat-stroked-button type="button">
       {{ i18n.get('cancel') }}
     </button>
     <button
-      mat-flat-button
-      color="primary"
-      type="submit"
       [disabled]="nameControl.invalid || !nameControl.value?.trim()"
+      color="primary"
+      mat-flat-button
+      type="submit"
     >
       {{ i18n.get('ok') }}
     </button>

@@ -33,8 +33,7 @@ const verifyInBrowserStyle = async (
   data: object,
   signature: string,
 ) => {
-  const algorithm =
-    keyType === 'rsa' ? { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' } : ({ name: 'Ed25519' } as any);
+  const algorithm = keyType === 'rsa' ? { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' } : ({ name: 'Ed25519' } as any);
   const publicKey = await webcrypto.subtle.importKey('spki', Buffer.from(publicKeyBase64, 'base64'), algorithm, false, [
     'verify',
   ]);

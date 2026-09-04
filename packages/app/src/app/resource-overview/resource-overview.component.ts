@@ -2,11 +2,11 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { ZsMapStateService } from '../state/state.service';
 import { I18NService } from '../state/i18n.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HierarchyLevel, Sign, ZsMapDrawElementState } from '@zskarte/types';
+import { HierarchyLevel, ZsMapDrawElementState } from '@zskarte/types';
 import { map } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { AsyncPipe } from '@angular/common';
-import { DialogHeaderComponent, DialogBodyComponent } from '../ui/dialog-layout';
+import { DialogBodyComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 import { MatCard } from '@angular/material/card';
 import { convertTo, projection_LV95 } from '../helper/projections';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
@@ -31,12 +31,8 @@ interface ResourceRow {
   styleUrl: './resource-overview.component.scss',
 })
 export class ResourceOverviewComponent {
-  private state = inject(ZsMapStateService);
-  private destroyRef = inject(DestroyRef);
   i18n = inject(I18NService);
-
   readonly RESOURCE_SIGN_ID = [210];
-
   displayedColumns: string[] = [
     'organization',
     'formationLocation',
@@ -46,7 +42,8 @@ export class ResourceOverviewComponent {
     'additionalInfo',
     'location',
   ];
-
+  private state = inject(ZsMapStateService);
+  private destroyRef = inject(DestroyRef);
   resources$ = this.state.observeDrawElements().pipe(
     takeUntilDestroyed(this.destroyRef),
     map((elements) =>
@@ -55,6 +52,16 @@ export class ResourceOverviewComponent {
         .map((e) => this.mapToResourceRow(e)),
     ),
   );
+
+  navigateTo(element: ZsMapDrawElementState) {
+    if (element.id) {
+      this.state.setSelectedFeature(element.id);
+      const extent = this.state.getDrawElement(element.id)?.getOlFeature()?.getGeometry()?.getExtent();
+      if (extent) {
+        this.state.setMapCenter(getCenter(extent));
+      }
+    }
+  }
 
   private mapToResourceRow(element: ZsMapBaseDrawElement): ResourceRow {
     const state = element.elementState as ZsMapDrawElementState;
@@ -67,7 +74,7 @@ export class ResourceOverviewComponent {
       formationNumber: state.formationNumber ?? '',
       formationDetail: state.formationDetail ?? '',
       additionalInfo: state.additionalInfo ?? '',
-      location: convertTo(geometry.getCoordinates() || [], projection_LV95!, false) as string
+      location: convertTo(geometry.getCoordinates() || [], projection_LV95!, false) as string,
     };
   }
 
@@ -86,16 +93,6 @@ export class ResourceOverviewComponent {
         return this.i18n.get('hierarchyBataillon');
       default:
         return '';
-    }
-  }
-
-  navigateTo(element: ZsMapDrawElementState) {
-    if (element.id) {
-      this.state.setSelectedFeature(element.id);
-      const extent = this.state.getDrawElement(element.id)?.getOlFeature()?.getGeometry()?.getExtent();
-      if (extent) {
-        this.state.setMapCenter(getCenter(extent));
-      }
     }
   }
 }

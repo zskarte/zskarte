@@ -11,9 +11,8 @@ import { I18NService } from '../state/i18n.service';
   imports: [MatButtonModule, AsyncPipe],
 })
 export class CompassButtonComponent {
-  private renderer = inject(MapRendererService);
   public i18n = inject(I18NService);
-
+  private renderer = inject(MapRendererService);
   rotation$ = this.renderer.observeRotation();
 
   resetRotation(): void {

@@ -11,7 +11,7 @@ import {
 import { MatButton, MatButtonModule, MatMiniFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { Sign, ZsMapDrawElementStateType } from '@zskarte/types';
+import { Sign } from '@zskarte/types';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
@@ -33,22 +33,19 @@ import { MapSelectService } from './map-select.service';
 })
 export class MapRendererComponent implements AfterViewInit {
   public i18n = inject(I18NService);
-  private _state = inject(ZsMapStateService);
-  private _session = inject(SessionService);
-  private _dialog = inject(MatDialog);
-  private _select = inject(MapSelectService);
-  private _overlay = inject(MapOverlayService);
   public renderer = inject(MapRendererService);
-
   readonly mapElement = viewChild.required<ElementRef>('mapElement');
   readonly deleteElement = viewChild.required<MatButton>('deleteButton');
   readonly rotateElement = viewChild.required<MatButton>('rotateButton');
   readonly copyElement = viewChild.required<MatButton>('copyButton');
   readonly drawElement = viewChild.required<MatButton>('drawButton');
   readonly closeElement = viewChild.required<MatButton>('closeButton');
-
   public isDevicePositionFlagVisible = false;
-
+  private _state = inject(ZsMapStateService);
+  private _session = inject(SessionService);
+  private _dialog = inject(MatDialog);
+  private _select = inject(MapSelectService);
+  private _overlay = inject(MapOverlayService);
   private _rotating = false;
   private _initialRotation = 0;
 

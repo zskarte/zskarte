@@ -1,6 +1,6 @@
-import { Injectable, effect, inject } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { SidebarContext } from './sidebar.interfaces';
-import { BehaviorSubject, Observable, combineLatest, map } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { ZsMapStateService } from '../state/state.service';
 
 @Injectable({

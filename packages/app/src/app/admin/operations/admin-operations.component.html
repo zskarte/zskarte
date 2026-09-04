@@ -5,13 +5,13 @@
       <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
         <mat-icon matPrefix>search</mat-icon>
         <input
-          matInput
           [(ngModel)]="searchQuery"
           [placeholder]="i18n.get('searchOperations')"
           data-testid="op-search-input"
+          matInput
         />
         @if (searchQuery()) {
-          <button matSuffix mat-icon-button (click)="searchQuery.set('')">
+          <button (click)="searchQuery.set('')" mat-icon-button matSuffix>
             <mat-icon>clear</mat-icon>
           </button>
         }
@@ -41,10 +41,10 @@
     </div>
 
     <div class="header-actions">
-      <button mat-icon-button (click)="loadData()" [title]="i18n.get('refresh')" [disabled]="isLoading()">
+      <button (click)="loadData()" [disabled]="isLoading()" [title]="i18n.get('refresh')" mat-icon-button>
         <mat-icon>refresh</mat-icon>
       </button>
-      <button mat-flat-button color="primary" (click)="openCreateDialog()" data-testid="add-op-btn">
+      <button (click)="openCreateDialog()" color="primary" data-testid="add-op-btn" mat-flat-button>
         <mat-icon>add</mat-icon>
         {{ i18n.get('createOperation') }}
       </button>
@@ -62,28 +62,28 @@
     </div>
   } @else {
     <div class="table-responsive mat-elevation-z1">
-      <table mat-table [dataSource]="filteredOperations()" class="operations-table" data-testid="ops-table">
+      <table [dataSource]="filteredOperations()" class="operations-table" data-testid="ops-table" mat-table>
         <!-- Name Column -->
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('operationName') }}</th>
-          <td mat-cell *matCellDef="let op" class="font-medium">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('operationName') }}</th>
+          <td *matCellDef="let op" class="font-medium" mat-cell>
             {{ op.name }}
           </td>
         </ng-container>
 
         <!-- Organization Column -->
         <ng-container matColumnDef="organization">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('organization') }}</th>
-          <td mat-cell *matCellDef="let op">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('organization') }}</th>
+          <td *matCellDef="let op" mat-cell>
             {{ op.organizationName || '-' }}
           </td>
         </ng-container>
 
         <!-- Phase Column -->
         <ng-container matColumnDef="phase">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('phase') }}</th>
-          <td mat-cell *matCellDef="let op">
-            <span class="phase-chip" [ngClass]="'phase-' + op.phase">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('phase') }}</th>
+          <td *matCellDef="let op" mat-cell>
+            <span [ngClass]="'phase-' + op.phase" class="phase-chip">
               {{ i18n.get(op.phase) }}
             </span>
           </td>
@@ -91,74 +91,74 @@
 
         <!-- Description Column -->
         <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('description') }}</th>
-          <td mat-cell *matCellDef="let op" class="desc-cell">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('description') }}</th>
+          <td *matCellDef="let op" class="desc-cell" mat-cell>
             {{ op.description || '-' }}
           </td>
         </ng-container>
 
         <!-- Updated At Column -->
         <ng-container matColumnDef="updatedAt">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('createdAt') }}</th>
-          <td mat-cell *matCellDef="let op" class="date-cell">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('createdAt') }}</th>
+          <td *matCellDef="let op" class="date-cell" mat-cell>
             {{ op.updatedAt | date: 'dd.MM.yyyy HH:mm' }}
           </td>
         </ng-container>
 
         <!-- Actions Column -->
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="actions-header">{{ i18n.get('actions') }}</th>
-          <td mat-cell *matCellDef="let op" class="actions-cell">
+          <th *matHeaderCellDef class="actions-header" mat-header-cell>{{ i18n.get('actions') }}</th>
+          <td *matCellDef="let op" class="actions-cell" mat-cell>
             <button
-              mat-icon-button
               (click)="openEditDialog(op)"
               [title]="i18n.get('editOperation')"
               data-testid="edit-op-btn"
+              mat-icon-button
             >
               <mat-icon>edit</mat-icon>
             </button>
             @if (op.phase === 'active') {
               <button
-                mat-icon-button
                 (click)="archiveOperation(op)"
                 [title]="i18n.get('archiveOperation')"
                 data-testid="archive-op-btn"
+                mat-icon-button
               >
                 <mat-icon>archive</mat-icon>
               </button>
             } @else if (op.phase === 'archived') {
               <button
-                mat-icon-button
                 (click)="unarchiveOperation(op)"
                 [title]="i18n.get('unarchiveOperation')"
                 data-testid="unarchive-op-btn"
+                mat-icon-button
               >
                 <mat-icon>unarchive</mat-icon>
               </button>
             } @else if (op.phase === 'deleted') {
               <button
-                mat-icon-button
                 (click)="unarchiveOperation(op)"
                 [title]="i18n.get('restoreOperation')"
                 data-testid="restore-op-btn"
+                mat-icon-button
               >
                 <mat-icon>restore</mat-icon>
               </button>
             }
             <button
-              mat-icon-button
-              color="warn"
               (click)="deleteOperation(op)"
               [title]="i18n.get('deleteOperation')"
+              color="warn"
               data-testid="delete-op-btn"
+              mat-icon-button
             >
               <mat-icon>delete</mat-icon>
             </button>
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
       </table>
     </div>
   }

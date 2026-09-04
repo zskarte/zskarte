@@ -25,16 +25,18 @@ export function mapListViewEntry(
     const extent = geometry?.getExtent();
     const centroid = convertTo(extent ? getCenter(extent) : [], projection, numerical);
     const reportNumber = (
-      Array.isArray(element.elementState?.reportNumber)
-        ? element.elementState?.reportNumber
-        : [element.elementState?.reportNumber]
-    ).join(', ');
+      Array.isArray(element.elementState?.reportNumber) ?
+        element.elementState?.reportNumber
+      : [element.elementState?.reportNumber]).join(', ');
     return {
       id: element.getId(),
       date: datePipe.transform(element.elementState?.createdAt, 'dd.MM.yyyy HH:mm'),
       dateNumeric: element.elementState?.createdAt,
       group: sk && i18n.has(sk) ? i18n.get(sk) : '',
-      sign: currentLocale === 'fr' ? sig.fr : currentLocale === 'en' ? sig.en : sig.de,
+      sign:
+        currentLocale === 'fr' ? sig.fr
+        : currentLocale === 'en' ? sig.en
+        : sig.de,
       location,
       reportNumber,
       centroid,

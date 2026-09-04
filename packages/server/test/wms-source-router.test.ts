@@ -21,8 +21,7 @@ const SOURCE_FOREIGN = '66666666-6666-4666-8666-666666666666';
 const dialect = new PgDialect();
 const toQuery = (condition: any) => dialect.sqlToQuery(condition as SQL);
 
-const authSession = (role: Role, organizationId: string | null): AuthSession =>
-  createTestSession(role, organizationId);
+const authSession = (role: Role, organizationId: string | null): AuthSession => createTestSession(role, organizationId);
 
 const row = (overrides: Record<string, unknown> = {}) => ({
   documentId: SOURCE_OWN,

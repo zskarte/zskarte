@@ -25,8 +25,6 @@ export abstract class ZsMapBaseElement<T> {
     return this._id;
   }
 
-  protected abstract _initialize(element: IZsMapBaseDrawElementState): void;
-
   public observeElement(): Observable<T | undefined> {
     return from(this._element);
   }
@@ -39,4 +37,6 @@ export abstract class ZsMapBaseElement<T> {
   public observeUnsubscribe(): Observable<void> {
     return this._unsubscribe.asObservable();
   }
+
+  protected abstract _initialize(element: IZsMapBaseDrawElementState): void;
 }

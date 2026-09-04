@@ -73,7 +73,7 @@ export class MapModifyService {
       // only first feature is relevant
       const feature = this._renderer.getFeatureInsideCluster(e.features.getArray()[0] as Feature<SimpleGeometry>);
       const element = this._renderer.getCachedDrawElement(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
-      
+
       // Handle Circle geometry specially (uses center/radius instead of coordinates)
       const geometry = feature.getGeometry();
       if (geometry?.getType() === 'Circle' && element?.element instanceof ZsMapCircleDrawElement) {
@@ -82,7 +82,7 @@ export class MapModifyService {
       } else {
         element?.element?.setCoordinates(geometry?.getCoordinates() ?? []);
       }
-      
+
       if (this._modify['vertexFeature_']) {
         this._select.updateVertexPoint(this._modify['vertexFeature_'].getGeometry().getCoordinates());
         const type = element?.element?.elementState?.type;

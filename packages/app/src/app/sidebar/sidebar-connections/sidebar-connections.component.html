@@ -2,12 +2,12 @@
   @if (labelEdit) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('myName') }}</mat-label>
-      <input type="text" matInput [ngModel]="session.getLabel()" (ngModelChange)="label.set($event)" maxlength="40" />
+      <input (ngModelChange)="label.set($event)" [ngModel]="session.getLabel()" matInput maxlength="40" type="text" />
     </mat-form-field>
   } @else {
     <span class="label-span">{{ session.getLabel() }}</span>
   }
-  <button mat-icon-button color="basic" (click)="toggleEditLabel()">
+  <button (click)="toggleEditLabel()" color="basic" mat-icon-button>
     @if (!labelEdit) {
       <mat-icon>edit</mat-icon>
     } @else {
@@ -19,9 +19,9 @@
 @if (!offlineService.localOperation() && offlineService.isOnline()) {
   <div class="connections-container">
     <mat-slide-toggle
-      color="primary"
-      [ngModel]="showCurrentLocation()"
       (change)="state.updateShowCurrentLocation($any($event).checked)"
+      [ngModel]="showCurrentLocation()"
+      color="primary"
     >
       <mat-label>{{ i18n.get('shareLocation') }}</mat-label>
     </mat-slide-toggle>
@@ -37,10 +37,10 @@
             </div>
             @if (connection.currentLocation) {
               <button
-                mat-icon-button
-                color="primary"
-                [title]="i18n.get('currentLocation')"
                 (click)="centerMap(connection.currentLocation)"
+                [title]="i18n.get('currentLocation')"
+                color="primary"
+                mat-icon-button
               >
                 <mat-icon mat-list-icon>person_pin_circle</mat-icon>
               </button>
@@ -60,7 +60,7 @@
 <ng-template #workOfflineContent>
   <div class="local-container">
     <p>{{ i18n.get('localAvailabilityStepsIntro') }}</p>
-    <button mat-flat-button color="primary" type="button" (click)="prepareLocalAvailability()">
+    <button (click)="prepareLocalAvailability()" color="primary" mat-flat-button type="button">
       {{ i18n.get('prepareLocalAvailability') }}
     </button>
     <div class="task">
@@ -72,7 +72,7 @@
       <span class="task-text">{{ i18n.get('downloadLocalBaseMap') }}</span>
     </div>
     @if (offlineService.isLoadingBaseMap()) {
-      <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
+      <mat-progress-bar [value]="mapProgress" class="map-progress" color="primary" mode="determinate" />
     }
     <div class="task">
       @if (offlineService.useLocalBaseMap()) {

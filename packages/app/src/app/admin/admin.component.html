@@ -1,16 +1,16 @@
 <div class="admin-container">
-  <mat-toolbar color="primary" class="admin-toolbar">
+  <mat-toolbar class="admin-toolbar" color="primary">
     <button
-      mat-icon-button
       (click)="backToOperations()"
       [title]="i18n.get('backToOperations')"
       data-testid="back-to-operations-btn"
+      mat-icon-button
     >
       <mat-icon>arrow_back</mat-icon>
     </button>
     <span class="toolbar-title">{{ i18n.get('adminPanel') }}</span>
     <span class="spacer"></span>
-    <button mat-button (click)="backToOperations()">
+    <button (click)="backToOperations()" mat-button>
       <mat-icon>list</mat-icon>
       {{ i18n.get('backToOperations') }}
     </button>

@@ -611,5 +611,4 @@ export const JOURNAL_TRANSLATIONS = {
     en: 'Done',
     fr: 'Terminé',
   },
-
 };

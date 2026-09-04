@@ -2,9 +2,9 @@
   <div class="toolbar">
     <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
       <mat-icon matPrefix>search</mat-icon>
-      <input matInput [(ngModel)]="searchQuery" placeholder="Filter permissions..." data-testid="perm-search-input" />
+      <input [(ngModel)]="searchQuery" data-testid="perm-search-input" matInput placeholder="Filter permissions..." />
       @if (searchQuery()) {
-        <button matSuffix mat-icon-button (click)="searchQuery.set('')">
+        <button (click)="searchQuery.set('')" mat-icon-button matSuffix>
           <mat-icon>clear</mat-icon>
         </button>
       }
@@ -12,22 +12,22 @@
 
     <div class="actions">
       <button
-        mat-icon-button
         (click)="loadMatrix()"
-        [title]="i18n.get('refresh')"
         [disabled]="isLoading() || isResetting()"
+        [title]="i18n.get('refresh')"
+        mat-icon-button
       >
         <mat-icon>refresh</mat-icon>
       </button>
       <button
-        mat-stroked-button
-        color="warn"
         (click)="resetToDefaults()"
         [disabled]="isLoading() || isResetting()"
+        color="warn"
         data-testid="reset-perms-btn"
+        mat-stroked-button
       >
         @if (isResetting()) {
-          <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+          <mat-spinner class="btn-spinner" diameter="18"></mat-spinner>
         } @else {
           <mat-icon>restart_alt</mat-icon>
         }
@@ -70,10 +70,10 @@
                 @for (role of roles(); track role) {
                   <td class="checkbox-cell">
                     <mat-checkbox
-                      [checked]="isPermissionEnabled(role, perm)"
-                      [disabled]="role === 'admin' || isToggling(role, perm)"
                       (change)="onTogglePermission(role, perm, $event.checked)"
                       [attr.data-testid]="'perm-toggle-' + role + '-' + perm"
+                      [checked]="isPermissionEnabled(role, perm)"
+                      [disabled]="role === 'admin' || isToggling(role, perm)"
                       [matTooltip]="role === 'admin' ? i18n.get('adminPermissionsFixed') : ''"
                       color="primary"
                     >

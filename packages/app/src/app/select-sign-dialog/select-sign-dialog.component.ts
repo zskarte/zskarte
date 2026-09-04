@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, output } from '@angular/core';
+import { Component, inject, OnInit, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,20 +36,18 @@ export class SelectSignDialog implements OnInit {
   dialogRef = inject<MatDialogRef<SelectSignDialog>>(MatDialogRef);
   i18n = inject(I18NService);
   dialog = inject(MatDialog);
-  private _session = inject(SessionService);
-
   filter = '';
   allSigns: Sign[] = [];
   filteredSigns: Sign[] = [];
   selected = '';
   hiddenTypes = ['incident'];
   signCategories = Array.from(signCategories.values()).filter((c) => !this.hiddenTypes.includes(c.name));
-
   capitalizeFirstLetter = capitalizeFirstLetter;
   readonly signSelected = output<Sign>();
+  private _session = inject(SessionService);
 
   loadSigns() {
-    this.allSigns = Signs.SIGNS.filter(sign=>!sign.deprecated).sort((a, b) => {
+    this.allSigns = Signs.SIGNS.filter((sign) => !sign.deprecated).sort((a, b) => {
       let aValue = a[this._session.getLocale()];
       let bValue = b[this._session.getLocale()];
       aValue = aValue ? aValue.toLowerCase() : '';

@@ -32,29 +32,34 @@ export type IZsMapSnapshots = Omit<MapSnapshotList, 'data'> & { data: IZsMapSnap
   selector: 'app-sidebar-history',
   templateUrl: './sidebar-history.component.html',
   styleUrls: ['./sidebar-history.component.scss'],
-  imports: [MatTableModule, MatPaginatorModule, DatePipe, MatButtonModule, MatIconModule, ChangeDetailComponent, CommonModule],
+  imports: [
+    MatTableModule,
+    MatPaginatorModule,
+    DatePipe,
+    MatButtonModule,
+    MatIconModule,
+    ChangeDetailComponent,
+    CommonModule,
+  ],
 })
 export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
   i18n = inject(I18NService);
-  private sessionService = inject(SessionService);
-  private stateService = inject(ZsMapStateService);
-  private rendererService = inject(MapRendererService);
-  private snackBarService = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
-  readonly historyDate = toSignal(this.stateService.observeHistoryDate());
-
   readonly paginator = viewChild.required(MatPaginator);
-
   activeSnapshot?: string | null;
   activeChangeset?: string;
   highlightedChangeset?: string;
   currentChangesets: IZsChangeset[] = [];
   expertView: boolean;
   operation?: IZsMapOperation;
-
   snapshots = signal<IZsMapSnapshots | undefined>(undefined);
   resultSize?: number;
   readonly pageSize = SNAPSHOT_PAGE_SIZE;
+  private sessionService = inject(SessionService);
+  private stateService = inject(ZsMapStateService);
+  readonly historyDate = toSignal(this.stateService.observeHistoryDate());
+  private rendererService = inject(MapRendererService);
+  private snackBarService = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
     this.expertView = this.stateService.isExpertView();

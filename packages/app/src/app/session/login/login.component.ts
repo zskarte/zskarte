@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
 import { trpc } from '../../api/trpc.client';
 import { getResponsiveImageSource } from '../../helper/media-utils';
@@ -41,9 +41,6 @@ import { IZso } from '@zskarte/types';
 export class LoginComponent implements OnDestroy {
   session = inject(SessionService);
   i18n = inject(I18NService);
-  private _dialog = inject(MatDialog);
-  private router = inject(Router);
-
   public selectedOrganization?: IZso = undefined;
   public password = '';
   public organizations = new BehaviorSubject<IZso[]>([]);
@@ -53,6 +50,9 @@ export class LoginComponent implements OnDestroy {
   public isOnline = true;
   public hasGuestUser = false;
   public allowOfflineAccess = localStorage.getItem(ALLOW_OFFLINE_ACCESS_KEY);
+  filterControl = new FormControl();
+  private _dialog = inject(MatDialog);
+  private router = inject(Router);
   private _ngUnsubscribe = new Subject<void>();
 
   constructor() {
@@ -92,8 +92,6 @@ export class LoginComponent implements OnDestroy {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
   }
-
-  filterControl = new FormControl();
 
   filterOrganizations() {
     const currentFiltered = this.organizations.value.filter((option) =>

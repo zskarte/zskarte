@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { I18NService } from '../state/i18n.service';
 import { SessionService } from '../session/session.service';
@@ -47,10 +47,7 @@ describe('Admin Translations & I18N', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        I18NService,
-        { provide: SessionService, useValue: mockSession },
-      ],
+      providers: [I18NService, { provide: SessionService, useValue: mockSession }],
     });
 
     const i18n = TestBed.inject(I18NService);

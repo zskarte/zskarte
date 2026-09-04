@@ -66,14 +66,6 @@ export class WmsSourceComponent {
     this.filterGlobalSources();
   }
 
-  /** a source of the backend is only identified by its documentId */
-  private filterGlobalSources() {
-    const sourceIds = this.sources.map((s: WmsSource) => s.documentId);
-    this.filteredGlobalSources$.next(
-      this.globalSources.filter((s) => !s.documentId || !sourceIds.includes(s.documentId)),
-    );
-  }
-
   updateFullUrl($event: MatRadioChange | Event | null) {
     if (this.selectedSource) {
       if (this.selectedSource.url === 'https://') {
@@ -140,5 +132,13 @@ export class WmsSourceComponent {
 
       this.filterGlobalSources();
     }
+  }
+
+  /** a source of the backend is only identified by its documentId */
+  private filterGlobalSources() {
+    const sourceIds = this.sources.map((s: WmsSource) => s.documentId);
+    this.filteredGlobalSources$.next(
+      this.globalSources.filter((s) => !s.documentId || !sourceIds.includes(s.documentId)),
+    );
   }
 }

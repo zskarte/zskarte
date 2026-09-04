@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, NgZone, inject } from '@angular/core';
+import { inject, Injectable, NgZone } from '@angular/core';
 // import type { FileFilter } from 'electron';
 import FileSaver from 'file-saver';
 import { isElectron } from '../helper/os';
@@ -9,11 +9,6 @@ import { isElectron } from '../helper/os';
 })
 export class IpcService {
   private _zone = inject(NgZone);
-
-  // skipcq: JS-0105
-  private async _invoke<PARAMS = any, RESULT = any>(channel: string, params: PARAMS): Promise<RESULT> {
-    return await (window as any).zskarte.ipcInvoke(channel, params);
-  }
 
   public async saveFile(params: { data: string; fileName: string; mimeType: string; filters?: any[] }): Promise<void> {
     if (isElectron()) {
@@ -27,5 +22,10 @@ export class IpcService {
 
   public async openFile(params: { filters: any[] }): Promise<string> {
     return await this._invoke('fs:openFile', params);
+  }
+
+  // skipcq: JS-0105
+  private async _invoke<PARAMS = any, RESULT = any>(channel: string, params: PARAMS): Promise<RESULT> {
+    return await (window as any).zskarte.ipcInvoke(channel, params);
   }
 }

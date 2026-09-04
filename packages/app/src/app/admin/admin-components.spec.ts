@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Injector, runInInjectionContext, signal } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
 import { AdminComponent } from './admin.component';
@@ -497,7 +497,9 @@ describe('Admin UI Components', () => {
       await comp.triggerGeneration();
 
       expect(comp.config()).toEqual(config);
-      expect(trpcMock.admin.mapLayerGeneration.update.mutate).toHaveBeenCalledWith(expect.objectContaining({ cantons: 'BE,ZH' }));
+      expect(trpcMock.admin.mapLayerGeneration.update.mutate).toHaveBeenCalledWith(
+        expect.objectContaining({ cantons: 'BE,ZH' }),
+      );
       expect(trpcMock.admin.mapLayerGeneration.trigger.mutate).toHaveBeenCalledWith();
     });
   });

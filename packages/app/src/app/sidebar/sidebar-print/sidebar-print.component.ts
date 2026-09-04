@@ -1,6 +1,6 @@
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
-import { Subject, map, takeUntil, distinctUntilChanged, Observable, firstValueFrom } from 'rxjs';
-import { IjsPDF, getJsPDF } from '../../pdf/jsPDF.factory';
+import { distinctUntilChanged, firstValueFrom, map, Observable, Subject, takeUntil } from 'rxjs';
+import { getJsPDF, IjsPDF } from '../../pdf/jsPDF.factory';
 import { ZsMapStateService } from '../../state/state.service';
 import { I18NService } from '../../state/i18n.service';
 import { SessionService } from '../../session/session.service';
@@ -19,8 +19,8 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { PermissionType, PaperDimensions, IZsMapPrintState, AccessTokenType } from '@zskarte/types';
-import { MatCard } from "@angular/material/card";
+import { IZsMapPrintState, PaperDimensions, PermissionType } from '@zskarte/types';
+import { MatCard } from '@angular/material/card';
 
 @Component({
   selector: 'app-sidebar-print',
@@ -34,19 +34,15 @@ import { MatCard } from "@angular/material/card";
     MatRadioModule,
     FormsModule,
     MatCheckboxModule,
-    MatCard
-],
+    MatCard,
+  ],
 })
 export class SidebarPrintComponent {
   i18n = inject(I18NService);
   state = inject(ZsMapStateService);
   session = inject(SessionService);
-  private _dialog = inject(MatDialog);
-
   readonly progressEl = viewChild.required<ElementRef>('progress');
-  private _ngUnsubscribe = new Subject<void>();
   paperDimensions = Object.keys(PaperDimensions);
-
   format = 'A4';
   orientation: 'landscape' | 'portrait' = 'landscape';
   printMargin = 10;
@@ -65,6 +61,8 @@ export class SidebarPrintComponent {
   generatingProgress = '0';
   qrCodeSize = 20;
   attributions?: string[];
+  private _dialog = inject(MatDialog);
+  private _ngUnsubscribe = new Subject<void>();
 
   constructor() {
     const state = this.state;
@@ -106,24 +104,42 @@ export class SidebarPrintComponent {
     });
   }
 
-  private observeAutoScaleVal(): Observable<number | undefined> {
-    return this.state.observePrintState().pipe(
-      takeUntil(this._ngUnsubscribe),
-      map((o) => {
-        return o?.autoScaleVal;
-      }),
-      distinctUntilChanged((x, y) => x === y),
+  static extractAttribution(attribution: string) {
+    return (
+      attribution
+        //keep content and link of first a tag
+        //.replace(/<a.*href="([^"]+)".*>([^<]+)<\/a>/, '$2 ($1)')
+        //keep content of first tag
+        .replace(/<([^>]+) ?[^>]*>([^<]+)<\/\1>/, '$2')
+        //remove all other tags and content
+        .replace(/<([^>]+) ?[^>]*>([^<]+)<\/\1>/g, '')
+        //remove none matching tags
+        .replace(/<[^>]+>/g, '')
+        //decode decimal html entities
+        .replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec))
     );
   }
 
-  private observeAttributions(): Observable<string[] | undefined> {
-    return this.state.observePrintState().pipe(
-      takeUntil(this._ngUnsubscribe),
-      map((o) => {
-        return o?.attributions;
-      }),
-      distinctUntilChanged((x, y) => x === y),
-    );
+  private static drawCanvas(canvas, mapContext: CanvasRenderingContext2D) {
+    if (canvas && canvas.width > 0) {
+      const opacity = canvas.parentNode.style.opacity;
+      mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+      const transform = canvas.style.transform;
+      if (transform) {
+        // Get the transform parameters from the style's transform matrix
+        const matrix = transform
+          .match(/^matrix\(([^)]*)\)$/)[1]
+          .split(',')
+          .map(Number);
+        // Apply the transform to the export map context
+        CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
+      } else {
+        //WebGL(GPUTileLayer) have no transform css but are transformed anyway
+        //olHas.DEVICE_PIXEL_RATIO is the cached value of window.devicePixelRatio at initialize of ol (value stays if browser zoom is used)
+        mapContext.setTransform(1 / DEVICE_PIXEL_RATIO, 0, 0, 1 / DEVICE_PIXEL_RATIO, 0, 0);
+      }
+      mapContext.drawImage(canvas, 0, 0);
+    }
   }
 
   public ngOnDestroy(): void {
@@ -170,43 +186,6 @@ export class SidebarPrintComponent {
       this.state.setDPI(this.dpi);
     }
     */
-  }
-
-  private static drawCanvas(canvas, mapContext: CanvasRenderingContext2D) {
-    if (canvas && canvas.width > 0) {
-      const opacity = canvas.parentNode.style.opacity;
-      mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-      const transform = canvas.style.transform;
-      if (transform) {
-        // Get the transform parameters from the style's transform matrix
-        const matrix = transform
-          .match(/^matrix\(([^)]*)\)$/)[1]
-          .split(',')
-          .map(Number);
-        // Apply the transform to the export map context
-        CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
-      } else {
-        //WebGL(GPUTileLayer) have no transform css but are transformed anyway
-        //olHas.DEVICE_PIXEL_RATIO is the cached value of window.devicePixelRatio at initialize of ol (value stays if browser zoom is used)
-        mapContext.setTransform(1 / DEVICE_PIXEL_RATIO, 0, 0, 1 / DEVICE_PIXEL_RATIO, 0, 0);
-      }
-      mapContext.drawImage(canvas, 0, 0);
-    }
-  }
-
-  private generateQrCodeDataUrl(relativePath: string): Promise<string> {
-    const fullpath = `${window.location.origin}/${relativePath}`;
-    const dpi = this.dpi < 150 ? 150 : this.dpi;
-    const width = (this.qrCodeSize * dpi) / MM_PER_INCHES;
-    return QRCodeToDataURL(fullpath, {
-      width,
-      type: 'image/png',
-      margin: this.dpi <= 150 ? 1 : undefined /* = default */,
-    }).catch((err) => {
-      console.error(`Error generating QR Code for ${fullpath}:`, err);
-      this.generateError = 'Error generating QR Code, continue without.';
-      return '';
-    });
   }
 
   generate() {
@@ -362,22 +341,6 @@ export class SidebarPrintComponent {
     }
   }
 
-  static extractAttribution(attribution: string) {
-    return (
-      attribution
-        //keep content and link of first a tag
-        //.replace(/<a.*href="([^"]+)".*>([^<]+)<\/a>/, '$2 ($1)')
-        //keep content of first tag
-        .replace(/<([^>]+) ?[^>]*>([^<]+)<\/\1>/, '$2')
-        //remove all other tags and content
-        .replace(/<([^>]+) ?[^>]*>([^<]+)<\/\1>/g, '')
-        //remove none matching tags
-        .replace(/<[^>]+>/g, '')
-        //decode decimal html entities
-        .replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec))
-    );
-  }
-
   addAttributions(pdf: IjsPDF) {
     //add attributions bottom center
     if (this.attributions && this.attributions.length > 0) {
@@ -444,5 +407,40 @@ export class SidebarPrintComponent {
         this.qrCodeSize,
       );
     }
+  }
+
+  private observeAutoScaleVal(): Observable<number | undefined> {
+    return this.state.observePrintState().pipe(
+      takeUntil(this._ngUnsubscribe),
+      map((o) => {
+        return o?.autoScaleVal;
+      }),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  private observeAttributions(): Observable<string[] | undefined> {
+    return this.state.observePrintState().pipe(
+      takeUntil(this._ngUnsubscribe),
+      map((o) => {
+        return o?.attributions;
+      }),
+      distinctUntilChanged((x, y) => x === y),
+    );
+  }
+
+  private generateQrCodeDataUrl(relativePath: string): Promise<string> {
+    const fullpath = `${window.location.origin}/${relativePath}`;
+    const dpi = this.dpi < 150 ? 150 : this.dpi;
+    const width = (this.qrCodeSize * dpi) / MM_PER_INCHES;
+    return QRCodeToDataURL(fullpath, {
+      width,
+      type: 'image/png',
+      margin: this.dpi <= 150 ? 1 : undefined /* = default */,
+    }).catch((err) => {
+      console.error(`Error generating QR Code for ${fullpath}:`, err);
+      this.generateError = 'Error generating QR Code, continue without.';
+      return '';
+    });
   }
 }

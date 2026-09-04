@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -14,7 +14,7 @@ import { I18NService } from '../../state/i18n.service';
 import { trpc } from '../../api/trpc.client';
 import { trpcRequest } from '../../api/trpc.error';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
-import { AdminOrganizationDialogComponent, AdminOrganizationData } from './admin-organization-dialog.component';
+import { AdminOrganizationData, AdminOrganizationDialogComponent } from './admin-organization-dialog.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -35,13 +35,9 @@ import { environment } from '../../../environments/environment';
 })
 export class AdminOrganizationsComponent implements OnInit {
   public i18n = inject(I18NService);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-
   public organizations = signal<AdminOrganizationData[]>([]);
   public isLoading = signal(false);
   public searchQuery = signal('');
-
   public displayedColumns: string[] = [
     'logo',
     'name',
@@ -52,13 +48,14 @@ export class AdminOrganizationsComponent implements OnInit {
     'operationCount',
     'actions',
   ];
-
   public filteredOrganizations = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
     const orgs = this.organizations();
     if (!query) return orgs;
     return orgs.filter((org) => org.name.toLowerCase().includes(query));
   });
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   public ngOnInit(): void {
     this.loadOrganizations();
@@ -127,9 +124,7 @@ export class AdminOrganizationsComponent implements OnInit {
 
     confirmRef.afterClosed().subscribe(async (confirmed) => {
       if (confirmed) {
-        const res = await trpcRequest(
-          trpc.admin.organization.delete.mutate({ documentId: org.documentId }),
-        );
+        const res = await trpcRequest(trpc.admin.organization.delete.mutate({ documentId: org.documentId }));
         if (res.error) {
           this.snackBar.open(this.i18n.get('error'), 'OK', { duration: 3000 });
         } else {

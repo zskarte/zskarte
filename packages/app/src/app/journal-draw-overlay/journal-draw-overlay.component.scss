@@ -47,6 +47,7 @@
 
 .buttons {
   display: none;
+
   & > :first-child {
     margin-right: 0.5rem;
   }
@@ -62,15 +63,19 @@
   &.journal-infos {
     width: 100%;
   }
+
   .journal-header-content .subject {
     text-wrap: wrap;
   }
+
   .preserve-linebreak {
     display: block;
   }
+
   .message-content-buttons {
     display: block;
   }
+
   .buttons {
     display: block;
   }

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { I18NService } from '../../state/i18n.service';
 import { trpc } from '../../api/trpc.client';
 import { trpcRequest } from '../../api/trpc.error';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../../ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 import type { AdminOrganizationData } from '../organizations/admin-organization-dialog.component';
 
 export interface AdminOperationData {
@@ -56,31 +56,31 @@ export interface AdminOperationDialogData {
 })
 export class AdminOperationDialogComponent {
   public i18n = inject(I18NService);
-  private fb = inject(FormBuilder);
-  private dialogRef = inject<MatDialogRef<AdminOperationDialogComponent>>(MatDialogRef);
-  private snackBar = inject(MatSnackBar);
   public data: AdminOperationDialogData = inject(MAT_DIALOG_DATA) || {
     mode: 'create',
     organizations: [],
   };
-
   public isSaving = signal(false);
-
   public phases: Array<{ value: 'active' | 'archived' | 'deleted'; label: string }> = [
     { value: 'active', label: this.i18n.get('active') },
     { value: 'archived', label: this.i18n.get('archived') },
     { value: 'deleted', label: this.i18n.get('deleted') },
   ];
-
+  private fb = inject(FormBuilder);
   public form = this.fb.group({
     name: [this.data.operation?.name ?? '', [Validators.required, Validators.minLength(1)]],
     organizationId: [
-      this.data.operation?.organizationId ?? this.data.selectedOrganizationId ?? (this.data.organizations[0]?.documentId ?? ''),
+      this.data.operation?.organizationId ??
+        this.data.selectedOrganizationId ??
+        this.data.organizations[0]?.documentId ??
+        '',
       [Validators.required],
     ],
     description: [this.data.operation?.description ?? ''],
     phase: [this.data.operation?.phase ?? 'active', [Validators.required]],
   });
+  private dialogRef = inject<MatDialogRef<AdminOperationDialogComponent>>(MatDialogRef);
+  private snackBar = inject(MatSnackBar);
 
   public async save(): Promise<void> {
     if (this.form.invalid || this.isSaving()) return;

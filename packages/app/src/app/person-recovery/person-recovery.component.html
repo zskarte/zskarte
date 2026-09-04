@@ -7,7 +7,7 @@
     @if (affectedPersons && affectedPersons.length > 0) {
       @for (element of affectedPersons; track $index) {
         <div class="recovery-row">
-          <img [src]="element.sign.src" [alt]="element.sign.text" />
+          <img [alt]="element.sign.text" [src]="element.sign.src" />
           <span class="text">{{ element.sign.text }}</span>
           <span>{{ element.affectedPersons }}</span>
         </div>
@@ -26,7 +26,7 @@
 </app-dialog-body>
 <app-dialog-footer>
   @if (affectedPersons?.length) {
-    <button mat-flat-button color="primary" (click)="print(affectedPersons ?? [])">
+    <button (click)="print(affectedPersons ?? [])" color="primary" mat-flat-button>
       {{ i18n.get('print') }}
     </button>
   }

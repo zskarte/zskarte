@@ -15,6 +15,7 @@
     flex-shrink: 0;
     align-self: center;
   }
+
   span {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -62,6 +63,7 @@ mat-form-field {
 .font-semibold {
   font-weight: 500;
 }
+
 .font-gray {
   color: #8c8c8c;
 }
@@ -74,6 +76,7 @@ mat-form-field {
   justify-content: space-between;
   overflow: hidden;
   text-overflow: ellipsis;
+
   mat-form-field {
     margin-top: 5px;
   }

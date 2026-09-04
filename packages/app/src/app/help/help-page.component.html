@@ -4,28 +4,28 @@
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>{{ i18n.get('searchHelp') || 'Search help' }}</mat-label>
       <input
-        matInput
-        [value]="searchQuery()"
         (input)="onSearchChange($any($event.target).value)"
         [placeholder]="i18n.get('searchHelp') || 'Search help articles...'"
+        [value]="searchQuery()"
+        matInput
       />
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
-    <button mat-icon-button (click)="navigateBack()" [attr.aria-label]="i18n.get('back') || 'Back'">
+    <button (click)="navigateBack()" [attr.aria-label]="i18n.get('back') || 'Back'" mat-icon-button>
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
 
   <mat-sidenav-container class="help-sidenav-container">
-    <mat-sidenav mode="side" opened class="help-sidenav">
+    <mat-sidenav class="help-sidenav" mode="side" opened>
       <mat-nav-list>
         @for (article of topLevelArticles(); track article.id) {
           <div>
             <a
-              mat-list-item
+              (click)="handleParentClick(article.id)"
               [class.active]="selectedArticleId() === article.id"
               [class.parent-article]="getChildArticles(article.id).length > 0"
-              (click)="handleParentClick(article.id)"
+              mat-list-item
             >
               <span matListItemTitle>{{ i18n.get(article.titleKey) }}</span>
               @if (getChildArticles(article.id).length > 0) {
@@ -37,10 +37,10 @@
             @if (getChildArticles(article.id).length > 0 && isExpanded(article.id)) {
               @for (child of getChildArticles(article.id); track child.id) {
                 <a
-                  mat-list-item
-                  class="child-article"
-                  [class.active]="selectedArticleId() === child.id"
                   (click)="selectArticle(child.id)"
+                  [class.active]="selectedArticleId() === child.id"
+                  class="child-article"
+                  mat-list-item
                 >
                   <span matListItemTitle>{{ i18n.get(child.titleKey) }}</span>
                 </a>
@@ -67,22 +67,22 @@
                 @for (img of article.images; track img.src) {
                   <div class="article-image-container">
                     <img
-                      [src]="img.src"
-                      [class]="img.class || 'responsive'"
                       [alt]="img.alt || i18n.get(article.titleKey)"
+                      [class]="img.class || 'responsive'"
+                      [src]="img.src"
                     />
                   </div>
                 }
               } @else if (article.imageKey) {
                 <div class="article-image-container">
                   <img
-                    [src]="article.imageKey"
-                    [class]="article.imageClass || 'responsive'"
                     [alt]="i18n.get(article.titleKey)"
+                    [class]="article.imageClass || 'responsive'"
+                    [src]="article.imageKey"
                   />
                 </div>
               }
-              <div class="article-text" [innerHTML]="i18n.get(article.contentKey)"></div>
+              <div [innerHTML]="i18n.get(article.contentKey)" class="article-text"></div>
             </div>
           </mat-card-content>
         </mat-card>

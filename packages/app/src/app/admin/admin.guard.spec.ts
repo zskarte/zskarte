@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { signal } from '@angular/core';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { AdminGuard } from './admin.guard';
 import { SessionService } from '../session/session.service';
 
@@ -15,7 +15,7 @@ describe('AdminGuard', () => {
       isAdmin: signal(false),
     };
     routerMock = {
-      parseUrl: (url: string) => ({ toString: () => url, queryParams: {} } as UrlTree),
+      parseUrl: (url: string) => ({ toString: () => url, queryParams: {} }) as UrlTree,
     };
 
     TestBed.configureTestingModule({

@@ -18,8 +18,8 @@
   <input
     #incidentInput
     [formControl]="incidentSearchControl"
-    [matChipInputFor]="chipGrid"
     [matAutocomplete]="auto"
+    [matChipInputFor]="chipGrid"
     [placeholder]="i18n.get('search')"
   />
   <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">

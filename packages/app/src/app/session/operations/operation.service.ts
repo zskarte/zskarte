@@ -1,13 +1,13 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
-  IZSMapOperationMapLayers,
-  IZsMapOperation,
-  ZsMapState,
-  ZsMapLayerStateType,
-  ZsOperationPhase,
-  ZsMapStateSource,
-  IZsChangesetExport,
   INITIAL_CHANGESET_ID,
+  IZsChangesetExport,
+  IZsMapOperation,
+  IZSMapOperationMapLayers,
+  ZsMapLayerStateType,
+  ZsMapState,
+  ZsMapStateSource,
+  ZsOperationPhase,
 } from '@zskarte/types';
 import { DateTime } from 'luxon';
 import { BehaviorSubject } from 'rxjs';
@@ -25,11 +25,31 @@ import { JournalService } from '../../journal/journal.service';
 })
 export class OperationService {
   _ipc = inject(IpcService);
-
-  private _session!: SessionService;
-  private _journalService!: JournalService;
   public operations = new BehaviorSubject<IZsMapOperation[]>([]);
   public operationToEdit = new BehaviorSubject<IZsMapOperation | undefined>(undefined);
+  private _session!: SessionService;
+  private _journalService!: JournalService;
+
+  public static async deleteLocalOperation(operation: IZsMapOperation) {
+    if (!operation || !operation.documentId) return;
+    return await db.localOperation.where('documentId').equals(operation.documentId).delete();
+  }
+
+  public static async deleteNoneLocalOperations() {
+    return await db.localOperation.each(async (operation, { key }) => {
+      if (!operation.documentId?.startsWith('local')) {
+        await db.localOperation.delete(key);
+      }
+    });
+  }
+
+  public static async persistLocalOperation(operation: IZsMapOperation) {
+    await db.localOperation.put(operation);
+  }
+
+  private static getLocalOperations(phase: ZsOperationPhase) {
+    return db.localOperation.where('phase').equals(phase).toArray();
+  }
 
   public setSessionService(sessionService: SessionService): void {
     this._session = sessionService;
@@ -115,7 +135,7 @@ export class OperationService {
       }),
     );
     if (!error && result) {
-        return result as unknown as IZsMapOperation;
+      return result as unknown as IZsMapOperation;
     }
     return undefined;
   }
@@ -146,27 +166,6 @@ export class OperationService {
     }
   }
 
-  public static async deleteLocalOperation(operation: IZsMapOperation) {
-    if (!operation || !operation.documentId) return;
-    return await db.localOperation.where('documentId').equals(operation.documentId).delete();
-  }
-
-  public static async deleteNoneLocalOperations() {
-    return await db.localOperation.each(async (operation, {key}) => {
-      if (!operation.documentId?.startsWith('local')) {
-        await db.localOperation.delete(key);
-      }
-    });
-  }
-
-  public static async persistLocalOperation(operation: IZsMapOperation) {
-    await db.localOperation.put(operation);
-  }
-
-  private static getLocalOperations(phase: ZsOperationPhase) {
-    return db.localOperation.where('phase').equals(phase).toArray();
-  }
-
   public async loadLocal(phase: ZsOperationPhase): Promise<void> {
     const localOperations = await OperationService.getLocalOperations(phase);
     if (!localOperations) return;
@@ -180,11 +179,12 @@ export class OperationService {
       operations = localOperations;
     }
     if (!this._session.isWorkLocal()) {
-      const { error, result: savedOperations } = await trpcRequest(
-        trpc.operation.overview.query({ phase }),
-      );
+      const { error, result: savedOperations } = await trpcRequest(trpc.operation.overview.query({ phase }));
       if (!error && savedOperations !== undefined) {
-        operations = [...operations.filter((x) => x.documentId?.startsWith('local')), ...(savedOperations as unknown as IZsMapOperation[])];
+        operations = [
+          ...operations.filter((x) => x.documentId?.startsWith('local')),
+          ...(savedOperations as unknown as IZsMapOperation[]),
+        ];
       }
       this.operations.next(operations);
     } else {
@@ -226,35 +226,15 @@ export class OperationService {
       mapLayers: result.mapLayers,
     };
     const createdOperation = await this.insertOperation(operation);
-    
+
     if (result.outgoingChangesets && createdOperation?.documentId) {
       const operationId = createdOperation.documentId;
-      result.outgoingChangesets.forEach((cs) => cs.operationId = operationId)
-      db.changesetOutgoingQueue.bulkAdd(result.outgoingChangesets)
+      result.outgoingChangesets.forEach((cs) => (cs.operationId = operationId));
+      db.changesetOutgoingQueue.bulkAdd(result.outgoingChangesets);
     }
 
     await this.reload('active');
     return createdOperation;
-  }
-
-  private async getOutgoingChangesetExport(operationId: string) {
-    const outgoingChangesets = await db.changesetOutgoingQueue.where('operationId').equals(operationId).toArray();
-    const exportChangeset = outgoingChangesets.map((changeset) => {
-      let changesetToExport: IZsChangesetExport, _unused: any;
-      ({
-        cleaned: _unused,
-        stashed: _unused,
-        //baseMapState: _unused, //also export baseMapState as only with them conflicts can be solved.
-        currentMapState: _unused,
-        origDrawElements: _unused,
-        thereDrawElements: _unused,
-        ourDrawElements: _unused,
-        mergedDrawElements: _unused,
-        ...changesetToExport
-      } = changeset);
-      return changesetToExport;
-    });
-    return exportChangeset;
   }
 
   public async exportOperation(operationId: string | undefined): Promise<void> {
@@ -273,7 +253,7 @@ export class OperationService {
       name: operation?.name ?? '',
       description: operation?.description ?? '',
       version: OperationExportFileVersion.V2,
-      mapState: operation?.mapState ?? this.createMapstate() as ZsMapState,
+      mapState: operation?.mapState ?? (this.createMapstate() as ZsMapState),
       changesets: operation.changesets || {},
       changesetSigns: operation.changesetSigns || {},
       signingKeyIds: operation.signingKeyIds || [],
@@ -304,6 +284,26 @@ export class OperationService {
       mapState: this.createMapstate(),
       changesets: {},
     });
+  }
+
+  private async getOutgoingChangesetExport(operationId: string) {
+    const outgoingChangesets = await db.changesetOutgoingQueue.where('operationId').equals(operationId).toArray();
+    const exportChangeset = outgoingChangesets.map((changeset) => {
+      let changesetToExport: IZsChangesetExport, _unused: any;
+      ({
+        cleaned: _unused,
+        stashed: _unused,
+        //baseMapState: _unused, //also export baseMapState as only with them conflicts can be solved.
+        currentMapState: _unused,
+        origDrawElements: _unused,
+        thereDrawElements: _unused,
+        ourDrawElements: _unused,
+        mergedDrawElements: _unused,
+        ...changesetToExport
+      } = changeset);
+      return changesetToExport;
+    });
+    return exportChangeset;
   }
 
   private createMapstate(): ZsMapState {

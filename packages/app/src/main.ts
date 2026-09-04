@@ -1,10 +1,10 @@
 import {
   enableProdMode,
-  LOCALE_ID,
-  isDevMode,
   importProvidersFrom,
-  provideAppInitializer,
   inject,
+  isDevMode,
+  LOCALE_ID,
+  provideAppInitializer,
   provideZoneChangeDetection,
 } from '@angular/core';
 import { enablePatches } from 'immer';
@@ -15,7 +15,7 @@ import { SyncService } from './app/sync/sync.service';
 import { ZsMapStateService } from './app/state/state.service';
 import { DatePipe } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';

@@ -68,7 +68,9 @@ const addTransformationFunctions = (
       return callUnpacked(coordinates, (c: Coordinate) => transform(c, projection, mercatorProjection));
     },
     asString(coordinates: CoordinateTypes<Coordinate>) {
-      return callUnpacked(coordinates, (c: Coordinate) => this.translate(transform(c, mercatorProjection, projection), false));
+      return callUnpacked(coordinates, (c: Coordinate) =>
+        this.translate(transform(c, mercatorProjection, projection), false),
+      );
     },
     fromString(coordinates: CoordinateTypes<string>) {
       return callUnpackedString(coordinates, (c: string) => {
@@ -142,7 +144,9 @@ export const availableProjections: Array<ZsKarteProjection> = [
       return `${prefix ? 'GPS ' : ''}N${latitudeGrad}° ${latitudeMin}' ${latitudeSec}", E${longitudeGrad}° ${longitudeMin}' ${longitudeSec}"`;
     },
     parse(coords: string): Coordinate | undefined {
-      const values = coords.match(/N(\d+)° *(?:(\d\d?)')? *(?:(\d\d?(?:\.\d+)?)"?)? *, *E(\d+)° *(?:(\d\d?)')? *(?:(\d\d?(?:\.\d+)?)"?)?/);
+      const values = coords.match(
+        /N(\d+)° *(?:(\d\d?)')? *(?:(\d\d?(?:\.\d+)?)"?)? *, *E(\d+)° *(?:(\d\d?)')? *(?:(\d\d?(?:\.\d+)?)"?)?/,
+      );
       if (!values) {
         return undefined;
       }
@@ -209,8 +213,8 @@ function getSwissProjection() {
   if (projection) {
     projection.setExtent([2420000, 130000, 2900000, 1350000]);
     const RESOLUTIONS = [
-      4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1,
-      0.5, 0.25, 0.1,
+      4000, 3750, 3500, 3250, 3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250, 1000, 750, 650, 500, 250, 100, 50, 20, 10,
+      5, 2.5, 2, 1.5, 1, 0.5, 0.25, 0.1,
     ];
     const matrixIds: number[] = [];
     for (let i = 0; i < RESOLUTIONS.length; i++) {

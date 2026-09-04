@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../../../state/i18n.service';
-import { WMSMapLayer, MapSource, WmsSource } from '@zskarte/types';
+import { MapSource, WMSMapLayer, WmsSource } from '@zskarte/types';
 import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
 import { ZsMapStateService } from '../../../state/state.service';
 import { firstValueFrom } from 'rxjs';
@@ -40,15 +40,15 @@ export class WmsLayerOptionsComponent {
   dialogRef = inject<MatDialogRef<WmsLayerOptionsComponent>>(MatDialogRef);
   i18n = inject(I18NService);
   mapState = inject(ZsMapStateService);
-  private wmsService = inject(WmsService);
-  private geodiensteService = inject(GeodiensteService);
-
   hasSublayers = false;
   sublayerHidden: { name: string; hidden: boolean }[] = [];
   sources: WmsSource[] = [];
   tileFormats: string[] = ['image/png'];
   custom_source?: MapSource;
   geodienste_source?: WmsSource;
+  private wmsService = inject(WmsService);
+  private geodiensteService = inject(GeodiensteService);
+
   constructor() {
     let layer = this.layer;
     const mapState = this.mapState;

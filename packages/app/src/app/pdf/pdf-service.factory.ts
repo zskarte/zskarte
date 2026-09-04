@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 
 export interface IPdfService {
@@ -12,7 +12,7 @@ export interface IPdfService {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PdfServiceFactory {
   private pdfServiceInstance: IPdfService | null = null;

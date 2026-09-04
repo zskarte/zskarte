@@ -1,13 +1,13 @@
 @if (changesetDetails(); as details) {
   <div class="changeset-details">
     <div class="buttons">
-      <button mat-stroked-button (click)="showDetailsBefore()" [color]="activeState() === 1 ? 'primary' : ''">
+      <button (click)="showDetailsBefore()" [color]="activeState() === 1 ? 'primary' : ''" mat-stroked-button>
         before
       </button>
-      <button mat-stroked-button (click)="showDetailsAfter()" [color]="activeState() === 2 ? 'primary' : ''">
+      <button (click)="showDetailsAfter()" [color]="activeState() === 2 ? 'primary' : ''" mat-stroked-button>
         after
       </button>
-      <button mat-stroked-button (click)="showOriginalChangeset()" class="changeset-original">
+      <button (click)="showOriginalChangeset()" class="changeset-original" mat-stroked-button>
         show changeset JSON
       </button>
     </div>

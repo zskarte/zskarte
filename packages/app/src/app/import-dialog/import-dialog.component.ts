@@ -3,7 +3,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
 import { OperationExportFile } from '../core/entity/operationExportFile';
 import { MatButtonModule } from '@angular/material/button';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 
 @Component({
   selector: 'app-import-dialog',

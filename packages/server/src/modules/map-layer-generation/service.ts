@@ -11,7 +11,7 @@ import { getStorageProvider, type StorageProvider } from '../file/storage.js';
 import { type MapLayerRow, mapLayers } from '../map-layer/schema.js';
 import { getConfig, initOrGetConfig, updateConfig } from './repository.js';
 import type { MapLayerGenerationConfigRow } from './schema.js';
-import type { LoggerLike } from "@zskarte/types";
+import type { LoggerLike } from '@zskarte/types';
 
 export const CANTON_NAMES: Record<string, string> = {
   AG: 'Aargau',

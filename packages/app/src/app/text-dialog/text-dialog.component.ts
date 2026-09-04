@@ -7,13 +7,22 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 
 @Component({
   selector: 'app-text-dialog',
   templateUrl: './text-dialog.component.html',
   styleUrls: ['./text-dialog.component.scss'],
-  imports: [MatFormFieldModule, MatInputModule, MatDialogModule, FormsModule, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule,
+    FormsModule,
+    MatButtonModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+  ],
 })
 export class TextDialogComponent {
   dialogRef = inject<MatDialogRef<SelectSignDialog>>(MatDialogRef);

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -32,13 +32,12 @@ type MapLayerGenerationConfig = Awaited<ReturnType<typeof trpc.admin.mapLayerGen
 })
 export class AdminMapLayerGenerationComponent implements OnInit {
   public i18n = inject(I18NService);
-  private snackBar = inject(MatSnackBar);
-  private formBuilder = inject(FormBuilder);
-
   public config = signal<MapLayerGenerationConfig | null>(null);
   public isLoading = signal(false);
   public isTriggering = signal(false);
   public isSaving = signal(false);
+  private snackBar = inject(MatSnackBar);
+  private formBuilder = inject(FormBuilder);
   public form = this.formBuilder.nonNullable.group({
     enabled: false,
     allwaysCreateDistrict: false,
@@ -86,9 +85,7 @@ export class AdminMapLayerGenerationComponent implements OnInit {
 
     this.isSaving.set(true);
     const value = this.form.getRawValue();
-    const response = await trpcRequest(
-      trpc.admin.mapLayerGeneration.update.mutate(value),
-    );
+    const response = await trpcRequest(trpc.admin.mapLayerGeneration.update.mutate(value));
     if (response.result) {
       this.config.set(response.result);
       this.form.markAsPristine();

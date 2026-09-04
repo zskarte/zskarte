@@ -13,11 +13,11 @@
   </fieldset>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('label') }}</mat-label>
-    <input matInput type="text" [(ngModel)]="layer.label" />
+    <input [(ngModel)]="layer.label" matInput type="text" />
   </mat-form-field>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>
-    <input matInput type="url" [(ngModel)]="sourceUrl" [disabled]="useMedia" />
+    <input [(ngModel)]="sourceUrl" [disabled]="useMedia" matInput type="url" />
   </mat-form-field>
   @if (sourceMediaId) {
     <fieldset class="like-mat-form-field-outline">
@@ -25,31 +25,31 @@
       <div class="infoText">
         {{ i18n.get('mediaSourceInfo') }} <span>{{ sourceMediaId }}</span>
       </div>
-      <mat-checkbox [checked]="useMedia" (change)="toggleMedia($event.checked)">{{
-        i18n.get('mediaSourceActive')
-      }}</mat-checkbox>
+      <mat-checkbox (change)="toggleMedia($event.checked)" [checked]="useMedia"
+        >{{ i18n.get('mediaSourceActive') }}
+      </mat-checkbox>
     </fieldset>
   }
   @if (layer.type === 'csv') {
     <div>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ i18n.get('delimiter') }}</mat-label>
-        <input matInput type="text" maxlength="1" [(ngModel)]="layer.delimiter" />
+        <input [(ngModel)]="layer.delimiter" matInput maxlength="1" type="text" />
       </mat-form-field>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ i18n.get('fieldX') }}</mat-label>
-        <input matInput type="text" [(ngModel)]="layer.fieldX" />
+        <input [(ngModel)]="layer.fieldX" matInput type="text" />
       </mat-form-field>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ i18n.get('fieldY') }}</mat-label>
-        <input matInput type="text" [(ngModel)]="layer.fieldY" />
+        <input [(ngModel)]="layer.fieldY" matInput type="text" />
       </mat-form-field>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ i18n.get('dataProjection') }}</mat-label>
-        <input matInput type="text" [(ngModel)]="layer.dataProjection" />
+        <input [(ngModel)]="layer.dataProjection" matInput type="text" />
         <div class="infoText">
           swiss: 'EPSG:2056', GPS: 'EPSG:4326', mercator: 'EPSG:3857'
-          <a target="_blank" href="https://epsg.io/">epsg.io</a>
+          <a href="https://epsg.io/" target="_blank">epsg.io</a>
         </div>
       </mat-form-field>
       <fieldset class="like-mat-form-field-outline">
@@ -69,24 +69,24 @@
           </div>
           @for (regex of layer.filterRegExPattern; track regex; let i = $index) {
             <div class="filterRegExPattern">
-              <input class="attr-filter-field" matInput type="text" [(ngModel)]="regex[0]" />
+              <input [(ngModel)]="regex[0]" class="attr-filter-field" matInput type="text" />
               <input
+                #validInfo="ngModel"
+                [(ngModel)]="regex[1]"
+                [appRegexValidator]="regex[2]"
                 class="attr-filter-regex"
                 matInput
-                [appRegexValidator]="regex[2]"
-                #validInfo="ngModel"
                 type="text"
-                [(ngModel)]="regex[1]"
               />
               <input
+                (blur)="validInfo.control.updateValueAndValidity()"
+                (input)="deferredRevalidate(validInfo)"
+                [(ngModel)]="regex[2]"
                 class="attr-filter-options"
                 matInput
                 type="text"
-                [(ngModel)]="regex[2]"
-                (input)="deferredRevalidate(validInfo)"
-                (blur)="validInfo.control.updateValueAndValidity()"
               />
-              <mat-icon class="attr-remove" (click)="removeFilterPattern(i)">remove</mat-icon>
+              <mat-icon (click)="removeFilterPattern(i)" class="attr-remove">remove</mat-icon>
               @if (validInfo.errors?.['regex']) {
                 <div class="regexError">
                   {{ validInfo.errors?.['regex'] }}
@@ -95,13 +95,13 @@
             </div>
           }
         }
-        <mat-icon class="attr-add" (click)="addFilterPattern()">add</mat-icon>
+        <mat-icon (click)="addFilterPattern()" class="attr-add">add</mat-icon>
       </fieldset>
       <fieldset class="like-mat-form-field-outline">
         <legend>{{ i18n.get('extent') }}</legend>
-        <mat-checkbox [checked]="layer.extent" (change)="toggleExtent($event.checked)">{{
-          i18n.get('limitExtent')
-        }}</mat-checkbox>
+        <mat-checkbox (change)="toggleExtent($event.checked)" [checked]="layer.extent"
+          >{{ i18n.get('limitExtent') }}
+        </mat-checkbox>
         <div class="infoText">{{ i18n.get('extentInfo') }}</div>
         @if (layer.extent) {
           <div>
@@ -112,10 +112,10 @@
               <div class="extent-field">max y</div>
             </div>
             <div class="extenValue">
-              <input class="extent-field" matInput type="number" [(ngModel)]="layer.extent[0]" />
-              <input class="extent-field" matInput type="number" [(ngModel)]="layer.extent[1]" />
-              <input class="extent-field" matInput type="number" [(ngModel)]="layer.extent[2]" />
-              <input class="extent-field" matInput type="number" [(ngModel)]="layer.extent[3]" />
+              <input [(ngModel)]="layer.extent[0]" class="extent-field" matInput type="number" />
+              <input [(ngModel)]="layer.extent[1]" class="extent-field" matInput type="number" />
+              <input [(ngModel)]="layer.extent[2]" class="extent-field" matInput type="number" />
+              <input [(ngModel)]="layer.extent[3]" class="extent-field" matInput type="number" />
             </div>
           </div>
         }
@@ -128,13 +128,13 @@
     <mat-radio-group [(ngModel)]="layer.styleFormat">
       <mat-radio-button value="mapbox"
         >{{ i18n.get('styleFormatMapBox') }}
-        <a target="_blank" href="https://docs.mapbox.com/style-spec/guides/">{{
+        <a href="https://docs.mapbox.com/style-spec/guides/" target="_blank">{{
           i18n.get('styleFormatSpec')
         }}</a></mat-radio-button
       >
       <mat-radio-button value="olFlat"
         >{{ i18n.get('styleFormatOlFlat') }}
-        <a target="_blank" href="https://openlayers.org/en/latest/apidoc/module-ol_style_flat.html">{{
+        <a href="https://openlayers.org/en/latest/apidoc/module-ol_style_flat.html" target="_blank">{{
           i18n.get('styleFormatSpec')
         }}</a></mat-radio-button
       >
@@ -143,7 +143,7 @@
   @if (layer.styleFormat === 'mapbox') {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('styleSourceName') }}</mat-label>
-      <input matInput type="url" [(ngModel)]="layer.styleSourceName" />
+      <input [(ngModel)]="layer.styleSourceName" matInput type="url" />
     </mat-form-field>
   }
   <fieldset class="like-mat-form-field-outline">
@@ -156,13 +156,13 @@
   @if (layer.styleSourceType === 'url') {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('styleSourceUrl') }}</mat-label>
-      <input matInput type="url" [(ngModel)]="layer.styleUrl" />
+      <input [(ngModel)]="layer.styleUrl" matInput type="url" />
     </mat-form-field>
   }
   @if (layer.styleSourceType === 'text') {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('styleSourceText') }}</mat-label>
-      <textarea matInput [(ngModel)]="layer.styleText"></textarea>
+      <textarea [(ngModel)]="layer.styleText" matInput></textarea>
     </mat-form-field>
   }
 
@@ -179,7 +179,7 @@
       <div class="infoText">
         {{ i18n.get('searchResultLabelMaskInfo') }}<br /><code [innerText]="'${streetName} ${entranceNumber}'"></code>
       </div>
-      <input matInput [(ngModel)]="layer.searchResultLabelMask" />
+      <input [(ngModel)]="layer.searchResultLabelMask" matInput />
     </mat-form-field>
   }
   @if (layer.searchable) {
@@ -199,22 +199,22 @@
         @for (regex of layer.searchRegExPatterns; track regex; let i = $index) {
           <div class="searchRegExPatterns">
             <input
+              #validInfo="ngModel"
+              [(ngModel)]="regex[0]"
+              [appRegexValidator]="regex[1]"
               class="attr-search-regex"
               matInput
-              [appRegexValidator]="regex[1]"
-              #validInfo="ngModel"
               type="text"
-              [(ngModel)]="regex[0]"
             />
             <input
+              (blur)="validInfo.control.updateValueAndValidity()"
+              (input)="deferredRevalidate(validInfo)"
+              [(ngModel)]="regex[1]"
               class="attr-search-options"
               matInput
               type="text"
-              [(ngModel)]="regex[1]"
-              (input)="deferredRevalidate(validInfo)"
-              (blur)="validInfo.control.updateValueAndValidity()"
             />
-            <mat-icon class="attr-remove" (click)="removePattern(i)">remove</mat-icon>
+            <mat-icon (click)="removePattern(i)" class="attr-remove">remove</mat-icon>
             @if (validInfo.errors?.['regex']) {
               <div class="regexError">
                 {{ validInfo.errors?.['regex'] }}
@@ -223,7 +223,7 @@
           </div>
         }
       }
-      <mat-icon class="attr-add" (click)="addPattern()">add</mat-icon>
+      <mat-icon (click)="addPattern()" class="attr-add">add</mat-icon>
     </fieldset>
   }
   @if (layer.searchable) {
@@ -233,34 +233,34 @@
       @if (layer.searchResultGroupingFilterFields) {
         @for (dummy of [].constructor(layer.searchResultGroupingFilterFields.length); track dummy; let i = $index) {
           <div class="searchResultGroupingFilterFields">
-            <input class="attr-field" matInput type="text" [(ngModel)]="layer.searchResultGroupingFilterFields[i]" />
-            <mat-icon class="attr-remove" (click)="removeField(i)">remove</mat-icon>
+            <input [(ngModel)]="layer.searchResultGroupingFilterFields[i]" class="attr-field" matInput type="text" />
+            <mat-icon (click)="removeField(i)" class="attr-remove">remove</mat-icon>
           </div>
         }
       }
-      <mat-icon class="attr-add" (click)="addField()">add</mat-icon>
+      <mat-icon (click)="addField()" class="attr-add">add</mat-icon>
     </fieldset>
   }
   @if (layer.searchable) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('searchMaxResultCount') }}</mat-label>
-      <input matInput min="0" type="number" [(ngModel)]="layer.searchMaxResultCount" />
+      <input [(ngModel)]="layer.searchMaxResultCount" matInput min="0" type="number" />
     </mat-form-field>
   }
 
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('publicSource') }}</legend>
-    <mat-checkbox [checked]="layer.public" (change)="layer.public = $event.checked">{{
-      i18n.get('publicSourceInfo')
-    }}</mat-checkbox>
+    <mat-checkbox (change)="layer.public = $event.checked" [checked]="layer.public"
+      >{{ i18n.get('publicSourceInfo') }}
+    </mat-checkbox>
   </fieldset>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('MaxScaleDenominator') }}</mat-label>
-    <input matInput min="0" type="number" [(ngModel)]="layer.MaxScaleDenominator" />
+    <input [(ngModel)]="layer.MaxScaleDenominator" matInput min="0" type="number" />
   </mat-form-field>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('MinScaleDenominator') }}</mat-label>
-    <input matInput min="0" type="number" [(ngModel)]="layer.MinScaleDenominator" />
+    <input [(ngModel)]="layer.MinScaleDenominator" matInput min="0" type="number" />
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('sourceAttribution') }}</legend>
@@ -271,17 +271,17 @@
       </div>
       @for (attr of layer.attribution; track attr; let i = $index) {
         <div class="attribution">
-          <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]" />
-          <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]" />
-          <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
+          <input [(ngModel)]="attr[0]" class="attr-title" matInput type="text" />
+          <input [(ngModel)]="attr[1]" class="attr-url" matInput type="url" />
+          <mat-icon (click)="removeAttribution(i)" class="attr-remove">remove</mat-icon>
         </div>
       }
     }
-    <mat-icon class="attr-add" (click)="addAttribution()">add</mat-icon>
+    <mat-icon (click)="addAttribution()" class="attr-add">add</mat-icon>
   </fieldset>
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-flat-button color="primary" (click)="ok()">
+  <button (click)="ok()" color="primary" mat-flat-button>
     {{ i18n.get('ok') }}
   </button>
 </app-dialog-footer>

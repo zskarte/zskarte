@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from '../session.service';
@@ -18,7 +18,7 @@ export class LoginRedirectGuard implements CanActivate {
 
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
     const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
-    
+
     if (!isAuthenticated) {
       return true;
     }
@@ -38,7 +38,7 @@ export class LoginRedirectGuard implements CanActivate {
       const currentLabel = this._session.getLabel();
       if (!currentLabel && operationJustSet) {
         const queryParams: any = { ...route.queryParams };
-        Object.keys(queryParams).forEach(key => {
+        Object.keys(queryParams).forEach((key) => {
           if (queryParams[key] === null || queryParams[key] === undefined) {
             delete queryParams[key];
           }
@@ -48,7 +48,7 @@ export class LoginRedirectGuard implements CanActivate {
 
       const queryParams: any = { ...route.queryParams };
       delete queryParams['operationId'];
-      Object.keys(queryParams).forEach(key => {
+      Object.keys(queryParams).forEach((key) => {
         if (queryParams[key] === null || queryParams[key] === undefined) {
           delete queryParams[key];
         }

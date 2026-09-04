@@ -42,6 +42,7 @@ mat-form-field textarea {
     max-height: 70vh;
   }
 }
+
 @media screen and (max-height: 650px) and (orientation: landscape) {
   mat-form-field textarea {
     max-height: 50vh;

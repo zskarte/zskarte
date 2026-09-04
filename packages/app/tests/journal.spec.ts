@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 import { clickOnMap, login, waitForTrpcResponse } from './util';
 import { random } from 'lodash';
 
@@ -66,7 +66,7 @@ test.describe('Journal', () => {
   test('should add journal entry', async ({ page }) => {
     const id = random(1000, 999999).toString();
     await createJournalEntry({ reportId: id }, page);
-    
+
     const rows = page.locator('tbody').getByRole('row');
     const rowCount = await rows.count();
     const firstRow = rows.filter({ has: page.getByRole('cell', { name: id, exact: true }) }).first();
@@ -77,7 +77,7 @@ test.describe('Journal', () => {
     await expect(firstRow.getByRole('cell').nth(5)).toHaveText('Triage');
 
     await createJournalEntry({ subject: 'Second entry' }, page);
-    
+
     await expect(rows).toHaveCount(rowCount + 1);
     const secondEntryRow = rows.filter({ hasText: 'Second entry' }).first();
     await expect(secondEntryRow).toBeVisible();
@@ -88,23 +88,23 @@ test.describe('Journal', () => {
 
     await page.getByRole('tab', { name: 'Karte' }).click();
     await page.getByRole('button', { name: 'Journal' }).click();
-    
+
     await page.waitForSelector('mat-tab-group', { state: 'visible' });
     await page.waitForSelector('mat-spinner', { state: 'hidden' }).catch(() => {});
-    
+
     await page.getByTestId('entry-to-draw').filter({ hasText: 'To draw' }).first().click();
     await page.getByRole('button', { name: 'Signatur hinzufügen' }).click();
-    
+
     await page.waitForSelector('.journal-sidebar', { state: 'hidden' }).catch(() => {});
     await page.waitForSelector('app-journal-draw-overlay', { state: 'visible' });
-    
+
     // Wait for the draw dialog to appear and select a sign
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).waitFor({ state: 'visible' });
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
-    
+
     const updateEntryResponse = waitForTrpcResponse(page, 'journal.update');
     await page.getByRole('button', { name: 'Als done markieren' }).click();
     await updateEntryResponse;
-  })
+  });
 });

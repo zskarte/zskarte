@@ -6,8 +6,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { DialogHeaderComponent, DialogBodyComponent } from '../../ui/dialog-layout';
-import { MatCard } from "@angular/material/card";
+import { DialogBodyComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
+import { MatCard } from '@angular/material/card';
 import { trpcRequest } from '../../api/trpc.error';
 import { trpc } from '../../api/trpc.client';
 
@@ -19,11 +19,10 @@ import { trpc } from '../../api/trpc.client';
 })
 export class RevokeShareDialogComponent {
   i18n = inject(I18NService);
-  private session = inject(SessionService);
-  private _snackBar = inject(MatSnackBar);
-
   shareLinks: IZsAccess[] = [];
   displayedColumns: string[] = ['createdAt', 'type', 'expiresOn', 'actions'];
+  private session = inject(SessionService);
+  private _snackBar = inject(MatSnackBar);
 
   async ngOnInit() {
     const { error, result } = await trpcRequest(trpc.access.list.query({ operationId: this.session.getOperationId() }));

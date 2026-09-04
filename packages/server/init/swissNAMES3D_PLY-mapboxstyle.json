@@ -20,32 +20,16 @@
       "type": "symbol",
       "source": "swissNAMES3D",
       "minzoom": 13,
-      "filter": [
-        "all",
-        ["!=", "Ort", ["get", "OBJEKTART"]],
-        ["==", null, ["get", "ZsMapSearchResult"]]
-      ],
+      "filter": ["all", ["!=", "Ort", ["get", "OBJEKTART"]], ["==", null, ["get", "ZsMapSearchResult"]]],
       "layout": {
         "text-field": "{NAME}\n({OBJEKTART})",
-        "text-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          13, 5,
-          24, 14
-        ],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 13, 5, 24, 14],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#000000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     },
     {
@@ -55,7 +39,8 @@
       "minzoom": 13,
       "filter": [
         "all",
-        ["any",
+        [
+          "any",
           ["==", "< 20", ["get", "EINWOHNERKATEGORIE"]],
           ["==", "20 bis 49", ["get", "EINWOHNERKATEGORIE"]],
           ["==", "50 bis 99", ["get", "EINWOHNERKATEGORIE"]]
@@ -70,36 +55,16 @@
           ["linear"],
           ["zoom"],
           10,
-          [
-            "match",
-            ["get", "EINWOHNERKATEGORIE"],
-            "< 20", 2,
-            "20 bis 49", 3,
-            "50 bis 99", 4,
-            3
-          ],
+          ["match", ["get", "EINWOHNERKATEGORIE"], "< 20", 2, "20 bis 49", 3, "50 bis 99", 4, 3],
           24,
-          [
-            "match",
-            ["get", "EINWOHNERKATEGORIE"],
-            "< 20", 12,
-            "20 bis 49", 14,
-            "50 bis 99", 16,
-            14
-          ]
+          ["match", ["get", "EINWOHNERKATEGORIE"], "< 20", 12, "20 bis 49", 14, "50 bis 99", 16, 14]
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#000000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     },
     {
@@ -115,25 +80,13 @@
       ],
       "layout": {
         "text-field": "{NAME}\n({OBJEKTART})",
-        "text-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          10, 5,
-          24, 18
-        ],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 10, 5, 24, 18],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#000000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     },
     {
@@ -143,7 +96,8 @@
       "minzoom": 10,
       "filter": [
         "all",
-        ["any",
+        [
+          "any",
           ["==", "1'000 bis 1'999", ["get", "EINWOHNERKATEGORIE"]],
           ["==", "2'000 bis 9'999", ["get", "EINWOHNERKATEGORIE"]]
         ],
@@ -157,34 +111,16 @@
           ["linear"],
           ["zoom"],
           10,
-          [
-            "match",
-            ["get", "EINWOHNERKATEGORIE"],
-            "1'000 bis 1'999", 6,
-            "2'000 bis 9'999", 7,
-            6
-          ],
+          ["match", ["get", "EINWOHNERKATEGORIE"], "1'000 bis 1'999", 6, "2'000 bis 9'999", 7, 6],
           24,
-          [
-            "match",
-            ["get", "EINWOHNERKATEGORIE"],
-            "1'000 bis 1'999", 20,
-            "2'000 bis 9'999", 22,
-            20
-          ]
+          ["match", ["get", "EINWOHNERKATEGORIE"], "1'000 bis 1'999", 20, "2'000 bis 9'999", 22, 20]
         ],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#000000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     },
     {
@@ -200,25 +136,13 @@
       ],
       "layout": {
         "text-field": "{NAME}\n({OBJEKTART})",
-        "text-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          9, 6,
-          24, 24
-        ],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 9, 6, 24, 24],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#000000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     },
     {
@@ -234,25 +158,13 @@
       ],
       "layout": {
         "text-field": "{NAME}\n({OBJEKTART})",
-        "text-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          5, 3,
-          24, 26
-        ],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 5, 3, 24, 26],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#000000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     },
     {
@@ -267,25 +179,13 @@
       ],
       "layout": {
         "text-field": "{NAME}\n({OBJEKTART})",
-        "text-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          5, 4,
-          24, 28
-        ],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 5, 4, 24, 28],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#000000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     },
     {
@@ -295,25 +195,13 @@
       "filter": ["get", "ZsMapSearchResult"],
       "layout": {
         "text-field": "{NAME}\n({OBJEKTART})",
-        "text-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          5, 4,
-          24, 20
-        ],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 5, 4, 24, 20],
         "text-font": ["Arial Normal", "sans-serif Normal"]
       },
       "paint": {
         "text-color": "#ff0000",
         "text-halo-color": "#ffffff",
-        "text-halo-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          16, 0.75,
-          24, 3
-        ]
+        "text-halo-width": ["interpolate", ["linear"], ["zoom"], 16, 0.75, 24, 3]
       }
     }
   ]

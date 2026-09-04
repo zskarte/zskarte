@@ -28,17 +28,15 @@
               "base": "dist/zskarte"
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/manifest.webmanifest"
+            "assets": ["src/favicon.ico", "src/assets", "src/manifest.webmanifest"],
+            "styles": [
+              "../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+              "src/styles.scss",
+              "../../node_modules/ol/ol.css"
             ],
-            "styles": ["../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css", "src/styles.scss", "../../node_modules/ol/ol.css"],
             "scripts": [],
             "serviceWorker": "ngsw-config.json",
             "browser": "src/main.ts"

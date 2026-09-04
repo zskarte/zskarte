@@ -5,14 +5,14 @@
       <p>{{ i18n.get('mapLayerGenerationDescription') }}</p>
     </div>
     <div class="generation-actions">
-      <button mat-icon-button (click)="loadConfig()" [title]="i18n.get('refresh')" [disabled]="isLoading()">
+      <button (click)="loadConfig()" [disabled]="isLoading()" [title]="i18n.get('refresh')" mat-icon-button>
         <mat-icon>refresh</mat-icon>
       </button>
       <button
-        mat-stroked-button
         (click)="saveConfig()"
         [disabled]="isSaving() || isLoading() || form.pristine"
         data-testid="save-map-layer-generation-config-btn"
+        mat-stroked-button
       >
         @if (isSaving()) {
           <mat-spinner diameter="20"></mat-spinner>
@@ -22,11 +22,11 @@
         {{ i18n.get('save') }}
       </button>
       <button
-        mat-flat-button
-        color="primary"
         (click)="triggerGeneration()"
         [disabled]="isTriggering() || isLoading()"
+        color="primary"
         data-testid="trigger-map-layer-generation-btn"
+        mat-flat-button
       >
         @if (isTriggering()) {
           <mat-spinner diameter="20"></mat-spinner>
@@ -39,37 +39,39 @@
   </div>
 
   @if (isLoading()) {
-    <div class="loading-container"><mat-spinner diameter="40"></mat-spinner></div>
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
   } @else if (config(); as currentConfig) {
-    <form class="config-form" [formGroup]="form" (ngSubmit)="saveConfig()">
+    <form (ngSubmit)="saveConfig()" [formGroup]="form" class="config-form">
       <div class="boolean-fields">
         <mat-checkbox formControlName="enabled">{{ i18n.get('enabled') }}</mat-checkbox>
-        <mat-checkbox formControlName="allwaysCreateDistrict">{{ i18n.get('alwaysCreateDistrict') }}</mat-checkbox>
+        <mat-checkbox formControlName="allwaysCreateDistrict">{{ i18n.get('alwaysCreateDistrict') }} </mat-checkbox>
       </div>
 
-      <mat-form-field appearance="outline"
-        ><mat-label>{{ i18n.get('cantons') }}</mat-label
-        ><input matInput formControlName="cantons"
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18n.get('cantons') }} </mat-label>
+        <input formControlName="cantons" matInput
       /></mat-form-field>
-      <mat-form-field appearance="outline" class="wide"
-        ><mat-label>{{ i18n.get('urlMadd') }}</mat-label
-        ><input matInput formControlName="urlMadd"
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>{{ i18n.get('urlMadd') }} </mat-label>
+        <input formControlName="urlMadd" matInput
       /></mat-form-field>
-      <mat-form-field appearance="outline" class="wide"
-        ><mat-label>{{ i18n.get('urlSwissBoundaries3d') }}</mat-label
-        ><input matInput formControlName="urlSwissBoundaries3d"
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>{{ i18n.get('urlSwissBoundaries3d') }} </mat-label>
+        <input formControlName="urlSwissBoundaries3d" matInput
       /></mat-form-field>
-      <mat-form-field appearance="outline" class="wide"
-        ><mat-label>{{ i18n.get('urlSwissNames3d') }}</mat-label
-        ><input matInput formControlName="urlSwissNames3d"
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>{{ i18n.get('urlSwissNames3d') }} </mat-label>
+        <input formControlName="urlSwissNames3d" matInput
       /></mat-form-field>
-      <mat-form-field appearance="outline"
-        ><mat-label>{{ i18n.get('fieldsSwissNames3d') }}</mat-label
-        ><input matInput formControlName="fieldsSwissNames3d"
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18n.get('fieldsSwissNames3d') }} </mat-label>
+        <input formControlName="fieldsSwissNames3d" matInput
       /></mat-form-field>
-      <mat-form-field appearance="outline"
-        ><mat-label>{{ i18n.get('fileSwissNames3d') }}</mat-label
-        ><input matInput formControlName="fileSwissNames3d"
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18n.get('fileSwissNames3d') }} </mat-label>
+        <input formControlName="fileSwissNames3d" matInput
       /></mat-form-field>
     </form>
 

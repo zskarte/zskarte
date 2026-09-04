@@ -1,5 +1,5 @@
-import { Component, ViewChild, inject, input, output } from '@angular/core';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent, MatAutocomplete } from '@angular/material/autocomplete';
+import { Component, inject, input, output, ViewChild } from '@angular/core';
+import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { IResultSet, IZsMapSearchResult } from '@zskarte/types';
 import { CommonModule } from '@angular/common';
 import { I18NService } from '../../state/i18n.service';

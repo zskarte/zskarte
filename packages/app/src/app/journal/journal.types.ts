@@ -24,8 +24,14 @@ export const JournalEntryStatusReset: Record<
   { entryStatus: JournalEntryStatus; required: keyof JournalEntry } | null
 > = {
   [JournalEntryStatus.AWAITING_MESSAGE]: null,
-  [JournalEntryStatus.AWAITING_TRIAGE]: { entryStatus: JournalEntryStatus.AWAITING_MESSAGE, required: 'wrongContentInfo' },
-  [JournalEntryStatus.AWAITING_DECISION]: { entryStatus: JournalEntryStatus.AWAITING_TRIAGE, required: 'wrongTriageInfo' },
+  [JournalEntryStatus.AWAITING_TRIAGE]: {
+    entryStatus: JournalEntryStatus.AWAITING_MESSAGE,
+    required: 'wrongContentInfo',
+  },
+  [JournalEntryStatus.AWAITING_DECISION]: {
+    entryStatus: JournalEntryStatus.AWAITING_TRIAGE,
+    required: 'wrongTriageInfo',
+  },
   [JournalEntryStatus.AWAITING_COMPLETION]: null,
   [JournalEntryStatus.COMPLETED]: null,
 };
@@ -56,7 +62,12 @@ export const JournalEntryStatusFields: Record<JournalEntryStatus, (keyof Journal
   [JournalEntryStatus.COMPLETED]: [],
 };
 
-export const JournalDateFields: (keyof JournalEntry)[] = ['dateMessage', 'dateTriage', 'dateDecision', 'dateDecisionDelivered'];
+export const JournalDateFields: (keyof JournalEntry)[] = [
+  'dateMessage',
+  'dateTriage',
+  'dateDecision',
+  'dateDecisionDelivered',
+];
 
 export const DepartmentValues = [
   'politische-behoerde',
@@ -91,7 +102,7 @@ export type JournalEntry = inferRouterOutputs<AppRouter>['journal']['byId'] & {
 
 export type ExportJournalEntry = Omit<
   JournalEntry,
-  'documentId'
+  | 'documentId'
   | 'createdAt'
   | 'creator'
   | 'updatedAt'

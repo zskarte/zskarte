@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import {
   AccessTokenType,
@@ -15,13 +15,13 @@ import {
 import { transform } from 'ol/proj';
 import {
   BehaviorSubject,
-  Observable,
-  Subject,
   concatMap,
   distinctUntilChanged,
   firstValueFrom,
   map,
+  Observable,
   skip,
+  Subject,
   takeUntil,
 } from 'rxjs';
 import { db } from '../db/db';
@@ -54,19 +54,31 @@ export type AuthError = { code?: string; message?: string; status?: number };
   providedIn: 'root',
 })
 export class SessionService {
+  public readonly sessionInitialized = signal(false);
+  public readonly isAdmin = signal(false);
   private _router = inject(Router);
   private _wms = inject(WmsService);
   private _mapLayerService = inject(MapLayerService);
   private _operationService = inject(OperationService);
-
   private _session = new BehaviorSubject<IZsMapSession | undefined>(undefined);
   private _clearOperation = new Subject<void>();
   private _state!: ZsMapStateService;
+  public persistMapState = debounceLeading(async () => {
+    const currentSession = this._session.value;
+    if (currentSession?.operation && !this._state.isHistoryMode()) {
+      const mapState = await firstValueFrom(this._state.observeMapState());
+      if (Object.keys(mapState?.drawElements || {})?.length) {
+        currentSession.operation.mapState = mapState;
+        //only persist current mapState (to ensure offline state), without call this._session.next() / reload all settings & values
+        await db.sessions.put(currentSession);
+        return true;
+      }
+    }
+    return false;
+  }, 30000);
   private _authError = new BehaviorSubject<AuthError | undefined>(undefined);
   private _authenticated = new BehaviorSubject(false);
   private _isOnline = new BehaviorSubject<boolean>(true);
-  public readonly sessionInitialized = signal(false);
-  public readonly isAdmin = signal(false);
 
   constructor() {
     const _operationService = this._operationService;
@@ -251,20 +263,6 @@ export class SessionService {
       });
   }
 
-  public persistMapState = debounceLeading(async () => {
-    const currentSession = this._session.value;
-    if (currentSession?.operation && !this._state.isHistoryMode()) {
-      const mapState = await firstValueFrom(this._state.observeMapState());
-      if (Object.keys(mapState?.drawElements || {})?.length) {
-        currentSession.operation.mapState = mapState;
-        //only persist current mapState (to ensure offline state), without call this._session.next() / reload all settings & values
-        await db.sessions.put(currentSession);
-        return true;
-      }
-    }
-    return false;
-  }, 30000);
-
   private static overrideDisplayStateFromQueryParams(displayState: IZsMapDisplayState, queryParams: Params) {
     if (queryParams['center']) {
       try {
@@ -285,6 +283,11 @@ export class SessionService {
         //ignoring invalid size infos
       }
     }
+  }
+
+  private static isLoadedOperation(operation?: IZsMapOperation): boolean {
+    const elementCount = Object.keys(operation?.mapState?.drawElements || {})?.length;
+    return elementCount !== undefined && elementCount > 0;
   }
 
   public setStateService(state: ZsMapStateService): void {
@@ -442,11 +445,6 @@ export class SessionService {
     );
   }
 
-  private static isLoadedOperation(operation?: IZsMapOperation): boolean {
-    const elementCount = Object.keys(operation?.mapState?.drawElements || {})?.length;
-    return elementCount !== undefined && elementCount > 0;
-  }
-
   public async setOperation(operation?: IZsMapOperation): Promise<void> {
     if (this._session?.value) {
       const sessionOperation = this._session.value.operation;
@@ -549,89 +547,6 @@ export class SessionService {
     await this.loadAuthenticatedSession();
   }
 
-  private async loadAuthenticatedSession(): Promise<void> {
-    const currentSession = await this.getSavedSession();
-
-    const { error, data: sessionResult } = await authClient.getSession();
-
-    if (error || !sessionResult) {
-      if ((error?.status ?? 0) >= 500 || !this._isOnline.value) {
-        return;
-      }
-      this._authenticated.next(false);
-      this._session.next(undefined);
-      return;
-    }
-
-    let newSession: IZsMapSession;
-
-    if (currentSession && !currentSession.workLocal) {
-      newSession = currentSession;
-    } else {
-      newSession = {
-        id: 'current',
-        locale: this.getPreferredLocale(),
-      };
-    }
-
-    // Shared sessions have the permission stored directly on the session.
-    // Normal login session get the permission based on the role.
-    newSession.zsRole = (sessionResult.zsRole ?? (sessionResult.user as any)?.zsRole) as Role;
-    this.isAdmin.set(newSession.zsRole === 'admin');
-    newSession.permission =
-      sessionResult.session.permission ? (sessionResult.session.permission as PermissionType)
-      : sessionResult.zsRole === 'operationread' ? 'read'
-      : 'all';
-
-    newSession.label = newSession.label || sessionResult.organization?.name || sessionResult.organization?.documentId;
-
-    // update organization values
-    newSession.organizationLogo = sessionResult.organization?.logo?.url;
-    newSession.organization = sessionResult.organization;
-
-    newSession.defaultLongitude = newSession.organization?.mapLongitude;
-    newSession.defaultLatitude = newSession.organization?.mapLatitude;
-
-    // update operation values
-    const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
-    const operationId = sessionResult.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
-    let operationJustSet = false;
-
-    if (operationId) {
-      const operation = await this._operationService.getOperation(operationId);
-      if (operation) {
-        operationJustSet =
-          !currentSession?.operation?.documentId || currentSession.operation.documentId !== operation.documentId;
-        newSession.operation = operation;
-      }
-    }
-
-    this._authenticated.next(true);
-    this._session.next(newSession);
-
-    const currentUrl = this._router.url;
-    if (currentUrl.startsWith('/login') && queryParams['operationId']) {
-      if (operationJustSet) {
-        const navQueryParams: any = { ...queryParams };
-        Object.keys(navQueryParams).forEach((key) => {
-          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
-            delete navQueryParams[key];
-          }
-        });
-        await this._router.navigate(['/operations'], { queryParams: navQueryParams });
-      } else {
-        const navQueryParams: any = { ...queryParams };
-        delete navQueryParams['operationId'];
-        Object.keys(navQueryParams).forEach((key) => {
-          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
-            delete navQueryParams[key];
-          }
-        });
-        await this._router.navigate(['/main/map'], { queryParams: navQueryParams });
-      }
-    }
-  }
-
   public isWorkLocal() {
     return this._session.value?.workLocal === true;
   }
@@ -707,31 +622,6 @@ export class SessionService {
     return this._isOnline.pipe(distinctUntilChanged());
   }
 
-  private getPreferredLocale(): Locale {
-    const savedLanguage = localStorage.getItem(LANGUAGE_PREFERENCE_KEY) as Locale;
-    if (savedLanguage && ['de', 'en', 'fr'].includes(savedLanguage)) {
-      return savedLanguage;
-    }
-    return DEFAULT_LOCALE;
-  }
-
-  private initializeLanguagePreference(): void {
-    const preferredLocale = this.getPreferredLocale();
-    const currentSession = this._session.value;
-
-    // If we have a saved language preference and it's different from the current session
-    if (currentSession && preferredLocale !== DEFAULT_LOCALE && currentSession.locale !== preferredLocale) {
-      currentSession.locale = preferredLocale;
-      this._session.next(currentSession);
-    } else if (!currentSession && preferredLocale !== DEFAULT_LOCALE) {
-      // Create a minimal session with the preferred language
-      this._session.next({
-        id: 'language-init',
-        locale: preferredLocale,
-      });
-    }
-  }
-
   public isOnline(): boolean {
     return this._isOnline.value;
   }
@@ -741,7 +631,9 @@ export class SessionService {
       throw new Error('OperationId is not defined');
     }
 
-    const response = await trpcRequest(trpc.access.generate.mutate({operationId: this.getOperationId()!, tokenType, type: permission}))
+    const response = await trpcRequest(
+      trpc.access.generate.mutate({ operationId: this.getOperationId()!, tokenType, type: permission }),
+    );
     if (!response.result?.accessToken) {
       throw new Error('Unable to generate share url');
     }
@@ -803,5 +695,114 @@ export class SessionService {
 
   public getDefaultMapZoom(): number {
     return this._session.value?.defaultZoomLevel || DEFAULT_ZOOM;
+  }
+
+  private async loadAuthenticatedSession(): Promise<void> {
+    const currentSession = await this.getSavedSession();
+
+    const { error, data: sessionResult } = await authClient.getSession();
+
+    if (error || !sessionResult) {
+      if ((error?.status ?? 0) >= 500 || !this._isOnline.value) {
+        return;
+      }
+      this._authenticated.next(false);
+      this._session.next(undefined);
+      return;
+    }
+
+    let newSession: IZsMapSession;
+
+    if (currentSession && !currentSession.workLocal) {
+      newSession = currentSession;
+    } else {
+      newSession = {
+        id: 'current',
+        locale: this.getPreferredLocale(),
+      };
+    }
+
+    // Shared sessions have the permission stored directly on the session.
+    // Normal login session get the permission based on the role.
+    newSession.zsRole = (sessionResult.zsRole ?? (sessionResult.user as any)?.zsRole) as Role;
+    this.isAdmin.set(newSession.zsRole === 'admin');
+    newSession.permission =
+      sessionResult.session.permission ? (sessionResult.session.permission as PermissionType)
+      : sessionResult.zsRole === 'operationread' ? 'read'
+      : 'all';
+
+    newSession.label = newSession.label || sessionResult.organization?.name || sessionResult.organization?.documentId;
+
+    // update organization values
+    newSession.organizationLogo = sessionResult.organization?.logo?.url;
+    newSession.organization = sessionResult.organization;
+
+    newSession.defaultLongitude = newSession.organization?.mapLongitude;
+    newSession.defaultLatitude = newSession.organization?.mapLatitude;
+
+    // update operation values
+    const queryParams = await firstValueFrom(this._router.routerState.root.queryParams);
+    const operationId =
+      sessionResult.operationId || queryParams['operationId'] || currentSession?.operation?.documentId;
+    let operationJustSet = false;
+
+    if (operationId) {
+      const operation = await this._operationService.getOperation(operationId);
+      if (operation) {
+        operationJustSet =
+          !currentSession?.operation?.documentId || currentSession.operation.documentId !== operation.documentId;
+        newSession.operation = operation;
+      }
+    }
+
+    this._authenticated.next(true);
+    this._session.next(newSession);
+
+    const currentUrl = this._router.url;
+    if (currentUrl.startsWith('/login') && queryParams['operationId']) {
+      if (operationJustSet) {
+        const navQueryParams: any = { ...queryParams };
+        Object.keys(navQueryParams).forEach((key) => {
+          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
+            delete navQueryParams[key];
+          }
+        });
+        await this._router.navigate(['/operations'], { queryParams: navQueryParams });
+      } else {
+        const navQueryParams: any = { ...queryParams };
+        delete navQueryParams['operationId'];
+        Object.keys(navQueryParams).forEach((key) => {
+          if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
+            delete navQueryParams[key];
+          }
+        });
+        await this._router.navigate(['/main/map'], { queryParams: navQueryParams });
+      }
+    }
+  }
+
+  private getPreferredLocale(): Locale {
+    const savedLanguage = localStorage.getItem(LANGUAGE_PREFERENCE_KEY) as Locale;
+    if (savedLanguage && ['de', 'en', 'fr'].includes(savedLanguage)) {
+      return savedLanguage;
+    }
+    return DEFAULT_LOCALE;
+  }
+
+  private initializeLanguagePreference(): void {
+    const preferredLocale = this.getPreferredLocale();
+    const currentSession = this._session.value;
+
+    // If we have a saved language preference and it's different from the current session
+    if (currentSession && preferredLocale !== DEFAULT_LOCALE && currentSession.locale !== preferredLocale) {
+      currentSession.locale = preferredLocale;
+      this._session.next(currentSession);
+    } else if (!currentSession && preferredLocale !== DEFAULT_LOCALE) {
+      // Create a minimal session with the preferred language
+      this._session.next({
+        id: 'language-init',
+        locale: preferredLocale,
+      });
+    }
   }
 }

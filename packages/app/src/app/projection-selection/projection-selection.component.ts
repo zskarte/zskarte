@@ -1,4 +1,4 @@
-import { Component, Input, inject, input, output } from '@angular/core';
+import { Component, inject, Input, input, output } from '@angular/core';
 import type { ZsKarteProjection } from '../helper/projections';
 import { availableProjections } from '../helper/projections';
 import { I18NService } from '../state/i18n.service';

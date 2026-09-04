@@ -20,8 +20,12 @@ async function globalSetup(config: FullConfig) {
     const browser = await chromium.launch();
     const page = await browser.newPage({ baseURL });
     await login(page);
-    
-    await page.locator('.operation-list-item', { hasText: 'e2e test' }).first().getByRole('button', { name: 'More options' }).click();
+
+    await page
+      .locator('.operation-list-item', { hasText: 'e2e test' })
+      .first()
+      .getByRole('button', { name: 'More options' })
+      .click();
     const archiveOperationResponse = waitForTrpcResponse(page, 'operation.archive');
     await page.getByRole('menuitem', { name: 'Ereignis Archivieren' }).click();
     await archiveOperationResponse;

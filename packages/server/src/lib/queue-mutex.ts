@@ -1,12 +1,7 @@
 import { TRPCError } from '@trpc/server';
 
 export type QueueTaskState =
-  | 'queued'
-  | 'waiting-to-start'
-  | 'running'
-  | 'finished'
-  | 'rejected-before-start'
-  | 'cancelled-during-run';
+  'queued' | 'waiting-to-start' | 'running' | 'finished' | 'rejected-before-start' | 'cancelled-during-run';
 
 export interface EnqueueOptions<T = unknown> {
   maxWaitMs: number;

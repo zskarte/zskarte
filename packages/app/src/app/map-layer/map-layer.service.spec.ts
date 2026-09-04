@@ -6,6 +6,13 @@
 import '@angular/compiler';
 //no fakeAsync is used here, so describe/it/expect can be imported directly instead of relying on globals
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Injector } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MapLayer, WmsSource } from '@zskarte/types';
+import { environment } from '../../environments/environment';
+import { BlobService } from '../db/blob.service';
+import { MapLayerService } from './map-layer.service';
+import { WmsService } from './wms/wms.service';
 
 // Need to be befor other imports, hoisted so the mock factories can use them
 const { trpcMock, dbMock } = vi.hoisted(() => ({
@@ -29,14 +36,6 @@ const { trpcMock, dbMock } = vi.hoisted(() => ({
 }));
 vi.mock('../api/trpc.client', () => ({ trpc: trpcMock }));
 vi.mock('../db/db', () => ({ db: dbMock }));
-
-import { Injector } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MapLayer, WmsSource } from '@zskarte/types';
-import { environment } from '../../environments/environment';
-import { BlobService } from '../db/blob.service';
-import { MapLayerService } from './map-layer.service';
-import { WmsService } from './wms/wms.service';
 
 const ORGANIZATION_ID = '11111111-1111-1111-1111-111111111111';
 const OTHER_ORGANIZATION_ID = '22222222-2222-2222-2222-222222222222';
@@ -159,9 +158,7 @@ describe('MapLayerService', () => {
       expect(layers[0].source?.url).toBe(`${environment.apiUrl}/uploads/layer.geojson`);
       expect(layers[0].source?.documentId).toBe(MEDIA_SOURCE_ID);
       expect(layers[0].fullId).toBe(`${environment.apiUrl}/uploads/layer.geojson|layer-name|${MAP_LAYER_ID}`);
-      expect((layers[0] as MapLayer & { styleUrl: string }).styleUrl).toBe(
-        `${environment.apiUrl}/uploads/style.json`,
-      );
+      expect((layers[0] as MapLayer & { styleUrl: string }).styleUrl).toBe(`${environment.apiUrl}/uploads/style.json`);
     });
 
     it('keeps an absolute media url untouched', async () => {

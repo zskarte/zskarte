@@ -42,12 +42,14 @@
 
 .details-toggle-row {
   margin-bottom: 8px;
+
   button {
     padding: 0;
     height: 32px;
     line-height: 32px;
     font-size: 13px;
     color: var(--mat-sys-primary, #1976d2);
+
     mat-icon {
       margin-right: 4px;
     }

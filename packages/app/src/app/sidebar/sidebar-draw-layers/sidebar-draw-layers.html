@@ -1,16 +1,16 @@
 @let activeLayerId = activeLayer()?.getId();
-<mat-radio-group [value]="activeLayerId" (change)="activateLayer($event)">
+<mat-radio-group (change)="activateLayer($event)" [value]="activeLayerId">
   @for (layer of layers(); track layer.id) {
   <div class="layer">
     <mat-radio-button [value]="layer.id">{{ layer.name }}</mat-radio-button>
-    <button mat-icon-button [attr.aria-label]="i18n.get('renameLayer')" (click)="renameLayer(layer)">
+    <button (click)="renameLayer(layer)" [attr.aria-label]="i18n.get('renameLayer')" mat-icon-button>
       <mat-icon>edit</mat-icon>
     </button>
     @if (activeLayerId !== layer.id) {
     <button
-      mat-icon-button
-      [attr.aria-label]="layer.isVisible ? i18n.get('show') : i18n.get('hide')"
       (click)="toggleLayerVisibility(layer.id, !layer.isVisible)"
+      [attr.aria-label]="layer.isVisible ? i18n.get('show') : i18n.get('hide')"
+      mat-icon-button
     >
       @if (layer.isVisible) {
       <mat-icon>visibility_off</mat-icon>
@@ -18,7 +18,7 @@
       <mat-icon>visibility_on</mat-icon>
       }
     </button>
-    <button mat-icon-button [attr.aria-label]="i18n.get('deleteLayer')" (click)="deleteLayer(layer.id)">
+    <button (click)="deleteLayer(layer.id)" [attr.aria-label]="i18n.get('deleteLayer')" mat-icon-button>
       <mat-icon>delete</mat-icon>
     </button>
     }
@@ -26,7 +26,7 @@
   }
 </mat-radio-group>
 
-<button mat-raised-button color="primary" (click)="addDrawLayer()">{{ i18n.get('addDrawLayer') }}</button>
+<button (click)="addDrawLayer()" color="primary" mat-raised-button>{{ i18n.get('addDrawLayer') }}</button>
 
 <ng-template #dialog>
   <form (submit)="submit($event)">
@@ -36,15 +36,15 @@
     <app-dialog-body>
       <mat-form-field appearance="outline">
         <mat-label>{{ i18n.get('name') }}</mat-label>
-        <input matInput [formField]="layerNameForm.name" />
+        <input [formField]="layerNameForm.name" matInput />
         @if (layerNameForm.name().touched() && layerNameForm.name().invalid() && layerNameForm.name().errors().length) {
-        <mat-error>{{layerNameForm.name().errors()[0].message}}</mat-error>
+        <mat-error>{{ layerNameForm.name().errors()[0].message }}</mat-error>
         }
       </mat-form-field>
     </app-dialog-body>
     <app-dialog-footer>
-      <button mat-stroked-button mat-dialog-close>{{ i18n.get('cancel') }}</button>
-      <button mat-flat-button color="primary" type="submit">{{ i18n.get('ok') }}</button>
+      <button mat-dialog-close mat-stroked-button>{{ i18n.get('cancel') }}</button>
+      <button color="primary" mat-flat-button type="submit">{{ i18n.get('ok') }}</button>
     </app-dialog-footer>
   </form>
 </ng-template>

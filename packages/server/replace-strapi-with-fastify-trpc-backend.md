@@ -2,8 +2,8 @@
 
 ### Overview & Goals
 
-Replace the Strapi 5 backend (`packages/server`) with `` built on **Fastify 5 + tRPC 11 + Drizzle
-ORM + better-auth**, with **drizzle-studio** as the admin GUI.
+Replace the Strapi 5 backend (`packages/server`) with `` built on **Fastify 5 + tRPC 11 + Drizzle ORM + better-auth**,
+with **drizzle-studio** as the admin GUI.
 
 Goals:
 
@@ -127,8 +127,7 @@ This replaces the previous shape of the plan, where the entire client cut-over w
 - **Graceful shutdown** flushes the operation cache and aborts queued changesets.
 - **Security:** CORS restricted to configured origins with credentials, better-auth rate limiting, `useSecureCookies` in
   production, zod-validated secrets, private keys and access tokens never serialized to clients, proxy host allowlist.
-- **Tooling:** biome lint, vitest in `/test`, `drizzle-kit generate`/`migrate`, `tsc --noEmit` as
-  the app-side gate.
+- **Tooling:** biome lint, vitest in `/test`, `drizzle-kit generate`/`migrate`, `tsc --noEmit` as the app-side gate.
 
 # Technical Design
 
@@ -294,9 +293,9 @@ and loses `getToken()` once no REST caller remains.
 | `journal/journal.service.ts`                                                               | REST → `journal.*`                                                                                                                                             | 5    |
 | `revoke-share-dialog.component.ts`, share generation in `session.service.ts`               | REST → `access.*`                                                                                                                                              | 5    |
 | `api/api.service.ts`, `api/transformer.ts`                                                 | **Deleted** when the last REST caller is gone                                                                                                                  | 6–7  |
-| `helper/strapi-utils.ts`                                                                   | Kept, renamed `media-utils.ts`; `mapInternalUrl` points at `apiUrl`                                                                                        | 6    |
+| `helper/strapi-utils.ts`                                                                   | Kept, renamed `media-utils.ts`; `mapInternalUrl` points at `apiUrl`                                                                                            | 6    |
 | `packages/server`                                                                          | **Deleted**                                                                                                                                                    | 7    |
-| Root `package.json`, `Dockerfile`, `docker-compose.yml`, `DEVELOPER_GUIDE.md`, `README.md` | Retargeted at `server`                                                                                                                                    | 7    |
+| Root `package.json`, `Dockerfile`, `docker-compose.yml`, `DEVELOPER_GUIDE.md`, `README.md` | Retargeted at `server`                                                                                                                                         | 7    |
 
 ### Architecture Diagram
 
@@ -423,10 +422,10 @@ it. Rows marked ✅ are already migrated.
 
 ### Files & admin
 
-| Today                                                               | New                                                | App call site                                                                | Step  |
-|---------------------------------------------------------------------|----------------------------------------------------|------------------------------------------------------------------------------|-------|
+| Today                                                               | New                                                | App call site                                                            | Step  |
+|---------------------------------------------------------------------|----------------------------------------------------|--------------------------------------------------------------------------|-------|
 | `GET /uploads/*` (Strapi public middleware)                         | `@fastify/static` at `/uploads` or Azure Blob URLs | `helper/strapi-utils.ts` → `media-utils.ts`, `mapInternalUrl` → `apiUrl` | **6** |
-| `POST /api/map-layer-generation-configs/trigger-update` (admin JWT) | `npm run maplayer:generate` CLI                    | —                                                                            | **6** |
+| `POST /api/map-layer-generation-configs/trigger-update` (admin JWT) | `npm run maplayer:generate` CLI                    | —                                                                        | **6** |
 
 # Testing
 
@@ -493,8 +492,8 @@ objects and never execute real SQL.
 
 ### Test Changes
 
-- **Add:** `/test/**` — a `customSession` payload contract suite (step 1), operation/changeset
-  concurrency, realtime, journal-numbering, access-lifecycle, storage and generation suites; a shared `test/helpers.ts`
+- **Add:** `/test/**` — a `customSession` payload contract suite (step 1), operation/changeset concurrency, realtime,
+  journal-numbering, access-lifecycle, storage and generation suites; a shared `test/helpers.ts`
   for the fake-`Database` builder and `authSession` helper that the step-3 test files currently duplicate.
 - **Update:** `packages/app/src/app/changeset/changeset.service.spec.ts` — its `'/api/operations/mapstate/changeset'`
   assertion becomes a tRPC procedure-call assertion (step 3).
@@ -650,11 +649,11 @@ The repository builds and runs on `server` only, the Playwright suite passes, an
   it documented behind `PROXY_ALLOWED_HOSTS`.
 - Run the app vitest suite and the Playwright e2e suite against `server` + the app as the acceptance gate.
 - Delete `packages/server`; retarget root `package.json` scripts, `Dockerfile`, `docker-compose.yml` and `.dockerignore`
-  at `server`; drop the Strapi dependencies and overrides from the root manifest; make `environment.apiUrl`obsolete
-  and rename `apiUrl` to `apiUrl`.
+  at `server`; drop the Strapi dependencies and overrides from the root manifest; make `environment.apiUrl`obsolete and
+  rename `apiUrl` to `apiUrl`.
 - Rewrite the "Add new types" chapter of `DEVELOPER_GUIDE.md` around drizzle schema + migration + module router +
   permission-matrix entry; document that authentication and authorization live entirely on better-auth while all domain
   traffic is tRPC, the drizzle-studio and CLI admin workflows, and the single-instance constraint; update `README.md`and
   `CHANGELOG.md`.
-- Add the shared `/test/helpers.ts` (fake `Database` builder + `authSession`) and de-duplicate it
-  out of the module test files.
+- Add the shared `/test/helpers.ts` (fake `Database` builder + `authSession`) and de-duplicate it out of the module test
+  files.

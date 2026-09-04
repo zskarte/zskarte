@@ -24,6 +24,25 @@ export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapSymbolDraw
       });
   }
 
+  protected static override _getOlDrawType(symbolId?: number): Type {
+    const symbol = Signs.getSignById(symbolId);
+    return (symbol?.type as Type) ?? 'Point';
+  }
+
+  protected static override _parseFeature(
+    feature: Feature<Point>,
+    state: ZsMapStateService,
+    element: ZsMapElementToDraw,
+  ): void {
+    const drawElement = state.addDrawElement({
+      type: ZsMapDrawElementStateType.SYMBOL,
+      coordinates: feature.getGeometry()?.getCoordinates() || [],
+      layer: element.layer,
+      symbolId: element.symbolId,
+    });
+    state.setSelectedFeature(drawElement?.id);
+  }
+
   protected _initialize(element: ZsMapSymbolDrawElementState): void {
     const symbol = Signs.getSignById(element.symbolId);
 
@@ -41,20 +60,5 @@ export class ZsMapSymbolDrawElement extends ZsMapBaseDrawElement<ZsMapSymbolDraw
 
     this._olFeature.setGeometry(this._olGeometryItem);
     return;
-  }
-
-  protected static override _getOlDrawType(symbolId?: number): Type {
-    const symbol = Signs.getSignById(symbolId);
-    return (symbol?.type as Type) ?? 'Point';
-  }
-
-  protected static override _parseFeature(feature: Feature<Point>, state: ZsMapStateService, element: ZsMapElementToDraw): void {
-    const drawElement = state.addDrawElement({
-      type: ZsMapDrawElementStateType.SYMBOL,
-      coordinates: feature.getGeometry()?.getCoordinates() || [],
-      layer: element.layer,
-      symbolId: element.symbolId,
-    });
-    state.setSelectedFeature(drawElement?.id);
   }
 }

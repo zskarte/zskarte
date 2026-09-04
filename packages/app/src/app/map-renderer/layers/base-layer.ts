@@ -5,7 +5,7 @@ import { Geometry, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import { Cluster } from 'ol/source';
 import VectorSource from 'ol/source/Vector';
-import { Observable, Subject, combineLatest } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
 import { ZsMapStateService } from '../../state/state.service';
 import { DrawStyle } from '../draw-style';

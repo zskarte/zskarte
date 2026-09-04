@@ -4,14 +4,14 @@
 <app-dialog-body>
   @if (!this.html) {
     <div class="loading">
-      <mat-progress-spinner color="primary" mode="indeterminate"> </mat-progress-spinner>
+      <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
     </div>
   } @else {
     <div [innerHTML]="html"></div>
   }
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-flat-button color="primary" mat-dialog-close>
+  <button color="primary" mat-dialog-close mat-flat-button>
     {{ i18n.get('ok') }}
   </button>
 </app-dialog-footer>

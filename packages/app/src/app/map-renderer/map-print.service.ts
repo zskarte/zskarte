@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Collection, Feature } from 'ol';
 import { Extent, getCenter } from 'ol/extent';
 import { Polygon } from 'ol/geom';
@@ -29,11 +29,7 @@ export class MapPrintService {
   private _printAreaPositionInteraction: Translate | undefined;
   private _renderer!: MapRendererService;
 
-  initialize({
-    renderer,
-  }: {
-    renderer: MapRendererService;
-  }) {
+  initialize({ renderer }: { renderer: MapRendererService }) {
     this._renderer = renderer;
 
     this._printDimensionArea = new Feature({

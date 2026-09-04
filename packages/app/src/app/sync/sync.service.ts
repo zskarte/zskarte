@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SessionService } from '../session/session.service';
 import { v4 as uuidv4 } from 'uuid';
 import { debounce } from '../helper/debounce';
@@ -32,9 +32,13 @@ const TRY_RECONNECT_NO_CONNECTION_TIME = 60_000;
 })
 export class SyncService {
   private _session = inject(SessionService);
+  public publishCurrentLocation = debounce(async (longLat: { long: number; lat: number } | undefined) => {
+    if (!this._session.isWorkLocal()) {
+      await this._publishCurrentLocation(longLat);
+    }
+  }, 1000);
   private _journal = inject(JournalService);
   private _changeset = inject(ChangesetService);
-
   private _connectionId = uuidv4();
   private _subscriptions: { unsubscribe(): void }[] = [];
   private _subscriptionGeneration = 0;
@@ -42,7 +46,6 @@ export class SyncService {
   private _connectingPromise: Promise<void> | undefined;
   private _reonnectPublishPromise: Promise<void> | undefined;
   private _connections = new BehaviorSubject<Connection[]>([]);
-
   private journalChange$ = toObservable(this._journal.data);
 
   constructor() {
@@ -120,6 +123,10 @@ export class SyncService {
 
   public setStateService(state: ZsMapStateService): void {
     this._state = state;
+  }
+
+  public observeConnections() {
+    return this._connections.asObservable();
   }
 
   private async _reconnect(): Promise<void> {
@@ -222,12 +229,6 @@ export class SyncService {
     this._subscriptions = [];
   }
 
-  public publishCurrentLocation = debounce(async (longLat: { long: number; lat: number } | undefined) => {
-    if (!this._session.isWorkLocal()) {
-      await this._publishCurrentLocation(longLat);
-    }
-  }, 1000);
-
   private async _publishCurrentLocation(longLat: { long: number; lat: number } | undefined): Promise<void> {
     const operationId = this._session.getOperationId();
     if (!operationId) return;
@@ -236,9 +237,5 @@ export class SyncService {
       identifier: this._connectionId,
       location: longLat,
     });
-  }
-
-  public observeConnections() {
-    return this._connections.asObservable();
   }
 }

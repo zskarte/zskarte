@@ -1,17 +1,12 @@
-import { ChangeDetectorRef, Component, OnDestroy, inject, signal } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
-import { Observable } from 'rxjs/internal/Observable';
+import { ChangeDetectorRef, Component, inject, OnDestroy, signal } from '@angular/core';
 import { I18NService } from '../../state/i18n.service';
-import { BehaviorSubject, Subject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { SyncService } from '../../sync/sync.service';
 import { SessionService } from '../../session/session.service';
 import { ZsMapStateService } from '../../state/state.service';
-import { db } from '../../db/db';
 import { MatDialog } from '@angular/material/dialog';
 import { InfoDialogComponent } from '../../info-dialog/info-dialog.component';
-import { BlobEventType, BlobOperation, BlobService } from '../../db/blob.service';
-import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../../session/default-map-values';
-import { MapLayerService } from '../../map-layer/map-layer.service';
+import { BlobEventType, BlobOperation } from '../../db/blob.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +15,6 @@ import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { ZsMapStateSource, GeoJSONMapLayer, zsMapStateSourceToDownloadUrl, MapLayer } from '@zskarte/types';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -49,19 +43,18 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class SidebarConnectionsComponent implements OnDestroy {
   i18n = inject(I18NService);
-  private syncService = inject(SyncService);
   session = inject(SessionService);
   state = inject(ZsMapStateService);
-  private _dialog = inject(MatDialog);
-  private cdRef = inject(ChangeDetectorRef);
   offlineService = inject(OfflineService);
-
-  readonly connections = toSignal(this.syncService.observeConnections());
   readonly label = signal('');
   showCurrentLocation = toSignal(this.state.observeShowCurrentLocation$());
   labelEdit = false;
   public isOnline = new BehaviorSubject<boolean>(true);
   mapProgress = 0;
+  private syncService = inject(SyncService);
+  readonly connections = toSignal(this.syncService.observeConnections());
+  private _dialog = inject(MatDialog);
+  private cdRef = inject(ChangeDetectorRef);
 
   constructor() {
     this.label.set(this.session.getLabel() ?? '');
@@ -83,11 +76,6 @@ export class SidebarConnectionsComponent implements OnDestroy {
     this.state.updateCurrentMapCenter$([location.long, location.lat]);
   }
 
-  private async updateMapCallback(eventType: BlobEventType, infos: BlobOperation) {
-    this.mapProgress = infos.mapProgress;
-    this.cdRef.detectChanges();
-  }
-
   async prepareLocalAvailability() {
     await this.offlineService.prepareLocalAvailability();
   }
@@ -95,5 +83,10 @@ export class SidebarConnectionsComponent implements OnDestroy {
   showSearchInfo(event) {
     event.preventDefault();
     InfoDialogComponent.showTextDialog(this._dialog, this.i18n.get('howtoFindSearchCapability'), this.i18n.get('info'));
+  }
+
+  private async updateMapCallback(eventType: BlobEventType, infos: BlobOperation) {
+    this.mapProgress = infos.mapProgress;
+    this.cdRef.detectChanges();
   }
 }

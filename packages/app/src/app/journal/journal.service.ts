@@ -22,6 +22,10 @@ import { trpcRequest, TrpcResponse } from '../api/trpc.error';
   providedIn: 'root',
 })
 export class JournalService {
+  readonly data = signal<JournalEntry[]>([]);
+  readonly error = signal(false);
+  readonly cachedOnly = signal(false);
+  public lastUpdated = signal<{ entry: JournalEntry; change: Partial<JournalEntry> } | null>(null);
   private _session = inject(SessionService);
   private _pdfServiceFactory = inject(PdfServiceFactory);
   private _i18n = inject(I18NService);
@@ -30,7 +34,6 @@ export class JournalService {
   private _state!: ZsMapStateService;
   private isOnline = toSignal(this._session.observeIsOnline());
   private _connectionId!: string;
-
   private operationId = signal<string | null>(null);
   private organizationId = signal<string | null>(null);
   private journalResource = resource({
@@ -43,30 +46,9 @@ export class JournalService {
     },
   });
   readonly backendData = this.journalResource.value;
-  readonly data = signal<JournalEntry[]>([]);
   readonly loading = this.journalResource.isLoading;
   readonly backendError = this.journalResource.error;
-  readonly error = signal(false);
-  readonly cachedOnly = signal(false);
-  readonly reload = () => this.journalResource.reload();
-
   private drawingEntrySignal = signal<JournalEntry | null>(null);
-  get drawingEntry() {
-    return this.drawingEntrySignal();
-  }
-  set drawingEntry(newValue: JournalEntry | null) {
-    const oldValue = this.drawingEntrySignal();
-    if (oldValue !== newValue) {
-      if (oldValue?.isDrawingOnMap) {
-        this.updateDrawingState(oldValue, false);
-      }
-      this.drawingEntrySignal.set(newValue);
-      if (newValue) {
-        this.updateDrawingState(newValue, true);
-      }
-    }
-  }
-  public lastUpdated = signal<{ entry: JournalEntry; change: Partial<JournalEntry> } | null>(null);
 
   constructor() {
     effect(() => {
@@ -149,6 +131,25 @@ export class JournalService {
       }
     });
   }
+
+  get drawingEntry() {
+    return this.drawingEntrySignal();
+  }
+
+  set drawingEntry(newValue: JournalEntry | null) {
+    const oldValue = this.drawingEntrySignal();
+    if (oldValue !== newValue) {
+      if (oldValue?.isDrawingOnMap) {
+        this.updateDrawingState(oldValue, false);
+      }
+      this.drawingEntrySignal.set(newValue);
+      if (newValue) {
+        this.updateDrawingState(newValue, true);
+      }
+    }
+  }
+
+  readonly reload = () => this.journalResource.reload();
 
   public setStateService(state: ZsMapStateService): void {
     this._state = state;
@@ -275,28 +276,6 @@ export class JournalService {
     return result;
   }
 
-  private async getNextLocalNumber() {
-    const operationId = this.operationId();
-    const organizationId = this.organizationId();
-    if (!operationId) {
-      return -10000;
-    }
-    const cached = await db.localJournalEntries.where({ operationId, organizationId }).toArray();
-    if (cached.length === 0) {
-      return -1;
-    }
-    const numbers = cached.map((e) => e.messageNumber);
-    const min = Math.min(0, ...numbers);
-    const max = Math.max(0, ...numbers);
-    if (max < 0) {
-      return min - 1;
-    }
-    if (-max < min) {
-      return -max - 1;
-    }
-    return min - 1;
-  }
-
   public async messageNumberAlreadyExist(messageNumber: number, documentId?: string) {
     const operationId = this.operationId();
     const organizationId = this.organizationId();
@@ -339,7 +318,9 @@ export class JournalService {
     if (!operationId || !organizationId) {
       return { error: true, result: undefined };
     }
-    const response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry, identifier: this._connectionId }));
+    const response = await trpcRequest(
+      trpc.journal.create.mutate({ operationId, entry, identifier: this._connectionId }),
+    );
     const { error, result } = response;
     if (!error && result) {
       this.patchEntry(result, true);
@@ -414,7 +395,7 @@ export class JournalService {
       trpc.journal.update.mutate({
         operationId: this.operationId()!,
         entry: { ...entry, documentId: documentId || entry.documentId },
-        identifier: this._connectionId
+        identifier: this._connectionId,
       }),
     );
 
@@ -506,9 +487,13 @@ export class JournalService {
         //do the backend request to create/update it
         let response: TrpcResponse<JournalEntry>;
         if (entry.create) {
-          response = await trpcRequest(trpc.journal.create.mutate({ operationId, entry: entry.entry, identifier: this._connectionId }));
+          response = await trpcRequest(
+            trpc.journal.create.mutate({ operationId, entry: entry.entry, identifier: this._connectionId }),
+          );
         } else {
-          response = await trpcRequest(trpc.journal.update.mutate({ operationId, entry: entry.entry, identifier: this._connectionId}));
+          response = await trpcRequest(
+            trpc.journal.update.mutate({ operationId, entry: entry.entry, identifier: this._connectionId }),
+          );
         }
 
         //handle response
@@ -598,20 +583,6 @@ export class JournalService {
     this.drawingEntry = value ? entry : null;
   }
 
-  private async updateDrawingState(entry: JournalEntry, value: boolean) {
-    const { error, result } = await this.update(
-      {
-        isDrawingOnMap: value,
-      },
-      entry.documentId,
-    );
-    if (error || !result) {
-      console.error('Error updating journal entry:', error);
-    } else {
-      entry.isDrawingOnMap = value;
-    }
-  }
-
   public async markAsDrawn(entry: JournalEntry, value: boolean) {
     const { error, result } = await this.update(
       value ?
@@ -634,75 +605,6 @@ export class JournalService {
       this.drawingEntrySignal.set(null);
     }
     this._state.finishCurrentChangeset();
-  }
-
-  private checkTextBlockSizeAndAdjust(
-    pdfService: IPdfService,
-    template: any,
-    fieldName: string,
-    text: string,
-    linePrefix: string,
-  ) {
-    //if text is to long / does not fit remove optical lines and write the text more condenced.
-    if (text && !pdfService.checkTextFitInField(template, fieldName, text)) {
-      const filteredSchemas: any[][] = [];
-      for (const schema of template.schemas) {
-        const filteredSchema: any[] = [];
-        for (const element of schema) {
-          if (element.name === fieldName) {
-            if (element.lineHeight > 1.2) {
-              element.lineHeight = 1.2;
-            }
-            element.dynamicFontSize = { min: 4, max: element.fontSize, fit: 'vertical' };
-            filteredSchema.push(element);
-          } else if (!element.name.startsWith(linePrefix)) {
-            filteredSchema.push(element);
-          }
-        }
-        filteredSchemas.push(filteredSchema);
-      }
-      template.schemas = filteredSchemas;
-    }
-  }
-
-  private forceEmptyTextValueToDummyText(template: any, entry: JournalEntry) {
-    //if date are not filled convert to normal text field
-    //force none empty value for all not filled fields
-    for (const schema of template.schemas) {
-      for (const element of schema) {
-        let elementName: string = element.name;
-        if (elementName.indexOf(':') > 0) {
-          elementName = elementName.split(':', 2)[1];
-        }
-        if (elementName.startsWith('entry.')) {
-          const fieldName = elementName.substring(6);
-          element.required = false;
-          if (!entry[fieldName]) {
-            if (JournalDateFields.includes(fieldName as keyof JournalEntry)) {
-              element.type = 'text';
-            }
-            //force empty fields to have content so background is shown
-            if (element.type === 'text') {
-              element.content = ' ';
-              element.readOnly = true;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private deactivateQRCode(template: any) {
-    for (const schema of template.schemas) {
-      for (const element of schema) {
-        if (element.name === 'url_entry') {
-          element.type = 'text';
-          element.content = ' ';
-          element.readOnly = true;
-          return;
-        }
-      }
-    }
   }
 
   public async print(entry: JournalEntry) {
@@ -763,16 +665,6 @@ export class JournalService {
       },
     ];
     await pdfService.downloadPdf(template, data, fileName);
-  }
-
-  private _calculateRowHeight(cellValue: string, columnWidth: number): number {
-    const charsPerLine = columnWidth;
-    const lines = cellValue.split('\n').reduce((acc, line) => {
-      return acc + Math.ceil((line.length || 1) / charsPerLine);
-    }, 0);
-
-    const lineHeight = 15;
-    return lines * lineHeight;
   }
 
   async exportAsExcel(entries: JournalEntry[]) {
@@ -908,5 +800,120 @@ export class JournalService {
       default:
         return this._i18n.get(`journalEntryResponsibility_${entry.entryStatus}`);
     }
+  }
+
+  private async getNextLocalNumber() {
+    const operationId = this.operationId();
+    const organizationId = this.organizationId();
+    if (!operationId) {
+      return -10000;
+    }
+    const cached = await db.localJournalEntries.where({ operationId, organizationId }).toArray();
+    if (cached.length === 0) {
+      return -1;
+    }
+    const numbers = cached.map((e) => e.messageNumber);
+    const min = Math.min(0, ...numbers);
+    const max = Math.max(0, ...numbers);
+    if (max < 0) {
+      return min - 1;
+    }
+    if (-max < min) {
+      return -max - 1;
+    }
+    return min - 1;
+  }
+
+  private async updateDrawingState(entry: JournalEntry, value: boolean) {
+    const { error, result } = await this.update(
+      {
+        isDrawingOnMap: value,
+      },
+      entry.documentId,
+    );
+    if (error || !result) {
+      console.error('Error updating journal entry:', error);
+    } else {
+      entry.isDrawingOnMap = value;
+    }
+  }
+
+  private checkTextBlockSizeAndAdjust(
+    pdfService: IPdfService,
+    template: any,
+    fieldName: string,
+    text: string,
+    linePrefix: string,
+  ) {
+    //if text is to long / does not fit remove optical lines and write the text more condenced.
+    if (text && !pdfService.checkTextFitInField(template, fieldName, text)) {
+      const filteredSchemas: any[][] = [];
+      for (const schema of template.schemas) {
+        const filteredSchema: any[] = [];
+        for (const element of schema) {
+          if (element.name === fieldName) {
+            if (element.lineHeight > 1.2) {
+              element.lineHeight = 1.2;
+            }
+            element.dynamicFontSize = { min: 4, max: element.fontSize, fit: 'vertical' };
+            filteredSchema.push(element);
+          } else if (!element.name.startsWith(linePrefix)) {
+            filteredSchema.push(element);
+          }
+        }
+        filteredSchemas.push(filteredSchema);
+      }
+      template.schemas = filteredSchemas;
+    }
+  }
+
+  private forceEmptyTextValueToDummyText(template: any, entry: JournalEntry) {
+    //if date are not filled convert to normal text field
+    //force none empty value for all not filled fields
+    for (const schema of template.schemas) {
+      for (const element of schema) {
+        let elementName: string = element.name;
+        if (elementName.indexOf(':') > 0) {
+          elementName = elementName.split(':', 2)[1];
+        }
+        if (elementName.startsWith('entry.')) {
+          const fieldName = elementName.substring(6);
+          element.required = false;
+          if (!entry[fieldName]) {
+            if (JournalDateFields.includes(fieldName as keyof JournalEntry)) {
+              element.type = 'text';
+            }
+            //force empty fields to have content so background is shown
+            if (element.type === 'text') {
+              element.content = ' ';
+              element.readOnly = true;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private deactivateQRCode(template: any) {
+    for (const schema of template.schemas) {
+      for (const element of schema) {
+        if (element.name === 'url_entry') {
+          element.type = 'text';
+          element.content = ' ';
+          element.readOnly = true;
+          return;
+        }
+      }
+    }
+  }
+
+  private _calculateRowHeight(cellValue: string, columnWidth: number): number {
+    const charsPerLine = columnWidth;
+    const lines = cellValue.split('\n').reduce((acc, line) => {
+      return acc + Math.ceil((line.length || 1) / charsPerLine);
+    }, 0);
+
+    const lineHeight = 15;
+    return lines * lineHeight;
   }
 }

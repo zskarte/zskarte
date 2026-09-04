@@ -27,12 +27,12 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './journal-draw-overlay.component.scss',
 })
 export class JournalDrawOverlayComponent {
-  private _sidebar = inject(SidebarService);
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   public search = inject(SearchService);
   expanded = signal(true);
   entry = computed(() => this.journal.drawingEntry);
+  private _sidebar = inject(SidebarService);
 
   constructor() {
     effect(() => {

@@ -37,22 +37,14 @@ import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } fro
   styleUrl: './sidebar-draw-layers.scss',
 })
 export class SidebarDrawLayers {
-  private stateService = inject(ZsMapStateService);
-  private dialog = inject(MatDialog);
   protected i18n = inject(I18NService);
-
-  private dialogTemplate = viewChild.required<TemplateRef<any>>('dialog');
-
+  private stateService = inject(ZsMapStateService);
   protected activeLayer = toSignal(this.stateService.observeActiveLayer());
   protected layers = toSignal(
     this.stateService.observeLayers().pipe(switchMap((layer) => combineLatest(layer.map((l) => this.mapLayer(l))))),
   );
-
-  private mapLayer(layer: ZsMapBaseLayer) {
-    return combineLatest([layer.observeName(), layer.observeIsVisible()]).pipe(
-      map(([name, isVisible]) => ({ id: layer.getId(), name, isVisible })),
-    );
-  }
+  private dialog = inject(MatDialog);
+  private dialogTemplate = viewChild.required<TemplateRef<any>>('dialog');
   private layerNameModel = signal({
     id: '',
     name: '',
@@ -122,5 +114,11 @@ export class SidebarDrawLayers {
     if (result) {
       this.stateService.removeDrawLayer(id);
     }
+  }
+
+  private mapLayer(layer: ZsMapBaseLayer) {
+    return combineLatest([layer.observeName(), layer.observeIsVisible()]).pipe(
+      map(([name, isVisible]) => ({ id: layer.getId(), name, isVisible })),
+    );
   }
 }

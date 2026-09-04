@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { SessionService } from './session.service';
@@ -20,4 +20,3 @@ export class SessionGuard implements CanActivate {
     return urlTree;
   }
 }
-

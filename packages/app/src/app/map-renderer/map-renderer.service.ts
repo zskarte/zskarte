@@ -1,7 +1,15 @@
-import { ElementRef, Injectable, Signal, inject } from '@angular/core';
+import { ElementRef, inject, Injectable, Signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { IZsGlobalSearchConfig, IZsMapPrintState, SearchFunction, ShapeMapLayer } from '@zskarte/types';
-import { CsvMapLayer, GeoAdminMapLayer, GeoJSONMapLayer, WMSMapLayer } from '@zskarte/types';
+import {
+  CsvMapLayer,
+  GeoAdminMapLayer,
+  GeoJSONMapLayer,
+  IZsGlobalSearchConfig,
+  IZsMapPrintState,
+  SearchFunction,
+  ShapeMapLayer,
+  WMSMapLayer,
+} from '@zskarte/types';
 import { Feature, Geolocation as OlGeolocation } from 'ol';
 import DrawHole from 'ol-ext/interaction/DrawHole';
 import { FeatureLike } from 'ol/Feature';
@@ -9,14 +17,14 @@ import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import { Attribution, ScaleLine } from 'ol/control';
 import { LineString, Point, Polygon, SimpleGeometry } from 'ol/geom';
-import { Draw, Interaction, defaults } from 'ol/interaction';
+import { defaults, Draw, Interaction } from 'ol/interaction';
 import { Layer } from 'ol/layer';
 import VectorLayer from 'ol/layer/Vector';
 import { transform } from 'ol/proj';
 import VectorSource from 'ol/source/Vector';
 import { Circle, Fill, Icon, Stroke, Style } from 'ol/style';
-import { Extent, createEmpty as createEmptyExtent, extend as extendExtent, isEmpty } from 'ol/extent';
-import { BehaviorSubject, Observable, Subject, combineLatest, concatMap, takeUntil } from 'rxjs';
+import { createEmpty as createEmptyExtent, extend as extendExtent, Extent, isEmpty } from 'ol/extent';
+import { BehaviorSubject, combineLatest, concatMap, Observable, Subject, takeUntil } from 'rxjs';
 import { areArraysEqual } from '../helper/array';
 import { formatArea, formatLength } from '../helper/coordinates';
 import { debounce } from '../helper/debounce';
@@ -55,13 +63,14 @@ export const ZOOM_TO_FIT_WITH_SIDEBAR_PADDING: [number, number, number, number] 
 })
 export class MapRendererService {
   public i18n = inject(I18NService);
+  public isDevicePositionFlagVisible = false;
+  public connectionCount = new BehaviorSubject<number>(0);
   private _sync = inject(SyncService);
   private geoAdminService = inject(GeoadminService);
   private wmsService = inject(WmsService);
   private geoJSONService = inject(GeoJSONService);
   private _search = inject(SearchService);
   private mapSources = inject(MapSourcesService);
-
   private _ngUnsubscribe = new Subject<void>();
   private _map!: OlMap;
   private _view!: OlView;
@@ -78,24 +87,18 @@ export class MapRendererService {
   private _deviceTrackingLayer!: VectorLayer<VectorSource>;
   private _devicePositionFlag!: Feature;
   private _devicePositionFlagLocation!: Point;
-  public isDevicePositionFlagVisible = false;
   private _positionFlag!: Feature;
   private _positionFlagLocation!: Point;
-
   private _layerCache: Record<string, ZsMapBaseLayer> = {};
   private _allLayers: VectorLayer<VectorSource>[] = [];
-
   private _currentDrawInteraction: Draw | undefined;
   private _mapLayerCache: Map<string, Layer> = new Map();
-
   private _currentSketch: FeatureLike | undefined;
   private _drawHole!: DrawHole;
   private _tooltip = new BehaviorSubject<string | null>(null);
   private _mousePosition = new BehaviorSubject<number[]>([0, 0]);
   private _rotation = new BehaviorSubject<number>(0);
   private existingCurrentLocations: VectorLayer<VectorSource<Feature<Point>>> | undefined;
-  public connectionCount = new BehaviorSubject<number>(0);
-
   private _select = inject(MapSelectService);
   private _modify = inject(MapModifyService);
   private _overlay = inject(MapOverlayService);
@@ -109,13 +112,6 @@ export class MapRendererService {
 
   public constructor() {
     this._search.setZoomToFit(this.zoomToFit.bind(this));
-  }
-
-  private applyGlobalSymbolScale() {
-    const factor = this._globalSymbolScale;
-    DrawStyle.setGlobalScaleFactor(factor);
-    this._allLayers.forEach((layer) => layer.changed());
-    this._map?.render();
   }
 
   public terminate() {
@@ -726,29 +722,6 @@ export class MapRendererService {
     });
   }
 
-  private _initDrawHole() {
-    this._drawHole = new DrawHole({
-      layers: this._allLayers,
-      type: 'Polygon',
-    });
-    this._drawHole.setActive(false);
-    this._map.addInteraction(this._drawHole);
-
-    this._drawHole.on('drawend', (e) => {
-      this._state.setDrawHoleMode(false);
-      const feature = this.getFeatureInsideCluster(e.feature as Feature<SimpleGeometry>);
-      const element = this.getCachedDrawElement(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
-      element?.element?.setCoordinates(feature.getGeometry()?.getCoordinates() ?? []);
-    });
-
-    this._state
-      .observeDrawHoleMode()
-      .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe((drawHoleMode) => {
-        this._drawHole.setActive(drawHoleMode);
-      });
-  }
-
   public getFeatureInsideCluster(feature?: FeatureLike) {
     if (feature?.get(ZsMapOLFeatureProps.IS_DRAW_ELEMENT)) {
       return feature;
@@ -803,7 +776,7 @@ export class MapRendererService {
     return this._scaleLine;
   }
 
-  public getCurrentZoom(){
+  public getCurrentZoom() {
     return this.getMap().getView().getZoom();
   }
 
@@ -818,7 +791,7 @@ export class MapRendererService {
     });
   }
 
-  public zoomToAll(featureIds:string[]) {
+  public zoomToAll(featureIds: string[]) {
     const extent = createEmptyExtent();
     featureIds.forEach((featureId) => {
       const featureExtent = this._state.getDrawElement(featureId)?.getOlFeature()?.getGeometry()?.getExtent();
@@ -826,7 +799,7 @@ export class MapRendererService {
         extendExtent(extent, featureExtent);
       }
     });
-    if (isEmpty(extent)){
+    if (isEmpty(extent)) {
       console.error('zoomToAll extent is empty for featureIds:', featureIds);
       return;
     }
@@ -836,6 +809,36 @@ export class MapRendererService {
 
   public getMapExtent() {
     return this.getMap().getView().calculateExtent(this.getMap().getSize());
+  }
+
+  private applyGlobalSymbolScale() {
+    const factor = this._globalSymbolScale;
+    DrawStyle.setGlobalScaleFactor(factor);
+    this._allLayers.forEach((layer) => layer.changed());
+    this._map?.render();
+  }
+
+  private _initDrawHole() {
+    this._drawHole = new DrawHole({
+      layers: this._allLayers,
+      type: 'Polygon',
+    });
+    this._drawHole.setActive(false);
+    this._map.addInteraction(this._drawHole);
+
+    this._drawHole.on('drawend', (e) => {
+      this._state.setDrawHoleMode(false);
+      const feature = this.getFeatureInsideCluster(e.feature as Feature<SimpleGeometry>);
+      const element = this.getCachedDrawElement(feature.get(ZsMapOLFeatureProps.DRAW_ELEMENT_ID));
+      element?.element?.setCoordinates(feature.getGeometry()?.getCoordinates() ?? []);
+    });
+
+    this._state
+      .observeDrawHoleMode()
+      .pipe(takeUntil(this._ngUnsubscribe))
+      .subscribe((drawHoleMode) => {
+        this._drawHole.setActive(drawHoleMode);
+      });
   }
 
   private styleSeachResultFeature(feature) {

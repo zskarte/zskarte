@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { mapInternalUrl, getResponsiveImageSource } from './media-utils';
+import { describe, expect, it } from 'vitest';
+import { getResponsiveImageSource, mapInternalUrl } from './media-utils';
 import { environment } from '../../environments/environment';
 
 describe('media-utils', () => {

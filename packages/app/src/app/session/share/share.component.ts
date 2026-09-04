@@ -17,12 +17,12 @@ export class ShareComponent {
     this._activatedRoute.params.subscribe(async (params) => {
       const queryParams = await firstValueFrom(this._activatedRoute.queryParams);
       await this._session.shareLogin(params['accessToken']);
-      
+
       const isAuthenticated = await firstValueFrom(this._session.observeAuthenticated());
       if (isAuthenticated) {
         const navQueryParams: any = { ...queryParams };
         delete navQueryParams['operationId'];
-        Object.keys(navQueryParams).forEach(key => {
+        Object.keys(navQueryParams).forEach((key) => {
           if (navQueryParams[key] === null || navQueryParams[key] === undefined) {
             delete navQueryParams[key];
           }

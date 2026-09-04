@@ -13,23 +13,9 @@ import { MapLayerService } from '../map-layer/map-layer.service';
   providedIn: 'root',
 })
 export class OfflineService {
-  private _state = inject(ZsMapStateService);
-  private _session = inject(SessionService);
-  private _syncService = inject(SyncService);
-  private _blobService = inject(BlobService);
-  private _mapLayerService = inject(MapLayerService);
-  readonly displayState = toSignal(this._state.observeDisplayState());
-  readonly connection = toSignal(this._syncService.observeConnections());
-  readonly isOnline = toSignal(this._session.observeIsOnline());
-  //readonly isWorkLocal = toSignal(this._session.isWorkLocal());
-  readonly operationId = toSignal(this._session.observeOperationId());
   readonly localOperation = computed(() => this.operationId()?.startsWith('local-') ?? false);
   public readonly canWorkOffline = signal(false);
-
-  private updateMapCallbacks: Record<string, (eventType: BlobEventType, infos: BlobOperation) => Promise<void>> = {};
-
   readonly attempToWorkOffline = signal<boolean>(false);
-
   readonly useLocalBaseMap = signal<boolean>(false);
   readonly downloadLocalBaseMap = signal<boolean>(false);
   readonly hideUnavailableLayers = signal<boolean>(false);
@@ -37,6 +23,17 @@ export class OfflineService {
   readonly haveSearchCapability = signal<boolean>(false);
   readonly isLoadingBaseMap = signal<boolean>(false);
   readonly isLoadingMapLayers = signal<boolean>(false);
+  private _state = inject(ZsMapStateService);
+  readonly displayState = toSignal(this._state.observeDisplayState());
+  private _session = inject(SessionService);
+  readonly isOnline = toSignal(this._session.observeIsOnline());
+  //readonly isWorkLocal = toSignal(this._session.isWorkLocal());
+  readonly operationId = toSignal(this._session.observeOperationId());
+  private _syncService = inject(SyncService);
+  readonly connection = toSignal(this._syncService.observeConnections());
+  private _blobService = inject(BlobService);
+  private _mapLayerService = inject(MapLayerService);
+  private updateMapCallbacks: Record<string, (eventType: BlobEventType, infos: BlobOperation) => Promise<void>> = {};
 
   constructor() {
     effect(() => {
@@ -85,12 +82,6 @@ export class OfflineService {
 
   changeToLocalMap() {
     this._state.setMapSource(ZsMapStateSource.LOCAL);
-  }
-
-  private async updateMapCallback(eventType: BlobEventType, infos: BlobOperation) {
-    for (const callback of Object.values(this.updateMapCallbacks)) {
-      await callback(eventType, infos);
-    }
   }
 
   public setUpdateMapCallbacks(
@@ -235,5 +226,11 @@ export class OfflineService {
       await db.localMapInfo.put(blobMeta);
     }
     this.downloadLocalBaseMap.set(false);
+  }
+
+  private async updateMapCallback(eventType: BlobEventType, infos: BlobOperation) {
+    for (const callback of Object.values(this.updateMapCallbacks)) {
+      await callback(eventType, infos);
+    }
   }
 }

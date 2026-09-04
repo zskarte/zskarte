@@ -1,21 +1,21 @@
 @if (entry()) {
-  <div class="journal-infos mat-elevation-z3" [ngClass]="{ expanded: expanded() }">
+  <div [ngClass]="{ expanded: expanded() }" class="journal-infos mat-elevation-z3">
     <div class="journal-header-content">
       <span class="message-id">#{{ entry()!.messageNumber }}</span>
       <span class="subject">{{ entry()!.messageSubject }}</span>
-      <button mat-icon-button class="expand" (click)="toggleExpanded()">
+      <button (click)="toggleExpanded()" class="expand" mat-icon-button>
         <mat-icon>{{ expanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
     </div>
     <p
-      class="preserve-linebreak"
-      [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true"
       (click)="search.handleMessageContentClick($event)"
+      [innerHTML]="entry()!.messageContent | replaceAllAddressTokens: true"
+      class="preserve-linebreak"
     ></p>
 
     <div class="buttons">
-      <button mat-flat-button (click)="close(false)">{{ i18n.get('cancel') }}</button>
-      <button mat-flat-button color="primary" (click)="close(true)">
+      <button (click)="close(false)" mat-flat-button>{{ i18n.get('cancel') }}</button>
+      <button (click)="close(true)" color="primary" mat-flat-button>
         {{ i18n.get('markAsDrawn') }}
       </button>
     </div>

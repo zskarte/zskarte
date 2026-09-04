@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, computed, ViewChild } from '@angular/core';
+import { Component, computed, HostListener, inject, ViewChild } from '@angular/core';
 import { BehaviorSubject, debounceTime, firstValueFrom, Subject, takeUntil } from 'rxjs';
 
 import { ZsMapStateService } from '../state/state.service';
@@ -51,19 +51,11 @@ export class FloatingUIComponent {
   MAX_DRAW_ELEMENTS_GUEST = MAX_DRAW_ELEMENTS_GUEST;
   i18n = inject(I18NService);
   state = inject(ZsMapStateService);
-  private _sync = inject(SyncService);
-  private _session = inject(SessionService);
-  private _dialog = inject(MatDialog);
-  private _search = inject(SearchService);
-  private _journal = inject(JournalService);
   session = inject(SessionService);
   sidebar = inject(SidebarService);
   snackbar = inject(MatSnackBar);
   mapState = inject(ZsMapStateService);
-
   SidebarContext = SidebarContext;
-
-  private _ngUnsubscribe = new Subject<void>();
   public connectionCount = new BehaviorSubject<number>(0);
   public isOnline = new BehaviorSubject<boolean>(true);
   public isReadOnly = this.state.observeIsReadOnly();
@@ -73,10 +65,16 @@ export class FloatingUIComponent {
   public printView = false;
   public canWorkOffline = new BehaviorSubject<boolean>(false);
   public localOperation = false;
+  private _sync = inject(SyncService);
+  private _session = inject(SessionService);
+  private _dialog = inject(MatDialog);
+  private _search = inject(SearchService);
+  private _journal = inject(JournalService);
   public todoCount = computed(() => {
     const journalList = this._journal.data();
     return (journalList || []).filter((entry) => !entry.isDrawnOnMap).length;
   });
+  private _ngUnsubscribe = new Subject<void>();
 
   constructor() {
     this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
@@ -106,11 +104,15 @@ export class FloatingUIComponent {
     if (this.localOperation) {
       this.state
         .observeDisplayState()
-        .pipe(takeUntil(this._ngUnsubscribe),debounceTime(250))
+        .pipe(takeUntil(this._ngUnsubscribe), debounceTime(250))
         .subscribe(async (displayState) => {
           if (displayState.source === ZsMapStateSource.LOCAL || displayState.source === ZsMapStateSource.NONE) {
             //using local map
-            if (displayState.layers.filter((l) => (l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv') ? !l.hidden : !l.offlineAvailable).length === 0) {
+            if (
+              displayState.layers.filter((l) =>
+                l.type !== 'geojson' && l.type !== 'shape' && l.type !== 'csv' ? !l.hidden : !l.offlineAvailable,
+              ).length === 0
+            ) {
               //all used layer are offlineAvailable
               if (displayState.source === ZsMapStateSource.LOCAL) {
                 const localMapInfo = await db.localMapInfo.get(displayState.source);

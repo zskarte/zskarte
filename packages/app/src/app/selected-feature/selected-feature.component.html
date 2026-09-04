@@ -5,7 +5,7 @@
         @if (!featureGroups) {
           <div class="titleCard">
             @if (selectedSignature.src) {
-              <div class="imgwrapper" (click)="openImageDetail(selectedSignature)">
+              <div (click)="openImageDetail(selectedSignature)" class="imgwrapper">
                 <img [src]="getImageUrl(selectedSignature)" alt="" />
               </div>
             }
@@ -46,7 +46,7 @@
                 }
               </div>
               @if (drawElement.description) {
-                <div class="description" [innerHTML]="drawElement.description"></div>
+                <div [innerHTML]="drawElement.description" class="description"></div>
               }
               @if (mapReportNumber(drawElement).length > 0) {
                 <div class="reportNumber">
@@ -65,16 +65,16 @@
                 <mat-label>{{ i18n.get('name') }}</mat-label>
                 @if (!isText(drawElement)) {
                   <input
-                    type="text"
-                    matInput
-                    [ngModel]="drawElement.name"
                     (ngModelChange)="updateProperty(drawElement, 'name', $event)"
+                    [ngModel]="drawElement.name"
+                    matInput
+                    type="text"
                   />
                 } @else {
                   <textarea
-                    matInput
-                    [ngModel]="drawElement['text']"
                     (ngModelChange)="updateProperty(drawElement, 'text', $event)"
+                    [ngModel]="drawElement['text']"
+                    matInput
                   ></textarea>
                 }
               </mat-form-field>
@@ -83,23 +83,23 @@
                 <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
                   @for (reportNumber of mapReportNumber(drawElement); track reportNumber) {
                     <mat-chip-row
-                      (removed)="removeReportNumber(reportNumber, drawElement)"
                       (click)="openMessage(reportNumber)"
+                      (removed)="removeReportNumber(reportNumber, drawElement)"
                       class="report-number-chip"
                     >
                       {{ reportNumber }}
-                      <mat-icon matChipRemove (click)="$event.stopPropagation()">cancel</mat-icon>
+                      <mat-icon (click)="$event.stopPropagation()" matChipRemove>cancel</mat-icon>
                     </mat-chip-row>
                   }
                 </mat-chip-grid>
                 <input
-                  matInput
-                  type="text"
-                  [placeholder]="i18n.get('pressEnter')"
-                  [matChipInputFor]="reportNumberChips"
-                  (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
                   (blur)="addReportNumber($event, drawElement)"
                   (input)="validateNumberInput($event)"
+                  (matChipInputTokenEnd)="addReportNumber($event, drawElement)"
+                  [matChipInputFor]="reportNumberChips"
+                  [placeholder]="i18n.get('pressEnter')"
+                  matInput
+                  type="text"
                 />
               </mat-form-field>
               <div class="markdown">
@@ -107,9 +107,9 @@
                   <mat-form-field appearance="outline">
                     <mat-label>{{ i18n.get('description') }}</mat-label>
                     <textarea
-                      matInput
-                      [ngModel]="drawElement.description"
                       (ngModelChange)="updateProperty(drawElement, 'description', $event)"
+                      [ngModel]="drawElement.description"
+                      matInput
                     ></textarea>
                   </mat-form-field>
                 </div>
@@ -119,42 +119,42 @@
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('affectedPersons') }}</mat-label>
                   <input
-                    matInput
-                    type="number"
-                    min="1"
-                    [ngModel]="drawElement['affectedPersons']"
                     (ngModelChange)="updateProperty(drawElement, 'affectedPersons', $event)"
+                    [ngModel]="drawElement['affectedPersons']"
+                    matInput
+                    min="1"
+                    type="number"
                   />
                 </mat-form-field>
               } @else if (hazardSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('hazardCode') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="4"
-                    [ngModel]="drawElement['hazardCode']"
-                    (ngModelChange)="updateProperty(drawElement, 'hazardCode', $event)"
                     (input)="validateHazardCode($event)"
+                    (ngModelChange)="updateProperty(drawElement, 'hazardCode', $event)"
+                    [ngModel]="drawElement['hazardCode']"
+                    matInput
+                    maxlength="4"
+                    type="text"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('unNumber') }}</mat-label>
                   <input
-                    matInput
-                    type="number"
-                    maxlength="4"
-                    [ngModel]="drawElement['unNumber']"
-                    (ngModelChange)="updateProperty(drawElement, 'unNumber', $event)"
                     (input)="validateUnNumber($event)"
+                    (ngModelChange)="updateProperty(drawElement, 'unNumber', $event)"
+                    [ngModel]="drawElement['unNumber']"
+                    matInput
+                    maxlength="4"
+                    type="number"
                   />
                 </mat-form-field>
               } @else if (formationSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('hierarchyLevel') }}</mat-label>
                   <mat-select
-                    [ngModel]="drawElement['hierarchyLevel']"
                     (ngModelChange)="updateProperty(drawElement, 'hierarchyLevel', $event)"
+                    [ngModel]="drawElement['hierarchyLevel']"
                   >
                     <mat-option value="trupp">{{ i18n.get('hierarchyTrupp') }}</mat-option>
                     <mat-option value="gruppe">{{ i18n.get('hierarchyGruppe') }}</mat-option>
@@ -166,83 +166,83 @@
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('organization') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="6"
-                    [ngModel]="drawElement['organization']"
                     (ngModelChange)="updateProperty(drawElement, 'organization', $event)"
+                    [ngModel]="drawElement['organization']"
+                    matInput
+                    maxlength="6"
+                    type="text"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('formationDetail') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="10"
-                    [ngModel]="drawElement['formationDetail']"
                     (ngModelChange)="updateProperty(drawElement, 'formationDetail', $event)"
+                    [ngModel]="drawElement['formationDetail']"
+                    matInput
+                    maxlength="10"
+                    type="text"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('additionalInfo') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="10"
-                    [ngModel]="drawElement['additionalInfo']"
                     (ngModelChange)="updateProperty(drawElement, 'additionalInfo', $event)"
+                    [ngModel]="drawElement['additionalInfo']"
+                    matInput
+                    maxlength="10"
+                    type="text"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('formationNumber') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="5"
-                    [ngModel]="drawElement['formationNumber']"
                     (ngModelChange)="updateProperty(drawElement, 'formationNumber', $event)"
+                    [ngModel]="drawElement['formationNumber']"
+                    matInput
+                    maxlength="5"
+                    type="text"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('formationLocation') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="20"
-                    [ngModel]="drawElement['formationLocation']"
                     (ngModelChange)="updateProperty(drawElement, 'formationLocation', $event)"
+                    [ngModel]="drawElement['formationLocation']"
+                    matInput
+                    maxlength="20"
+                    type="text"
                   />
                 </mat-form-field>
               } @else if (transportSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('organization') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="6"
-                    [ngModel]="drawElement['organization']"
                     (ngModelChange)="updateProperty(drawElement, 'organization', $event)"
+                    [ngModel]="drawElement['organization']"
+                    matInput
+                    maxlength="6"
+                    type="text"
                   />
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('formationDetail') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="10"
-                    [ngModel]="drawElement['formationDetail']"
                     (ngModelChange)="updateProperty(drawElement, 'formationDetail', $event)"
+                    [ngModel]="drawElement['formationDetail']"
+                    matInput
+                    maxlength="10"
+                    type="text"
                   />
                 </mat-form-field>
               } @else if (leaderSigns.includes((selectedFeature | async)?.get('sig').id)) {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ i18n.get('organization') }}</mat-label>
                   <input
-                    matInput
-                    type="text"
-                    maxlength="6"
-                    [ngModel]="drawElement['organization']"
                     (ngModelChange)="updateProperty(drawElement, 'organization', $event)"
+                    [ngModel]="drawElement['organization']"
+                    matInput
+                    maxlength="6"
+                    type="text"
                   />
                 </mat-form-field>
               }
@@ -251,21 +251,21 @@
           <mat-divider></mat-divider>
         }
         @if (editMode()) {
-          <mat-accordion multi displayMode="flat">
+          <mat-accordion displayMode="flat" multi>
             @if (selectedFeature | async; as selectedFeature) {
               @if (!selectedSignature.text) {
                 <mat-expansion-panel class="mat-elevation-z0 noPadding">
                   <mat-expansion-panel-header>
                     <mat-panel-title>{{ i18n.get('symbol') }}</mat-panel-title>
                   </mat-expansion-panel-header>
-                  <ng-template matExpansionPanelContent class="noPadding">
+                  <ng-template class="noPadding" matExpansionPanelContent>
                     @if (!drawElement.symbolId) {
-                      <button mat-stroked-button (click)="chooseSymbol(drawElement)">
+                      <button (click)="chooseSymbol(drawElement)" mat-stroked-button>
                         <mat-icon>stars</mat-icon>
                         {{ i18n.get('selectSymbol') }}
                       </button>
                     } @else {
-                      <button mat-stroked-button (click)="chooseSymbol(drawElement)">
+                      <button (click)="chooseSymbol(drawElement)" mat-stroked-button>
                         <mat-icon>cached</mat-icon>
                         {{ i18n.get('replaceSymbol') }}
                       </button>
@@ -273,24 +273,24 @@
                     <mat-divider class="section-divider"></mat-divider>
 
                     <div class="colorPicker">
-                      <mat-form-field class="color-picker" appearance="outline" floatLabel="always">
+                      <mat-form-field appearance="outline" class="color-picker" floatLabel="always">
                         <mat-label>{{ i18n.get('color') }}</mat-label>
                         @if (useColorPicker) {
                           <input
-                            matInput
-                            type="color"
-                            name="color"
-                            [ngModel]="drawElement.color"
                             (ngModelChange)="updateProperty(drawElement, 'color', $event)"
+                            [ngModel]="drawElement.color"
+                            matInput
+                            name="color"
+                            type="color"
                           />
                         } @else {
                           <mat-select
-                            [ngModel]="drawElement.color"
                             (ngModelChange)="updateProperty(drawElement, 'color', $event)"
+                            [ngModel]="drawElement.color"
                           >
                             @for (color of quickColors; track color) {
-                              <mat-option class="color-option" [value]="color.value">
-                                <div class="categoryDot" [style.background-color]="color.value"></div>
+                              <mat-option [value]="color.value" class="color-option">
+                                <div [style.background-color]="color.value" class="categoryDot"></div>
                                 {{ i18n.get(color.viewValue) }}
                               </mat-option>
                             }
@@ -303,17 +303,17 @@
                       <mat-divider class="section-divider"></mat-divider>
                     </div>
                     <mat-checkbox
-                      [ngModel]="drawElement.protected"
                       (ngModelChange)="updateProperty(drawElement, 'protected', $event)"
-                      >{{ i18n.get('lockFeature') }}</mat-checkbox
-                    >
+                      [ngModel]="drawElement.protected"
+                      >{{ i18n.get('lockFeature') }}
+                    </mat-checkbox>
                     <br />
                     @if (selectedSignature.type === 'Point' || selectedSignature.src) {
                       <mat-checkbox
-                        [ngModel]="drawElement.nameShow"
                         (ngModelChange)="updateProperty(drawElement, 'nameShow', $event)"
-                        >{{ i18n.get('labelShow') }}</mat-checkbox
-                      >
+                        [ngModel]="drawElement.nameShow"
+                        >{{ i18n.get('labelShow') }}
+                      </mat-checkbox>
                     }
                     <br />
                     @if (selectedSignature.size) {
@@ -328,11 +328,11 @@
                     <div class="filter">
                       @if (drawElement.symbolId) {
                         <mat-checkbox
+                          (ngModelChange)="updateProperty(drawElement, 'hideIcon', $event)"
                           [ngModel]="drawElement.hideIcon"
                           class="filter"
-                          (ngModelChange)="updateProperty(drawElement, 'hideIcon', $event)"
-                          >{{ i18n.get('hideSymbol') }}</mat-checkbox
-                        >
+                          >{{ i18n.get('hideSymbol') }}
+                        </mat-checkbox>
                       }
                     </div>
 
@@ -342,65 +342,65 @@
 
                         <mat-slider [max]="2" [min]="0.5" [step]="0.1">
                           <input
-                            matSliderThumb
-                            [ngModel]="drawElement.iconSize"
                             (ngModelChange)="updateProperty(drawElement, 'iconSize', $event)"
+                            [ngModel]="drawElement.iconSize"
+                            matSliderThumb
                           />
                         </mat-slider>
-                        <input type="text" matInput hidden value="-" />
+                        <input hidden matInput type="text" value="-" />
                       </div>
                       <div>
                         <mat-label>{{ i18n.get('symbolOffset') }} X</mat-label>
                         <mat-slider [max]="3000" [min]="-3000" [step]="250">
                           <input
-                            matSliderThumb
-                            [ngModel]="drawElement.iconsOffset?.x"
                             (ngModelChange)="updateIconsOffset(drawElement, 'x', $event)"
+                            [ngModel]="drawElement.iconsOffset?.x"
+                            matSliderThumb
                           />
                         </mat-slider>
-                        <input type="text" matInput hidden value="-" />
+                        <input hidden matInput type="text" value="-" />
                       </div>
                       <div>
                         <mat-label>{{ i18n.get('symbolOffset') }} Y</mat-label>
                         <mat-slider [max]="3000" [min]="-3000" [step]="250">
                           <input
-                            matSliderThumb
-                            [ngModel]="drawElement.iconsOffset?.y"
                             (ngModelChange)="updateIconsOffset(drawElement, 'y', $event)"
+                            [ngModel]="drawElement.iconsOffset?.y"
+                            matSliderThumb
                           />
                         </mat-slider>
-                        <input type="text" matInput hidden value="-" />
+                        <input hidden matInput type="text" value="-" />
                       </div>
                       @if (selectedSignature.type === 'LineString') {
                         <div>
                           <mat-checkbox
-                            [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
                             (ngModelChange)="updateIconsOffset(drawElement, 'endHasDifferentOffset', $event)"
-                            >{{ i18n.get('endHasDifferentOffset') }}</mat-checkbox
-                          >
+                            [ngModel]="drawElement.iconsOffset?.endHasDifferentOffset"
+                            >{{ i18n.get('endHasDifferentOffset') }}
+                          </mat-checkbox>
                         </div>
                         @if (drawElement.iconsOffset?.endHasDifferentOffset) {
                           <div>
                             <mat-label>{{ i18n.get('symbolOffsetEnd') }} X</mat-label>
                             <mat-slider [max]="3000" [min]="-3000" [step]="250">
                               <input
-                                matSliderThumb
-                                [ngModel]="drawElement.iconsOffset?.endX"
                                 (ngModelChange)="updateIconsOffset(drawElement, 'endX', $event)"
+                                [ngModel]="drawElement.iconsOffset?.endX"
+                                matSliderThumb
                               />
                             </mat-slider>
-                            <input type="text" matInput hidden value="-" />
+                            <input hidden matInput type="text" value="-" />
                           </div>
                           <div>
                             <mat-label>{{ i18n.get('symbolOffsetEnd') }} Y</mat-label>
                             <mat-slider [max]="3000" [min]="-3000" [step]="250">
                               <input
-                                matSliderThumb
-                                [ngModel]="drawElement.iconsOffset?.endY"
                                 (ngModelChange)="updateIconsOffset(drawElement, 'endY', $event)"
+                                [ngModel]="drawElement.iconsOffset?.endY"
+                                matSliderThumb
                               />
                             </mat-slider>
-                            <input type="text" matInput hidden value="-" />
+                            <input hidden matInput type="text" value="-" />
                           </div>
                         }
                       }
@@ -408,28 +408,28 @@
                         <mat-label>{{ i18n.get('rotate') }}</mat-label>
                         <mat-slider [max]="180" [min]="-180" [step]="1">
                           <input
-                            matSliderThumb
-                            [ngModel]="drawElement.rotation"
                             (ngModelChange)="updateProperty(drawElement, 'rotation', $event)"
+                            [ngModel]="drawElement.rotation"
+                            matSliderThumb
                           />
                         </mat-slider>
-                        <input type="text" matInput hidden value="-" />
+                        <input hidden matInput type="text" value="-" />
                       </div>
                       <div>
                         <mat-label>{{ i18n.get('opacity') }}</mat-label>
                         <mat-slider [max]="1" [min]="0.0" [step]="0.05">
                           <input
-                            matSliderThumb
-                            [ngModel]="drawElement.iconOpacity"
                             (ngModelChange)="updateProperty(drawElement, 'iconOpacity', $event)"
+                            [ngModel]="drawElement.iconOpacity"
+                            matSliderThumb
                           />
                         </mat-slider>
-                        <input type="text" matInput hidden value="-" />
+                        <input hidden matInput type="text" value="-" />
                       </div>
                     }
 
                     @if (drawElement.symbolId) {
-                      <button mat-stroked-button (click)="resetSignature(drawElement)">
+                      <button (click)="resetSignature(drawElement)" mat-stroked-button>
                         {{ i18n.get('defaultValues') }}
                       </button>
                     }
@@ -448,9 +448,9 @@
                     <mat-label>{{ i18n.get('type') }}</mat-label>
                     <select
                       #ctrl="ngModel"
-                      matNativeControl
-                      [ngModel]="drawElement.style"
                       (ngModelChange)="updateProperty(drawElement, 'style', $event)"
+                      [ngModel]="drawElement.style"
+                      matNativeControl
                     >
                       <option value="solid">{{ i18n.get('solidLine') }}</option>
                       <option value="dash">{{ i18n.get('dashedLine') }}</option>
@@ -462,28 +462,28 @@
                     <mat-label>{{ i18n.get('width') }}</mat-label>
                     <mat-slider [max]="4" [min]="0.1" [step]="0.1">
                       <input
-                        matSliderThumb
-                        [ngModel]="drawElement.strokeWidth"
                         (ngModelChange)="updateProperty(drawElement, 'strokeWidth', $event)"
+                        [ngModel]="drawElement.strokeWidth"
+                        matSliderThumb
                       />
                     </mat-slider>
-                    <input type="text" matInput hidden value="-" />
+                    <input hidden matInput type="text" value="-" />
                   </div>
 
                   <mat-form-field appearance="outline">
                     <mat-label>{{ i18n.get('arrow') }}</mat-label>
                     <select
                       #ctrl="ngModel"
-                      matNativeControl
-                      [ngModel]="drawElement.arrow"
                       (ngModelChange)="updateProperty(drawElement, 'arrow', $event)"
+                      [ngModel]="drawElement.arrow"
+                      matNativeControl
                     >
                       <option value="none">{{ i18n.get('none') }}</option>
                       <option value="thin">{{ i18n.get('thin') }}</option>
                       <option value="filled">{{ i18n.get('filled') }}</option>
                     </select>
                   </mat-form-field>
-                  <button mat-stroked-button (click)="resetLine(drawElement)">{{ i18n.get('defaultValues') }}</button>
+                  <button (click)="resetLine(drawElement)" mat-stroked-button>{{ i18n.get('defaultValues') }}</button>
                 </ng-template>
               </mat-expansion-panel>
               <mat-divider></mat-divider>
@@ -498,9 +498,9 @@
                     <mat-label>{{ i18n.get('type') }}</mat-label>
                     <select
                       #ctrl="ngModel"
-                      matNativeControl
-                      [ngModel]="drawElement.fillStyle?.name"
                       (ngModelChange)="updateFillStyle(drawElement, 'name', $event)"
+                      [ngModel]="drawElement.fillStyle?.name"
+                      matNativeControl
                     >
                       <option value="filled">{{ i18n.get('filled') }}</option>
                       <option value="hatch">{{ i18n.get('hatched') }}</option>
@@ -511,35 +511,35 @@
                     <mat-label>{{ i18n.get('opacity') }}</mat-label>
                     <mat-slider [max]="1" [min]="0.01" [step]="0.05">
                       <input
-                        matSliderThumb
-                        [ngModel]="drawElement.fillOpacity"
                         (ngModelChange)="updateProperty(drawElement, 'fillOpacity', $event)"
+                        [ngModel]="drawElement.fillOpacity"
+                        matSliderThumb
                       />
                     </mat-slider>
-                    <input type="text" matInput hidden value="-" />
+                    <input hidden matInput type="text" value="-" />
                   </div>
                   @if (drawElement.fillStyle?.name && drawElement.fillStyle?.name !== 'filled') {
                     <div>
                       <mat-label>{{ i18n.get('width') }}</mat-label>
                       <mat-slider [max]="10" [min]="1" [step]="0.1">
                         <input
-                          matSliderThumb
-                          [ngModel]="drawElement.fillStyle?.size"
                           (ngModelChange)="updateFillStyle(drawElement, 'size', $event)"
+                          [ngModel]="drawElement.fillStyle?.size"
+                          matSliderThumb
                         />
                       </mat-slider>
-                      <input type="text" matInput hidden value="-" />
+                      <input hidden matInput type="text" value="-" />
                     </div>
                     <div>
                       <mat-label>{{ i18n.get('spacing') }}</mat-label>
                       <mat-slider [max]="20" [min]="5" [step]="0.1">
                         <input
-                          matSliderThumb
-                          [ngModel]="drawElement.fillStyle?.spacing"
                           (ngModelChange)="updateFillStyle(drawElement, 'spacing', $event)"
+                          [ngModel]="drawElement.fillStyle?.spacing"
+                          matSliderThumb
                         />
                       </mat-slider>
-                      <input type="text" matInput hidden value="-" />
+                      <input hidden matInput type="text" value="-" />
                     </div>
                   }
                   @if (drawElement.fillStyle?.name === 'hatch') {
@@ -547,16 +547,16 @@
                       <mat-label>{{ i18n.get('angle') }}</mat-label>
                       <mat-slider [max]="180" [min]="0.1" [step]="0.1">
                         <input
-                          matSliderThumb
-                          [ngModel]="drawElement.fillStyle?.angle"
                           (ngModelChange)="updateFillStyle(drawElement, 'angle', $event)"
+                          [ngModel]="drawElement.fillStyle?.angle"
+                          matSliderThumb
                         />
                       </mat-slider>
-                      <input type="text" matInput hidden value="-" />
+                      <input hidden matInput type="text" value="-" />
                     </div>
                   }
 
-                  <button mat-stroked-button (click)="resetPolygon(drawElement)">
+                  <button (click)="resetPolygon(drawElement)" mat-stroked-button>
                     {{ i18n.get('defaultValues') }}
                   </button>
                 </ng-template>
@@ -573,12 +573,12 @@
                     <mat-label>{{ i18n.get('fontSize') }}</mat-label>
                     <mat-slider [max]="4" [min]="0.1" [step]="0.1">
                       <input
-                        matSliderThumb
-                        [ngModel]="drawElement.fontSize"
                         (ngModelChange)="updateProperty(drawElement, 'fontSize', $event)"
+                        [ngModel]="drawElement.fontSize"
+                        matSliderThumb
                       />
                     </mat-slider>
-                    <input type="text" matInput hidden value="-" />
+                    <input hidden matInput type="text" value="-" />
                   </div>
                 </ng-template>
               </mat-expansion-panel>
@@ -590,31 +590,31 @@
                 <mat-panel-title>{{ i18n.get('functions') }}</mat-panel-title>
               </mat-expansion-panel-header>
               <ng-template matExpansionPanelContent>
-                <button mat-stroked-button (click)="bringToFront(drawElement)">
+                <button (click)="bringToFront(drawElement)" mat-stroked-button>
                   <mat-icon>arrow_upward</mat-icon>
                   {{ i18n.get('moveToTop') }}
                 </button>
-                <button mat-stroked-button (click)="sendToBack(drawElement)">
+                <button (click)="sendToBack(drawElement)" mat-stroked-button>
                   <mat-icon>arrow_downward</mat-icon>
                   {{ i18n.get('moveToBottom') }}
                 </button>
                 @if (canSplit(drawElement)) {
-                  <button mat-stroked-button (click)="split(drawElement)">
+                  <button (click)="split(drawElement)" mat-stroked-button>
                     <mat-icon>call_split</mat-icon>
                     {{ i18n.get('ungroup') }}
                   </button>
                 }
                 @if (isPolygon()) {
-                  <button mat-stroked-button (click)="merge(true)">
+                  <button (click)="merge(true)" mat-stroked-button>
                     <mat-icon>call_merge</mat-icon>
                     {{ i18n.get('group') }}
                   </button>
-                  <button mat-stroked-button (click)="drawHole()">
+                  <button (click)="drawHole()" mat-stroked-button>
                     <mat-icon>vignette</mat-icon>
                     {{ i18n.get('drawHole') }}
                   </button>
                 }
-                <button mat-stroked-button (click)="editCoordinates()">
+                <button (click)="editCoordinates()" mat-stroked-button>
                   <mat-icon>format_shapes</mat-icon>
                   {{ i18n.get('defineCoordinates') }}
                 </button>
@@ -626,11 +626,11 @@
       @if (editMode()) {
         <mat-divider></mat-divider>
         <stack>
-          <button class="primarybutton" mat-stroked-button (click)="copy(drawElement)">
+          <button (click)="copy(drawElement)" class="primarybutton" mat-stroked-button>
             <mat-icon>content_copy</mat-icon>
             {{ i18n.get('copy') }}
           </button>
-          <button class="primarybutton" mat-stroked-button color="warn" (click)="delete(drawElement)">
+          <button (click)="delete(drawElement)" class="primarybutton" color="warn" mat-stroked-button>
             <mat-icon>delete</mat-icon>
             {{ i18n.get('delete') }}
           </button>
@@ -642,7 +642,7 @@
         <div>
           <div>{{ i18n.get('chooseGroupingArea') }}</div>
           @if (isPolygon()) {
-            <button mat-stroked-button (click)="merge(false)" [disabled]="drawHoleMode | async">
+            <button (click)="merge(false)" [disabled]="drawHoleMode | async" mat-stroked-button>
               <mat-icon>cancel</mat-icon>
               {{ i18n.get('cancelGrouping') }}
             </button>

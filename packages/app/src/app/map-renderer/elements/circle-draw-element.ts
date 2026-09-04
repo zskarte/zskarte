@@ -17,64 +17,41 @@ export class ZsMapCircleDrawElement extends ZsMapBaseDrawElement<ZsMapCircleDraw
   ) {
     super(_id, _state);
     this._olFeature.set(ZsMapOLFeatureProps.DRAW_ELEMENT_TYPE, ZsMapDrawElementStateType.CIRCLE);
-    
+
     // Observe element changes to trigger initialization when center exists
-    this._element.pipe(
-      takeUntil(this._unsubscribe),
-    ).subscribe((element) => {
+    this._element.pipe(takeUntil(this._unsubscribe)).subscribe((element) => {
       const circleElement = element as ZsMapCircleDrawElementState;
       if (circleElement?.center && !this._isInitialized) {
         this._initialize(circleElement);
         this._isInitialized = true;
       }
     });
-    
+
     // Observe center changes
-    this._element.pipe(
-      map((o) => (o as ZsMapCircleDrawElementState)?.center),
-      distinctUntilChanged((x, y) => x?.[0] === y?.[0] && x?.[1] === y?.[1]),
-      takeUntil(this._unsubscribe),
-    ).subscribe((center) => {
-      if (center && this._olCircle) {
-        this._olCircle.setCenter(center);
-      }
-    });
-    
+    this._element
+      .pipe(
+        map((o) => (o as ZsMapCircleDrawElementState)?.center),
+        distinctUntilChanged((x, y) => x?.[0] === y?.[0] && x?.[1] === y?.[1]),
+        takeUntil(this._unsubscribe),
+      )
+      .subscribe((center) => {
+        if (center && this._olCircle) {
+          this._olCircle.setCenter(center);
+        }
+      });
+
     // Observe radius changes
-    this._element.pipe(
-      map((o) => (o as ZsMapCircleDrawElementState)?.radius),
-      distinctUntilChanged(),
-      takeUntil(this._unsubscribe),
-    ).subscribe((radius) => {
-      if (radius !== undefined && this._olCircle) {
-        this._olCircle.setRadius(radius);
-      }
-    });
-  }
-
-  protected _initialize(element: ZsMapCircleDrawElementState): void {
-    const center = element.center || [0, 0];
-    const radius = element.radius || 0;
-    this._olCircle = new Circle(center, radius);
-    this._olFeature.setGeometry(this._olCircle);
-  }
-
-  protected static override _getOlDrawType(): Type {
-    return 'Circle';
-  }
-
-  protected static override _parseFeature(feature: Feature<Circle>, state: ZsMapStateService, element: ZsMapElementToDraw): void {
-    const geometry = feature.getGeometry();
-    const center = geometry?.getCenter() || [0, 0];
-    const radius = geometry?.getRadius() || 0;
-    
-    const drawElement = state.addDrawElement({
-      type: ZsMapDrawElementStateType.CIRCLE,
-      center,
-      radius,
-      layer: element.layer,
-    });
-    state.setSelectedFeature(drawElement?.id);
+    this._element
+      .pipe(
+        map((o) => (o as ZsMapCircleDrawElementState)?.radius),
+        distinctUntilChanged(),
+        takeUntil(this._unsubscribe),
+      )
+      .subscribe((radius) => {
+        if (radius !== undefined && this._olCircle) {
+          this._olCircle.setRadius(radius);
+        }
+      });
   }
 
   public static override getOlDrawHandler(state: ZsMapStateService, element: ZsMapElementToDraw): Draw {
@@ -118,7 +95,29 @@ export class ZsMapCircleDrawElement extends ZsMapBaseDrawElement<ZsMapCircleDraw
     });
     return draw;
   }
-  
+
+  protected static override _getOlDrawType(): Type {
+    return 'Circle';
+  }
+
+  protected static override _parseFeature(
+    feature: Feature<Circle>,
+    state: ZsMapStateService,
+    element: ZsMapElementToDraw,
+  ): void {
+    const geometry = feature.getGeometry();
+    const center = geometry?.getCenter() || [0, 0];
+    const radius = geometry?.getRadius() || 0;
+
+    const drawElement = state.addDrawElement({
+      type: ZsMapDrawElementStateType.CIRCLE,
+      center,
+      radius,
+      layer: element.layer,
+    });
+    state.setSelectedFeature(drawElement?.id);
+  }
+
   // Override setCoordinates to handle Circle geometry (center + radius)
   public setCircleGeometry(center: number[], radius: number): void {
     this._state.updateMapState((draft) => {
@@ -128,5 +127,12 @@ export class ZsMapCircleDrawElement extends ZsMapBaseDrawElement<ZsMapCircleDraw
         element.radius = radius;
       }
     });
+  }
+
+  protected _initialize(element: ZsMapCircleDrawElementState): void {
+    const center = element.center || [0, 0];
+    const radius = element.radius || 0;
+    this._olCircle = new Circle(center, radius);
+    this._olFeature.setGeometry(this._olCircle);
   }
 }

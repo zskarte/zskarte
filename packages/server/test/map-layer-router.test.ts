@@ -1,4 +1,3 @@
-import type { TRPCError } from '@trpc/server';
 import type { SQL } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import { describe, expect, it } from 'vitest';

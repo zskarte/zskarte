@@ -11,6 +11,7 @@
   pointer-events: auto;
   z-index: 1;
 }
+
 .changeset-main.inconsistent {
   background-color: #ffbfbf;
 }
@@ -56,6 +57,7 @@
 .changeset-buttons {
   display: flex;
   gap: 5px;
+
   button {
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 5px 2px;

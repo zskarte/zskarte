@@ -1,24 +1,24 @@
-import { Injectable, SecurityContext, inject } from '@angular/core';
+import { inject, Injectable, SecurityContext } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Coordinate } from 'ol/coordinate';
-import { LOG2_ZOOM_0_RESOLUTION, DEFAULT_RESOLUTION } from '../session/default-map-values';
+import { DEFAULT_RESOLUTION, LOG2_ZOOM_0_RESOLUTION } from '../session/default-map-values';
 import { trpc } from '../api/trpc.client';
 import { trpcRequest } from '../api/trpc.error';
 import { environment } from '../../environments/environment';
 import { getPropertyDifferences } from '../helper/diff';
 import TileGrid, { Options as TileGridOptions } from 'ol/tilegrid/TileGrid';
-import { LocalMapLayer, LocalMapLayerMeta, db } from '../db/db';
+import { db, LocalMapLayer, LocalMapLayerMeta } from '../db/db';
 import { BlobService } from '../db/blob.service';
 import {
-  MapLayerSourceApi,
-  WmsSource,
-  MapSource,
+  GeoJSONMapLayer,
+  IZsMapOrganizationMapLayerSettings,
   MapLayer,
   MapLayerAllFields,
   MapLayerOptionsApi,
-  GeoJSONMapLayer,
-  IZsMapOrganizationMapLayerSettings,
+  MapLayerSourceApi,
+  MapSource,
   Media,
+  WmsSource,
 } from '@zskarte/types';
 
 /** projections of the `mapLayer` procedures, inferred from the client so the server stays authoritative */
@@ -34,31 +34,6 @@ export class MapLayerService {
   private _blobService = inject(BlobService);
   /** the new backend serves the uploaded media and style files below its own origin */
   private _apiUrl = environment.apiUrl;
-
-  public sanitizeHTML(html: string) {
-    return this._domSanitizer.sanitize(SecurityContext.HTML, html) ?? '';
-  }
-
-  public sanitizeURLAttribute(url: string) {
-    const result = this._domSanitizer.sanitize(SecurityContext.URL, url) ?? '';
-    //prevent escape the href attribute
-    return result.replace(/"/g, '&quot;');
-  }
-
-  createAttributionFromArray(attribution: [string, string][] | undefined) {
-    if (attribution && attribution.length > 0) {
-      return attribution.map((attr) => {
-        const title = this.sanitizeHTML(attr[0]);
-        if (attr[1]) {
-          const url = this.sanitizeURLAttribute(attr[1]);
-          return `<a target="_blank" href="${url}">${title}</a>`;
-        } else {
-          return title;
-        }
-      });
-    }
-    return null;
-  }
 
   static getScaledTileGridInfos(grid: TileGrid, scaling = 1) {
     if (scaling === 1) {
@@ -92,6 +67,88 @@ export class MapLayerService {
     }
     //no idea why the * 0.97 is required to make value match more accurate
     return (LOG2_ZOOM_0_RESOLUTION - Math.log2(scaleDenominator / DEFAULT_RESOLUTION)) * 0.97;
+  }
+
+  public static getLocalMapLayers() {
+    return db.localMapLayer.toArray();
+  }
+
+  public static async saveLocalWmsSource(wmsSource: WmsSource) {
+    if (!wmsSource.id) {
+      const minId = Math.min(0, ...(await db.localWmsSource.toArray()).map((o) => o.id ?? 0));
+      wmsSource.id = minId - 1;
+    }
+    await db.localWmsSource.put(wmsSource);
+  }
+
+  public static getLocalWmsSources() {
+    return db.localWmsSource.toArray();
+  }
+
+  public static async saveLocalMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {
+    await db.localMapLayerSettings.put({ ...data, id: 'local' });
+  }
+
+  public static async loadLocalMapLayerSettings() {
+    return await db.localMapLayerSettings.get('local');
+  }
+
+  static extractMapLayerDiffs(mapLayer: MapLayer, allLayers: MapLayer[]) {
+    let reducedFeature: Partial<MapLayer> & MapLayerSourceApi;
+    if (!mapLayer.source || mapLayer.type === 'wmts') {
+      //no detail comparison for GeoAdmin and WMTS layers needed
+      reducedFeature = {
+        serverLayerName: mapLayer.serverLayerName,
+        opacity: mapLayer.opacity,
+        hidden: mapLayer.hidden,
+        zIndex: mapLayer.zIndex,
+        source: mapLayer.source,
+      };
+    } else {
+      const defaultLayer = allLayers.find((g) => g.fullId === mapLayer.fullId);
+      if (defaultLayer) {
+        reducedFeature = getPropertyDifferences(defaultLayer, mapLayer, ['documentId', 'serverLayerName', 'source'], {
+          source: ['documentId', 'url', 'type'],
+        });
+      } else {
+        reducedFeature = { ...mapLayer };
+      }
+      delete reducedFeature.deleted;
+    }
+    if (reducedFeature.source?.type && reducedFeature.source?.documentId) {
+      reducedFeature.wms_source = reducedFeature.source as WmsSource;
+    } else if (!reducedFeature.source?.type && reducedFeature.source?.documentId) {
+      reducedFeature.media_source = reducedFeature.source as Media;
+    } else if (reducedFeature.source?.url) {
+      reducedFeature.custom_source = reducedFeature.source.url;
+    }
+    delete reducedFeature.source;
+    return reducedFeature;
+  }
+
+  public sanitizeHTML(html: string) {
+    return this._domSanitizer.sanitize(SecurityContext.HTML, html) ?? '';
+  }
+
+  public sanitizeURLAttribute(url: string) {
+    const result = this._domSanitizer.sanitize(SecurityContext.URL, url) ?? '';
+    //prevent escape the href attribute
+    return result.replace(/"/g, '&quot;');
+  }
+
+  createAttributionFromArray(attribution: [string, string][] | undefined) {
+    if (attribution && attribution.length > 0) {
+      return attribution.map((attr) => {
+        const title = this.sanitizeHTML(attr[0]);
+        if (attr[1]) {
+          const url = this.sanitizeURLAttribute(attr[1]);
+          return `<a target="_blank" href="${url}">${title}</a>`;
+        } else {
+          return title;
+        }
+      });
+    }
+    return null;
   }
 
   getMapSource(layerSource: MapLayerSourceApiResponse, sources: (WmsSource | MapSource)[]) {
@@ -193,8 +250,9 @@ export class MapLayerService {
     }
     // the organization of the entry is derived from the session, sending it would be rejected with FORBIDDEN
     const data = this.convertMapLayerToApi(mapLayer);
-    const { error, result } = mapLayer.documentId
-      ? await trpcRequest(trpc.mapLayer.update.mutate({ documentId: mapLayer.documentId, data }))
+    const { error, result } =
+      mapLayer.documentId ?
+        await trpcRequest(trpc.mapLayer.update.mutate({ documentId: mapLayer.documentId, data }))
       : await trpcRequest(trpc.mapLayer.create.mutate({ data }));
     if (error) {
       console.error('saveGlobalMapLayer', error);
@@ -245,62 +303,5 @@ export class MapLayerService {
       await db.localMapLayer.put(localMapLayer);
     }
     return mapLayer;
-  }
-
-  public static getLocalMapLayers() {
-    return db.localMapLayer.toArray();
-  }
-
-  public static async saveLocalWmsSource(wmsSource: WmsSource) {
-    if (!wmsSource.id) {
-      const minId = Math.min(0, ...(await db.localWmsSource.toArray()).map((o) => o.id ?? 0));
-      wmsSource.id = minId - 1;
-    }
-    await db.localWmsSource.put(wmsSource);
-  }
-
-  public static getLocalWmsSources() {
-    return db.localWmsSource.toArray();
-  }
-
-  public static async saveLocalMapLayerSettings(data: IZsMapOrganizationMapLayerSettings) {
-    await db.localMapLayerSettings.put({ ...data, id: 'local' });
-  }
-
-  public static async loadLocalMapLayerSettings() {
-    return await db.localMapLayerSettings.get('local');
-  }
-
-  static extractMapLayerDiffs(mapLayer: MapLayer, allLayers: MapLayer[]) {
-    let reducedFeature: Partial<MapLayer> & MapLayerSourceApi;
-    if (!mapLayer.source || mapLayer.type === 'wmts') {
-      //no detail comparison for GeoAdmin and WMTS layers needed
-      reducedFeature = {
-        serverLayerName: mapLayer.serverLayerName,
-        opacity: mapLayer.opacity,
-        hidden: mapLayer.hidden,
-        zIndex: mapLayer.zIndex,
-        source: mapLayer.source,
-      };
-    } else {
-      const defaultLayer = allLayers.find((g) => g.fullId === mapLayer.fullId);
-      if (defaultLayer) {
-        reducedFeature = getPropertyDifferences(defaultLayer, mapLayer, ['documentId', 'serverLayerName', 'source'], {
-          source: ['documentId', 'url', 'type'],
-        });
-      } else {
-        reducedFeature = { ...mapLayer };
-      }
-      delete reducedFeature.deleted;
-    }
-    if (reducedFeature.source?.type && reducedFeature.source?.documentId) {
-      reducedFeature.wms_source = reducedFeature.source as WmsSource;
-    } else if (!reducedFeature.source?.type && reducedFeature.source?.documentId) {
-      reducedFeature.media_source = reducedFeature.source as Media;
-    } else if (reducedFeature.source?.url) {
-      reducedFeature.custom_source = reducedFeature.source.url;
-    }
-    delete reducedFeature.source;
-    return reducedFeature;
   }
 }

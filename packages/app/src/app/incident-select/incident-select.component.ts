@@ -1,12 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
-  inject,
-  output,
-  ElementRef,
-  signal,
   computed,
+  ElementRef,
+  inject,
+  Input,
+  output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -39,30 +39,12 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class IncidentSelectComponent {
   i18n = inject(I18NService);
-  private _session = inject(SessionService);
-
   incidentInput = viewChild.required<ElementRef<HTMLInputElement>>('incidentInput');
-
-  @Input()
-  set values(values: number[]) {
-    this.incidents.setValue(values || []);
-  }
-  get values(): number[] {
-    return this.incidents.value || [];
-  }
-  @Input()
-  set disabled(value: boolean) {
-    if (value) {
-      this.incidents.disable();
-    } else {
-      this.incidents.enable();
-    }
-  }
   readonly valuesChange = output<number[]>();
   incidents = new FormControl<number[]>([]);
   incidentSearchControl = new FormControl('');
   incidentList = signal<{ id: number | undefined; icon: string | undefined; name: string | undefined }[]>([]);
-
+  incidentSearch = signal('');
   filteredIncidents = computed(() => {
     const search = this.incidentSearch().toLowerCase();
     const allIncidents = this.incidentList();
@@ -74,8 +56,7 @@ export class IncidentSelectComponent {
       return !isSelected && matchesSearch;
     });
   });
-
-  incidentSearch = signal('');
+  private _session = inject(SessionService);
 
   constructor() {
     const incidents = Signs.SIGNS.filter((o) => o.kat === 'incident').sort((a, b) => {
@@ -100,6 +81,24 @@ export class IncidentSelectComponent {
 
     if (this.disabled) {
       this.incidents.disable();
+    }
+  }
+
+  get values(): number[] {
+    return this.incidents.value || [];
+  }
+
+  @Input()
+  set values(values: number[]) {
+    this.incidents.setValue(values || []);
+  }
+
+  @Input()
+  set disabled(value: boolean) {
+    if (value) {
+      this.incidents.disable();
+    } else {
+      this.incidents.enable();
     }
   }
 

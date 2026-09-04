@@ -1,4 +1,4 @@
-import { Component, inject, output, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,12 +12,7 @@ import { I18NService } from '../../state/i18n.service';
     <div class="header-content">
       <ng-content></ng-content>
     </div>
-    <button
-      type="button"
-      mat-icon-button
-      (click)="onClose()"
-      [attr.aria-label]="i18n.get('close')"
-    >
+    <button type="button" mat-icon-button (click)="onClose()" [attr.aria-label]="i18n.get('close')">
       <mat-icon>close</mat-icon>
     </button>
   `,
@@ -38,10 +33,10 @@ import { I18NService } from '../../state/i18n.service';
   `,
 })
 export class DialogHeaderComponent {
-  private dialogRef = inject(MatDialogRef);
   i18n = inject(I18NService);
   close = output();
   autoClose = input(true);
+  private dialogRef = inject(MatDialogRef);
 
   onClose() {
     this.close.emit();

@@ -1,6 +1,6 @@
 <div class="projectionSelection">
   @if (!multiple()) {
-    <mat-radio-group [(ngModel)]="projectionFormatIndex" (change)="updateFormat($event.value)" [disabled]="disabled()">
+    <mat-radio-group (change)="updateFormat($event.value)" [(ngModel)]="projectionFormatIndex" [disabled]="disabled()">
       <div>{{ i18n.get('selectFormat') }}:</div>
       @for (projection of availableProjections; track projection; let i = $index) {
         <mat-radio-button [value]="i">{{ projection.name }}</mat-radio-button>
@@ -11,18 +11,18 @@
       <div>{{ i18n.get('selectFormat') }}:</div>
       @for (projection of availableProjections; track projection; let i = $index) {
         <mat-checkbox
-          [checked]="projectionFormatIndexes().includes(i)"
           (change)="updateFormats(i, $event.checked)"
+          [checked]="projectionFormatIndexes().includes(i)"
           [disabled]="disabled()"
-          >{{ projection.name }}</mat-checkbox
-        >
+          >{{ projection.name }}
+        </mat-checkbox>
       }
     </div>
   }
   @if (showNumerical()) {
     <span class="separator">|</span>
-    <mat-checkbox [checked]="numerical" (change)="updateNumerical($event.checked)" [disabled]="disabled()">{{
-      i18n.get('numerical')
-    }}</mat-checkbox>
+    <mat-checkbox (change)="updateNumerical($event.checked)" [checked]="numerical" [disabled]="disabled()"
+      >{{ i18n.get('numerical') }}
+    </mat-checkbox>
   }
 </div>

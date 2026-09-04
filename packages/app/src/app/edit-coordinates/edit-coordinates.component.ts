@@ -2,9 +2,9 @@ import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Coordinate } from 'ol/coordinate';
 import { I18NService } from '../state/i18n.service';
-import { convertTo, convertFrom, projectionByIndex } from '../helper/projections';
-import { FormControl, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
-import { of, delay, switchMap, Observable } from 'rxjs';
+import { convertFrom, convertTo, projectionByIndex } from '../helper/projections';
+import { AbstractControl, FormControl, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
+import { delay, Observable, of, switchMap } from 'rxjs';
 import { ChangeType, ProjectionSelectionComponent } from '../projection-selection/projection-selection.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,7 +15,16 @@ import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } fro
   selector: 'app-edit-coordinates',
   templateUrl: './edit-coordinates.component.html',
   styleUrls: ['./edit-coordinates.component.scss'],
-  imports: [ProjectionSelectionComponent, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent],
+  imports: [
+    ProjectionSelectionComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+  ],
 })
 export class EditCoordinatesComponent {
   data = inject<{
@@ -47,7 +56,8 @@ export class EditCoordinatesComponent {
     return of(control.value).pipe(
       delay(500),
       switchMap((value) => {
-        const result = this.validateAndUpdate(this.transformInput(value)) ? null : { invalidInput: { value: this.error } };
+        const result =
+          this.validateAndUpdate(this.transformInput(value)) ? null : { invalidInput: { value: this.error } };
         return of(result);
       }),
     );
@@ -122,11 +132,19 @@ export class EditCoordinatesComponent {
 
   // skipcq: JS-0105
   private isValidPointCoordinate(coordinates: Coordinate | number) {
-    return Array.isArray(coordinates) && coordinates.length === 2 && coordinates.filter((c) => typeof c !== 'number').length === 0;
+    return (
+      Array.isArray(coordinates) &&
+      coordinates.length === 2 &&
+      coordinates.filter((c) => typeof c !== 'number').length === 0
+    );
   }
 
   private isValidLine(coordinates: Coordinate) {
-    return Array.isArray(coordinates) && coordinates.length > 1 && coordinates.filter((c) => !this.isValidPointCoordinate(c)).length === 0;
+    return (
+      Array.isArray(coordinates) &&
+      coordinates.length > 1 &&
+      coordinates.filter((c) => !this.isValidPointCoordinate(c)).length === 0
+    );
   }
 
   private isValidPolygon(coordinates: Coordinate) {

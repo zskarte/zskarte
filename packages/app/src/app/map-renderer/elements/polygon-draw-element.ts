@@ -1,5 +1,10 @@
 import { Feature } from 'ol';
-import { ZsMapDrawElementStateType, ZsMapElementToDraw, ZsMapSymbolDrawElementState, ZsMapTextDrawElementState } from '@zskarte/types';
+import {
+  ZsMapDrawElementStateType,
+  ZsMapElementToDraw,
+  ZsMapSymbolDrawElementState,
+  ZsMapTextDrawElementState,
+} from '@zskarte/types';
 import { ZsMapStateService } from '../../state/state.service';
 import { ZsMapBaseDrawElement } from './base/base-draw-element';
 import { Polygon } from 'ol/geom';
@@ -23,14 +28,15 @@ export class ZsMapPolygonDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawE
       });
   }
 
-  protected _initialize(element: ZsMapSymbolDrawElementState): void {
-    this._olPolygon = new Polygon(element.coordinates as number[]);
-    this._olFeature.setGeometry(this._olPolygon);
-  }
   protected static override _getOlDrawType(): Type {
     return 'Polygon';
   }
-  protected static override _parseFeature(feature: Feature<Polygon>, state: ZsMapStateService, element: ZsMapElementToDraw): void {
+
+  protected static override _parseFeature(
+    feature: Feature<Polygon>,
+    state: ZsMapStateService,
+    element: ZsMapElementToDraw,
+  ): void {
     const drawElement = state.addDrawElement({
       type: ZsMapDrawElementStateType.POLYGON,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,5 +44,10 @@ export class ZsMapPolygonDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawE
       layer: element.layer,
     });
     state.setSelectedFeature(drawElement?.id);
+  }
+
+  protected _initialize(element: ZsMapSymbolDrawElementState): void {
+    this._olPolygon = new Polygon(element.coordinates as number[]);
+    this._olFeature.setGeometry(this._olPolygon);
   }
 }

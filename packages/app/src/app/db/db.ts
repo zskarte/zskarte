@@ -1,14 +1,14 @@
 import { Dexie, Table } from 'dexie';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
 import {
-  ZsMapStateSource,
-  MapLayer,
-  IZsMapOrganizationMapLayerSettings,
-  IZsMapSession,
+  IZsChangesetInternal,
   IZsMapDisplayState,
   IZsMapOperation,
+  IZsMapOrganizationMapLayerSettings,
+  IZsMapSession,
+  MapLayer,
   WmsSource,
-  IZsChangesetInternal,
+  ZsMapStateSource,
 } from '@zskarte/types';
 import { JournalEntry } from '../journal/journal.types';
 

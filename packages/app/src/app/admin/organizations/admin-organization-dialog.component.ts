@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { I18NService } from '../../state/i18n.service';
 import { trpc } from '../../api/trpc.client';
 import { trpcRequest } from '../../api/trpc.error';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../../ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 import { environment } from '../../../environments/environment';
 
 export interface AdminOrganizationData {
@@ -67,18 +67,13 @@ export interface AdminOrganizationDialogData {
 })
 export class AdminOrganizationDialogComponent {
   public i18n = inject(I18NService);
-  private fb = inject(FormBuilder);
-  private dialogRef = inject<MatDialogRef<AdminOrganizationDialogComponent>>(MatDialogRef);
-  private snackBar = inject(MatSnackBar);
   public data: AdminOrganizationDialogData = inject(MAT_DIALOG_DATA) || { mode: 'create' };
-
   public isSaving = signal(false);
   public isUploadingLogo = signal(false);
   public logoPreview = signal<string | null>(null);
   public logoRemoved = signal(false);
   public hidePassword = signal(true);
   public showUserDetails = signal(false);
-
   public availableRoles = [
     { value: 'organization', label: 'Organization' },
     { value: 'admin', label: 'Admin' },
@@ -86,20 +81,13 @@ export class AdminOrganizationDialogComponent {
     { value: 'operationread', label: 'Operation Read' },
     { value: 'guest', label: 'Guest' },
   ];
-
-  private selectedLogoFile: {
-    fileName: string;
-    mimeType: 'image/png' | 'image/jpeg' | 'image/svg+xml' | 'image/webp';
-    base64: string;
-  } | null = null;
-
   public locales = [
     { value: 'de-CH', label: 'Deutsch (Schweiz)' },
     { value: 'fr-CH', label: 'Français (Suisse)' },
     { value: 'it-CH', label: 'Italiano (Svizzera)' },
     { value: 'en-US', label: 'English (US)' },
   ];
-
+  private fb = inject(FormBuilder);
   public form = this.fb.group({
     name: [this.data.organization?.name ?? '', [Validators.required, Validators.minLength(1)]],
     defaultLocale: [this.data.organization?.defaultLocale ?? 'de-CH'],
@@ -115,6 +103,13 @@ export class AdminOrganizationDialogComponent {
     userEmail: [this.data.organization?.user?.email ?? '', [Validators.email]],
     userRole: [this.data.organization?.user?.zsRole ?? 'organization'],
   });
+  private dialogRef = inject<MatDialogRef<AdminOrganizationDialogComponent>>(MatDialogRef);
+  private snackBar = inject(MatSnackBar);
+  private selectedLogoFile: {
+    fileName: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/svg+xml' | 'image/webp';
+    base64: string;
+  } | null = null;
 
   constructor() {
     if (this.data.organization?.logo?.url) {

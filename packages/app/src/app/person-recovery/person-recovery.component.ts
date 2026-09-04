@@ -10,16 +10,11 @@ import { SessionService } from '../session/session.service';
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 import { getJsPDF } from '../pdf/jsPDF.factory';
-import {
-  EmptyComponent,
-  EmptyHeaderComponent,
-  EmptyMediaComponent,
-  EmptyTitleComponent,
-} from '../ui/empty';
+import { EmptyComponent, EmptyHeaderComponent, EmptyMediaComponent, EmptyTitleComponent } from '../ui/empty';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCard } from "@angular/material/card";
+import { MatCard } from '@angular/material/card';
 
 type PersonRecoverySign = Partial<Sign> & {
   text?: string;
@@ -28,7 +23,7 @@ type PersonRecoverySign = Partial<Sign> & {
 
 type PersonRecoveryRow = ZsMapDrawElementState & {
   sign: PersonRecoverySign;
-}
+};
 
 async function svg2png(url?: string, width = 100, height = 100) {
   if (!url) {
@@ -43,12 +38,12 @@ async function svg2png(url?: string, width = 100, height = 100) {
     img.src = url;
   });
 
-  const canvas = document.createElement("canvas");
+  const canvas = document.createElement('canvas');
   [canvas.width, canvas.height] = [width, height];
 
-  canvas.getContext("2d")?.drawImage(img, 0, 0, width, height);
+  canvas.getContext('2d')?.drawImage(img, 0, 0, width, height);
 
-  return canvas.toDataURL("image/png");
+  return canvas.toDataURL('image/png');
 }
 
 @Component({
@@ -65,16 +60,15 @@ async function svg2png(url?: string, width = 100, height = 100) {
     EmptyTitleComponent,
     MatIconModule,
     MatCard,
-],
+  ],
   templateUrl: './person-recovery.component.html',
   styles: `
-
     .recovery-container {
       display: flex;
       flex-direction: column;
 
       > .recovery-row:last-child {
-        border-bottom: none
+        border-bottom: none;
       }
     }
 
@@ -95,34 +89,33 @@ async function svg2png(url?: string, width = 100, height = 100) {
       height: 30px;
       width: auto;
     }
-  `
+  `,
 })
 export class PersonRecoveryComponent {
+  i18n = inject(I18NService);
+  dialogRef = inject(MatDialogRef<PersonRecoveryComponent>);
   private state = inject(ZsMapStateService);
   private session = inject(SessionService);
   private destroyRef = inject(DestroyRef);
-  i18n = inject(I18NService);
-  dialogRef = inject(MatDialogRef<PersonRecoveryComponent>);
-
-  private printMargin = 10;
-  private dimensions = PaperDimensions['A4'];
-
   affectedPersons$ = this.state.observeDrawElements().pipe(
     takeUntilDestroyed(this.destroyRef),
-    map(elements => elements
-      .filter(e => (e.elementState?.affectedPersons ?? 0) > 0)
-      .map(e => e.elementState as ZsMapDrawElementState)
-      .map(state => ({ ...state, sign: this.getSign(state) }))
-      .reduce((acc, next) => {
-        const el = acc.find(el => el.symbolId === next.symbolId);
-        if (!el) {
-          return [...acc, next];
-        }
-        el.affectedPersons = (el.affectedPersons ?? 0) + (next.affectedPersons ?? 0);
-        return acc;
-      }, [] as PersonRecoveryRow[])
+    map((elements) =>
+      elements
+        .filter((e) => (e.elementState?.affectedPersons ?? 0) > 0)
+        .map((e) => e.elementState as ZsMapDrawElementState)
+        .map((state) => ({ ...state, sign: this.getSign(state) }))
+        .reduce((acc, next) => {
+          const el = acc.find((el) => el.symbolId === next.symbolId);
+          if (!el) {
+            return [...acc, next];
+          }
+          el.affectedPersons = (el.affectedPersons ?? 0) + (next.affectedPersons ?? 0);
+          return acc;
+        }, [] as PersonRecoveryRow[]),
     ),
   );
+  private printMargin = 10;
+  private dimensions = PaperDimensions['A4'];
 
   async print(rows: PersonRecoveryRow[]) {
     const jsPDF = await getJsPDF();
@@ -149,7 +142,10 @@ export class PersonRecoveryComponent {
       pdf
         .setFontSize(24)
         .setTextColor('red')
-        .text(row.affectedPersons?.toString() ?? '', this.printMargin, textOffsetY, { maxWidth: numberWidth, baseline: 'middle' })
+        .text(row.affectedPersons?.toString() ?? '', this.printMargin, textOffsetY, {
+          maxWidth: numberWidth,
+          baseline: 'middle',
+        })
         .addImage(await svg2png(row.sign.src), 'PNG', imageOffsetX, offsetY, imageWidth, imageWidth)
         .setTextColor('black')
         .setFontSize(20)
@@ -158,8 +154,7 @@ export class PersonRecoveryComponent {
       offsetY += rowHeight + gap;
     }
 
-    pdf
-      .save('recovery.pdf');
+    pdf.save('recovery.pdf');
   }
 
   private getSign(state: ZsMapDrawElementState): PersonRecoverySign {
@@ -169,6 +164,6 @@ export class PersonRecoveryComponent {
       ...sign,
       text: sign?.[this.session.getLocale()],
       src: DrawStyle.getImageUrl(sign?.src ?? ''),
-    }
+    };
   }
 }

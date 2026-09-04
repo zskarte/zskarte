@@ -191,6 +191,7 @@ tr.journal-table-row.key-message:hover {
 .drawn {
   color: oklch(79.2% 0.209 151.711);
 }
+
 .drawn:hover {
   color: oklch(62.7% 0.194 149.214);
 }
@@ -235,9 +236,11 @@ tr.journal-table-row.key-message:hover {
   .journal-sidebar {
     pointer-events: auto;
   }
+
   mat-sidenav-container {
     background-color: transparent;
   }
+
   mat-sidenav-content {
     display: none;
   }

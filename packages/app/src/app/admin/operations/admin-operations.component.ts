@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -15,7 +15,7 @@ import { I18NService } from '../../state/i18n.service';
 import { trpc } from '../../api/trpc.client';
 import { trpcRequest } from '../../api/trpc.error';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
-import { AdminOperationDialogComponent, AdminOperationData } from './admin-operation-dialog.component';
+import { AdminOperationData, AdminOperationDialogComponent } from './admin-operation-dialog.component';
 import type { AdminOrganizationData } from '../organizations/admin-organization-dialog.component';
 
 @Component({
@@ -38,26 +38,13 @@ import type { AdminOrganizationData } from '../organizations/admin-organization-
 })
 export class AdminOperationsComponent implements OnInit {
   public i18n = inject(I18NService);
-  private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
-
   public operations = signal<AdminOperationData[]>([]);
   public organizations = signal<AdminOrganizationData[]>([]);
   public isLoading = signal(false);
-
   public selectedOrgFilter = signal<string>('all');
   public selectedPhaseFilter = signal<string>('all');
   public searchQuery = signal<string>('');
-
-  public displayedColumns: string[] = [
-    'name',
-    'organization',
-    'phase',
-    'description',
-    'updatedAt',
-    'actions',
-  ];
-
+  public displayedColumns: string[] = ['name', 'organization', 'phase', 'description', 'updatedAt', 'actions'];
   public filteredOperations = computed(() => {
     let list = this.operations();
     const orgId = this.selectedOrgFilter();
@@ -83,6 +70,8 @@ export class AdminOperationsComponent implements OnInit {
 
     return list;
   });
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   public ngOnInit(): void {
     this.loadData();
@@ -162,9 +151,7 @@ export class AdminOperationsComponent implements OnInit {
   }
 
   public async archiveOperation(operation: AdminOperationData): Promise<void> {
-    const res = await trpcRequest(
-      trpc.admin.operation.archive.mutate({ documentId: operation.documentId }),
-    );
+    const res = await trpcRequest(trpc.admin.operation.archive.mutate({ documentId: operation.documentId }));
     if (res.error) {
       this.snackBar.open(this.i18n.get('error'), 'OK', { duration: 3000 });
     } else {
@@ -174,9 +161,7 @@ export class AdminOperationsComponent implements OnInit {
   }
 
   public async unarchiveOperation(operation: AdminOperationData): Promise<void> {
-    const res = await trpcRequest(
-      trpc.admin.operation.unarchive.mutate({ documentId: operation.documentId }),
-    );
+    const res = await trpcRequest(trpc.admin.operation.unarchive.mutate({ documentId: operation.documentId }));
     if (res.error) {
       this.snackBar.open(this.i18n.get('error'), 'OK', { duration: 3000 });
     } else {
@@ -213,9 +198,7 @@ export class AdminOperationsComponent implements OnInit {
 
     confirmRef.afterClosed().subscribe(async (confirmed) => {
       if (confirmed) {
-        const res = await trpcRequest(
-          trpc.admin.operation.delete.mutate({ documentId: operation.documentId }),
-        );
+        const res = await trpcRequest(trpc.admin.operation.delete.mutate({ documentId: operation.documentId }));
         if (res.error) {
           this.snackBar.open(this.i18n.get('error'), 'OK', { duration: 3000 });
         } else {
