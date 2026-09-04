@@ -7,7 +7,7 @@
 </app-dialog-header>
 <app-dialog-body>
   @if (data.html) {
-    <div class="innerHtml" [innerHTML]="data.html"></div>
+    <div [innerHTML]="data.html" class="innerHtml"></div>
   } @else if (data.error) {
     <div [innerText]="data.error" class="error"></div>
   } @else {
@@ -16,11 +16,11 @@
 </app-dialog-body>
 <app-dialog-footer>
   <button
-    mat-flat-button
-    color="primary"
-    [mat-dialog-close]="true"
-    cdkFocusInitial
     (click)="close()"
     [innerText]="data?.actionLabel || i18n.get('close')"
+    [mat-dialog-close]="true"
+    cdkFocusInitial
+    color="primary"
+    mat-flat-button
   ></button>
 </app-dialog-footer>

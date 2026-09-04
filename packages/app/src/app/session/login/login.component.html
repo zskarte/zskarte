@@ -1,6 +1,13 @@
 <form class="login-form">
   <mat-card>
-    <button type="button" class="help-button" mat-icon-button (click)="openHelp()" [attr.aria-label]="i18n.get('help')" [title]="i18n.get('help')">
+    <button
+      (click)="openHelp()"
+      [attr.aria-label]="i18n.get('help')"
+      [title]="i18n.get('help')"
+      class="help-button"
+      mat-icon-button
+      type="button"
+    >
       <mat-icon>help</mat-icon>
     </button>
     <mat-card-header class="title">
@@ -12,23 +19,23 @@
     @if (isOnline) {
       <mat-card-content>
         @if (!isLoginWithCodeEnabled) {
-          <mat-form-field class="full-width" appearance="outline">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ i18n.get('loginOrganization') }}</mat-label>
             <input
-              matInput
-              [formControl]="filterControl"
               (input)="filterOrganizations()"
-              [value]="selectedOrganization?.name"
+              [formControl]="filterControl"
               [matAutocomplete]="auto"
               [placeholder]="i18n.get('enterOrganization')"
+              [value]="selectedOrganization?.name"
+              matInput
             />
             <mat-icon matSuffix>arrow_drop_down</mat-icon>
             <mat-autocomplete
               #auto="matAutocomplete"
-              (optionSelected)="onSelectOrg($event)"
               (closed)="onCloseAutocomplete()"
-              autoActiveFirstOption
+              (optionSelected)="onSelectOrg($event)"
               [displayWith]="nameProperty"
+              autoActiveFirstOption
             >
               @for (organization of filteredOrganizations | async; track organization) {
                 <mat-option [value]="organization">
@@ -42,54 +49,64 @@
               }
             </mat-autocomplete>
           </mat-form-field>
-          <mat-form-field class="full-width" appearance="outline">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ i18n.get('password') }}</mat-label>
-            <input matInput type="password" [placeholder]="i18n.get('enterPassword')" [(ngModel)]="password" name="password" />
+            <input
+              [(ngModel)]="password"
+              [placeholder]="i18n.get('enterPassword')"
+              matInput
+              name="password"
+              type="password"
+            />
           </mat-form-field>
           @if (session.observeAuthError() | async; as authError) {
-            <mat-error>{{
-              authError?.error?.message === 'Internal Server Error' ? i18n.get('wrongPassword') :
-              authError?.error?.details?.errors?.[0]?.message ||
-                authError?.error?.message ||
-                authError?.statusText ||
-                authError?.message
-            }}</mat-error>
+            <mat-error
+              >{{ authError?.code === 'INVALID_USERNAME_OR_PASSWORD' ? i18n.get('wrongPassword') : authError?.message }}
+            </mat-error>
           }
         } @else {
           <!-- Login with code dialog-->
-          <mat-form-field class="full-width" appearance="outline">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ i18n.get('loginCode') }}</mat-label>
-            <input matInput type="text" [placeholder]="i18n.get('enterLoginCode')" [(ngModel)]="joinCode" name="joinCode" />
+            <input
+              [(ngModel)]="joinCode"
+              [placeholder]="i18n.get('enterLoginCode')"
+              matInput
+              name="joinCode"
+              type="text"
+            />
           </mat-form-field>
         }
         <stack [spacing]="5">
-          <button class="login-button" mat-flat-button color="primary" (click)="login()">{{ i18n.get('login') }}</button>
+          <button (click)="login()" class="login-button" color="primary" mat-flat-button>
+            {{ i18n.get('login') }}
+          </button>
           @if (isLoginWithCodeEnabled) {
             <button
-              class="login-button"
-              mat-stroked-button
-              color="secondary"
               (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled"
+              class="login-button"
+              color="secondary"
+              mat-stroked-button
             >
               {{ i18n.get('back') }}
             </button>
           } @else {
             <button
+              (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled"
               class="alternative-login-button"
               mat-stroked-button
-              (click)="isLoginWithCodeEnabled = !isLoginWithCodeEnabled"
             >
               <span>{{ i18n.get('codeLogin') }}</span>
             </button>
             @if (hasGuestUser) {
               <text-divider>{{ i18n.get('or') }}</text-divider>
-              <button class="alternative-login-button" mat-stroked-button (click)="guestLogin()">
+              <button (click)="guestLogin()" class="alternative-login-button" mat-stroked-button>
                 {{ i18n.get('guestLogin') }}
               </button>
             }
             @if (allowOfflineAccess) {
               <text-divider>{{ i18n.get('or') }}</text-divider>
-              <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
+              <button (click)="workLocal()" class="alternative-login-button" mat-stroked-button>
                 {{ i18n.get('workLocal') }}
               </button>
             }
@@ -102,7 +119,7 @@
         <mat-label class="font-gray">{{ i18n.get('youAreOffline') }}</mat-label>
       </div>
       @if (allowOfflineAccess) {
-        <button class="alternative-login-button" mat-stroked-button (click)="workLocal()">
+        <button (click)="workLocal()" class="alternative-login-button" mat-stroked-button>
           {{ i18n.get('workLocal') }}
         </button>
       }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, OnDestroy, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatListModule } from '@angular/material/list';
 import { ZsMapDrawElementState } from '@zskarte/types';
@@ -16,7 +16,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { filter, firstValueFrom, skip, take } from 'rxjs';
-import { createEmpty as createEmptyExtent, extend as extendExtent } from 'ol/extent';
 import { MapRendererService } from '../../map-renderer/map-renderer.service';
 import { SearchService } from '../../search/search.service';
 import { ReplaceAllAddressTokensPipe } from '../../search/replace-all-address-tokens.pipe';
@@ -29,75 +28,65 @@ import { DrawDialogComponent } from '../../draw-dialog/draw-dialog.component';
 
 @Component({
   selector: 'app-sidebar-journal-entry',
-  imports: [
-    MatListModule,
-    MatIcon,
-    MatButtonModule,
-    MatInputModule,
-    FormsModule,
-    ReplaceAllAddressTokensPipe,
-  ],
+  imports: [MatListModule, MatIcon, MatButtonModule, MatInputModule, FormsModule, ReplaceAllAddressTokensPipe],
   templateUrl: './sidebar-journal-entry.component.html',
   styleUrls: ['./sidebar-journal-entry.component.scss'],
 })
 export class SidebarJournalEntryComponent implements OnDestroy {
-  private _state = inject(ZsMapStateService);
-  private _renderer = inject(MapRendererService);
-  
   i18n = inject(I18NService);
   search = inject(SearchService);
   journal = inject(JournalService);
-  private _router = inject(Router);
-  private _sidebar = inject(SidebarService);
-  private _dialog = inject(MatDialog);
   entry = input.required<JournalEntry>();
   allHighlighted = false;
   editingElementId = signal<string | null>(null);
   editingValue = signal<string>('');
   refreshTrigger = signal<number>(0);
-
+  private _state = inject(ZsMapStateService);
   elements = toSignal(this._state.observeDrawElements());
+  entryElements = computed(() => {
+    this.refreshTrigger();
+    const elements = this.elements();
+    if (!elements) return [];
 
-  entryElements = computed(
-    () => {
-      this.refreshTrigger();
-      const elements = this.elements();
-      if (!elements) return [];
+    return elements.filter(this.containsNumber(this.entry().messageNumber)).map((el) => {
+      const elementId = el.getId();
+      const elementState = this._state.getDrawElementState(elementId) || el.elementState;
+      const coordinates = this.mapCoordinates(elementState?.coordinates);
+      const sign = Signs.getSignById(el.elementState?.symbolId);
+      let imageUrl: string | undefined;
+      if (sign) {
+        const mergedSign = {
+          ...sign,
+          hazardCode: el.elementState?.hazardCode,
+          unNumber: el.elementState?.unNumber,
+          color: el.elementState?.color ?? sign.color,
+          hierarchyLevel: el.elementState?.hierarchyLevel,
+          organization: el.elementState?.organization,
+          formationDetail: el.elementState?.formationDetail,
+          additionalInfo: el.elementState?.additionalInfo,
+          formationNumber: el.elementState?.formationNumber,
+          formationLocation: el.elementState?.formationLocation,
+        };
+        imageUrl = DrawStyle.getSignatureURI(mergedSign);
+      }
+      return {
+        ...el,
+        id: elementId,
+        elementState: elementState,
+        imageUrl: imageUrl,
+        coordinates,
+        coordinatesStr: coordinates ? this.transformCoordinates(coordinates) : '',
+      };
+    });
+  });
+  private _renderer = inject(MapRendererService);
+  private _router = inject(Router);
+  private _sidebar = inject(SidebarService);
+  private _dialog = inject(MatDialog);
 
-      return elements
-        .filter(this.containsNumber(this.entry().messageNumber))
-        .map((el) => {
-          const elementId = el.getId();
-          const elementState = this._state.getDrawElementState(elementId) || el.elementState;
-          const coordinates = this.mapCoordinates(elementState?.coordinates);
-          const sign = Signs.getSignById(el.elementState?.symbolId);
-          let imageUrl: string | undefined;
-          if (sign) {
-            const mergedSign = {
-              ...sign,
-              hazardCode: el.elementState?.hazardCode,
-              unNumber: el.elementState?.unNumber,
-              color: el.elementState?.color ?? sign.color,
-              hierarchyLevel: el.elementState?.hierarchyLevel,
-              organization: el.elementState?.organization,
-              formationDetail: el.elementState?.formationDetail,
-              additionalInfo: el.elementState?.additionalInfo,
-              formationNumber: el.elementState?.formationNumber,
-              formationLocation: el.elementState?.formationLocation,
-            };
-            imageUrl = DrawStyle.getSignatureURI(mergedSign);
-          }
-          return {
-            ...el,
-            id: elementId,
-            elementState: elementState,
-            imageUrl: imageUrl,
-            coordinates,
-            coordinatesStr: coordinates ? this.transformCoordinates(coordinates) : '',
-          };
-        });
-    },
-  );
+  get JournalEntryStatus() {
+    return JournalEntryStatus;
+  }
 
   navigateTo(element: { id: string; coordinates: Coordinate | undefined }) {
     if (element.coordinates) {
@@ -107,7 +96,7 @@ export class SidebarJournalEntryComponent implements OnDestroy {
   }
 
   zoomToAll() {
-    this._renderer.zoomToAll(this.entryElements().map((e)=>e.id));
+    this._renderer.zoomToAll(this.entryElements().map((e) => e.id));
   }
 
   toggleHighlightAll() {
@@ -138,47 +127,18 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     }
   }
 
-  private transformCoordinates(coordinates: Coordinate) {
-    const transformed = transform(coordinates, mercatorProjection!, coordinatesProjection!);
-
-    return transformed
-      .map((coord) => coord.toPrecision(5))
-      .reverse()
-      .join(', ');
-  }
-
-  private mapCoordinates(coordinates: Coordinate | Coordinate[] | undefined) {
-    while (Array.isArray(coordinates?.[0])) {
-      coordinates = coordinates[0];
-    }
-
-    return coordinates as Coordinate | undefined;
-  }
-
-  private containsNumber(reportNumber: number) {
-    return (element: ZsMapBaseDrawElement<ZsMapDrawElementState>) =>
-      Array.isArray(element.elementState?.reportNumber)
-        ? element.elementState.reportNumber.includes(reportNumber)
-        : element.elementState?.reportNumber === reportNumber;
-  }
-
   openJournalClick(event: Event) {
     event.stopPropagation();
     this._router.navigate(['/main/journal'], { queryParams: { messageNumber: this.entry().messageNumber } });
   }
 
-  getElementName(element: {
-    id?: string;
-    elementState?: ZsMapDrawElementState;
-  }): string {
+  getElementName(element: { id?: string; elementState?: ZsMapDrawElementState }): string {
     const stateFromService = element.id ? this._state.getDrawElementState(element.id) : undefined;
     const name = stateFromService?.name?.trim() || element.elementState?.name?.trim();
     return name || '';
   }
 
-  getSymbolName(element: {
-    elementState?: ZsMapDrawElementState;
-  }): string {
+  getSymbolName(element: { elementState?: ZsMapDrawElementState }): string {
     const symbolId = element.elementState?.symbolId;
     if (symbolId) {
       const sign = Signs.getSignById(symbolId);
@@ -272,12 +232,6 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     await this.openDrawDialog();
   }
 
-  private async openDrawDialog(): Promise<void> {
-    const layer = await firstValueFrom(this._state.observeActiveLayer());
-    const ref = this._dialog.open(DrawDialogComponent);
-    ref.componentRef?.instance.setLayer(layer);
-  }
-
   focusSignatures() {
     this.zoomToAll();
     if (!this.allHighlighted) {
@@ -293,10 +247,6 @@ export class SidebarJournalEntryComponent implements OnDestroy {
     this.journal.markAsDrawn(this.entry(), false);
   }
 
-  get JournalEntryStatus() {
-    return JournalEntryStatus;
-  }
-
   deleteSignature(element: { id: string; elementState?: ZsMapDrawElementState }) {
     if (!element.id) {
       return;
@@ -310,5 +260,35 @@ export class SidebarJournalEntryComponent implements OnDestroy {
         this._state.removeDrawElement(element.id);
       }
     });
+  }
+
+  private transformCoordinates(coordinates: Coordinate) {
+    const transformed = transform(coordinates, mercatorProjection!, coordinatesProjection!);
+
+    return transformed
+      .map((coord) => coord.toPrecision(5))
+      .reverse()
+      .join(', ');
+  }
+
+  private mapCoordinates(coordinates: Coordinate | Coordinate[] | undefined) {
+    while (Array.isArray(coordinates?.[0])) {
+      coordinates = coordinates[0];
+    }
+
+    return coordinates as Coordinate | undefined;
+  }
+
+  private containsNumber(reportNumber: number) {
+    return (element: ZsMapBaseDrawElement<ZsMapDrawElementState>) =>
+      Array.isArray(element.elementState?.reportNumber) ?
+        element.elementState.reportNumber.includes(reportNumber)
+      : element.elementState?.reportNumber === reportNumber;
+  }
+
+  private async openDrawDialog(): Promise<void> {
+    const layer = await firstValueFrom(this._state.observeActiveLayer());
+    const ref = this._dialog.open(DrawDialogComponent);
+    ref.componentRef?.instance.setLayer(layer);
   }
 }

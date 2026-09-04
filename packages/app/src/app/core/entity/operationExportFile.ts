@@ -18,5 +18,5 @@ export interface OperationExportFile {
   outgoingChangesets?: IZsChangesetExport[];
   mapLayers: IZSMapOperationMapLayers;
   eventStates: number[];
-  journal: JournalEntry[];
+  journal: Partial<JournalEntry>[];
 }

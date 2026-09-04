@@ -4,7 +4,7 @@
   </div>
 }
 <div class="tab-group-wrapper">
-  <mat-tab-group animationDuration="0ms" [(selectedIndex)]="selectedIndex">
+  <mat-tab-group [(selectedIndex)]="selectedIndex" animationDuration="0ms">
     <mat-tab>
       <ng-template mat-tab-label>
         <span>{{ i18n.get('todo') }}</span>
@@ -22,14 +22,14 @@
         </app-empty>
       } @else {
         <mat-accordion [multi]="false" displayMode="flat">
-          @for (entry of journalEntriesToDraw(); track entry.documentId || entry.uuid) {
+          @for (entry of journalEntriesToDraw(); track entry.documentId) {
             <mat-expansion-panel
-              class="mat-elevation-z0"
-              [expanded]="entry.messageNumber === currentMessageNumber"
+              (closed)="onPanelClosed()"
+              (opened)="onPanelOpened(entry.messageNumber)"
               [attr.data-message-number]="entry.messageNumber"
               [attr.data-testid]="'entry-to-draw'"
-              (opened)="onPanelOpened(entry.messageNumber)"
-              (closed)="onPanelClosed()"
+              [expanded]="entry.messageNumber === currentMessageNumber"
+              class="mat-elevation-z0"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
@@ -44,7 +44,13 @@
                 <app-sidebar-journal-entry [entry]="entry"></app-sidebar-journal-entry>
                 @if (!isReadOnly()) {
                   <div class="mark-as-drawn-container">
-                    <button mat-flat-button color="primary" class="mark-as-drawn-button" (click)="journal.markAsDrawn(entry, true)">{{ i18n.get('markAsDrawn') }}
+                    <button
+                      (click)="journal.markAsDrawn(entry, true)"
+                      class="mark-as-drawn-button"
+                      color="primary"
+                      mat-flat-button
+                    >
+                      {{ i18n.get('markAsDrawn') }}
                       <mat-icon>check</mat-icon>
                     </button>
                   </div>
@@ -74,14 +80,14 @@
         </app-empty>
       } @else {
         <mat-accordion [multi]="false" displayMode="flat">
-          @for (entry of journalEntriesDrawn(); track entry.documentId || entry.uuid) {
+          @for (entry of journalEntriesDrawn(); track entry.documentId) {
             <mat-expansion-panel
-              class="mat-elevation-z0"
-              [expanded]="entry.messageNumber === currentMessageNumber"
+              (closed)="onPanelClosed()"
+              (opened)="onPanelOpened(entry.messageNumber)"
               [attr.data-message-number]="entry.messageNumber"
               [attr.data-testid]="'entry-drawn'"
-              (opened)="onPanelOpened(entry.messageNumber)"
-              (closed)="onPanelClosed()"
+              [expanded]="entry.messageNumber === currentMessageNumber"
+              class="mat-elevation-z0"
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>

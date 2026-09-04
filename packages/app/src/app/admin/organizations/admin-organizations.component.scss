@@ -1,0 +1,157 @@
+.organizations-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.table-header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.search-field {
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--mat-sys-surface, #fff);
+  border-radius: 8px;
+}
+
+.organizations-table {
+  width: 100%;
+}
+
+.org-logo-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.table-org-logo {
+  max-width: 40px;
+  max-height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.table-logo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container-high, #eee);
+  color: var(--mat-sys-on-surface-variant, #888);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.locale-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--mat-sys-secondary-container, #e8def8);
+  color: var(--mat-sys-on-secondary-container, #1d192b);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.count-badge {
+  display: inline-block;
+  min-width: 20px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--mat-sys-surface-container-highest, #e0e0e0);
+  text-align: center;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.coordinates-text {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant, #666);
+}
+
+.external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-primary, #1976d2);
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .inline-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.text-muted {
+  color: var(--mat-sys-outline, #999);
+}
+
+.actions-header {
+  text-align: right;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: var(--mat-sys-on-surface-variant, #888);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 16px;
+    margin: 0;
+  }
+}

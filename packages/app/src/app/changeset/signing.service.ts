@@ -1,6 +1,7 @@
-import { inject, Injectable } from '@angular/core';
-import { IZsChangeset, IZsMapOperation, IZsSigningKey } from '@zskarte/types';
-import { ApiService } from '../api/api.service';
+import { Injectable } from '@angular/core';
+import { IZsChangeset, IZsMapOperation } from '@zskarte/types';
+import { trpc } from '../api/trpc.client';
+import { trpcRequest } from '../api/trpc.error';
 import { sortKeysDeep } from '@zskarte/common';
 
 export interface IZsSignKeyConfig {
@@ -12,17 +13,12 @@ export interface IZsSignKeyConfig {
   providedIn: 'root',
 })
 export class SigningService {
-  private _api = inject(ApiService);
   private encoder = new TextEncoder();
   private publicKeys: Record<string, IZsSignKeyConfig> = {};
 
-  private base64ToBytes(base64: string) {
-    return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-  }
-
   public async loadAllKeys(operation: IZsMapOperation) {
-    if (!operation.signingKeyIds){
-        return;
+    if (!operation.signingKeyIds) {
+      return;
     }
     for (const signKeyId of operation.signingKeyIds) {
       let keyConfig: IZsSignKeyConfig | null = this.publicKeys[signKeyId];
@@ -37,8 +33,42 @@ export class SigningService {
     }
   }
 
+  public async verifyChangesetSign(changeset: IZsChangeset, operation: IZsMapOperation) {
+    let signValid = false;
+    const tryLoadingKeys = new Set<string>();
+    if (changeset.signKeyId && changeset.serverId && operation.changesetSigns?.[changeset.id]) {
+      let keyConfig: IZsSignKeyConfig | null = this.publicKeys[changeset.signKeyId];
+      if (!keyConfig) {
+        tryLoadingKeys.add(changeset.signKeyId);
+        if (tryLoadingKeys.has(changeset.signKeyId)) {
+          keyConfig = await this.loadKey(changeset.signKeyId, changeset.serverId);
+          if (keyConfig) {
+            this.publicKeys[changeset.signKeyId] = keyConfig;
+          }
+        } else {
+          return false;
+        }
+      }
+      if (keyConfig) {
+        signValid = await this.verifyData(changeset, operation.changesetSigns[changeset.id], keyConfig);
+        if (!signValid) {
+          console.error(`changeset with id ${changeset.id} have invalid signature`, changeset, keyConfig);
+        }
+      } else {
+        console.error(
+          `publicKey '${changeset.signKeyId}' for verify changeset with id '${changeset.id}' could not be loaded from server.`,
+        );
+      }
+    }
+    return signValid;
+  }
+
+  private base64ToBytes(base64: string) {
+    return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  }
+
   private async loadKey(keyId: string, serverId?: string): Promise<IZsSignKeyConfig | null> {
-    const { error, result } = await this._api.get<IZsSigningKey>(`/api/signing-key/bykey/${keyId}`);
+    const { error, result } = await trpcRequest(trpc.signingKey.byKeyId.query({ keyId }));
     if (error || !result) {
       console.error(`Load signing Key '${keyId}' failed: ${JSON.stringify(error) || 'result empty'}.`);
       return null;
@@ -71,35 +101,5 @@ export class SigningService {
 
     const { publicKey, algorithm } = keyConfig;
     return crypto.subtle.verify(algorithm, publicKey, sigBytes, dataBytes);
-  }
-
-  public async verifyChangesetSign(changeset: IZsChangeset, operation: IZsMapOperation) {
-    let signValid = false;
-    const tryLoadingKeys = new Set<string>();
-    if (changeset.signKeyId && changeset.serverId && operation.changesetSigns?.[changeset.id]) {
-      let keyConfig: IZsSignKeyConfig | null = this.publicKeys[changeset.signKeyId];
-      if (!keyConfig) {
-        tryLoadingKeys.add(changeset.signKeyId);
-        if (tryLoadingKeys.has(changeset.signKeyId)) {
-          keyConfig = await this.loadKey(changeset.signKeyId, changeset.serverId);
-          if (keyConfig) {
-            this.publicKeys[changeset.signKeyId] = keyConfig;
-          }
-        } else {
-          return false;
-        }
-      }
-      if (keyConfig) {
-        signValid = await this.verifyData(changeset, operation.changesetSigns[changeset.id], keyConfig);
-        if (!signValid) {
-          console.error(`changeset with id ${changeset.id} have invalid signature`, changeset, keyConfig);
-        }
-      } else {
-        console.error(
-          `publicKey '${changeset.signKeyId}' for verify changeset with id '${changeset.id}' could not be loaded from server.`,
-        );
-      }
-    }
-    return signValid;
   }
 }

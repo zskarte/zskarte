@@ -1,7 +1,9 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import {
+  defineDefaultValuesForSignature,
+  getDefaultZsMapState,
   IPositionFlag,
   IZsChangeset,
   IZsChangesetConfig,
@@ -15,7 +17,6 @@ import {
   IZsMapTextDrawElementParams,
   MapLayer,
   PaperDimensions,
-  PermissionType,
   Sign,
   WmsSource,
   ZsMapDisplayMode,
@@ -28,16 +29,14 @@ import {
   ZsMapPolygonDrawElementState,
   ZsMapState,
   ZsMapStateSource,
-  defineDefaultValuesForSignature,
-  getDefaultZsMapState,
 } from '@zskarte/types';
-import { Patch, applyPatches, produce } from 'immer';
+import { applyPatches, Patch, produce } from 'immer';
 import { isEqual } from 'lodash';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
 import { Geometry, SimpleGeometry } from 'ol/geom';
 import { getPointResolution, transform } from 'ol/proj';
-import { BehaviorSubject, Observable, Subject, combineLatest, lastValueFrom, merge } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom, merge, Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, takeUntil, takeWhile } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import { addOrRemoveInArray, areArraysEqual, toggleInArray } from '../helper/array';
@@ -76,6 +75,7 @@ type VIEW_NAMES = 'map' | 'journal';
 })
 export class ZsMapStateService {
   i18n = inject(I18NService);
+  public urlFragment = signal<string | null>(null);
   private dialog = inject(MatDialog);
   private _sync = inject(SyncService);
   private _session = inject(SessionService);
@@ -85,28 +85,22 @@ export class ZsMapStateService {
   private _router = inject(Router);
   private _location = inject(Location);
   private _changeset = inject(ChangesetService);
-
   private _map = new BehaviorSubject<ZsMapState>(getDefaultZsMapState());
   private _mapHistoryDate = new BehaviorSubject<Date | null | undefined>(undefined);
   private _mapPatches = new BehaviorSubject<Patch[]>([]);
   private _mapInversePatches = new BehaviorSubject<Patch[]>([]);
   private _undoStackPointer = new BehaviorSubject<number>(0);
-
   private _display = new BehaviorSubject<IZsMapDisplayState>(this._getDefaultDisplayState());
   private _displayPatches = new BehaviorSubject<Patch[]>([]);
   private _displayInversePatches = new BehaviorSubject<Patch[]>([]);
-
   private _print = new BehaviorSubject<IZsMapPrintState>(ZsMapStateService._getDefaultIZsMapPrintState());
-
   private _cursor = new BehaviorSubject<Coordinate>([0, 0]);
-
   private _layerCache: Record<string, ZsMapBaseLayer> = {};
   private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
   private _elementToDraw = new BehaviorSubject<ZsMapElementToDraw | undefined>(undefined);
   private _selectedFeature = new BehaviorSubject<string | undefined>(undefined);
   private _hideSelectedFeature = new BehaviorSubject<boolean>(false);
   private _recentlyUsedElement = new BehaviorSubject<ZsMapDrawElementState[]>([]);
-
   private _mergeMode = new BehaviorSubject<boolean>(false);
   private _drawHoleMode = new BehaviorSubject<boolean>(false);
   private _currentMapCenter: BehaviorSubject<number[]> | undefined;
@@ -115,7 +109,6 @@ export class ZsMapStateService {
   private _activeView = new BehaviorSubject<VIEW_NAMES>('map');
   private _searchResultFeatures = new BehaviorSubject<Feature<Geometry>[]>([]);
   private _journalAddressPreview = new BehaviorSubject<boolean>(false);
-  public urlFragment = signal<string | null>(null);
 
   constructor() {
     const _session = this._session;
@@ -154,81 +147,6 @@ export class ZsMapStateService {
       });
   }
 
-  private _getDefaultDisplayState(mapState?: ZsMapState): IZsMapDisplayState {
-    const state: IZsMapDisplayState = {
-      version: 1,
-      mapOpacity: 1,
-      displayMode: ZsMapDisplayMode.DRAW,
-      expertView: false,
-      positionFlag: { coordinates: DEFAULT_COORDINATES, isVisible: false },
-      mapCenter: DEFAULT_COORDINATES,
-      mapZoom: DEFAULT_ZOOM,
-      mapExtent: [...DEFAULT_COORDINATES, ...DEFAULT_COORDINATES],
-      dpi: DEFAULT_DPI,
-      activeLayer: undefined,
-      showMyLocation: false,
-      source: ZsMapStateSource.OPEN_STREET_MAP,
-      layerOpacity: {},
-      layerVisibility: {},
-      layerOrder: [],
-      elementVisibility: {},
-      elementOpacity: {},
-      layers: [],
-      wmsSources: [],
-      hiddenSymbols: [],
-      hiddenFeatureTypes: [],
-      highlightedFeature: [],
-      enableClustering: false,
-      showNames: true,
-      globalSymbolScale: 1.25,
-      journalSort: { active: 'messageNumber', direction: 'desc' },
-      journalFilter: {
-        department: '',
-        triageFilter: false,
-        outgoingFilter: false,
-        decisionFilter: false,
-        keyMessageFilter: false,
-        eingangFilter: false,
-      },
-      searchConfig: {
-        filterMapSection: false,
-        filterByDistance: false,
-        maxDistance: 20_000,
-        filterByArea: false,
-        area: null,
-        sortedByDistance: false,
-        distanceReferenceCoordinate: null,
-      },
-      journalMessageEditConfig: {
-        showMap: false,
-        showAllAddresses: false,
-        showLinkedText: true,
-      },
-      changesetConfig: {
-        applyOnExpertViewOnly: true,
-        hiddenMode: false,
-        automerge: true,
-        conflictTakeOur: true,
-      },
-    };
-    if (!mapState) {
-      mapState = this._map.value;
-    }
-    if (mapState?.layers) {
-      for (const layerId of Object.keys(mapState?.layers || {})) {
-        if (layerId) {
-          if (!state.activeLayer) {
-            state.activeLayer = layerId;
-          }
-          state.layerOrder.push(layerId);
-          state.layerVisibility[layerId] = true;
-          state.layerOpacity[layerId] = 1;
-        }
-      }
-    }
-    return state;
-  }
-
   private static _getDefaultIZsMapPrintState(): IZsMapPrintState {
     return {
       printView: false,
@@ -242,7 +160,7 @@ export class ZsMapStateService {
       emptyMap: false,
       qrCode: true,
       shareLink: false,
-      sharePermission: PermissionType.READ,
+      sharePermission: 'read',
       dimensions: PaperDimensions['A4'].map((s) => s - 15 * 2) as [number, number],
       generateCallback: undefined,
       tileEventCallback: undefined,
@@ -985,12 +903,6 @@ export class ZsMapStateService {
     });
   }
 
-  private assertLayerExists(id: string) {
-    if (!this._layerCache[id]) {
-      throw new Error(`Cannot find layer with id: ${id}`);
-    }
-  }
-
   public sortMapLayerUp(index: number) {
     this.updateDisplayState((draft) => {
       const layer = draft.layers[index];
@@ -1188,19 +1100,6 @@ export class ZsMapStateService {
     }
 
     return null;
-  }
-
-  private addRecentlyUsedElement(element: ZsMapDrawElementState) {
-    if (!element) {
-      return;
-    }
-
-    let elements = this._recentlyUsedElement.getValue();
-    elements = elements.filter((e) => e.symbolId !== element.symbolId);
-    elements.unshift(element);
-
-    elements.splice(10, elements.length - 10);
-    this._recentlyUsedElement.next(elements);
   }
 
   public observableRecentlyUsedElement() {
@@ -1488,6 +1387,7 @@ export class ZsMapStateService {
       distinctUntilChanged((x, y) => x === y),
     );
   }
+
   public observeHiddenFeatureTypes() {
     return this._display.pipe(
       map((o) => {
@@ -1694,5 +1594,99 @@ export class ZsMapStateService {
     this._location.go(newUrl);
     //to call NavigationEnd handler
     this._router.navigateByUrl(newUrl, { skipLocationChange: true });
+  }
+
+  private _getDefaultDisplayState(mapState?: ZsMapState): IZsMapDisplayState {
+    const state: IZsMapDisplayState = {
+      version: 1,
+      mapOpacity: 1,
+      displayMode: ZsMapDisplayMode.DRAW,
+      expertView: false,
+      positionFlag: { coordinates: DEFAULT_COORDINATES, isVisible: false },
+      mapCenter: DEFAULT_COORDINATES,
+      mapZoom: DEFAULT_ZOOM,
+      mapExtent: [...DEFAULT_COORDINATES, ...DEFAULT_COORDINATES],
+      dpi: DEFAULT_DPI,
+      activeLayer: undefined,
+      showMyLocation: false,
+      source: ZsMapStateSource.OPEN_STREET_MAP,
+      layerOpacity: {},
+      layerVisibility: {},
+      layerOrder: [],
+      elementVisibility: {},
+      elementOpacity: {},
+      layers: [],
+      wmsSources: [],
+      hiddenSymbols: [],
+      hiddenFeatureTypes: [],
+      highlightedFeature: [],
+      enableClustering: false,
+      showNames: true,
+      globalSymbolScale: 1.25,
+      journalSort: { active: 'messageNumber', direction: 'desc' },
+      journalFilter: {
+        department: '',
+        triageFilter: false,
+        outgoingFilter: false,
+        decisionFilter: false,
+        keyMessageFilter: false,
+        eingangFilter: false,
+      },
+      searchConfig: {
+        filterMapSection: false,
+        filterByDistance: false,
+        maxDistance: 20_000,
+        filterByArea: false,
+        area: null,
+        sortedByDistance: false,
+        distanceReferenceCoordinate: null,
+      },
+      journalMessageEditConfig: {
+        showMap: false,
+        showAllAddresses: false,
+        showLinkedText: true,
+      },
+      changesetConfig: {
+        applyOnExpertViewOnly: true,
+        hiddenMode: false,
+        automerge: true,
+        conflictTakeOur: true,
+      },
+    };
+    if (!mapState) {
+      mapState = this._map.value;
+    }
+    if (mapState?.layers) {
+      for (const layerId of Object.keys(mapState?.layers || {})) {
+        if (layerId) {
+          if (!state.activeLayer) {
+            state.activeLayer = layerId;
+          }
+          state.layerOrder.push(layerId);
+          state.layerVisibility[layerId] = true;
+          state.layerOpacity[layerId] = 1;
+        }
+      }
+    }
+    return state;
+  }
+
+  private assertLayerExists(id: string) {
+    if (!this._layerCache[id]) {
+      throw new Error(`Cannot find layer with id: ${id}`);
+    }
+  }
+
+  private addRecentlyUsedElement(element: ZsMapDrawElementState) {
+    if (!element) {
+      return;
+    }
+
+    let elements = this._recentlyUsedElement.getValue();
+    elements = elements.filter((e) => e.symbolId !== element.symbolId);
+    elements.unshift(element);
+
+    elements.splice(10, elements.length - 10);
+    this._recentlyUsedElement.next(elements);
   }
 }

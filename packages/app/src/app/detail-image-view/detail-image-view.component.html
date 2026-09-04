@@ -3,10 +3,10 @@
 </app-dialog-header>
 <app-dialog-body>
   <div class="title">{{ title }}</div>
-  <img [src]="imageSrc" [alt]="title" />
+  <img [alt]="title" [src]="imageSrc" />
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-flat-button color="primary" mat-dialog-close>
+  <button color="primary" mat-dialog-close mat-flat-button>
     {{ i18n.get('ok') }}
   </button>
 </app-dialog-footer>

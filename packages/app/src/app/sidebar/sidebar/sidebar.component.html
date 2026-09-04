@@ -1,4 +1,4 @@
-<mat-accordion multi displayMode="flat">
+<mat-accordion displayMode="flat" multi>
   <h2>{{ i18n.get('layers') }} & {{ i18n.get('baseMap') }}</h2>
   <mat-divider></mat-divider>
   <mat-expansion-panel class="mat-elevation-z0">
@@ -12,9 +12,9 @@
         <div class="title">{{ i18n.get('opacity') }}</div>
         <mat-slider [max]="1" [min]="0" [step]="0.1" class="layer-slider">
           <input
-            matSliderThumb
-            [ngModel]="mapState.observeMapOpacity() | async"
             (ngModelChange)="mapState.setMapOpacity($event)"
+            [ngModel]="mapState.observeMapOpacity() | async"
+            matSliderThumb
           />
         </mat-slider>
       </div>
@@ -22,15 +22,15 @@
         <div>
           <mat-radio-group>
             <mat-radio-button
-              [value]="mapSource.key"
               (click)="switchMapSource(mapSource.key)"
               [checked]="mapSource.selected"
+              [value]="mapSource.key"
             >
               {{ mapSource.translation }}
             </mat-radio-button>
           </mat-radio-group>
           @if ((workLocal || offlineService.attempToWorkOffline()) && mapSource.key !== 'noBaseMap') {
-            <span class="mapSourceAvailable offline-state" (click)="showLocalInfoMap(mapSource.key, index)">
+            <span (click)="showLocalInfoMap(mapSource.key, index)" class="mapSourceAvailable offline-state">
               @if (isDownloadableMap(mapSource.key)) {
                 @if (mapSource.offlineAvailable) {
                   <i class="material-icons">file_download_done</i>
@@ -48,38 +48,40 @@
               @switch (mapDownloadStates[mapSource.key]) {
                 @case ('loading') {
                   <button
-                    mat-flat-button
-                    color="warn"
-                    class="button-cancel"
                     (click)="offlineService.cancelDownloadMap(mapSource.key)"
+                    class="button-cancel"
+                    color="warn"
+                    mat-flat-button
                   >
                     {{ i18n.get('cancel') }}
                   </button>
-                  <mat-progress-bar color="primary" class="map-progress" mode="determinate" [value]="mapProgress" />
+                  <mat-progress-bar [value]="mapProgress" class="map-progress" color="primary" mode="determinate" />
                 }
                 @case ('downloaded') {
-                  <button mat-flat-button color="warn" class="button-remove" (click)="removeLocalMap(mapSource.key)">
+                  <button (click)="removeLocalMap(mapSource.key)" class="button-remove" color="warn" mat-flat-button>
                     <mat-icon>file_download</mat-icon>
                     {{ i18n.get('remove') }}
                   </button>
                 }
                 @default {
                   <button
-                    mat-stroked-button
-                    class="button-download"
                     (click)="offlineService.downloadMap(mapSource.key)"
+                    class="button-download"
+                    mat-stroked-button
                   >
-                    <mat-icon>file_download</mat-icon>{{ i18n.get('download') }}
+                    <mat-icon>file_download</mat-icon>
+                    {{ i18n.get('download') }}
                   </button>
-                  <button mat-stroked-button class="button-upload" (click)="mapUpload.click()">
-                    <mat-icon>file_upload</mat-icon>{{ i18n.get('upload') }}
+                  <button (click)="mapUpload.click()" class="button-upload" mat-stroked-button>
+                    <mat-icon>file_upload</mat-icon>
+                    {{ i18n.get('upload') }}
                   </button>
                   <input
-                    type="file"
-                    class="mapfile-input"
-                    accept=".pmtiles"
-                    (change)="uploadMap($event, mapSource.key)"
                     #mapUpload
+                    (change)="uploadMap($event, mapSource.key)"
+                    accept=".pmtiles"
+                    class="mapfile-input"
+                    type="file"
                   />
                 }
               }
@@ -117,7 +119,7 @@
             let first = $first;
             let last = $last
           ) {
-            <div title="{{ item.label }}" class="selectedLayer">
+            <div class="selectedLayer" title="{{ item.label }}">
               <div>
                 <div class="titleRow">
                   <div class="title">{{ item.label }}</div>
@@ -128,7 +130,7 @@
                     <i (click)="mapState.sortMapLayerDown(index)" class="material-icons">arrow_downward</i>
                   }
                   @if (workLocal || offlineService.attempToWorkOffline()) {
-                    <div class="offline-state" (click)="showLocalInfo(item, index)">
+                    <div (click)="showLocalInfo(item, index)" class="offline-state">
                       @if (item.type === 'geojson' || item.type === 'shape' || item.type === 'csv') {
                         @if (item.offlineAvailable) {
                           <i class="material-icons">file_download_done</i>
@@ -163,11 +165,11 @@
                   <i (click)="mapState.removeMapLayer(index)" class="material-icons">remove_circle_outline</i>
                 </div>
                 <div>
-                  <mat-slider [max]="1" [min]="0" [step]="0.1" [disabled]="item.hidden">
+                  <mat-slider [disabled]="item.hidden" [max]="1" [min]="0" [step]="0.1">
                     <input
-                      matSliderThumb
-                      [ngModel]="item.opacity"
                       (ngModelChange)="mapState.setMapLayerOpacity(index, $event)"
+                      [ngModel]="item.opacity"
+                      matSliderThumb
                     />
                   </mat-slider>
                 </div>
@@ -189,29 +191,29 @@
             </app-dialog-body>
 
             <app-dialog-footer>
-              <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
+              <button [innerText]="i18n.get('cancel')" [mat-dialog-close]="null" mat-stroked-button></button>
               <button
-                mat-flat-button
-                color="primary"
-                [mat-dialog-close]="newLayerType"
                 [innerText]="i18n.get('ok')"
+                [mat-dialog-close]="newLayerType"
+                color="primary"
+                mat-flat-button
               ></button>
             </app-dialog-footer>
           </ng-template>
           @if (mapState.isExpertView()) {
             <button
-              mat-stroked-button
-              class="expertButton"
               (click)="addNewLayer()"
               [innerText]="i18n.get('addNewLayer')"
+              class="expertButton"
+              mat-stroked-button
             ></button>
           }
           @if (mapState.isExpertView()) {
             <button
-              mat-stroked-button
-              class="expertButton"
               (click)="persistLayers()"
               [innerText]="i18n.get('persistLayers')"
+              class="expertButton"
+              mat-stroked-button
             ></button>
           }
         </div>
@@ -233,8 +235,8 @@
           }
           @for (item of favouriteLayers; track item.fullId + item.label) {
             <button
-              mat-list-item
               (click)="selectLayer(item)"
+              mat-list-item
               title="{{ item.label }} ({{ item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin' }}{{
                 item.id ?
                   '; ' +
@@ -272,7 +274,7 @@
             <mat-option value="_GeoAdmin_"
               >GeoAdmin
               @if (geoAdminLayerError) {
-                <mat-icon class="wmsSourceError" [title]="geoAdminLayerError">warning</mat-icon>
+                <mat-icon [title]="geoAdminLayerError" class="wmsSourceError">warning</mat-icon>
               }
             </mat-option>
             <mat-option value="_geodienste_">geodienste</mat-option>
@@ -283,27 +285,27 @@
               <mat-option [value]="item.url">
                 {{ item.label }}
                 @if (wmsSourceLoadErrors[item.url]) {
-                  <mat-icon class="wmsSourceError" [title]="wmsSourceLoadErrors[item.url]">warning</mat-icon>
+                  <mat-icon [title]="wmsSourceLoadErrors[item.url]" class="wmsSourceError">warning </mat-icon>
                 }
               </mat-option>
             }
           </mat-select>
         </mat-form-field>
         @if (mapState.isExpertView()) {
-          <button mat-icon-button (click)="editWmsSources()">
+          <button (click)="editWmsSources()" mat-icon-button>
             <mat-icon [attr.aria-label]="i18n.get('editWmsSources')">edit</mat-icon>
           </button>
         }
       </div>
       <mat-form-field appearance="outline">
         <mat-label> {{ i18n.get('filter') }}</mat-label>
-        <input type="text" matInput [formControl]="layerFilter"
+        <input [formControl]="layerFilter" matInput type="text"
       /></mat-form-field>
       <mat-action-list class="availableLayers">
         @for (item of filteredAvailableLayers$ | async; track item.fullId + item.label) {
           <button
-            mat-list-item
             (click)="selectLayer(item)"
+            mat-list-item
             title="{{ item.label }} ({{ item.source ? (item.source.label ?? item.source.url) : 'GeoAdmin' }}{{
               item.id ?
                 '; ' +
@@ -327,7 +329,7 @@
   <mat-divider></mat-divider>
   @if (mapState.isExpertView()) {
     <div class="buttonContent">
-      <button mat-stroked-button (click)="editLayerSettings()" [innerText]="i18n.get('organisationSettings')"></button>
+      <button (click)="editLayerSettings()" [innerText]="i18n.get('organisationSettings')" mat-stroked-button></button>
     </div>
   }
   <h2>{{ i18n.get('filter') }}</h2>

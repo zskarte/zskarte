@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SessionService } from '../session/session.service';
 import { LOCALES, Sign } from '@zskarte/types';
 import { SIDEBAR_TRANSLATIONS } from './translations/sidebar.translations';
@@ -6,6 +6,7 @@ import { MAP_TRANSLATIONS } from './translations/map.translations';
 import { LAYER_TRANSLATIONS } from './translations/layer.translations';
 import { JOURNAL_TRANSLATIONS } from './translations/journal.translations';
 import { DOCUMENTATION_TRANSLATIONS } from './translations/documentation.translations';
+import { ADMIN_TRANSLATIONS } from './translations/admin.translations';
 
 /**
  * Translation Management Guide - ZSKarte Application
@@ -36,8 +37,6 @@ import { DOCUMENTATION_TRANSLATIONS } from './translations/documentation.transla
   providedIn: 'root',
 })
 export class I18NService {
-  private _session = inject(SessionService);
-
   private static TRANSLATIONS = {
     //general texts used on different areas
     edit: {
@@ -167,7 +166,7 @@ export class I18NService {
     },
     loginOrganization: {
       de: 'ZSO',
-      en: 'Organization', 
+      en: 'Organization',
       fr: 'Organisation',
     },
     enterOrganization: {
@@ -182,7 +181,7 @@ export class I18NService {
     },
     login: {
       de: 'Login',
-      en: 'Login', 
+      en: 'Login',
       fr: 'Connexion',
     },
     or: {
@@ -229,6 +228,7 @@ export class I18NService {
       de: 'Passwort',
       en: 'Password',
       fr: 'Mot de passe',
+      it: 'Password',
     },
     wrongPassword: {
       de: 'Ungültiges Passwort',
@@ -335,7 +335,9 @@ export class I18NService {
     ...LAYER_TRANSLATIONS,
     ...JOURNAL_TRANSLATIONS,
     ...DOCUMENTATION_TRANSLATIONS,
+    ...ADMIN_TRANSLATIONS,
   };
+  private _session = inject(SessionService);
 
   public get(key: string): string {
     if (!key?.trim()) {
@@ -389,7 +391,8 @@ export class I18NService {
     console.warn(`Sign translation missing for user locale '${userLocale}'`);
 
     for (const locale of LOCALES) {
-      if (sign[locale]) return sign[locale];
+      const val = sign[locale];
+      if (val) return val;
     }
     return '';
   }

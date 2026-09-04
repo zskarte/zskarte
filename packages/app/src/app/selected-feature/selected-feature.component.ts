@@ -33,7 +33,6 @@ import {
   getColorForCategory,
   IconsOffset,
   Sign,
-  signatureDefaultValues,
   ZsMapDrawElementState,
   ZsMapDrawElementStateType,
 } from '@zskarte/types';
@@ -68,8 +67,6 @@ export class SelectedFeatureComponent implements OnDestroy {
   dialog = inject(MatDialog);
   i18n = inject(I18NService);
   zsMapStateService = inject(ZsMapStateService);
-  private router = inject(Router);
-
   groupedFeatures = null;
   selectedFeature: Observable<Feature<SimpleGeometry> | undefined>;
   selectedSignature: Observable<Sign | undefined>;
@@ -84,31 +81,6 @@ export class SelectedFeatureComponent implements OnDestroy {
   formationSigns = [Signs.FORMATION_SIGN_ID];
   transportSigns = Signs.TRANSPORT_SIGN_IDS; // Lastwagen, Motorfahrzeug, Transportfahrzeug
   leaderSigns = Signs.LEADER_SIGN_IDS; // Leaders
-  private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
-  private _ngUnsubscribe = new Subject<void>();
-
-  protected selectedLayerId$ = this.zsMapStateService
-    .observeSelectedElement$()
-    .pipe(switchMap((el) => el?.observeLayer() ?? EMPTY));
-  protected selectedElementLayer$ = this.zsMapStateService.observeLayers().pipe(
-    combineLatestWith(this.selectedLayerId$),
-    map(([layers, layerId]) => layers?.find((l) => l.getId() === layerId)),
-  );
-
-  private isReadonly = toSignal(this.zsMapStateService.observeIsReadOnly());
-  protected activeLayer = toSignal(this.zsMapStateService.observeActiveLayer());
-  protected selectedElementLayer = toSignal(this.selectedElementLayer$);
-  protected selectedElementLayerName = toSignal(
-    this.selectedElementLayer$.pipe(switchMap((layer) => layer?.observeName() ?? EMPTY)),
-  );
-
-  protected editMode = computed(() => {
-    const activeLayer = this.activeLayer();
-    const selectedElementLayer = this.selectedElementLayer();
-    const readOnly = this.isReadonly();
-    return !readOnly && activeLayer?.getId() === selectedElementLayer?.getId();
-  });
-
   quickColors = [
     {
       value: getColorForCategory('damage'), // red
@@ -127,14 +99,28 @@ export class SelectedFeatureComponent implements OnDestroy {
       viewValue: 'effects',
     },
   ];
-
-  mapReportNumber(element?: ZsMapDrawElementState) {
-    if (!element?.reportNumber) {
-      return [];
-    }
-
-    return Array.isArray(element.reportNumber) ? element.reportNumber : [element.reportNumber];
-  }
+  protected selectedLayerId$ = this.zsMapStateService
+    .observeSelectedElement$()
+    .pipe(switchMap((el) => el?.observeLayer() ?? EMPTY));
+  protected selectedElementLayer$ = this.zsMapStateService.observeLayers().pipe(
+    combineLatestWith(this.selectedLayerId$),
+    map(([layers, layerId]) => layers?.find((l) => l.getId() === layerId)),
+  );
+  protected activeLayer = toSignal(this.zsMapStateService.observeActiveLayer());
+  protected selectedElementLayer = toSignal(this.selectedElementLayer$);
+  protected selectedElementLayerName = toSignal(
+    this.selectedElementLayer$.pipe(switchMap((layer) => layer?.observeName() ?? EMPTY)),
+  );
+  private router = inject(Router);
+  private _drawElementCache: Record<string, ZsMapBaseDrawElement> = {};
+  private _ngUnsubscribe = new Subject<void>();
+  private isReadonly = toSignal(this.zsMapStateService.observeIsReadOnly());
+  protected editMode = computed(() => {
+    const activeLayer = this.activeLayer();
+    const selectedElementLayer = this.selectedElementLayer();
+    const readOnly = this.isReadonly();
+    return !readOnly && activeLayer?.getId() === selectedElementLayer?.getId();
+  });
 
   constructor() {
     this.selectedFeature = this.zsMapStateService.observeSelectedElement$().pipe(
@@ -184,15 +170,39 @@ export class SelectedFeatureComponent implements OnDestroy {
     this.mergeMode = this.zsMapStateService.observeMergeMode().pipe(takeUntil(this._ngUnsubscribe));
   }
 
-  public ngOnDestroy(): void {
-    this._ngUnsubscribe.next();
-    this._ngUnsubscribe.complete();
-  }
-
   get featureGroups() {
     return this.groupedFeatures ?
         Object.values(this.groupedFeatures).sort((a: any, b: any) => a.label.localeCompare(b.label))
       : null;
+  }
+
+  static getUpdatedFillStyle<T extends keyof FillStyle>(
+    element: ZsMapDrawElementState,
+    field: T,
+    value: FillStyle[T],
+  ): FillStyle {
+    return { ...element.fillStyle, [field]: value } as FillStyle;
+  }
+
+  static getUpdatedIconsOffset<T extends keyof IconsOffset>(
+    element: ZsMapDrawElementState,
+    field: T,
+    value: IconsOffset[T],
+  ): IconsOffset {
+    return { ...element.iconsOffset, [field]: value } as IconsOffset;
+  }
+
+  mapReportNumber(element?: ZsMapDrawElementState) {
+    if (!element?.reportNumber) {
+      return [];
+    }
+
+    return Array.isArray(element.reportNumber) ? element.reportNumber : [element.reportNumber];
+  }
+
+  public ngOnDestroy(): void {
+    this._ngUnsubscribe.next();
+    this._ngUnsubscribe.complete();
   }
 
   isPolygon() {
@@ -216,26 +226,6 @@ export class SelectedFeatureComponent implements OnDestroy {
 
     const point = this._drawElementCache[element.id].getOlFeature()?.getGeometry() as SimpleGeometry;
     return this.isPolygon() && this.selectedFeature !== null && (point?.getCoordinates()?.length ?? 0) > 1;
-  }
-
-  private extractFeatureGroups(allFeatures: any[]): any {
-    const result = {};
-    allFeatures.forEach((f) => {
-      const sig = f.get('sig');
-      const label = this.i18n.getLabelForSign(sig);
-      let group = result[label];
-      if (!group) {
-        group = result[label] = { label };
-      }
-      if (!group.src && sig.src) {
-        group.src = sig.src;
-      }
-      if (!group.features) {
-        group.features = [];
-      }
-      group.features.push(f);
-    });
-    return result;
   }
 
   patchProperties(element: ZsMapDrawElementState, update: Partial<ZsMapDrawElementState> = {}) {
@@ -283,7 +273,7 @@ export class SelectedFeatureComponent implements OnDestroy {
     );
   }
 
-  openMessage(reportNumber: string) {
+  openMessage(reportNumber: string | number) {
     this.router.navigate([], { fragment: `message=${reportNumber}` });
   }
 
@@ -336,14 +326,6 @@ export class SelectedFeatureComponent implements OnDestroy {
     input.value = input.value.replace(/[^0-9]/g, '').slice(0, 4);
   }
 
-  static getUpdatedFillStyle<T extends keyof FillStyle>(
-    element: ZsMapDrawElementState,
-    field: T,
-    value: FillStyle[T],
-  ): FillStyle {
-    return { ...element.fillStyle, [field]: value } as FillStyle;
-  }
-
   updateIconsOffset<T extends keyof IconsOffset>(element: ZsMapDrawElementState, field: T, value: IconsOffset[T]) {
     if (element.id) {
       this.zsMapStateService.updateDrawElementState(
@@ -352,13 +334,6 @@ export class SelectedFeatureComponent implements OnDestroy {
         SelectedFeatureComponent.getUpdatedIconsOffset(element, field, value),
       );
     }
-  }
-  static getUpdatedIconsOffset<T extends keyof IconsOffset>(
-    element: ZsMapDrawElementState,
-    field: T,
-    value: IconsOffset[T],
-  ): IconsOffset {
-    return { ...element.iconsOffset, [field]: value } as IconsOffset;
   }
 
   chooseSymbol(drawElement: ZsMapDrawElementState) {
@@ -469,7 +444,7 @@ export class SelectedFeatureComponent implements OnDestroy {
     const sign = Signs.getSignById(element.symbolId) ?? ({} as Sign);
     defineDefaultValuesForSignature(sign);
     this.zsMapStateService.updateDrawElementState(element.id, 'iconSize', sign.iconSize);
-    this.zsMapStateService.updateDrawElementState(element.id, 'iconsOffset', {...sign.iconsOffset as IconsOffset});
+    this.zsMapStateService.updateDrawElementState(element.id, 'iconsOffset', { ...(sign.iconsOffset as IconsOffset) });
     this.zsMapStateService.updateDrawElementState(element.id, 'rotation', sign.rotation);
     this.zsMapStateService.updateDrawElementState(element.id, 'iconOpacity', sign.iconOpacity);
     this.zsMapStateService.updateDrawElementState(element.id, 'hideIcon', sign.hideIcon);
@@ -489,6 +464,26 @@ export class SelectedFeatureComponent implements OnDestroy {
     const sign = Signs.getSignById(element.symbolId) ?? ({} as Sign);
     defineDefaultValuesForSignature(sign);
     this.zsMapStateService.updateDrawElementState(element.id, 'fillOpacity', sign.fillOpacity);
-    this.zsMapStateService.updateDrawElementState(element.id, 'fillStyle', {...sign.fillStyle as FillStyle});
+    this.zsMapStateService.updateDrawElementState(element.id, 'fillStyle', { ...(sign.fillStyle as FillStyle) });
+  }
+
+  private extractFeatureGroups(allFeatures: any[]): any {
+    const result = {};
+    allFeatures.forEach((f) => {
+      const sig = f.get('sig');
+      const label = this.i18n.getLabelForSign(sig);
+      let group = result[label];
+      if (!group) {
+        group = result[label] = { label };
+      }
+      if (!group.src && sig.src) {
+        group.src = sig.src;
+      }
+      if (!group.features) {
+        group.features = [];
+      }
+      group.features.push(f);
+    });
+    return result;
   }
 }

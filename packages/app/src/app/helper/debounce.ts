@@ -11,7 +11,11 @@ export const debounce = (callback: any, wait: number, thisReference: any = null)
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const debounceLeading = (callback: (...args: any[]) => Promise<boolean>, wait: number, thisReference: any = null) => {
+export const debounceLeading = (
+  callback: (...args: any[]) => Promise<boolean>,
+  wait: number,
+  thisReference: any = null,
+) => {
   //call callback immediately if not callen since wait, in other case wait until wait time is over
   let timeoutId: number | undefined;
   let lastArgs: any[] | undefined;

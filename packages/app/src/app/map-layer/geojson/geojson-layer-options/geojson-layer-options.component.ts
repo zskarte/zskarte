@@ -40,12 +40,12 @@ export class GeoJSONLayerOptionsComponent {
   dialogRef = inject<MatDialogRef<GeoJSONLayerOptionsComponent>>(MatDialogRef);
   i18n = inject(I18NService);
   mapState = inject(ZsMapStateService);
-  private geoJSONService = inject(GeoJSONService);
-
   sourceUrl = '';
   sourceMediaId = '';
   useMedia = false;
   lastExtent: Extent = [0, 0, 0, 0];
+  private geoJSONService = inject(GeoJSONService);
+
   constructor() {
     let layer = this.layer;
 

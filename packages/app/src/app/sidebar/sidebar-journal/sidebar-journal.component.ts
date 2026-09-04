@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, signal } from '@angular/core';
+import { Component, effect, ElementRef, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { JournalEntry } from '../../journal/journal.types';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -15,10 +15,10 @@ import { ZsMapStateService } from '../../state/state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   EmptyComponent,
+  EmptyDescriptionComponent,
   EmptyHeaderComponent,
   EmptyMediaComponent,
   EmptyTitleComponent,
-  EmptyDescriptionComponent,
 } from '../../ui/empty';
 import { MatIconModule } from '@angular/material/icon';
 import { BadgeComponent } from '../../badge/badge.component';
@@ -48,15 +48,15 @@ import { BadgeComponent } from '../../badge/badge.component';
   styleUrl: './sidebar-journal.component.scss',
 })
 export class SidebarJournalComponent {
-  private _sidebar = inject(SidebarService);
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
-  private _state = inject(ZsMapStateService);
   readonly journalEntriesToDraw = signal<JournalEntry[]>([]);
   readonly journalEntriesDrawn = signal<JournalEntry[]>([]);
-  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
   currentMessageNumber: number | undefined;
   selectedIndex = 0;
+  private _sidebar = inject(SidebarService);
+  private _state = inject(ZsMapStateService);
+  readonly isReadOnly = toSignal(this._state.observeIsReadOnly());
 
   constructor(private elementRef: ElementRef) {
     effect(() => {

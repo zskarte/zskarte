@@ -1,22 +1,22 @@
 <mat-autocomplete
   #autocompleteRef="matAutocomplete"
-  (optionSelected)="entrySelected($event)"
   (optionActivated)="entryActivated($event.option?.value)"
+  (optionSelected)="entrySelected($event)"
 >
-  <ng-template let-location="location" #option>
-    <mat-option [value]="location" (mouseenter)="entryActivated(location)" (mouseleave)="entryDeactivated()">
+  <ng-template #option let-location="location">
+    <mat-option (mouseenter)="entryActivated(location)" (mouseleave)="entryDeactivated()" [value]="location">
       <span [innerHTML]="location.label" [title]="getLabel(location)"></span>
     </mat-option>
   </ng-template>
   @if (foundLocations().length === 1) {
     @for (location of foundLocations()[0].results; track location.internal?.id || location.lonLat || location.label) {
-      <ng-container [ngTemplateOutlet]="option" [ngTemplateOutletContext]="{ location: location }"></ng-container>
+      <ng-container [ngTemplateOutletContext]="{ location: location }" [ngTemplateOutlet]="option"></ng-container>
     }
   } @else {
     @for (group of foundLocations(); track group.config.label) {
       <mat-optgroup
-        [label]="group.config.label + ' (' + group.results.length + ')'"
         (mousedown)="expandGroup(group, $event)"
+        [label]="group.config.label + ' (' + group.results.length + ')'"
       >
         <ng-container>
           @if (group.collapsed === 'peek') {
@@ -25,8 +25,8 @@
               track location.internal?.id || location.lonLat || location.label
             ) {
               <ng-container
-                [ngTemplateOutlet]="option"
                 [ngTemplateOutletContext]="{ location: location }"
+                [ngTemplateOutlet]="option"
               ></ng-container>
             }
             @if (group.results.length > 3) {
@@ -35,8 +35,8 @@
           } @else if (!group.collapsed) {
             @for (location of group.results; track location.internal?.id || location.lonLat || location.label) {
               <ng-container
-                [ngTemplateOutlet]="option"
                 [ngTemplateOutletContext]="{ location: location }"
+                [ngTemplateOutlet]="option"
               ></ng-container>
             }
           } @else {

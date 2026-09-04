@@ -1,25 +1,25 @@
 @if (changesetService.overlayVisible()) {
-  <div class="changeset-main mat-elevation-z3" [class.inconsistent]="changesetService.inconsistent()">
+  <div [class.inconsistent]="changesetService.inconsistent()" class="changeset-main mat-elevation-z3">
     <div class="changeset-state">
       <mat-icon
-        title="incomming"
-        [matBadge]="changesetService.incommingCount()"
         [matBadgeColor]="changesetService.incommingCount() > 2 ? 'warn' : undefined"
+        [matBadge]="changesetService.incommingCount()"
         matBadgeSize="small"
-        >arrow_downward</mat-icon
-      >
+        title="incomming"
+        >arrow_downward
+      </mat-icon>
       <mat-icon
-        title="outgoing"
+        [matBadgeColor]="changesetService.saveError() ? 'warn' : undefined"
         [matBadge]="
           changesetService.saving() ? '...' : (
             changesetService.outgoingCount() +
             (changesetService.unhandledPatchesCount() > 0 ? '+' + changesetService.unhandledPatchesCount() : '')
           )
         "
-        [matBadgeColor]="changesetService.saveError() ? 'warn' : undefined"
         matBadgeSize="small"
-        >arrow_upward</mat-icon
-      >
+        title="outgoing"
+        >arrow_upward
+      </mat-icon>
     </div>
     <div class="changeset-description">
       @for (desc of changesetService.changeDescription(); track $index) {
@@ -29,12 +29,12 @@
     <div class="changeset-buttons">
       @if (changesetService.inconsistent()) {
         <button
+          (click)="resolveConflicts()"
+          [color]="changesetService.saveError() ? 'warn' : 'basic'"
+          [disabled]="changesetService.saving()"
           class="button"
           mat-icon-button
-          [color]="changesetService.saveError() ? 'warn' : 'basic'"
           title="fix inconsistency"
-          (click)="resolveConflicts()"
-          [disabled]="changesetService.saving()"
         >
           <mat-icon>bolt</mat-icon>
         </button>
@@ -42,61 +42,61 @@
         @if (changesetService.changesStashed()) {}
         @if (!changesetService.isManual()) {
           <button
+            (click)="makeManual()"
+            [disabled]="changesetService.saving()"
             class="button manual-button"
             mat-icon-button
             title="convert to manual changeset"
-            (click)="makeManual()"
-            [disabled]="changesetService.saving()"
           >
             <mat-icon>more_time</mat-icon>
           </button>
         }
       } @else {
         <button
+          (click)="newChangeset()"
+          [disabled]="changesetService.saving()"
           class="button"
           mat-icon-button
           title="create manual changeset"
-          (click)="newChangeset()"
-          [disabled]="changesetService.saving()"
         >
           <mat-icon>add_circle</mat-icon>
         </button>
         @if (changesetService.outgoingCount() > 0) {
           <button
+            (click)="retrySubmit()"
+            [color]="changesetService.saveError() ? 'warn' : 'basic'"
+            [disabled]="changesetService.saving() || changesetService.inconsistent() || changesetService.hasChanges()"
             class="button"
             mat-icon-button
-            [color]="changesetService.saveError() ? 'warn' : 'basic'"
             title="upload changes"
-            (click)="retrySubmit()"
-            [disabled]="changesetService.saving() || changesetService.inconsistent() || changesetService.hasChanges()"
           >
             <mat-icon>upload</mat-icon>
           </button>
         }
       }
       <button
+        (click)="finishChangeset()"
+        [class.d-none]="!changesetService.hasChanges()"
+        [color]="changesetService.inconsistent() ? 'warn' : 'basic'"
+        [disabled]="changesetService.saving() || changesetService.inconsistent()"
         class="button progress-button"
         mat-icon-button
-        [color]="changesetService.inconsistent() ? 'warn' : 'basic'"
         title="finish and sent changes"
-        (click)="finishChangeset()"
-        [disabled]="changesetService.saving() || changesetService.inconsistent()"
-        [class.d-none]="!changesetService.hasChanges()"
       >
-        <svg class="progress-bg" width="48" height="48" viewBox="0 0 48 48">
-          <circle cx="24" cy="24" r="20" fill="none" stroke-width="4" stroke="#e0e0e0" stroke-linecap="round" />
+        <svg class="progress-bg" height="48" viewBox="0 0 48 48" width="48">
+          <circle cx="24" cy="24" fill="none" r="20" stroke="#e0e0e0" stroke-linecap="round" stroke-width="4" />
           <circle
             #progressRing
+            [attr.stroke-dasharray]="circumference"
+            [attr.stroke-dashoffset]="dashOffset"
             class="progress-ring"
             cx="24"
             cy="24"
-            r="20"
             fill="none"
-            [attr.stroke-dasharray]="circumference"
-            [attr.stroke-dashoffset]="dashOffset"
-            stroke-width="4"
-            stroke-linecap="round"
+            r="20"
             stroke="#3f51b5"
+            stroke-linecap="round"
+            stroke-width="4"
           />
         </svg>
         <mat-icon>send</mat-icon>

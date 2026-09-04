@@ -3,7 +3,7 @@
     <h4 aria-level="2">{{ i18n.get('recentlyUsedSigns') }}</h4>
     <div class="wrapper">
       @for (sign of signs; track sign) {
-        <button mat-button color="primary" [title]="i18n.getLabelForSign(sign)" (click)="doSelectSign(sign)">
+        <button (click)="doSelectSign(sign)" [title]="i18n.getLabelForSign(sign)" color="primary" mat-button>
           <img [src]="getImageUrl(sign.src)" />
         </button>
       }

@@ -13,12 +13,14 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "author": "",
   "license": "MIT",
   "description": "",
   "dependencies": {
     "ol": "^10.7.0",
-    "typescript": "^5.9.3"
+    "typescript": "~6.0.3"
   }
 }

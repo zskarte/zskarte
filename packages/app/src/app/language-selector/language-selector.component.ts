@@ -13,19 +13,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './language-selector.component.html',
   styleUrls: ['./language-selector.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-  ],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule],
 })
 export class LanguageSelectorComponent {
   i18n = inject(I18NService);
   session = inject(SessionService);
 
   locales: Locale[] = LOCALES;
-  currentLocale = toSignal(this.session.observeLocale(), {initialValue: DEFAULT_LOCALE});
+  currentLocale = toSignal(this.session.observeLocale(), { initialValue: DEFAULT_LOCALE });
 
   setLocale(locale: Locale): void {
     this.session.setLocale(locale);

@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
-import { Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { GuestLimitDialogComponent } from '../guest-limit-dialog/guest-limit-dialog.component';
 import { ZsMapBaseDrawElement } from '../map-renderer/elements/base/base-draw-element';
@@ -18,13 +18,12 @@ import { MapRendererService } from '../map-renderer/map-renderer.service';
   providedIn: 'root',
 })
 export class ShortcutService {
+  public i18n = inject(I18NService);
   private _session = inject(SessionService);
   private _state = inject(ZsMapStateService);
   private _search = inject(SearchService);
   private _dialog = inject(MatDialog);
   private _renderer = inject(MapRendererService);
-  public i18n = inject(I18NService);
-
   private _selectedElement: ZsMapBaseDrawElement | undefined = undefined;
   private _selectedFeatureId: string | undefined = undefined;
   private _copyElement: ZsMapBaseDrawElement | undefined = undefined;

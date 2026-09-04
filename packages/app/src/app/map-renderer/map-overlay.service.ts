@@ -1,4 +1,4 @@
-import { Injectable, Signal, inject } from '@angular/core';
+import { inject, Injectable, Signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { Overlay } from 'ol';
 import { combineLatest, filter, map as rxjsMap, switchMap } from 'rxjs';

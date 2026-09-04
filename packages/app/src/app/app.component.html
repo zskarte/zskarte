@@ -2,14 +2,14 @@
   <app-language-selector [class.onHelpPage]="navigation.isHelpPage()"></app-language-selector>
 }
 <main
-  [style.height.px]="height"
-  [class.journal-address-preview]="journalAddressPreview()"
   [class.help-page]="navigation.isHelpPage()"
+  [class.journal-address-preview]="journalAddressPreview()"
+  [style.height.px]="height"
 >
   @if (operationId() && !navigation.isHelpPage()) {
-    <nav class="main-tabs mat-elevation-z3" mat-tab-nav-bar [tabPanel]="tabPanel">
+    <nav [tabPanel]="tabPanel" class="main-tabs mat-elevation-z3" mat-tab-nav-bar>
       @for (link of navLinks; track link.link) {
-        <a mat-tab-link [routerLink]="link.link" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+        <a #rla="routerLinkActive" [active]="rla.isActive" [routerLink]="link.link" mat-tab-link routerLinkActive>
           {{ i18n.get(link.label) }}
         </a>
       }

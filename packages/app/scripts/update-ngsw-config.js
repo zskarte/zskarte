@@ -29,7 +29,7 @@ function extractChangelogForVersion(changelogPath, version) {
   const lines = content.split('\n');
   let found = false;
   const changelog = [];
-  
+
   for (const line of lines) {
     if (/^## /.test(line)) {
       if (found) break;
@@ -38,21 +38,25 @@ function extractChangelogForVersion(changelogPath, version) {
         continue;
       }
     }
-    
+
     if (found && line.trim()) {
       changelog.push(line);
     }
   }
-  
+
   return changelog.join('\n').trim();
 }
 
 const changelogContent = extractChangelogForVersion('../../CHANGELOG.md', plainVersion);
 
+if (fs.existsSync('../../CHANGELOG.md')) {
+  fs.copyFileSync('../../CHANGELOG.md', 'src/assets/CHANGELOG.md');
+}
+
 ngswConfig.appData = {
   version,
   buildDate: date,
-  changelog: changelogContent || 'Minor update'
+  changelog: changelogContent || 'Minor update',
 };
 
 fs.writeFileSync(ngswConfigPath, JSON.stringify(ngswConfig, null, 2));

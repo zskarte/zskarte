@@ -13,15 +13,13 @@ import { ZsMapStateService } from '../../state/state.service';
 })
 export class ChangesetOverlayComponent {
   @ViewChild('progressRing', { static: false }) progressRing!: ElementRef<SVGCircleElement>;
-  private _state = inject(ZsMapStateService);
   changesetService = inject(ChangesetService);
-
-  private timeoutId: any;
-  private progressElement: SVGCircleElement | null = null;
-
   progress = 0; // 0 = full, 100 = empty
   circumference = 2 * Math.PI * 20;
   dashOffset = 0;
+  private _state = inject(ZsMapStateService);
+  private timeoutId: any;
+  private progressElement: SVGCircleElement | null = null;
 
   constructor() {
     effect(() => {
@@ -56,6 +54,10 @@ export class ChangesetOverlayComponent {
 
   retrySubmit() {
     this.changesetService.submitOutgoing();
+  }
+
+  ngOnDestroy(): void {
+    this.stopProgressTimer();
   }
 
   private startProgressTimer(totalTime: number): void {
@@ -103,9 +105,5 @@ export class ChangesetOverlayComponent {
       this.progress = 0;
       this.updateRing();
     }
-  }
-
-  ngOnDestroy(): void {
-    this.stopProgressTimer();
   }
 }

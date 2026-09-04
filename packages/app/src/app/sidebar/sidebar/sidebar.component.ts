@@ -80,19 +80,12 @@ import { GeodiensteService } from '../../map-layer/geodienste/geodienste.service
 export class SidebarComponent implements OnDestroy {
   mapState = inject(ZsMapStateService);
   wmsService = inject(WmsService);
-  private operationService = inject(OperationService);
-  private _session = inject(SessionService);
   i18n = inject(I18NService);
   dialog = inject(MatDialog);
   offlineService = inject(OfflineService);
-  private cdRef = inject(ChangeDetectorRef);
-  private _mapLayerService = inject(MapLayerService);
-  private _snackBar = inject(MatSnackBar);
-
   readonly newLayerTypeTemplate = viewChild.required<TemplateRef<HTMLElement>>('newLayerTypeTemplate');
   newLayerType?: string;
   mapProgress = 0;
-
   mapSources = Object.values(ZsMapStateSource)
     .map((key) => ({
       key,
@@ -119,15 +112,18 @@ export class SidebarComponent implements OnDestroy {
     'geodienste|waldreservate_v2_0_0',
     'geodienste|wildruhezonen_v2_1_1',
   ];
-
   layerFilter = new FormControl('');
   sourceFilter = new FormControl('ALL');
-
   mapDownloadStates: { [key: string]: LocalBlobState } = {};
   wmsSourceLoadErrors: { [key: string]: string } = {};
   availableWmsService: WmsSource[] = [];
   geoAdminLayerError: string | undefined;
   workLocal: boolean;
+  private operationService = inject(OperationService);
+  private _session = inject(SessionService);
+  private cdRef = inject(ChangeDetectorRef);
+  private _mapLayerService = inject(MapLayerService);
+  private _snackBar = inject(MatSnackBar);
 
   constructor() {
     const mapState = this.mapState;
@@ -211,9 +207,9 @@ export class SidebarComponent implements OnDestroy {
             layers = layers.filter((f) => f.source?.url === sourceFilter);
           }
         }
-        return filter === ''
-          ? layers
-          : layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''));
+        return filter === '' ? layers : (
+            layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''))
+          );
       }),
     );
 
@@ -224,11 +220,11 @@ export class SidebarComponent implements OnDestroy {
     ]).pipe(
       map(([favoriteLayers, selectedLayers, availableLayers]) => {
         if (favoriteLayers?.length) {
-          const selectedIds = selectedLayers.map((l: MapLayer) => l.id);
+          const selectedIds = selectedLayers.map((l: MapLayer) => l.documentId);
           return mapState
             .getGlobalMapLayers()
-            .filter((l) => l.id && favoriteLayers.includes(l.id))
-            .filter((l) => !l.id || !selectedIds.includes(l.id))
+            .filter((l) => l.documentId && favoriteLayers.includes(l.documentId))
+            .filter((l) => !l.documentId || !selectedIds.includes(l.documentId))
             .sort((a: MapLayer, b: MapLayer) => a.label.localeCompare(b.label));
         } else {
           return availableLayers

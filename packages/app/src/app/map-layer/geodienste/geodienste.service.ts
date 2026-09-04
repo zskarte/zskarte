@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { WMSMapLayer, WmsSource } from '@zskarte/types';
 import { WmsService } from '../wms/wms.service';
 import { SessionService } from '../../session/session.service';
@@ -70,7 +70,11 @@ export class GeodiensteService {
   }
 
   public getServerLayerName(language = this.getLanguageSuffix()) {
-    return language === '/fra' ? 'donnees' : language === '/ita' ? 'dati' : 'daten';
+    return (
+      language === '/fra' ? 'donnees'
+      : language === '/ita' ? 'dati'
+      : 'daten'
+    );
   }
 
   public async getLayer(

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, effect, inject, input, signal, viewChild } from '@angular/core';
+import { Component, effect, ElementRef, HostListener, inject, input, signal, viewChild } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,15 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SearchAutocompleteComponent } from '../../search/search-autocomplete/search-autocomplete.component';
 import { isAddressTriggerAt } from '../../search/address-trigger';
-import { ADDRESS_TOKEN_REGEX, SearchService, getGlobalAddressTokenRegex } from '../../search/search.service';
+import { ADDRESS_TOKEN_REGEX, getGlobalAddressTokenRegex, SearchService } from '../../search/search.service';
 import { I18NService } from '../../state/i18n.service';
 import { ZsMapStateService } from '../../state/state.service';
-import {
-  IResultSet,
-  IZsGlobalSearchConfig,
-  IZsJournalMessageEditConfig,
-  IZsMapSearchResult,
-} from '../../../../../types/state/interfaces';
+import { IResultSet, IZsGlobalSearchConfig, IZsJournalMessageEditConfig, IZsMapSearchResult } from '@zskarte/types';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { ContenteditableComponent } from '../../contenteditable/contenteditable.component';
@@ -44,20 +39,15 @@ import { QuillBlotService } from '../../contenteditable/quill-blot.service';
   styleUrl: './text-area-with-address-search.component.scss',
 })
 export class TextAreaWithAddressSearchComponent {
-  private _state = inject(ZsMapStateService);
-  private _search = inject(SearchService);
-  private quillBlotService = inject(QuillBlotService);
   readonly i18n = inject(I18NService);
   readonly label = input<string>('');
   readonly formVisible = input(false);
   messageContentControl = input<FormControl>(new FormControl());
-
   readonly addressSearchTerm = signal('');
   readonly addressSelection = signal(false);
   readonly foundLocations = signal<IResultSet[]>([]);
   readonly autocompleteTrigger = viewChild.required(MatAutocompleteTrigger);
   readonly addresSearchField = viewChild.required<ElementRef<HTMLInputElement>>('addresSearchField');
-
   readonly showMap = signal(false);
   readonly showAllAddresses = signal(false);
   readonly showLinkedText = signal(true);
@@ -65,9 +55,26 @@ export class TextAreaWithAddressSearchComponent {
   readonly textContentInput = viewChild.required<ElementRef<HTMLTextAreaElement>>('textContent');
   readonly linkedTextContent = viewChild.required<ContenteditableComponent>('linkedTextContent');
   textContentSelectedArea: [number, number] = [0, 0];
-
-  private addrEditElem: HTMLElement | null = null;
   addressSelectionPosition = { x: 0, y: 0 };
+  private _state = inject(ZsMapStateService);
+  private _search = inject(SearchService);
+  updateShownFeature = debounceLeading(
+    async () => {
+      if (!this.addressSelection()) {
+        if (this.formVisible() && this.showAllAddresses()) {
+          this._search.showAllFeature(this.messageContentControl().value, true);
+        } else {
+          this._state.updateSearchResultFeatures([]);
+        }
+        return true;
+      }
+      return false;
+    },
+    2000,
+    this,
+  );
+  private quillBlotService = inject(QuillBlotService);
+  private addrEditElem: HTMLElement | null = null;
 
   constructor(private elementRef: ElementRef) {
     const config = this._state.getJournalMessageEditConfig();
@@ -200,22 +207,6 @@ export class TextAreaWithAddressSearchComponent {
     return undefined;
   }
 
-  updateShownFeature = debounceLeading(
-    async () => {
-      if (!this.addressSelection()) {
-        if (this.formVisible() && this.showAllAddresses()) {
-          this._search.showAllFeature(this.messageContentControl().value, true);
-        } else {
-          this._state.updateSearchResultFeatures([]);
-        }
-        return true;
-      }
-      return false;
-    },
-    2000,
-    this,
-  );
-
   async onKeyDownText(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       //abort address search, not close form
@@ -230,55 +221,6 @@ export class TextAreaWithAddressSearchComponent {
 
   onDoubleClickText(event: MouseEvent) {
     this.handleTextSelection(event, true);
-  }
-
-  private handleTextSelection(event: Event, onlyAddressBlock: boolean) {
-    const textarea = this.textContentInput().nativeElement;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    let selectedText = text.substring(start, end);
-
-    //check if text cursor is on/inside textToken
-    let foundTextToken = false;
-    if (!ADDRESS_TOKEN_REGEX.test(selectedText)) {
-      let match: RegExpExecArray | null;
-      const regex = getGlobalAddressTokenRegex();
-      while ((match = regex.exec(text)) !== null) {
-        if (match.index <= start && match.index + match[0].length >= start) {
-          foundTextToken = true;
-          selectedText = match[0];
-          textarea.selectionStart = match.index;
-          textarea.selectionEnd = match.index + match[0].length;
-          break;
-        }
-      }
-    }
-
-    if (!foundTextToken && onlyAddressBlock) {
-      return;
-    }
-
-    //if not, select current word
-    if (!foundTextToken && start === end) {
-      const beforeCursor = text.substring(0, start);
-      const afterCursor = text.substring(end);
-
-      const startOfWord = Math.max(beforeCursor.lastIndexOf(' ') + 1, beforeCursor.lastIndexOf('\n') + 1);
-      const afterPos = Math.min(afterCursor.indexOf(' '), afterCursor.indexOf('\n'));
-      const endOfWord = afterPos === -1 ? text.length : end + afterPos;
-
-      selectedText = text.substring(startOfWord, endOfWord);
-      textarea.selectionStart = startOfWord;
-      textarea.selectionEnd = endOfWord;
-    }
-
-    this.textContentSelectedArea = [textarea.selectionStart, textarea.selectionEnd];
-    const { address, locationInfo } = this._search.parseAddressToken(selectedText);
-    this._search.showFeature(locationInfo);
-    this.startEdit(address);
-    event.preventDefault();
-    event.stopPropagation();
   }
 
   onInputText() {
@@ -380,19 +322,6 @@ export class TextAreaWithAddressSearchComponent {
     }
   }
 
-  private startEdit(address: string) {
-    if (this.showLinkedText()) {
-      this.setInputFieldPositionEditElem();
-    }
-    this.addressSelection.set(true);
-    this._search.addressPreview.set(false);
-    this.addressSearchTerm.set(address);
-    this.autocompleteTrigger().openPanel();
-    setTimeout(() => {
-      this.addresSearchField().nativeElement.focus();
-    });
-  }
-
   // Quill integration over Service
   onInputFormatedText(onlyAddrKeyword = true) {
     const result = this.quillBlotService.getAddressEdit(onlyAddrKeyword);
@@ -484,6 +413,68 @@ export class TextAreaWithAddressSearchComponent {
     this._search.addressPreview.set(false);
     this.addressSelection.set(false);
     this.updateShownFeature();
+  }
+
+  private handleTextSelection(event: Event, onlyAddressBlock: boolean) {
+    const textarea = this.textContentInput().nativeElement;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    let selectedText = text.substring(start, end);
+
+    //check if text cursor is on/inside textToken
+    let foundTextToken = false;
+    if (!ADDRESS_TOKEN_REGEX.test(selectedText)) {
+      let match: RegExpExecArray | null;
+      const regex = getGlobalAddressTokenRegex();
+      while ((match = regex.exec(text)) !== null) {
+        if (match.index <= start && match.index + match[0].length >= start) {
+          foundTextToken = true;
+          selectedText = match[0];
+          textarea.selectionStart = match.index;
+          textarea.selectionEnd = match.index + match[0].length;
+          break;
+        }
+      }
+    }
+
+    if (!foundTextToken && onlyAddressBlock) {
+      return;
+    }
+
+    //if not, select current word
+    if (!foundTextToken && start === end) {
+      const beforeCursor = text.substring(0, start);
+      const afterCursor = text.substring(end);
+
+      const startOfWord = Math.max(beforeCursor.lastIndexOf(' ') + 1, beforeCursor.lastIndexOf('\n') + 1);
+      const afterPos = Math.min(afterCursor.indexOf(' '), afterCursor.indexOf('\n'));
+      const endOfWord = afterPos === -1 ? text.length : end + afterPos;
+
+      selectedText = text.substring(startOfWord, endOfWord);
+      textarea.selectionStart = startOfWord;
+      textarea.selectionEnd = endOfWord;
+    }
+
+    this.textContentSelectedArea = [textarea.selectionStart, textarea.selectionEnd];
+    const { address, locationInfo } = this._search.parseAddressToken(selectedText);
+    this._search.showFeature(locationInfo);
+    this.startEdit(address);
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  private startEdit(address: string) {
+    if (this.showLinkedText()) {
+      this.setInputFieldPositionEditElem();
+    }
+    this.addressSelection.set(true);
+    this._search.addressPreview.set(false);
+    this.addressSearchTerm.set(address);
+    this.autocompleteTrigger().openPanel();
+    setTimeout(() => {
+      this.addresSearchField().nativeElement.focus();
+    });
   }
 
   private async editAddr(addrElem: HTMLElement) {

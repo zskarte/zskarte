@@ -1,0 +1,90 @@
+<div class="permissions-container">
+  <div class="toolbar">
+    <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input [(ngModel)]="searchQuery" data-testid="perm-search-input" matInput placeholder="Filter permissions..." />
+      @if (searchQuery()) {
+        <button (click)="searchQuery.set('')" mat-icon-button matSuffix>
+          <mat-icon>clear</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <div class="actions">
+      <button
+        (click)="loadMatrix()"
+        [disabled]="isLoading() || isResetting()"
+        [title]="i18n.get('refresh')"
+        mat-icon-button
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button
+        (click)="resetToDefaults()"
+        [disabled]="isLoading() || isResetting()"
+        color="warn"
+        data-testid="reset-perms-btn"
+        mat-stroked-button
+      >
+        @if (isResetting()) {
+          <mat-spinner class="btn-spinner" diameter="18"></mat-spinner>
+        } @else {
+          <mat-icon>restart_alt</mat-icon>
+        }
+        {{ i18n.get('resetPermissions') }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else {
+    <div class="matrix-wrapper mat-elevation-z1">
+      <table class="matrix-table" data-testid="permissions-matrix-table">
+        <thead>
+          <tr class="header-row">
+            <th class="perm-header">{{ i18n.get('permission') }}</th>
+            @for (role of roles(); track role) {
+              <th class="role-header">
+                <span class="role-name">{{ role }}</span>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (group of permissionGroups(); track group.namespace) {
+            <tr class="group-header-row">
+              <td [attr.colspan]="roles().length + 1" class="group-header-cell">
+                <mat-icon class="group-icon">folder_open</mat-icon>
+                <span>{{ group.namespace }}</span>
+              </td>
+            </tr>
+
+            @for (perm of group.permissions; track perm) {
+              <tr class="perm-row">
+                <td class="perm-name-cell">
+                  <span class="perm-full-name">{{ perm }}</span>
+                </td>
+                @for (role of roles(); track role) {
+                  <td class="checkbox-cell">
+                    <mat-checkbox
+                      (change)="onTogglePermission(role, perm, $event.checked)"
+                      [attr.data-testid]="'perm-toggle-' + role + '-' + perm"
+                      [checked]="isPermissionEnabled(role, perm)"
+                      [disabled]="role === 'admin' || isToggling(role, perm)"
+                      [matTooltip]="role === 'admin' ? i18n.get('adminPermissionsFixed') : ''"
+                      color="primary"
+                    >
+                    </mat-checkbox>
+                  </td>
+                }
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

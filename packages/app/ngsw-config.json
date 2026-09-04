@@ -21,11 +21,7 @@
       "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
-        "files": [
-          "/assets/**",
-          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif)",
-          "/*.js"
-        ]
+        "files": ["/assets/**", "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif)", "/*.js"]
       }
     },
     {
@@ -33,14 +29,14 @@
       "installMode": "lazy",
       "updateMode": "prefetch",
       "resources": {
-        "files": [
-          "/*.(otf|ttf|woff|woff2)"
-        ],
-        "urls": [
-          "https://fonts.googleapis.com/**",
-          "https://fonts.gstatic.com/**"
-        ]
+        "files": ["/*.(otf|ttf|woff|woff2)"],
+        "urls": ["https://fonts.googleapis.com/**", "https://fonts.gstatic.com/**"]
       }
     }
-  ]
+  ],
+  "appData": {
+    "version": "7.0.0-553d5261",
+    "buildDate": "2026-09-04",
+    "changelog": "- **Backend Modernization**: Fully replaced Strapi backend with high-performance Fastify 5 server\n- **End-to-End Type Safety**: Integrated tRPC 11 for fully typed API procedures and real-time WebSocket subscriptions\n- **Database Architecture**: Switched to Drizzle ORM with TypeScript schemas and automated SQL migration pipelines (`drizzle-kit`)\n- **Authentication & Security**: Migrated to Better Auth with custom session enrichment, dynamic role permissions matrix, and secure share-link tokens"
+  }
 }

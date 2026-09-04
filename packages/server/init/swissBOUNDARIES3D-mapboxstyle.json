@@ -20,22 +20,11 @@
       "type": "line",
       "source": "swissBOUNDARIES3D",
       "minzoom": 8,
-      "filter": ["all",
-        ["==", "Bezirk", ["get", "OBJEKTART"]],
-        ["==", null, ["get", "ZsMapSearchResult"]]
-      ],
+      "filter": ["all", ["==", "Bezirk", ["get", "OBJEKTART"]], ["==", null, ["get", "ZsMapSearchResult"]]],
       "layout": {},
       "paint": {
         "line-color": "#000000",
-        "line-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          8, 0.25,
-          12, 1,
-          16, 3,
-          22, 6
-        ],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.25, 12, 1, 16, 3, 22, 6],
         "line-gap-width": 0,
         "line-opacity": 1
       }
@@ -45,23 +34,11 @@
       "type": "line",
       "source": "swissBOUNDARIES3D",
       "minzoom": 5,
-      "filter": ["all",
-        ["==", "Kanton", ["get", "OBJEKTART"]],
-        ["==", null, ["get", "ZsMapSearchResult"]]
-      ],
+      "filter": ["all", ["==", "Kanton", ["get", "OBJEKTART"]], ["==", null, ["get", "ZsMapSearchResult"]]],
       "layout": {},
       "paint": {
         "line-color": "#888888",
-        "line-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0, 0.5, 
-          8, 2,
-          12, 4,
-          16, 7,
-          22, 10
-        ],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.5, 8, 2, 12, 4, 16, 7, 22, 10],
         "line-gap-width": 0,
         "line-opacity": 1
       }
@@ -75,16 +52,7 @@
       "layout": {},
       "paint": {
         "line-color": "#ff0000",
-        "line-width": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0, 0.5, 
-          8, 2,
-          12, 4,
-          16, 7,
-          22, 10
-        ],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.5, 8, 2, 12, 4, 16, 7, 22, 10],
         "line-gap-width": 0,
         "line-opacity": 1
       }

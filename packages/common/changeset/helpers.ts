@@ -1,12 +1,12 @@
-import { produce, type Patch } from 'immer';
+import { type Patch, produce } from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import {
   ChangesetInconsistentError,
   DRAW_ELEMENTS,
   INITIAL_CHANGESET_ID,
-  ZsMapDrawElementState,
   type IZsChangeset,
+  ZsMapDrawElementState,
   type ZsMapState,
 } from '@zskarte/types';
 

@@ -4,7 +4,8 @@ import { promises as fs, existsSync } from 'fs';
 import { promisify } from 'util';
 import { glob } from 'glob';
 import inquirer from 'inquirer';
-import os from 'os';
+// @ts-ignore
+import os from 'node:os';
 const exec = promisify(cbExec);
 
 (async () => {
@@ -12,7 +13,7 @@ const exec = promisify(cbExec);
     { type: 'confirm', name: 'resetDb', message: 'Do you want to reset your database?', default: false },
   ]);
 
-  const tempFolders = ['node_modules', 'dist', '.angular', '.strapi'];
+  const tempFolders = ['node_modules', 'dist', '.angular'];
 
   if (response.resetDb) {
     try {
@@ -78,11 +79,9 @@ const exec = promisify(cbExec);
     if (response.resetDb) {
       console.log('start docker...');
       await exec('npm run docker-run');
-      console.log('import right configs');
-      spawn('npm', ['run', 'server:import'], {
-        stdio: 'inherit',
-        shell: true,
-      });
+      console.log('running migrations and seeding database...');
+      await exec('npm run db:migrate');
+      await exec('npm run db:seed');
     }
   });
 })();

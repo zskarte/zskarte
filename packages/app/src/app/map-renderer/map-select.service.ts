@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Feature, { FeatureLike } from 'ol/Feature';
-import { Geometry, SimpleGeometry } from 'ol/geom';
+import { SimpleGeometry } from 'ol/geom';
 import { Select } from 'ol/interaction';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ZsMapDrawElementStateType } from '@zskarte/types';
@@ -15,13 +15,13 @@ import { MapRendererService } from './map-renderer.service';
   providedIn: 'root',
 })
 export class MapSelectService {
+  public selectedFeature = new BehaviorSubject<Feature<SimpleGeometry> | undefined>(undefined);
   private _vertexPoint = new BehaviorSubject<number[] | null>(null);
   private _select!: Select;
   private _state!: ZsMapStateService;
   private _modify!: MapModifyService;
   private _overlay!: MapOverlayService;
   private _renderer!: MapRendererService;
-  public selectedFeature = new BehaviorSubject<Feature<SimpleGeometry> | undefined>(undefined);
 
   initialize({
     _state,

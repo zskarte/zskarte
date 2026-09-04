@@ -35,13 +35,7 @@ export class MapSearchAreaService {
   private _draw!: Draw;
   private _modify!: ModifyRectangle;
 
-  initialize({
-    renderer,
-    state,
-  }: {
-    renderer: MapRendererService;
-    state: ZsMapStateService;
-  }) {
+  initialize({ renderer, state }: { renderer: MapRendererService; state: ZsMapStateService }) {
     this._renderer = renderer;
     this._state = state;
 

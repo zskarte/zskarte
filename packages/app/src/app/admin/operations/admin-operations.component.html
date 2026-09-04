@@ -1,0 +1,165 @@
+<div class="operations-container">
+  <div class="filters-toolbar">
+    <div class="filters-group">
+      <!-- Search Filter -->
+      <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          [(ngModel)]="searchQuery"
+          [placeholder]="i18n.get('searchOperations')"
+          data-testid="op-search-input"
+          matInput
+        />
+        @if (searchQuery()) {
+          <button (click)="searchQuery.set('')" mat-icon-button matSuffix>
+            <mat-icon>clear</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <!-- Organization Filter -->
+      <mat-form-field appearance="outline" class="select-field" subscriptSizing="dynamic">
+        <mat-label>{{ i18n.get('filterByOrganization') }}</mat-label>
+        <mat-select [(ngModel)]="selectedOrgFilter" data-testid="op-filter-org">
+          <mat-option value="all">{{ i18n.get('allOrganizations') }}</mat-option>
+          @for (org of organizations(); track org.documentId) {
+            <mat-option [value]="org.documentId">{{ org.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Phase Filter -->
+      <mat-form-field appearance="outline" class="select-field select-phase" subscriptSizing="dynamic">
+        <mat-label>{{ i18n.get('filterByPhase') }}</mat-label>
+        <mat-select [(ngModel)]="selectedPhaseFilter" data-testid="op-filter-phase">
+          <mat-option value="all">{{ i18n.get('allPhases') }}</mat-option>
+          <mat-option value="active">{{ i18n.get('active') }}</mat-option>
+          <mat-option value="archived">{{ i18n.get('archived') }}</mat-option>
+          <mat-option value="deleted">{{ i18n.get('deleted') }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="header-actions">
+      <button (click)="loadData()" [disabled]="isLoading()" [title]="i18n.get('refresh')" mat-icon-button>
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button (click)="openCreateDialog()" color="primary" data-testid="add-op-btn" mat-flat-button>
+        <mat-icon>add</mat-icon>
+        {{ i18n.get('createOperation') }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (filteredOperations().length === 0) {
+    <div class="empty-state">
+      <mat-icon>emergency</mat-icon>
+      <p>{{ i18n.get('noOperationsFound') }}</p>
+    </div>
+  } @else {
+    <div class="table-responsive mat-elevation-z1">
+      <table [dataSource]="filteredOperations()" class="operations-table" data-testid="ops-table" mat-table>
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('operationName') }}</th>
+          <td *matCellDef="let op" class="font-medium" mat-cell>
+            {{ op.name }}
+          </td>
+        </ng-container>
+
+        <!-- Organization Column -->
+        <ng-container matColumnDef="organization">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('organization') }}</th>
+          <td *matCellDef="let op" mat-cell>
+            {{ op.organizationName || '-' }}
+          </td>
+        </ng-container>
+
+        <!-- Phase Column -->
+        <ng-container matColumnDef="phase">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('phase') }}</th>
+          <td *matCellDef="let op" mat-cell>
+            <span [ngClass]="'phase-' + op.phase" class="phase-chip">
+              {{ i18n.get(op.phase) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('description') }}</th>
+          <td *matCellDef="let op" class="desc-cell" mat-cell>
+            {{ op.description || '-' }}
+          </td>
+        </ng-container>
+
+        <!-- Updated At Column -->
+        <ng-container matColumnDef="updatedAt">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('createdAt') }}</th>
+          <td *matCellDef="let op" class="date-cell" mat-cell>
+            {{ op.updatedAt | date: 'dd.MM.yyyy HH:mm' }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th *matHeaderCellDef class="actions-header" mat-header-cell>{{ i18n.get('actions') }}</th>
+          <td *matCellDef="let op" class="actions-cell" mat-cell>
+            <button
+              (click)="openEditDialog(op)"
+              [title]="i18n.get('editOperation')"
+              data-testid="edit-op-btn"
+              mat-icon-button
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            @if (op.phase === 'active') {
+              <button
+                (click)="archiveOperation(op)"
+                [title]="i18n.get('archiveOperation')"
+                data-testid="archive-op-btn"
+                mat-icon-button
+              >
+                <mat-icon>archive</mat-icon>
+              </button>
+            } @else if (op.phase === 'archived') {
+              <button
+                (click)="unarchiveOperation(op)"
+                [title]="i18n.get('unarchiveOperation')"
+                data-testid="unarchive-op-btn"
+                mat-icon-button
+              >
+                <mat-icon>unarchive</mat-icon>
+              </button>
+            } @else if (op.phase === 'deleted') {
+              <button
+                (click)="unarchiveOperation(op)"
+                [title]="i18n.get('restoreOperation')"
+                data-testid="restore-op-btn"
+                mat-icon-button
+              >
+                <mat-icon>restore</mat-icon>
+              </button>
+            }
+            <button
+              (click)="deleteOperation(op)"
+              [title]="i18n.get('deleteOperation')"
+              color="warn"
+              data-testid="delete-op-btn"
+              mat-icon-button
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+        <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+      </table>
+    </div>
+  }
+</div>

@@ -1,43 +1,84 @@
 {
   "name": "@zskarte/server",
-  "version": "6.0.2",
+  "version": "7.0.0",
   "private": true,
-  "description": "Backend for zskarte",
+  "description": "Backend for zskarte (Fastify + tRPC + Drizzle)",
   "license": "MIT",
   "author": {
     "name": "ZSKarte Team"
   },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./router": {
+      "types": "./dist/trpc/router.d.ts",
+      "default": "./dist/trpc/router.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/auth.d.ts",
+      "default": "./dist/auth/auth.js"
+    },
+    "./dist/*": "./dist/*"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "scripts": {
-    "dev": "strapi develop",
-    "start": "strapi start",
-    "build": "strapi build",
-    "regenerate": "strapi ts:generate-types",
-    "export": "config-sync export --yes --type user-role",
-    "import": "config-sync import --yes --type user-role",
-    "strapi": "strapi"
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed.ts",
+    "maplayer:generate": "tsx src/modules/map-layer-generation/cli.ts",
+    "test": "vitest run",
+    "test:permissions": "vitest run test/permissions.test.ts test/admin-router.test.ts test/auth-procedures.test.ts"
   },
   "dependencies": {
-    "@zskarte/types": "file:../types",
+    "@azure/storage-blob": "^12.33.0",
+    "@fast-csv/format": "^5.0.7",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/static": "^10.1.3",
+    "@fastify/websocket": "^11.3.0",
+    "@trpc/server": "^11.18.0",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
     "@zskarte/common": "file:../common",
-    "@fast-csv/format": "^5.0.5",
-    "@strapi/plugin-users-permissions": "5.33.3",
-    "@strapi/strapi": "5.33.3",
-    "@turf/boolean-point-in-polygon": "^7.3.1",
-    "file-type": "^21.2.0",
-    "immer": "^10.2.0",
+    "@zskarte/types": "file:../types",
+    "adm-zip": "^0.5.18",
+    "better-auth": "^1.7.2",
+    "croner": "^10.0.1",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.12.1",
+    "file-type": "^22.0.2",
+    "immer": "^11.1.18",
     "lodash": "^4.17.21",
-    "pg": "^8.16.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.2",
+    "lru-cache": "^11.5.2",
+    "pg": "^8.23.0",
+    "pino": "^10.3.1",
+    "proj4": "^2.22.0",
     "shpjs": "^4.0.4",
-    "socket.io": "^4.8.3",
-    "strapi-plugin-config-sync": "^3.1.2",
-    "strapi-provider-upload-azure-storage": "^3.5.0",
-    "styled-components": "^6.1.19",
-    "uuid": "^11.1.0"
+    "superjson": "^2.2.6",
+    "udsv": "^0.6.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.21"
+    "@types/adm-zip": "^0.5.8",
+    "@types/geojson": "^7946.0.16",
+    "@types/lodash": "^4.17.21",
+    "@types/node": "^22.19.0",
+    "@types/pg": "^8.23.1",
+    "@types/proj4": "^2.5.6",
+    "drizzle-kit": "^0.31.10",
+    "pino-pretty": "^13.1.3",
+    "tsx": "^4.21.0",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.0"
   }
 }

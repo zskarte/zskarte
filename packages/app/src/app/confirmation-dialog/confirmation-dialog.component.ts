@@ -2,14 +2,14 @@ import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogClose, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
-import { MatCard } from "@angular/material/card";
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
+import { MatCard } from '@angular/material/card';
 import { SafeHtml } from '@angular/platform-browser';
 
 export interface ConfirmationDialogData {
   title?: string;
   message?: string;
-  html?: string|SafeHtml;
+  html?: string | SafeHtml;
   cancelLabel?: string;
   confirmLabel?: string;
 }
@@ -18,10 +18,18 @@ export interface ConfirmationDialogData {
   selector: 'app-confirmation-dialog',
   templateUrl: './confirmation-dialog.component.html',
   styleUrl: './confirmation-dialog.component.scss',
-  imports: [MatDialogModule, MatDialogClose, MatButtonModule, DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent, MatCard],
+  imports: [
+    MatDialogModule,
+    MatDialogClose,
+    MatButtonModule,
+    DialogHeaderComponent,
+    DialogBodyComponent,
+    DialogFooterComponent,
+    MatCard,
+  ],
 })
 export class ConfirmationDialogComponent {
-  private dialogRef = inject<MatDialogRef<ConfirmationDialogComponent>>(MatDialogRef);
   protected data = inject<ConfirmationDialogData>(MAT_DIALOG_DATA);
   protected i18n = inject(I18NService);
+  private dialogRef = inject<MatDialogRef<ConfirmationDialogComponent>>(MatDialogRef);
 }

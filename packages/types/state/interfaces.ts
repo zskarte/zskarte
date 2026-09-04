@@ -118,7 +118,7 @@ export interface ChangeEntry {
   elemId: string;
   action: string;
   coordChange?: boolean;
-  changedProperties: string,
+  changedProperties: string;
   group: string;
   sign: string;
   location: string;
@@ -432,9 +432,7 @@ export interface ZsMapElementToDraw {
 }
 
 export type ZsMapDrawElementParams =
-  | IZsMapBaseDrawElementParams
-  | IZsMapSymbolDrawElementParams
-  | IZsMapTextDrawElementParams;
+  IZsMapBaseDrawElementParams | IZsMapSymbolDrawElementParams | IZsMapTextDrawElementParams;
 
 interface IZsMapBaseDrawElementParams {
   type: ZsMapDrawElementStateType;

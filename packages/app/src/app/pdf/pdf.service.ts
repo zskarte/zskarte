@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { generate } from '@pdfme/generator';
-import { text, image, dateTime, line, checkbox, barcodes, rectangle } from '@pdfme/schemas';
+import { barcodes, checkbox, dateTime, image, line, rectangle, text } from '@pdfme/schemas';
 import { I18NService } from '../state/i18n.service';
 import { IPdfService } from './pdf-service.factory';
 import saveAs from 'file-saver';
@@ -143,17 +143,6 @@ export class PdfService implements IPdfService {
     return plugins;
   }
 
-  private findFieldInTemplate(template: any, fieldName: string) {
-    for (const schema of template.schemas) {
-      for (const field of schema) {
-        if (field.name === fieldName) {
-          return field;
-        }
-      }
-    }
-    return null;
-  }
-
   public checkTextFitInField(template: any, fieldName: string, text: string) {
     try {
       // Create a temporary canvas element for measuring text dimensions
@@ -225,5 +214,16 @@ export class PdfService implements IPdfService {
     const blob = new Blob([pdf.buffer], { type: 'application/pdf' });
     fileName = fileName.replaceAll(/[^a-zA-Z0-9._-]/g, '_');
     saveAs(blob, fileName);
+  }
+
+  private findFieldInTemplate(template: any, fieldName: string) {
+    for (const schema of template.schemas) {
+      for (const field of schema) {
+        if (field.name === fieldName) {
+          return field;
+        }
+      }
+    }
+    return null;
   }
 }

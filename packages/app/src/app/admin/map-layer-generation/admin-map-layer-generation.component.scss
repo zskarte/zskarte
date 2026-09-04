@@ -1,0 +1,85 @@
+.generation-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+h3 {
+  margin: 0 0 0.35rem;
+}
+
+p {
+  margin: 0;
+  color: #666;
+}
+
+.generation-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.generation-actions mat-spinner {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.config-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25rem 1rem;
+}
+
+.boolean-fields,
+.wide {
+  grid-column: 1 / -1;
+}
+
+.boolean-fields {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.run-info {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  margin: 1rem 0 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.run-info dt,
+.run-info dd {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.run-info dt {
+  font-weight: 500;
+  background: #f7f7f7;
+}
+
+@media (max-width: 700px) {
+  .generation-toolbar {
+    flex-direction: column;
+  }
+  .generation-actions {
+    flex-wrap: wrap;
+  }
+  .config-form {
+    grid-template-columns: 1fr;
+  }
+  .boolean-fields {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -21,14 +21,16 @@ export class ZsMapTextDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElem
         this._olGeometryItem?.setCoordinates(coordinates as number[]);
       });
   }
-  protected _initialize(element: ZsMapTextDrawElementState): void {
-    this._olGeometryItem = new LineString(element.coordinates as number[]);
-    this._olFeature.setGeometry(this._olGeometryItem);
-  }
+
   protected static override _getOlDrawType(): Type {
     return 'LineString';
   }
-  protected static override _parseFeature(feature: Feature<LineString>, state: ZsMapStateService, element: ZsMapElementToDraw): void {
+
+  protected static override _parseFeature(
+    feature: Feature<LineString>,
+    state: ZsMapStateService,
+    element: ZsMapElementToDraw,
+  ): void {
     const drawElement = state.addDrawElement({
       type: ZsMapDrawElementStateType.TEXT,
       layer: element.layer,
@@ -36,5 +38,10 @@ export class ZsMapTextDrawElement extends ZsMapBaseDrawElement<ZsMapTextDrawElem
       coordinates: feature.getGeometry()?.getCoordinates(),
     });
     state.setSelectedFeature(drawElement?.id);
+  }
+
+  protected _initialize(element: ZsMapTextDrawElementState): void {
+    this._olGeometryItem = new LineString(element.coordinates as number[]);
+    this._olFeature.setGeometry(this._olGeometryItem);
   }
 }

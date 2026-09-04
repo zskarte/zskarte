@@ -3,11 +3,12 @@ import { ADDRESS_TRIGGER_CHAR } from '../search/address-trigger';
 import { ADDRESS_TOKEN_REGEX } from '../search/search.service';
 import Quill from 'quill';
 import { Blot } from 'parchment';
-const Delta = Quill.import('delta');
-
 import { AddressTokenBlot } from './address-token.blot';
 import { PlaceholderBlot } from './placeholder.blot';
 import { PlainTextWithAddressTokenClipboard } from './plain-text-address-token-clipboard';
+
+const Delta = Quill.import('delta');
+
 Quill.register(AddressTokenBlot, true);
 Quill.register(PlaceholderBlot, true);
 Quill.register('modules/clipboard', PlainTextWithAddressTokenClipboard, true);
@@ -16,6 +17,52 @@ Quill.register('modules/clipboard', PlainTextWithAddressTokenClipboard, true);
 export class QuillBlotService {
   private quill: Quill | null = null;
   private placeholderIndex: number | null = null;
+
+  static plaintextToDelta(text: string): any {
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    const ops: any[] = [];
+    const regex = new RegExp(ADDRESS_TOKEN_REGEX.source, 'g');
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        ops.push({ insert: text.slice(lastIndex, match.index) });
+      }
+      ops.push({
+        insert: {
+          addressToken: {
+            address: match[1],
+            option: match[2] || null,
+          },
+        },
+      });
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < text.length) {
+      ops.push({ insert: text.slice(lastIndex) });
+    }
+    return { ops };
+  }
+
+  static handlePaste(selection: { index: number; length: number }, data: { html: string; text: string }, quill: Quill) {
+    if (!quill) return;
+    const text = data.text || '';
+    const index = selection ? selection.index : 0;
+    const insertDelta = this.plaintextToDelta(text);
+    const delta = new Delta().retain(index).concat(insertDelta);
+    quill.updateContents(delta, 'user');
+    quill.setSelection(index + this.getDeltaLength(insertDelta), 0);
+
+    // inform done the past for my own
+    return false;
+  }
+
+  static getDeltaLength(delta: any): number {
+    if (!delta || !delta.ops) return 0;
+    return delta.ops.reduce((sum, op) => {
+      if (typeof op.insert === 'string') return sum + op.insert.length;
+      return sum + 1;
+    }, 0);
+  }
 
   setQuillInstance(quill: Quill) {
     this.quill = quill;
@@ -245,52 +292,6 @@ export class QuillBlotService {
       }
     }
     return result;
-  }
-
-  static plaintextToDelta(text: string): any {
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-    const ops: any[] = [];
-    const regex = new RegExp(ADDRESS_TOKEN_REGEX.source, 'g');
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        ops.push({ insert: text.slice(lastIndex, match.index) });
-      }
-      ops.push({
-        insert: {
-          addressToken: {
-            address: match[1],
-            option: match[2] || null,
-          },
-        },
-      });
-      lastIndex = regex.lastIndex;
-    }
-    if (lastIndex < text.length) {
-      ops.push({ insert: text.slice(lastIndex) });
-    }
-    return { ops };
-  }
-
-  static handlePaste(selection: { index: number; length: number }, data: { html: string; text: string }, quill: Quill) {
-    if (!quill) return;
-    const text = data.text || '';
-    const index = selection ? selection.index : 0;
-    const insertDelta = this.plaintextToDelta(text);
-    const delta = new Delta().retain(index).concat(insertDelta);
-    quill.updateContents(delta, 'user');
-    quill.setSelection(index + this.getDeltaLength(insertDelta), 0);
-
-    // inform done the past for my own
-    return false;
-  }
-
-  static getDeltaLength(delta: any): number {
-    if (!delta || !delta.ops) return 0;
-    return delta.ops.reduce((sum, op) => {
-      if (typeof op.insert === 'string') return sum + op.insert.length;
-      return sum + 1;
-    }, 0);
   }
 
   handleCopy(event: ClipboardEvent) {

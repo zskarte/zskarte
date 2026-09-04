@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, OnInit } from '@angular/core';
 import { ShortcutService } from './shortcut/shortcut.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -20,14 +20,7 @@ import { LanguageSelectorComponent } from './language-selector/language-selector
 })
 export class AppComponent implements OnInit {
   i18n = inject(I18NService);
-  private _shortcut = inject(ShortcutService);
-  private _session = inject(SessionService);
-  private _state = inject(ZsMapStateService);
   navigation = inject(NavigationService);
-  private _version = inject(VersionService);
-  readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
-  readonly operationId = toSignal(this._session.observeOperationId());
-
   navLinks = [
     {
       label: 'map',
@@ -38,9 +31,14 @@ export class AppComponent implements OnInit {
       link: '/main/journal',
     },
   ];
-
   height = window.innerHeight;
   width = window.innerWidth;
+  private _shortcut = inject(ShortcutService);
+  private _session = inject(SessionService);
+  readonly operationId = toSignal(this._session.observeOperationId());
+  private _state = inject(ZsMapStateService);
+  readonly journalAddressPreview = toSignal(this._state.observeJournalAddressPreview());
+  private _version = inject(VersionService);
 
   constructor() {
     this._version.initialize();

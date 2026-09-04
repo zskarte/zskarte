@@ -24,28 +24,6 @@ export class ZsMapRectangleDrawElement extends ZsMapBaseDrawElement<ZsMapRectang
       });
   }
 
-  protected _initialize(element: ZsMapRectangleDrawElementState): void {
-    this._olPolygon = new Polygon(element.coordinates as any);
-    this._olFeature.setGeometry(this._olPolygon);
-  }
-
-  protected static override _getOlDrawType(): Type {
-    return 'Circle';
-  }
-
-  protected static override _parseFeature(
-    feature: Feature<Polygon>,
-    state: ZsMapStateService,
-    element: ZsMapElementToDraw,
-  ): void {
-    const drawElement = state.addDrawElement({
-      type: ZsMapDrawElementStateType.RECTANGLE,
-      coordinates: (feature.getGeometry()?.getCoordinates() as any) || [],
-      layer: element.layer,
-    });
-    state.setSelectedFeature(drawElement?.id);
-  }
-
   public static override getOlDrawHandler(state: ZsMapStateService, element: ZsMapElementToDraw): Draw {
     const draw = new Draw({
       source: new VectorSource({ wrapX: false }),
@@ -68,5 +46,27 @@ export class ZsMapRectangleDrawElement extends ZsMapBaseDrawElement<ZsMapRectang
       this._parseFeature(event.feature as Feature<Polygon>, state, element);
     });
     return draw;
+  }
+
+  protected static override _getOlDrawType(): Type {
+    return 'Circle';
+  }
+
+  protected static override _parseFeature(
+    feature: Feature<Polygon>,
+    state: ZsMapStateService,
+    element: ZsMapElementToDraw,
+  ): void {
+    const drawElement = state.addDrawElement({
+      type: ZsMapDrawElementStateType.RECTANGLE,
+      coordinates: (feature.getGeometry()?.getCoordinates() as any) || [],
+      layer: element.layer,
+    });
+    state.setSelectedFeature(drawElement?.id);
+  }
+
+  protected _initialize(element: ZsMapRectangleDrawElementState): void {
+    this._olPolygon = new Polygon(element.coordinates as any);
+    this._olFeature.setGeometry(this._olPolygon);
   }
 }

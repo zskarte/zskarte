@@ -4,7 +4,7 @@ import { I18NService } from '../../state/i18n.service';
 import { MapLayerService } from '../map-layer.service';
 import { IZsMapOrganization, IZsMapOrganizationMapLayerSettings, MapLayer, WmsSource } from '@zskarte/types';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Observable, combineLatest, map, startWith } from 'rxjs';
+import { combineLatest, map, Observable, startWith } from 'rxjs';
 import { getPropertyDifferences } from '../../helper/diff';
 import { LocalMapLayer } from '../../db/db';
 import { MatActionList, MatListModule, MatListOption, MatSelectionList } from '@angular/material/list';
@@ -50,28 +50,27 @@ export class OrganisationLayerSettingsComponent {
     selectedLayers: MapLayer[];
     selectedSources: WmsSource[];
   }>(MAT_DIALOG_DATA);
-  private dialogRef = inject<MatDialogRef<OrganisationLayerSettingsComponent>>(MatDialogRef);
-  private _mapLayerService = inject(MapLayerService);
   i18n = inject(I18NService);
-
-  wms_sources: number[];
+  wms_sources: string[];
   layer_favorites: MapLayer[];
-
   layerFilter = new FormControl('');
   sourceFilter = new FormControl('ALL');
   filteredAvailableLayers$: Observable<MapLayer[]>;
+  private dialogRef = inject<MatDialogRef<OrganisationLayerSettingsComponent>>(MatDialogRef);
+  private _mapLayerService = inject(MapLayerService);
+
   constructor() {
     const data = this.data;
 
     if (data.organization) {
       this.wms_sources = [...data.organization.wms_sources];
       this.layer_favorites = data.allLayers.filter(
-        (f) => f.id && data.organization?.map_layer_favorites.includes(f.id),
+        (f) => f.documentId && data.organization?.map_layer_favorites.includes(f.documentId),
       );
     } else if (data.localMapLayerSettings) {
       this.wms_sources = [...(data.localMapLayerSettings.wms_sources ?? [])];
       this.layer_favorites = data.allLayers.filter(
-        (f) => f.id && data.localMapLayerSettings?.map_layer_favorites?.includes(f.id),
+        (f) => f.documentId && data.localMapLayerSettings?.map_layer_favorites?.includes(f.documentId),
       );
     } else {
       this.wms_sources = [];
@@ -86,11 +85,11 @@ export class OrganisationLayerSettingsComponent {
         let layers = data.allLayers.sort((a: MapLayer, b: MapLayer) => a.label.localeCompare(b.label));
         if (source !== 'ALL') {
           if (source === '_OwnMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined && f.owner);
+            layers = layers.filter((f) => OrganisationLayerSettingsComponent.isPersisted(f) && f.owner);
           } else if (source === '_GlobalMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined && !f.owner && !f.managed);
+            layers = layers.filter((f) => OrganisationLayerSettingsComponent.isPersisted(f) && !f.owner && !f.managed);
           } else if (source === '_ManagedMapLayers_') {
-            layers = layers.filter((f) => f.id !== undefined && f.managed);
+            layers = layers.filter((f) => OrganisationLayerSettingsComponent.isPersisted(f) && f.managed);
           } else if (source === '_geodienste_') {
             layers = layers.filter((f) => f.fullId.startsWith('geodienste|'));
           } else {
@@ -98,57 +97,11 @@ export class OrganisationLayerSettingsComponent {
             layers = layers.filter((f) => f.source?.url === sourceFilter);
           }
         }
-        return filter === ''
-          ? layers
-          : layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''));
+        return filter === '' ? layers : (
+            layers.filter((f) => f.label.toLowerCase().includes(filter?.toLowerCase() ?? ''))
+          );
       }),
     );
-  }
-
-  toggleSource(item: WmsSource) {
-    const id = item.id;
-    if (id) {
-      const index = this.wms_sources.indexOf(id);
-      if (index !== -1) {
-        this.wms_sources.splice(index, 1);
-      } else {
-        this.wms_sources.push(id);
-      }
-    }
-  }
-
-  selectCurrentSource() {
-    this.wms_sources = this.data.selectedSources.map((s) => s.id ?? null).filter((id): id is number => Boolean(id));
-  }
-
-  removeLayer(layer: MapLayer) {
-    const index = this.layer_favorites.indexOf(layer);
-    if (index !== -1) {
-      this.layer_favorites.splice(index, 1);
-    }
-  }
-
-  addCurrentLayers() {
-    this.data.selectedLayers.forEach((layer) => this.selectLayer(layer));
-  }
-
-  selectLayer(layer: MapLayer) {
-    const index = this.layer_favorites.indexOf(layer);
-    if (index === -1) {
-      let existing = this.layer_favorites.find((f) => f.id === layer.id);
-      if (!existing) {
-        existing = this.layer_favorites.find((f) => f.fullId === layer.fullId);
-      }
-      if (existing && OrganisationLayerSettingsComponent.sameOptions(existing, layer)) {
-        return;
-      }
-      this.layer_favorites.push(layer);
-    }
-  }
-
-  changedOptions(layer: MapLayer) {
-    const defaultLayer = this.data.allLayers.find((f) => f.fullId === layer.fullId);
-    return !defaultLayer || !OrganisationLayerSettingsComponent.sameOptions(defaultLayer, layer);
   }
 
   static sameOptions(oldLayer: MapLayer, newLayer: MapLayer, ignoreFields: string[] = []) {
@@ -167,28 +120,61 @@ export class OrganisationLayerSettingsComponent {
     return Object.keys(diff).length === 0;
   }
 
-  private updateSelectedLayer(selectedLayer: LocalMapLayer | undefined, savedLayer: LocalMapLayer) {
-    // if it was one of the selected one, update the changed values
-    if (selectedLayer) {
-      const index = this.data.selectedLayers.indexOf(selectedLayer);
-      selectedLayer = {
-        ...selectedLayer,
-        id: savedLayer.id,
-        documentId: savedLayer.documentId,
-        fullId: savedLayer.fullId,
-        owner: savedLayer.owner,
-        managed: savedLayer.managed,
-        public: savedLayer.public,
-        offlineAvailable: savedLayer.offlineAvailable,
-        sourceBlobId: savedLayer.sourceBlobId,
-        styleBlobId: savedLayer.styleBlobId,
-      };
-      this.data.selectedLayers[index] = selectedLayer;
+  /** a persisted layer is identified by its documentId, only local only layers still carry a generated id */
+  private static isPersisted(layer: MapLayer) {
+    return layer.documentId !== undefined || layer.id !== undefined;
+  }
+
+  toggleSource(item: WmsSource) {
+    const id = item.documentId;
+    if (id) {
+      const index = this.wms_sources.indexOf(id);
+      if (index !== -1) {
+        this.wms_sources.splice(index, 1);
+      } else {
+        this.wms_sources.push(id);
+      }
     }
   }
 
+  selectCurrentSource() {
+    this.wms_sources = this.data.selectedSources
+      .map((s) => s.documentId ?? null)
+      .filter((id): id is string => Boolean(id));
+  }
+
+  removeLayer(layer: MapLayer) {
+    const index = this.layer_favorites.indexOf(layer);
+    if (index !== -1) {
+      this.layer_favorites.splice(index, 1);
+    }
+  }
+
+  addCurrentLayers() {
+    this.data.selectedLayers.forEach((layer) => this.selectLayer(layer));
+  }
+
+  selectLayer(layer: MapLayer) {
+    const index = this.layer_favorites.indexOf(layer);
+    if (index === -1) {
+      let existing = layer.documentId ? this.layer_favorites.find((f) => f.documentId === layer.documentId) : undefined;
+      if (!existing) {
+        existing = this.layer_favorites.find((f) => f.fullId === layer.fullId);
+      }
+      if (existing && OrganisationLayerSettingsComponent.sameOptions(existing, layer)) {
+        return;
+      }
+      this.layer_favorites.push(layer);
+    }
+  }
+
+  changedOptions(layer: MapLayer) {
+    const defaultLayer = this.data.allLayers.find((f) => f.fullId === layer.fullId);
+    return !defaultLayer || !OrganisationLayerSettingsComponent.sameOptions(defaultLayer, layer);
+  }
+
   async ok() {
-    const map_layer_favorites: number[] = [];
+    const map_layer_favorites: string[] = [];
     const errors: string[] = [];
     for (let i = 0; i < this.layer_favorites.length; i++) {
       const layer = { ...this.layer_favorites[i] };
@@ -196,7 +182,7 @@ export class OrganisationLayerSettingsComponent {
       const selectedLayer = this.data.selectedLayers.find(
         (g) => g.fullId === layer.fullId && OrganisationLayerSettingsComponent.sameOptions(g, layer),
       );
-      if (layer.id) {
+      if (layer.documentId) {
         const defaultLayer = this.data.allLayers.find((g) => g.fullId === layer.fullId);
         if (defaultLayer) {
           if (
@@ -207,7 +193,7 @@ export class OrganisationLayerSettingsComponent {
             ])
           ) {
             // unchaged existing globalMapLayer, add it
-            map_layer_favorites.push(layer.id);
+            map_layer_favorites.push(layer.documentId);
             if (!this.data.organization) {
               // if it's local mode make sure layer is saved locally
               await this._mapLayerService.saveLocalMapLayer(layer);
@@ -244,11 +230,11 @@ export class OrganisationLayerSettingsComponent {
       // as you change it, it's not longer managed
       layer.managed = false;
       const savedLayer = await this._mapLayerService.saveGlobalMapLayer(layer, this.data.organization?.documentId);
-      if (savedLayer?.id) {
+      if (savedLayer) {
         this.layer_favorites[i] = savedLayer;
-        // add new added/updated layer
-        if(!map_layer_favorites.includes(savedLayer.id)){
-          map_layer_favorites.push(savedLayer.id);
+        // add new added/updated layer, a local only layer has no documentId to reference
+        if (savedLayer.documentId && !map_layer_favorites.includes(savedLayer.documentId)) {
+          map_layer_favorites.push(savedLayer.documentId);
         }
         this.updateSelectedLayer(selectedLayer, savedLayer);
       } else {
@@ -267,5 +253,25 @@ export class OrganisationLayerSettingsComponent {
       }
     }
     this.dialogRef.close({ wms_sources: this.wms_sources, map_layer_favorites });
+  }
+
+  private updateSelectedLayer(selectedLayer: LocalMapLayer | undefined, savedLayer: LocalMapLayer) {
+    // if it was one of the selected one, update the changed values
+    if (selectedLayer) {
+      const index = this.data.selectedLayers.indexOf(selectedLayer);
+      selectedLayer = {
+        ...selectedLayer,
+        id: savedLayer.id,
+        documentId: savedLayer.documentId,
+        fullId: savedLayer.fullId,
+        owner: savedLayer.owner,
+        managed: savedLayer.managed,
+        public: savedLayer.public,
+        offlineAvailable: savedLayer.offlineAvailable,
+        sourceBlobId: savedLayer.sourceBlobId,
+        styleBlobId: savedLayer.styleBlobId,
+      };
+      this.data.selectedLayers[index] = selectedLayer;
+    }
   }
 }

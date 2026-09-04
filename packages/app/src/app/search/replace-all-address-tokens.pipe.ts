@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform, inject } from '@angular/core';
+import { inject, Pipe, PipeTransform } from '@angular/core';
 import { SearchService } from './search.service';
 
 @Pipe({
@@ -6,7 +6,7 @@ import { SearchService } from './search.service';
 })
 export class ReplaceAllAddressTokensPipe implements PipeTransform {
   private _search = inject(SearchService);
-  transform(value: string | undefined, withMarker: boolean) {
+  transform(value: string | undefined | null, withMarker: boolean) {
     return this._search.replaceAllAddressTokens(this._search.tokenizeAllPotentialAddresses(value), withMarker);
   }
 }

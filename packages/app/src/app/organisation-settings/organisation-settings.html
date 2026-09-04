@@ -5,58 +5,67 @@
 <app-dialog-body class="content-container">
   <mat-card>
     <h2>Journal</h2>
-    <mat-form-field class="text-template" appearance="outline" subscriptSizing="dynamic">
+    <mat-form-field appearance="outline" class="text-template" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('journalMessageTextTemplate') }}</mat-label>
-      <textarea matInput rows="5" [(ngModel)]="settings.journalMessageTextTemplate"></textarea>
+      <textarea [(ngModel)]="settings.journalMessageTextTemplate" matInput rows="5"></textarea>
     </mat-form-field>
   </mat-card>
   <mat-card>
     <h2>changeset</h2>
     <div class="infoText">
-        All changes on elements you do are packed into a changeset and submitted after start to edit a other element or
-        stop editing for a defined amount of time.
+      All changes on elements you do are packed into a changeset and submitted after start to edit a other element or
+      stop editing for a defined amount of time.
     </div>
     <fieldset class="like-mat-form-field-outline">
       <legend>applyOnExpertViewOnly</legend>
       <div class="infoText">
         If activated the following settings only apply to expertView, and default view is always hidden/automerged.
       </div>
-      <mat-checkbox [checked]="settings.changeset.applyOnExpertViewOnly" (change)="settings.changeset.applyOnExpertViewOnly = $event.checked">
+      <mat-checkbox
+        (change)="settings.changeset.applyOnExpertViewOnly = $event.checked"
+        [checked]="settings.changeset.applyOnExpertViewOnly"
+      >
         only expert view
       </mat-checkbox>
     </fieldset>
     <fieldset class="like-mat-form-field-outline">
       <legend>hiddenMode</legend>
       <div class="infoText">
-        If you deactivate the hiddenMode, you see an UI that show current
-        change infos and the submit timeout.
-        If hiddenMode is active, incomming changes are directly applied(and override yours), if there are conflicts on submit it always take your changes.
+        If you deactivate the hiddenMode, you see an UI that show current change infos and the submit timeout. If
+        hiddenMode is active, incomming changes are directly applied(and override yours), if there are conflicts on
+        submit it always take your changes.
       </div>
-      <mat-checkbox [checked]="settings.changeset.hiddenMode" (change)="settings.changeset.hiddenMode = $event.checked">
+      <mat-checkbox (change)="settings.changeset.hiddenMode = $event.checked" [checked]="settings.changeset.hiddenMode">
         hide changeset UI
       </mat-checkbox>
     </fieldset>
-    <fieldset class="like-mat-form-field-outline" [disabled]="settings.changeset.hiddenMode">
+    <fieldset [disabled]="settings.changeset.hiddenMode" class="like-mat-form-field-outline">
       <legend>automerge</legend>
       <div class="infoText">
         If you are currently editing something and an other user also changed something there change are automatically
-        applied if there are no conflicts (changed other elements only).<br>
+        applied if there are no conflicts (changed other elements only).<br />
         If active the merge resolving UI is only shown on conflicts.
       </div>
-      <mat-checkbox [checked]="settings.changeset.hiddenMode || settings.changeset.automerge" (change)="settings.changeset.automerge = $event.checked">
+      <mat-checkbox
+        (change)="settings.changeset.automerge = $event.checked"
+        [checked]="settings.changeset.hiddenMode || settings.changeset.automerge"
+      >
         automatically merge non conflicting changes
       </mat-checkbox>
     </fieldset>
-    <fieldset class="like-mat-form-field-outline" [disabled]="settings.changeset.hiddenMode || !settings.changeset.automerge">
+    <fieldset
+      [disabled]="settings.changeset.hiddenMode || !settings.changeset.automerge"
+      class="like-mat-form-field-outline"
+    >
       <legend>conflictTakeOur</legend>
       <div class="infoText">
         If the change from other user have conflict with you current change, resolve conflict on automerge by keep/take
-        your current value.<br>
+        your current value.<br />
         If activated the merge view is also not shown on conflicts.
       </div>
       <mat-checkbox
-        [checked]="settings.changeset.hiddenMode || (settings.changeset.conflictTakeOur && settings.changeset.automerge)"
         (change)="settings.changeset.conflictTakeOur = $event.checked"
+        [checked]="settings.changeset.hiddenMode || (settings.changeset.conflictTakeOur && settings.changeset.automerge)"
       >
         take own value on merge conflicting changes
       </mat-checkbox>
@@ -65,6 +74,6 @@
 </app-dialog-body>
 
 <app-dialog-footer>
-  <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
-  <button mat-flat-button color="primary" (click)="ok()">{{ i18n.get('ok') }}</button>
+  <button [innerText]="i18n.get('cancel')" [mat-dialog-close]="null" mat-stroked-button></button>
+  <button (click)="ok()" color="primary" mat-flat-button>{{ i18n.get('ok') }}</button>
 </app-dialog-footer>

@@ -1,29 +1,29 @@
-import { Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import {
   IFoundLocation,
   IResultSet,
+  IZsGlobalSearchConfig,
   IZsMapSearchConfig,
   IZsMapSearchResult,
-  IZsGlobalSearchConfig,
   SearchFunction,
 } from '@zskarte/types';
 import { coordinateFromString } from '../helper/coordinates-extract';
 import { I18NService } from '../state/i18n.service';
-import { GeoJSONFeature, default as GeoJSON } from 'ol/format/GeoJSON';
+import { default as GeoJSON, GeoJSONFeature } from 'ol/format/GeoJSON';
 import { Feature } from 'ol';
 import { Geometry, Point } from 'ol/geom';
 import {
-  Extent,
-  containsCoordinate,
-  getCenter,
-  extend,
-  getIntersection,
-  createEmpty,
-  extendCoordinate,
-  intersects,
   approximatelyEquals,
+  containsCoordinate,
+  createEmpty,
+  extend,
+  extendCoordinate,
+  Extent,
+  getCenter,
+  getIntersection,
+  intersects,
 } from 'ol/extent';
 import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { fromLonLat, transformExtent } from 'ol/proj';
@@ -94,17 +94,7 @@ export const ADDRESS_TOKEN_OR_NEW_REGEX = new RegExp(
   providedIn: 'root',
 })
 export class SearchService {
-  private _i18n = inject(I18NService);
-  private _state = inject(ZsMapStateService);
-  private _sanitizer = inject(DomSanitizer);
-  private zoomToFit: zoomToFitFunc | null = null;
   public readonly addressPreview = signal(false);
-  private readonly activeView = toSignal(this._state.observeActiveView());
-
-  private _searchConfigs: IZsMapSearchConfig[] = [];
-  private formatGeoJSON = new GeoJSON();
-  private globalSearchInputText?: WritableSignal<string>;
-
   searchServiceUrl = 'https://api3.geo.admin.ch/rest/services/api/SearchServer';
   mapServiceUrl = 'https://api3.geo.admin.ch/rest/services/api/MapServer';
   searchParam = '&searchText=';
@@ -112,13 +102,26 @@ export class SearchService {
   geocoderUrl = `${this.searchServiceUrl}?type=locations${this.searchParam}`;
   mapServiceFindUrlPrefix = `${this.mapServiceUrl}/find?${this.geomentryParams}&layer=`;
   searchServerFeatureUrlPrefix = `${this.searchServiceUrl}?type=featuresearch&features=`;
-
   streetGeometryUrl = `${this.mapServiceFindUrlPrefix}${LAYER_STREET}&searchField=stn_label${this.searchParam}`;
   streetGeometryByIdUrl = `${this.mapServiceFindUrlPrefix}${LAYER_STREET}&searchField=str_esid${this.searchParam}`;
   streetSearchUrl = `${this.searchServerFeatureUrlPrefix}${LAYER_STREET}${this.searchParam}`;
-
   waterGeometryUrl = `${this.mapServiceFindUrlPrefix}${LAYER_WATER}&searchField=name${this.searchParam}`;
   waterGeometryByIdUrl = `${this.mapServiceFindUrlPrefix}${LAYER_WATER}&searchField=id${this.searchParam}`;
+  geoAdminLocationSearch = this.searchServerFunc(this.geocoderUrl, this.additionalFilterGeoAdminLocationSearch);
+  geoAdminStreetSearch = this.searchServerFunc(
+    this.streetSearchUrl,
+    undefined,
+    this.updateSearchResultEntryForStreetSearch,
+    true,
+  );
+  private _i18n = inject(I18NService);
+  private _state = inject(ZsMapStateService);
+  private _sanitizer = inject(DomSanitizer);
+  private zoomToFit: zoomToFitFunc | null = null;
+  private readonly activeView = toSignal(this._state.observeActiveView());
+  private _searchConfigs: IZsMapSearchConfig[] = [];
+  private formatGeoJSON = new GeoJSON();
+  private globalSearchInputText?: WritableSignal<string>;
 
   constructor() {
     this.addSearch(this.coordinateSearch.bind(this), this._i18n.get('coordinates'), undefined, -1);
@@ -155,6 +158,15 @@ export class SearchService {
     });
   }
 
+  public static escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   public handleEsc(event: Event) {
     if (this.addressPreview()) {
       this.addressPreview.set(false);
@@ -179,39 +191,9 @@ export class SearchService {
     return searchConfig.distanceReferenceCoordinate ?? this._state.getMapCenter();
   }
 
-  private extendExtentAroundPoint(extent: Extent, refCoord: Coordinate) {
-    const [minX, minY, maxX, maxY] = extent;
-
-    const distanceLeft = refCoord[0] - minX;
-    const distanceRight = maxX - refCoord[0];
-    const distanceTop = maxY - refCoord[1];
-    const distanceBottom = refCoord[1] - minY;
-    const maxDistanceX = Math.max(distanceLeft, distanceRight);
-    const maxDistanceY = Math.max(distanceTop, distanceBottom);
-
-    return this.getExtentByCoordAndDist(refCoord, maxDistanceX, maxDistanceY);
-  }
-
   public getExtentByCoordAndDist(center: Coordinate, distX: number, distY: number) {
     //web mercator / EPSG:3857 is a metric system so can calucate directly.
     return [center[0] - distX, center[1] - distY, center[0] + distX, center[1] + distY];
-  }
-
-  private createOrCombineExtent(combinedExtent: Extent | null, newExtent: Extent) {
-    if (!combinedExtent) {
-      combinedExtent = createEmpty();
-      extend(combinedExtent, newExtent);
-    } else {
-      getIntersection(combinedExtent, newExtent, combinedExtent);
-    }
-    return combinedExtent;
-  }
-
-  private inflateExtent(extent, factor) {
-    const [minX, minY, maxX, maxY] = extent;
-    const dx = ((maxX - minX) * factor) / 2;
-    const dy = ((maxY - minY) * factor) / 2;
-    return [minX - dx, minY - dy, maxX + dx, maxY + dy];
   }
 
   public getSearchFilterArea(searchConfig: IZsGlobalSearchConfig, inflatedMapSectionExtent?: number) {
@@ -242,39 +224,6 @@ export class SearchService {
     return combinedExtent;
   }
 
-  private sortSearchResults(
-    results: IZsMapSearchResult[],
-    searchConfig: IZsGlobalSearchConfig,
-    alphabetical = false,
-  ): IZsMapSearchResult[] {
-    const mapExtent = this._state.getMapExtent();
-    const collator = alphabetical ? new Intl.Collator() : undefined;
-
-    return results.sort((a, b) => {
-      if (searchConfig.sortedByDistance) {
-        return (a.internal?.dist ?? Number.MAX_SAFE_INTEGER) - (b.internal?.dist ?? Number.MAX_SAFE_INTEGER);
-      }
-
-      const aCoord = a.mercatorCoordinates || a.internal?.center;
-      const bCoord = b.mercatorCoordinates || b.internal?.center;
-
-      if (aCoord && bCoord) {
-        const aInExtent = mapExtent ? containsCoordinate(mapExtent, aCoord) : false;
-        const bInExtent = mapExtent ? containsCoordinate(mapExtent, bCoord) : false;
-
-        if (aInExtent !== bInExtent) {
-          return aInExtent ? -1 : 1;
-        }
-      }
-
-      if (collator) {
-        return collator.compare(a.label, b.label);
-      }
-
-      return 0; // Maintain existing order
-    });
-  }
-
   async coordinateSearch(text: string) {
     const coords = coordinateFromString(text);
     if (coords) {
@@ -284,30 +233,6 @@ export class SearchService {
     }
     return [];
   }
-
-  private additionalFilterGeoAdminLocationSearch(r: IFoundLocation) {
-    if (
-      r.attrs.objectclass === 'TLM_GEBIETSNAME' &&
-      (r.attrs.label.indexOf('Grossregion') !== -1 || r.attrs.label.indexOf('Landschaftsname') !== -1)
-    ) {
-      return false;
-    }
-    return true;
-  }
-  geoAdminLocationSearch = this.searchServerFunc(this.geocoderUrl, this.additionalFilterGeoAdminLocationSearch);
-
-  private updateSearchResultEntryForStreetSearch(entry: IZsMapSearchResult, r: IFoundLocation): IZsMapSearchResult {
-    return {
-      ...entry,
-      internal: { ...entry.internal, addressToken: `addr:(${entry.label})[str_esid:${r.attrs?.['featureId']}]` },
-    };
-  }
-  geoAdminStreetSearch = this.searchServerFunc(
-    this.streetSearchUrl,
-    undefined,
-    this.updateSearchResultEntryForStreetSearch,
-    true,
-  );
 
   searchServerFunc(
     searchUrl: string,
@@ -449,7 +374,6 @@ export class SearchService {
     return null;
   }
 
-  // the 'MapServer/find' endpoint only allow to search on single field and don't have any filter, sorting, paging options:
   // for street names with many occurences only first 200 are returned and the desired one may not be contained.
   async geoAdminStreetGeometrySearch(
     text: string,
@@ -485,7 +409,11 @@ export class SearchService {
         if (geometry && 'getClosestPoint' in geometry) {
           center = geometry.getClosestPoint(center);
         }
-        if (!filterArea || containsCoordinate(filterArea, center) || intersects(filterArea, this.bboxToExtent(r.bbox as number[]))) {
+        if (
+          !filterArea ||
+          containsCoordinate(filterArea, center) ||
+          intersects(filterArea, this.bboxToExtent(r.bbox as number[]))
+        ) {
           const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = `${r.properties?.['stn_label']}, ${r.properties?.['zip_label']}`;
           foundLocations.push({
@@ -557,7 +485,11 @@ export class SearchService {
         if (geometry && 'getClosestPoint' in geometry) {
           center = geometry.getClosestPoint(center);
         }
-        if (!filterArea || containsCoordinate(filterArea, center) || intersects(filterArea, this.bboxToExtent(r.bbox as number[]))) {
+        if (
+          !filterArea ||
+          containsCoordinate(filterArea, center) ||
+          intersects(filterArea, this.bboxToExtent(r.bbox as number[]))
+        ) {
           const dist = refCoord ? squaredDistance(refCoord, center) : undefined;
           const label = r.properties?.['name'];
           foundLocations.push({
@@ -605,6 +537,8 @@ export class SearchService {
     configs.sort((a, b) => a.resultOrder - b.resultOrder);
     this._searchConfigs = configs;
   }
+
+  // the 'MapServer/find' endpoint only allow to search on single field and don't have any filter, sorting, paging options:
 
   public removeSearch(searchFunc: SearchFunction) {
     this._searchConfigs = this._searchConfigs.filter((conf) => conf.func !== searchFunc);
@@ -661,39 +595,6 @@ export class SearchService {
 
   async simpleSearch(searchText: string, searchConfig: IZsGlobalSearchConfig): Promise<IResultSet[]> {
     return (await this.processConfigs(searchText, new AbortController(), searchConfig)) ?? [];
-  }
-
-  private async processConfigs(
-    searchText: string,
-    abortController: AbortController,
-    searchConfig: IZsGlobalSearchConfig,
-  ): Promise<IResultSet[] | null> {
-    if (!searchText || typeof searchText !== 'string' || searchText.length <= 1) {
-      return [];
-    }
-    const resultSets: IResultSet[] = [];
-
-    for (const config of this._searchConfigs) {
-      if (!config.active) continue;
-
-      if (abortController.signal.aborted) {
-        return null;
-      }
-
-      try {
-        const results = await config.func(searchText, abortController, searchConfig, config.maxResultCount);
-        if (results.length > 0) {
-          resultSets.push({ config, results, collapsed: 'peek' });
-        }
-      } catch (error: any) {
-        if (error.name === 'AbortError') {
-          return [];
-        }
-        console.error('Error on handle search config:', error);
-      }
-    }
-
-    return resultSets;
   }
 
   bboxToExtent(box2d: number[]) {
@@ -799,18 +700,6 @@ export class SearchService {
     return null;
   }
 
-  private showSingleFeature(feature: Feature<Geometry>) {
-    const geometry = feature.getGeometry();
-    if (geometry?.getType() === 'Point') {
-      this._state.setMapCenter((geometry as Point).getCoordinates());
-    } else {
-      const extent = feature?.getGeometry()?.getExtent();
-      if (extent && this.zoomToFit) {
-        this.zoomToFit(extent, [100, 50, 50, 50]);
-      }
-    }
-  }
-
   public async showFeature(locationInfo: string | undefined) {
     if (locationInfo) {
       const feature = await this.getHighlightGeometryFeature(locationInfo);
@@ -884,7 +773,7 @@ export class SearchService {
     return text.replace(regex, (match, p1) => ADDRESS_TOKEN_REPLACEMENT_ADDRESS(p1));
   }
 
-  public replaceAllAddressTokens(text?: string, withMarker = false) {
+  public replaceAllAddressTokens(text?: string | null, withMarker = false) {
     if (!text) {
       return text;
     }
@@ -904,7 +793,7 @@ export class SearchService {
     return this._sanitizer.bypassSecurityTrustHtml(response);
   }
 
-  public tokenizeAllPotentialAddresses(text?: string) {
+  public tokenizeAllPotentialAddresses(text?: string | null) {
     if (!text) {
       return text;
     }
@@ -917,15 +806,6 @@ export class SearchService {
     }
     const regex = getGlobalAddressTokenRegex();
     return text.replace(regex, (match, p1, p2) => (!p2 ? p1 : match));
-  }
-
-  public static escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
   }
 
   public async handleMessageContentClick(event: MouseEvent) {
@@ -977,5 +857,130 @@ export class SearchService {
       }
     }
     this.globalSearchInputText.set('\u00A0');
+  }
+
+  private extendExtentAroundPoint(extent: Extent, refCoord: Coordinate) {
+    const [minX, minY, maxX, maxY] = extent;
+
+    const distanceLeft = refCoord[0] - minX;
+    const distanceRight = maxX - refCoord[0];
+    const distanceTop = maxY - refCoord[1];
+    const distanceBottom = refCoord[1] - minY;
+    const maxDistanceX = Math.max(distanceLeft, distanceRight);
+    const maxDistanceY = Math.max(distanceTop, distanceBottom);
+
+    return this.getExtentByCoordAndDist(refCoord, maxDistanceX, maxDistanceY);
+  }
+
+  private createOrCombineExtent(combinedExtent: Extent | null, newExtent: Extent) {
+    if (!combinedExtent) {
+      combinedExtent = createEmpty();
+      extend(combinedExtent, newExtent);
+    } else {
+      getIntersection(combinedExtent, newExtent, combinedExtent);
+    }
+    return combinedExtent;
+  }
+
+  private inflateExtent(extent, factor) {
+    const [minX, minY, maxX, maxY] = extent;
+    const dx = ((maxX - minX) * factor) / 2;
+    const dy = ((maxY - minY) * factor) / 2;
+    return [minX - dx, minY - dy, maxX + dx, maxY + dy];
+  }
+
+  private sortSearchResults(
+    results: IZsMapSearchResult[],
+    searchConfig: IZsGlobalSearchConfig,
+    alphabetical = false,
+  ): IZsMapSearchResult[] {
+    const mapExtent = this._state.getMapExtent();
+    const collator = alphabetical ? new Intl.Collator() : undefined;
+
+    return results.sort((a, b) => {
+      if (searchConfig.sortedByDistance) {
+        return (a.internal?.dist ?? Number.MAX_SAFE_INTEGER) - (b.internal?.dist ?? Number.MAX_SAFE_INTEGER);
+      }
+
+      const aCoord = a.mercatorCoordinates || a.internal?.center;
+      const bCoord = b.mercatorCoordinates || b.internal?.center;
+
+      if (aCoord && bCoord) {
+        const aInExtent = mapExtent ? containsCoordinate(mapExtent, aCoord) : false;
+        const bInExtent = mapExtent ? containsCoordinate(mapExtent, bCoord) : false;
+
+        if (aInExtent !== bInExtent) {
+          return aInExtent ? -1 : 1;
+        }
+      }
+
+      if (collator) {
+        return collator.compare(a.label, b.label);
+      }
+
+      return 0; // Maintain existing order
+    });
+  }
+
+  private additionalFilterGeoAdminLocationSearch(r: IFoundLocation) {
+    if (
+      r.attrs.objectclass === 'TLM_GEBIETSNAME' &&
+      (r.attrs.label.indexOf('Grossregion') !== -1 || r.attrs.label.indexOf('Landschaftsname') !== -1)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  private updateSearchResultEntryForStreetSearch(entry: IZsMapSearchResult, r: IFoundLocation): IZsMapSearchResult {
+    return {
+      ...entry,
+      internal: { ...entry.internal, addressToken: `addr:(${entry.label})[str_esid:${r.attrs?.['featureId']}]` },
+    };
+  }
+
+  private async processConfigs(
+    searchText: string,
+    abortController: AbortController,
+    searchConfig: IZsGlobalSearchConfig,
+  ): Promise<IResultSet[] | null> {
+    if (!searchText || typeof searchText !== 'string' || searchText.length <= 1) {
+      return [];
+    }
+    const resultSets: IResultSet[] = [];
+
+    for (const config of this._searchConfigs) {
+      if (!config.active) continue;
+
+      if (abortController.signal.aborted) {
+        return null;
+      }
+
+      try {
+        const results = await config.func(searchText, abortController, searchConfig, config.maxResultCount);
+        if (results.length > 0) {
+          resultSets.push({ config, results, collapsed: 'peek' });
+        }
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          return [];
+        }
+        console.error('Error on handle search config:', error);
+      }
+    }
+
+    return resultSets;
+  }
+
+  private showSingleFeature(feature: Feature<Geometry>) {
+    const geometry = feature.getGeometry();
+    if (geometry?.getType() === 'Point') {
+      this._state.setMapCenter((geometry as Point).getCoordinates());
+    } else {
+      const extent = feature?.getGeometry()?.getExtent();
+      if (extent && this.zoomToFit) {
+        this.zoomToFit(extent, [100, 50, 50, 50]);
+      }
+    }
   }
 }

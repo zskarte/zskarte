@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { AfterViewInit, Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
-import { firstValueFrom, Subject, takeUntil } from 'rxjs';
+import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ZsMapStateService } from '../../state/state.service';
 import { SessionService } from '../../session/session.service';
 import { I18NService } from '../../state/i18n.service';
@@ -11,7 +11,7 @@ import { ChangeType, ProjectionSelectionComponent } from '../../projection-selec
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { DialogHeaderComponent, DialogBodyComponent } from '../../ui/dialog-layout';
+import { DialogBodyComponent, DialogHeaderComponent } from '../../ui/dialog-layout';
 import { MatCard } from '@angular/material/card';
 import { projectionByIndex } from '../../helper/projections';
 import { ChangeEntry, IZsChangeset, IZsMapOperation, ZsMapState } from '@zskarte/types';
@@ -44,23 +44,12 @@ import { SigningService } from '../signing.service';
 export class ChangeTableComponent implements AfterViewInit {
   zsMapStateService = inject(ZsMapStateService);
   i18n = inject(I18NService);
-  private datePipe = inject(DatePipe);
-  private signing = inject(SigningService);
-  private session = inject(SessionService);
-  private state = inject(ZsMapStateService);
-  private changesetService = inject(ChangesetService);
-
   projectionFormatIndex = 0;
   numerical = false;
-
   readonly sort = viewChild(MatSort);
-
   public data: ChangeEntry[] = [];
   public changeTableTableDataSource = new MatTableDataSource([] as ChangeEntry[]);
   public technicalFields = false;
-  private mapState: ZsMapState | undefined;
-  private operation: IZsMapOperation | undefined;
-
   displayedColumnsTechnical: string[] = [
     'changesetId',
     'date',
@@ -79,7 +68,6 @@ export class ChangeTableComponent implements AfterViewInit {
     'description',
     'detailButton',
   ];
-
   displayedColumnsReduzed: string[] = [
     'date',
     'author',
@@ -94,8 +82,14 @@ export class ChangeTableComponent implements AfterViewInit {
     'label',
     'description',
   ];
-
   displayedColumns = this.displayedColumnsReduzed;
+  private datePipe = inject(DatePipe);
+  private signing = inject(SigningService);
+  private session = inject(SessionService);
+  private state = inject(ZsMapStateService);
+  private changesetService = inject(ChangesetService);
+  private mapState: ZsMapState | undefined;
+  private operation: IZsMapOperation | undefined;
 
   constructor() {
     this.operation = this.session.getOperation();

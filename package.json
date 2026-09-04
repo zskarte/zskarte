@@ -4,7 +4,7 @@
     "./packages/*"
   ],
   "engines": {
-    "node": ">=22.14.0"
+    "node": ">=22.22.3"
   },
   "scripts": {
     "start": "npm run docker-run && run-p start:*",
@@ -24,14 +24,16 @@
     "format:server": "npm run lint:server -- --fix",
     "format:types": "npm run lint:types -- --fix",
     "format:common": "npm run lint:common -- --fix",
-    "build": "run-p build:*",
+    "build": "run-s build:types build:common build:server build:app",
     "build:types": "cd packages/types && npm run build",
     "build:common": "cd packages/common && npm run build",
     "build:app:dev": "cd packages/app && npm run ng:build:dev",
     "build:app": "cd packages/app && npm run ng:build:prod",
     "build:server": "cd packages/server && npm run build",
-    "server:export": "cd packages/server && npm run export",
-    "server:import": "cd packages/server && npm run import",
+    "db:generate": "cd packages/server && npm run db:generate",
+    "db:migrate": "cd packages/server && npm run db:migrate",
+    "db:seed": "cd packages/server && npm run db:seed",
+    "maplayer:generate": "npm --prefix packages/server run maplayer:generate --",
     "cleanup": "tsx scripts/cleanup.ts",
     "postinstall": "patch-package"
   },
@@ -41,10 +43,10 @@
     "npm-run-all": "^4.1.5",
     "patch-package": "^8.0.1",
     "prettier": "^3.7.4",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "inquirer": "^12.3.2"
   },
   "dependencies": {
-    "@strapi/strapi": "^5.33.0",
     "fix-esm": "^1.0.1",
     "fuse.js": "^7.1.0",
     "ol": "^10.7.0",
@@ -54,10 +56,6 @@
   },
   "overrides": {
     "esbuild": "^0.27.2",
-    "inquirer": "^12.3.2",
-    "koa": "^2.16.3",
-    "@strapi/strapi": {
-      "vite": "^5.4.21"
-    }
+    "inquirer": "^12.3.2"
   }
 }

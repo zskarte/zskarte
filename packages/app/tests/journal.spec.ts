@@ -1,5 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
-import { clickOnMap, login } from './util';
+import { expect, Page, test } from '@playwright/test';
+import { clickOnMap, login, waitForTrpcResponse } from './util';
 import { random } from 'lodash';
 
 interface JournalEntry {
@@ -41,7 +41,9 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
 
   await page.waitForTimeout(500);
 
+  const createEntryResponse = waitForTrpcResponse(page, 'journal.create');
   await modal.getByRole('button', { name: 'Erfassen' }).click();
+  await createEntryResponse;
   await expect(page.locator('tbody tr')).toHaveCount(rowCount + 1);
   await expect(modal.getByLabel('Absender')).toHaveValue('');
   await modal.getByRole('button', { name: 'Schliessen' }).click();
@@ -50,14 +52,13 @@ async function createJournalEntry(entry: JournalEntry, page: Page) {
 
 test.describe('Journal', () => {
   test.beforeEach(async ({ page }) => {
-    const journalEntriesResponse = page.waitForResponse(/api\/journal-entries/);
     await login(page);
     await page.locator('mat-list-item', { hasText: 'e2e test' }).first().click();
     const nameDialog = page.getByRole('dialog');
     await nameDialog.getByRole('textbox').fill('Guest');
     await nameDialog.getByRole('button', { name: 'OK' }).click();
     await page.waitForSelector('#map', { state: 'visible' });
-    await page.waitForTimeout(500);
+    const journalEntriesResponse = waitForTrpcResponse(page, 'journal.list');
     await page.getByRole('tab', { name: 'Journal' }).click();
     await journalEntriesResponse;
   });
@@ -65,7 +66,7 @@ test.describe('Journal', () => {
   test('should add journal entry', async ({ page }) => {
     const id = random(1000, 999999).toString();
     await createJournalEntry({ reportId: id }, page);
-    
+
     const rows = page.locator('tbody').getByRole('row');
     const rowCount = await rows.count();
     const firstRow = rows.filter({ has: page.getByRole('cell', { name: id, exact: true }) }).first();
@@ -76,7 +77,7 @@ test.describe('Journal', () => {
     await expect(firstRow.getByRole('cell').nth(5)).toHaveText('Triage');
 
     await createJournalEntry({ subject: 'Second entry' }, page);
-    
+
     await expect(rows).toHaveCount(rowCount + 1);
     const secondEntryRow = rows.filter({ hasText: 'Second entry' }).first();
     await expect(secondEntryRow).toBeVisible();
@@ -87,22 +88,23 @@ test.describe('Journal', () => {
 
     await page.getByRole('tab', { name: 'Karte' }).click();
     await page.getByRole('button', { name: 'Journal' }).click();
-    
+
     await page.waitForSelector('mat-tab-group', { state: 'visible' });
     await page.waitForSelector('mat-spinner', { state: 'hidden' }).catch(() => {});
-    
+
     await page.getByTestId('entry-to-draw').filter({ hasText: 'To draw' }).first().click();
     await page.getByRole('button', { name: 'Signatur hinzufügen' }).click();
-    
+
     await page.waitForSelector('.journal-sidebar', { state: 'hidden' }).catch(() => {});
     await page.waitForSelector('app-journal-draw-overlay', { state: 'visible' });
-    
+
     // Wait for the draw dialog to appear and select a sign
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).waitFor({ state: 'visible' });
     await page.getByRole('cell', { name: 'ABC Dekontaminationsstelle' }).click();
     await clickOnMap(page, { x: 659, y: 250 });
-    
+
+    const updateEntryResponse = waitForTrpcResponse(page, 'journal.update');
     await page.getByRole('button', { name: 'Als done markieren' }).click();
-    await page.waitForResponse(/api\/journal-entries/);
-  })
+    await updateEntryResponse;
+  });
 });

@@ -3,36 +3,42 @@ FROM node:22.14.0-slim AS build
 # Create app directory
 WORKDIR /app
 
-# npm install
-ADD ./package.json /app/package.json
-ADD ./package-lock.json /app/package-lock.json
-ADD ./packages/server/package.json /app/packages/server/package.json
-RUN npm ci 
+# Install workspace dependencies
+COPY package.json package-lock.json ./
+COPY packages/types/package.json ./packages/types/package.json
+COPY packages/common/package.json ./packages/common/package.json
+COPY packages/server/package.json ./packages/server/package.json
+COPY packages/app/package.json ./packages/app/package.json
+RUN npm ci
 
-# Copy all files
-ADD . /app
+# Copy source files
+COPY . ./
 
-# npm lint
+# Lint server
 RUN npm run lint:server
-# npm build
-RUN  npm run build:types && npm run build:common && NODE_ENV=production npm run build:server && rm -rf /app/packages/server/src
+
+# Build workspace packages in dependency order and prune source files
+RUN npm run build:types && \
+    npm run build:common && \
+    NODE_ENV=production npm run build:server && \
+    rm -rf /app/packages/server/src /app/packages/common/src /app/packages/types/src /app/packages/server/test
 
 
 FROM node:22.14.0-slim AS release
-# switzerchees: Optimize for alpine again fix sharp install issue first
-# FROM node:22.14.0-alpine AS release
-# RUN apk update && apk add --no-cache tzdata
 
 WORKDIR /app
-ENV HOST=0.0.0.0
+ENV HOST=0.0.0.0 \
+    PORT=1338 \
+    NODE_ENV=production
+
 USER node
-EXPOSE 1337
+EXPOSE 1338
 
-COPY --from=build --chown=node:node /app/node_modules /app/node_modules
-COPY --from=build --chown=node:node /app/packages/common /app/packages/common
-COPY --from=build --chown=node:node /app/packages/server /app/packages/server
-COPY --from=build --chown=node:node /app/packages/types /app/packages/types
-COPY --from=build --chown=node:node /app/package.json /app/package.json
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/packages/types ./packages/types
+COPY --from=build --chown=node:node /app/packages/common ./packages/common
+COPY --from=build --chown=node:node /app/packages/server ./packages/server
+COPY --from=build --chown=node:node /app/package.json ./package.json
 
-# start command
+# Start server
 CMD ["npm", "run", "start:server:prod"]

@@ -33,7 +33,7 @@ export class EmptyHeaderComponent {
 export class EmptyMediaComponent {
   @Input() variant: 'default' | 'icon' = 'default';
   @Input() className = '';
-  
+
   get mediaClasses(): string {
     const base = 'empty-media';
     const variantClass = this.variant === 'icon' ? 'empty-media-icon' : 'empty-media-default';

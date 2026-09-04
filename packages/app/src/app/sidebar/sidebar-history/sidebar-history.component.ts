@@ -4,51 +4,62 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { BehaviorSubject, filter, startWith, switchMap, tap } from 'rxjs';
-import { ApiService } from '../../api/api.service';
+import { filter, startWith, switchMap, tap } from 'rxjs';
+import { trpc } from '../../api/trpc.client';
+import { trpcRequest } from '../../api/trpc.error';
 import { SessionService } from '../../session/session.service';
 import { I18NService } from '../../state/i18n.service';
 import { ZsMapStateService } from '../../state/state.service';
-import { IZsChangeset, IZsMapOperation, IZsMapSnapshot } from '@zskarte/types';
-import { StrapiApiResponseList } from '../../helper/strapi-utils';
+import { IZsChangeset, IZsMapOperation } from '@zskarte/types';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MapRendererService } from '../../map-renderer/map-renderer.service';
 import { ChangeDetailComponent } from '../../changeset/change-detail/change-detail.component';
 
-interface IZsMapSnapshotExtended extends IZsMapSnapshot {
+/** page size of the snapshot table, shared between the paginator of the template and the query */
+const SNAPSHOT_PAGE_SIZE = 20;
+
+/** projection of `mapSnapshot.list`, inferred from the client so the `fields` allowlist stays authoritative */
+type MapSnapshotList = Awaited<ReturnType<typeof trpc.mapSnapshot.list.query>>;
+export type IZsMapSnapshotListed = MapSnapshotList['data'][number];
+
+interface IZsMapSnapshotExtended extends IZsMapSnapshotListed {
   changesets: IZsChangeset[];
 }
-export type IZsMapSnapshots = StrapiApiResponseList<IZsMapSnapshotExtended>;
+export type IZsMapSnapshots = Omit<MapSnapshotList, 'data'> & { data: IZsMapSnapshotExtended[] };
 
 @Component({
   selector: 'app-sidebar-history',
   templateUrl: './sidebar-history.component.html',
   styleUrls: ['./sidebar-history.component.scss'],
-  imports: [MatTableModule, MatPaginatorModule, DatePipe, MatButtonModule, MatIconModule, ChangeDetailComponent, CommonModule],
+  imports: [
+    MatTableModule,
+    MatPaginatorModule,
+    DatePipe,
+    MatButtonModule,
+    MatIconModule,
+    ChangeDetailComponent,
+    CommonModule,
+  ],
 })
 export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
   i18n = inject(I18NService);
-  private apiService = inject(ApiService);
-  private sessionService = inject(SessionService);
-  private stateService = inject(ZsMapStateService);
-  private rendererService = inject(MapRendererService);
-  private snackBarService = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
-  readonly historyDate = toSignal(this.stateService.observeHistoryDate());
-
   readonly paginator = viewChild.required(MatPaginator);
-
   activeSnapshot?: string | null;
   activeChangeset?: string;
   highlightedChangeset?: string;
   currentChangesets: IZsChangeset[] = [];
   expertView: boolean;
   operation?: IZsMapOperation;
-
   snapshots = signal<IZsMapSnapshots | undefined>(undefined);
   resultSize?: number;
-  readonly snapshotApiPath = '/api/map-snapshots';
+  readonly pageSize = SNAPSHOT_PAGE_SIZE;
+  private sessionService = inject(SessionService);
+  private stateService = inject(ZsMapStateService);
+  readonly historyDate = toSignal(this.stateService.observeHistoryDate());
+  private rendererService = inject(MapRendererService);
+  private snackBarService = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
     this.expertView = this.stateService.isExpertView();
@@ -58,7 +69,7 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
       const historyDate = this.historyDate();
       const snapshots = this.snapshots();
       if (historyDate && snapshots) {
-        const activeEntry = snapshots.data.find((s) => s.createdAt.getTime() === historyDate.getTime());
+        const activeEntry = snapshots.data.find((s) => s.createdAt?.getTime() === historyDate.getTime());
         this.activeSnapshot = activeEntry?.documentId;
       } else if (!historyDate) {
         this.activeSnapshot = null;
@@ -73,37 +84,52 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
         switchMap(async (p) => {
           const page = p.pageIndex + 1;
           const operationId = this.sessionService.getOperationId();
-          const response = await this.apiService.get<IZsMapSnapshots>(
-            `${this.snapshotApiPath}?fields[0]=createdAt&fields[1]=changesetIds&operationId=${operationId}&sort[0]=createdAt:desc&pagination[page]=${page}&pagination[pageSize]=20`,
-            { keepMeta: true },
+          if (!operationId) {
+            return undefined;
+          }
+          const { result } = await trpcRequest(
+            trpc.mapSnapshot.list.query({
+              operationId,
+              page,
+              pageSize: SNAPSHOT_PAGE_SIZE,
+              // `mapState` stays off the wire, the table only renders the timestamp and the changesets
+              fields: ['createdAt', 'changesetIds'],
+            }),
           );
-          const result = response.result;
-          result?.data.forEach((s) => {
-            s.changesets = s.changesetIds
-              ?.map((c) => this.operation?.changesets?.[c])
-              .filter((c) => !!c)
-              .reverse();
-          });
+          if (!result) {
+            return undefined;
+          }
+
+          const snapshots: IZsMapSnapshots = {
+            ...result,
+            data: result.data.map((s) => ({
+              ...s,
+              changesets: (s.changesetIds ?? [])
+                .map((c) => this.operation?.changesets?.[c])
+                .filter((c): c is IZsChangeset => !!c)
+                .reverse(),
+            })),
+          };
 
           if (
             page === 1 &&
-            result?.data &&
-            result.data.length > 0 &&
+            snapshots.data.length > 0 &&
             this.operation?.mapState?.changesetIds &&
             this.operation?.mapState?.changesetIds.length > 0
           ) {
-            const latestChangesetId = result.data[0].changesetIds[result.data[0].changesetIds.length - 1];
+            const latestChangesetIds = snapshots.data[0].changesetIds ?? [];
+            const latestChangesetId = latestChangesetIds[latestChangesetIds.length - 1];
             const changesetIds = this.operation.mapState.changesetIds.slice(
               this.operation.mapState.changesetIds.indexOf(latestChangesetId) + 1,
             );
 
             this.currentChangesets = changesetIds
               ?.map((c) => this.operation?.changesets?.[c])
-              .filter((c) => !!c)
+              .filter((c): c is IZsChangeset => !!c)
               .reverse();
           }
 
-          return result;
+          return snapshots;
         }),
         tap((r) => {
           this.resultSize = r?.meta.pagination.total;
@@ -118,14 +144,14 @@ export class SidebarHistoryComponent implements AfterViewInit, OnDestroy {
     this.stateService.replaceHighlightedFeatures([]);
   }
 
-  async setHistory(snapshot: IZsMapSnapshot) {
+  async setHistory(snapshot: IZsMapSnapshotListed) {
     this.activeSnapshot = snapshot.documentId;
-    const { result } = await this.apiService.get(`${this.snapshotApiPath}/${snapshot.documentId}`);
+    const result = await trpc.mapSnapshot.byId.query({ documentId: snapshot.documentId });
 
-    this.stateService.setMapState(result.mapState, snapshot.createdAt);
+    this.stateService.setMapState(result.mapState ?? undefined, snapshot.createdAt);
 
     this.snackBarService.open(
-      `${this.i18n.get('toastSnapshotApplied')}: ${snapshot.createdAt.toLocaleString()}`,
+      `${this.i18n.get('toastSnapshotApplied')}: ${snapshot.createdAt?.toLocaleString()}`,
       'OK',
       {
         duration: 2000,

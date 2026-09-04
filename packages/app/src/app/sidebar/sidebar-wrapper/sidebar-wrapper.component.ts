@@ -15,7 +15,7 @@ import { SidebarMenuComponent } from '../sidebar-menu/sidebar-menu.component';
 import { SidebarPrintComponent } from '../sidebar-print/sidebar-print.component';
 import { SidebarJournalComponent } from '../sidebar-journal/sidebar-journal.component';
 import { SelectedFeatureComponent } from '../../selected-feature/selected-feature.component';
-import { takeUntil, Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar-wrapper',
@@ -40,24 +40,22 @@ export class SidebarWrapperComponent {
   i18n = inject(I18NService);
   sidebar = inject(SidebarService);
   session = inject(SessionService);
-  private _state = inject(ZsMapStateService);
-
   SidebarContext = SidebarContext;
-
   public showLogo = true;
   public sidebarTitle = '';
   public logo = '';
   public localOperation = false;
-
+  private _state = inject(ZsMapStateService);
   private _ngUnsubscribe = new Subject<void>();
 
   constructor() {
     this.logo = this.session.getLogo() ?? '';
     this.localOperation = this.session.getOperationId()?.startsWith('local-') ?? false;
-    
-    this.sidebar.observeContext()
+
+    this.sidebar
+      .observeContext()
       .pipe(takeUntil(this._ngUnsubscribe))
-      .subscribe(sidebarContext => {
+      .subscribe((sidebarContext) => {
         switch (sidebarContext) {
           case SidebarContext.Layers:
             this.showLogo = false;

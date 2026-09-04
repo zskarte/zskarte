@@ -18,6 +18,15 @@ export abstract class ZsMapBaseDrawElement<
   T extends ZsMapDrawElementState = ZsMapDrawElementState,
 > extends ZsMapBaseElement<T> {
   public elementState?: T;
+  // -> if multiple fields are changed with less then 250ms break, the previous field change are lost.
+  private _debouncedUpdateElementState = debounce((updateFn: (draft: ZsMapDrawElementState) => void) => {
+    this._state.updateMapState((draft) => {
+      const element = draft.drawElements?.[this._id];
+      if (element) {
+        updateFn(element);
+      }
+    });
+  }, 250);
 
   constructor(
     protected override _id: string,
@@ -41,6 +50,72 @@ export abstract class ZsMapBaseDrawElement<
       }
       this._setSignatureState(element);
     });
+  }
+
+  // static handlers for drawing
+  public static getOlDrawHandler(state: ZsMapStateService, element: ZsMapElementToDraw): Draw {
+    const draw = new Draw(
+      this._enhanceOlDrawOptions({
+        source: new VectorSource({ wrapX: false }),
+        type: this._getOlDrawType(element.symbolId),
+      }),
+    );
+    draw.on('drawend', (event) => {
+      this._parseFeature(event.feature, state, element);
+    });
+    return draw;
+  }
+
+  protected static _getOlDrawType(symbolId?: number): Type {
+    throw new Error(`static fn _getOlDrawType is not implemented ${symbolId}`);
+  }
+
+  // WARN: this logic "debounce" all element changes together not by field
+
+  protected static _enhanceOlDrawOptions(options: Options) {
+    return options;
+  }
+
+  protected static _parseFeature(
+    event: Feature<Geometry>,
+    state: ZsMapStateService,
+    element: ZsMapElementToDraw,
+  ): void {
+    console.error('static fn _parseFeature is not implemented', { event, state, element });
+    throw new Error('static fn _parseFeature is not implemented');
+  }
+
+  public observeCoordinates(): Observable<number[] | number[][] | undefined> {
+    return this._element.pipe(
+      map((o) => {
+        if (o?.coordinates) {
+          this._doInitialize(o);
+        }
+        return o?.coordinates;
+      }),
+      distinctUntilChanged((x, y) => areCoordinatesEqual(x, y)),
+      takeUntil(this._unsubscribe),
+    );
+  }
+
+  public updateElementState(updateFn: (draft: ZsMapDrawElementState) => void) {
+    this._debouncedUpdateElementState(updateFn);
+  }
+
+  public setCoordinates(coordinates: number[] | number[][] | undefined): void {
+    this._debouncedUpdateElementState((draft: ZsMapDrawElementState) => {
+      draft.coordinates = coordinates;
+    });
+  }
+
+  public observeLayer(): Observable<string | undefined> {
+    return this._element.pipe(
+      map((o) => {
+        return o?.layer;
+      }),
+      distinctUntilChanged((x, y) => x === y),
+      takeUntil(this._unsubscribe),
+    );
   }
 
   private _setSignatureState(state: T | undefined) {
@@ -89,77 +164,5 @@ export abstract class ZsMapBaseDrawElement<
     }
 
     this._isInitialized = true;
-  }
-
-  public observeCoordinates(): Observable<number[] | number[][] | undefined> {
-    return this._element.pipe(
-      map((o) => {
-        if (o?.coordinates) {
-          this._doInitialize(o);
-        }
-        return o?.coordinates;
-      }),
-      distinctUntilChanged((x, y) => areCoordinatesEqual(x, y)),
-      takeUntil(this._unsubscribe),
-    );
-  }
-
-  // WARN: this logic "debounce" all element changes together not by field
-  // -> if multiple fields are changed with less then 250ms break, the previous field change are lost.
-  private _debouncedUpdateElementState = debounce((updateFn: (draft: ZsMapDrawElementState) => void) => {
-    this._state.updateMapState((draft) => {
-      const element = draft.drawElements?.[this._id];
-      if (element) {
-        updateFn(element);
-      }
-    });
-  }, 250);
-
-  public updateElementState(updateFn: (draft: ZsMapDrawElementState) => void) {
-    this._debouncedUpdateElementState(updateFn);
-  }
-
-  public setCoordinates(coordinates: number[] | number[][] | undefined): void {
-    this._debouncedUpdateElementState((draft: ZsMapDrawElementState) => {
-      draft.coordinates = coordinates;
-    });
-  }
-
-  public observeLayer(): Observable<string | undefined> {
-    return this._element.pipe(
-      map((o) => {
-        return o?.layer;
-      }),
-      distinctUntilChanged((x, y) => x === y),
-      takeUntil(this._unsubscribe),
-    );
-  }
-
-  // static handlers for drawing
-  public static getOlDrawHandler(state: ZsMapStateService, element: ZsMapElementToDraw): Draw {
-    const draw = new Draw(
-      this._enhanceOlDrawOptions({
-        source: new VectorSource({ wrapX: false }),
-        type: this._getOlDrawType(element.symbolId),
-      }),
-    );
-    draw.on('drawend', (event) => {
-      this._parseFeature(event.feature, state, element);
-    });
-    return draw;
-  }
-  protected static _getOlDrawType(symbolId?: number): Type {
-    throw new Error(`static fn _getOlDrawType is not implemented ${symbolId}`);
-  }
-  protected static _enhanceOlDrawOptions(options: Options) {
-    return options;
-  }
-  protected static _parseFeature(
-    event: Feature<Geometry>,
-    state: ZsMapStateService,
-    element: ZsMapElementToDraw,
-  ): void {
-    console.error('static fn _parseFeature is not implemented', { event, state, element });
-    throw new Error('static fn _parseFeature is not implemented');
   }
 }

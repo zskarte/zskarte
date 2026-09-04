@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ZsMapStateService } from '../../state/state.service';
 import { MapRendererService } from '../../map-renderer/map-renderer.service';
 import { ChangesetService, CONFLICT_INDEX_NAME, NO_CONFLICT_VALUE } from '../../changeset/changeset.service';
@@ -20,16 +20,15 @@ import { FormsModule } from '@angular/forms';
 export class SidebarChangesetComponent {
   NO_CONFLICT_VALUE = NO_CONFLICT_VALUE;
   CONFLICT_INDEX_NAME = CONFLICT_INDEX_NAME;
-
-  private readonly _state = inject(ZsMapStateService);
-  private _renderer = inject(MapRendererService);
   readonly changesetService = inject(ChangesetService);
-  private _snackBar = inject(MatSnackBar);
   readonly i18n = inject(I18NService);
-  private _activeLayer = this._state.getActiveLayer()?.getId();
   conflictsOnly = true;
   allHighlighted = false;
   allPreviewIndex = 3;
+  private readonly _state = inject(ZsMapStateService);
+  private _renderer = inject(MapRendererService);
+  private _snackBar = inject(MatSnackBar);
+  private _activeLayer = this._state.getActiveLayer()?.getId();
 
   toggleHighlightAll() {
     this.allHighlighted = !this.allHighlighted;

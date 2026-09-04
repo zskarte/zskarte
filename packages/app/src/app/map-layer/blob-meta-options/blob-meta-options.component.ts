@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { BlobService } from '../../db/blob.service';
-import { LocalBlobMeta, LocalMapInfo, LocalMapLayer, db } from '../../db/db';
+import { db, LocalBlobMeta, LocalMapInfo, LocalMapLayer } from '../../db/db';
 import { I18NService } from '../../state/i18n.service';
 import { LOCAL_MAP_STYLE_PATH } from '../../session/default-map-values';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,10 +35,7 @@ export class BlobMetaOptionsComponent {
     mapLayer?: LocalMapLayer & GeoJSONMapLayer;
     localMap?: LocalMapInfo;
   }>(MAT_DIALOG_DATA);
-  private dialogRef = inject<MatDialogRef<BlobMetaOptionsComponent>>(MatDialogRef);
-  private _blobService = inject(BlobService);
   i18n = inject(I18NService);
-
   public dataBlobMeta: LocalBlobMeta | undefined;
   public styleBlobMeta: LocalBlobMeta | undefined;
   public label: string | undefined;
@@ -53,6 +50,8 @@ export class BlobMetaOptionsComponent {
   public layerConfigStyle = false;
   public noOfflineText: string | undefined;
   public mapUploadType = '*';
+  private dialogRef = inject<MatDialogRef<BlobMetaOptionsComponent>>(MatDialogRef);
+  private _blobService = inject(BlobService);
 
   constructor() {
     this.loadBlobMeta();
@@ -61,15 +60,17 @@ export class BlobMetaOptionsComponent {
   async loadBlobMeta() {
     if (this.data.mapLayer) {
       this.label = this.data.mapLayer.label;
-      if (this.data.mapLayer.type === 'geojson' || this.data.mapLayer.type === 'shape' || this.data.mapLayer.type === 'csv') {
+      if (
+        this.data.mapLayer.type === 'geojson' ||
+        this.data.mapLayer.type === 'shape' ||
+        this.data.mapLayer.type === 'csv'
+      ) {
         this.mapUploadType = '.' + this.data.mapLayer.type;
         this.data.mapLayer = { ...this.data.mapLayer };
-        this.dataBlobMeta = this.data.mapLayer.sourceBlobId
-          ? await db.localBlobMeta.get(this.data.mapLayer.sourceBlobId)
-          : undefined;
-        this.styleBlobMeta = this.data.mapLayer.styleBlobId
-          ? await db.localBlobMeta.get(this.data.mapLayer.styleBlobId)
-          : undefined;
+        this.dataBlobMeta =
+          this.data.mapLayer.sourceBlobId ? await db.localBlobMeta.get(this.data.mapLayer.sourceBlobId) : undefined;
+        this.styleBlobMeta =
+          this.data.mapLayer.styleBlobId ? await db.localBlobMeta.get(this.data.mapLayer.styleBlobId) : undefined;
         this.layerConfigStyle = this.data.mapLayer.styleSourceType === 'text';
         this.dataUrlDefault = this.data.mapLayer.source?.url;
         this.styleUrlDefault = this.data.mapLayer.styleUrl;
@@ -82,12 +83,10 @@ export class BlobMetaOptionsComponent {
       this.mapUploadType = '.pmtiles';
       this.label = this.i18n.get(this.data.localMap.map);
       if (this.data.localMap.map in zsMapStateSourceToDownloadUrl) {
-        this.dataBlobMeta = this.data.localMap.mapBlobId
-          ? await db.localBlobMeta.get(this.data.localMap.mapBlobId)
-          : undefined;
-        this.styleBlobMeta = this.data.localMap.styleBlobId
-          ? await db.localBlobMeta.get(this.data.localMap.styleBlobId)
-          : undefined;
+        this.dataBlobMeta =
+          this.data.localMap.mapBlobId ? await db.localBlobMeta.get(this.data.localMap.mapBlobId) : undefined;
+        this.styleBlobMeta =
+          this.data.localMap.styleBlobId ? await db.localBlobMeta.get(this.data.localMap.styleBlobId) : undefined;
         this.dataUrlDefault = zsMapStateSourceToDownloadUrl[this.data.localMap.map];
         this.styleUrlDefault = LOCAL_MAP_STYLE_PATH;
         this.dataUrl = this.dataBlobMeta?.url ?? this.dataUrlDefault;

@@ -11,17 +11,17 @@
       @if (data.wmsSources.length > 0) {
         <mat-selection-list class="availableSources">
           @for (source of data.wmsSources; track source) {
-            <mat-list-option (click)="toggleSource(source)" [selected]="wms_sources.includes(source.id ?? 0)">
+            <mat-list-option (click)="toggleSource(source)" [selected]="wms_sources.includes(source.documentId ?? '')">
               <div>{{ source.label }}</div>
               <div>{{ source.url }}</div>
             </mat-list-option>
           }
         </mat-selection-list>
         <button
-          class="buttonMargin"
-          mat-stroked-button
           (click)="selectCurrentSource()"
           [innerText]="i18n.get('useCurrentSources')"
+          class="buttonMargin"
+          mat-stroked-button
         ></button>
       } @else {
         <p>{{ i18n.get('noWmsSourcesAvailable') }}</p>
@@ -51,16 +51,15 @@
       @if (data.selectedLayers.length > 0) {
         <div class="buttons">
           <button
-            class="buttonMargin"
-            mat-stroked-button
             (click)="addCurrentLayers()"
             [innerText]="i18n.get('addAllActiveOnes')"
+            class="buttonMargin"
+            mat-stroked-button
           ></button>
         </div>
         <mat-action-list class="selectedLayers">
           @for (item of data.selectedLayers; track item) {
             <button
-              mat-list-item
               (click)="selectLayer(item)"
               [title]="
                 item.label +
@@ -76,6 +75,7 @@
                 : '') +
                 ')'
               "
+              mat-list-item
             >
               {{ item.label }}{{ changedOptions(item) ? ' *modified*' : '' }}
             </button>
@@ -110,13 +110,12 @@
       </div>
       <mat-form-field appearance="outline">
         <mat-label>{{ i18n.get('filter') }}</mat-label>
-        <input type="text" matInput [formControl]="layerFilter" />
+        <input [formControl]="layerFilter" matInput type="text" />
       </mat-form-field>
       <mat-action-list class="availableLayers">
         @if ((filteredAvailableLayers$ | async)?.length) {
           @for (item of filteredAvailableLayers$ | async; track item) {
             <button
-              mat-list-item
               (click)="selectLayer(item)"
               [title]="
                 item.label +
@@ -132,6 +131,7 @@
                 : '') +
                 ')'
               "
+              mat-list-item
             >
               {{ item.label }}
             </button>
@@ -145,6 +145,6 @@
 </app-dialog-body>
 
 <app-dialog-footer>
-  <button mat-stroked-button [mat-dialog-close]="null" [innerText]="i18n.get('cancel')"></button>
-  <button mat-flat-button color="primary" (click)="ok()">{{ i18n.get('ok') }}</button>
+  <button [innerText]="i18n.get('cancel')" [mat-dialog-close]="null" mat-stroked-button></button>
+  <button (click)="ok()" color="primary" mat-flat-button>{{ i18n.get('ok') }}</button>
 </app-dialog-footer>

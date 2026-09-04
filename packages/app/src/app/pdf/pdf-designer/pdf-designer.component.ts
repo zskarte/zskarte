@@ -1,19 +1,19 @@
 import {
+  AfterViewInit,
   Component,
-  OnDestroy,
-  ViewChild,
+  effect,
   ElementRef,
   inject,
   input,
-  effect,
-  signal,
+  OnDestroy,
   output,
-  AfterViewInit,
+  signal,
+  ViewChild,
 } from '@angular/core';
 import { I18NService } from '../../state/i18n.service';
 import { Designer } from '@pdfme/ui';
 import { debounce } from '../../helper/debounce';
-import { SplitComponent, SplitAreaComponent } from 'angular-split';
+import { SplitAreaComponent, SplitComponent } from 'angular-split';
 import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -41,14 +41,24 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
   print = output<void>();
 
   i18n = inject(I18NService);
-  private _dialog = inject(MatDialog);
-  private _designer: Designer | undefined;
-  private _pdfServiceFactory = inject(PdfServiceFactory);
-
   currentRow = signal<number>(0);
   currentCol = signal<number>(0);
   error = signal<string | null>(null);
   templateJson = signal<string>('');
+  private _dialog = inject(MatDialog);
+  private _designer: Designer | undefined;
+  private _pdfServiceFactory = inject(PdfServiceFactory);
+  private _debouncedHandleChangeTemplate = debounce((template) => {
+    this.templateJson.set(this.formatTemplateJson(template));
+  }, 500);
+  private _debouncedHandleTextareaChange = debounce(() => {
+    if (this.templateRef.nativeElement && this._designer) {
+      const text = this.templateRef.nativeElement.value;
+      if (this.isValidJSON(text)) {
+        this._designer.updateTemplate(JSON.parse(text));
+      }
+    }
+  }, 2000);
 
   constructor() {
     effect(() => {
@@ -98,38 +108,6 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
       this._designer.destroy();
       this._designer = undefined;
     }
-  }
-
-  private _debouncedHandleChangeTemplate = debounce((template) => {
-    this.templateJson.set(this.formatTemplateJson(template));
-  }, 500);
-
-  private _debouncedHandleTextareaChange = debounce(() => {
-    if (this.templateRef.nativeElement && this._designer) {
-      const text = this.templateRef.nativeElement.value;
-      if (this.isValidJSON(text)) {
-        this._designer.updateTemplate(JSON.parse(text));
-      }
-    }
-  }, 2000);
-
-  private updatePosition(event: Event) {
-    const text = (event.target as HTMLTextAreaElement).value;
-    const cursorPosition = (event.target as HTMLTextAreaElement).selectionStart;
-
-    let line = 1;
-    let column = 1;
-
-    for (let i = 0; i < cursorPosition; i++) {
-      if (text[i] === '\n') {
-        line++;
-        column = 1;
-      } else {
-        column++;
-      }
-    }
-    this.currentCol.set(column);
-    this.currentRow.set(line);
   }
 
   help() {
@@ -228,10 +206,33 @@ export class PdfDesignerComponent implements OnDestroy, AfterViewInit {
       '\n  "schemas":[\n' +
       formatSchemas(template.schemas) +
       '\n  ],\n' +
-      '  "basePdf":' + JSON.stringify(template.basePdf, null, 2).replace(/\n/g, '\n  ') + ',\n' +
-      '  "pdfmeVersion": "' + template.pdfmeVersion + '"\n' +
+      '  "basePdf":' +
+      JSON.stringify(template.basePdf, null, 2).replace(/\n/g, '\n  ') +
+      ',\n' +
+      '  "pdfmeVersion": "' +
+      template.pdfmeVersion +
+      '"\n' +
       '}'
     );
+  }
+
+  private updatePosition(event: Event) {
+    const text = (event.target as HTMLTextAreaElement).value;
+    const cursorPosition = (event.target as HTMLTextAreaElement).selectionStart;
+
+    let line = 1;
+    let column = 1;
+
+    for (let i = 0; i < cursorPosition; i++) {
+      if (text[i] === '\n') {
+        line++;
+        column = 1;
+      } else {
+        column++;
+      }
+    }
+    this.currentCol.set(column);
+    this.currentRow.set(line);
   }
 
   private isValidJSON(text: string) {

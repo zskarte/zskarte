@@ -4,68 +4,95 @@
 
 <app-dialog-body>
   <mat-card>
-      <div class="header">
-        <mat-form-field appearance="outline">
-          <input
-            matInput
-            name="listViewFilterString"
-            [(ngModel)]="listViewTableDataSource.filter"
-            #listViewFilterString="ngModel"
-            [placeholder]="i18n.get('csvSearchFor')"
-          />
-        </mat-form-field>
-        <app-projection-selection
-          [projectionFormatIndex]="projectionFormatIndex"
-          [numerical]="numerical"
-          (projectionChanged)="updateProjection($event)"
-        ></app-projection-selection>
-      </div>
-      <table mat-table [dataSource]="listViewTableDataSource" class="listView-table" matSort matSortActive="dateNumeric" matSortDirection="desc">
-        <ng-container matColumnDef="id">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by id">{{ i18n.get('csvID') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
-        </ng-container>
-        <ng-container matColumnDef="date">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by date">{{ i18n.get('csvDate') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.date }}</td>
-        </ng-container>
-        <ng-container matColumnDef="group">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by group">{{ i18n.get('csvGroup') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.group }}</td>
-        </ng-container>
-        <ng-container matColumnDef="sign">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by signature">{{ i18n.get('csvSignatur') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.sign }}</td>
-        </ng-container>
-        <ng-container matColumnDef="centroid">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by centroid">{{ i18n.get('csvCentroid') }}</th>
-          <td mat-cell *matCellDef="let element" class="centroid" (click)="navigateTo(element)">{{ element.centroid }}</td>
-        </ng-container>
-        <ng-container matColumnDef="location">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by location">{{ i18n.get('csvLocation') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.location }}</td>
-        </ng-container>
-        <ng-container matColumnDef="size">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by size">{{ i18n.get('csvSize') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.size }}</td>
-        </ng-container>
-        <ng-container matColumnDef="label">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by label">{{ i18n.get('csvLabel') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.label }}</td>
-        </ng-container>
-        <ng-container matColumnDef="reportNumber">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by reportNumber">{{ i18n.get('csvReportNumber') }}</th>
-          <td mat-cell *matCellDef="let element">{{ element.reportNumber }}</td>
-        </ng-container>
-        <ng-container matColumnDef="description">
-          <th mat-header-cell mat-sort-header *matHeaderCellDef sortActionDescription="Sort by description">
-            {{ i18n.get('csvDescription') }}
-          </th>
-          <td mat-cell *matCellDef="let element">{{ element.description }}</td>
-        </ng-container>
+    <div class="header">
+      <mat-form-field appearance="outline">
+        <input
+          #listViewFilterString="ngModel"
+          [(ngModel)]="listViewTableDataSource.filter"
+          [placeholder]="i18n.get('csvSearchFor')"
+          matInput
+          name="listViewFilterString"
+        />
+      </mat-form-field>
+      <app-projection-selection
+        (projectionChanged)="updateProjection($event)"
+        [numerical]="numerical"
+        [projectionFormatIndex]="projectionFormatIndex"
+      ></app-projection-selection>
+    </div>
+    <table
+      [dataSource]="listViewTableDataSource"
+      class="listView-table"
+      mat-table
+      matSort
+      matSortActive="dateNumeric"
+      matSortDirection="desc"
+    >
+      <ng-container matColumnDef="id">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by id">
+          {{ i18n.get('csvID') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.id }}</td>
+      </ng-container>
+      <ng-container matColumnDef="date">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by date">
+          {{ i18n.get('csvDate') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.date }}</td>
+      </ng-container>
+      <ng-container matColumnDef="group">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by group">
+          {{ i18n.get('csvGroup') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.group }}</td>
+      </ng-container>
+      <ng-container matColumnDef="sign">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by signature">
+          {{ i18n.get('csvSignatur') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.sign }}</td>
+      </ng-container>
+      <ng-container matColumnDef="centroid">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by centroid">
+          {{ i18n.get('csvCentroid') }}
+        </th>
+        <td (click)="navigateTo(element)" *matCellDef="let element" class="centroid" mat-cell>
+          {{ element.centroid }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="location">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by location">
+          {{ i18n.get('csvLocation') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.location }}</td>
+      </ng-container>
+      <ng-container matColumnDef="size">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by size">
+          {{ i18n.get('csvSize') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.size }}</td>
+      </ng-container>
+      <ng-container matColumnDef="label">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by label">
+          {{ i18n.get('csvLabel') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.label }}</td>
+      </ng-container>
+      <ng-container matColumnDef="reportNumber">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by reportNumber">
+          {{ i18n.get('csvReportNumber') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.reportNumber }}</td>
+      </ng-container>
+      <ng-container matColumnDef="description">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header sortActionDescription="Sort by description">
+          {{ i18n.get('csvDescription') }}
+        </th>
+        <td *matCellDef="let element" mat-cell>{{ element.description }}</td>
+      </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+    </table>
   </mat-card>
 </app-dialog-body>

@@ -1,12 +1,23 @@
 {
-  "extends": "@strapi/typescript-utils/tsconfigs/server",
   "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmitOnError": true,
+
+    "declaration": true,
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": ".",
-    "baseUrl": ".",
-    "esModuleInterop": true,
+    "rootDir": "src"
   },
-  "include": ["./", "src/**/*.json"],
-  "exclude": ["node_modules/", "build/", "dist/", ".cache/", ".tmp/", "src/admin/", "**/*.test.ts", "src/plugins/**"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules/", "dist/", "test/**/*.ts"]
 }

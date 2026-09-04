@@ -7,5 +7,5 @@ export enum SidebarContext {
   Menu = 'Menu',
   SelectedFeature = 'SelectedFeature',
   Print = 'Print',
-  Journal = 'Journal'
+  Journal = 'Journal',
 }

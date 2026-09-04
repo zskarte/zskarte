@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { I18NService } from '../state/i18n.service';
 import { MatButtonModule } from '@angular/material/button';
 import { lastValueFrom } from 'rxjs';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -16,10 +16,6 @@ export class InfoDialogComponent {
   dialogRef = inject<MatDialogRef<InfoDialogComponent>>(MatDialogRef);
   data = inject(MAT_DIALOG_DATA);
   i18n = inject(I18NService);
-
-  close() {
-    this.dialogRef.close();
-  }
 
   public static async showHtmlDialog(dialog: MatDialog, html: string, title: string | null = null) {
     const dialogRef = dialog.open(InfoDialogComponent, {
@@ -88,6 +84,20 @@ export class InfoDialogComponent {
     await lastValueFrom(dialogRef.afterClosed());
   }
 
+  public static showJSONDialog(dialog: MatDialog, domSanitizer: DomSanitizer, title: string, json: object) {
+    const html: SafeHtml | null = domSanitizer.bypassSecurityTrustHtml(
+      '<div style="background: #f8f8f8; padding: 10px; font-family: monospace; white-space: pre-wrap;">' +
+        this.highlightObject(json) +
+        '</div>',
+    );
+
+    dialog.open(InfoDialogComponent, {
+      data: { title, html },
+      height: '80vh',
+      width: '80vw',
+    });
+  }
+
   private static escapeHtml(text: string): string {
     return text
       .replace(/&/g, '&amp;')
@@ -129,17 +139,7 @@ export class InfoDialogComponent {
     return result;
   }
 
-  public static showJSONDialog(dialog: MatDialog, domSanitizer: DomSanitizer, title: string, json: object) {
-    const html: SafeHtml | null = domSanitizer.bypassSecurityTrustHtml(
-      '<div style="background: #f8f8f8; padding: 10px; font-family: monospace; white-space: pre-wrap;">' +
-        this.highlightObject(json) +
-        '</div>',
-    );
-
-    dialog.open(InfoDialogComponent, {
-      data: { title, html },
-      height: '80vh',
-      width: '80vw',
-    });
+  close() {
+    this.dialogRef.close();
   }
 }

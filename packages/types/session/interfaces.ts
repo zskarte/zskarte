@@ -1,36 +1,31 @@
 import { Locale } from '../i18n/interfaces';
 import { IZsMapOperation, IZsMapOrganization } from '../operation/interfaces';
 
-export enum PermissionType {
-  READ = 'read',
-  WRITE = 'write',
-  ALL = 'all',
-}
+export const ROLES = ['admin', 'organization', 'guest', 'operationwrite', 'operationread', 'public'] as const;
+export type Role = (typeof ROLES)[number];
 
-export enum AccessTokenType {
-  LONG = 'long',
-  SHORT = 'short',
-}
+export type PermissionType = 'read' | 'write' | 'all';
+export type AccessTokenType = 'long' | 'short';
+
 export interface IZsAccess {
-  id: string;
   documentId: string;
-  accessToken: string;
   type: PermissionType;
+  expiresOn: Date | null;
 }
 
 export interface IZsMapSession {
   id: string;
   permission?: PermissionType;
   operation?: IZsMapOperation;
-  organization?: IZsMapOrganization;
+  organization?: IZsMapOrganization | null;
   organizationLogo?: string;
   label?: string;
-  jwt?: string;
   locale: Locale;
   defaultLatitude?: number;
   defaultLongitude?: number;
   defaultZoomLevel?: number;
   workLocal?: boolean;
+  zsRole?: Role;
 }
 
 export interface IZso {
@@ -40,15 +35,19 @@ export interface IZso {
   logoSrcSet?: string;
 }
 
-export interface IAuthResult {
-  jwt: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    provider: string;
-    confirmed: boolean;
-    blocked: boolean;
-    createdAt: string;
-  };
+export interface IZsRolePermission {
+  role: Role;
+  permission: string;
+}
+
+export interface IZsRolePermissionToggleInput {
+  role: Role | string;
+  permission: string;
+  enabled: boolean;
+}
+
+export interface IZsPermissionMatrix {
+  permissions: readonly string[];
+  roles: readonly Role[];
+  matrix: Record<Role, Record<string, boolean>>;
 }

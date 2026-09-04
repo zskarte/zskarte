@@ -1,18 +1,19 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable, from, of, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { from, Observable, of, tap } from 'rxjs';
 import { Coordinate } from 'ol/coordinate';
 import { mercatorProjection, swissProjection } from '../../helper/projections';
-import { MapLayer, WMSMapLayer, WmsSource, WmsSourceApi } from '@zskarte/types';
+import { MapLayer, WMSMapLayer, WmsSource } from '@zskarte/types';
 import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 import OlTileWMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
 import WMSCapabilities from 'ol/format/WMSCapabilities';
-import { ServerType, DEFAULT_VERSION as WMS_DEFAULT_VERSION, getLegendUrl } from 'ol/source/wms';
+import { DEFAULT_VERSION as WMS_DEFAULT_VERSION, getLegendUrl, ServerType } from 'ol/source/wms';
 import TileWMS from 'ol/source/TileWMS';
 import OlTileLayer from '../../map-renderer/utils';
 import ImageLayer from 'ol/layer/Image';
 import ImageWMS from 'ol/source/ImageWMS';
-import { LOG2_ZOOM_0_RESOLUTION, DEFAULT_RESOLUTION } from '../../session/default-map-values';
-import { ApiResponse, ApiService } from '../../api/api.service';
+import { DEFAULT_RESOLUTION, LOG2_ZOOM_0_RESOLUTION } from '../../session/default-map-values';
+import { trpc } from '../../api/trpc.client';
+import { trpcRequest } from '../../api/trpc.error';
 import TileGrid, { Options as TileGridOptions } from 'ol/tilegrid/TileGrid';
 import { getForProjection } from 'ol/tilegrid';
 import { MapLayerService } from '../map-layer.service';
@@ -20,11 +21,14 @@ import { MapLayerService } from '../map-layer.service';
 const ATTRIBUTION_POPUP_STYLE =
   'position: absolute; top: -80vh; width: 500px; background-color: white; text-align: left; padding: 20px; margin-left: calc(50% - 250px)';
 
+/** projections of the `wmsSource` procedures, inferred from the client so the server stays authoritative */
+export type WmsSourceApiResponse = Awaited<ReturnType<typeof trpc.wmsSource.list.query>>[number];
+export type WmsSourceApiData = Parameters<typeof trpc.wmsSource.create.mutate>[0]['data'];
+
 @Injectable({
   providedIn: 'root',
 })
 export class WmsService {
-  private _api = inject(ApiService);
   private _mapLayerService = inject(MapLayerService);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,6 +37,152 @@ export class WmsService {
   private _capabilitiesLayerCache: Map<string, MapLayer[]> = new Map();
   private _legendCache: Map<string, Map<string, string | null>> = new Map();
   private _sourceAttributionCache: Map<string, string[]> = new Map();
+
+  static getfullWMTSCapaUrl(capaUrl: string) {
+    const url = new URL(capaUrl);
+    if (url.pathname === '/' || url.pathname === '/wmts' || url.pathname === '/wmts/') {
+      if (!url.pathname.endsWith('/')) {
+        url.pathname += '/';
+      }
+      url.pathname += '1.0.0/WMTSCapabilities.xml';
+    }
+    return url;
+  }
+
+  static getfullWMSCapaUrl(capaUrl: string) {
+    const url = new URL(capaUrl);
+    if (!url.searchParams.has('version')) {
+      url.searchParams.set('version', WMS_DEFAULT_VERSION);
+    }
+    if (!url.searchParams.has('SERVICE')) {
+      url.searchParams.set('SERVICE', 'WMS');
+    }
+    if (!url.searchParams.has('REQUEST')) {
+      url.searchParams.set('REQUEST', 'GetCapabilities');
+    }
+    return url;
+  }
+
+  static _getScaledTileGridInfos(grid: TileGrid, scaling = 1) {
+    if (scaling === 1) {
+      return null;
+    }
+    const resolutions = grid.getResolutions().slice(); // take a copy
+    const origins: Coordinate[] = [];
+    const tileSizes: Array<number | Array<number>> = [];
+    for (let i = 0; i < resolutions.length; i++) {
+      origins[i] = grid.getOrigin(i);
+      tileSizes[i] = grid.getTileSize(i);
+      if (!Array.isArray(tileSizes[i])) {
+        // @ts-expect-error "it's not a number[], checked the line above..."
+        tileSizes[i] = [tileSizes[i], tileSizes[i]];
+      }
+      tileSizes[i][0] = tileSizes[i][0] * scaling;
+      tileSizes[i][1] = tileSizes[i][1] * scaling;
+      resolutions[i] = resolutions[i] / scaling;
+    }
+    return {
+      extent: grid.getExtent(),
+      resolutions,
+      tileSizes,
+      origins,
+    } as TileGridOptions;
+  }
+
+  public static _scaleDominatorToZoom(scaleDenominator: number | undefined) {
+    if (scaleDenominator === undefined) {
+      return undefined;
+    }
+    //no idea why the * 0.97 is required to make value match more accurate
+    return (LOG2_ZOOM_0_RESOLUTION - Math.log2(scaleDenominator / DEFAULT_RESOLUTION)) * 0.97;
+  }
+
+  static mapWmsSourceResponse(source: WmsSourceApiResponse, organizationId: string): WmsSource {
+    //the response only transports the persisted columns, the timestamps and the relation are not part of WmsSource
+    return {
+      documentId: source.documentId,
+      url: source.url ?? '',
+      label: source.label ?? '',
+      type: source.type ?? 'wms',
+      attribution: source.attribution ?? undefined,
+      public: source.public,
+      owner: source.organization?.documentId === organizationId,
+    };
+  }
+
+  private static _createWMSLayer(
+    tiled: boolean,
+    layers: string,
+    version: string,
+    wmsUrl: string,
+    attributionHtml: string[] | string,
+    zIndex: number,
+    opacity: number,
+    MinScaleDenominator: number | undefined,
+    MaxScaleDenominator: number | undefined,
+    tileSize: number | undefined,
+    tileFormat: string | undefined,
+    gutter: number | undefined,
+  ) {
+    const sourceParams: { [key: string]: unknown } = {
+      LAYERS: layers,
+      VERSION: version,
+    };
+    if (tileFormat) {
+      sourceParams['FORMAT'] = tileFormat;
+    }
+    const sourceOptions = {
+      //projection: swissProjection, //use projection from view, if different gutter produce error artefacts
+      url: wmsUrl,
+      params: sourceParams,
+      serverType: 'mapserver' as ServerType, //'geoserver'
+      crossOrigin: 'anonymous',
+      attributions: attributionHtml,
+    };
+    const layerOptions = {
+      opacity,
+      maxZoom: WmsService._scaleDominatorToZoom(MinScaleDenominator),
+      minZoom: WmsService._scaleDominatorToZoom(MaxScaleDenominator),
+      zIndex,
+    };
+    if (tiled) {
+      let sourceOptionAddons = {};
+      if (tileSize && mercatorProjection) {
+        const defaultTileGrid = getForProjection(mercatorProjection);
+        gutter = gutter ?? Math.min(50, Math.ceil(tileSize * 0.1));
+        const scaling = (tileSize - gutter - gutter) / 256;
+        const gridParams = WmsService._getScaledTileGridInfos(defaultTileGrid, scaling);
+        if (gridParams) {
+          sourceOptionAddons = {
+            tileGrid: new TileGrid(gridParams),
+            //hidpi: false,
+            //ratio: 1,
+            gutter,
+          };
+        }
+      } else {
+        gutter = gutter ?? 12;
+      }
+      sourceParams['TILED'] = true;
+      return new OlTileLayer({
+        ...layerOptions,
+        source: new TileWMS({
+          ...sourceOptions,
+          transition: 0,
+          gutter, //prevent cutted features on image boundaries => need to use same projection for tile as for view!
+          ...sourceOptionAddons,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        }) as any,
+      });
+    } else {
+      return new ImageLayer({
+        ...layerOptions,
+        source: new ImageWMS({
+          ...sourceOptions,
+        }),
+      });
+    }
+  }
 
   public invalidateCache(capaUrl: string) {
     this._capabilitiesCache.delete(capaUrl);
@@ -65,17 +215,6 @@ export class WmsService {
       }
     }
     return parentAttribution;
-  }
-
-  static getfullWMTSCapaUrl(capaUrl: string) {
-    const url = new URL(capaUrl);
-    if (url.pathname === '/' || url.pathname === '/wmts' || url.pathname === '/wmts/') {
-      if (!url.pathname.endsWith('/')) {
-        url.pathname += '/';
-      }
-      url.pathname += '1.0.0/WMTSCapabilities.xml';
-    }
-    return url;
   }
 
   async getWMTSCapa(source: WmsSource) {
@@ -125,20 +264,6 @@ export class WmsService {
     });
     this._capabilitiesLayerCache.set(source.url, layers);
     return layers;
-  }
-
-  static getfullWMSCapaUrl(capaUrl: string) {
-    const url = new URL(capaUrl);
-    if (!url.searchParams.has('version')) {
-      url.searchParams.set('version', WMS_DEFAULT_VERSION);
-    }
-    if (!url.searchParams.has('SERVICE')) {
-      url.searchParams.set('SERVICE', 'WMS');
-    }
-    if (!url.searchParams.has('REQUEST')) {
-      url.searchParams.set('REQUEST', 'GetCapabilities');
-    }
-    return url;
   }
 
   async getWMSCapa(source: WmsSource) {
@@ -191,8 +316,8 @@ export class WmsService {
   }
 
   getLegendImgFromCapa(capaInfos) {
-    if (!capaInfos.Style){
-      if (!capaInfos.Layer){
+    if (!capaInfos.Style) {
+      if (!capaInfos.Layer) {
         return '';
       }
       return capaInfos.Layer.map((infos) => this.getLegendImgFromCapa(infos)).join('');
@@ -272,32 +397,6 @@ export class WmsService {
     return capa['Capability']['Request']['GetMap']['Format'] || ['image/png', 'image/jpeg'];
   }
 
-  static _getScaledTileGridInfos(grid: TileGrid, scaling = 1) {
-    if (scaling === 1) {
-      return null;
-    }
-    const resolutions = grid.getResolutions().slice(); // take a copy
-    const origins: Coordinate[] = [];
-    const tileSizes: Array<number | Array<number>> = [];
-    for (let i = 0; i < resolutions.length; i++) {
-      origins[i] = grid.getOrigin(i);
-      tileSizes[i] = grid.getTileSize(i);
-      if (!Array.isArray(tileSizes[i])) {
-        // @ts-expect-error "it's not a number[], checked the line above..."
-        tileSizes[i] = [tileSizes[i], tileSizes[i]];
-      }
-      tileSizes[i][0] = tileSizes[i][0] * scaling;
-      tileSizes[i][1] = tileSizes[i][1] * scaling;
-      resolutions[i] = resolutions[i] / scaling;
-    }
-    return {
-      extent: grid.getExtent(),
-      resolutions,
-      tileSizes,
-      origins,
-    } as TileGridOptions;
-  }
-
   async createWMTSLayer(mapLayer: MapLayer) {
     if (!mapLayer.source) {
       return [];
@@ -337,88 +436,6 @@ export class WmsService {
         zIndex: mapLayer.zIndex,
       }),
     ];
-  }
-
-  public static _scaleDominatorToZoom(scaleDenominator: number | undefined) {
-    if (scaleDenominator === undefined) {
-      return undefined;
-    }
-    //no idea why the * 0.97 is required to make value match more accurate
-    return (LOG2_ZOOM_0_RESOLUTION - Math.log2(scaleDenominator / DEFAULT_RESOLUTION)) * 0.97;
-  }
-
-  private static _createWMSLayer(
-    tiled: boolean,
-    layers: string,
-    version: string,
-    wmsUrl: string,
-    attributionHtml: string[] | string,
-    zIndex: number,
-    opacity: number,
-    MinScaleDenominator: number | undefined,
-    MaxScaleDenominator: number | undefined,
-    tileSize: number | undefined,
-    tileFormat: string | undefined,
-    gutter: number | undefined,
-  ) {
-    const sourceParams: { [key: string]: unknown } = {
-      LAYERS: layers,
-      VERSION: version,
-    };
-    if (tileFormat) {
-      sourceParams['FORMAT'] = tileFormat;
-    }
-    const sourceOptions = {
-      //projection: swissProjection, //use projection from view, if different gutter produce error artefacts
-      url: wmsUrl,
-      params: sourceParams,
-      serverType: 'mapserver' as ServerType, //'geoserver'
-      crossOrigin: 'anonymous',
-      attributions: attributionHtml,
-    };
-    const layerOptions = {
-      opacity,
-      maxZoom: WmsService._scaleDominatorToZoom(MinScaleDenominator),
-      minZoom: WmsService._scaleDominatorToZoom(MaxScaleDenominator),
-      zIndex,
-    };
-    if (tiled) {
-      let sourceOptionAddons = {};
-      if (tileSize && mercatorProjection) {
-        const defaultTileGrid = getForProjection(mercatorProjection);
-        gutter = gutter ?? Math.min(50, Math.ceil(tileSize * 0.1));
-        const scaling = (tileSize - gutter - gutter) / 256;
-        const gridParams = WmsService._getScaledTileGridInfos(defaultTileGrid, scaling);
-        if (gridParams) {
-          sourceOptionAddons = {
-            tileGrid: new TileGrid(gridParams),
-            //hidpi: false,
-            //ratio: 1,
-            gutter,
-          };
-        }
-      } else {
-        gutter = gutter ?? 12;
-      }
-      sourceParams['TILED'] = true;
-      return new OlTileLayer({
-        ...layerOptions,
-        source: new TileWMS({
-          ...sourceOptions,
-          transition: 0,
-          gutter, //prevent cutted features on image boundaries => need to use same projection for tile as for view!
-          ...sourceOptionAddons,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        }) as any,
-      });
-    } else {
-      return new ImageLayer({
-        ...layerOptions,
-        source: new ImageWMS({
-          ...sourceOptions,
-        }),
-      });
-    }
   }
 
   async createWMSLayer(mapLayer: WMSMapLayer) {
@@ -476,12 +493,12 @@ export class WmsService {
         mapLayer.zIndex,
         mapLayer.opacity,
         //use layer based value as fallback or as default based on splitIntoSubLayers value
-        mapLayer.splitIntoSubLayers
-          ? (info.MinScaleDenominator ?? mapLayer.MinScaleDenominator)
-          : (mapLayer.MinScaleDenominator ?? info.MinScaleDenominator),
-        mapLayer.splitIntoSubLayers
-          ? (info.MaxScaleDenominator ?? mapLayer.MaxScaleDenominator)
-          : (mapLayer.MaxScaleDenominator ?? info.MaxScaleDenominator),
+        mapLayer.splitIntoSubLayers ?
+          (info.MinScaleDenominator ?? mapLayer.MinScaleDenominator)
+        : (mapLayer.MinScaleDenominator ?? info.MinScaleDenominator),
+        mapLayer.splitIntoSubLayers ?
+          (info.MaxScaleDenominator ?? mapLayer.MaxScaleDenominator)
+        : (mapLayer.MaxScaleDenominator ?? info.MaxScaleDenominator),
         mapLayer.tileSize,
         mapLayer.tileFormat,
         mapLayer.gutter,
@@ -527,16 +544,8 @@ export class WmsService {
     ];
   }
 
-  static mapWmsSourceResponse(source: WmsSourceApi, organizationId: string) {
-    source.owner = source.organization?.documentId === organizationId;
-    delete source.organization;
-    delete source.createdAt;
-    delete source.updatedAt;
-    return source as WmsSource;
-  }
-
   async readGlobalWMSSources(organizationId: string) {
-    const { error, result: sources } = await this._api.get<WmsSourceApi[]>('/api/wms-sources');
+    const { error, result: sources } = await trpcRequest(trpc.wmsSource.list.query());
     if (error || !sources) {
       return [];
     }
@@ -547,21 +556,21 @@ export class WmsService {
     if (!source.owner) {
       return null;
     }
-    const { owner, ...validFields } = source;
-    let response: ApiResponse<WmsSourceApi>;
-    if (source.documentId) {
-      response = await this._api.put(`/api/wms-sources/${source.documentId}`, {
-        data: { ...validFields, organization: organizationId },
-      });
-    } else {
-      response = await this._api.post('/api/wms-sources', { data: { ...validFields, organization: organizationId } });
-    }
-    const { error, result } = response;
+    // the organization of the entry is derived from the session, sending it would be rejected with FORBIDDEN
+    const data: WmsSourceApiData = {
+      label: source.label,
+      type: source.type,
+      url: source.url,
+      attribution: source.attribution,
+      public: source.public,
+    };
+    const { error, result } =
+      source.documentId ?
+        await trpcRequest(trpc.wmsSource.update.mutate({ documentId: source.documentId, data }))
+      : await trpcRequest(trpc.wmsSource.create.mutate({ data }));
     if (error) {
       console.error('saveGlobalWMSSource', error);
     } else if (result) {
-      //on save the referenced organisation is no returned
-      result.organization = { documentId: organizationId };
       return WmsService.mapWmsSourceResponse(result, organizationId);
     }
     return null;

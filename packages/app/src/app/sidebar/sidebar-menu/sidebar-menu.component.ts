@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, inject, viewChild } from '@angular/core';
+import { Component, computed, inject, TemplateRef, viewChild } from '@angular/core';
 import { I18NService } from '../../state/i18n.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ZsMapStateService } from '../../state/state.service';
@@ -7,7 +7,7 @@ import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { SessionService } from '../../session/session.service';
 import { ZsMapBaseDrawElement } from '../../map-renderer/elements/base/base-draw-element';
 import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
-import { exportListViewExcel, mapListViewEntry, ListViewEntry } from '../../helper/listViewEntry';
+import { exportListViewExcel, ListViewEntry, mapListViewEntry } from '../../helper/listViewEntry';
 import { ListViewTableComponent } from '../../list-view-table/list-view-table.component';
 import { ShareDialogComponent } from '../../session/share-dialog/share-dialog.component';
 import { RevokeShareDialogComponent } from '../../session/revoke-share-dialog/revoke-share-dialog.component';
@@ -21,7 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { IncidentSelectComponent } from '../../incident-select/incident-select.component';
 import { MatMenuModule } from '@angular/material/menu';
-import { Locale, LOCALES, PermissionType, AccessTokenType } from '@zskarte/types';
+import { Locale, LOCALES } from '@zskarte/types';
 import { PersonRecoveryComponent } from '../../person-recovery/person-recovery.component';
 import { ResourceOverviewComponent } from '../../resource-overview/resource-overview.component';
 import { OrganisationSettings } from '../../organisation-settings/organisation-settings';
@@ -58,24 +58,22 @@ export class SidebarMenuComponent {
   dialog = inject(MatDialog);
   zsMapStateService = inject(ZsMapStateService);
   session = inject(SessionService);
-  private datePipe = inject(DatePipe);
-  private _dialog = inject(MatDialog);
-  private _operation = inject(OperationService);
   sidebar = inject(SidebarService);
-  private router = inject(Router);
   version = inject(VersionService);
-  private _changeset = inject(ChangesetService);
-  private _signing = inject(SigningService);
   appVersion = computed(() => this.version.versionInfos()?.version);
-
   readonly projectionSelectionTemplate = viewChild.required<TemplateRef<unknown>>('projectionSelectionTemplate');
-
   locales: Locale[] = LOCALES;
   listViewEntries: ListViewEntry[] = [];
   public incidents = new BehaviorSubject<number[]>([]);
   public hasWritePermission = false;
   public isArchived = true;
   public localOperation = false;
+  private datePipe = inject(DatePipe);
+  private _dialog = inject(MatDialog);
+  private _operation = inject(OperationService);
+  private router = inject(Router);
+  private _changeset = inject(ChangesetService);
+  private _signing = inject(SigningService);
 
   constructor() {
     this.incidents.next(this.session.getOperationEventStates() || []);
@@ -205,10 +203,7 @@ export class SidebarMenuComponent {
   }
 
   async generateShareLink(readOnly: boolean, isOneWayLink: boolean) {
-    const joinCode = await this.session.generateShareLink(
-      readOnly ? PermissionType.READ : PermissionType.WRITE,
-      isOneWayLink ? AccessTokenType.SHORT : AccessTokenType.LONG,
-    );
+    const joinCode = await this.session.generateShareLink(readOnly ? 'read' : 'write', isOneWayLink ? 'short' : 'long');
     this._dialog.open(ShareDialogComponent, {
       data: joinCode,
     });

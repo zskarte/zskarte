@@ -1,0 +1,50 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: #fafafa;
+}
+
+.admin-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  .admin-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    .toolbar-title {
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    .spacer {
+      flex: 1 1 auto;
+    }
+  }
+
+  .admin-content {
+    padding: 1.5rem;
+    flex: 1;
+
+    .admin-tabs {
+      .tab-icon {
+        margin-right: 0.5rem;
+      }
+
+      .tab-body {
+        padding: 1.5rem 0;
+
+        .admin-tab-card {
+          border-radius: 8px;
+        }
+      }
+    }
+  }
+}

@@ -11,7 +11,7 @@ export class ZsMapDrawLayer extends ZsMapBaseLayer {
   }
 
   /**
-   * Draw on the layer. 
+   * Draw on the layer.
    * @returns false if drawing is not possible
    */
   draw(type: ZsMapDrawElementStateType, options: { symbolId?: number; text?: string }): boolean {

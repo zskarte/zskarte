@@ -1,7 +1,7 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subject, takeUntil } from 'rxjs';
-import { getResponsiveImageSource } from '../../helper/strapi-utils';
-import { ApiService } from '../../api/api.service';
+import { trpc } from '../../api/trpc.client';
+import { getResponsiveImageSource } from '../../helper/media-utils';
 import { SessionService } from '../session.service';
 import { ALLOW_OFFLINE_ACCESS_KEY, GUEST_USER_IDENTIFIER, GUEST_USER_PASSWORD } from '../userLogic';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,7 +18,7 @@ import { TextDividerComponent } from '../../text-divider/text-divider.component'
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { IZso, IZsMapOrganization } from '@zskarte/types';
+import { IZso } from '@zskarte/types';
 
 @Component({
   selector: 'app-login',
@@ -41,10 +41,6 @@ import { IZso, IZsMapOrganization } from '@zskarte/types';
 export class LoginComponent implements OnDestroy {
   session = inject(SessionService);
   i18n = inject(I18NService);
-  private _api = inject(ApiService);
-  private _dialog = inject(MatDialog);
-  private router = inject(Router);
-
   public selectedOrganization?: IZso = undefined;
   public password = '';
   public organizations = new BehaviorSubject<IZso[]>([]);
@@ -54,6 +50,9 @@ export class LoginComponent implements OnDestroy {
   public isOnline = true;
   public hasGuestUser = false;
   public allowOfflineAccess = localStorage.getItem(ALLOW_OFFLINE_ACCESS_KEY);
+  filterControl = new FormControl();
+  private _dialog = inject(MatDialog);
+  private router = inject(Router);
   private _ngUnsubscribe = new Subject<void>();
 
   constructor() {
@@ -66,8 +65,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   async ngOnInit() {
-    const { error, result } = await this._api.get<IZsMapOrganization[]>('/api/organizations/forlogin');
-    if (error || !result) return;
+    const result = await trpc.organization.forLogin.query();
     const orgs: IZso[] = [];
     for (const org of result) {
       if (org.users?.length > 0 && org.users[0]?.username) {
@@ -94,8 +92,6 @@ export class LoginComponent implements OnDestroy {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
   }
-
-  filterControl = new FormControl();
 
   filterOrganizations() {
     const currentFiltered = this.organizations.value.filter((option) =>

@@ -27,13 +27,12 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './journal-draw-overlay.component.scss',
 })
 export class JournalDrawOverlayComponent {
-  private _sidebar = inject(SidebarService);
   public journal = inject(JournalService);
   public i18n = inject(I18NService);
   public search = inject(SearchService);
   expanded = signal(true);
   entry = computed(() => this.journal.drawingEntry);
-  markPotentialAddresses = signal(false);
+  private _sidebar = inject(SidebarService);
 
   constructor() {
     effect(() => {
@@ -55,10 +54,5 @@ export class JournalDrawOverlayComponent {
       await this.journal.startDrawing(this.entry()!, false);
     }
     this._sidebar.open(SidebarContext.Journal);
-  }
-
-  async showAllAddresses() {
-    await this.search.showAllFeature(this.entry()!.messageContent, true, [100, 100, 100, 100]);
-    this.search.addressPreview.set(true);
   }
 }

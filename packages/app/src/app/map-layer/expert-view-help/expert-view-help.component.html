@@ -3,91 +3,91 @@
     <mat-step [label]="i18n.get('docExpertIntroTitle')" completed="false">
       <div class="flexContainer">
         <img class="limitHeight" src="assets/doc/expert/view-button.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertIntro')"></p>
+        <p [innerHTML]="i18n.get('docExpertIntro')" class="description"></p>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docExpertWmsSourceTitle')" completed="false">
       <div class="flexContainer">
         <img class="small" src="assets/doc/expert/wms-source-button.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertWmsSourceButton')"></p>
+        <p [innerHTML]="i18n.get('docExpertWmsSourceButton')" class="description"></p>
       </div>
       <div class="flexContainer">
         <img class="small" src="assets/doc/expert/wms-source.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertWmsSource')"></p>
+        <p [innerHTML]="i18n.get('docExpertWmsSource')" class="description"></p>
       </div>
       <div class="flexContainer">
-        <div class="description" [innerHTML]="i18n.get('docExpertWmsSourceDetails')"></div>
+        <div [innerHTML]="i18n.get('docExpertWmsSourceDetails')" class="description"></div>
         <img class="responsive" src="assets/doc/expert/wms-source-details.png" />
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docExpertWmsLayersTitle')" completed="false">
       <div class="flexContainer">
         <img class="small" src="assets/doc/expert/available-layer.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertAvailableLayers')"></p>
+        <p [innerHTML]="i18n.get('docExpertAvailableLayers')" class="description"></p>
       </div>
       <div class="flexContainer">
         <img class="small" src="assets/doc/expert/selected-layers.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertSelectedLayers')"></p>
+        <p [innerHTML]="i18n.get('docExpertSelectedLayers')" class="description"></p>
       </div>
       <div class="flexContainer">
-        <p class="description" [innerHTML]="i18n.get('docExpertWmsLayers')"></p>
+        <p [innerHTML]="i18n.get('docExpertWmsLayers')" class="description"></p>
         <img class="responsive" src="assets/doc/expert/wms-layer.png" />
       </div>
       <div class="flexContainer">
-        <p class="description" [innerHTML]="i18n.get('docExpertWmsLayersGroup')"></p>
+        <p [innerHTML]="i18n.get('docExpertWmsLayersGroup')" class="description"></p>
         <img class="responsive" src="assets/doc/expert/wms-layer-group.png" />
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docExpertGeoJsonLayersTitle')" completed="false">
       <div class="flexContainer">
-        <p class="description" [innerHTML]="i18n.get('docExpertNewLayer')"></p>
+        <p [innerHTML]="i18n.get('docExpertNewLayer')" class="description"></p>
         <img class="small" src="assets/doc/expert/new-layer.png" />
       </div>
       <div class="flexContainer">
-        <p class="description" [innerHTML]="i18n.get('docExpertGeoJsonLayers')"></p>
+        <p [innerHTML]="i18n.get('docExpertGeoJsonLayers')" class="description"></p>
         <img class="responsive" src="assets/doc/expert/geojson-layer.png" />
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docExpertCsvLayersTitle')" completed="false">
       <div class="flexContainer">
         <img class="responsive" src="assets/doc/expert/csv-layer.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertCsvLayers')"></p>
+        <p [innerHTML]="i18n.get('docExpertCsvLayers')" class="description"></p>
       </div>
       <div class="flexContainer">
         <img class="responsive" src="assets/doc/expert/csv-layer-filter.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertCsvLayersFilter')"></p>
+        <p [innerHTML]="i18n.get('docExpertCsvLayersFilter')" class="description"></p>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docExpertSucheTitle')" completed="false">
       <div class="flexColContainer">
         <img class="responsive" src="assets/doc/expert/suche-layer.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertSuche')"></p>
+        <p [innerHTML]="i18n.get('docExpertSuche')" class="description"></p>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docExpertPersistLayersTitle')" completed="false">
       <div class="flexContainer">
         <img class="small" src="assets/doc/expert/persist-layers.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertPersistLayers')"></p>
+        <p [innerHTML]="i18n.get('docExpertPersistLayers')" class="description"></p>
       </div>
     </mat-step>
     <mat-step [label]="i18n.get('docExpertOrganisationDefaultsTitle')" completed="false">
       <div class="flexContainer">
         <img class="small" src="assets/doc/expert/organisation-defaults-button.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertOrganisationDefaultsButton')"></p>
+        <p [innerHTML]="i18n.get('docExpertOrganisationDefaultsButton')" class="description"></p>
       </div>
       <div class="flexContainer">
         <img class="responsive" src="assets/doc/expert/organisation-defaults.png" />
-        <p class="description" [innerHTML]="i18n.get('docExpertOrganisationDefaults')"></p>
+        <p [innerHTML]="i18n.get('docExpertOrganisationDefaults')" class="description"></p>
       </div>
     </mat-step>
   </mat-vertical-stepper>
 </div>
-<div mat-dialog-actions align="end">
+<div align="end" mat-dialog-actions>
   <button
-    mat-flat-button
-    color="primary"
+    [innerText]="i18n.get('ok')"
     [mat-dialog-close]="true"
     cdkFocusInitial
-    [innerText]="i18n.get('ok')"
+    color="primary"
+    mat-flat-button
   ></button>
 </div>

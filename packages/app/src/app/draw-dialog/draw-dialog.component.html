@@ -3,25 +3,25 @@
 </app-dialog-header>
 <app-dialog-body>
   <mat-card>
-    <app-recently-used-signs [dialog]="this" (selectSign)="selectSign($event)"></app-recently-used-signs>
+    <app-recently-used-signs (selectSign)="selectSign($event)" [dialog]="this"></app-recently-used-signs>
     <div class="filter">
       <mat-form-field appearance="outline" class="flexGrow">
         <input
-          name="filter"
-          matInput
-          cdkFocusInitial
-          [(ngModel)]="filter"
           (ngModelChange)="updateAvailableSigns()"
+          [(ngModel)]="filter"
+          cdkFocusInitial
+          matInput
+          name="filter"
           placeholder="{{ i18n.get('search') }}"
         />
       </mat-form-field>
       <mat-form-field appearance="outline" class="flexGrow">
         <mat-label>{{ i18n.get('filterByCategory') }}</mat-label>
-        <mat-select [(value)]="selected" (selectionChange)="updateAvailableSigns()">
+        <mat-select (selectionChange)="updateAvailableSigns()" [(value)]="selected">
           <mat-option>{{ i18n.get('allCategories') }}</mat-option>
           @for (category of signCategories; track category) {
             <mat-option value="{{ category.name }}">
-              <span class="categoryDot" [ngStyle]="{ 'background-color': category.color }"></span>
+              <span [ngStyle]="{ 'background-color': category.color }" class="categoryDot"></span>
               {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
             </mat-option>
           }
@@ -29,55 +29,60 @@
       </mat-form-field>
     </div>
     <div class="overflow-auto">
-      <table mat-table [dataSource]="filteredSigns">
+      <table [dataSource]="filteredSigns" mat-table>
         <ng-container matColumnDef="symbol">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('symbol') }}</th>
-          <td mat-cell *matCellDef="let sign"><img width="25" height="25" [src]="getImageUrl(sign.src)" /></td>
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('symbol') }}</th>
+          <td *matCellDef="let sign" mat-cell><img [src]="getImageUrl(sign.src)" height="25" width="25" /></td>
         </ng-container>
 
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('name') }}</th>
-          <td mat-cell *matCellDef="let sign">{{ i18n.getLabelForSign(sign) }}</td>
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('name') }}</th>
+          <td *matCellDef="let sign" mat-cell>{{ i18n.getLabelForSign(sign) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>{{ i18n.get('type') }}</th>
-          <td mat-cell *matCellDef="let sign">
+          <th *matHeaderCellDef mat-header-cell>{{ i18n.get('type') }}</th>
+          <td *matCellDef="let sign" mat-cell>
             <mat-icon aria-hidden="false">
               {{ getIconFromType(sign.type) }}
             </mat-icon>
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="['symbol', 'name', 'actions']"></tr>
-        <tr mat-row class="row" *matRowDef="let row; columns: ['symbol', 'name', 'actions']" (click)="selectSign(row)"></tr>
+        <tr *matHeaderRowDef="['symbol', 'name', 'actions']" mat-header-row></tr>
+        <tr
+          (click)="selectSign(row)"
+          *matRowDef="let row; columns: ['symbol', 'name', 'actions']"
+          class="row"
+          mat-row
+        ></tr>
       </table>
     </div>
   </mat-card>
 </app-dialog-body>
 <app-dialog-footer>
   <div class="no-symbol-buttons">
-    <button mat-flat-button color="primary" (click)="addText()" aria-label="Text">
+    <button (click)="addText()" aria-label="Text" color="primary" mat-flat-button>
       <mat-icon>font_download</mat-icon>
       {{ i18n.get('text') }}
     </button>
-    <button mat-flat-button color="primary" (click)="addLine()" aria-label="Linie">
+    <button (click)="addLine()" aria-label="Linie" color="primary" mat-flat-button>
       <mat-icon>show_chart</mat-icon>
       {{ i18n.get('line') }}
     </button>
-    <button mat-flat-button color="primary" (click)="addPolygon()" aria-label="Polygon">
+    <button (click)="addPolygon()" aria-label="Polygon" color="primary" mat-flat-button>
       <mat-icon>widgets</mat-icon>
       {{ i18n.get('polygon') }}
     </button>
-    <button mat-flat-button color="primary" (click)="addRectangle()" aria-label="Rechteck">
+    <button (click)="addRectangle()" aria-label="Rechteck" color="primary" mat-flat-button>
       <mat-icon>rectangle</mat-icon>
       {{ i18n.get('rectangle') }}
     </button>
-    <button mat-flat-button color="primary" (click)="addCircle()" aria-label="Kreis">
+    <button (click)="addCircle()" aria-label="Kreis" color="primary" mat-flat-button>
       <mat-icon>circle</mat-icon>
       {{ i18n.get('oval') }}
     </button>
-    <button mat-flat-button color="primary" (click)="startFreehand()" aria-label="Freihand">
+    <button (click)="startFreehand()" aria-label="Freihand" color="primary" mat-flat-button>
       <mat-icon>gesture</mat-icon>
       {{ i18n.get('freehand') }}
     </button>

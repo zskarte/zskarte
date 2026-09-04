@@ -1,0 +1,121 @@
+.permissions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.search-field {
+  min-width: 280px;
+  max-width: 400px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.matrix-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--mat-sys-surface, #fff);
+  border-radius: 8px;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.header-row {
+  background: var(--mat-sys-surface-container-low, #f5f5f5);
+  border-bottom: 2px solid var(--mat-sys-outline-variant, #e0e0e0);
+}
+
+.perm-header {
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface, #333);
+  min-width: 240px;
+}
+
+.role-header {
+  padding: 14px 16px;
+  text-align: center;
+  min-width: 110px;
+}
+
+.role-name {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--mat-sys-secondary-container, #e8def8);
+  color: var(--mat-sys-on-secondary-container, #1d192b);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.group-header-row {
+  background: var(--mat-sys-surface-container-highest, #ececec);
+}
+
+.group-header-cell {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mat-sys-primary, #1976d2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.group-icon {
+  vertical-align: middle;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+}
+
+.perm-row {
+  border-bottom: 1px solid var(--mat-sys-outline-variant, #e8e8e8);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low, #fafafa);
+  }
+}
+
+.perm-name-cell {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-family: monospace;
+  color: var(--mat-sys-on-surface, #222);
+}
+
+.checkbox-cell {
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.btn-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+}

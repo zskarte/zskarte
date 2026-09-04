@@ -2,6 +2,7 @@
   min-width: 400px;
   max-width: 500px;
 }
+
 mat-form-field {
   margin-top: 0.5rem;
   width: 100%;
@@ -12,9 +13,11 @@ mat-form-field {
   line-height: 1em;
   margin-bottom: 5px;
 }
+
 .attributionTitle {
   line-height: 1em;
 }
+
 .attributionTitle div {
   display: inline-block;
   font-size: 0.8em;
@@ -28,6 +31,7 @@ mat-form-field {
   box-sizing: border-box;
   width: 30%;
 }
+
 .attr-url {
   box-sizing: border-box;
   width: calc(70% - 24px);

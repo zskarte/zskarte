@@ -1,10 +1,10 @@
-<div class="coordinates mat-elevation-z3" [ngClass]="{'showOptions': showOptions}">
+<div [ngClass]="{ showOptions: showOptions }" class="coordinates mat-elevation-z3">
   @if (showOptions) {
     <app-projection-selection
+      (projectionChanged)="updateProjection($event)"
+      [multiple]="true"
       [projectionFormatIndexes]="projectionFormatIndexes()"
       [showNumerical]="false"
-      [multiple]="true"
-      (projectionChanged)="updateProjection($event)"
     ></app-projection-selection>
   }
   <div class="box">
@@ -15,10 +15,9 @@
         </span>
       }
     </div>
-    
-   <button class="switch" mat-icon-button (click)="toggleOptions()"> 
-    <mat-icon>{{ showOptions ? 'save' : 'settings' }}</mat-icon>
-  </button>
-    
+
+    <button (click)="toggleOptions()" class="switch" mat-icon-button>
+      <mat-icon>{{ showOptions ? 'save' : 'settings' }}</mat-icon>
+    </button>
   </div>
 </div>

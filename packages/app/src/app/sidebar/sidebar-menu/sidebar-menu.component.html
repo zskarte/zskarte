@@ -1,7 +1,7 @@
 <app-incident-select
-  [values]="(incidents | async) || []"
   (valuesChange)="updateIncidents($event)"
   [disabled]="!hasWritePermission || isArchived"
+  [values]="(incidents | async) || []"
 ></app-incident-select>
 
 @if (isArchived) {
@@ -10,63 +10,63 @@
 <mat-divider></mat-divider>
 
 @if (!localOperation && !zsMapStateService.isChangesetMergeMode()) {
-  <button mat-menu-item (click)="toggleHistory()">
+  <button (click)="toggleHistory()" mat-menu-item>
     @if (!(zsMapStateService.observeIsHistoryMode() | async)) {
-      <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('history')">history</mat-icon>
+      <mat-icon [attr.aria-label]="i18n.get('history')" aria-hidden="false">history</mat-icon>
     } @else {
-      <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('drawMode')">brush</mat-icon>
+      <mat-icon [attr.aria-label]="i18n.get('drawMode')" aria-hidden="false">brush</mat-icon>
     }
     {{ (zsMapStateService.observeIsHistoryMode() | async) ? i18n.get('drawMode') : i18n.get('history') }}
   </button>
   <mat-divider></mat-divider>
 }
-<button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="languageOptions">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('language')">language</mat-icon>
+<button [matMenuTriggerFor]="languageOptions" class="tools-menu-item" mat-menu-item>
+  <mat-icon [attr.aria-label]="i18n.get('language')" aria-hidden="false">language</mat-icon>
   {{ i18n.get('language') }}
 </button>
-<button mat-menu-item class="tools-menu-item" (click)="print()">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('print')">local_printshop</mat-icon>
+<button (click)="print()" class="tools-menu-item" mat-menu-item>
+  <mat-icon [attr.aria-label]="i18n.get('print')" aria-hidden="false">local_printshop</mat-icon>
   {{ i18n.get('print') }}
 </button>
-<button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="listViewOptions">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listView')">list_alt</mat-icon>
+<button [matMenuTriggerFor]="listViewOptions" class="tools-menu-item" mat-menu-item>
+  <mat-icon [attr.aria-label]="i18n.get('listView')" aria-hidden="false">list_alt</mat-icon>
   {{ i18n.get('listView') }}
 </button>
-<button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="changeOptions">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('changeTable')">list_alt</mat-icon>
+<button [matMenuTriggerFor]="changeOptions" class="tools-menu-item" mat-menu-item>
+  <mat-icon [attr.aria-label]="i18n.get('changeTable')" aria-hidden="false">list_alt</mat-icon>
   {{ i18n.get('changeTable') }}
 </button>
-<button mat-menu-item class="tools-menu-item" (click)="personRecovery()">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('personRecoveryOverview')">sensor_occupied</mat-icon>
+<button (click)="personRecovery()" class="tools-menu-item" mat-menu-item>
+  <mat-icon [attr.aria-label]="i18n.get('personRecoveryOverview')" aria-hidden="false">sensor_occupied</mat-icon>
   {{ i18n.get('personRecoveryOverview') }}
 </button>
-<button mat-menu-item class="tools-menu-item" (click)="openResourceOverviewWindow()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('resourceOverview')">list_alt</mat-icon>
-    {{ i18n.get('resourceOverview') }}
+<button (click)="openResourceOverviewWindow()" class="tools-menu-item" mat-menu-item>
+  <mat-icon [attr.aria-label]="i18n.get('resourceOverview')" aria-hidden="false">list_alt</mat-icon>
+  {{ i18n.get('resourceOverview') }}
 </button>
-<button mat-menu-item (click)="help()">
-  <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('help')">help</mat-icon>
+<button (click)="help()" mat-menu-item>
+  <mat-icon [attr.aria-label]="i18n.get('help')" aria-hidden="false">help</mat-icon>
   {{ i18n.get('help') }}
 </button>
 <mat-divider></mat-divider>
 <div class="mat-menu-item-with-info">
-  <button mat-menu-item (click)="zsMapStateService.toggleExpertView()">
+  <button (click)="zsMapStateService.toggleExpertView()" mat-menu-item>
     @if (!(zsMapStateService.observeIsExpertView() | async)) {
       <mat-icon aria-hidden="false">manage_accounts</mat-icon>
     }
     @if (zsMapStateService.observeIsExpertView() | async) {
-      <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('defaultView')">person</mat-icon>
+      <mat-icon [attr.aria-label]="i18n.get('defaultView')" aria-hidden="false">person</mat-icon>
     }
     {{ (zsMapStateService.observeIsExpertView() | async) ? i18n.get('defaultView') : i18n.get('expertView') }}
   </button>
-  <button mat-icon-button (click)="showExpertViewHelp()">
+  <button (click)="showExpertViewHelp()" mat-icon-button>
     <mat-icon>info</mat-icon>
   </button>
 </div>
 <mat-divider></mat-divider>
 @if (zsMapStateService.observeIsExpertView() | async) {
   @if (hasWritePermission && !localOperation) {
-    <button mat-menu-item (click)="organisationSettings()">
+    <button (click)="organisationSettings()" mat-menu-item>
       <mat-icon aria-hidden="false">settings</mat-icon>
       {{ i18n.get('organisationSettings') }}
     </button>
@@ -74,55 +74,55 @@
 }
 @if (hasWritePermission) {
   @if (!localOperation) {
-    <button mat-menu-item class="tools-menu-item" [matMenuTriggerFor]="shareOptions">
-      <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('share')">share</mat-icon>
+    <button [matMenuTriggerFor]="shareOptions" class="tools-menu-item" mat-menu-item>
+      <mat-icon [attr.aria-label]="i18n.get('share')" aria-hidden="false">share</mat-icon>
       {{ i18n.get('share') }}
     </button>
     <mat-divider></mat-divider>
   }
-  <button mat-menu-item class="tools-menu-item" (click)="navigateEvents()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('navigateOperations')">logout</mat-icon>
+  <button (click)="navigateEvents()" class="tools-menu-item" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('navigateOperations')" aria-hidden="false">logout</mat-icon>
     {{ i18n.get('navigateOperations') }}
   </button>
 } @else {
-  <button mat-menu-item class="tools-menu-item" (click)="logout()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('logout')">logout</mat-icon>
+  <button (click)="logout()" class="tools-menu-item" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('logout')" aria-hidden="false">logout</mat-icon>
     {{ i18n.get('logout') }}
   </button>
 }
 <mat-divider></mat-divider>
 <div class="version">
   {{ i18n.get('version') }}: <span>{{ appVersion() }}</span>
-  <button mat-flat-button class="tools-menu-item" (click)="version.showChangelog()">
+  <button (click)="version.showChangelog()" class="tools-menu-item" mat-flat-button>
     {{ i18n.get('changelog') }}
   </button>
 </div>
 
 <mat-menu #languageOptions="matMenu">
   @for (locale of locales; track locale) {
-    <button mat-menu-item (click)="setLocale(locale)" [ngClass]="{ active: locale === session.getLocale() }">
+    <button (click)="setLocale(locale)" [ngClass]="{ active: locale === session.getLocale() }" mat-menu-item>
       {{ i18n.get(locale) }}
     </button>
   }
 </mat-menu>
 
 <mat-menu #listViewOptions="matMenu">
-  <button mat-menu-item class="tools-menu-item" (click)="listViewTable()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listViewTable')">table_chart</mat-icon>
+  <button (click)="listViewTable()" class="tools-menu-item" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('listViewTable')" aria-hidden="false">table_chart</mat-icon>
     {{ i18n.get('listViewTable') }}
   </button>
-  <button mat-menu-item class="tools-menu-item" (click)="listViewExcelExport()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('saveAsExcel')">save</mat-icon>
+  <button (click)="listViewExcelExport()" class="tools-menu-item" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('saveAsExcel')" aria-hidden="false">save</mat-icon>
     {{ i18n.get('saveAsExcel') }}
   </button>
 </mat-menu>
 <mat-menu #changeOptions="matMenu">
-  <button mat-menu-item class="tools-menu-item" (click)="changeTable()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('listViewTable')">table_chart</mat-icon>
+  <button (click)="changeTable()" class="tools-menu-item" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('listViewTable')" aria-hidden="false">table_chart</mat-icon>
     {{ i18n.get('listViewTable') }}
   </button>
-  <button mat-menu-item class="tools-menu-item" (click)="changeExcelExport()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('saveAsExcel')">save</mat-icon>
+  <button (click)="changeExcelExport()" class="tools-menu-item" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('saveAsExcel')" aria-hidden="false">save</mat-icon>
     {{ i18n.get('saveAsExcel') }}
   </button>
 </mat-menu>
@@ -132,39 +132,39 @@
   </app-dialog-header>
   <app-dialog-body>
     <app-projection-selection
-      [projectionFormatIndex]="data.projectionFormatIndex"
-      [numerical]="data.numerical"
       (projectionChanged)="
         data.numerical = $event.numerical ?? data.numerical;
         data.projectionFormatIndex = $event.projectionFormatIndex ?? data.projectionFormatIndex
       "
+      [numerical]="data.numerical"
+      [projectionFormatIndex]="data.projectionFormatIndex"
     ></app-projection-selection>
   </app-dialog-body>
   <app-dialog-footer>
-    <button mat-stroked-button [mat-dialog-close]="null">{{ i18n.get('cancel') }}</button>
-    <button mat-flat-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>{{ i18n.get('ok') }}</button>
+    <button [mat-dialog-close]="null" mat-stroked-button>{{ i18n.get('cancel') }}</button>
+    <button [mat-dialog-close]="data" cdkFocusInitial color="primary" mat-flat-button>{{ i18n.get('ok') }}</button>
   </app-dialog-footer>
 </ng-template>
 
 <mat-menu #shareOptions="matMenu">
-  <button mat-menu-item (click)="generateShareLink(false, false)">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('generateMultiUseShareLink')">share</mat-icon>
+  <button (click)="generateShareLink(false, false)" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('generateMultiUseShareLink')" aria-hidden="false">share</mat-icon>
     {{ i18n.get('generateMultiUseShareLink') }}
   </button>
-  <button mat-menu-item (click)="generateShareLink(true, false)">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('generateMultiUseShareLink')">share</mat-icon>
+  <button (click)="generateShareLink(true, false)" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('generateMultiUseShareLink')" aria-hidden="false">share</mat-icon>
     {{ i18n.get('generateMultiUseShareLink') }} (readonly)
   </button>
-  <button mat-menu-item (click)="generateShareLink(false, true)">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('generateSingleUseShareLink')">qr_code</mat-icon>
+  <button (click)="generateShareLink(false, true)" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('generateSingleUseShareLink')" aria-hidden="false">qr_code</mat-icon>
     {{ i18n.get('generateSingleUseShareLink') }}
   </button>
-  <button mat-menu-item (click)="generateShareLink(true, true)">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('generateSingleUseShareLink')">qr_code</mat-icon>
+  <button (click)="generateShareLink(true, true)" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('generateSingleUseShareLink')" aria-hidden="false">qr_code</mat-icon>
     {{ i18n.get('generateSingleUseShareLink') }} (readonly)
   </button>
-  <button mat-menu-item (click)="showRevokeShareDialog()">
-    <mat-icon aria-hidden="false" [attr.aria-label]="i18n.get('manageAccess')">locked</mat-icon>
+  <button (click)="showRevokeShareDialog()" mat-menu-item>
+    <mat-icon [attr.aria-label]="i18n.get('manageAccess')" aria-hidden="false">locked</mat-icon>
     {{ i18n.get('manageAccess') }}
   </button>
 </mat-menu>

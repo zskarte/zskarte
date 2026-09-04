@@ -10,7 +10,7 @@
       }
     </div>
 
-    <mat-checkbox class="conflicts-only" [(ngModel)]="conflictsOnly" (change)="conflictsOnly = $event.checked">
+    <mat-checkbox (change)="conflictsOnly = $event.checked" [(ngModel)]="conflictsOnly" class="conflicts-only">
       show conflicts only
     </mat-checkbox>
 
@@ -38,10 +38,10 @@
                   <td>{{ value.path }}</td>
                   @for (field of CONFLICT_INDEX_NAME; track field) {
                     <td
-                      class="value"
+                      (click)="selectMeta(value, $index)"
                       [class.nv]="value[field] === NO_CONFLICT_VALUE"
                       [class.selected]="value.selected === $index"
-                      (click)="selectMeta(value, $index)"
+                      class="value"
                     >
                       @if (value[field] !== NO_CONFLICT_VALUE) {
                         {{ value[field] }}
@@ -59,22 +59,22 @@
       <div class="sub-title">show elements of corresponsing state</div>
       @for (field of CONFLICT_INDEX_NAME; track field) {
         <button
-          mat-flat-button
-          [class]="'header-' + $index"
-          [class.activePreview]="allPreviewIndex === $index"
           (click)="highlightAllPreview($index)"
+          [class.activePreview]="allPreviewIndex === $index"
+          [class]="'header-' + $index"
           class="highlightAllPreview"
+          mat-flat-button
           title="highlightAll"
         >
           {{ field }}
         </button>
       }
       <button
-        mat-flat-button
-        class="header-3"
-        [class.activePreview]="allPreviewIndex === 3"
         (click)="highlightAllPreview(3)"
+        [class.activePreview]="allPreviewIndex === 3"
+        class="header-3"
         class="highlightAllPreview"
+        mat-flat-button
         title="highlightAll"
       >
         merged
@@ -82,11 +82,11 @@
     </div>
     <div>
       <button
-        mat-flat-button
         (click)="toggleHighlightAll()"
-        class="highlightAll"
-        title="highlightAll"
         [class]="{ selected: allHighlighted }"
+        class="highlightAll"
+        mat-flat-button
+        title="highlightAll"
       >
         <mat-icon>{{ allHighlighted ? 'deselect' : 'select_all' }}</mat-icon>
         Highlight changed elements
@@ -94,15 +94,19 @@
     </div>
     @for (element of changesetService.conflictDetails()?.conflicts; track element.drawElementId) {
       @if (element.conflict || !conflictsOnly) {
-        <div class="merge-element" [attr.data-elemId]="element.drawElementId">
-          <div class="conflict-element" (mouseenter)="highlightElement(element, true)" (mouseleave)="highlightElement(element, false)">
+        <div [attr.data-elemId]="element.drawElementId" class="merge-element">
+          <div
+            (mouseenter)="highlightElement(element, true)"
+            (mouseleave)="highlightElement(element, false)"
+            class="conflict-element"
+          >
             @if (element.symbolImageUrl) {
               <img [src]="element.symbolImageUrl" class="signature-icon" />
             } @else {
               <mat-icon class="signature-icon">widgets</mat-icon>
             }
             <span class="elem-title">{{ element.elementName }}</span>
-            <button mat-icon-button (click)="zoomToElement()" title="zoomToElement">
+            <button (click)="zoomToElement()" mat-icon-button title="zoomToElement">
               <mat-icon>zoom_in_map</mat-icon>
             </button>
           </div>
@@ -112,10 +116,10 @@
                 <th>field</th>
                 @for (field of CONFLICT_INDEX_NAME; track field) {
                   <th
-                    [class]="'header-' + $index"
-                    [class.activePreview]="allPreviewIndex === $index"
                     (mouseenter)="highlightPreview(element, $index, true, $event)"
                     (mouseleave)="highlightPreview(element, $index, false, $event)"
+                    [class.activePreview]="allPreviewIndex === $index"
+                    [class]="'header-' + $index"
                   >
                     {{ field }}
                   </th>
@@ -129,11 +133,11 @@
                     <td>{{ value.path }}</td>
                     @for (field of CONFLICT_INDEX_NAME; track field) {
                       <td
-                        class="value"
-                        [class.nv]="value[field] === NO_CONFLICT_VALUE"
-                        [class.missing]="element.missing[field]"
-                        [class.selected]="value.selected === $index"
                         (click)="select(element, value, $index)"
+                        [class.missing]="element.missing[field]"
+                        [class.nv]="value[field] === NO_CONFLICT_VALUE"
+                        [class.selected]="value.selected === $index"
+                        class="value"
                       >
                         @if (value[field] === NO_CONFLICT_VALUE || element.missing[field]) {
                         } @else if (value.path === 'coordinates') {
@@ -151,7 +155,11 @@
         </div>
       }
     }
-    <div><button class="merge-button" mat-flat-button color="primary" (click)="finish()" title="finish">merge changes</button></div>
+    <div>
+      <button (click)="finish()" class="merge-button" color="primary" mat-flat-button title="finish">
+        merge changes
+      </button>
+    </div>
   } @else {
     <p>no conflicts, all fine</p>
   }

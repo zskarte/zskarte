@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { SessionService } from '../session.service';
@@ -14,7 +14,7 @@ export class OperationGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const operation = this._session.getOperation();
-    if (!operation?.documentId && !operation?.id) {
+    if (!operation?.documentId) {
       const urlTree = this._router.parseUrl('/operations');
       urlTree.queryParams = route.queryParams;
       return urlTree;

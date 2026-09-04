@@ -42,15 +42,13 @@ import { MatSliderModule } from '@angular/material/slider';
 })
 export class SidebarFiltersComponent {
   i18n = inject(I18NService);
-  private mapState = inject(ZsMapStateService);
-
   filterSymbols: any[] = [];
   signCategories: any[] = [...signCategories.values()];
+  capitalizeFirstLetter = capitalizeFirstLetter;
+  private mapState = inject(ZsMapStateService);
   enableClustering$ = this.mapState.observeEnableClustering();
   showNames$ = this.mapState.observeShowNames();
   globalSymbolScale$ = this.mapState.observeGlobalSymbolScale();
-  capitalizeFirstLetter = capitalizeFirstLetter;
-
 
   constructor() {
     combineLatest([

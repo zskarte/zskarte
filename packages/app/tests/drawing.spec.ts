@@ -1,6 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { clickOnMap, dblclickOnMap, login } from './util';
-
 
 test.describe('Drawing', () => {
   test.beforeEach(async ({ page }) => {
@@ -52,7 +51,6 @@ test.describe('Drawing', () => {
     await expect(page.getByLabel('Name')).toHaveValue('A TEST');
   });
 
-
   test('add rectangle', async ({ page }) => {
     await page.getByRole('button', { name: 'Add' }).click();
     await page.getByRole('button', { name: 'Rechteck' }).click();
@@ -60,7 +58,6 @@ test.describe('Drawing', () => {
     await dblclickOnMap(page, { x: 800, y: 600 });
     await expect(page.locator('app-selected-feature')).toBeVisible();
   });
-
 
   test('add circle', async ({ page }) => {
     await page.getByRole('button', { name: 'Add' }).click();
@@ -70,7 +67,7 @@ test.describe('Drawing', () => {
     await expect(page.locator('app-selected-feature')).toBeVisible();
   });
 
-  test('add and delete layer', async ({page}) => {
+  test('add and delete layer', async ({ page }) => {
     // Add layer
     const layerName = 'test_' + Date.now();
 

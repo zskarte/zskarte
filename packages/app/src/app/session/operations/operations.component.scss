@@ -37,8 +37,6 @@
     padding: 0;
   }
 
-
-
   mat-card-actions {
     display: flex;
     justify-content: flex-start;
@@ -68,6 +66,24 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+  }
+
+  .operations-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.5rem;
+
+    .title {
+      margin: 0;
+    }
+
+    .admin-panel-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
   }
 
   .card-overflow {

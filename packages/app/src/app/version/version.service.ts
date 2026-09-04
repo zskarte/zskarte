@@ -4,9 +4,9 @@ import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { I18NService } from '../state/i18n.service';
 import { version } from '../../../package.json';
-import { ApiService } from '../api/api.service';
+import { trpc } from '../api/trpc.client';
+import { trpcRequest } from '../api/trpc.error';
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
-import { CompatibilityResponse } from '@zskarte/types';
 
 export interface VersionInfos {
   version: string;
@@ -18,14 +18,13 @@ export interface VersionInfos {
   providedIn: 'root',
 })
 export class VersionService {
+  readonly versionInfos = signal<VersionInfos>({ version: version as string });
+  readonly compatibleWithBackend = signal<boolean | undefined>(undefined);
   private _swUpdate = inject(SwUpdate);
   private _dialog = inject(MatDialog);
   private _i18n = inject(I18NService);
-  private _api = inject(ApiService);
   private notCompatibleDialogRef: MatDialogRef<InfoDialogComponent, any> | undefined;
   private newVersionDialogRef: MatDialogRef<ConfirmationDialogComponent, any> | undefined;
-  readonly versionInfos = signal<VersionInfos>({ version: version as string });
-  readonly compatibleWithBackend = signal<boolean | undefined>(undefined);
 
   public initialize() {
     if (this._swUpdate.isEnabled) {
@@ -51,7 +50,7 @@ export class VersionService {
 
   public checkVersionCompatible() {
     if (this.compatibleWithBackend() === undefined) {
-      this._api.get<CompatibilityResponse>(`/api/version/compatibility?version=${version}`).then((response) => {
+      trpcRequest(trpc.version.compatibility.query({ version })).then((response) => {
         const { result, error } = response;
         if (error || !result?.success) {
           console.error(error);
@@ -114,6 +113,23 @@ export class VersionService {
     });
   }
 
+  async showChangelog() {
+    const response = await fetch('/assets/CHANGELOG.md');
+    let content: string;
+    if (!response.ok) {
+      const currentLog = this.versionInfos()?.changelog;
+      if (currentLog) {
+        content = `##${this.versionInfos()?.version}\n${currentLog}`;
+      } else {
+        content = this._i18n.get('noChangeLogAvaliable');
+      }
+    } else {
+      content = await response.text();
+    }
+
+    InfoDialogComponent.showHtmlDialog(this._dialog, this.convertChangelogToHtml(content), this._i18n.get('changelog'));
+  }
+
   private convertChangelogToHtml(content: string) {
     const lines = content.split('\n');
     if (lines[0] === '# Changelog') {
@@ -157,22 +173,5 @@ export class VersionService {
         }
       })
       .join('');
-  }
-
-  async showChangelog() {
-    const response = await fetch('/assets/CHANGELOG.md');
-    let content: string;
-    if (!response.ok) {
-      const currentLog = this.versionInfos()?.changelog;
-      if (currentLog) {
-        content = `##${this.versionInfos()?.version}\n${currentLog}`;
-      } else {
-        content = this._i18n.get('noChangeLogAvaliable');
-      }
-    } else {
-      content = await response.text();
-    }
-
-    InfoDialogComponent.showHtmlDialog(this._dialog, this.convertChangelogToHtml(content), this._i18n.get('changelog'));
   }
 }

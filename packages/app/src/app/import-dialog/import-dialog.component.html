@@ -2,13 +2,13 @@
   <h2>{{ i18n.get('import') }}</h2>
 </app-dialog-header>
 <app-dialog-body>
-  <input id="loadFromFile" type="file" accept=".zsjson" #fileInput />
+  <input #fileInput accept=".zsjson" id="loadFromFile" type="file" />
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-button (click)="onNoClick()">
+  <button (click)="onNoClick()" mat-button>
     {{ i18n.get('cancel') }}
   </button>
-  <button mat-flat-button color="primary" (click)="readFromFile()">
+  <button (click)="readFromFile()" color="primary" mat-flat-button>
     {{ i18n.get('import') }}
   </button>
 </app-dialog-footer>

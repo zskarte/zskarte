@@ -3,40 +3,39 @@
 </app-dialog-header>
 <app-dialog-body class="content">
   <mat-card>
-    <mat-form-field class="full-width" appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ i18n.get('scaleToUse') }}</mat-label>
-      <input matInput type="text" [(ngModel)]="scale" name="scale" cdkFocusInitial />
+      <input [(ngModel)]="scale" cdkFocusInitial matInput name="scale" type="text" />
     </mat-form-field>
-    <mat-form-field class="full-width" appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>screenDimension (in ")</mat-label>
-      <input matInput type="text" [(ngModel)]="screenDimension" name="screenDimension" (change)="updateDpi()" />
+      <input (change)="updateDpi()" [(ngModel)]="screenDimension" matInput name="screenDimension" type="text" />
     </mat-form-field>
-  </mat-card> 
+  </mat-card>
 
   <mat-card>
-    <mat-form-field class="full-width" appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>screenWidth (in px)</mat-label>
-      <input matInput type="text" [(ngModel)]="screenWidth" name="screenWidth" disabled />
+      <input [(ngModel)]="screenWidth" disabled matInput name="screenWidth" type="text" />
     </mat-form-field>
-    <mat-form-field class="full-width" appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>screenHeight (in px)</mat-label>
-      <input matInput type="text" [(ngModel)]="screenHeight" name="screenHeight" disabled />
+      <input [(ngModel)]="screenHeight" disabled matInput name="screenHeight" type="text" />
     </mat-form-field>
-    <mat-form-field class="full-width" appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>devicePixelRatio</mat-label>
-      <input matInput type="text" [(ngModel)]="devicePixelRatio" name="devicePixelRatio" disabled />
+      <input [(ngModel)]="devicePixelRatio" disabled matInput name="devicePixelRatio" type="text" />
     </mat-form-field>
-    <mat-form-field class="full-width" appearance="outline">
+    <mat-form-field appearance="outline" class="full-width">
       <mat-label>DPI</mat-label>
-      <input matInput type="text" [(ngModel)]="dpi" name="dpi" disabled />
+      <input [(ngModel)]="dpi" disabled matInput name="dpi" type="text" />
     </mat-form-field>
   </mat-card>
 </app-dialog-body>
 
 <app-dialog-footer>
-  <div mat-dialog-actions class="buttons" align="end">
-    <button mat-stroked-button (click)="cancel()">{{ i18n.get('cancel') }}</button>
-    <button mat-flat-button (click)="ok()" color="primary">{{ i18n.get('ok') }}</button>
+  <div align="end" class="buttons" mat-dialog-actions>
+    <button (click)="cancel()" mat-stroked-button>{{ i18n.get('cancel') }}</button>
+    <button (click)="ok()" color="primary" mat-flat-button>{{ i18n.get('ok') }}</button>
   </div>
 </app-dialog-footer>
-

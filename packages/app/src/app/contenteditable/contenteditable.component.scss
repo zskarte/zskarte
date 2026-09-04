@@ -17,6 +17,7 @@
   .formatted {
     display: none;
   }
+
   .raw {
     display: inline;
   }
@@ -31,6 +32,7 @@ quill-editor ::ng-deep {
     border: none;
     min-height: 200px;
   }
+
   .ql-editor {
     padding: 0;
     font-size: 16px;

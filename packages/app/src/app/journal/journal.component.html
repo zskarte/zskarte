@@ -1,9 +1,9 @@
-<mat-sidenav-container hasBackdrop="false" autoFocus="false">
-  <mat-sidenav class="journal-sidebar mat-elevation-z3" position="end" mode="over" [opened]="sidebarOpen" disableClose>
+<mat-sidenav-container autoFocus="false" hasBackdrop="false">
+  <mat-sidenav [opened]="sidebarOpen" class="journal-sidebar mat-elevation-z3" disableClose mode="over" position="end">
     <app-journal-form
-      [entry]="selectedJournalEntry()"
       (close)="close()"
       (dirty)="openDisabled = $event"
+      [entry]="selectedJournalEntry()"
     ></app-journal-form>
   </mat-sidenav>
 
@@ -11,45 +11,45 @@
     <div class="journal-header">
       <div class="journal-header-content">
         <h1>{{ i18n.get('journal') }}</h1>
-        @if(isHistoryMode() && !isCurrentMapData()) {
+        @if (isHistoryMode() && !isCurrentMapData()) {
           <div class="notHistory">{{ i18n.get('journalNotHistory') }}</div>
         }
         <div class="buttons">
           @if (!isOnline()) {
-            <mat-icon class="offline" [attr.aria-label]="i18n.get('youAreOffline')" [title]="i18n.get('youAreOffline')"
-              >signal_wifi_off</mat-icon
-            >
+            <mat-icon [attr.aria-label]="i18n.get('youAreOffline')" [title]="i18n.get('youAreOffline')" class="offline"
+              >signal_wifi_off
+            </mat-icon>
           }
           <button
-            mat-icon-button
             (click)="showPdfDesigner()"
             [attr.aria-label]="i18n.get('customizePrintForm')"
             [title]="i18n.get('customizePrintForm')"
+            mat-icon-button
           >
             <mat-icon>print</mat-icon>
           </button>
           <button
-            mat-icon-button
             (click)="export()"
             [attr.aria-label]="i18n.get('saveAsExcel')"
             [title]="i18n.get('saveAsExcel')"
+            mat-icon-button
           >
             <mat-icon>file_download</mat-icon>
           </button>
           <button
-            mat-icon-button
             (click)="journal.reload()"
             [attr.aria-label]="i18n.get('reloadFromServer')"
-            [title]="i18n.get('reloadFromServer')"
             [disabled]="!isOnline()"
+            [title]="i18n.get('reloadFromServer')"
+            mat-icon-button
           >
             <mat-icon>refresh</mat-icon>
           </button>
           <button
-            mat-icon-button
             (click)="sidebar.toggle(SidebarContext.Menu)"
             [attr.aria-label]="i18n.get('docMapMenuTitle')"
             [title]="i18n.get('docMapMenuTitle')"
+            mat-icon-button
           >
             <mat-icon>menu</mat-icon>
           </button>
@@ -58,14 +58,16 @@
     </div>
     <div class="journal-main">
       <div class="journal-filter-section">
-        <p><strong>{{ i18n.get('filter' )}}</strong></p>
+        <p>
+          <strong>{{ i18n.get('filter') }}</strong>
+        </p>
         <div class="journal-filter">
           <div class="journal-filter-row">
-            <mat-form-field class="journal-filter-search" appearance="outline">
+            <mat-form-field appearance="outline" class="journal-filter-search">
               <mat-label>{{ i18n.get('searchText') }}</mat-label>
-              <input matInput type="text" [formControl]="searchControl" />
+              <input [formControl]="searchControl" matInput type="text" />
             </mat-form-field>
-            <mat-form-field class="journal-filter-department" appearance="outline">
+            <mat-form-field appearance="outline" class="journal-filter-department">
               <mat-label>{{ i18n.get('department') }}</mat-label>
               <mat-select [formControl]="departmentControl">
                 <mat-option>{{ i18n.get('allDepartments') }}</mat-option>
@@ -78,26 +80,26 @@
           <div class="journal-filter-buttons">
             <div class="journal-filter-buttons-scroll">
               <mat-button-toggle-group hideSingleSelectionIndicator multiple>
-                <mat-button-toggle [checked]="eingangFilter" (change)="toggleEingangFilter($event)">
+                <mat-button-toggle (change)="toggleEingangFilter($event)" [checked]="eingangFilter">
                   {{ i18n.get('input') }}
                   <app-badge [count]="eingangCount()"></app-badge>
                 </mat-button-toggle>
-                <mat-button-toggle [checked]="triageFilter" (change)="toggleTriageFilter($event)">
+                <mat-button-toggle (change)="toggleTriageFilter($event)" [checked]="triageFilter">
                   {{ i18n.get('triage') }}
                   <app-badge [count]="triageCount()"></app-badge>
                 </mat-button-toggle>
-                <mat-button-toggle [checked]="decisionFilter" (change)="toggleDecisionFilter($event)">
+                <mat-button-toggle (change)="toggleDecisionFilter($event)" [checked]="decisionFilter">
                   {{ i18n.get('decision') }}
                   <app-badge [count]="decisionCount()"></app-badge>
                 </mat-button-toggle>
-                <mat-button-toggle [checked]="outgoingFilter" (change)="toggleOutgoingFilter($event)">
+                <mat-button-toggle (change)="toggleOutgoingFilter($event)" [checked]="outgoingFilter">
                   {{ i18n.get('output') }}
                   <app-badge [count]="outgoingCount()"></app-badge>
                 </mat-button-toggle>
               </mat-button-toggle-group>
             </div>
             <mat-chip-listbox class="journal-filter-chip">
-              <mat-chip-option [selected]="keyMessageFilter" (selectionChange)="toggleKeyMessageFilter($event)">
+              <mat-chip-option (selectionChange)="toggleKeyMessageFilter($event)" [selected]="keyMessageFilter">
                 {{ i18n.get('keyMessage') }}
               </mat-chip-option>
             </mat-chip-listbox>
@@ -106,7 +108,7 @@
       </div>
 
       <div class="journal-content">
-        <div class="loading-spinner" [hidden]="!journal.loading()">
+        <div [hidden]="!journal.loading()" class="loading-spinner">
           <mat-spinner></mat-spinner>
         </div>
         @if (journal.error()) {
@@ -119,108 +121,109 @@
             {{ i18n.get('showCachedJournalEntries') }}
           </div>
         }
-        <table class="journal-table"
-          mat-table
-          matSort
-          [dataSource]="dataSourceFiltered"
+        <table
           (matSortChange)="sortData($event)"
+          [dataSource]="dataSourceFiltered"
           [hidden]="journal.loading() || journal.error()"
           [trackBy]="trackByFn"
+          class="journal-table"
+          mat-table
+          matSort
         >
           <ng-container matColumnDef="messageNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageNumber">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="messageNumber">
               {{ i18n.get('messageNumberShort') }}
             </th>
-            <td mat-cell *matCellDef="let element">
+            <td *matCellDef="let element" mat-cell>
               {{ element.messageNumber }}
               @if (element.localOnly) {
                 <mat-icon
-                  class="localChange"
                   [attr.aria-label]="i18n.get('localOnlyJournal')"
                   [title]="i18n.get('localOnlyJournal')"
-                  >signal_wifi_off</mat-icon
-                >
+                  class="localChange"
+                  >signal_wifi_off
+                </mat-icon>
               } @else if (element.localPatch) {
                 <mat-icon
-                  class="localChange"
                   [attr.aria-label]="i18n.get('localPatchJournal')"
                   [title]="i18n.get('localPatchJournal')"
-                  >signal_wifi_off</mat-icon
-                >
+                  class="localChange"
+                  >signal_wifi_off
+                </mat-icon>
               }
             </td>
           </ng-container>
 
           <ng-container matColumnDef="messageSubject">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageSubject">{{ i18n.get('messageSubject') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.messageSubject }}</td>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="messageSubject">{{ i18n.get('messageSubject') }}</th>
+            <td *matCellDef="let element" mat-cell>{{ element.messageSubject }}</td>
           </ng-container>
 
           <ng-container matColumnDef="messageContent">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="messageContent">{{ i18n.get('messageContent') }}</th>
-            <td mat-cell *matCellDef="let element">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="messageContent">{{ i18n.get('messageContent') }}</th>
+            <td *matCellDef="let element" mat-cell>
               <div
+                [innerHTML]="element.messageContent | replaceAllAddressTokens: false"
                 class="journal-table-message-cell"
-                [innerHTML]="element.messageContent | replaceAllAddressTokens : false"
               ></div>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="dateMessage">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="dateMessage">{{ i18n.get('dateCreated') }}</th>
-            <td mat-cell *matCellDef="let element">{{ element.dateMessage?.toLocaleString('de-CH') }}</td>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="dateMessage">{{ i18n.get('dateCreated') }}</th>
+            <td *matCellDef="let element" mat-cell>{{ element.dateMessage?.toLocaleString('de-CH') }}</td>
           </ng-container>
 
           <ng-container matColumnDef="entryResponsibility">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="entryResponsibility">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="entryResponsibility">
               {{ i18n.get('responsibility') }}
             </th>
-            <td mat-cell *matCellDef="let element">
+            <td *matCellDef="let element" mat-cell>
               {{ journal.getResponsibility(element) }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="entryStatus">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="entryStatus">{{ i18n.get('status') }}</th>
-            <td mat-cell *matCellDef="let element">{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="entryStatus">{{ i18n.get('status') }}</th>
+            <td *matCellDef="let element" mat-cell>{{ i18n.get('journalEntry_' + element.entryStatus) }}</td>
           </ng-container>
 
           <ng-container matColumnDef="isKeyMessage">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="isKeyMessage">{{ i18n.get('keyMessage') }}</th>
-            <td mat-cell *matCellDef="let element">
+            <th *matHeaderCellDef mat-header-cell mat-sort-header="isKeyMessage">{{ i18n.get('keyMessage') }}</th>
+            <td *matCellDef="let element" mat-cell>
               @if (element.isKeyMessage) {
                 <mat-icon>key</mat-icon>
               }
             </td>
           </ng-container>
 
-            <ng-container matColumnDef="map">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('map') }}</th>
-            <td mat-cell *matCellDef="let element">
+          <ng-container matColumnDef="map">
+            <th *matHeaderCellDef mat-header-cell>{{ i18n.get('map') }}</th>
+            <td *matCellDef="let element" mat-cell>
               <button
-              mat-icon-button
-              [attr.aria-label]="i18n.get('showOnMap')"
-              [attr.title]="i18n.get('showOnMap')"
-              (click)="openMapClick($event, element)"
+                (click)="openMapClick($event, element)"
+                [attr.aria-label]="i18n.get('showOnMap')"
+                [attr.title]="i18n.get('showOnMap')"
+                mat-icon-button
               >
-              @if (element.isDrawnOnMap) {
-                <mat-icon>check</mat-icon>
-              } @else {
-                <mat-icon>question_mark</mat-icon>
-              }
+                @if (element.isDrawnOnMap) {
+                  <mat-icon>check</mat-icon>
+                } @else {
+                  <mat-icon>question_mark</mat-icon>
+                }
               </button>
             </td>
-            </ng-container>
+          </ng-container>
 
           <ng-container matColumnDef="print">
-            <th mat-header-cell *matHeaderCellDef>{{ i18n.get('print') }}</th>
-            <td mat-cell *matCellDef="let element">
+            <th *matHeaderCellDef mat-header-cell>{{ i18n.get('print') }}</th>
+            <td *matCellDef="let element" mat-cell>
               @if (element.entryStatus !== JournalEntryStatus.AWAITING_MESSAGE) {
                 <button
-                  mat-icon-button
+                  (click)="print($event, element)"
                   [attr.aria-label]="i18n.get('print')"
                   [attr.title]="i18n.get('print')"
-                  (click)="print($event, element)"
+                  mat-icon-button
                 >
                   <mat-icon>print</mat-icon>
                 </button>
@@ -228,20 +231,20 @@
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
           <tr
-            mat-row
+            (click)="!openDisabled && selectEntry(row)"
+            *matRowDef="let row; columns: displayedColumns"
+            [class.disabled-row]="openDisabled"
             [class.key-message]="row.isKeyMessage"
             class="journal-table-row"
-            [class.disabled-row]="openDisabled"
-            *matRowDef="let row; columns: displayedColumns"
-            (click)="!openDisabled && selectEntry(row)"
+            mat-row
           ></tr>
         </table>
 
         @if (!isReadOnly()) {
           <div class="fab-button">
-            <button mat-fab color="primary" aria-label="Add" (click)="openJournalAddDialog()">
+            <button (click)="openJournalAddDialog()" aria-label="Add" color="primary" mat-fab>
               <mat-icon>add</mat-icon>
             </button>
           </div>
@@ -251,5 +254,5 @@
   </mat-sidenav-content>
 </mat-sidenav-container>
 @if (designerActive() && messagePdfDefaultTemplate() && pdfDesignerComponent()) {
-  <ng-container *ngComponentOutlet="pdfDesignerComponent(); inputs: pdfDesignerInputs()"> </ng-container>
+  <ng-container *ngComponentOutlet="pdfDesignerComponent(); inputs: pdfDesignerInputs()"></ng-container>
 }

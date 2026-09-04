@@ -70,7 +70,7 @@ $RECYCLE.BIN/
 *.sql
 *.sqlite
 *.sqlite3
-!packages/server/init/init.sql
+!packages/server/drizzle/*.sql
 
 
 ############################
@@ -132,3 +132,8 @@ scripts/offlineData/swissNAMES3D/swissboundaries3d_*.zip
 scripts/offlineData/swissNAMES3D/swissBOUNDARIES3D_*
 scripts/offlineData/swissNAMES3D/swissNAMES3D_PLY*.csv
 scripts/offlineData/swissNAMES3D/canton_layer_mapping.env
+
+# skills
+.agents
+AGENTS.md
+skills-lock.json

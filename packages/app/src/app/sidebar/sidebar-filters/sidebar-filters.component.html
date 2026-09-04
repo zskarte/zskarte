@@ -1,4 +1,4 @@
-<mat-accordion multi displayMode="flat">
+<mat-accordion displayMode="flat" multi>
   <mat-expansion-panel class="mat-elevation-z0">
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -8,25 +8,25 @@
 
     <ng-template matExpansionPanelContent>
       <div class="filterAll">
-        <button mat-stroked-button (click)="filterAll(false)">
+        <button (click)="filterAll(false)" mat-stroked-button>
           {{ i18n.get('showAllElements') }}
         </button>
-        <button mat-stroked-button (click)="filterAll(true)">
+        <button (click)="filterAll(true)" mat-stroked-button>
           {{ i18n.get('hideAllElements') }}
         </button>
-        <mat-slide-toggle [checked]="enableClustering$ | async" (change)="toggleClustering()">
+        <mat-slide-toggle (change)="toggleClustering()" [checked]="enableClustering$ | async">
           {{ i18n.get('featureClustering') }}
         </mat-slide-toggle>
-        <mat-slide-toggle [checked]="showNames$ | async" (change)="toggleShowNames()">
+        <mat-slide-toggle (change)="toggleShowNames()" [checked]="showNames$ | async">
           {{ i18n.get('labelShow') }}
         </mat-slide-toggle>
         <div class="global-scale">
           <div class="mat-caption">{{ i18n.get('globalSymbolScale') }}</div>
-          <mat-slider class="global-scale-slider" [max]="2" [min]="0.5" [step]="0.05">
+          <mat-slider [max]="2" [min]="0.5" [step]="0.05" class="global-scale-slider">
             <input
-              matSliderThumb
-              [ngModel]="(globalSymbolScale$ | async) ?? 1.25"
               (ngModelChange)="setGlobalSymbolScale($event)"
+              [ngModel]="(globalSymbolScale$ | async) ?? 1.25"
+              matSliderThumb
             />
           </mat-slider>
         </div>
@@ -46,13 +46,26 @@
           <mat-grid-list cols="5" gutterSize="4">
             @for (symbol of filterSymbols; track symbol.id) {
               <mat-grid-tile>
-                <button mat-button class="filterItem" (click)="toggleSymbolOrFeatureFilter(symbol)">
-                  <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center">
+                <button (click)="toggleSymbolOrFeatureFilter(symbol)" class="filterItem" mat-button>
+                  <div
+                    style="
+                      position: relative;
+                      height: 100%;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                    "
+                  >
                     @if (symbol.src) {
-                      <img [class.opaque]="symbol.hidden" [src]="symbol.src" [title]="symbol.label" style="max-width: 100%; height: auto" />
+                      <img
+                        [class.opaque]="symbol.hidden"
+                        [src]="symbol.src"
+                        [title]="symbol.label"
+                        style="max-width: 100%; height: auto"
+                      />
                     }
                     @if (symbol.icon) {
-                      <mat-icon [class.opaque]="symbol.hidden" aria-hidden="false">{{ symbol.icon }}</mat-icon>
+                      <mat-icon [class.opaque]="symbol.hidden" aria-hidden="false">{{ symbol.icon }} </mat-icon>
                     }
                     @if (symbol.hidden) {
                       <mat-icon class="eyeOverlay">visibility_off</mat-icon>
@@ -78,12 +91,16 @@
       <mat-list>
         @for (category of signCategories; track category) {
           <mat-list-item>
-            <mat-checkbox labelPosition="before" class="categoryCheckbox"
-              [checked]="category.isVisible" [indeterminate]="category.isPartiallyVisible"
-              (change)="toggleCategoryFilter($event, category)">
+            <mat-checkbox
+              (change)="toggleCategoryFilter($event, category)"
+              [checked]="category.isVisible"
+              [indeterminate]="category.isPartiallyVisible"
+              class="categoryCheckbox"
+              labelPosition="before"
+            >
               <div class="listItemContent">
                 <div class="categoryLabel">
-                  <div class="categoryDot" [style.background-color]="category.color"></div>
+                  <div [style.background-color]="category.color" class="categoryDot"></div>
                   {{ i18n.get('sign' + capitalizeFirstLetter(category.name)) }}
                 </div>
               </div>

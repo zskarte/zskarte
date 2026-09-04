@@ -5,24 +5,24 @@
 <app-dialog-body>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('mapLayerType') }}</legend>
-    <mat-radio-group [ngModel]="layer.type" (change)="changeType($event)">
+    <mat-radio-group (change)="changeType($event)" [ngModel]="layer.type">
       <mat-radio-button value="wms">WMS</mat-radio-button>
       <mat-radio-button value="wms_custom">WMS (custom)</mat-radio-button>
-      <mat-radio-button value="wmts" disabled>WMTS</mat-radio-button>
+      <mat-radio-button disabled value="wmts">WMTS</mat-radio-button>
     </mat-radio-group>
   </fieldset>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('layerSource') }}</mat-label>
     <mat-select
-      [value]="layer.source"
       (selectionChange)="onSelectionChange($event)"
       [disabled]="layer.type !== 'wms_custom'"
+      [value]="layer.source"
     >
-      <mat-option value="_GeoAdmin_" disabled>GeoAdmin</mat-option>
-      <mat-option value="_geodienste_" [disabled]="!layer.geodiensteSourceLayerId">geodienste</mat-option>
+      <mat-option disabled value="_GeoAdmin_">GeoAdmin</mat-option>
+      <mat-option [disabled]="!layer.geodiensteSourceLayerId" value="_geodienste_">geodienste</mat-option>
       <mat-option value="_CUSTOM_">custom</mat-option>
       @for (item of sources; track item) {
-        <mat-option [value]="item" [disabled]="item.type !== 'wms'">
+        <mat-option [disabled]="item.type !== 'wms'" [value]="item">
           {{ item.label }}
         </mat-option>
       }
@@ -31,28 +31,28 @@
   @if (geodienste_source) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('geodiensteLayerId') }}</mat-label>
-      <input matInput type="url" [(ngModel)]="layer.geodiensteSourceLayerId" [disabled]="layer.type !== 'wms_custom'"/>
+      <input [(ngModel)]="layer.geodiensteSourceLayerId" [disabled]="layer.type !== 'wms_custom'" matInput type="url" />
     </mat-form-field>
   }
   @if (custom_source) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('layerSourceUrl') }}</mat-label>
-      <input matInput type="url" [(ngModel)]="custom_source.url" />
+      <input [(ngModel)]="custom_source.url" matInput type="url" />
     </mat-form-field>
   }
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('wmsLayerName') }}</mat-label>
-    <input matInput type="text" [(ngModel)]="layer.serverLayerName" [disabled]="layer.type !== 'wms_custom'" />
+    <input [(ngModel)]="layer.serverLayerName" [disabled]="layer.type !== 'wms_custom'" matInput type="text" />
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('publicSource') }}</legend>
-    <mat-checkbox [checked]="layer.public" (change)="layer.public = $event.checked">{{
-      i18n.get('publicSourceInfo')
-    }}</mat-checkbox>
+    <mat-checkbox (change)="layer.public = $event.checked" [checked]="layer.public"
+      >{{ i18n.get('publicSourceInfo') }}
+    </mat-checkbox>
   </fieldset>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('label') }}</mat-label>
-    <input matInput type="text" [(ngModel)]="layer.label" />
+    <input [(ngModel)]="layer.label" matInput type="text" />
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('wmsLayerRenderType') }}</legend>
@@ -65,7 +65,7 @@
     <fieldset class="like-mat-form-field-outline">
       <legend>{{ i18n.get('hideSubLayers') }}</legend>
       @for (info of sublayerHidden; track info) {
-        <mat-checkbox [checked]="info.hidden" (change)="info.hidden = $event.checked">{{ info.name }}</mat-checkbox>
+        <mat-checkbox (change)="info.hidden = $event.checked" [checked]="info.hidden">{{ info.name }} </mat-checkbox>
       }
     </fieldset>
   }
@@ -81,7 +81,7 @@
   @if (!layer.noneTiled) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('tileSize') }}</mat-label>
-      <input matInput min="256" max="undefined" type="number" [(ngModel)]="layer.tileSize" />
+      <input [(ngModel)]="layer.tileSize" matInput max="undefined" min="256" type="number" />
     </mat-form-field>
   }
 
@@ -99,16 +99,16 @@
   @if (custom_source) {
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>{{ i18n.get('tileFormat') }}</mat-label>
-      <input matInput type="text" [(ngModel)]="layer.tileFormat" />
+      <input [(ngModel)]="layer.tileFormat" matInput type="text" />
     </mat-form-field>
   }
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('MaxScaleDenominator') }}</mat-label>
-    <input matInput min="0" type="number" [(ngModel)]="layer.MaxScaleDenominator" />
+    <input [(ngModel)]="layer.MaxScaleDenominator" matInput min="0" type="number" />
   </mat-form-field>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('MinScaleDenominator') }}</mat-label>
-    <input matInput min="0" type="number" [(ngModel)]="layer.MinScaleDenominator" />
+    <input [(ngModel)]="layer.MinScaleDenominator" matInput min="0" type="number" />
   </mat-form-field>
   <fieldset class="like-mat-form-field-outline">
     <legend>{{ i18n.get('sourceAttribution') }}</legend>
@@ -122,18 +122,18 @@
       </div>
       @for (attr of layer.attribution; track attr; let i = $index) {
         <div class="attribution">
-          <input class="attr-title" matInput type="text" [(ngModel)]="attr[0]" />
-          <input class="attr-url" matInput type="url" [(ngModel)]="attr[1]" />
-          <mat-icon class="attr-remove" (click)="removeAttribution(i)">remove</mat-icon>
+          <input [(ngModel)]="attr[0]" class="attr-title" matInput type="text" />
+          <input [(ngModel)]="attr[1]" class="attr-url" matInput type="url" />
+          <mat-icon (click)="removeAttribution(i)" class="attr-remove">remove</mat-icon>
         </div>
       }
     }
-    <mat-icon class="attr-add" (click)="addAttribution()">add</mat-icon>
+    <mat-icon (click)="addAttribution()" class="attr-add">add</mat-icon>
   </fieldset>
 </app-dialog-body>
 
 <app-dialog-footer>
-  <button mat-flat-button color="primary" (click)="ok()">
+  <button (click)="ok()" color="primary" mat-flat-button>
     {{ i18n.get('ok') }}
   </button>
 </app-dialog-footer>

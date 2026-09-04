@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, input, output } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit, output } from '@angular/core';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from '../map-renderer/draw-style';
@@ -18,9 +18,15 @@ interface SignDialogInterface {
 })
 export class RecentlyUsedSignsComponent implements OnInit, OnDestroy {
   i18n = inject(I18NService);
+  readonly dialog = input.required<SignDialogInterface>();
+  readonly selectSign = output<Sign>();
   private sharedState = inject(ZsMapStateService);
-
   private _ngUnsubscribe = new Subject<void>();
+  private signsSource: Sign[] = [];
+
+  get signs(): Sign[] {
+    return this.signsSource;
+  }
 
   ngOnInit() {
     this.sharedState
@@ -44,15 +50,6 @@ export class RecentlyUsedSignsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._ngUnsubscribe.next();
     this._ngUnsubscribe.complete();
-  }
-
-  readonly dialog = input.required<SignDialogInterface>();
-  readonly selectSign = output<Sign>();
-
-  private signsSource: Sign[] = [];
-
-  get signs(): Sign[] {
-    return this.signsSource;
   }
 
   doSelectSign(sign: Sign) {

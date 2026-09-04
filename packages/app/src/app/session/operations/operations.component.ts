@@ -1,5 +1,5 @@
-import { Component, OnDestroy, inject } from '@angular/core';
-import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+import { Component, inject, OnDestroy } from '@angular/core';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { SessionService } from '../session.service';
 import { IZsMapOperation, ZsOperationPhase } from '@zskarte/types';
 import { I18NService } from '../../state/i18n.service';
@@ -46,19 +46,19 @@ import { VersionService } from '../../version/version.service';
   ],
 })
 export class OperationsComponent implements OnDestroy {
-  private _session = inject(SessionService);
+  public session = inject(SessionService);
   i18n = inject(I18NService);
-  private _dialog = inject(MatDialog);
   operationService = inject(OperationService);
   journalService = inject(JournalService);
+  public showOpPhase: ZsOperationPhase = 'active';
+  private _session = this.session;
+  private _dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
   private _router = inject(Router);
   private _sidebar = inject(SidebarService);
   private dialog = inject(MatDialog);
   private _version = inject(VersionService);
-
   private _ngUnsubscribe = new Subject<void>();
-  public showOpPhase: ZsOperationPhase = 'active';
 
   constructor() {
     const route = this.route;
@@ -77,9 +77,8 @@ export class OperationsComponent implements OnDestroy {
       if (queryParams['operationId']) {
         try {
           const operationId = queryParams['operationId'];
-          const operationIdInt = parseInt(operationId);
           this.operationService.operations.pipe(takeUntil(this._ngUnsubscribe)).subscribe((operations) => {
-            const operation = operations.find((o) => o.documentId === operationId || o.id === operationIdInt);
+            const operation = operations.find((o) => o.documentId === operationId);
             if (operation) {
               this.selectOperation(operation);
             }
@@ -98,7 +97,7 @@ export class OperationsComponent implements OnDestroy {
   }
 
   public async selectOperation(operation: IZsMapOperation) {
-    if (operation.documentId || operation.id) {
+    if (operation.documentId) {
       const dialogRef = this.dialog.open(NameEntryDialogComponent);
       dialogRef.afterClosed().subscribe(async (name: string | null) => {
         if (name) {
@@ -132,6 +131,10 @@ export class OperationsComponent implements OnDestroy {
 
   public async logout(): Promise<void> {
     await this._session.logout('logout');
+  }
+
+  public navigateToAdmin(): void {
+    this._router.navigate(['/admin']);
   }
 
   public importOperation(): void {

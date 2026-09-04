@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { Component, inject, OnInit } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { I18NService } from '../state/i18n.service';
 import { ZsMapBaseLayer } from '../map-renderer/layers/base-layer';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { Sign, ZsMapDrawElementStateType, signCategories } from '@zskarte/types';
-import { DialogHeaderComponent, DialogBodyComponent, DialogFooterComponent } from '../ui/dialog-layout';
+import { Sign, signCategories, ZsMapDrawElementStateType } from '@zskarte/types';
+import { DialogBodyComponent, DialogFooterComponent, DialogHeaderComponent } from '../ui/dialog-layout';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,10 +45,7 @@ export class DrawDialogComponent implements OnInit {
   dialogRef = inject<MatDialogRef<DrawDialogComponent>>(MatDialogRef);
   i18n = inject(I18NService);
   dialog = inject(MatDialog);
-  private _session = inject(SessionService);
-
   public layer: ZsMapBaseLayer | undefined;
-
   // Sign selection properties
   filter = '';
   allSigns: Sign[] = [];
@@ -57,6 +54,7 @@ export class DrawDialogComponent implements OnInit {
   hiddenTypes = ['incident'];
   signCategories = Array.from(signCategories.values()).filter((c) => !this.hiddenTypes.includes(c.name));
   capitalizeFirstLetter = capitalizeFirstLetter;
+  private _session = inject(SessionService);
 
   public setLayer(layer: ZsMapBaseLayer | undefined): void {
     this.layer = layer;

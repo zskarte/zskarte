@@ -5,25 +5,25 @@
 <app-dialog-body>
   <div class="format">
     <app-projection-selection
-      [projectionFormatIndex]="projectionFormatIndex"
-      [numerical]="numerical"
       (projectionChanged)="updateProjection($event)"
       [disabled]="formatedCoordinatesControl.invalid || formatedCoordinatesControl.pending"
+      [numerical]="numerical"
+      [projectionFormatIndex]="projectionFormatIndex"
     ></app-projection-selection>
   </div>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>{{ i18n.get('defineCoordinates') }}</mat-label>
-    <textarea matInput [formControl]="formatedCoordinatesControl"></textarea>
+    <textarea [formControl]="formatedCoordinatesControl" matInput></textarea>
     <mat-error>{{ error }}</mat-error>
   </mat-form-field>
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-stroked-button (click)="cancel()">{{ i18n.get('cancel') }}</button>
+  <button (click)="cancel()" mat-stroked-button>{{ i18n.get('cancel') }}</button>
   <button
-    mat-flat-button
-    color="primary"
     (click)="ok()"
     [disabled]="formatedCoordinatesControl.invalid || formatedCoordinatesControl.pending"
+    color="primary"
+    mat-flat-button
   >
     {{ i18n.get('ok') }}
   </button>

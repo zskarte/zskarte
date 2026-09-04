@@ -13,13 +13,22 @@
     "build": "tsc -b",
     "dev": "tsc --watch"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "author": "",
   "license": "MIT",
   "description": "",
   "dependencies": {
     "@zskarte/types": "file:../types",
+    "immer": "^11.1.18",
+    "lodash": "^4.17.21",
     "ol": "^10.7.0",
-    "typescript": "^5.9.3"
+    "typescript": "~6.0.3",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.21",
+    "@types/uuid": "^10.0.0"
   }
 }

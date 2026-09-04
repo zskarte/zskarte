@@ -72,8 +72,10 @@ button.filterItem .eyeOverlay {
 
 mat-checkbox.categoryCheckbox {
   width: 100%;
+
   ::ng-deep .mdc-form-field {
     width: 100%;
+
     label {
       width: 100%;
     }

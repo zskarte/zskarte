@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Feature } from 'ol';
 import { Coordinate, squaredDistance } from 'ol/coordinate';
 import { Geometry, LineString, Point } from 'ol/geom';
-import { Extent, containsCoordinate, containsExtent, getCenter } from 'ol/extent';
+import { containsCoordinate, containsExtent, Extent, getCenter } from 'ol/extent';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -10,11 +10,11 @@ import { coordinatesProjection, mercatorProjection, swissProjection } from '../.
 import { MapLayerService } from '../map-layer.service';
 import { stylefunction } from 'ol-mapbox-style';
 import { StyleLike } from 'ol/style/Style';
-import { transformExtent, transform, toLonLat } from 'ol/proj';
+import { toLonLat, transform, transformExtent } from 'ol/proj';
 import { inferSchema, initParser } from 'udsv';
 import { LocalMapLayerMeta } from '../../db/db';
 import { BlobService } from '../../db/blob.service';
-import { GeoJSONMapLayer, CsvMapLayer, IZsMapSearchResult, IZsGlobalSearchConfig, ShapeMapLayer } from '@zskarte/types';
+import { CsvMapLayer, GeoJSONMapLayer, IZsGlobalSearchConfig, IZsMapSearchResult, ShapeMapLayer } from '@zskarte/types';
 import { SearchService } from '../../search/search.service';
 import shp from 'shpjs';
 
@@ -27,10 +27,6 @@ export class GeoJSONService {
   private _search = inject(SearchService);
 
   private _searchRegExPatternsCache: Map<string, RegExp[]> = new Map();
-
-  public invalidateCache(url: string) {
-    this._searchRegExPatternsCache.delete(url);
-  }
 
   static async fetchGeoJSONData(layer: GeoJSONMapLayer & LocalMapLayerMeta) {
     if (!layer.source) {
@@ -67,7 +63,7 @@ export class GeoJSONService {
         }
         return [];
       })
-      .finally(()=>{
+      .finally(() => {
         if (url.startsWith('blob:')) {
           URL.revokeObjectURL(url);
         }
@@ -113,7 +109,7 @@ export class GeoJSONService {
         }
         return [];
       })
-      .finally(()=>{
+      .finally(() => {
         if (url.startsWith('blob:')) {
           URL.revokeObjectURL(url);
         }
@@ -195,12 +191,101 @@ export class GeoJSONService {
         }
         return [];
       })
-      .finally(()=>{
+      .finally(() => {
         if (url.startsWith('blob:')) {
           URL.revokeObjectURL(url);
         }
         return [];
       });
+  }
+
+  static getInnerGroup(currentGroup, layer: number, filteredParams, searchResultGroupingFilterFields: string[]) {
+    const key = searchResultGroupingFilterFields[layer];
+    const val = filteredParams[key];
+    if (layer < searchResultGroupingFilterFields.length - 1) {
+      if (!currentGroup[val]) {
+        currentGroup['__count__']++;
+        currentGroup['__sum__']++;
+        currentGroup[val] = {};
+        currentGroup[val]['__count__'] = 0;
+        currentGroup[val]['__sum__'] = 0;
+      } else {
+        currentGroup['__sum__']++;
+      }
+      return GeoJSONService.getInnerGroup(
+        currentGroup[val],
+        layer + 1,
+        filteredParams,
+        searchResultGroupingFilterFields,
+      );
+    } else {
+      if (!currentGroup[val]) {
+        currentGroup['__count__']++;
+        currentGroup[val] = [];
+      }
+      currentGroup['__sum__']++;
+      return currentGroup[val];
+    }
+  }
+
+  static flatFilterResultGroups(
+    currentGroup,
+    layer: number,
+    maxCount: number,
+    data: IZsMapSearchResult[],
+    searchResultGroupingFilterFields: string[],
+    sortedByDistance: boolean,
+  ) {
+    if (layer <= searchResultGroupingFilterFields.length - 1) {
+      const keys = Object.keys(currentGroup);
+      keys.splice(keys.indexOf('__count__'), 1);
+      keys.splice(keys.indexOf('__sum__'), 1);
+      if (currentGroup['__count__'] > 10) {
+        maxCount = 1;
+      } else if (currentGroup['__count__'] > 1) {
+        maxCount = Math.max(1, Math.floor(maxCount / currentGroup['__count__']));
+      }
+      keys.forEach((key) => {
+        GeoJSONService.flatFilterResultGroups(
+          currentGroup[key],
+          layer + 1,
+          maxCount,
+          data,
+          searchResultGroupingFilterFields,
+          sortedByDistance,
+        );
+      });
+    } else {
+      if (currentGroup.length > 1) {
+        if (sortedByDistance) {
+          currentGroup.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
+        } else {
+          currentGroup.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
+        }
+      }
+      if (maxCount === 1) {
+        data.push(currentGroup[0]);
+      } else {
+        Array.prototype.push.call(data, ...currentGroup.slice(0, maxCount));
+      }
+    }
+  }
+
+  private static getValue(obj, field) {
+    if (typeof field === 'string') field = field.split('.');
+    if (field.length === 1) return obj[field[0]];
+    else if (field.length === 0) return obj;
+    else return GeoJSONService.getValue(obj[field[0]], field.slice(1));
+  }
+
+  private static renderString(str, obj) {
+    return str.replace(/\$\{.+?\}/g, (match) => {
+      return GeoJSONService.getValue(obj, match.substring(2, match.length - 1));
+    });
+  }
+
+  public invalidateCache(url: string) {
+    this._searchRegExPatternsCache.delete(url);
   }
 
   async createGeoJSONLayer(layer: GeoJSONMapLayer) {
@@ -273,19 +358,6 @@ export class GeoJSONService {
     }
 
     return [olLayer];
-  }
-
-  private static getValue(obj, field) {
-    if (typeof field === 'string') field = field.split('.');
-    if (field.length === 1) return obj[field[0]];
-    else if (field.length === 0) return obj;
-    else return GeoJSONService.getValue(obj[field[0]], field.slice(1));
-  }
-
-  private static renderString(str, obj) {
-    return str.replace(/\$\{.+?\}/g, (match) => {
-      return GeoJSONService.getValue(obj, match.substring(2, match.length - 1));
-    });
   }
 
   public search(
@@ -435,77 +507,5 @@ export class GeoJSONService {
       result.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
     }
     return result;
-  }
-
-  static getInnerGroup(currentGroup, layer: number, filteredParams, searchResultGroupingFilterFields: string[]) {
-    const key = searchResultGroupingFilterFields[layer];
-    const val = filteredParams[key];
-    if (layer < searchResultGroupingFilterFields.length - 1) {
-      if (!currentGroup[val]) {
-        currentGroup['__count__']++;
-        currentGroup['__sum__']++;
-        currentGroup[val] = {};
-        currentGroup[val]['__count__'] = 0;
-        currentGroup[val]['__sum__'] = 0;
-      } else {
-        currentGroup['__sum__']++;
-      }
-      return GeoJSONService.getInnerGroup(
-        currentGroup[val],
-        layer + 1,
-        filteredParams,
-        searchResultGroupingFilterFields,
-      );
-    } else {
-      if (!currentGroup[val]) {
-        currentGroup['__count__']++;
-        currentGroup[val] = [];
-      }
-      currentGroup['__sum__']++;
-      return currentGroup[val];
-    }
-  }
-
-  static flatFilterResultGroups(
-    currentGroup,
-    layer: number,
-    maxCount: number,
-    data: IZsMapSearchResult[],
-    searchResultGroupingFilterFields: string[],
-    sortedByDistance: boolean,
-  ) {
-    if (layer <= searchResultGroupingFilterFields.length - 1) {
-      const keys = Object.keys(currentGroup);
-      keys.splice(keys.indexOf('__count__'), 1);
-      keys.splice(keys.indexOf('__sum__'), 1);
-      if (currentGroup['__count__'] > 10) {
-        maxCount = 1;
-      } else if (currentGroup['__count__'] > 1) {
-        maxCount = Math.max(1, Math.floor(maxCount / currentGroup['__count__']));
-      }
-      keys.forEach((key) => {
-        GeoJSONService.flatFilterResultGroups(
-          currentGroup[key],
-          layer + 1,
-          maxCount,
-          data,
-          searchResultGroupingFilterFields,
-          sortedByDistance,
-        );
-      });
-    } else {
-      if (currentGroup.length > 1) {
-        if (sortedByDistance) {
-          currentGroup.sort((a, b) => (a.internal?.dist ?? Infinity) - (b.internal?.dist ?? Infinity));
-        } else {
-          currentGroup.sort((a, b) => NumberSortCollator.compare(a.label, b.label));
-        }
-      }
-      if (maxCount === 1) {
-        data.push(currentGroup[0]);
-      } else {
-        Array.prototype.push.call(data, ...currentGroup.slice(0, maxCount));
-      }
-    }
   }
 }

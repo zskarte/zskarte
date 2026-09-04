@@ -1,14 +1,14 @@
 import { Dexie, Table } from 'dexie';
 import { LOCAL_MAP_STYLE_PATH, LOCAL_MAP_STYLE_SOURCE } from '../session/default-map-values';
 import {
-  ZsMapStateSource,
-  MapLayer,
-  IZsMapOrganizationMapLayerSettings,
-  IZsMapSession,
+  IZsChangesetInternal,
   IZsMapDisplayState,
   IZsMapOperation,
+  IZsMapOrganizationMapLayerSettings,
+  IZsMapSession,
+  MapLayer,
   WmsSource,
-  IZsChangesetInternal,
+  ZsMapStateSource,
 } from '@zskarte/types';
 import { JournalEntry } from '../journal/journal.types';
 
@@ -50,8 +50,7 @@ export type PatchJournalEntry = {
   id?: number;
   entry: Partial<JournalEntry>;
   create: boolean;
-  uuid: string;
-  documentId?: string;
+  documentId: string;
   operationId: string;
   organizationId: string;
   date: Date;
@@ -66,7 +65,7 @@ export class AppDB extends Dexie {
   localMapInfo!: Table<LocalMapInfo, string>;
   localBlob!: Table<LocalBlob, number>;
   localBlobMeta!: Table<LocalBlobMeta, number>;
-  localOperation!: Table<IZsMapOperation, number>;
+  localOperation!: Table<IZsMapOperation, string>;
   localWmsSource!: Table<WmsSource, number>;
   localMapLayer!: Table<LocalMapLayer, string>;
   localMapLayerSettings!: Table<LocalMapLayerSettings, string>;
@@ -87,7 +86,7 @@ export class AppDB extends Dexie {
     //omitted stores still exist, no need to repeat if no change on key/index (but you can repeate them)
     this.version(5.5)
       .stores({
-        localBlobMeta: 'id++,url',
+        localBlobMeta: '++id,url',
         localBlob: 'id',
         localMapInfo: 'map',
       })
@@ -146,10 +145,10 @@ export class AppDB extends Dexie {
         }
       });
     //new modifications can be done here with only modify version number(or adding new version block), but 'localMapBlobs: null,' and 'localMapMeta: null,' need to stay here (to remove old table).
-    this.version(9).stores({
+    this.version(9.1).stores({
       localMapBlobs: null,
       localMapMeta: null,
-      localOperation: 'id,phase',
+      localOperation: 'documentId,phase',
       localWmsSource: 'id',
       localMapLayer: 'fullId,id',
       localMapLayerSettings: 'id',
@@ -161,6 +160,27 @@ export class AppDB extends Dexie {
       patchSyncQueue: null,
       changesetOutgoingQueue: 'id, operationId',
     });
+
+    this.version(11)
+      .stores({
+        patchJournalEntries: '++id, [operationId+organizationId], organizationId, operationId, documentId',
+        localJournalEntries: null,
+        localJournalEntriesTmp:
+          '[operationId+documentId], [organizationId+operationId+messageNumber], organizationId, operationId, documentId, messageNumber',
+      })
+      .upgrade(async (trans) => {
+        await trans.table('localJournalEntriesTmp').bulkAdd(await trans.table('localJournalEntries').toArray());
+      });
+
+    this.version(12)
+      .stores({
+        localJournalEntriesTmp: null,
+        localJournalEntries:
+          '[operationId+documentId], [organizationId+operationId+messageNumber], organizationId, operationId, documentId, messageNumber',
+      })
+      .upgrade(async (trans) => {
+        await trans.table('localJournalEntries').bulkAdd(await trans.table('localJournalEntriesTmp').toArray());
+      });
   }
 }
 

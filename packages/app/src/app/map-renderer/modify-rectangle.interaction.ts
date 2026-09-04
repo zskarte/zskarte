@@ -55,15 +55,14 @@ export type ModifyRectangleOnSignature<Return> = ModifyOnSignature<Return> &
   >;
 
 export class ModifyRectangle extends Modify {
+  declare on: ModifyRectangleOnSignature<EventsKey>;
+  declare once: ModifyRectangleOnSignature<EventsKey>;
+  declare un: ModifyRectangleOnSignature<EventsKey>;
   private pixelTolerance: number;
   private movePointConf: MovePointConf | null = null;
   private modifyFeature: Feature<Polygon> | null = null;
   private modifyGeometry: Polygon | null = null;
   private updatePointsBinding: any = null;
-
-  declare on: ModifyRectangleOnSignature<EventsKey>;
-  declare once: ModifyRectangleOnSignature<EventsKey>;
-  declare un: ModifyRectangleOnSignature<EventsKey>;
 
   constructor(options: Options) {
     super({ ...options, deleteCondition: () => false, pixelTolerance: options.pixelTolerance ?? 10 });
@@ -71,54 +70,6 @@ export class ModifyRectangle extends Modify {
     this.updatePointsBinding = this.updatePoints.bind(this);
 
     this.on('modifystart', this.startChange);
-  }
-
-  private startChange(event: ModifyEvent) {
-    const features = event.features.getArray();
-    if (features.length === 1) {
-      const geometry = features[0].getGeometry();
-      if (geometry instanceof Polygon) {
-        this.modifyFeature = features[0] as Feature<Polygon>;
-        this.modifyGeometry = geometry;
-        this.findModifiedPoint(event.mapBrowserEvent);
-        if (this.movePointConf === null) {
-          this.getMap()!.once('pointermove', this.findModifiedPoint.bind(this));
-        }
-        this.getMap()!.on('pointermove', this.updatePointsBinding);
-      }
-    }
-  }
-
-  private endChange(event: ModifyEvent) {
-    this.getMap()!.un('pointermove', this.updatePointsBinding);
-    if (this.modifyGeometry && this.movePointConf) {
-      this.adjustPoints(event.mapBrowserEvent.coordinate, this.modifyGeometry, true, this.movePointConf);
-    }
-    this.dispatchEvent({
-      type: 'modifyrectangleend',
-      modifyFeature: this.modifyFeature,
-      movePointConf: this.movePointConf,
-      mapBrowserEvent: event.mapBrowserEvent,
-    } as any);
-    this.movePointConf = null;
-    this.modifyGeometry = null;
-    this.modifyFeature = null;
-  }
-
-  private findModifiedPoint(event: MapBrowserEvent<any>) {
-    if (this.modifyGeometry) {
-      this.movePointConf = this.findIndexToModify(event.coordinate, this.modifyGeometry);
-
-      if (this.movePointConf !== null) {
-        this.dispatchEvent({
-          type: 'modifyrectanglestart',
-          modifyFeature: this.modifyFeature,
-          movePointConf: this.movePointConf,
-          mapBrowserEvent: event,
-        } as ModifyRectangleEvent);
-        this.once('modifyend', this.endChange.bind(this));
-      }
-    }
   }
 
   updatePoints(event: MapBrowserEvent<any>) {
@@ -227,5 +178,53 @@ export class ModifyRectangle extends Modify {
 
   public cancel() {
     this.getMap()!.un('pointermove', this.updatePointsBinding);
+  }
+
+  private startChange(event: ModifyEvent) {
+    const features = event.features.getArray();
+    if (features.length === 1) {
+      const geometry = features[0].getGeometry();
+      if (geometry instanceof Polygon) {
+        this.modifyFeature = features[0] as Feature<Polygon>;
+        this.modifyGeometry = geometry;
+        this.findModifiedPoint(event.mapBrowserEvent);
+        if (this.movePointConf === null) {
+          this.getMap()!.once('pointermove', this.findModifiedPoint.bind(this));
+        }
+        this.getMap()!.on('pointermove', this.updatePointsBinding);
+      }
+    }
+  }
+
+  private endChange(event: ModifyEvent) {
+    this.getMap()!.un('pointermove', this.updatePointsBinding);
+    if (this.modifyGeometry && this.movePointConf) {
+      this.adjustPoints(event.mapBrowserEvent.coordinate, this.modifyGeometry, true, this.movePointConf);
+    }
+    this.dispatchEvent({
+      type: 'modifyrectangleend',
+      modifyFeature: this.modifyFeature,
+      movePointConf: this.movePointConf,
+      mapBrowserEvent: event.mapBrowserEvent,
+    } as any);
+    this.movePointConf = null;
+    this.modifyGeometry = null;
+    this.modifyFeature = null;
+  }
+
+  private findModifiedPoint(event: MapBrowserEvent<any>) {
+    if (this.modifyGeometry) {
+      this.movePointConf = this.findIndexToModify(event.coordinate, this.modifyGeometry);
+
+      if (this.movePointConf !== null) {
+        this.dispatchEvent({
+          type: 'modifyrectanglestart',
+          modifyFeature: this.modifyFeature,
+          movePointConf: this.movePointConf,
+          mapBrowserEvent: event,
+        } as ModifyRectangleEvent);
+        this.once('modifyend', this.endChange.bind(this));
+      }
+    }
   }
 }

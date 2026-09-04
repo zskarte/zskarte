@@ -1,25 +1,18 @@
+import '@angular/compiler';
+import 'zone.js';
+import 'zone.js/testing';
+
 //Attention NO import from vitest for { describe, it, expect, beforeEach, afterEach } -> they override the ones from angular which allow to use fakeAsync...
 import { vi } from 'vitest';
-
-// Need to be befor other imports
-vi.mock('@zskarte/common', async (importOriginal) => {
-  const actual: any = await importOriginal();
-  const originalVerify = actual.verifyChangesetConsistency;
-  return {
-    ...actual,
-    verifyChangesetConsistency: vi.fn(originalVerify),
-  };
-});
 import { verifyChangesetConsistency } from '@zskarte/common';
 
 import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
-import { EnvironmentInjector } from '@angular/core';
+import { EnvironmentInjector, Injectable } from '@angular/core';
 
-import { ChangesetService, NO_CONFLICT_VALUE, OUR_INDEX, THERE_INDEX } from './changeset.service';
+import { ChangesetService, NO_CONFLICT_VALUE, OUR_INDEX } from './changeset.service';
 import { ZsMapStateService } from '../state/state.service';
 import { SessionService } from '../session/session.service';
 import { SidebarService } from '../sidebar/sidebar.service';
-import { ApiService } from '../api/api.service';
 import { I18NService } from '../state/i18n.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { db } from '../db/db';
@@ -40,15 +33,23 @@ import {
 } from '@zskarte/types';
 import { v4 as uuidv4 } from 'uuid';
 
+// Need to be befor other imports
+vi.mock('@zskarte/common', async (importOriginal) => {
+  const actual: any = await importOriginal();
+  const originalVerify = actual.verifyChangesetConsistency;
+  return {
+    ...actual,
+    verifyChangesetConsistency: vi.fn(originalVerify),
+  };
+});
+
 // -----------------------------------------------------------------------------
 // VITEST MOCKS
 // -----------------------------------------------------------------------------
 
-const snackBarMock = { open: vi.fn() };
-const signKeyId = uuidv4();
-const apiSuccessResponse = {
-  error: undefined,
-  result: {
+const { trpcMock } = vi.hoisted(() => {
+  const signKeyId = 'mock-sign-key-id';
+  const trpcSuccessResponse = {
     success: true,
     data: {
       serverSavedAt: Date.now(),
@@ -57,9 +58,30 @@ const apiSuccessResponse = {
       signKeyId,
       sign: 'MockValue',
     },
+  };
+  return {
+    trpcMock: {
+      operation: {
+        submitChangeset: {
+          mutate: vi.fn().mockResolvedValue(trpcSuccessResponse),
+        },
+      },
+    },
+  };
+});
+vi.mock('../api/trpc.client', () => ({ trpc: trpcMock }));
+const snackBarMock = { open: vi.fn() };
+const signKeyId = uuidv4();
+const trpcSuccessResponse = {
+  success: true,
+  data: {
+    serverSavedAt: Date.now(),
+    authorIp: '192.168.1.2',
+    serverId: 'localhost-127.0.0.1',
+    signKeyId,
+    sign: 'MockValue',
   },
 };
-const apiMock = { post: vi.fn().mockResolvedValue(apiSuccessResponse) };
 const sidebarMock = { open: vi.fn() };
 const i18nMock = { getLabelForSign: vi.fn().mockReturnValue('label') };
 
@@ -144,6 +166,7 @@ function resetSubjects() {
  * which just forwards to the real implementation) while making them directly callable AND
  * spy-able from the spec file without `service as any`.
  */
+@Injectable()
 class TestableChangesetService extends ChangesetService {
   public get current() {
     return this._current;
@@ -359,29 +382,116 @@ describe('ChangesetService', () => {
 
   const patchesInitial: Patch[] = [
     { op: 'add', path: ['drawElements', 'e1'], value: populateDeepParamInElement(origElement) },
-  ]
-  const reversePatchesInitial: Patch[] = [
-    { op: 'remove', path: ['drawElements', 'e1'] },
-  ]
+  ];
+  const reversePatchesInitial: Patch[] = [{ op: 'remove', path: ['drawElements', 'e1'] }];
 
   const conflictValues: IZsChangesetConflictValue[] = [
     //{path:'same',orig:'x',there:'x',our:'x','conflict':false,selected:0,resolved:false},
-    {path:'thereChanged',orig:'y',there:'change',our:NO_CONFLICT_VALUE,'conflict':false,selected:1,resolved:false},
-    {path:'thereAdded',orig:NO_CONFLICT_VALUE,there:'new',our:NO_CONFLICT_VALUE,'conflict':false,selected:1,resolved:false},
-    {path:'ourChanged',orig:'z',there:NO_CONFLICT_VALUE,our:'change','conflict':false,selected:2,resolved:false},
-    {path:'our.changed.deep',orig:'z',there:NO_CONFLICT_VALUE,our:'change','conflict':false,selected:2,resolved:false},
-    {path:'ourAdded',orig:NO_CONFLICT_VALUE,there:NO_CONFLICT_VALUE,our:'new','conflict':false,selected:2,resolved:false},
-    {path:'thereRemoved',orig:'old',there:null,our:NO_CONFLICT_VALUE,'conflict':false,selected:1,resolved:false},
-    {path:'ourRemoved',orig:'old2',there:NO_CONFLICT_VALUE,our:null,'conflict':false,selected:2,resolved:false},
-    {path:'bothRemoved',orig:'orig',there:null,our:null,'conflict':false,selected:2,resolved:false},
-    {path:'bothChanged',orig:'orig',there:'there',our:'our','conflict':true,selected:3,resolved:false},
-    {path:'bothChangedSame',orig:'old',there:'new',our:'new','conflict':false,selected:2,resolved:false},
-    {path:'ourRemovedThereChanged',orig:'orig',there:'there',our:null,'conflict':true,selected:3,resolved:false},
-    {path:'ourChangedThereRemoved',orig:'orig',there:null,our:'our','conflict':true,selected:3,resolved:false},
-    {path:'bothAddedSame',orig:NO_CONFLICT_VALUE,there:'new',our:'new','conflict':false,selected:2,resolved:false},
-    {path:'bothAddedDifferent',orig:NO_CONFLICT_VALUE,there:'there',our:'our','conflict':true,selected:3,resolved:false},
+    {
+      path: 'thereChanged',
+      orig: 'y',
+      there: 'change',
+      our: NO_CONFLICT_VALUE,
+      conflict: false,
+      selected: 1,
+      resolved: false,
+    },
+    {
+      path: 'thereAdded',
+      orig: NO_CONFLICT_VALUE,
+      there: 'new',
+      our: NO_CONFLICT_VALUE,
+      conflict: false,
+      selected: 1,
+      resolved: false,
+    },
+    {
+      path: 'ourChanged',
+      orig: 'z',
+      there: NO_CONFLICT_VALUE,
+      our: 'change',
+      conflict: false,
+      selected: 2,
+      resolved: false,
+    },
+    {
+      path: 'our.changed.deep',
+      orig: 'z',
+      there: NO_CONFLICT_VALUE,
+      our: 'change',
+      conflict: false,
+      selected: 2,
+      resolved: false,
+    },
+    {
+      path: 'ourAdded',
+      orig: NO_CONFLICT_VALUE,
+      there: NO_CONFLICT_VALUE,
+      our: 'new',
+      conflict: false,
+      selected: 2,
+      resolved: false,
+    },
+    {
+      path: 'thereRemoved',
+      orig: 'old',
+      there: null,
+      our: NO_CONFLICT_VALUE,
+      conflict: false,
+      selected: 1,
+      resolved: false,
+    },
+    {
+      path: 'ourRemoved',
+      orig: 'old2',
+      there: NO_CONFLICT_VALUE,
+      our: null,
+      conflict: false,
+      selected: 2,
+      resolved: false,
+    },
+    { path: 'bothRemoved', orig: 'orig', there: null, our: null, conflict: false, selected: 2, resolved: false },
+    { path: 'bothChanged', orig: 'orig', there: 'there', our: 'our', conflict: true, selected: 3, resolved: false },
+    { path: 'bothChangedSame', orig: 'old', there: 'new', our: 'new', conflict: false, selected: 2, resolved: false },
+    {
+      path: 'ourRemovedThereChanged',
+      orig: 'orig',
+      there: 'there',
+      our: null,
+      conflict: true,
+      selected: 3,
+      resolved: false,
+    },
+    {
+      path: 'ourChangedThereRemoved',
+      orig: 'orig',
+      there: null,
+      our: 'our',
+      conflict: true,
+      selected: 3,
+      resolved: false,
+    },
+    {
+      path: 'bothAddedSame',
+      orig: NO_CONFLICT_VALUE,
+      there: 'new',
+      our: 'new',
+      conflict: false,
+      selected: 2,
+      resolved: false,
+    },
+    {
+      path: 'bothAddedDifferent',
+      orig: NO_CONFLICT_VALUE,
+      there: 'there',
+      our: 'our',
+      conflict: true,
+      selected: 3,
+      resolved: false,
+    },
   ];
-  const sortByPath = <T extends { path: string }>(items: T[]) => [...items].sort((a, b) => a.path.localeCompare(b.path));
+  const sortByPath = <T extends { path: string }>(items: T[]) =>
+    [...items].sort((a, b) => a.path.localeCompare(b.path));
   const conflictValuesSorted = sortByPath(conflictValues);
 
   function populateDeepParamInElement(elem) {
@@ -593,7 +703,7 @@ describe('ChangesetService', () => {
     });
     sessionMock.sessionInitialized.mockReturnValue(false);
     stateMock.updateMapState.mockReset();
-    apiMock.post.mockResolvedValue(apiSuccessResponse);
+    trpcMock.operation.submitChangeset.mutate.mockResolvedValue(trpcSuccessResponse);
 
     TestBed.configureTestingModule({
       providers: [
@@ -601,7 +711,6 @@ describe('ChangesetService', () => {
         { provide: ZsMapStateService, useValue: stateMock },
         { provide: SessionService, useValue: sessionMock },
         { provide: SidebarService, useValue: sidebarMock },
-        { provide: ApiService, useValue: apiMock },
         { provide: I18NService, useValue: i18nMock },
         { provide: MatSnackBar, useValue: snackBarMock },
         EnvironmentInjector,
@@ -670,24 +779,27 @@ describe('ChangesetService', () => {
 
   describe('timer handling', () => {
     it('timeout effect calls finishCurrentChangeset', fakeAsync(() => {
+      let called = false;
+      stateMock.finishCurrentChangeset = vi.fn().mockImplementation(() => {
+        called = true;
+      });
       service.timeout.set(1000);
-      //wait 10ms to let zone / angular change detection run the effect
-      tick(10);
+      TestBed.flushEffects();
 
-      //wait 900 (less than 1000)
       tick(900);
-      expect(stateMock.finishCurrentChangeset).not.toHaveBeenCalled();
+      expect(called).toBe(false);
 
       tick(100);
-      expect(stateMock.finishCurrentChangeset).toHaveBeenCalledTimes(1);
+      expect(called).toBe(true);
     }));
 
     it('clearTimeout when timeout set to null', fakeAsync(() => {
       service.timeout.set(1000);
-      tick(10);
+      TestBed.flushEffects();
 
       tick(900);
       service.timeout.set(null);
+      TestBed.flushEffects();
 
       tick(1500);
       expect(stateMock.finishCurrentChangeset).not.toHaveBeenCalled();
@@ -698,7 +810,7 @@ describe('ChangesetService', () => {
       const base: IZsChangeset = {
         ...getChangeset2(),
         firstChangeAt: now - 1000,
-        changedDrawElements: ['e1', 'e2']
+        changedDrawElements: ['e1', 'e2'],
       };
 
       // messageNumber
@@ -1001,9 +1113,7 @@ describe('ChangesetService', () => {
       vi.spyOn(service, '_submitChangeset').mockResolvedValue(undefined);
       vi.mocked(verifyChangesetConsistency).mockReturnValue(null);
 
-      const handleUnhandledSpy = vi
-        .spyOn(stateMock, 'handleUnhandledPatches')
-        .mockResolvedValue(undefined);
+      const handleUnhandledSpy = vi.spyOn(stateMock, 'handleUnhandledPatches').mockResolvedValue(undefined);
 
       await service.finishChangeset(mapState, false);
 
@@ -1056,8 +1166,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { isInconsistent: true },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        isInconsistent: true,
+        message: 'changeset is inconsistent',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1069,13 +1180,10 @@ describe('ChangesetService', () => {
         expect.objectContaining({ message: expect.stringContaining(changeset.id) }),
       );
 
-      expect(apiPostSpy).toHaveBeenCalledWith(
-        '/api/operations/mapstate/changeset',
-        expect.objectContaining({ id: changeset.id }),
+      expect(submitSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          headers: expect.objectContaining({
-            operationId: changeset.operationId,
-          }),
+          operationId: changeset.operationId,
+          changeset: expect.objectContaining({ id: changeset.id }),
         }),
       );
 
@@ -1089,8 +1197,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { isInvalid: true, message: 'validation failed' },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        isInvalid: true,
+        message: 'validation failed',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1102,7 +1211,7 @@ describe('ChangesetService', () => {
         expect.objectContaining({ message: expect.stringContaining('is invalid and cannot be handled') }),
       );
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith(
         expect.stringContaining('is invalid and cannot be handled by backend'),
         'OK',
@@ -1117,8 +1226,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 503, message: 'Service Unavailable' },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        data: { httpStatus: 503 },
+        message: 'Service Unavailable',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1128,7 +1238,7 @@ describe('ChangesetService', () => {
 
       await service._submitChangeset(changeset);
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith('Publish changes failed, you are now in offline mode!', 'OK', {
         duration: 5000,
       });
@@ -1142,9 +1252,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 0, message: 'NetworkError: Failed to fetch' },
-      });
+      const submitSpy = vi
+        .spyOn(trpcMock.operation.submitChangeset, 'mutate')
+        .mockRejectedValue(new Error('NetworkError: Failed to fetch'));
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
       const updateOutgoingSpy = vi.spyOn(service, 'updateOutgoing').mockResolvedValue(undefined);
@@ -1153,7 +1263,7 @@ describe('ChangesetService', () => {
 
       await service._submitChangeset(changeset);
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith('Publish changes failed, you are now in offline mode!', 'OK', {
         duration: 5000,
       });
@@ -1166,8 +1276,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      const apiPostSpy = vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 400, message: 'Bad Request' },
+      const submitSpy = vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        data: { httpStatus: 400 },
+        message: 'Bad Request',
       });
 
       const snackBarSpy = vi.spyOn(snackBarMock, 'open').mockResolvedValue(undefined);
@@ -1178,7 +1289,7 @@ describe('ChangesetService', () => {
         expect.objectContaining({ message: expect.stringContaining('unknown error on submit changeset') }),
       );
 
-      expect(apiPostSpy).toHaveBeenCalled();
+      expect(submitSpy).toHaveBeenCalled();
       expect(snackBarSpy).toHaveBeenCalledWith(expect.stringContaining('unknown error on submit changeset'), 'OK', {
         duration: 5000,
       });
@@ -1201,7 +1312,7 @@ describe('ChangesetService', () => {
 
       await service._submitChangeset(changeset);
 
-      expect(apiMock.post).toHaveBeenCalled();
+      expect(trpcMock.operation.submitChangeset.mutate).toHaveBeenCalled();
       expect(applySpy).toHaveBeenCalledTimes(1);
       const appliedChangeset = applySpy.mock.calls[0][0][0];
       expect(appliedChangeset.saved).toBe(true);
@@ -1217,8 +1328,9 @@ describe('ChangesetService', () => {
       vi.spyOn(service, 'inconsistent').mockReturnValue(false);
       vi.spyOn(service, 'offlineMode').mockReturnValue(false);
 
-      vi.spyOn(apiMock, 'post').mockResolvedValue({
-        error: { status: 500, message: 'Server Error' },
+      vi.spyOn(trpcMock.operation.submitChangeset, 'mutate').mockRejectedValue({
+        data: { httpStatus: 500 },
+        message: 'Server Error',
       });
 
       vi.spyOn(service, 'applyOutgoingChangesets').mockResolvedValue(undefined);
@@ -1306,9 +1418,7 @@ describe('ChangesetService', () => {
     });
 
     it('addChange shows a snackbar and queues the patch when the current changeset is inconsistent', async () => {
-      vi.spyOn(service, '_verifyUsableChangesetActive').mockRejectedValue(
-        new ChangesetInconsistentError('cs-broken'),
-      );
+      vi.spyOn(service, '_verifyUsableChangesetActive').mockRejectedValue(new ChangesetInconsistentError('cs-broken'));
       const patches: Patch[] = [{ op: 'add', path: ['drawElements', 'e1'], value: {} }];
 
       await service.addChange({} as any, patches, [], false);
@@ -1442,6 +1552,34 @@ describe('ChangesetService', () => {
       await service.submitOutgoing();
 
       expect(submitChangesetSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('shares an in-flight outgoing submission between concurrent callers', async () => {
+      let release!: () => void;
+      const submissionStarted = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      dbQueueMock.where.mockReturnValue({
+        equals: () => ({
+          and: () => ({
+            sortBy: vi.fn().mockResolvedValue([changeset1]),
+          }),
+        }),
+      });
+
+      const submitChangesetSpy = vi.spyOn(service, '_submitChangeset').mockReturnValue(submissionStarted);
+      const first = service.submitOutgoing();
+      const second = service.submitOutgoing();
+
+      // Let the async database read reach _submitChangeset before asserting.
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(second).toBe(first);
+      expect(submitChangesetSpy).toHaveBeenCalledTimes(1);
+
+      release();
+      await first;
     });
 
     describe('unapplyOutgoingChangesets', () => {
@@ -1736,14 +1874,13 @@ describe('ChangesetService', () => {
       });
 
       it('_setErrorChangeset performs automerge when there are no conflicts or conflictTakeOur=true', () => {
-
         const errorCs: IZsChangeset = getErrorChangeset();
         const conflictDetails: IZsChangesetConflictDetails = {
           changeset: errorCs,
           hasConflicts: false,
           conflicts: [],
           meta: [],
-          metaConflict: false
+          metaConflict: false,
         };
 
         stateMock.getErrorChangesetConflicts.mockReturnValueOnce(conflictDetails);
@@ -1756,14 +1893,13 @@ describe('ChangesetService', () => {
       });
 
       it('_setErrorChangeset sets conflictDetails for manual resolution when automerge is not possible', () => {
-
         const errorCs: IZsChangeset = getErrorChangeset();
         const conflictDetails: IZsChangesetConflictDetails = {
           changeset: errorCs,
           hasConflicts: true,
           conflicts: [/*content not relevant for this check*/],
           meta: [],
-          metaConflict: false
+          metaConflict: false,
         };
 
         service.changesetConfig.set({
@@ -2472,7 +2608,6 @@ describe('ChangesetService', () => {
     });
 
     it('_mergeConflictValues detects conflicts and select correctly', () => {
-
       //prepare values for call
       const ourValues = service._getChangedValuesForElem(patchesOur, 'e1');
       const thereValues = service._getChangedValuesForElem(patchesThere, 'e1');
@@ -2574,7 +2709,6 @@ describe('ChangesetService', () => {
     });
 
     it('_addAllConflictElements and _removeAllConflictElements add and remove conflict elements', () => {
-
       const cs: IZsChangesetInternal = {
         ...getErrorChangeset(),
         origDrawElements: { e1: { id: 'e1', layer: 'L1' } as any },
@@ -2895,7 +3029,7 @@ describe('ChangesetService', () => {
       const newChangesetSpy = vi.spyOn(service, 'newChangeset');
       const mapState: ZsMapState = {
         ...getEmptyMapState(),
-         drawElements: { e2: { id: 'e2', layer: 'L1' } as any }
+        drawElements: { e2: { id: 'e2', layer: 'L1' } as any },
       };
       const patches: Patch[] = [{ op: 'replace', path: ['drawElements', 'e2', 'x'], value: 1 }];
 
@@ -2918,7 +3052,7 @@ describe('ChangesetService', () => {
       const newChangesetSpy = vi.spyOn(service, 'newChangeset');
       const mapState: ZsMapState = {
         ...getEmptyMapState(),
-         drawElements: { e2: { id: 'e2', layer: 'L1' } as any }
+        drawElements: { e2: { id: 'e2', layer: 'L1' } as any },
       };
       const patches: Patch[] = [{ op: 'replace', path: ['drawElements', 'e2', 'x'], value: 1 }];
 
@@ -2941,7 +3075,7 @@ describe('ChangesetService', () => {
       const newChangesetSpy = vi.spyOn(service, 'newChangeset');
       const mapState: ZsMapState = {
         ...getEmptyMapState(),
-         drawElements: { e1: { id: 'e1', layer: 'L1' } as any }
+        drawElements: { e1: { id: 'e1', layer: 'L1' } as any },
       };
       const patches: Patch[] = [{ op: 'replace', path: ['drawElements', 'e1', 'x'], value: 1 }];
 
@@ -2953,7 +3087,6 @@ describe('ChangesetService', () => {
     });
 
     it('_verifyUsableChangesetActive creates a new changeset on layer change', async () => {
-      
       const cs: IZsChangeset = {
         ...getEmptyChangeset(),
         id: 'cs-layer',
@@ -2972,7 +3105,7 @@ describe('ChangesetService', () => {
         drawElements: {
           e1: { id: 'e1', layer: 'L1' } as any,
           e2: { id: 'e2', layer: 'L2' } as any,
-        }
+        },
       };
       const patches: Patch[] = [{ op: 'replace', path: ['drawElements', 'e2', 'x'], value: 1 }];
 
@@ -2986,7 +3119,6 @@ describe('ChangesetService', () => {
     });
 
     it('_verifyUsableChangesetActive creates a new changeset when the multi-element delta has expired', async () => {
-
       const oldTs = Date.now() - 60000; // older than _createMultiElementChangesetDelta
       const cs: IZsChangeset = {
         ...getChangeset2(),
@@ -3003,7 +3135,7 @@ describe('ChangesetService', () => {
         drawElements: {
           e1: { id: 'e1', layer: 'L1' } as any,
           e2: { id: 'e2', layer: 'L1' } as any,
-        }
+        },
       };
 
       const patches: Patch[] = [{ op: 'replace', path: ['drawElements', 'e2', 'x'], value: 2 }];
@@ -3118,7 +3250,6 @@ describe('ChangesetService', () => {
     });
 
     it('applyChangeset removes colliding patches in hidden mode', () => {
-
       const mapState: ZsMapState = {
         ...getMapStateDefaults(),
         changesetIds: [CHANGESET_ID_0, CHANGESET_ID_1],
@@ -3163,11 +3294,16 @@ describe('ChangesetService', () => {
 
       // Patch for e1 should be removed, e2 should be kept
       expect(service.current().patches).toEqual([{ op: 'replace', path: ['drawElements', 'e2', 'x'], value: 2 }]);
-      expect(service.current().inversePatches).toEqual([{ op: 'replace', path: ['drawElements', 'e2', 'x'], value: 0 }]);
+      expect(service.current().inversePatches).toEqual([
+        { op: 'replace', path: ['drawElements', 'e2', 'x'], value: 0 },
+      ]);
     });
 
     it('applyChangeset marks an already-applied changeset without reapplying its patches', () => {
-      const mapState: ZsMapState = { ...getEmptyMapState(), changesetIds: [INITIAL_CHANGESET_ID, CHANGESET_ID_0, CHANGESET_ID_1]};
+      const mapState: ZsMapState = {
+        ...getEmptyMapState(),
+        changesetIds: [INITIAL_CHANGESET_ID, CHANGESET_ID_0, CHANGESET_ID_1],
+      };
       const cs: IZsChangeset = {
         ...getChangeset1(),
         applied: false,
@@ -3181,7 +3317,10 @@ describe('ChangesetService', () => {
 
     it('unapplyChangeset throws ChangesetInconsistentError when verifyChangesetCanUnapply fails', () => {
       //element e1 does not exist on mapstate
-      const mapState: ZsMapState = { ...getEmptyMapState(), changesetIds: [INITIAL_CHANGESET_ID, CHANGESET_ID_0, CHANGESET_ID_1]};
+      const mapState: ZsMapState = {
+        ...getEmptyMapState(),
+        changesetIds: [INITIAL_CHANGESET_ID, CHANGESET_ID_0, CHANGESET_ID_1],
+      };
       const cs: IZsChangeset = {
         ...getChangeset1(),
         applied: true,
@@ -3204,7 +3343,7 @@ describe('ChangesetService', () => {
     });
 
     it('unapplyChangeset marks an already-not-applied changeset without reapplying its inverse patches', () => {
-      const mapState: ZsMapState = { ...getEmptyMapState(), changesetIds: [INITIAL_CHANGESET_ID, CHANGESET_ID_0]};
+      const mapState: ZsMapState = { ...getEmptyMapState(), changesetIds: [INITIAL_CHANGESET_ID, CHANGESET_ID_0] };
       const cs: IZsChangeset = {
         ...getChangeset1(),
         applied: true,
@@ -3237,7 +3376,7 @@ describe('ChangesetService', () => {
         inversePatches: [
           { op: 'add', path: ['drawElements', 'e1'], value: { id: 'e1' } },
           // invalid patch should be swallowed by catchErrors
-          { op: 'remove', path: ['notExisting']}, //does not produce error
+          { op: 'remove', path: ['notExisting'] }, //does not produce error
           { op: 'remove', path: 'invalid' as any }, //invalid path
           { op: 'noop' as any, path: ['invalid'] }, //invalid op
         ],

@@ -1,10 +1,10 @@
 import {
   enableProdMode,
-  LOCALE_ID,
-  isDevMode,
   importProvidersFrom,
-  provideAppInitializer,
   inject,
+  isDevMode,
+  LOCALE_ID,
+  provideAppInitializer,
   provideZoneChangeDetection,
 } from '@angular/core';
 import { enablePatches } from 'immer';
@@ -13,10 +13,9 @@ import { environment } from './environments/environment';
 import { SessionService } from './app/session/session.service';
 import { SyncService } from './app/sync/sync.service';
 import { ZsMapStateService } from './app/state/state.service';
-import { ApiService } from './app/api/api.service';
 import { DatePipe } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
+import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -114,7 +113,6 @@ bootstrapApplication(AppComponent, {
         inject(SessionService),
         inject(SyncService),
         inject(ZsMapStateService),
-        inject(ApiService),
         inject(JournalService),
         inject(SearchService),
         inject(OperationService),
@@ -125,7 +123,7 @@ bootstrapApplication(AppComponent, {
     }),
 
     DatePipe,
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withInterceptorsFromDi(), withXhr()),
     provideAnimations(),
     provideRouter(appRoutes),
     provideZoneChangeDetection(),

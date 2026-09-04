@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { WMSMapLayer, ZsMapStateSource, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
+import { ZsMapStateSource, zsMapStateSourceToDownloadUrl } from '@zskarte/types';
 import OlTileXYZ from 'ol/source/XYZ';
 import { PMTilesVectorSource } from 'ol-pmtiles';
 import OlTileLayer from '../map-renderer/utils';

@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0.5rem;
-  
+
   :deep(svg),
   :deep(mat-icon) {
     pointer-events: none;
@@ -54,7 +54,7 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.5rem;
-  
+
   :deep(svg:not([class*='size-'])),
   :deep(mat-icon) {
     width: 1.5rem;
@@ -75,11 +75,11 @@
   font-size: 0.875rem;
   line-height: 1.5;
   text-wrap: balance;
-  
+
   :deep(a) {
     text-decoration: underline;
     text-underline-offset: 4px;
-    
+
     &:hover {
       color: var(--mat-sys-primary, #3f51b5);
     }

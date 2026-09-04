@@ -13,7 +13,7 @@
   flex-direction: column;
   border-radius: 1rem;
   overflow: hidden;
-  
+
   &.open {
     transform: translateX(0);
   }
@@ -76,7 +76,7 @@ app-sidebar-menu {
 
 app-sidebar-print {
   background-color: #f1f1f1;
-  display: block; 
+  display: block;
   height: calc(100% - 1rem);
   padding-top: 1rem;
 }

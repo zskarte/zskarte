@@ -3,14 +3,14 @@
 </app-dialog-header>
 <app-dialog-body>
   <mat-form-field appearance="outline">
-    <textarea matInput placeholder="{{ i18n.get('yourText') }}" [(ngModel)]="text"></textarea>
+    <textarea [(ngModel)]="text" matInput placeholder="{{ i18n.get('yourText') }}"></textarea>
   </mat-form-field>
 </app-dialog-body>
 <app-dialog-footer>
-  <button mat-stroked-button (click)="cancel()">
+  <button (click)="cancel()" mat-stroked-button>
     {{ i18n.get('cancel') }}
   </button>
-  <button mat-flat-button color="primary" (click)="submit()">
+  <button (click)="submit()" color="primary" mat-flat-button>
     {{ i18n.get('ok') }}
   </button>
 </app-dialog-footer>

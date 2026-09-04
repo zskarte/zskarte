@@ -1,69 +1,69 @@
 <div class="hint-box">
   <div class="hint">{{ i18n.get('searchAddressUsageHint') }}</div>
 </div>
-<mat-form-field appearance="outline" subscriptSizing="dynamic" [class.linkedText]="showLinkedText()">
+<mat-form-field [class.linkedText]="showLinkedText()" appearance="outline" subscriptSizing="dynamic">
   <mat-label>{{ label() }}</mat-label>
   @if (showLinkedText()) {
     <app-contenteditable
       #linkedTextContent
-      class="linkedTextContent"
-      [formControl]="messageContentControl()"
-      (quillKeydown)="onKeyDownFormatedText($event)"
-      (quillContentChanged)="onInputFormatedText()"
       (quillClick)="handleTextContentClick($event)"
+      (quillContentChanged)="onInputFormatedText()"
       (quillDblclick)="handleTextContentDblClick($event)"
+      (quillKeydown)="onKeyDownFormatedText($event)"
+      [formControl]="messageContentControl()"
+      class="linkedTextContent"
     ></app-contenteditable>
   } @else {
     <textarea
       #textContent
+      (dblclick)="onDoubleClickText($event)"
+      (input)="onInputText()"
+      (keydown)="onKeyDownText($event)"
+      [formControl]="messageContentControl()"
+      [readonly]="addressSelection()"
       class="textContent"
       matInput
-      [formControl]="messageContentControl()"
-      (keydown)="onKeyDownText($event)"
-      (input)="onInputText()"
-      (dblclick)="onDoubleClickText($event)"
       rows="10"
-      [readonly]="addressSelection()"
     ></textarea>
   }
 </mat-form-field>
 <div class="actions">
-  <button mat-stroked-button type="button" tabindex="-1" (click)="openAddressSearch()">
+  <button (click)="openAddressSearch()" mat-stroked-button tabindex="-1" type="button">
     <mat-icon>add</mat-icon>
     {{ i18n.get('addAddress') }}
   </button>
-  <button mat-stroked-button type="button" tabindex="-1" (click)="markPotentialAddresses()">
+  <button (click)="markPotentialAddresses()" mat-stroked-button tabindex="-1" type="button">
     <mat-icon>search</mat-icon>
     {{ i18n.get('markPotentialAddresses') }}
   </button>
-  <button mat-stroked-button type="button" tabindex="-1" (click)="unmarkPotentialAddresses()">
+  <button (click)="unmarkPotentialAddresses()" mat-stroked-button tabindex="-1" type="button">
     <mat-icon>restore</mat-icon>
     {{ i18n.get('unmarkPotentialAddresses') }}
   </button>
 </div>
 <div
-  class="addresSearch"
-  [class.linkedText]="showLinkedText()"
   [class.empty]="!addressSearchTerm()"
+  [class.linkedText]="showLinkedText()"
+  [ngStyle]="showLinkedText() ? { 'left.px': addressSelectionPosition.x, 'top.px': addressSelectionPosition.y } : null"
   [style.display]="
     addressSelection() ?
       showLinkedText() ? 'block'
       : 'flex'
     : 'none'
   "
-  [ngStyle]="showLinkedText() ? { 'left.px': addressSelectionPosition.x, 'top.px': addressSelectionPosition.y } : null"
+  class="addresSearch"
 >
   <div class="title">{{ i18n.get('searchAddress') }}</div>
   <input
     #addresSearchField
-    matInput
-    class="mat-mdc-form-field"
+    (keydown)="onKeydownAddressSearch($event)"
+    (ngModelChange)="addressSearchTerm.set($event)"
     [matAutocomplete]="autocomplete.autocompleteRef"
     [ngModelOptions]="{ standalone: true }"
     [ngModel]="addressSearchTerm()"
     [placeholder]="i18n.get('searchAddressTypeToSearch')"
-    (ngModelChange)="addressSearchTerm.set($event)"
-    (keydown)="onKeydownAddressSearch($event)"
+    class="mat-mdc-form-field"
+    matInput
   />
   @if (!addressSearchTerm()) {
     <div class="search-hint">
@@ -72,9 +72,9 @@
   }
   <app-search-autocomplete
     #autocomplete
-    [searchTerm]="addressSearchTerm()"
-    [foundLocations]="foundLocations()"
     (active)="previewCoordinate($event)"
     (selected)="useResult($event)"
+    [foundLocations]="foundLocations()"
+    [searchTerm]="addressSearchTerm()"
   ></app-search-autocomplete>
 </div>

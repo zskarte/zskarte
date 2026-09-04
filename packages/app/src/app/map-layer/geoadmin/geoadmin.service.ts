@@ -1,7 +1,7 @@
-import { Injectable, SecurityContext, inject } from '@angular/core';
+import { inject, Injectable, SecurityContext } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { I18NService } from '../../state/i18n.service';
-import { Observable, firstValueFrom, map, of, tap } from 'rxjs';
+import { firstValueFrom, map, Observable, of, tap } from 'rxjs';
 import { GeoAdminMapLayer, GeoAdminMapLayers } from '@zskarte/types';
 import OlTileGridWMTS from 'ol/tilegrid/WMTS';
 import OlTileWMTS from 'ol/source/WMTS';
@@ -15,8 +15,8 @@ import { DomSanitizer } from '@angular/platform-browser';
   providedIn: 'root',
 })
 export class GeoadminService {
-  private http = inject(HttpClient);
   i18n = inject(I18NService);
+  private http = inject(HttpClient);
   private _session = inject(SessionService);
   private domSanitizer = inject(DomSanitizer);
 
@@ -29,11 +29,13 @@ export class GeoadminService {
     }
 
     return this.http
-      .get<GeoAdminMapLayers>(`https://api3.geo.admin.ch/rest/services/api/MapServer/layersConfig?lang=${this._session.getLocale()}`)
+      .get<GeoAdminMapLayers>(
+        `https://api3.geo.admin.ch/rest/services/api/MapServer/layersConfig?lang=${this._session.getLocale()}`,
+      )
       .pipe(
         tap((data) => {
           Object.keys(data).forEach((key) => {
-            data[key].opacity = data[key].opacity ?? data[key].background ? 1.0 : 0.75;
+            data[key].opacity = (data[key].opacity ?? data[key].background) ? 1.0 : 0.75;
             data[key].fullId = `${data[key].source}|${data[key].serverLayerName}`;
           });
         }),
@@ -47,9 +49,12 @@ export class GeoadminService {
     }
 
     return this.http
-      .get(`https://api3.geo.admin.ch/rest/services/api/MapServer/${layerId}/legend?lang=${this._session.getLocale()}`, {
-        responseType: 'text',
-      })
+      .get(
+        `https://api3.geo.admin.ch/rest/services/api/MapServer/${layerId}/legend?lang=${this._session.getLocale()}`,
+        {
+          responseType: 'text',
+        },
+      )
       .pipe(
         map((data) => this.domSanitizer.sanitize(SecurityContext.HTML, data) ?? ''),
         tap((data) => this._legendCache.set(layerId, data)),
@@ -121,7 +126,7 @@ export class GeoadminService {
               //gutter: 12, //prevent cutted layers on image boundaries => need to use same projection for tile as for view!
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             }) as any,
-            opacity: layerConf?.opacity ?? layerConf.background ? 1.0 : 0.75,
+            opacity: (layerConf?.opacity ?? layerConf.background) ? 1.0 : 0.75,
             minResolution: layerConf.minResolution ?? undefined,
             maxResolution: layerConf.maxResolution ?? undefined,
             zIndex: layerConf.zIndex,
