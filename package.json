@@ -4,7 +4,7 @@
     "./packages/*"
   ],
   "engines": {
-    "node": ">=22.14.0"
+    "node": ">=22.22.3"
   },
   "scripts": {
     "start": "npm run docker-run && run-p start:*",
@@ -43,7 +43,8 @@
     "npm-run-all": "^4.1.5",
     "patch-package": "^8.0.1",
     "prettier": "^3.7.4",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "inquirer": "^12.3.2"
   },
   "dependencies": {
     "fix-esm": "^1.0.1",

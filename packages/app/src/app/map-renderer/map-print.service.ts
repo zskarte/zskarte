@@ -10,7 +10,7 @@ import { getPointResolution } from 'ol/proj';
 import TileSource from 'ol/source/Tile';
 import VectorSource from 'ol/source/Vector';
 import { skip } from 'rxjs';
-import { IZsMapPrintState } from '../../../../types';
+import { IZsMapPrintState } from '@zskarte/types';
 import { DEFAULT_COORDINATES, DEFAULT_RESOLUTION, MM_PER_INCHES } from '../session/default-map-values';
 import { ZsMapStateService } from '../state/state.service';
 import { LAYER_Z_INDEX_PRINT_DIMENSIONS, MapRendererService } from './map-renderer.service';

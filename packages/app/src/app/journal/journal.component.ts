@@ -28,7 +28,7 @@ import { InfoDialogComponent } from '../info-dialog/info-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ZsMapStateService } from '../state/state.service';
 import { debounce } from '../helper/debounce';
-import { IZsJournalFilter } from '../../../../types/state/interfaces';
+import { IZsJournalFilter } from '@zskarte/types';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReplaceAllAddressTokensPipe } from "../search/replace-all-address-tokens.pipe";
@@ -119,7 +119,7 @@ export class JournalComponent implements AfterViewInit {
   outgoingFilter = false;
   decisionFilter = false;
   eingangFilter = false;
-  private fuse: Fuse<JournalEntry> = new Fuse([], {
+  private fuse: Fuse<JournalEntry> = new Fuse<JournalEntry>([], {
     includeScore: true,
     keys: ['messageSubject', 'messageContent', 'decision'],
     ignoreLocation: true,

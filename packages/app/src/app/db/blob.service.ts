@@ -65,7 +65,7 @@ export class BlobService {
       const mapRequest = this.http
         .get(url, {
           responseType: 'blob',
-          reportProgress: true,
+          reportDownloadProgress: true,
           observe: 'events',
         })
         .subscribe({

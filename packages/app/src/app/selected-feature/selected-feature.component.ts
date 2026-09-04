@@ -283,7 +283,7 @@ export class SelectedFeatureComponent implements OnDestroy {
     );
   }
 
-  openMessage(reportNumber: string) {
+  openMessage(reportNumber: string | number) {
     this.router.navigate([], { fragment: `message=${reportNumber}` });
   }
 

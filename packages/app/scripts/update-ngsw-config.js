@@ -49,6 +49,10 @@ function extractChangelogForVersion(changelogPath, version) {
 
 const changelogContent = extractChangelogForVersion('../../CHANGELOG.md', plainVersion);
 
+if (fs.existsSync('../../CHANGELOG.md')) {
+  fs.copyFileSync('../../CHANGELOG.md', 'src/assets/CHANGELOG.md');
+}
+
 ngswConfig.appData = {
   version,
   buildDate: date,

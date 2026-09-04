@@ -15,7 +15,7 @@ import {
   IZsGlobalSearchConfig,
   IZsJournalMessageEditConfig,
   IZsMapSearchResult,
-} from '../../../../../types/state/interfaces';
+} from '@zskarte/types';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { ContenteditableComponent } from '../../contenteditable/contenteditable.component';

@@ -1,9 +1,8 @@
 import { readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import { existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
-import type { FastifyBaseLogger } from 'fastify';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { Database } from '../../db/client.js';
 import { type FileRow, files } from '../file/schema.js';
@@ -12,6 +11,7 @@ import { getStorageProvider, type StorageProvider } from '../file/storage.js';
 import { type MapLayerRow, mapLayers } from '../map-layer/schema.js';
 import { getConfig, initOrGetConfig, updateConfig } from './repository.js';
 import type { MapLayerGenerationConfigRow } from './schema.js';
+import type { LoggerLike } from "@zskarte/types";
 
 export const CANTON_NAMES: Record<string, string> = {
   AG: 'Aargau',
@@ -130,9 +130,9 @@ export class WorkerClient {
   private worker: Worker;
   private messageId = 0;
   private pending = new Map<number, { resolve: (value: any) => void; reject: (reason: any) => void }>();
-  private logger?: FastifyBaseLogger | Console;
+  private logger?: LoggerLike;
 
-  constructor(logger?: FastifyBaseLogger | Console) {
+  constructor(logger?: LoggerLike) {
     this.logger = logger;
     const workerUrl = getWorkerLocation();
     const isTs = workerUrl.pathname.endsWith('.ts');
@@ -247,7 +247,7 @@ export const ensureStyleFile = async (
   fileName: string,
   folderPath = '/MapLayer',
   storageProvider?: StorageProvider,
-  logger?: FastifyBaseLogger | Console,
+  logger?: LoggerLike,
 ): Promise<FileRow | null> => {
   const existingId = config[styleKey];
   if (existingId) {
@@ -302,7 +302,7 @@ export async function seedDefaultStyleAssets(
   db: Database,
   options: {
     storageProvider?: StorageProvider;
-    logger?: FastifyBaseLogger | Console;
+    logger?: LoggerLike;
   } = {},
 ): Promise<{ seeded: FileRow[]; config: MapLayerGenerationConfigRow }> {
   const logger = options.logger ?? console;
@@ -409,7 +409,7 @@ export async function updateSwissBoundariesMedia(
   config: MapLayerGenerationConfigRow,
   styleMedia: FileRow | null,
   storageProvider?: StorageProvider,
-  logger?: FastifyBaseLogger | Console,
+  logger?: LoggerLike,
   tmpDir: string = os.tmpdir(),
   now: Date = new Date(),
 ): Promise<{ cantonAreasMedia: FileRow | null; districtAreasMedia: FileRow | null }> {
@@ -529,7 +529,7 @@ export async function updateEntranceMedia(
   cantons: string[],
   districtGeoJSON: any,
   storageProvider?: StorageProvider,
-  logger?: FastifyBaseLogger | Console,
+  logger?: LoggerLike,
   tmpDir: string = os.tmpdir(),
   cantonGeoJSON: any = null,
 ): Promise<void> {
@@ -662,7 +662,7 @@ export async function updateSwissNames3DMedia(
   cantons: string[],
   cantonGeoJSON: any,
   storageProvider?: StorageProvider,
-  logger?: FastifyBaseLogger | Console,
+  logger?: LoggerLike,
   tmpDir: string = os.tmpdir(),
   now: Date = new Date(),
 ): Promise<void> {
@@ -805,7 +805,7 @@ export async function updateSwissNames3DMedia(
 
 export interface UpdateMapLayerMediasOptions {
   storageProvider?: StorageProvider;
-  logger?: FastifyBaseLogger | Console;
+  logger?: LoggerLike;
   now?: Date;
   tmpDir?: string;
   force?: boolean;

@@ -3,7 +3,7 @@ import { Collection, Feature } from 'ol';
 import { FeatureLike } from 'ol/Feature';
 import { Circle, SimpleGeometry } from 'ol/geom';
 import { Modify } from 'ol/interaction';
-import { ZsMapDrawElementStateType } from '../../../../types';
+import { ZsMapDrawElementStateType } from '@zskarte/types';
 import { areCoordinatesEqual } from '../helper/coordinates';
 import { ZsMapStateService } from '../state/state.service';
 import { DrawStyle } from './draw-style';

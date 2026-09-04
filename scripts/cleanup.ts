@@ -4,7 +4,8 @@ import { promises as fs, existsSync } from 'fs';
 import { promisify } from 'util';
 import { glob } from 'glob';
 import inquirer from 'inquirer';
-import os from 'os';
+// @ts-ignore
+import os from 'node:os';
 const exec = promisify(cbExec);
 
 (async () => {

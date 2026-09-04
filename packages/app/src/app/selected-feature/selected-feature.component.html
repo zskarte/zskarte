@@ -48,11 +48,11 @@
               @if (drawElement.description) {
                 <div class="description" [innerHTML]="drawElement.description"></div>
               }
-              @if (drawElement.reportNumber?.['length'] > 0) {
+              @if (mapReportNumber(drawElement).length > 0) {
                 <div class="reportNumber">
                   <div>{{ i18n.get('reportNumber') }}</div>
                   <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
-                    @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
+                    @for (reportNumber of mapReportNumber(drawElement); track reportNumber) {
                       <mat-chip-row (click)="openMessage(reportNumber)" class="report-number-chip">
                         {{ reportNumber }}
                       </mat-chip-row>
@@ -81,7 +81,7 @@
               <mat-form-field appearance="outline">
                 <mat-label>{{ i18n.get('reportNumber') }}</mat-label>
                 <mat-chip-grid #reportNumberChips [ngModel]="drawElement['reportNumber']">
-                  @for (reportNumber of drawElement.reportNumber ?? []; track reportNumber) {
+                  @for (reportNumber of mapReportNumber(drawElement); track reportNumber) {
                     <mat-chip-row
                       (removed)="removeReportNumber(reportNumber, drawElement)"
                       (click)="openMessage(reportNumber)"
@@ -542,7 +542,7 @@
                       <input type="text" matInput hidden value="-" />
                     </div>
                   }
-                  @if (drawElement.fillStyle?.name && drawElement.fillStyle?.name === 'hatch') {
+                  @if (drawElement.fillStyle?.name === 'hatch') {
                     <div>
                       <mat-label>{{ i18n.get('angle') }}</mat-label>
                       <mat-slider [max]="180" [min]="0.1" [step]="0.1">

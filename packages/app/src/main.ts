@@ -14,7 +14,7 @@ import { SessionService } from './app/session/session.service';
 import { SyncService } from './app/sync/sync.service';
 import { ZsMapStateService } from './app/state/state.service';
 import { DatePipe } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -123,7 +123,7 @@ bootstrapApplication(AppComponent, {
     }),
 
     DatePipe,
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withInterceptorsFromDi(), withXhr()),
     provideAnimations(),
     provideRouter(appRoutes),
     provideZoneChangeDetection(),
