@@ -82,7 +82,7 @@
       {"name":"line_dateDecisionDelivered",     "position":{"x":127,"y":279},   "width":40, "height":0.5,   "type":"line",      "rotate":0,"opacity":1,"readOnly":true,"color":"#000000","required":false},
       {"name":"footer_left",                    "position":{"x":10,"y":282},    "width":80, "height":5,     "type":"text",      "rotate":0,"opacity":1,"fontName":"Roboto","fontSize":8,"readOnly":true,"required":false,"alignment":"left","fontColor":"#000000","underline":false,"lineHeight":1,"strikethrough":false,"backgroundColor":"","characterSpacing":0,"verticalAlignment":"bottom"},
       {"name":"footer_right",                   "position":{"x":90,"y":282},    "width":77, "height":5,     "type":"text",      "rotate":0,"opacity":1,"fontName":"Roboto","fontSize":8,"readOnly":true,"required":false,"alignment":"right","fontColor":"#000000","underline":false,"lineHeight":1,"strikethrough":false,"backgroundColor":"","characterSpacing":0,"verticalAlignment":"bottom"},
-      {"name":"url_entry",                      "position":{"x":170,"y":257},   "width":30, "height":30,    "type":"qrcode",    "rotate":0,"opacity":1,"barColor":"#000000","required":true,"backgroundColor":"#ffffff","content":"https://zskarte.ch/main/journal/"}
+      {"name":"url_entry",                      "position":{"x":170,"y":257},   "width":30, "height":30,    "type":"qrcode",    "rotate":0,"opacity":1,"barColor":"#000000","required":true,"backgroundColor":"#ffffff","content":"https://app.zskarte.ch/main/journal/"}
     ]
   ],
   "basePdf":{
