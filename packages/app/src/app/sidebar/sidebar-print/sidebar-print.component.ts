@@ -421,7 +421,7 @@ export class SidebarPrintComponent {
         const joinCode = await this.session.generateShareLink(this.sharePermission, AccessTokenType.LONG);
         relativePath = `share/${joinCode}`;
       } else {
-        relativePath = 'map';
+        relativePath = 'main/map';
       }
       //add informations to link
       const printCenter = this.state.getPrintCenter();

@@ -15,7 +15,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/zskarte/zskarte)
 ![GitHub issues](https://img.shields.io/github/issues/zskarte/zskarte)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![ZSKarte.ch](https://img.shields.io/website?url=https%3A%2F%2Fwww.zskarte.ch)](https://www.zskarte.ch)
+[![ZSKarte.ch](https://img.shields.io/website?url=https%3A%2F%2Fapp.zskarte.ch)](https://app.zskarte.ch)
 
 ## ℹ️ About
 
@@ -32,7 +32,7 @@ Zivilschutz-Karte is a powerful JavaScript application (based on Angular) design
 
 ## 👀 Demo
 
-You can run Zivilschutz-Karte without installation from [https://zskarte.ch](https://zskarte.ch). This is the production application. Please request access from your civil defence organisation or use the guest mode to try out.
+You can run Zivilschutz-Karte without installation from [https://app.zskarte.ch](https://app.zskarte.ch). This is the production application. Please request access from your civil defence organisation or use the guest mode to try out.
 
 <img alt="Screenshot of ZS-Karte" src="https://github.com/user-attachments/assets/c06261e2-7505-4d57-9834-1cee7aa5b8a4" />
 
