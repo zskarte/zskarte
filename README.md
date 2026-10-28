@@ -34,8 +34,6 @@ Zivilschutz-Karte is a powerful JavaScript application (based on Angular) design
 
 You can run Zivilschutz-Karte without installation from [https://app.zskarte.ch](https://app.zskarte.ch). This is the production application. Please request access from your civil defence organisation or use the guest mode to try out.
 
-The public website at [https://zskarte.ch](https://zskarte.ch) is maintained in [zskarte/website](https://github.com/zskarte/website). See the [production domain cutover](docs/production-domain-cutover.md) for deployment and DNS steps.
-
 <img alt="Screenshot of ZS-Karte" src="https://github.com/user-attachments/assets/c06261e2-7505-4d57-9834-1cee7aa5b8a4" />
 
 ## 🚀 Getting Started
