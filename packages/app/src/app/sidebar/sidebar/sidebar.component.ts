@@ -14,6 +14,7 @@ import { WmsLayerOptionsComponent } from '../../map-layer/wms/wms-layer-options/
 import { GeoJSONLayerOptionsComponent } from '../../map-layer/geojson/geojson-layer-options/geojson-layer-options.component';
 import { SessionService } from '../../session/session.service';
 import { isEqual } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 import { OperationService } from '../../session/operations/operation.service';
 import { OrganisationLayerSettingsComponent } from '../../map-layer/organisation-layer-settings/organisation-layer-settings.component';
 import { MapLayerService } from '../../map-layer/map-layer.service';
@@ -424,7 +425,10 @@ export class SidebarComponent implements OnDestroy {
       if (type === 'wms_custom') {
         this.showWmsLayerOptions({ type, serverLayerName: '' } as WMSMapLayer, -1);
       } else if (type === 'geojson' || type === 'shape' || type === 'csv') {
-        this.showGeoJSONLayerOptions({ type, opacity: 1.0, serverLayerName: null } as GeoJSONMapLayer, -1);
+        this.showGeoJSONLayerOptions(
+          { type, opacity: 1.0, serverLayerName: null, fullId: `${type}|${uuidv4()}` } as GeoJSONMapLayer,
+          -1,
+        );
       }
     });
   }
